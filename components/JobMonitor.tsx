@@ -66,7 +66,8 @@ const JobMonitor: React.FC = () => {
         });
     });
 
-    const interval = setInterval(load, settings.pollingInterval * 1000);
+    const intervalMs = Number.isFinite(settings.pollingInterval) ? settings.pollingInterval : 5000;
+    const interval = setInterval(load, Math.max(1000, intervalMs));
 
     return () => {
         unsubscribe();

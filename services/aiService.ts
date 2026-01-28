@@ -72,7 +72,9 @@ export class AIService {
             const isSeedEdit = model.modelId.includes('seededit');
             
             const job: Job = {
-                id: crypto.randomUUID(),
+                id: typeof crypto.randomUUID === 'function'
+                    ? crypto.randomUUID()
+                    : Math.random().toString(36).substring(2) + Date.now().toString(36),
                 projectId: params.projectId,
                 type: 'generate_image',
                 status: JobStatus.PENDING,
@@ -120,7 +122,9 @@ export class AIService {
         
         for (let i = 0; i < totalCount; i++) {
             const job: Job = {
-                id: crypto.randomUUID(),
+                id: typeof crypto.randomUUID === 'function'
+                    ? crypto.randomUUID()
+                    : Math.random().toString(36).substring(2) + Date.now().toString(36),
                 projectId: params.projectId,
                 type: 'generate_video',
                 status: JobStatus.PENDING,

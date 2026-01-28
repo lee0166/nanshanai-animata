@@ -679,7 +679,7 @@ const AssetList: React.FC<AssetListProps> = ({
                             {t.common.cancel}
                         </Button>
                         <Button color="primary" onPress={confirmEdit}>
-                            {t.common.actions}
+                            {t.common.confirm}
                         </Button>
                     </ModalFooter>
                 </>

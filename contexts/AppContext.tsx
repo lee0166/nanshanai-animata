@@ -65,9 +65,14 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         if (s) {
           // Merge loaded settings over defaults
           merged = { ...merged, ...s };
-          // Ensure numeric values are actually numbers
-          if (merged.pollingInterval) merged.pollingInterval = Number(merged.pollingInterval);
         }
+
+        const parsedPolling = Number((merged as any).pollingInterval);
+        let pollingInterval = Number.isFinite(parsedPolling) ? parsedPolling : DEFAULT_SETTINGS.pollingInterval;
+        if (pollingInterval > 0 && pollingInterval < 1000) {
+          pollingInterval = pollingInterval * 1000;
+        }
+        merged.pollingInterval = Math.max(1000, Math.floor(pollingInterval));
         
         // CRITICAL: Ensure useSandbox matches the actual storage state
         // This fixes the UI sync issue when switching between sandbox and workspace
