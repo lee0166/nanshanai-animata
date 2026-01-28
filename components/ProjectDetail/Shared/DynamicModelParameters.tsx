@@ -78,7 +78,7 @@ export const DynamicModelParameters: React.FC<DynamicModelParametersProps> = ({
                     if (param.type === 'select') {
                         return (
                             <div key={key} className="flex flex-col gap-2 col-span-1">
-                                <label className="text-slate-400 font-bold text-[13px] ml-1">{label}</label>
+                                <label className="text-slate-600 dark:text-slate-400 font-bold text-[13px] ml-1">{label}</label>
                                 <Select
                                     placeholder={label}
                                     selectedKeys={currentValue ? [String(currentValue)] : []}
@@ -86,6 +86,7 @@ export const DynamicModelParameters: React.FC<DynamicModelParametersProps> = ({
                                     variant="bordered"
                                     radius="lg"
                                     isDisabled={disabled}
+                                    aria-label={label}
                                     classNames={{ 
                                         value: "font-bold text-sm",
                                         trigger: "border-2 data-[focus=true]:border-primary"
@@ -104,7 +105,7 @@ export const DynamicModelParameters: React.FC<DynamicModelParametersProps> = ({
                              <div key={key} className="flex flex-col gap-2 col-span-1 md:col-span-2">
                                 <div className="flex items-center justify-between px-3 py-2 border rounded-medium border-default-200 hover:border-default-400 transition-colors bg-default-50">
                                     <div className="flex flex-col">
-                                        <span className="text-[15px] text-white font-bold ml-1">{label}</span>
+                                        <span className="text-[15px] text-foreground font-bold ml-1">{label}</span>
                                         {description && <span className="text-tiny text-foreground-400 ml-1">{description}</span>}
                                     </div>
                                     <Switch 
@@ -121,7 +122,7 @@ export const DynamicModelParameters: React.FC<DynamicModelParametersProps> = ({
                     } else if (param.type === 'number') {
                         return (
                             <div key={key} className="flex flex-col gap-2 col-span-1">
-                                <label className="text-slate-400 font-bold text-[13px] ml-1">{label}</label>
+                                <label className="text-slate-600 dark:text-slate-400 font-bold text-[13px] ml-1">{label}</label>
                                 <Input
                                     type="number"
                                     placeholder={label}
@@ -134,6 +135,7 @@ export const DynamicModelParameters: React.FC<DynamicModelParametersProps> = ({
                                     radius="lg"
                                     isDisabled={disabled}
                                     description={description}
+                                    aria-label={label}
                                     classNames={{ 
                                         input: "font-bold text-sm",
                                         inputWrapper: "border-2 group-data-[focus=true]:border-primary"
@@ -144,7 +146,7 @@ export const DynamicModelParameters: React.FC<DynamicModelParametersProps> = ({
                     } else {
                          return (
                             <div key={key} className="flex flex-col gap-2 col-span-1">
-                                <label className="text-slate-400 font-bold text-[13px]ml-1">{label}</label>
+                                <label className="text-slate-600 dark:text-slate-400 font-bold text-[13px] ml-1">{label}</label>
                                 <Input
                                     placeholder={label}
                                     value={String(currentValue || '')}
@@ -153,6 +155,7 @@ export const DynamicModelParameters: React.FC<DynamicModelParametersProps> = ({
                                     radius="lg"
                                     isDisabled={disabled}
                                     description={description}
+                                    aria-label={label}
                                     classNames={{ 
                                         input: "font-bold text-sm",
                                         inputWrapper: "border-2 group-data-[focus=true]:border-primary"

@@ -291,6 +291,7 @@ export const translations = {
     },
     common: {
       actions: "Actions",
+      confirm: "Confirm",
       cancel: "Cancel",
       delete: "Delete",
       close: "Close",
@@ -301,7 +302,9 @@ export const translations = {
       generate: "Generate",
       generating: "Generating...",
       switchLanguage: "Switch Language",
-      toggleTheme: "Toggle Theme"
+      toggleTheme: "Toggle Theme",
+      search: "Search",
+      preview: "Preview"
     },
     jobTypes: {
       generate_image: "Generate Image",
@@ -464,7 +467,7 @@ export const translations = {
       confirmDelete: "确定要删除这个项目吗？所有相关数据都将丢失。"
     },
     project: {
-      create: "点击新建",
+      create: "新建",
       createTitle: "新建{type}",
       basicInfo: "基本信息",
       generationSettings: "生成设置",
@@ -734,6 +737,7 @@ export const translations = {
     },
     common: {
       actions: "操作",
+      confirm: "确认",
       cancel: "取消",
       delete: "删除",
       close: "关闭",
@@ -744,7 +748,9 @@ export const translations = {
       generate: "生成",
       generating: "生成中...",
       switchLanguage: "切换语言",
-      toggleTheme: "切换主题"
+      toggleTheme: "切换主题",
+      search: "搜索",
+      preview: "预览"
     },
     jobTypes: {
       generate_image: "生成图片",

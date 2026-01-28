@@ -85,8 +85,8 @@ const FragmentDetail: FC<FragmentDetailProps> = ({ asset, onUpdate, projectId })
 
     // Save videoName back to asset when it changes
     useEffect(() => {
-        if (videoName !== asset.videoName || videoName !== asset.name) {
-            onUpdate({ ...asset, videoName, name: videoName });
+        if (videoName !== asset.videoName) {
+            onUpdate({ ...asset, videoName });
         }
     }, [videoName]);
 
@@ -797,6 +797,7 @@ const FragmentDetail: FC<FragmentDetailProps> = ({ asset, onUpdate, projectId })
                             value={videoName}
                             variant="bordered"
                             radius="lg"
+                            aria-label={t.project.videoName}
                             onValueChange={setVideoName}
                             classNames={{ 
                                 input: "font-bold text-sm",
@@ -815,6 +816,7 @@ const FragmentDetail: FC<FragmentDetailProps> = ({ asset, onUpdate, projectId })
                             className="w-full"
                             variant="bordered"
                             radius="lg"
+                            aria-label={t.project.modelLabel}
                             classNames={{ 
                                 value: "font-bold text-sm",
                                 trigger: "border-2 data-[focus=true]:border-primary"
@@ -880,7 +882,7 @@ const FragmentDetail: FC<FragmentDetailProps> = ({ asset, onUpdate, projectId })
                                                 </div>
                                             )}
                                             <div className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity z-20">
-                                                 <Button isIconOnly size="sm" variant="flat" className="h-6 w-6 min-w-0 bg-black/50 text-white" onClick={(e: any) => {
+                                                 <Button isIconOnly size="sm" variant="flat" aria-label={t.common?.preview || "Preview"} className="h-6 w-6 min-w-0 bg-black/50 text-white" onClick={(e: any) => {
                                                      e.stopPropagation(); 
                                                      if(c.filePath && urlCache[c.filePath]) openPreview([{ src: urlCache[c.filePath] }]);
                                                  }}>
@@ -922,7 +924,7 @@ const FragmentDetail: FC<FragmentDetailProps> = ({ asset, onUpdate, projectId })
                                                 </div>
                                             )}
                                             <div className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity z-20">
-                                                 <Button isIconOnly size="sm" variant="flat" className="h-6 w-6 min-w-0 bg-black/50 text-white" onClick={(e: any) => {
+                                                 <Button isIconOnly size="sm" variant="flat" aria-label={t.common?.preview || "Preview"} className="h-6 w-6 min-w-0 bg-black/50 text-white" onClick={(e: any) => {
                                                      e.stopPropagation(); 
                                                      if(i.filePath && urlCache[i.filePath]) openPreview([{ src: urlCache[i.filePath] }]);
                                                  }}>
@@ -959,7 +961,7 @@ const FragmentDetail: FC<FragmentDetailProps> = ({ asset, onUpdate, projectId })
                                                 </div>
                                             )}
                                             <div className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity z-20">
-                                                 <Button isIconOnly size="sm" variant="flat" className="h-6 w-6 min-w-0 bg-black/50 text-white" onClick={(e: any) => {
+                                                 <Button isIconOnly size="sm" variant="flat" aria-label={t.common?.preview || "Preview"} className="h-6 w-6 min-w-0 bg-black/50 text-white" onClick={(e: any) => {
                                                      e.stopPropagation(); 
                                                      if(s.filePath && urlCache[s.filePath]) openPreview([{ src: urlCache[s.filePath] }]);
                                                  }}>
@@ -1001,7 +1003,7 @@ const FragmentDetail: FC<FragmentDetailProps> = ({ asset, onUpdate, projectId })
                                                 </div>
                                             )}
                                              <div className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity z-20">
-                                                 <Button isIconOnly size="sm" variant="flat" className="h-6 w-6 min-w-0 bg-black/50 text-white" onClick={(ev) => {
+                                                 <Button isIconOnly size="sm" variant="flat" aria-label={t.common?.preview || "Preview"} className="h-6 w-6 min-w-0 bg-black/50 text-white" onClick={(ev) => {
                                                      ev.stopPropagation(); 
                                                      if(e.filePath && urlCache[e.filePath]) openPreview([{ src: urlCache[e.filePath] }]);
                                                  }}>
@@ -1043,7 +1045,7 @@ const FragmentDetail: FC<FragmentDetailProps> = ({ asset, onUpdate, projectId })
                                                 </div>
                                             )}
                                              <div className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity z-20">
-                                                 <Button isIconOnly size="sm" variant="flat" className="h-6 w-6 min-w-0 bg-black/50 text-white" onClick={(e) => {
+                                                 <Button isIconOnly size="sm" variant="flat" aria-label={t.common?.preview || "Preview"} className="h-6 w-6 min-w-0 bg-black/50 text-white" onClick={(e) => {
                                                      e.stopPropagation(); 
                                                      if(r.filePath && urlCache[r.filePath]) openPreview([{ src: urlCache[r.filePath] }]);
                                                  }}>
@@ -1077,12 +1079,12 @@ const FragmentDetail: FC<FragmentDetailProps> = ({ asset, onUpdate, projectId })
                                                      }}
                                                  />
                                                 <div className="absolute top-1 right-1 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity z-10">
-                                                    <Button isIconOnly size="sm" variant="flat" className="h-6 w-6 min-w-0 bg-black/50 text-white rounded-full" onPress={() => {
+                                                    <Button isIconOnly size="sm" variant="flat" aria-label={t.common?.preview || "Preview"} className="h-6 w-6 min-w-0 bg-black/50 text-white rounded-full" onPress={() => {
                                                         if(urlCache[startImage]) openPreview([{ src: urlCache[startImage] }]);
                                                     }}>
                                                         <Eye size={12} />
                                                     </Button>
-                                                    <Button isIconOnly size="sm" variant="flat" className="h-6 w-6 min-w-0 bg-danger/80 text-white rounded-full" onPress={() => {
+                                                    <Button isIconOnly size="sm" variant="flat" aria-label={t.common?.clear || "Clear"} className="h-6 w-6 min-w-0 bg-danger/80 text-white rounded-full" onPress={() => {
                                                         setStartImage('');
                                                     }}>
                                                         <X size={12} />
@@ -1093,9 +1095,14 @@ const FragmentDetail: FC<FragmentDetailProps> = ({ asset, onUpdate, projectId })
                                             <div className="flex flex-col items-center justify-center w-full h-full text-slate-400">
                                                 <AlertTriangle size={20} className="mb-1 text-warning" />
                                                 <span className="text-[10px]">{t.errors?.fileNotFound}</span>
-                                                <div className="absolute top-1 right-1 bg-black/50 rounded-full p-1 text-white cursor-pointer" onClick={(e) => { e.stopPropagation(); setStartImage(''); }}>
+                                                <button 
+                                                    className="absolute top-1 right-1 bg-black/50 rounded-full p-1 text-white cursor-pointer hover:bg-black/70 transition-colors" 
+                                                    onClick={(e) => { e.stopPropagation(); setStartImage(''); }}
+                                                    aria-label={t.common?.clear || "Clear"}
+                                                    type="button"
+                                                >
                                                     <X size={12} />
-                                                </div>
+                                                </button>
                                             </div>
                                         )
                                     ) : (
@@ -1129,12 +1136,12 @@ const FragmentDetail: FC<FragmentDetailProps> = ({ asset, onUpdate, projectId })
                                                          }}
                                                      />
                                                     <div className="absolute top-1 right-1 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity z-10">
-                                                        <Button isIconOnly size="sm" variant="flat" className="h-6 w-6 min-w-0 bg-black/50 text-white rounded-full" onPress={() => {
+                                                        <Button isIconOnly size="sm" variant="flat" aria-label={t.common?.preview || "Preview"} className="h-6 w-6 min-w-0 bg-black/50 text-white rounded-full" onPress={() => {
                                                             if(urlCache[endImage]) openPreview([{ src: urlCache[endImage] }]);
                                                         }}>
                                                             <Eye size={12} />
                                                         </Button>
-                                                        <Button isIconOnly size="sm" variant="flat" className="h-6 w-6 min-w-0 bg-danger/80 text-white rounded-full" onPress={() => {
+                                                        <Button isIconOnly size="sm" variant="flat" aria-label={t.common?.clear || "Clear"} className="h-6 w-6 min-w-0 bg-danger/80 text-white rounded-full" onPress={() => {
                                                             setEndImage('');
                                                         }}>
                                                             <X size={12} />
@@ -1145,9 +1152,14 @@ const FragmentDetail: FC<FragmentDetailProps> = ({ asset, onUpdate, projectId })
                                                 <div className="flex flex-col items-center justify-center w-full h-full text-slate-400">
                                                     <AlertTriangle size={20} className="mb-1 text-warning" />
                                                     <span className="text-[10px]">{t.errors?.fileNotFound}</span>
-                                                    <div className="absolute top-1 right-1 bg-black/50 rounded-full p-1 text-white cursor-pointer" onClick={(e) => { e.stopPropagation(); setEndImage(''); }}>
+                                                    <button 
+                                                        className="absolute top-1 right-1 bg-black/50 rounded-full p-1 text-white cursor-pointer hover:bg-black/70 transition-colors" 
+                                                        onClick={(e) => { e.stopPropagation(); setEndImage(''); }}
+                                                        aria-label={t.common?.clear || "Clear"}
+                                                        type="button"
+                                                    >
                                                         <X size={12} />
-                                                    </div>
+                                                    </button>
                                                 </div>
                                             )
                                         ) : (
@@ -1176,6 +1188,7 @@ const FragmentDetail: FC<FragmentDetailProps> = ({ asset, onUpdate, projectId })
                             minRows={3}
                             variant="bordered"
                             radius="lg"
+                            aria-label={t.common.prompt}
                             classNames={{ 
                                 input: "font-bold text-sm",
                                 inputWrapper: "border-2 group-data-[focus=true]:border-primary"
@@ -1242,7 +1255,7 @@ const FragmentDetail: FC<FragmentDetailProps> = ({ asset, onUpdate, projectId })
                                 <span className="text-xs">{t.common.generating}</span>
                             </div>
                             <div className="absolute bottom-0 left-0 w-full p-2 bg-black/40 text-white">
-                                <p className="text-[10px] font-bold truncate">{jobNames[jobId] || asset.name}</p>
+                                <p className="text-[10px] font-bold truncate">{jobNames[jobId] || asset.videoName || asset.name}</p>
                             </div>
                         </Card>
                     ))}
@@ -1251,9 +1264,9 @@ const FragmentDetail: FC<FragmentDetailProps> = ({ asset, onUpdate, projectId })
                     {asset.videos?.slice().reverse().map((video: GeneratedVideo) => (
                         <Card 
                             key={video.id} 
-                            isPressable
-                            onPress={() => handleSyncParams(video)}
-                            className="relative group aspect-video bg-black overflow-hidden border-2 border-transparent hover:border-primary/50 transition-colors"
+                            isPressable={false}
+                            className="relative group aspect-video bg-black overflow-hidden border-2 border-transparent hover:border-primary/50 transition-colors cursor-pointer"
+                            onClick={() => handleSyncParams(video)}
                         >
                             {video.path ? (
                                 urlCache[video.path] ? (
@@ -1288,6 +1301,7 @@ const FragmentDetail: FC<FragmentDetailProps> = ({ asset, onUpdate, projectId })
                                     isIconOnly 
                                     size="sm" 
                                     variant="solid" 
+                                    aria-label={t.common?.preview || "Preview"}
                                     className="bg-black/60 text-white backdrop-blur-md" 
                                     onPress={() => {
                                         const url = urlCache[video.path || ''];
@@ -1310,7 +1324,15 @@ const FragmentDetail: FC<FragmentDetailProps> = ({ asset, onUpdate, projectId })
                                 >
                                     <Eye size={14} />
                                 </Button>
-                                <Button isIconOnly size="sm" variant="solid" color="danger" className="bg-danger/80 text-white backdrop-blur-md" onPress={() => { setVideoToDelete(video); setDeleteModalOpen(true); }}>
+                                <Button 
+                                    isIconOnly 
+                                    size="sm" 
+                                    variant="solid" 
+                                    color="danger" 
+                                    aria-label={t.common?.delete || "Delete"}
+                                    className="bg-danger/80 text-white backdrop-blur-md" 
+                                    onPress={() => { setVideoToDelete(video); setDeleteModalOpen(true); }}
+                                >
                                     <Trash2 size={14} />
                                 </Button>
                             </div>
@@ -1318,7 +1340,7 @@ const FragmentDetail: FC<FragmentDetailProps> = ({ asset, onUpdate, projectId })
                             {/* Overlay Bottom: Info */}
                             {!activeJobIds.has(video.id) && (
                                 <div className="absolute bottom-0 left-0 w-full p-2 bg-gradient-to-t from-black/90 to-transparent text-white">
-                                    <p className="text-xs font-bold truncate">{video.name || video.params?.assetName || asset.name}</p>
+                                    <p className="text-xs font-bold truncate">{video.name || video.params?.assetName || asset.videoName || asset.name}</p>
                                     <div className="flex justify-between items-center mt-0.5">
                                         <span className="text-[10px] opacity-70">
                                             {(() => {

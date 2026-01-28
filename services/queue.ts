@@ -203,11 +203,41 @@ export class JobQueue {
              
              for (const job of staleJobs) {
                  if (job.type === 'generate_image') {
-                     // For sync image generation, if it was interrupted, it's failed.
-                     console.log(`[Queue] Marking stale image job ${job.id} as FAILED.`);
-                     job.status = JobStatus.FAILED;
-                     job.error = "Task interrupted by reload or crash";
+                     const projectId = job.params.projectId || job.projectId;
+                     const assetId = job.params.assetId;
+                     const modelConfigId = job.params.modelConfigId || job.params.model;
+                     const expectedCount = Number(job.params.generateCount) || 1;
+                     
+                     if (assetId && projectId) {
+                         try {
+                             const asset: any = await storageService.getAsset(assetId, projectId);
+                             const generatedImages: any[] | undefined = asset?.generatedImages;
+                             
+                             if (Array.isArray(generatedImages) && generatedImages.length > 0) {
+                                 const candidates = generatedImages
+                                     .filter(img => img && typeof img.path === 'string' && typeof img.createdAt === 'number')
+                                     .filter(img => img.createdAt >= job.createdAt)
+                                     .filter(img => !modelConfigId || img.modelConfigId === modelConfigId)
+                                     .sort((a, b) => a.createdAt - b.createdAt);
+                                 
+                                 if (candidates.length > 0) {
+                                     const picked = candidates.slice(-expectedCount);
+                                     job.result = picked.length > 1 ? { paths: picked.map(i => i.path) } : { path: picked[0].path };
+                                     job.status = JobStatus.COMPLETED;
+                                     job.updatedAt = Date.now();
+                                     job.error = undefined;
+                                     await storageService.saveJob(job);
+                                     this.notify(job);
+                                     continue;
+                                 }
+                             }
+                        } catch {
+                        }
+                     }
+                     
+                     job.status = JobStatus.PENDING;
                      job.updatedAt = Date.now();
+                     job.error = undefined;
                      await storageService.saveJob(job);
                      this.notify(job);
                  } else if (job.type === 'generate_video') {
