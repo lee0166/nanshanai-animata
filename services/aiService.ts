@@ -4,6 +4,7 @@ import { IAIProvider, AIResult } from './ai/interfaces';
 import { VolcengineProvider } from './ai/providers/VolcengineProvider';
 import { findModelConfig } from '../config/models';
 import { ViduProvider } from './ai/providers/ViduProvider';
+import { ModelscopeProvider } from './ai/providers/ModelscopeProvider';
 
 export interface GenerationJobParams {
     projectId: string;
@@ -40,6 +41,7 @@ export class AIService {
     constructor() {
         this.registerProvider(new VolcengineProvider());
         this.registerProvider(new ViduProvider());
+        this.registerProvider(new ModelscopeProvider());
     }
 
     registerProvider(provider: IAIProvider) {
