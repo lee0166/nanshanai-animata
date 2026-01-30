@@ -924,6 +924,50 @@ export const DEFAULT_MODELS: ModelConfig[] = [
       },
     ],
   },
+
+  // --- Image Models (Modelscope) ---
+  {
+    id: "modelscope-z-image",
+    name: "通义万相 Z-Image",
+    provider: "modelscope",
+    modelId: "Tongyi-MAI/Z-Image",
+    type: "image",
+    capabilities: {
+      supportsReferenceImage: true,
+      maxReferenceImages: 5,
+      maxBatchSize: 4,
+      supportedResolutions: ["1024x1024", "2048x2048"],
+      defaultResolution: "1024x1024",
+    },
+    parameters: [
+      {
+        name: "size",
+        label: "Resolution",
+        type: "select",
+        options: [
+          { label: "1024x1024", value: "1024x1024" },
+          { label: "2048x2048", value: "2048x2048" },
+        ],
+        defaultValue: "1024x1024",
+      },
+      {
+        name: "guidanceScale",
+        label: "Guidance Scale",
+        type: "number",
+        defaultValue: 7.5,
+        min: 1,
+        max: 20,
+        step: 0.5,
+      },
+      {
+        name: "seed",
+        label: "Seed",
+        type: "number",
+        defaultValue: -1,
+        description: "Random seed (-1 for random)",
+      },
+    ],
+  },
 ];
 
 /**
