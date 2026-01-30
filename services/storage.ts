@@ -1,6 +1,6 @@
 import { Project, Asset, Job, AppSettings, JobStatus, AssetType, CharacterAsset, SceneAsset, ItemAsset, VideoSegment } from '../types';
 import { DEFAULT_SETTINGS } from '../config/settings';
-import { DEFAULT_MODELS } from '../config/models';
+import { DEFAULT_MODELS, COMMON_IMAGE_PARAMS, COMMON_VOLC_VIDEO_PARAMS } from '../config/models';
 import { extractMp4Fps } from './metadata';
 import { VIDEO_EXTENSIONS, IMAGE_EXTENSIONS, isVideoFile, getFileType } from './fileUtils';
 
@@ -820,6 +820,10 @@ export class StorageService {
         id: m.id,
         templateId: m.templateId,
         name: m.name,
+        provider: m.provider,
+        modelId: m.modelId,
+        type: m.type,
+        apiUrl: m.apiUrl,
         apiKey: m.apiKey,
         isDefault: m.isDefault
     }));
@@ -844,14 +848,25 @@ export class StorageService {
     if (settings.models && Array.isArray(settings.models)) {
         // The AppContext and UI expect full ModelConfig objects at runtime
         (settings as any).models = settings.models.map(instance => {
-            const template = DEFAULT_MODELS.find(dm => dm.id === instance.templateId);
-            if (template) {
-                return {
-                    ...template,
-                    ...instance, // Override with user data: id, name, apiKey, isDefault
-                };
+            // If has templateId, merge with template
+            if (instance.templateId) {
+                const template = DEFAULT_MODELS.find(dm => dm.id === instance.templateId);
+                if (template) {
+                    return {
+                        ...template,
+                        ...instance
+                    };
+                }
             }
-            return instance;
+            
+            // Custom model: ensure complete structure
+            return {
+                ...instance,
+                capabilities: { maxBatchSize: 1, supportsReferenceImage: false },
+                parameters: instance.type === 'image' 
+                    ? COMMON_IMAGE_PARAMS 
+                    : COMMON_VOLC_VIDEO_PARAMS,
+            };
         });
     }
 

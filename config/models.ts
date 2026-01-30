@@ -3,7 +3,7 @@ import { ModelConfig, ModelParameter } from "../types";
 /**
  * Common parameters for all image models
  */
-const COMMON_IMAGE_PARAMS: ModelParameter[] = [
+export const COMMON_IMAGE_PARAMS: ModelParameter[] = [
   {
     name: "guidanceScale",
     label: "Guidance Scale",
@@ -22,7 +22,7 @@ const COMMON_IMAGE_PARAMS: ModelParameter[] = [
   },
 ];
 
-const COMMON_VOLC_VIDEO_PARAMS: ModelParameter[] = [
+export const COMMON_VOLC_VIDEO_PARAMS: ModelParameter[] = [
   {
     name: "resolution",
     label: "Resolution",
