@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ModelConfig } from '../types';
-import { DEFAULT_MODELS } from '../config/models';
+import { DEFAULT_MODELS, COMMON_VOLC_VIDEO_PARAMS, COMMON_IMAGE_PARAMS } from '../config/models';
 import { useApp } from '../contexts/context';
 import { Save, Plus, Trash2, Monitor, Moon, Sun, FolderOpen, RefreshCcw, CheckCircle, AlertCircle, Globe, Palette, Settings as SettingsIcon, Database, Cpu } from 'lucide-react';
 import { storageService } from '../services/storage';
@@ -72,10 +72,18 @@ const Settings: React.FC = () => {
   // New Model Form State
   const [showAdd, setShowAdd] = useState(false);
   const [newModelName, setNewModelName] = useState('');
-  const [selectedProvider, setSelectedProvider] = useState<'vidu' | 'volcengine' | 'other' | ''>('');
+  const [selectedProvider, setSelectedProvider] = useState<'vidu' | 'volcengine' | 'modelscope' | 'other' | ''>('');
   const [selectedBaseModelId, setSelectedBaseModelId] = useState('');
   const [newApiKey, setNewApiKey] = useState('');
   const [selectedType, setSelectedType] = useState<'video' | 'image' | ''>('');
+  
+  // Custom Model State
+  const [isCustomModel, setIsCustomModel] = useState(false);
+  const [customModel, setCustomModel] = useState({
+    provider: 'modelscope',
+    modelId: '',
+    apiUrl: '',
+  });
   
   // Get available providers based on type
   const availableProviders = React.useMemo(() => {
@@ -102,6 +110,11 @@ const Settings: React.FC = () => {
   const handleAddModel = () => {
     if (!newModelName || !selectedBaseModelId) return;
     
+    if (!isConnected) {
+      showToast(t.settings.disconnected + ': ' + t.settings.workspaceDesc, 'error');
+      return;
+    }
+    
     const baseModel = DEFAULT_MODELS.find((m: ModelConfig) => m.id === selectedBaseModelId);
     
     if (!baseModel) return;
@@ -125,6 +138,47 @@ const Settings: React.FC = () => {
     setSelectedType('');
     setSelectedProvider('');
     setShowAdd(false);
+    setIsCustomModel(false);
+    setCustomModel({ provider: 'modelscope', modelId: '', apiUrl: '' });
+  };
+
+  // Handle adding custom model
+  const handleAddCustomModel = async () => {
+    if (!newModelName || !customModel.modelId) {
+      showToast('请填写模型名称和Model ID', 'error');
+      return;
+    }
+    
+    if (!isConnected) {
+      showToast(t.settings.disconnected + ': ' + t.settings.workspaceDesc, 'error');
+      return;
+    }
+    
+    const newConfig: ModelConfig = {
+      id: typeof crypto.randomUUID === 'function' ? crypto.randomUUID() : Math.random().toString(36).substring(2, 11),
+      name: newModelName,
+      provider: customModel.provider,
+      modelId: customModel.modelId,
+      type: selectedType as 'image' | 'video',
+      capabilities: { maxBatchSize: 1, supportsReferenceImage: false },
+      parameters: selectedType === 'image' ? COMMON_IMAGE_PARAMS : COMMON_VOLC_VIDEO_PARAMS,
+      apiUrl: customModel.apiUrl || undefined,
+      apiKey: newApiKey,
+      isDefault: false
+    };
+
+    const updatedModels = [...settings.models, newConfig];
+    updateSettings({ ...settings, models: updatedModels });
+    
+    // Reset form
+    setNewModelName('');
+    setSelectedBaseModelId('');
+    setNewApiKey('');
+    setSelectedType('');
+    setSelectedProvider('');
+    setShowAdd(false);
+    setIsCustomModel(false);
+    setCustomModel({ provider: 'modelscope', modelId: '', apiUrl: '' });
   };
 
   const handleRemoveModel = (id: string) => {
@@ -503,8 +557,72 @@ const Settings: React.FC = () => {
                                     <SelectItem key="video" value="video">{t.settings.modelTypeVideo}</SelectItem>
                                 </Select>
                             </div>
-
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            
+                            {/* Custom Model Toggle */}
+                            <div className="flex items-center gap-4 pt-4 pb-2">
+                                <Switch
+                                    isSelected={isCustomModel}
+                                    onValueChange={setIsCustomModel}
+                                    size="lg"
+                                    color="secondary"
+                                />
+                                <div className="flex flex-col">
+                                    <span className="font-black uppercase tracking-widest text-[15px] text-slate-500">自定义模型</span>
+                                    <span className="text-xs text-slate-400">添加任意模型，不受预设列表限制</span>
+                                </div>
+                            </div>
+                            
+                            {/* Custom Model Form */}
+                            {isCustomModel && (
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6 bg-indigo-100/30 dark:bg-indigo-900/20 rounded-xl">
+                                    <Input 
+                                        label="Provider"
+                                        labelPlacement="outside"
+                                        placeholder="e.g., modelscope, openai, volcengine"
+                                        value={customModel.provider}
+                                        onValueChange={v => setCustomModel({...customModel, provider: v})}
+                                        variant="bordered"
+                                        radius="lg"
+                                        size="lg"
+                                        classNames={{
+                                          label: "font-black uppercase tracking-widest text-[15px] mb-2 text-slate-500",
+                                          input: "font-medium text-[15px]"
+                                        }}
+                                    />
+                                    <Input 
+                                        label="Model ID"
+                                        labelPlacement="outside"
+                                        placeholder="e.g., tongyi-diffusion"
+                                        value={customModel.modelId}
+                                        onValueChange={v => setCustomModel({...customModel, modelId: v})}
+                                        variant="bordered"
+                                        radius="lg"
+                                        size="lg"
+                                        classNames={{
+                                          label: "font-black uppercase tracking-widest text-[15px] mb-2 text-slate-500",
+                                          input: "font-medium text-[15px]"
+                                        }}
+                                    />
+                                    <Input 
+                                        label="API URL (可选)"
+                                        labelPlacement="outside"
+                                        placeholder="e.g., https://api-inference.modelscope.cn/v1"
+                                        value={customModel.apiUrl}
+                                        onValueChange={v => setCustomModel({...customModel, apiUrl: v})}
+                                        variant="bordered"
+                                        radius="lg"
+                                        size="lg"
+                                        classNames={{
+                                          label: "font-black uppercase tracking-widest text-[15px] mb-2 text-slate-500",
+                                          input: "font-medium text-[15px]"
+                                        }}
+                                    />
+                                </div>
+                            )}
+                            
+                            {/* Provider Selection (hidden when custom) */}
+                            {!isCustomModel && (
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                 <Select 
                                     label={t.settings.provider}
                                     labelPlacement="outside"
@@ -514,7 +632,7 @@ const Settings: React.FC = () => {
                                     onSelectionChange={(keys) => {
                                         const val = Array.from(keys)[0] as any;
                                         setSelectedProvider(val);
-                                        setSelectedBaseModelId(''); // Reset model selection
+                                        setSelectedBaseModelId('');
                                     }}
                                     variant="bordered"
                                     radius="lg"
@@ -560,7 +678,8 @@ const Settings: React.FC = () => {
                                         </SelectItem>
                                     ))}
                                 </Select>
-                            </div>
+                                </div>
+                            )}
 
                             <div className="grid grid-cols-1">
                                 <Input 
@@ -584,7 +703,12 @@ const Settings: React.FC = () => {
                                 <Button variant="light" onPress={() => setShowAdd(false)} className="font-black text-[14px] uppercase tracking-widest px-6 h-11 rounded-xl">
                                     {t.dashboard.cancel}
                                 </Button>
-                                <Button color="primary" onPress={handleAddModel} className="font-black text-[14px] uppercase tracking-widest px-8 h-11 rounded-xl shadow-lg shadow-indigo-500/30">
+                                <Button 
+                                    color="primary" 
+                                    onPress={isCustomModel ? handleAddCustomModel : handleAddModel} 
+                                    isDisabled={!selectedType || (isCustomModel ? !customModel.modelId : !selectedBaseModelId)}
+                                    className="font-black text-[14px] uppercase tracking-widest px-8 h-11 rounded-xl shadow-lg shadow-indigo-500/30"
+                                >
                                     {t.settings.add}
                                 </Button>
                             </div>

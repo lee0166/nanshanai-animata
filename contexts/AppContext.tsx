@@ -190,9 +190,12 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const updateSettings = async (newSettings: AppSettings) => {
     setSettings(newSettings);
     // Only save if connected
-    if (await storageService.isConnected()) {
-        await storageService.saveSettings(newSettings);
+    const connected = await storageService.isConnected();
+    if (!connected) {
+        console.warn("[SETTINGS] Not connected to workspace, settings not persisted");
+        return;
     }
+    await storageService.saveSettings(newSettings);
   };
 
   const toggleTheme = (mode: ThemeMode) => {
