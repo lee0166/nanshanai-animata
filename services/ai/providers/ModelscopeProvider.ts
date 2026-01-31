@@ -26,6 +26,7 @@ export class ModelscopeProvider extends BaseProvider {
         guidanceScale?: number,
         extraParams?: Record<string, any>
     ): Promise<AIResult> {
+        console.log(`[ModelscopeProvider] generateImage called with resolution: "${resolution}", model: ${config.modelId}`);
         try {
             const apiKey = this.getApiKey(config);
             const baseUrl = this.getBaseUrl(config);
@@ -37,7 +38,22 @@ export class ModelscopeProvider extends BaseProvider {
             };
 
             if (resolution) {
-                body.size = resolution;
+                // 验证并转换分辨率格式: 2K -> 2048x2048, 4K -> 4096x4096, 1K -> 1920x1080
+                let size = resolution;
+                
+                // 如果不是 WxH 格式，进行转换
+                if (!/^\d+x\d+$/.test(resolution)) {
+                    if (resolution === '1K' || resolution === '1080p') size = '1920x1080';
+                    else if (resolution === '2K') size = '2048x2048';
+                    else if (resolution === '4K') size = '4096x4096';
+                    else {
+                        // 未知格式，使用默认
+                        size = '1024x1024';
+                    }
+                    console.log(`[ModelscopeProvider] Resolution converted: "${resolution}" -> "${size}"`);
+                }
+                
+                body.size = size;
             }
 
             if (guidanceScale) {
@@ -60,6 +76,7 @@ export class ModelscopeProvider extends BaseProvider {
             }
 
             console.log(`[ModelscopeProvider] Submitting async image generation task: ${config.modelId}`);
+            console.log(`[ModelscopeProvider] Prompt: ${prompt}`);
 
             const submitResponse = await this.makeRequest(`${baseUrl}/images/generations`, {
                 method: 'POST',

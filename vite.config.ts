@@ -37,6 +37,28 @@ export default defineConfig(({ mode }) => {
              }
              const body = chunks.length > 0 ? Buffer.concat(chunks) : undefined;
 
+             // 打印模型、Prompt 和 Size 日志
+             let modelInfo = '';
+             let promptPreview = '';
+             let sizeValue = '';
+             if (body && targetUrl.includes('images/generations')) {
+                 try {
+                     const bodyStr = body.toString();
+                     const parsed = JSON.parse(bodyStr);
+                     if (parsed.model) {
+                         modelInfo = ` | Model: ${parsed.model}`;
+                     }
+                     if (parsed.prompt) {
+                         promptPreview = ` | Prompt: ${parsed.prompt.substring(0, 80)}...`;
+                     }
+                     if (parsed.size) {
+                         sizeValue = ` | Size: ${parsed.size}`;
+                     }
+                 } catch (e) {}
+             }
+
+             console.log(`[Universal Proxy] ${req.method} -> ${targetUrl}${modelInfo}${promptPreview}${sizeValue}`);
+
              const headers = new Headers();
              for (const [key, value] of Object.entries(req.headers as Record<string, string | string[]>)) {
                 if (!['host', 'origin', 'content-length', 'connection', 'x-target-url'].includes(key.toLowerCase())) {

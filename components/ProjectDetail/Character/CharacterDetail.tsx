@@ -240,7 +240,14 @@ const CharacterDetail: React.FC<CharacterDetailProps> = ({ asset, onUpdate, proj
         setModelId(initialModelConfigId);
         setReferenceImages(asset.metadata?.referenceImages || []);
         setAspectRatio(asset.metadata?.aspectRatio || '1:1');
-        setResolution(asset.metadata?.resolution || '2K');
+        
+        // 安全初始化分辨率：优先使用缓存值（如果当前模型支持），否则使用模型默认
+        const cachedRes = asset.metadata?.resolution;
+        const safeResolution = (cachedRes && availableResolutions.includes(cachedRes)) 
+            ? cachedRes 
+            : (capabilities.defaultResolution || availableResolutions[0]);
+        setResolution(safeResolution);
+        
         setGuidanceScale(2.5); // Reset guidance scale on load
 
         // Check for active job on mount
