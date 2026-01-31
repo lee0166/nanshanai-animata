@@ -936,17 +936,36 @@ export const DEFAULT_MODELS: ModelConfig[] = [
       supportsReferenceImage: true,
       maxReferenceImages: 5,
       maxBatchSize: 4,
-      supportedResolutions: ["1024x1024", "2048x2048"],
+      supportedResolutions: [
+        "1024x1024",  // 1:1
+        "720x1280",   // 9:16
+        "1280x720",   // 16:9
+        "1152x864",   // 4:3
+        "864x1152",   // 3:4
+        "1248x832",   // 3:2
+        "832x1248",   // 2:3
+        "1512x648"    // 21:9
+      ],
       defaultResolution: "1024x1024",
+      minPixels: 368640,
+      maxPixels: 4194304,
+      minAspectRatio: 0.0625,
+      maxAspectRatio: 16,
     },
     parameters: [
       {
-        name: "size",
+        name: "resolution",
         label: "Resolution",
         type: "select",
         options: [
-          { label: "1024x1024", value: "1024x1024" },
-          { label: "2048x2048", value: "2048x2048" },
+          { label: "1024x1024 (1:1)", value: "1024x1024" },
+          { label: "720x1280 (9:16)", value: "720x1280" },
+          { label: "1280x720 (16:9)", value: "1280x720" },
+          { label: "1152x864 (4:3)", value: "1152x864" },
+          { label: "864x1152 (3:4)", value: "864x1152" },
+          { label: "1248x832 (3:2)", value: "1248x832" },
+          { label: "832x1248 (2:3)", value: "832x1248" },
+          { label: "1512x648 (21:9)", value: "1512x648" },
         ],
         defaultValue: "1024x1024",
       },

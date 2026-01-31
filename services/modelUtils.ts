@@ -41,19 +41,35 @@ export const UNIFIED_KEYS = {
 export const resolveModelConfig = (runtimeModel: ModelConfig | undefined): ModelConfig | undefined => {
     if (!runtimeModel) return undefined;
     
+    console.log(`[ModelUtils] resolveModelConfig called with:`, {
+        id: runtimeModel.id,
+        modelId: runtimeModel.modelId,
+        provider: runtimeModel.provider
+    });
+    
     // 1. Priority: Match by templateId (User instances created from a template)
     if (runtimeModel.templateId) {
         const templateMatch = DEFAULT_MODELS.find(m => m.id === runtimeModel.templateId);
-        if (templateMatch) return templateMatch;
+        if (templateMatch) {
+            console.log(`[ModelUtils] Matched by templateId:`, templateMatch.id);
+            return templateMatch;
+        }
     }
     
     // 2. Try exact match by ID (if user hasn't renamed/copied it yet, or if ID matches)
     // 3. Try match by modelId (the provider's model identifier)
     const exactMatch = DEFAULT_MODELS.find(m => m.id === runtimeModel.id || m.modelId === runtimeModel.modelId);
-    if (exactMatch) return exactMatch;
+    if (exactMatch) {
+        console.log(`[ModelUtils] Matched by id/modelId:`, exactMatch.id);
+        return exactMatch;
+    }
     
     // 4. Fallback: match by provider and type (least specific)
-    return DEFAULT_MODELS.find(m => m.provider === runtimeModel.provider && m.type === runtimeModel.type);
+    const fallbackMatch = DEFAULT_MODELS.find(m => m.provider === runtimeModel.provider && m.type === runtimeModel.type);
+    if (fallbackMatch) {
+        console.log(`[ModelUtils] Matched by provider+type fallback:`, fallbackMatch.id);
+    }
+    return fallbackMatch;
 };
 
 /**
