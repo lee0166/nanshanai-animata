@@ -773,6 +773,7 @@ const CharacterDetail: React.FC<CharacterDetailProps> = ({ asset, onUpdate, proj
                                                 isIconOnly
                                                 size="sm"
                                                 variant="flat"
+                                                aria-label="预览图片"
                                                 className="bg-black/60 text-white hover:bg-black/80 backdrop-blur-md rounded-full w-8 h-8"
                                                 onClick={(e) => {
                                                     e.stopPropagation();
@@ -802,6 +803,7 @@ const CharacterDetail: React.FC<CharacterDetailProps> = ({ asset, onUpdate, proj
                                                 isIconOnly
                                                 size="sm"
                                                 variant="flat"
+                                                aria-label="删除图片"
                                                 className="bg-red-500/80 text-white hover:bg-red-600 backdrop-blur-md rounded-full w-8 h-8"
                                                 onClick={(e) => promptDeleteImage(img, e)}
                                             >

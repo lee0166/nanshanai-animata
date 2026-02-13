@@ -739,6 +739,7 @@ const ItemDetail: React.FC<ItemDetailProps> = ({ asset, onUpdate, projectId }) =
                                                 isIconOnly
                                                 size="sm"
                                                 variant="flat"
+                                                aria-label="预览道具"
                                                 className="bg-black/60 text-white hover:bg-black/80 backdrop-blur-md rounded-full w-8 h-8"
                                                 onClick={(e) => {
                                                     e.stopPropagation();
@@ -768,6 +769,7 @@ const ItemDetail: React.FC<ItemDetailProps> = ({ asset, onUpdate, projectId }) =
                                                 isIconOnly
                                                 size="sm"
                                                 variant="flat"
+                                                aria-label="删除道具"
                                                 className="bg-red-500/80 text-white hover:bg-red-600 backdrop-blur-md rounded-full w-8 h-8"
                                                 onClick={(e) => promptDeleteImage(img, e)}
                                             >

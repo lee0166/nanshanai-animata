@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { ModelConfig } from '../types';
 import { DEFAULT_MODELS, COMMON_VOLC_VIDEO_PARAMS, COMMON_IMAGE_PARAMS } from '../config/models';
 import { useApp } from '../contexts/context';
-import { Save, Plus, Trash2, Monitor, Moon, Sun, FolderOpen, RefreshCcw, CheckCircle, AlertCircle, Globe, Palette, Settings as SettingsIcon, Database, Cpu } from 'lucide-react';
+import { Save, Plus, Trash2, Monitor, Moon, Sun, FolderOpen, RefreshCcw, CheckCircle, AlertCircle, Globe, Palette, Settings as SettingsIcon, Database, Cpu, Pencil } from 'lucide-react';
 import { storageService } from '../services/storage';
 import { 
   Card, 
@@ -39,6 +39,18 @@ const Settings: React.FC = () => {
   const [opfsSupported, setOpfsSupported] = useState(false);
   const { isOpen: isConfirmOpen, onOpen: onConfirmOpen, onClose: onConfirmClose } = useDisclosure();
   const [modelToDelete, setModelToDelete] = useState<string | null>(null);
+  
+  // Edit model state
+  const { isOpen: isEditOpen, onOpen: onEditOpen, onClose: onEditClose } = useDisclosure();
+  const [editingModel, setEditingModel] = useState<ModelConfig | null>(null);
+  const [editFormData, setEditFormData] = useState({
+    name: '',
+    modelId: '',
+    apiKey: '',
+    apiUrl: '',
+    temperature: 0.3,
+    maxTokens: 4000,
+  });
 
   useEffect(() => {
     storageService.isOpfsSupported().then(setOpfsSupported);
@@ -72,10 +84,10 @@ const Settings: React.FC = () => {
   // New Model Form State
   const [showAdd, setShowAdd] = useState(false);
   const [newModelName, setNewModelName] = useState('');
-  const [selectedProvider, setSelectedProvider] = useState<'vidu' | 'volcengine' | 'modelscope' | 'other' | ''>('');
+  const [selectedProvider, setSelectedProvider] = useState<'vidu' | 'volcengine' | 'modelscope' | 'openai' | 'aliyun' | 'other' | ''>('');
   const [selectedBaseModelId, setSelectedBaseModelId] = useState('');
   const [newApiKey, setNewApiKey] = useState('');
-  const [selectedType, setSelectedType] = useState<'video' | 'image' | ''>('');
+  const [selectedType, setSelectedType] = useState<'video' | 'image' | 'llm' | ''>('');
   
   // Custom Model State
   const [isCustomModel, setIsCustomModel] = useState(false);
@@ -83,7 +95,12 @@ const Settings: React.FC = () => {
     provider: 'modelscope',
     modelId: '',
     apiUrl: '',
+    // LLM specific params
+    temperature: 0.3,
+    maxTokens: 32000,
+    enableThinking: false,
   });
+  const [showAdvancedOptions, setShowAdvancedOptions] = useState(false);
   
   // Get available providers based on type
   const availableProviders = React.useMemo(() => {
@@ -148,28 +165,59 @@ const Settings: React.FC = () => {
       showToast('请填写模型名称和Model ID', 'error');
       return;
     }
-    
+
     if (!isConnected) {
       showToast(t.settings.disconnected + ': ' + t.settings.workspaceDesc, 'error');
       return;
     }
-    
+
+    // Build LLM parameters
+    const llmParams = selectedType === 'llm' ? [
+      {
+        name: "temperature",
+        label: "Temperature",
+        type: "number" as const,
+        defaultValue: customModel.temperature,
+        min: 0,
+        max: 2,
+        step: 0.1,
+      },
+      {
+        name: "maxTokens",
+        label: "Max Tokens",
+        type: "number" as const,
+        defaultValue: customModel.maxTokens,
+        min: 100,
+        max: 128000,
+        step: 100,
+      },
+    ] : [];
+
+    // Build providerOptions for LLM
+    const providerOptions = selectedType === 'llm' ? {
+      enableThinking: customModel.enableThinking
+    } : undefined;
+
     const newConfig: ModelConfig = {
       id: typeof crypto.randomUUID === 'function' ? crypto.randomUUID() : Math.random().toString(36).substring(2, 11),
       name: newModelName,
       provider: customModel.provider,
       modelId: customModel.modelId,
-      type: selectedType as 'image' | 'video',
-      capabilities: { maxBatchSize: 1, supportsReferenceImage: false },
-      parameters: selectedType === 'image' ? COMMON_IMAGE_PARAMS : COMMON_VOLC_VIDEO_PARAMS,
+      type: selectedType as 'image' | 'video' | 'llm',
+      capabilities: selectedType === 'llm' ? {
+        maxContextLength: 128000,
+        supportsStreaming: true,
+      } : { maxBatchSize: 1, supportsReferenceImage: false },
+      parameters: selectedType === 'image' ? COMMON_IMAGE_PARAMS : selectedType === 'video' ? COMMON_VOLC_VIDEO_PARAMS : llmParams,
       apiUrl: customModel.apiUrl || undefined,
       apiKey: newApiKey,
-      isDefault: false
+      isDefault: false,
+      providerOptions,
     };
 
     const updatedModels = [...settings.models, newConfig];
     updateSettings({ ...settings, models: updatedModels });
-    
+
     // Reset form
     setNewModelName('');
     setSelectedBaseModelId('');
@@ -178,7 +226,8 @@ const Settings: React.FC = () => {
     setSelectedProvider('');
     setShowAdd(false);
     setIsCustomModel(false);
-    setCustomModel({ provider: 'modelscope', modelId: '', apiUrl: '' });
+    setShowAdvancedOptions(false);
+    setCustomModel({ provider: 'modelscope', modelId: '', apiUrl: '', temperature: 0.3, maxTokens: 32000, enableThinking: false });
   };
 
   const handleRemoveModel = (id: string) => {
@@ -192,6 +241,59 @@ const Settings: React.FC = () => {
     updateSettings({ ...settings, models: updatedModels });
     setModelToDelete(null);
     onConfirmClose();
+  };
+
+  // Handle edit model
+  const handleEditModel = (model: ModelConfig) => {
+    setEditingModel(model);
+    setEditFormData({
+      name: model.name,
+      modelId: model.modelId || '',
+      apiKey: model.apiKey || '',
+      apiUrl: model.apiUrl || '',
+      temperature: model.parameters?.find(p => p.name === 'temperature')?.defaultValue ?? 0.3,
+      maxTokens: model.parameters?.find(p => p.name === 'maxTokens')?.defaultValue ?? 4000,
+    });
+    onEditOpen();
+  };
+
+  const handleSaveEdit = () => {
+    if (!editingModel) return;
+    
+    if (!isConnected) {
+      showToast(t.settings.disconnected + ': ' + t.settings.workspaceDesc, 'error');
+      return;
+    }
+
+    const updatedModels = settings.models.map(m => {
+      if (m.id === editingModel.id) {
+        // Update parameters
+        const updatedParameters = m.parameters.map(p => {
+          if (p.name === 'temperature') {
+            return { ...p, defaultValue: editFormData.temperature };
+          }
+          if (p.name === 'maxTokens') {
+            return { ...p, defaultValue: editFormData.maxTokens };
+          }
+          return p;
+        });
+
+        return {
+          ...m,
+          name: editFormData.name,
+          modelId: editFormData.modelId,
+          apiKey: editFormData.apiKey,
+          apiUrl: editFormData.apiUrl || undefined,
+          parameters: updatedParameters,
+        };
+      }
+      return m;
+    });
+
+    updateSettings({ ...settings, models: updatedModels });
+    onEditClose();
+    setEditingModel(null);
+    showToast('模型配置已更新', 'success');
   };
 
   const truncatePath = (path: string, maxLength = 30) => {
@@ -555,6 +657,7 @@ const Settings: React.FC = () => {
                                 >
                                     <SelectItem key="image" value="image">{t.settings.modelTypeImage}</SelectItem>
                                     <SelectItem key="video" value="video">{t.settings.modelTypeVideo}</SelectItem>
+                                    <SelectItem key="llm" value="llm">文本解析 (LLM)</SelectItem>
                                 </Select>
                             </div>
                             
@@ -574,49 +677,113 @@ const Settings: React.FC = () => {
                             
                             {/* Custom Model Form */}
                             {isCustomModel && (
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6 bg-indigo-100/30 dark:bg-indigo-900/20 rounded-xl">
-                                    <Input 
-                                        label="Provider"
-                                        labelPlacement="outside"
-                                        placeholder="e.g., modelscope, openai, volcengine"
-                                        value={customModel.provider}
-                                        onValueChange={v => setCustomModel({...customModel, provider: v})}
-                                        variant="bordered"
-                                        radius="lg"
-                                        size="lg"
-                                        classNames={{
-                                          label: "font-black uppercase tracking-widest text-[15px] mb-2 text-slate-500",
-                                          input: "font-medium text-[15px]"
-                                        }}
-                                    />
-                                    <Input 
-                                        label="Model ID"
-                                        labelPlacement="outside"
-                                        placeholder="e.g., tongyi-diffusion"
-                                        value={customModel.modelId}
-                                        onValueChange={v => setCustomModel({...customModel, modelId: v})}
-                                        variant="bordered"
-                                        radius="lg"
-                                        size="lg"
-                                        classNames={{
-                                          label: "font-black uppercase tracking-widest text-[15px] mb-2 text-slate-500",
-                                          input: "font-medium text-[15px]"
-                                        }}
-                                    />
-                                    <Input 
-                                        label="API URL (可选)"
-                                        labelPlacement="outside"
-                                        placeholder="e.g., https://api-inference.modelscope.cn/v1"
-                                        value={customModel.apiUrl}
-                                        onValueChange={v => setCustomModel({...customModel, apiUrl: v})}
-                                        variant="bordered"
-                                        radius="lg"
-                                        size="lg"
-                                        classNames={{
-                                          label: "font-black uppercase tracking-widest text-[15px] mb-2 text-slate-500",
-                                          input: "font-medium text-[15px]"
-                                        }}
-                                    />
+                                <div className="space-y-6">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6 bg-indigo-100/30 dark:bg-indigo-900/20 rounded-xl">
+                                        <Input 
+                                            label="Provider"
+                                            labelPlacement="outside"
+                                            placeholder="e.g., modelscope, openai, volcengine"
+                                            value={customModel.provider}
+                                            onValueChange={v => setCustomModel({...customModel, provider: v})}
+                                            variant="bordered"
+                                            radius="lg"
+                                            size="lg"
+                                            classNames={{
+                                              label: "font-black uppercase tracking-widest text-[15px] mb-2 text-slate-500",
+                                              input: "font-medium text-[15px]"
+                                            }}
+                                        />
+                                        <Input 
+                                            label="Model ID"
+                                            labelPlacement="outside"
+                                            placeholder="e.g., deepseek-v3-1-terminus"
+                                            value={customModel.modelId}
+                                            onValueChange={v => setCustomModel({...customModel, modelId: v})}
+                                            variant="bordered"
+                                            radius="lg"
+                                            size="lg"
+                                            classNames={{
+                                              label: "font-black uppercase tracking-widest text-[15px] mb-2 text-slate-500",
+                                              input: "font-medium text-[15px]"
+                                            }}
+                                        />
+                                        <Input 
+                                            label="API URL (可选)"
+                                            labelPlacement="outside"
+                                            placeholder="e.g., https://ark.cn-beijing.volces.com/api/v3"
+                                            value={customModel.apiUrl}
+                                            onValueChange={v => setCustomModel({...customModel, apiUrl: v})}
+                                            variant="bordered"
+                                            radius="lg"
+                                            size="lg"
+                                            classNames={{
+                                              label: "font-black uppercase tracking-widest text-[15px] mb-2 text-slate-500",
+                                              input: "font-medium text-[15px]"
+                                            }}
+                                        />
+                                    </div>
+                                    
+                                    {/* Advanced Options Toggle for LLM */}
+                                    {selectedType === 'llm' && (
+                                        <div className="space-y-4">
+                                            <div 
+                                                className="flex items-center gap-2 cursor-pointer text-indigo-600 dark:text-indigo-400"
+                                                onClick={() => setShowAdvancedOptions(!showAdvancedOptions)}
+                                            >
+                                                <span className="font-black uppercase tracking-widest text-[13px]">
+                                                    {showAdvancedOptions ? '▼' : '▶'} 高级选项
+                                                </span>
+                                                <span className="text-xs text-slate-400">配置温度、Token限制等参数</span>
+                                            </div>
+                                            
+                                            {showAdvancedOptions && (
+                                                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 p-6 bg-indigo-50/50 dark:bg-indigo-900/10 rounded-xl">
+                                                    <Input 
+                                                        label="Temperature"
+                                                        labelPlacement="outside"
+                                                        type="number"
+                                                        placeholder="0.3"
+                                                        value={customModel.temperature.toString()}
+                                                        onValueChange={v => setCustomModel({...customModel, temperature: parseFloat(v) || 0.3})}
+                                                        variant="bordered"
+                                                        radius="lg"
+                                                        size="lg"
+                                                        classNames={{
+                                                          label: "font-black uppercase tracking-widest text-[15px] mb-2 text-slate-500",
+                                                          input: "font-medium text-[15px]"
+                                                        }}
+                                                    />
+                                                    <Input 
+                                                        label="Max Tokens"
+                                                        labelPlacement="outside"
+                                                        type="number"
+                                                        placeholder="32000"
+                                                        value={customModel.maxTokens.toString()}
+                                                        onValueChange={v => setCustomModel({...customModel, maxTokens: parseInt(v) || 32000})}
+                                                        variant="bordered"
+                                                        radius="lg"
+                                                        size="lg"
+                                                        classNames={{
+                                                          label: "font-black uppercase tracking-widest text-[15px] mb-2 text-slate-500",
+                                                          input: "font-medium text-[15px]"
+                                                        }}
+                                                    />
+                                                    <div className="flex items-center gap-4 pt-6">
+                                                        <Switch
+                                                            isSelected={customModel.enableThinking}
+                                                            onValueChange={v => setCustomModel({...customModel, enableThinking: v})}
+                                                            size="lg"
+                                                            color="secondary"
+                                                        />
+                                                        <div className="flex flex-col">
+                                                            <span className="font-black uppercase tracking-widest text-[13px] text-slate-500">启用思考</span>
+                                                            <span className="text-xs text-slate-400">enable_thinking</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
                                 </div>
                             )}
                             
@@ -644,7 +811,11 @@ const Settings: React.FC = () => {
                                 >
                                     {availableProviders.map((p) => (
                                         <SelectItem key={p} value={p}>
-                                            {p === 'volcengine' ? 'Volcengine (火山引擎)' : p === 'vidu' ? 'Vidu' : p}
+                                            {p === 'volcengine' ? 'Volcengine (火山引擎)' : 
+                                             p === 'vidu' ? 'Vidu' : 
+                                             p === 'openai' ? 'OpenAI' :
+                                             p === 'aliyun' ? '阿里云 (通义千问)' :
+                                             p === 'modelscope' ? '魔搭社区' : p}
                                         </SelectItem>
                                     ))}
                                 </Select>
@@ -744,13 +915,13 @@ const Settings: React.FC = () => {
                                     </div>
                                 </TableCell>
                                 <TableCell>
-                                    <Chip 
-                                      size="md" 
-                                      variant="flat" 
-                                      color={model.type === 'video' ? "primary" : "secondary"}
+                                    <Chip
+                                      size="md"
+                                      variant="flat"
+                                      color={model.type === 'video' ? "primary" : model.type === 'llm' ? "success" : "secondary"}
                                       className="font-black text-[13px] uppercase tracking-widest px-3 h-7"
                                     >
-                                        {model.type === 'video' ? t.settings.modelTypeVideo : t.settings.modelTypeImage}
+                                        {model.type === 'video' ? t.settings.modelTypeVideo : model.type === 'llm' ? '文本解析' : t.settings.modelTypeImage}
                                     </Chip>
                                 </TableCell>
                                 <TableCell>
@@ -784,16 +955,28 @@ const Settings: React.FC = () => {
                                     />
                                 </TableCell>
                                 <TableCell>
-                                    <Button 
-                                        isIconOnly
-                                        color="danger"
-                                        variant="light"
-                                        size="sm"
-                                        onPress={() => handleRemoveModel(model.id)}
-                                        className="opacity-40 hover:opacity-100 transition-opacity"
-                                    >
-                                        <Trash2 className="w-4 h-4" />
-                                    </Button>
+                                    <div className="flex items-center gap-1">
+                                        <Button 
+                                            isIconOnly
+                                            color="primary"
+                                            variant="light"
+                                            size="sm"
+                                            onPress={() => handleEditModel(model)}
+                                            className="opacity-40 hover:opacity-100 transition-opacity"
+                                        >
+                                            <Pencil className="w-4 h-4" />
+                                        </Button>
+                                        <Button 
+                                            isIconOnly
+                                            color="danger"
+                                            variant="light"
+                                            size="sm"
+                                            onPress={() => handleRemoveModel(model.id)}
+                                            className="opacity-40 hover:opacity-100 transition-opacity"
+                                        >
+                                            <Trash2 className="w-4 h-4" />
+                                        </Button>
+                                    </div>
                                 </TableCell>
                             </TableRow>
                         ))}
@@ -815,6 +998,127 @@ const Settings: React.FC = () => {
             </Button>
             <Button color="danger" onPress={confirmDeleteModel}>
               {t.common.delete}
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+
+      {/* Edit Model Modal */}
+      <Modal isOpen={isEditOpen} onClose={onEditClose} size="lg">
+        <ModalContent>
+          <ModalHeader className="flex flex-col gap-1">
+            <span className="text-xl font-bold">编辑模型配置</span>
+            <span className="text-sm text-slate-400">{editingModel?.name}</span>
+          </ModalHeader>
+          <ModalBody className="space-y-4">
+            <Input
+              label="模型名称"
+              labelPlacement="outside"
+              placeholder="输入模型名称"
+              value={editFormData.name}
+              onValueChange={(val) => setEditFormData({ ...editFormData, name: val })}
+              variant="bordered"
+              radius="lg"
+              size="lg"
+              classNames={{
+                label: "font-black uppercase tracking-widest text-[15px] mb-2 text-slate-500",
+                input: "font-medium text-[15px]"
+              }}
+            />
+            <Input
+              label="Model ID"
+              labelPlacement="outside"
+              placeholder="输入模型ID，如：Qwen/Qwen3-8B"
+              value={editFormData.modelId}
+              onValueChange={(val) => setEditFormData({ ...editFormData, modelId: val })}
+              variant="bordered"
+              radius="lg"
+              size="lg"
+              description="修改Model ID将改变实际调用的模型，请确保ID正确"
+              classNames={{
+                label: "font-black uppercase tracking-widest text-[15px] mb-2 text-slate-500",
+                input: "font-medium text-[15px]",
+                description: "text-xs text-amber-500 mt-1"
+              }}
+            />
+            <Input
+              label="API Key"
+              labelPlacement="outside"
+              placeholder="输入API Key"
+              type="password"
+              value={editFormData.apiKey}
+              onValueChange={(val) => setEditFormData({ ...editFormData, apiKey: val })}
+              variant="bordered"
+              radius="lg"
+              size="lg"
+              classNames={{
+                label: "font-black uppercase tracking-widest text-[15px] mb-2 text-slate-500",
+                input: "font-medium text-[15px]"
+              }}
+            />
+            <Input
+              label="API URL (可选)"
+              labelPlacement="outside"
+              placeholder="https://api.example.com/v1"
+              value={editFormData.apiUrl}
+              onValueChange={(val) => setEditFormData({ ...editFormData, apiUrl: val })}
+              variant="bordered"
+              radius="lg"
+              size="lg"
+              classNames={{
+                label: "font-black uppercase tracking-widest text-[15px] mb-2 text-slate-500",
+                input: "font-medium text-[15px]"
+              }}
+            />
+            {editingModel?.type === 'llm' && (
+              <>
+                <div className="grid grid-cols-2 gap-4">
+                  <Input
+                    label="Temperature"
+                    labelPlacement="outside"
+                    type="number"
+                    placeholder="0.3"
+                    value={editFormData.temperature.toString()}
+                    onValueChange={(val) => setEditFormData({ ...editFormData, temperature: parseFloat(val) || 0.3 })}
+                    variant="bordered"
+                    radius="lg"
+                    size="lg"
+                    min={0}
+                    max={2}
+                    step={0.1}
+                    classNames={{
+                      label: "font-black uppercase tracking-widest text-[15px] mb-2 text-slate-500",
+                      input: "font-medium text-[15px]"
+                    }}
+                  />
+                  <Input
+                    label="Max Tokens"
+                    labelPlacement="outside"
+                    type="number"
+                    placeholder="4000"
+                    value={editFormData.maxTokens.toString()}
+                    onValueChange={(val) => setEditFormData({ ...editFormData, maxTokens: parseInt(val) || 4000 })}
+                    variant="bordered"
+                    radius="lg"
+                    size="lg"
+                    min={100}
+                    max={128000}
+                    step={100}
+                    classNames={{
+                      label: "font-black uppercase tracking-widest text-[15px] mb-2 text-slate-500",
+                      input: "font-medium text-[15px]"
+                    }}
+                  />
+                </div>
+              </>
+            )}
+          </ModalBody>
+          <ModalFooter>
+            <Button variant="light" onPress={onEditClose}>
+              {t.dashboard.cancel}
+            </Button>
+            <Button color="primary" onPress={handleSaveEdit}>
+              {t.common.save}
             </Button>
           </ModalFooter>
         </ModalContent>

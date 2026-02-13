@@ -54,31 +54,58 @@ export abstract class BaseProvider implements IAIProvider {
      * Universal proxy request helper
      * Routes requests through the Vite proxy in development to avoid CORS issues.
      */
-    protected async makeRequest(url: string, options: RequestInit = {}): Promise<Response> {
+    protected async makeRequest(url: string, options: RequestInit = {}, timeout: number = 60000): Promise<Response> {
         // In development, route through our universal proxy to handle CORS dynamically
         // Also support localhost in production (e.g. preview mode) if proxy is available
         const isLocalhost = typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
         const shouldUseProxy = import.meta.env.DEV || isLocalhost;
 
         console.log(`[BaseProvider] Requesting: ${url}, Mode: ${import.meta.env.DEV ? 'DEV' : 'PROD'}, Localhost: ${isLocalhost}`);
-        
-        if (shouldUseProxy) {
-            const proxyUrl = '/api/universal-proxy';
-            const headers = new Headers(options.headers || {});
-            
-            // Check if X-Target-URL is already set (avoid double setting if chained)
-            if (!headers.has('X-Target-URL')) {
-                headers.set('X-Target-URL', url);
+
+        // Create abort controller for timeout
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => {
+            console.error(`[BaseProvider] Request timeout after ${timeout}ms: ${url}`);
+            controller.abort();
+        }, timeout);
+
+        try {
+            let response: Response;
+
+            if (shouldUseProxy) {
+                const proxyUrl = '/api/universal-proxy';
+                const headers = new Headers(options.headers || {});
+
+                // Check if X-Target-URL is already set (avoid double setting if chained)
+                if (!headers.has('X-Target-URL')) {
+                    headers.set('X-Target-URL', url);
+                }
+
+                console.log(`[BaseProvider] Using Proxy: ${proxyUrl} -> ${url}`);
+                response = await fetch(proxyUrl, {
+                    ...options,
+                    headers,
+                    signal: controller.signal
+                });
+            } else {
+                // In production, attempt direct fetch
+                response = await fetch(url, {
+                    ...options,
+                    signal: controller.signal
+                });
             }
-            
-            console.log(`[BaseProvider] Using Proxy: ${proxyUrl} -> ${url}`);
-            return fetch(proxyUrl, {
-                ...options,
-                headers
-            });
+
+            clearTimeout(timeoutId);
+            console.log(`[BaseProvider] Response received: ${response.status} ${response.statusText}`);
+            return response;
+        } catch (error: any) {
+            clearTimeout(timeoutId);
+            if (error.name === 'AbortError') {
+                console.error(`[BaseProvider] Request aborted (timeout): ${url}`);
+                throw new Error(`Request timeout after ${timeout}ms`);
+            }
+            console.error(`[BaseProvider] Request failed: ${url}`, error);
+            throw error;
         }
-        
-        // In production, attempt direct fetch
-        return fetch(url, options);
     }
 }
