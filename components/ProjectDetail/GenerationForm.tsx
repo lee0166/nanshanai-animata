@@ -286,10 +286,11 @@ const GenerationForm: React.FC<GenerationFormProps> = ({
                                     <label className="font-black text-[10px] uppercase tracking-widest text-slate-400">
                                         {t.character.referenceImages} ({referenceImages.length}/{capabilities.maxReferenceImages || 1})
                                     </label>
-                                    <Button 
-                                        size="sm" 
-                                        variant="flat" 
+                                    <Button
+                                        size="sm"
+                                        variant="flat"
                                         isIconOnly
+                                        aria-label="上传参考图"
                                         isDisabled={generating || referenceImages.length >= (capabilities.maxReferenceImages || 1)}
                                         onPress={() => refInputRef.current?.click()}
                                     >

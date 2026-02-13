@@ -37,10 +37,23 @@ export default defineConfig(({ mode }) => {
              }
              const body = chunks.length > 0 ? Buffer.concat(chunks) : undefined;
 
-             // 打印模型、Prompt 和 Size 日志
+             // 打印模型、Prompt、Style 和 Size 日志
              let modelInfo = '';
              let promptPreview = '';
+             let styleInfo = '';
              let sizeValue = '';
+             
+             // 完整风格提示词映射
+             const stylePrompts: Record<string, string> = {
+                 'movie': 'cinematic lighting, movie still, shot on 35mm, realistic, 8k, masterpiece',
+                 'photorealistic': 'photorealistic, raw photo, DSLR, sharp focus, high fidelity, 4k texture',
+                 'gothic': 'gothic style, dark atmosphere, gloomy, fog, horror theme, muted colors',
+                 'cyberpunk': 'cyberpunk, neon lights, futuristic, rainy street, blue and purple hue',
+                 'anime': 'anime style, 2D animation, cel shading, vibrant colors, clean lines',
+                 'shinkai': 'Makoto Shinkai style, beautiful sky, lens flare, detailed background, emotional',
+                 'game': 'game cg, splash art, highly detailed, epic composition, fantasy style',
+             };
+             
              if (body && targetUrl.includes('images/generations')) {
                  try {
                      const bodyStr = body.toString();
@@ -49,7 +62,16 @@ export default defineConfig(({ mode }) => {
                          modelInfo = ` | Model: ${parsed.model}`;
                      }
                      if (parsed.prompt) {
-                         promptPreview = ` | Prompt: ${parsed.prompt.substring(0, 80)}...`;
+                         const promptLen = parsed.prompt.length;
+                         if (promptLen > 400) {
+                             promptPreview = ` | Prompt: ${parsed.prompt.substring(0, 400)}...\n[完整长度: ${promptLen} 字符]`;
+                         } else {
+                             promptPreview = ` | Prompt: ${parsed.prompt}`;
+                         }
+                     }
+                     if (parsed.style) {
+                         const fullStylePrompt = stylePrompts[parsed.style] || parsed.style;
+                         styleInfo = ` | Style: ${fullStylePrompt}`;
                      }
                      if (parsed.size) {
                          sizeValue = ` | Size: ${parsed.size}`;
@@ -57,7 +79,7 @@ export default defineConfig(({ mode }) => {
                  } catch (e) {}
              }
 
-             console.log(`[Universal Proxy] ${req.method} -> ${targetUrl}${modelInfo}${promptPreview}${sizeValue}`);
+             console.log(`[Universal Proxy] ${req.method} -> ${targetUrl}${modelInfo}${promptPreview}${styleInfo}${sizeValue}`);
 
              const headers = new Headers();
              for (const [key, value] of Object.entries(req.headers as Record<string, string | string[]>)) {

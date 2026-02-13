@@ -8,6 +8,8 @@ import JobMonitor from './components/JobMonitor';
 import WelcomeView from './components/WelcomeView';
 import LoadingView from './components/LoadingView';
 import Tasks from './views/Tasks';
+import ScriptManager from './views/ScriptManager';
+import ShotManager from './views/ShotManager';
 import { storageService } from './services/storage';
 import { jobQueue } from './services/queue';
 import { useApp } from './contexts/context';
@@ -21,7 +23,7 @@ const App: React.FC = () => {
   const { reloadSettings, t, isConnected, isInitializing, isFsResponsive, resetWorkspace } = useApp();
 
   // Unified State for Project Navigation
-  const [activeTab, setActiveTab] = useState<AssetType>(AssetType.CHARACTER);
+  const [activeTab, setActiveTab] = useState<AssetType>(AssetType.SCRIPT);
   const [currentProject, setCurrentProject] = useState<Project | null>(null);
 
   // Auto-load queue when connected and responsive
@@ -82,6 +84,12 @@ const App: React.FC = () => {
             />
             <Route path="/settings" element={<Settings />} />
             <Route path="/tasks" element={<Tasks />} />
+            <Route path="/scripts" element={<ScriptManager />} />
+            <Route path="/project/:projectId/scripts" element={<ScriptManager />} />
+            <Route 
+              path="/project/:projectId/shots" 
+              element={<ShotManager setActiveTab={setActiveTab} />} 
+            />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
           <JobMonitor />

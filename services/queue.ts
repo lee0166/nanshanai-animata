@@ -442,7 +442,7 @@ export class JobQueue {
            await this.updateAssetWithResult(currentJob, savedPaths);
 
            // Inject local paths into meta for display
-           const finalMeta = { ...result.meta };
+           const finalMeta = { ...result.metadata };
            if (finalMeta.data && Array.isArray(finalMeta.data)) {
                finalMeta.data = finalMeta.data.map((item: any, index: number) => {
                    if (savedPaths[index]) {

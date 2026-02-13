@@ -1,6 +1,6 @@
 
 import React, { useEffect } from 'react';
-import { Settings, Clapperboard, Moon, Sun, Languages, Database, ChevronLeft, Film, User, Map, Box, Library } from 'lucide-react';
+import { Settings, Clapperboard, Moon, Sun, Languages, Database, ChevronLeft, Film, User, Map, Box, Library, FileText, Camera } from 'lucide-react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useApp } from '../contexts/context';
 import { storageService } from '../services/storage';
@@ -77,9 +77,11 @@ const Layout: React.FC<LayoutProps> = ({ children, isConnected, onConnect, activ
   }, []);
 
   const tabs = [
+    { id: AssetType.SCRIPT, label: '剧本管理', icon: FileText },
     { id: AssetType.CHARACTER, label: t.project.characters, icon: User },
     { id: AssetType.SCENE, label: t.project.scenes, icon: Map },
     { id: AssetType.ITEM, label: t.project.items, icon: Box },
+    { id: AssetType.SHOT, label: '分镜管理', icon: Camera },
     { id: AssetType.VIDEO_SEGMENT, label: t.project.segments, icon: Film },
     { id: AssetType.RESOURCES, label: t.project.resources, icon: Library },
   ];

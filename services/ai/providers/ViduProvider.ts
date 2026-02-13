@@ -263,21 +263,21 @@ export class ViduProvider extends BaseProvider {
                             return {
                                 success: true,
                                 data: data.creations.map((c: any) => ({ url: c.url })),
-                                meta: data
+                                metadata: data
                             };
                         } else {
                              return { 
                                 success: true, 
                                 data: { videoUri: data.creations[0].url }, 
-                                meta: data 
+                                metadata: data 
                             };
                         }
                     }
-                    return { success: false, error: "Task succeeded but no creations found", meta: data };
+                    return { success: false, error: "Task succeeded but no creations found", metadata: data };
                 }
 
                 if (data.state === 'failed') {
-                    return { success: false, error: `Vidu Task Failed: ${data.err_code || 'Unknown error'}`, meta: data };
+                    return { success: false, error: `Vidu Task Failed: ${data.err_code || 'Unknown error'}`, metadata: data };
                 }
 
                 // Continue polling

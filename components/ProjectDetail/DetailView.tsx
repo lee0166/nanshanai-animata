@@ -57,6 +57,7 @@ const DetailView: React.FC<DetailViewProps> = ({
                         isIconOnly
                         variant="flat"
                         radius="lg"
+                        aria-label="返回列表"
                         onPress={() => setSelectedAsset(null)}
                         className="bg-white dark:bg-slate-900 shadow-sm"
                     >

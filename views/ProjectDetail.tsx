@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { Project, AssetType, Job, JobStatus, Asset, CharacterAsset, GeneratedImage, FragmentAsset, ItemType } from '../types';
 import { storageService } from '../services/storage';
 import { jobQueue } from '../services/queue';
@@ -11,8 +11,10 @@ import CharacterSidebar from '../components/ProjectDetail/CharacterSidebar';
 import FragmentSidebar from '../components/ProjectDetail/FragmentSidebar';
 import SceneSidebar from '@/components/ProjectDetail/SceneSidebar';
 import ItemSidebar from '@/components/ProjectDetail/ItemSidebar';
+import ScriptManager from './ScriptManager';
+import ShotManager from './ShotManager';
 import { GenerationParams } from '../components/ProjectDetail/GenerationForm';
-import { Sparkles, Send, ChevronLeft, ArrowRight, Play, X, Plus } from 'lucide-react';
+import { Sparkles, Send, ChevronLeft, ArrowRight, Play, X, Plus, FileText } from 'lucide-react';
 import { 
   Button, 
   Input, 
@@ -37,6 +39,7 @@ interface ProjectDetailProps {
 
 const ProjectDetail: React.FC<ProjectDetailProps> = ({ activeTab, setActiveTab, onProjectLoaded }) => {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
   const { settings, t } = useApp();
   const { showToast } = useToast();
   const [project, setProject] = useState<Project | null>(null);
@@ -412,13 +415,42 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({ activeTab, setActiveTab, 
       );
   }
 
+
+
+  // SCRIPT MANAGER VIEW
+  if (activeTab === AssetType.SCRIPT) {
+    return (
+      <div className="h-full bg-slate-50 dark:bg-slate-950">
+        <ScriptManager projectId={id} />
+      </div>
+    );
+  }
+
+  // SHOT MANAGER VIEW
+  if (activeTab === AssetType.SHOT) {
+    return (
+      <div className="h-full bg-slate-50 dark:bg-slate-950">
+        <ShotManager projectId={id} />
+      </div>
+    );
+  }
+
   // LIST VIEW
   return (
     <div className="h-full flex flex-col overflow-hidden bg-slate-50 dark:bg-slate-950">
-      
+
+      {/* Header */}
+      <div className="px-6 md:px-10 pt-6 pb-2">
+        <div className="max-w-[1600px] mx-auto flex justify-between items-center">
+          <h2 className="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tight">
+            {activeTabPlural}
+          </h2>
+        </div>
+      </div>
+
       {/* Content Area */}
       <div className="flex-1 flex overflow-hidden">
-        <div className="flex-1 overflow-y-auto px-6 md:px-10 py-10">
+        <div className="flex-1 overflow-y-auto px-6 md:px-10 py-6">
           <div className="max-w-[1600px] mx-auto">
             <AssetList 
               projectId={id || ''} 

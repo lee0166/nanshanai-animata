@@ -141,15 +141,15 @@ export class ModelscopeProvider extends BaseProvider {
                     if (data.output_images && data.output_images.length > 0) {
                         const results = data.output_images.map((url: string) => ({ url }));
                         console.log(`[ModelscopeProvider] Task ${taskId} succeeded with ${results.length} images`);
-                        return { success: true, data: results, meta: data };
+                        return { success: true, data: results, metadata: data };
                     }
-                    return { success: false, error: "Task succeeded but no images found", meta: data };
+                    return { success: false, error: "Task succeeded but no images found", metadata: data };
                 }
 
                 if (data.task_status === 'FAILED') {
                     const errorMsg = data.errors?.message || 'Unknown error';
                     console.error(`[ModelscopeProvider] Task ${taskId} failed: ${errorMsg}`);
-                    return { success: false, error: `Task failed: ${errorMsg}`, meta: data };
+                    return { success: false, error: `Task failed: ${errorMsg}`, metadata: data };
                 }
 
                 console.log(`[ModelscopeProvider] Task ${taskId} status: ${data.task_status} (attempt ${i + 1})`);
@@ -174,5 +174,83 @@ export class ModelscopeProvider extends BaseProvider {
         extraParams?: Record<string, any>
     ): Promise<AIResult> {
         return { success: false, error: "Video generation not yet supported for Modelscope provider" };
+    }
+
+    /**
+     * Generate text using Modelscope LLM (OpenAI compatible API)
+     */
+    async generateText(
+        prompt: string,
+        config: ModelConfig,
+        systemPrompt?: string,
+        extraParams?: Record<string, any>
+    ): Promise<AIResult> {
+        try {
+            const apiKey = this.getApiKey(config);
+            const apiUrl = config.apiUrl || this.getBaseUrl(config);
+            const modelId = config.modelId;
+
+            // Build messages
+            const messages: Array<{ role: 'system' | 'user' | 'assistant'; content: string }> = [];
+            if (systemPrompt) {
+                messages.push({ role: 'system', content: systemPrompt });
+            }
+            messages.push({ role: 'user', content: prompt });
+
+            // Get parameters from config or extraParams
+            const temperature = extraParams?.temperature ?? 
+                config.parameters?.find(p => p.name === 'temperature')?.defaultValue ?? 0.3;
+            const maxTokens = extraParams?.maxTokens ?? 
+                config.parameters?.find(p => p.name === 'maxTokens')?.defaultValue ?? 4000;
+
+            const requestBody = {
+                model: modelId,
+                messages,
+                temperature,
+                max_tokens: maxTokens,
+                stream: false,
+            };
+
+            console.log(`[ModelscopeProvider] LLM Request: ${apiUrl}/chat/completions`);
+            console.log(`[ModelscopeProvider] Model: ${modelId}`);
+
+            const response = await this.makeRequest(`${apiUrl}/chat/completions`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${apiKey}`,
+                },
+                body: JSON.stringify(requestBody),
+            }, 120000);
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error(`[ModelscopeProvider] LLM API Error: ${response.status} - ${errorText}`);
+                return {
+                    success: false,
+                    error: `API Error: ${response.status} - ${errorText}`,
+                };
+            }
+
+            const data = await response.json();
+            const content = data.choices[0]?.message?.content || '';
+
+            console.log(`[ModelscopeProvider] LLM Response received, length: ${content.length} chars`);
+
+            return {
+                success: true,
+                data: content,
+                metadata: {
+                    usage: data.usage,
+                    model: modelId,
+                },
+            };
+        } catch (error: any) {
+            console.error('[ModelscopeProvider] LLM Error:', error);
+            return {
+                success: false,
+                error: error.message || 'Unknown error occurred',
+            };
+        }
     }
 }

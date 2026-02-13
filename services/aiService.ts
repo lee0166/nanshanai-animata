@@ -5,6 +5,7 @@ import { VolcengineProvider } from './ai/providers/VolcengineProvider';
 import { findModelConfig } from '../config/models';
 import { ViduProvider } from './ai/providers/ViduProvider';
 import { ModelscopeProvider } from './ai/providers/ModelscopeProvider';
+import { LLMProvider } from './ai/providers/LLMProvider';
 
 export interface GenerationJobParams {
     projectId: string;
@@ -42,6 +43,7 @@ export class AIService {
         this.registerProvider(new VolcengineProvider());
         this.registerProvider(new ViduProvider());
         this.registerProvider(new ModelscopeProvider());
+        this.registerProvider(new LLMProvider());
     }
 
     registerProvider(provider: IAIProvider) {
@@ -182,7 +184,7 @@ export class AIService {
     }
 
     // Helper to get all available models, optionally filtered
-    async getModels(filter?: { type?: 'image' | 'video', provider?: string }): Promise<ModelConfig[]> {
+    async getModels(filter?: { type?: 'image' | 'video' | 'llm', provider?: string }): Promise<ModelConfig[]> {
         const settings = await storageService.loadSettings();
         if (!settings) return [];
         
@@ -230,6 +232,44 @@ export class AIService {
         }
 
         return provider.generateVideo(prompt, config, startImage, endImage, existingTaskId, onTaskId, extraParams);
+    }
+
+    /**
+     * Generate text using LLM for script parsing
+     * Routes to the correct provider based on config.provider
+     */
+    async generateText(
+        prompt: string,
+        modelConfigId: string,
+        systemPrompt?: string,
+        extraParams?: Record<string, any>
+    ): Promise<AIResult> {
+        console.log(`[AIService] Generating text with model config ID: ${modelConfigId}`);
+
+        const config = await this.getModelConfig(modelConfigId);
+        if (!config) {
+            return { success: false, error: `Model configuration not found for ID: ${modelConfigId}` };
+        }
+
+        // Get provider based on config.provider (e.g., 'volcengine', 'openai', 'aliyun')
+        const provider = this.providers.get(config.provider);
+        if (!provider) {
+            return { success: false, error: `Unsupported provider: ${config.provider}` };
+        }
+
+        // Check if provider supports generateText
+        if (!provider.generateText) {
+            return { success: false, error: `Provider ${config.provider} does not support text generation` };
+        }
+
+        return provider.generateText(prompt, config, systemPrompt, extraParams);
+    }
+
+    /**
+     * Get LLM models for text parsing
+     */
+    async getLLMModels(): Promise<ModelConfig[]> {
+        return this.getModels({ type: 'llm' });
     }
 }
 

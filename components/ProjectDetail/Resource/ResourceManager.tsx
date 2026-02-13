@@ -450,7 +450,7 @@ const ResourceManager: React.FC<ResourceManagerProps> = ({ projectId, refreshTri
                                             )}
                                             
                                             <div className="absolute top-4 right-4 z-50">
-                                                <Button isIconOnly variant="flat" className="bg-white/10 text-white backdrop-blur-md" onPress={() => {
+                                                <Button isIconOnly variant="flat" aria-label="预览资源" className="bg-white/10 text-white backdrop-blur-md" onPress={() => {
                                                     const url = urls[selectedResource.id] || '';
                                                     if (selectedResource.type === 'video') {
                                                         openPreview([{

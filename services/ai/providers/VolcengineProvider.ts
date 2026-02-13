@@ -137,9 +137,9 @@ export class VolcengineProvider extends BaseProvider {
                      };
 
                      if (count > 1 || validResults.length > 1) {
-                        return { success: true, data: validResults, meta };
+                        return { success: true, data: validResults, metadata: meta };
                      }
-                     return { success: true, data: validResults[0], meta };
+                     return { success: true, data: validResults[0], metadata: meta };
                 }
             }
 
@@ -295,12 +295,12 @@ export class VolcengineProvider extends BaseProvider {
                 const data: VolcTaskStatusResponse = await res.json();
                 if (data.status === 'succeeded') {
                      if (data.content && data.content.video_url) {
-                         return { success: true, data: { videoUri: data.content.video_url }, meta: data };
+                         return { success: true, data: { videoUri: data.content.video_url }, metadata: data };
                      }
-                     return { success: false, error: "Task succeeded but no video URL", meta: data };
+                     return { success: false, error: "Task succeeded but no video URL", metadata: data };
                 }
                 if (['failed', 'cancelled', 'expired'].includes(data.status)) {
-                    return { success: false, error: `Video generation ${data.status}: ${data.error?.message}`, meta: data };
+                    return { success: false, error: `Video generation ${data.status}: ${data.error?.message}`, metadata: data };
                 }
              } catch (e) {
                  console.error("Polling exception", e);
@@ -308,5 +308,99 @@ export class VolcengineProvider extends BaseProvider {
              await new Promise(r => setTimeout(r, interval));
         }
         return { success: false, error: "Video generation timed out" };
+    }
+
+    /**
+     * Generate text using Volcengine LLM (OpenAI compatible API)
+     * Supports Doubao, DeepSeek, Kimi, GLM and other models hosted on Volcengine
+     */
+    async generateText(
+        prompt: string,
+        config: ModelConfig,
+        systemPrompt?: string,
+        extraParams?: Record<string, any>
+    ): Promise<AIResult> {
+        try {
+            const apiKey = this.getApiKey(config);
+            const apiUrl = config.apiUrl || this.getBaseUrl(config);
+            const modelId = config.modelId;
+
+            // Build messages
+            const messages: Array<{ role: 'system' | 'user' | 'assistant'; content: string }> = [];
+            if (systemPrompt) {
+                messages.push({ role: 'system', content: systemPrompt });
+            }
+            messages.push({ role: 'user', content: prompt });
+
+            // Get parameters from config or extraParams
+            const temperature = extraParams?.temperature ?? 
+                config.parameters?.find(p => p.name === 'temperature')?.defaultValue ?? 0.3;
+            const maxTokens = extraParams?.maxTokens ?? 
+                config.parameters?.find(p => p.name === 'maxTokens')?.defaultValue ?? 4000;
+
+            // Build request body
+            const requestBody: {
+                model: string;
+                messages: typeof messages;
+                temperature: number;
+                max_tokens: number;
+                stream: boolean;
+                enable_thinking?: boolean;
+            } = {
+                model: modelId,
+                messages,
+                temperature,
+                max_tokens: maxTokens,
+                stream: false,
+            };
+
+            // Add enable_thinking from model config (for DeepSeek R1, Kimi Thinking, etc.)
+            const enableThinking = config.providerOptions?.enableThinking;
+            if (enableThinking !== undefined) {
+                requestBody.enable_thinking = enableThinking;
+            }
+
+            console.log(`[VolcengineProvider] LLM Request: ${apiUrl}/chat/completions`);
+            console.log(`[VolcengineProvider] Model: ${modelId}`);
+            console.log(`[VolcengineProvider] Temperature: ${temperature}, MaxTokens: ${maxTokens}`);
+
+            const response = await this.makeRequest(`${apiUrl}/chat/completions`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${apiKey}`,
+                },
+                body: JSON.stringify(requestBody),
+            }, 120000); // 120 second timeout for LLM
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error(`[VolcengineProvider] LLM API Error: ${response.status} - ${errorText}`);
+                return {
+                    success: false,
+                    error: `API Error: ${response.status} - ${errorText}`,
+                };
+            }
+
+            const data = await response.json();
+            const content = data.choices[0]?.message?.content || '';
+
+            console.log(`[VolcengineProvider] LLM Response received, length: ${content.length} chars`);
+
+            return {
+                success: true,
+                data: content,
+                metadata: {
+                    usage: data.usage,
+                    model: modelId,
+                },
+            };
+        } catch (error: any) {
+            console.error('[VolcengineProvider] LLM Error:', error);
+            return {
+                success: false,
+                error: error.message || 'Unknown error occurred',
+            };
+        }
     }
 }

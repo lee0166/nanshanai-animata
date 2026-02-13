@@ -4,8 +4,10 @@ export enum AssetType {
   CHARACTER = 'character',
   SCENE = 'scene',
   ITEM = 'item',
+  SHOT = 'shot',
   VIDEO_SEGMENT = 'video_segment',
   RESOURCES = 'resources',
+  SCRIPT = 'script',
   IMAGE = 'image',
   VIDEO = 'video'
 }
@@ -151,6 +153,13 @@ export interface ModelCapabilities {
   maxPixels?: number;
   minAspectRatio?: number;
   maxAspectRatio?: number;
+  // LLM specific capabilities
+  maxContextLength?: number;
+  supportsStreaming?: boolean;
+  supportsFunctionCalling?: boolean;
+  supportsJsonMode?: boolean;
+  supportsVision?: boolean;
+  supportsSystemPrompt?: boolean;
 }
 
 export interface ModelParameter {
@@ -186,7 +195,7 @@ export interface ModelConfig {
   name: string;
   provider: string;
   modelId: string;
-  type: 'image' | 'video';
+  type: 'image' | 'video' | 'llm';
   capabilities: ModelCapabilities;
   parameters: ModelParameter[];
   templateId?: string; // Only instances have this, pointing back to the template
@@ -214,4 +223,138 @@ export interface AppSettings {
   pollingInterval: number;
   useSandbox: boolean;
   maxConcurrentJobs?: number;
+}
+
+// --- Script Parsing Types ---
+
+export interface Script {
+  id: string;
+  projectId: string;
+  title: string;
+  content: string; // Original text content
+  parseState: ScriptParseState;
+  createdAt: number;
+  updatedAt: number;
+}
+
+export type ParseStage = 'idle' | 'metadata' | 'characters' | 'scenes' | 'items' | 'shots' | 'completed' | 'error';
+
+export interface ScriptItem {
+  name: string;
+  description: string;
+  category: 'weapon' | 'tool' | 'jewelry' | 'document' | 'creature' | 'animal' | 'other';
+  owner?: string;
+  importance: 'major' | 'minor';
+  visualPrompt: string;
+  mappedAssetId?: string;
+}
+
+export interface ScriptParseState {
+  stage: ParseStage;
+  progress: number; // 0-100
+  metadata?: ScriptMetadata;
+  characters?: ScriptCharacter[];
+  scenes?: ScriptScene[];
+  items?: ScriptItem[];
+  shots?: Shot[];
+  error?: string;
+  currentChunkIndex?: number;
+  totalChunks?: number;
+}
+
+export interface ScriptMetadata {
+  title: string;
+  wordCount: number;
+  estimatedDuration: string;
+  characterCount: number;
+  characterNames: string[];
+  sceneCount: number;
+  sceneNames: string[];
+  chapterCount: number;
+  genre: string;
+  tone: string;
+}
+
+export interface ScriptCharacter {
+  name: string;
+  gender?: 'male' | 'female' | 'unknown';
+  age?: string;
+  identity?: string;
+  appearance: {
+    height?: string;
+    build?: string;
+    face?: string;
+    hair?: string;
+    clothing?: string;
+  };
+  personality: string[];
+  signatureItems: string[];
+  emotionalArc: Array<{
+    phase: string;
+    emotion: string;
+  }>;
+  relationships: Array<{
+    character: string;
+    relation: string;
+  }>;
+  visualPrompt: string;
+  mappedAssetId?: string; // Link to existing CharacterAsset
+}
+
+export interface ScriptScene {
+  name: string;
+  locationType: 'indoor' | 'outdoor' | 'unknown';
+  description: string;
+  timeOfDay?: string;
+  season?: string;
+  weather?: string;
+  environment: {
+    architecture?: string;
+    furnishings?: string[];
+    lighting?: string;
+    colorTone?: string;
+  };
+  sceneFunction: string;
+  visualPrompt: string;
+  characters: string[];
+  mappedAssetId?: string; // Link to existing SceneAsset
+}
+
+export type ShotType = 'extreme_long' | 'long' | 'full' | 'medium' | 'close_up' | 'extreme_close_up';
+export type CameraMovement = 'static' | 'push' | 'pull' | 'pan' | 'tilt' | 'track' | 'crane';
+
+export interface Shot {
+  id: string;
+  sequence: number;
+  sceneName: string;
+  shotType: ShotType;
+  cameraMovement: CameraMovement;
+  description: string;
+  dialogue?: string;
+  sound?: string;
+  duration: number;
+  characters: string[];
+  mappedFragmentId?: string; // Link to existing FragmentAsset
+  keyframes?: Keyframe[]; // 关键帧列表
+}
+
+// 关键帧
+export interface Keyframe {
+  id: string;
+  sequence: number; // 在分镜内的序号（1,2,3,4）
+  description: string; // 静态画面描述
+  prompt: string; // 图生图提示词
+  duration: number; // 该关键帧时长（秒）
+  references: {
+    character?: {
+      id: string; // 角色资产ID
+      name: string; // 角色名
+    };
+    scene?: {
+      id: string; // 场景资产ID
+      name: string; // 场景名
+    };
+  };
+  generatedImage?: GeneratedImage; // 生成的关键帧图片
+  status: 'pending' | 'generating' | 'completed' | 'failed';
 }

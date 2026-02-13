@@ -1,4 +1,4 @@
-import { Project, Asset, Job, AppSettings, JobStatus, AssetType, CharacterAsset, SceneAsset, ItemAsset, VideoSegment } from '../types';
+import { Project, Asset, Job, AppSettings, JobStatus, AssetType, CharacterAsset, SceneAsset, ItemAsset, VideoSegment, Script } from '../types';
 import { DEFAULT_SETTINGS } from '../config/settings';
 import { DEFAULT_MODELS, COMMON_IMAGE_PARAMS, COMMON_VOLC_VIDEO_PARAMS } from '../config/models';
 import { extractMp4Fps } from './metadata';
@@ -599,6 +599,22 @@ export class StorageService {
     }
   }
 
+  // List all files in the workspace directory
+  async listFiles(): Promise<{ name: string; kind: 'file' | 'directory' }[]> {
+    if (!this.directoryHandle) return [];
+    
+    const files: { name: string; kind: 'file' | 'directory' }[] = [];
+    try {
+      // @ts-ignore - TypeScript doesn't know about values() method
+      for await (const entry of this.directoryHandle.values()) {
+        files.push({ name: entry.name, kind: entry.kind });
+      }
+    } catch (e) {
+      console.error('[STORAGE] Failed to list files:', e);
+    }
+    return files;
+  }
+
   private async writeJson(filename: string, data: any): Promise<void> {
     const start = performance.now();
     
@@ -1059,6 +1075,83 @@ export class StorageService {
         console.error("Failed to save jobs batch:", e);
         throw e;
     }
+  }
+
+  // --- Script Management ---
+
+  async getScripts(projectId: string): Promise<Script[]> {
+    const data = await this.readJson<Script[]>(`scripts_${projectId}.json`);
+    return data || [];
+  }
+
+  async getAllScripts(): Promise<Script[]> {
+    // Get all script files and merge them
+    const files = await this.listFiles();
+    const scriptFiles = files.filter(f => f.name.startsWith('scripts_') && f.name.endsWith('.json'));
+    
+    let allScripts: Script[] = [];
+    for (const file of scriptFiles) {
+      const data = await this.readJson<Script[]>(file.name);
+      if (data) {
+        allScripts = allScripts.concat(data);
+      }
+    }
+    return allScripts;
+  }
+
+  async getScript(scriptId: string, projectId: string): Promise<Script | null> {
+    const scripts = await this.getScripts(projectId);
+    return scripts.find(s => s.id === scriptId) || null;
+  }
+
+  async saveScript(script: Script): Promise<void> {
+    const filename = `scripts_${script.projectId}.json`;
+    return this.lock(filename, async () => {
+      const scripts = await this.getScripts(script.projectId);
+      const index = scripts.findIndex(s => s.id === script.id);
+      
+      script.updatedAt = Date.now();
+      
+      if (index >= 0) {
+        scripts[index] = script;
+      } else {
+        scripts.push(script);
+      }
+      
+      await this.writeJson(filename, scripts);
+    });
+  }
+
+  async deleteScript(scriptId: string, projectId: string): Promise<void> {
+    const filename = `scripts_${projectId}.json`;
+    return this.lock(filename, async () => {
+      let scripts = await this.getScripts(projectId);
+      scripts = scripts.filter(s => s.id !== scriptId);
+      await this.writeJson(filename, scripts);
+    });
+  }
+
+  async updateScriptParseState(
+    scriptId: string, 
+    projectId: string, 
+    updateFn: (state: Script['parseState']) => Script['parseState']
+  ): Promise<void> {
+    const filename = `scripts_${projectId}.json`;
+    return this.lock(filename, async () => {
+      const scripts = await this.getScripts(projectId);
+      const index = scripts.findIndex(s => s.id === scriptId);
+      
+      if (index === -1) {
+        throw new Error(`Script not found: ${scriptId}`);
+      }
+      
+      const script = scripts[index];
+      script.parseState = updateFn(script.parseState);
+      script.updatedAt = Date.now();
+      
+      scripts[index] = script;
+      await this.writeJson(filename, scripts);
+    });
   }
 }
 
