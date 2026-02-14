@@ -111,7 +111,7 @@ const Layout: React.FC<LayoutProps> = ({ children, isConnected, onConnect, activ
           <NavbarBrand>
             <Link to="/" className="flex items-center gap-2">
               <div className="w-8 h-8">
-                <img src='/icon.png' className="w-full h-full object-contain" />
+                <img src="/icon.png" className="w-full h-full object-contain" />
               </div>
               <span className="hidden sm:block font-black text-xl tracking-tighter uppercase text-slate-900 dark:text-white">
                 {t.appTitle}
@@ -235,8 +235,8 @@ const Layout: React.FC<LayoutProps> = ({ children, isConnected, onConnect, activ
         {!isConnected && !isSettings ? (
           <div className="h-full flex flex-col items-center justify-center p-8 text-center bg-slate-50 dark:bg-slate-950">
             <Card className="max-w-lg p-10 md:p-14 border-none shadow-2xl bg-white dark:bg-slate-900 rounded-[2.5rem]">
-              <div className="w-8 h-8 mx-auto mb-10">                
-                <img src='/icon.png' className="w-full h-full object-contain" />
+              <div className="w-8 h-8 mx-auto mb-10">
+                <img src="/icon.png" className="w-full h-full object-contain" />
               </div>
               <h2 className="text-4xl font-black mb-4 text-slate-900 dark:text-white tracking-tighter uppercase">{t.workspace.selectTitle}</h2>
               <p className="text-slate-500 dark:text-slate-400 mb-10 leading-relaxed text-lg font-medium">
