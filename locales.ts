@@ -1,7 +1,7 @@
 
 export const translations = {
   en: {
-    appTitle: "Kmeng AI Animata",
+    appTitle: "Nanshan AI Animata",
     sidebar: {
       openWorkspace: "Open Workspace",
       dashboard: "Dashboard",
@@ -436,7 +436,7 @@ export const translations = {
     }
   },
   zh: {
-    appTitle: "可梦AI漫剧版",
+    appTitle: "南山AI短剧版",
     sidebar: {
       openWorkspace: "打开工作区",
       dashboard: "仪表盘",

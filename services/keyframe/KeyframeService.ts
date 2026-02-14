@@ -18,6 +18,7 @@ export interface GenerateKeyframeImageOptions {
   characterAsset?: CharacterAsset;
   sceneAsset?: Asset;
   modelConfigId?: string; // 用户选择的生图模型配置ID
+  size?: string; // 图片尺寸：'1K' | '2K' | '4K'
 }
 
 export class KeyframeService {
@@ -59,7 +60,7 @@ export class KeyframeService {
    * 使用火山引擎API，支持多图参考
    */
   async generateKeyframeImage(options: GenerateKeyframeImageOptions): Promise<Keyframe> {
-    const { keyframe, projectId, characterAsset, sceneAsset, modelConfigId } = options;
+    const { keyframe, projectId, characterAsset, sceneAsset, modelConfigId, size = '2K' } = options;
 
     keyframe.status = 'generating';
 
@@ -83,14 +84,24 @@ export class KeyframeService {
       }
 
       // 2. 调用火山引擎API
-      // 使用用户选择的modelConfigId
+      // 使用用户选择的modelConfigId和size
       const generatedImage = await this.callVolcengineAPI({
         prompt: keyframe.prompt,
         referenceImages,
-        size: '2K',
+        size,
         modelConfigId
       });
 
+      // 添加到历史记录数组
+      if (!keyframe.generatedImages) {
+        keyframe.generatedImages = [];
+      }
+      keyframe.generatedImages.push(generatedImage);
+      
+      // 设置当前选中的图片
+      keyframe.currentImageId = generatedImage.id;
+      
+      // 兼容旧字段
       keyframe.generatedImage = generatedImage;
       keyframe.status = 'completed';
 
@@ -174,17 +185,73 @@ export class KeyframeService {
       );
 
       if (result.success && result.data) {
-        return {
-          id: result.data.id || `generated_${Date.now()}`,
-          path: result.data.url || result.data.path,
+        // 处理不同 provider 返回的数据格式
+        // Modelscope 返回数组格式: [{ url: "xxx" }]
+        // Volcengine 返回对象格式: { url: "xxx" }
+        const imageData = Array.isArray(result.data) ? result.data[0] : result.data;
+        
+        console.log('[KeyframeService] imageData from provider:', imageData);
+        
+        const imageUrl = imageData.url || imageData.path;
+        
+        // 下载图片并保存到本地
+        let localPath = imageUrl;
+        if (imageUrl && (imageUrl.startsWith('http://') || imageUrl.startsWith('https://'))) {
+          try {
+            console.log('[KeyframeService] Downloading image from:', imageUrl);
+            
+            // 使用代理下载图片（避免CORS问题）
+            let blob: Blob;
+            try {
+              const proxyUrl = `/api/proxy?url=${encodeURIComponent(imageUrl)}`;
+              const proxyRes = await fetch(proxyUrl);
+              if (!proxyRes.ok) throw new Error(`Proxy fetch failed: ${proxyRes.statusText}`);
+              blob = await proxyRes.blob();
+            } catch (proxyError) {
+              console.log('[KeyframeService] Proxy failed, trying direct fetch...');
+              const directRes = await fetch(imageUrl);
+              if (!directRes.ok) throw new Error(`Direct fetch failed: ${directRes.statusText}`);
+              blob = await directRes.blob();
+            }
+            
+            // 根据blob类型确定扩展名
+            let ext = 'jpg';
+            if (blob.type === 'image/webp') ext = 'webp';
+            else if (blob.type === 'image/png') ext = 'png';
+            
+            // 生成文件名
+            const timestamp = Date.now();
+            const random = Math.random().toString(36).substring(2, 8);
+            const filename = `${timestamp}_${random}.${ext}`;
+            const path = `generated/keyframes/${filename}`;
+            
+            // 保存到本地
+            await storageService.saveBinaryFile(path, blob);
+            console.log('[KeyframeService] Image saved to:', path);
+            
+            localPath = path;
+          } catch (error) {
+            console.error('[KeyframeService] Failed to download image:', error);
+            // 如果下载失败，使用原始 URL
+            localPath = imageUrl;
+          }
+        }
+        
+        const generatedImage = {
+          id: imageData.id || `generated_${Date.now()}`,
+          path: localPath,
           prompt: params.prompt,
           modelConfigId: params.modelConfigId,
-          modelId: result.data.modelId,
+          modelId: imageData.modelId,
           referenceImages: params.referenceImages,
           createdAt: Date.now(),
-          width: result.data.width,
-          height: result.data.height
+          width: imageData.width,
+          height: imageData.height
         };
+        
+        console.log('[KeyframeService] generatedImage:', generatedImage);
+        
+        return generatedImage;
       } else {
         throw new Error(result.error || '生图失败');
       }

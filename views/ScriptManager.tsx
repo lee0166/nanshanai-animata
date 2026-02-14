@@ -710,7 +710,8 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
         </div>
         <div className="flex gap-2">
           <Select
-            label="选择剧本"
+            aria-label="选择剧本"
+            placeholder="选择剧本"
             selectedKeys={currentScript ? new Set([currentScript.id]) : new Set()}
             onChange={(e) => {
               const script = scripts.find(s => s.id === e.target.value);
@@ -865,30 +866,28 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
                       </div>
                     }
                   >
-                    <div className="h-[500px] flex flex-col">
-                      {/* 分镜管理导航按钮 */}
-                      <div className="flex justify-end mb-4">
-                        <Button
-                          color="primary"
-                          variant="flat"
-                          size="sm"
-                          startContent={<Film size={16} />}
-                          onPress={() => navigate(`/project/${projectId}/shots`)}
-                        >
-                          打开分镜管理
-                        </Button>
-                      </div>
-                      {/* 分镜列表 - 可滚动 */}
-                      <div className="flex-1 overflow-y-auto pr-2">
+                    <Card>
+                      <CardBody className="h-[420px] overflow-y-auto">
                         <ShotList
                           shots={currentScript.parseState.shots || []}
                           scenes={currentScript.parseState.scenes || []}
                           onShotsUpdate={(shots) => handleUpdateParseState({ shots })}
                           projectId={projectId || ''}
                           viewMode="list"
+                          headerAction={
+                            <Button
+                              color="primary"
+                              variant="flat"
+                              size="sm"
+                              startContent={<Film size={16} />}
+                              onPress={() => navigate(`/project/${projectId}/shots`)}
+                            >
+                              打开分镜管理
+                            </Button>
+                          }
                         />
-                      </div>
-                    </div>
+                      </CardBody>
+                    </Card>
                   </Tab>
                 </>
               )}

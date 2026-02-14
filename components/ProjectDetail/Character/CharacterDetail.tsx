@@ -639,6 +639,7 @@ const CharacterDetail: React.FC<CharacterDetailProps> = ({ asset, onUpdate, proj
                         <div className="flex flex-col gap-2">
                             <label className="text-slate-300 font-bold text-base ml-1">{t.character.gender}</label>
                             <Select 
+                                aria-label={t.character.gender}
                                 placeholder={t.character.gender}
                                 selectedKeys={[gender]}
                                 onChange={(e) => handleGenderChange(e.target.value)}
@@ -662,6 +663,7 @@ const CharacterDetail: React.FC<CharacterDetailProps> = ({ asset, onUpdate, proj
                         <div className="flex flex-col gap-2">
                             <label className="text-slate-300 font-bold text-base ml-1">{t.character.ageGroup}</label>
                             <Select 
+                                aria-label={t.character.ageGroup}
                                 placeholder={t.character.ageGroup}
                                 selectedKeys={[ageGroup]}
                                 onChange={(e) => handleAgeChange(e.target.value)}

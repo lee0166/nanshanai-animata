@@ -37,6 +37,7 @@ interface ShotListProps {
   onGenerateFragment?: (shot: Shot) => void;
   projectId: string; // 项目ID，用于查询资产
   viewMode?: 'list' | 'manager'; // 视图模式：list-剧本管理页面（不显示拆分按钮），manager-分镜管理页面（显示拆分按钮）
+  headerAction?: React.ReactNode; // 头部区域额外操作按钮
 }
 
 const SHOT_TYPE_LABELS: Record<string, string> = {
@@ -64,7 +65,8 @@ export const ShotList: React.FC<ShotListProps> = ({
   onShotsUpdate,
   onGenerateFragment,
   projectId,
-  viewMode = 'list'
+  viewMode = 'list',
+  headerAction
 }) => {
   const { settings } = useApp();
   const [selectedShot, setSelectedShot] = useState<Shot | null>(null);
@@ -324,7 +326,8 @@ export const ShotList: React.FC<ShotListProps> = ({
         </div>
         <div className="flex gap-2">
           <Select
-            label="筛选场景"
+            aria-label="筛选场景"
+            placeholder="筛选场景"
             selectedKeys={new Set([selectedScene])}
             onChange={(e) => setSelectedScene(e.target.value)}
             size="sm"
@@ -355,6 +358,7 @@ export const ShotList: React.FC<ShotListProps> = ({
           >
             卡片
           </Button>
+          {headerAction}
         </div>
       </div>
 

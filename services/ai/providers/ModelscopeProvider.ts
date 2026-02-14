@@ -209,6 +209,7 @@ export class ModelscopeProvider extends BaseProvider {
                 temperature,
                 max_tokens: maxTokens,
                 stream: false,
+                enable_thinking: false,
             };
 
             console.log(`[ModelscopeProvider] LLM Request: ${apiUrl}/chat/completions`);

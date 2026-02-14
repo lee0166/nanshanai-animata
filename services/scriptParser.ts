@@ -10,7 +10,7 @@
  * - Progress tracking and cancellation support
  *
  * @module services/scriptParser
- * @author Kmeng AI Team
+ * @author Nanshan AI Team
  * @version 1.0.0
  */
 
