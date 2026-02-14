@@ -128,13 +128,14 @@ export const ImageGenerationPanel: React.FC<ImageGenerationPanelProps> = ({
             <div className="flex flex-col gap-2">
                 <label className="text-slate-300 font-bold text-base ml-1">{t.project.modelLabel}</label>
                 <Select
+                    aria-label={t.project.modelLabel}
                     placeholder={t.project.modelLabel}
                     selectedKeys={modelId ? new Set([modelId]) : new Set([])}
                     onChange={(e) => onModelChange(e.target.value)}
                     variant="bordered"
                     radius="lg"
                     isDisabled={generating}
-                    classNames={{ 
+                    classNames={{
                         value: "font-bold text-sm",
                         trigger: "border-2 data-[focus=true]:border-primary"
                     }}

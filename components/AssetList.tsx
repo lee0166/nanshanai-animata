@@ -359,6 +359,7 @@ const AssetList: React.FC<AssetListProps> = ({
                 <span className="text-sm font-bold text-slate-600 dark:text-slate-300">{t.project.itemTypeLabel}</span>
            </div>
            <Select
+                aria-label={t.project.itemTypeLabel}
                 placeholder={t.project.filterAll}
                 selectedKeys={[itemTypeFilter]}
                 onChange={(e) => setItemTypeFilter(e.target.value)}

@@ -72,14 +72,13 @@ export class LLMProvider extends BaseProvider implements IAIProvider {
 
       // Add enable_thinking from model config (providerOptions)
       // For non-streaming calls, some providers (like Modelscope Qwen3) require explicit enable_thinking=false
-      // Default to false for all non-streaming requests to ensure compatibility
-      const enableThinking = config.providerOptions?.enableThinking;
-      requestBody.enable_thinking = enableThinking !== undefined ? enableThinking : false;
+      // Always set to false for non-streaming requests to ensure compatibility with all models
+      requestBody.enable_thinking = false;
 
       console.log(`[LLMProvider] ========== API Request ==========`);
       console.log(`[LLMProvider] Endpoint: ${apiUrl}/chat/completions`);
       console.log(`[LLMProvider] Model: ${modelId}`);
-      console.log(`[LLMProvider] enable_thinking: ${enableThinking}`);
+      console.log(`[LLMProvider] enable_thinking: false`);
       console.log(`[LLMProvider] Temperature: ${temperature}`);
       console.log(`[LLMProvider] Max Tokens: ${maxTokens}`);
       console.log(`[LLMProvider] Messages count: ${messages.length}`);

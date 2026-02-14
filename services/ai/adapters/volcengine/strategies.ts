@@ -48,7 +48,7 @@ export class Seedream4Strategy implements IVolcengineStrategy {
             model: config.modelId,
             prompt: count > 1 ? `${prompt}，生成${count}张图` : prompt,
             size: size,
-            response_format: "b64_json",
+            response_format: "url",
             watermark: false
         };
 
@@ -88,7 +88,7 @@ export class Seedream3Strategy implements IVolcengineStrategy {
             model: config.modelId,
             prompt: prompt,
             size: size,
-            response_format: "b64_json",
+            response_format: "url",
             watermark: false
         };
 
@@ -145,7 +145,7 @@ export class DefaultStrategy implements IVolcengineStrategy {
             model: config.modelId,
             prompt: (count > 1 && shouldAppend) ? `${prompt}，生成${count}张图` : prompt,
             size: size,
-            response_format: "b64_json",
+            response_format: "url",
             watermark: false
         };
         if (count > 1) {

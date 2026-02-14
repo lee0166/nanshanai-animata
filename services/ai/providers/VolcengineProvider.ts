@@ -71,7 +71,11 @@ export class VolcengineProvider extends BaseProvider {
 
             // 2. Prepare Strategy
             const strategy = this.getStrategy(config);
-            const size = strategy.resolveSize(aspectRatio, resolution);
+            // 如果 resolution 已经是具体像素格式（如 1024x576），直接使用
+            // 否则调用 resolveSize 计算
+            const size = resolution && /^\d+x\d+$/.test(resolution) 
+                ? resolution 
+                : strategy.resolveSize(aspectRatio, resolution);
             
             // 3. Prepare Request
             const body = strategy.prepareRequest(prompt, config, loadedImages, size, count, guidanceScale, extraParams);
@@ -100,25 +104,32 @@ export class VolcengineProvider extends BaseProvider {
             if (data.data && data.data.length > 0) {
                 // Process results
                  const results = await Promise.all(data.data.map(async (item: any) => {
-                    if (item.b64_json) {
-                        return { base64: item.b64_json };
+                    // Support both b64_json (API standard) and base64 (actual response)
+                    const base64Data = item.b64_json || item.base64;
+                    if (base64Data) {
+                        // Convert base64 to data URL
+                        return { 
+                            url: `data:image/jpeg;base64,${base64Data}`,
+                            width: item.width || parseInt(size.split('x')[0]) || 0,
+                            height: item.height || parseInt(size.split('x')[1]) || 0,
+                            modelId: config.modelId
+                        };
                     }
                     if (item.url) {
-                        // Download logic
-                         try {
-                            const res = await fetch(item.url);
-                            const blob = await res.blob();
-                            const filename = `generated/${Date.now()}_${Math.random().toString(36).substr(2, 9)}.jpg`;
-                            await storageService.saveBinaryFile(filename, blob);
-                            return { path: filename };
-                         } catch (e) {
-                            return { url: item.url };
-                         }
+                        // Return URL for now, will handle download in KeyframeService
+                        return { 
+                            url: item.url,
+                            width: item.width || parseInt(size.split('x')[0]) || 0,
+                            height: item.height || parseInt(size.split('x')[1]) || 0,
+                            modelId: config.modelId
+                        };
                     }
                     return null;
                 }));
                 
                 const validResults = results.filter(Boolean);
+                console.log('[VolcengineProvider] validResults:', validResults);
+                
                 if (validResults.length > 0) {
                      // Create meta
                      const { data: originalData, ...rawMeta } = data;
@@ -136,10 +147,9 @@ export class VolcengineProvider extends BaseProvider {
                         modelConfigId: config.id
                      };
 
-                     if (count > 1 || validResults.length > 1) {
-                        return { success: true, data: validResults, metadata: meta };
-                     }
-                     return { success: true, data: validResults[0], metadata: meta };
+                     // Always return array format for consistency across all providers
+                     console.log('[VolcengineProvider] Returning success with data:', validResults);
+                     return { success: true, data: validResults, metadata: meta };
                 }
             }
 

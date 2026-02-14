@@ -1,12 +1,123 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useParams } from 'react-router-dom';
-import { Script, Shot, ScriptScene, CharacterAsset, Asset, AssetType } from '../types';
+import { Script, Shot, ScriptScene, CharacterAsset, Asset, AssetType, ModelConfig, GeneratedImage } from '../types';
 import { storageService } from '../services/storage';
 import { useApp } from '../contexts/context';
 import { useToast } from '../contexts/ToastContext';
+import { usePreview } from '../components/PreviewProvider';
 import { Card, CardBody, Button, Chip, Badge, Progress, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Select, SelectItem } from "@heroui/react";
-import { Camera, Film, Clock, Users, MapPin, Scissors, AlertCircle } from 'lucide-react';
+import { Camera, Film, Clock, Users, MapPin, Scissors, AlertCircle, Eye, ChevronLeft, ChevronRight } from 'lucide-react';
 import { keyframeService } from '../services/keyframe';
+import { DEFAULT_MODELS } from '../config/models';
+
+// 缩略图滚动组件
+interface ThumbnailScrollerProps {
+  images: GeneratedImage[];
+  currentImageId?: string;
+  imageUrls: Record<string, string>;
+  onSelect: (imageId: string) => void;
+  onDelete: (imageId: string) => void;
+}
+
+const ThumbnailScroller: React.FC<ThumbnailScrollerProps> = ({
+  images, currentImageId, imageUrls, onSelect, onDelete
+}) => {
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(false);
+  
+  const checkScroll = () => {
+    const container = scrollContainerRef.current;
+    if (container) {
+      setCanScrollLeft(container.scrollLeft > 0);
+      setCanScrollRight(container.scrollLeft < container.scrollWidth - container.clientWidth - 10);
+    }
+  };
+  
+  useEffect(() => {
+    checkScroll();
+    const container = scrollContainerRef.current;
+    if (container) {
+      container.addEventListener('scroll', checkScroll);
+      return () => container.removeEventListener('scroll', checkScroll);
+    }
+  }, [images.length]);
+  
+  const scroll = (direction: 'left' | 'right') => {
+    const container = scrollContainerRef.current;
+    if (container) {
+      const scrollAmount = direction === 'left' ? -200 : 200;
+      container.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+    }
+  };
+  
+  if (!images || images.length === 0) return null;
+  
+  return (
+    <div className="bg-slate-50 dark:bg-slate-800/50 rounded-lg p-3">
+      <div className="flex items-center justify-between mb-2">
+        <div className="text-xs text-slate-500">历史生成记录 ({images.length})</div>
+      </div>
+      <div className="relative flex items-center">
+        {/* 左滑动按钮 */}
+        {canScrollLeft && (
+          <button
+            className="absolute left-0 z-10 w-6 h-6 rounded-full bg-black/50 text-white flex items-center justify-center hover:bg-black/70 transition-colors"
+            onClick={() => scroll('left')}
+          >
+            <ChevronLeft size={14} />
+          </button>
+        )}
+        
+        <div 
+          ref={scrollContainerRef}
+          className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide flex-1 mx-7"
+          style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+        >
+          {images.map((img, idx) => {
+            const isSelected = img.id === currentImageId;
+            const imgUrl = imageUrls[img.id] || img.path;
+            return (
+              <div 
+                key={img.id} 
+                className={`relative flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden cursor-pointer border-2 group ${
+                  isSelected ? 'border-blue-500' : 'border-transparent hover:border-slate-300'
+                }`}
+                onClick={() => onSelect(img.id)}
+              >
+                <img
+                  src={imgUrl}
+                  alt={`生成图片 ${idx + 1}`}
+                  className="w-full h-full object-cover"
+                />
+                {/* 删除按钮 */}
+                <button
+                  className="absolute top-0.5 right-0.5 w-4 h-4 rounded-full bg-red-500 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity text-xs"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onDelete(img.id);
+                  }}
+                >
+                  ×
+                </button>
+              </div>
+            );
+          })}
+        </div>
+        
+        {/* 右滑动按钮 */}
+        {canScrollRight && (
+          <button
+            className="absolute right-0 z-10 w-6 h-6 rounded-full bg-black/50 text-white flex items-center justify-center hover:bg-black/70 transition-colors"
+            onClick={() => scroll('right')}
+          >
+            <ChevronRight size={14} />
+          </button>
+        )}
+      </div>
+    </div>
+  );
+};
 
 // 分镜状态标签
 const getStatusBadge = (shot: Shot) => {
@@ -41,6 +152,7 @@ export const ShotManager: React.FC<ShotManagerProps> = ({ projectId: propProject
   const projectId = propProjectId || urlProjectId;
   const { settings } = useApp();
   const { showToast } = useToast();
+  const { openPreview } = usePreview();
 
   // 设置当前活动标签为分镜管理
   useEffect(() => {
@@ -64,6 +176,104 @@ export const ShotManager: React.FC<ShotManagerProps> = ({ projectId: propProject
   const [selectedLLMModel, setSelectedLLMModel] = useState<string>('');
   const [keyframeCount, setKeyframeCount] = useState<number>(3);
   const [selectedShotForSplit, setSelectedShotForSplit] = useState<Shot | null>(null);
+  const [selectedImageModel, setSelectedImageModel] = useState<string>('');
+  const [selectedResolution, setSelectedResolution] = useState<string>('1K');
+  const [selectedAspectRatio, setSelectedAspectRatio] = useState<string>('16:9');
+  
+  // 存储图片URL的缓存
+  const [imageUrls, setImageUrls] = useState<Record<string, string>>({});
+
+  // 获取当前选择的模型配置
+  const selectedModelConfig = useMemo(() => {
+    if (!selectedImageModel) return undefined;
+    const runtimeModel = settings.models.find(m => m.id === selectedImageModel);
+    const staticModel = DEFAULT_MODELS.find(m => m.id === selectedImageModel || m.modelId === runtimeModel?.modelId);
+    // 合并 runtimeModel 和 staticModel，确保 provider 字段正确
+    if (runtimeModel && staticModel) {
+      return { ...staticModel, ...runtimeModel, provider: staticModel.provider };
+    }
+    return runtimeModel || staticModel;
+  }, [selectedImageModel, settings.models]);
+
+  // 计算当前模型支持的尺寸
+  const availableResolutions = useMemo(() => {
+    if (!selectedModelConfig) return ['1K', '2K', '4K'];
+    const supported = selectedModelConfig.capabilities?.supportedResolutions;
+    if (supported && supported.length > 0) return supported;
+    return ['1K', '2K', '4K'];
+  }, [selectedModelConfig]);
+
+  // 当模型变化时，自动校正尺寸选择
+  useEffect(() => {
+    if (selectedModelConfig && selectedResolution) {
+      const supported = selectedModelConfig.capabilities?.supportedResolutions || ['1K', '2K', '4K'];
+      if (!supported.includes(selectedResolution)) {
+        // 如果当前尺寸不被支持，切换到默认尺寸
+        const defaultRes = selectedModelConfig.capabilities?.defaultResolution || supported[0] || '1K';
+        setSelectedResolution(defaultRes);
+      }
+    }
+  }, [selectedModelConfig, selectedResolution]);
+
+  // 判断是否为火山模型
+  const isVolcengineModel = useMemo(() => {
+    return selectedModelConfig?.provider === 'volcengine';
+  }, [selectedModelConfig]);
+
+  // 计算最终的 size 参数
+  const calculateSize = useMemo(() => {
+    if (isVolcengineModel) {
+      // 火山模型：使用官方推荐的尺寸映射表
+      // 参考火山文档：https://www.volcengine.com/docs/82379/1541523
+      const volcengineSizeMap: Record<string, Record<string, string>> = {
+        '1K': {
+          '1:1': '1024x1024',
+          '4:3': '864x1152',
+          '3:4': '1152x864',
+          '16:9': '1280x720',
+          '9:16': '720x1280',
+          '3:2': '832x1248',
+          '2:3': '1248x832',
+          '21:9': '1512x648'
+        },
+        '2K': {
+          '1:1': '2048x2048',
+          '4:3': '2304x1728',
+          '3:4': '1728x2304',
+          '16:9': '2560x1440',
+          '9:16': '1440x2560',
+          '3:2': '2496x1664',
+          '2:3': '1664x2496',
+          '21:9': '3024x1296'
+        },
+        '4K': {
+          '1:1': '4096x4096',
+          '3:4': '3520x4704',
+          '4:3': '4704x3520',
+          '16:9': '5504x3040',
+          '9:16': '3040x5504',
+          '2:3': '3328x4992',
+          '3:2': '4992x3328',
+          '21:9': '6240x2656'
+        }
+      };
+      const resolutionMap = volcengineSizeMap[selectedResolution] || volcengineSizeMap['1K'];
+      return resolutionMap[selectedAspectRatio] || resolutionMap['16:9'] || '1280x720';
+    } else {
+      // 魔搭模型：直接使用宽高比对应的像素值
+      const modelscopeSizeMap: Record<string, string> = {
+        '1:1': '1024x1024',
+        '4:3': '1152x864',
+        '3:4': '864x1152',
+        '16:9': '1280x720',
+        '9:16': '720x1280',
+        '3:2': '1248x832',
+        '2:3': '832x1248',
+        '21:9': '1512x648'
+      };
+      return modelscopeSizeMap[selectedAspectRatio] || '1280x720';
+    }
+  }, [isVolcengineModel, selectedResolution, selectedAspectRatio]);
 
   // 加载剧本数据
   useEffect(() => {
@@ -97,6 +307,52 @@ export const ShotManager: React.FC<ShotManagerProps> = ({ projectId: propProject
   const allShots = useMemo(() => {
     return currentScript?.parseState?.shots || [];
   }, [currentScript]);
+
+  // 加载图片URL
+  useEffect(() => {
+    const loadImageUrls = async () => {
+      const urls: Record<string, string> = {};
+      
+      // 遍历所有分镜和关键帧
+      allShots.forEach(shot => {
+        shot.keyframes?.forEach(kf => {
+          // 处理 generatedImages
+          if (kf.generatedImages) {
+            kf.generatedImages.forEach(img => {
+              if (img.path) {
+                // 如果是远程URL，直接使用
+                if (img.path.startsWith('http://') || img.path.startsWith('https://')) {
+                  urls[img.id] = img.path;
+                } else {
+                  // 本地路径，需要获取可访问的URL
+                  storageService.getAssetUrl(img.path).then(url => {
+                    setImageUrls(prev => ({ ...prev, [img.id]: url }));
+                  });
+                }
+              }
+            });
+          }
+          // 处理旧的 generatedImage
+          if (kf.generatedImage?.path) {
+            const img = kf.generatedImage;
+            if (img.path.startsWith('http://') || img.path.startsWith('https://')) {
+              urls[img.id] = img.path;
+            } else {
+              storageService.getAssetUrl(img.path).then(url => {
+                setImageUrls(prev => ({ ...prev, [img.id]: url }));
+              });
+            }
+          }
+        });
+      });
+      
+      setImageUrls(urls);
+    };
+    
+    if (allShots.length > 0) {
+      loadImageUrls();
+    }
+  }, [allShots]);
 
   // 当前选中的分镜
   const selectedShot = useMemo(() => {
@@ -136,18 +392,49 @@ export const ShotManager: React.FC<ShotManagerProps> = ({ projectId: propProject
 
   // 确认拆分关键帧
   const confirmSplitKeyframes = async () => {
-    if (!projectId || !currentScript || !selectedShotForSplit || !selectedLLMModel) return;
+    console.log('[ShotManager] 开始拆分关键帧...');
+    console.log('[ShotManager] projectId:', projectId);
+    console.log('[ShotManager] currentScript:', currentScript?.id);
+    console.log('[ShotManager] selectedShotForSplit:', selectedShotForSplit?.id);
+    console.log('[ShotManager] selectedLLMModel:', selectedLLMModel);
+
+    if (!projectId || !currentScript || !selectedShotForSplit || !selectedLLMModel) {
+      console.error('[ShotManager] 缺少必要参数:', { projectId, currentScript: !!currentScript, selectedShotForSplit: !!selectedShotForSplit, selectedLLMModel });
+      showToast('缺少必要参数，请检查选择', 'error');
+      return;
+    }
+
+    // 验证模型配置
+    const selectedModel = availableLLMModels.find(m => m.id === selectedLLMModel);
+    console.log('[ShotManager] 选择的模型配置:', selectedModel);
+    if (!selectedModel) {
+      console.error('[ShotManager] 找不到模型配置:', selectedLLMModel);
+      showToast('找不到模型配置，请重新选择模型', 'error');
+      return;
+    }
+    if (!selectedModel.apiKey) {
+      console.error('[ShotManager] 模型未配置 API Key:', selectedModel.id);
+      showToast('模型未配置 API Key，请在设置中配置', 'error');
+      return;
+    }
+    if (!selectedModel.modelId) {
+      console.error('[ShotManager] 模型未配置 modelId:', selectedModel.id);
+      showToast('模型配置不完整，请在设置中检查', 'error');
+      return;
+    }
 
     setIsSplitModalOpen(false);
     setSplittingShotId(selectedShotForSplit.id);
     
     try {
+      console.log('[ShotManager] 调用 keyframeService.splitKeyframes...');
       const keyframes = await keyframeService.splitKeyframes({
         shot: selectedShotForSplit,
         keyframeCount: keyframeCount,
         projectId,
         modelConfigId: selectedLLMModel
       });
+      console.log('[ShotManager] 拆分成功，关键帧数量:', keyframes.length);
 
       // 更新shot的keyframes
       const updatedShot = { ...selectedShotForSplit, keyframes };
@@ -165,9 +452,10 @@ export const ShotManager: React.FC<ShotManagerProps> = ({ projectId: propProject
       await storageService.saveScript(updatedScript);
       setScripts(scripts.map(s => s.id === updatedScript.id ? updatedScript : s));
       showToast('关键帧拆分成功', 'success');
-    } catch (error) {
-      console.error('拆分关键帧失败:', error);
-      showToast('拆分关键帧失败', 'error');
+    } catch (error: any) {
+      console.error('[ShotManager] 拆分关键帧失败:', error);
+      console.error('[ShotManager] 错误详情:', error.message, error.stack);
+      showToast(`拆分关键帧失败: ${error.message || '未知错误'}`, 'error');
     } finally {
       setSplittingShotId(null);
       setSelectedShotForSplit(null);
@@ -183,13 +471,16 @@ export const ShotManager: React.FC<ShotManagerProps> = ({ projectId: propProject
       return;
     }
 
+    if (!selectedImageModel) {
+      showToast('请先选择生图模型', 'error');
+      return;
+    }
+
     const kf = selectedShot.keyframes?.[keyframeIndex];
     if (!kf) return;
 
     setGeneratingKeyframeId(kf.id);
     try {
-      const defaultModel = availableImageModels.find(m => m.isDefault) || availableImageModels[0];
-      
       // 获取项目资产作为参考
       const assets = await storageService.getAssets(projectId);
       const characterAsset = kf.references?.character 
@@ -199,13 +490,17 @@ export const ShotManager: React.FC<ShotManagerProps> = ({ projectId: propProject
         ? assets.find(a => a.type === AssetType.SCENE && a.name === kf.references.scene.name)
         : undefined;
 
+      console.log('[ShotManager] 开始生成图片，modelConfigId:', selectedImageModel, 'size:', calculateSize);
       const updatedKeyframe = await keyframeService.generateKeyframeImage({
         keyframe: kf,
         projectId,
         characterAsset,
         sceneAsset,
-        modelConfigId: defaultModel.id
+        modelConfigId: selectedImageModel,
+        size: calculateSize
       });
+      console.log('[ShotManager] 生图完成，返回的 keyframe:', updatedKeyframe);
+      console.log('[ShotManager] generatedImage:', updatedKeyframe.generatedImage);
 
       // 更新分镜数据
       const updatedKeyframes = [...(selectedShot.keyframes || [])];
@@ -222,8 +517,14 @@ export const ShotManager: React.FC<ShotManagerProps> = ({ projectId: propProject
         }
       };
       
+      console.log('[ShotManager] 保存剧本...');
       await storageService.saveScript(updatedScript);
+      console.log('[ShotManager] 剧本保存成功');
+      
+      console.log('[ShotManager] 更新 scripts 状态...');
       setScripts(scripts.map(s => s.id === updatedScript.id ? updatedScript : s));
+      console.log('[ShotManager] scripts 状态已更新');
+      
       showToast('图片生成成功', 'success');
     } catch (error) {
       console.error('生成图片失败:', error);
@@ -367,7 +668,7 @@ export const ShotManager: React.FC<ShotManagerProps> = ({ projectId: propProject
         {/* 右侧：关键帧详情 */}
         <main className="flex-1 overflow-y-auto bg-slate-50 dark:bg-slate-950 p-6">
           {selectedShot ? (
-            <div className="max-w-4xl mx-auto space-y-6">
+            <div className="max-w-6xl mx-auto space-y-6">
               {/* 分镜信息卡片 */}
               <Card>
                 <CardBody className="p-4">
@@ -453,28 +754,114 @@ export const ShotManager: React.FC<ShotManagerProps> = ({ projectId: propProject
                   {selectedShot.keyframes[selectedKeyframeIndex] && (
                     <Card>
                       <CardBody className="p-6">
-                        <div className="grid grid-cols-2 gap-6">
+                        <div className="grid grid-cols-[minmax(0,1.2fr)_minmax(400px,0.8fr)] gap-6">
                           {/* 左侧：图片和描述 */}
                           <div className="space-y-4">
-                            {/* 图片预览区 */}
-                            <div className="aspect-video bg-slate-100 dark:bg-slate-800 rounded-lg flex items-center justify-center relative overflow-hidden">
-                              {selectedShot.keyframes[selectedKeyframeIndex].generatedImage ? (
-                                <img
-                                  src={selectedShot.keyframes[selectedKeyframeIndex].generatedImage?.path}
-                                  alt="关键帧"
-                                  className="w-full h-full object-cover rounded-lg"
-                                />
-                              ) : (
-                                <div className="text-center">
-                                  <Camera size={48} className="mx-auto mb-2 text-slate-400" />
-                                  <p className="text-sm text-slate-500">关键帧预览图</p>
-                                  <p className="text-xs text-slate-400 mt-1">（通过提示词生成）</p>
+                            {/* 图片预览区 - 显示当前选中的图片 */}
+                            {(() => {
+                              const kf = selectedShot.keyframes[selectedKeyframeIndex];
+                              const currentImage = kf.generatedImages?.find(img => img.id === kf.currentImageId) || 
+                                                   kf.generatedImage;
+                              // 获取图片URL（优先使用缓存的URL）
+                              const imageUrl = currentImage ? (imageUrls[currentImage.id] || currentImage.path) : null;
+                              
+                              return (
+                                <div 
+                                  className="aspect-video bg-slate-100 dark:bg-slate-800 rounded-lg flex items-center justify-center relative overflow-hidden cursor-pointer group"
+                                  onClick={() => {
+                                    if (kf.generatedImages && kf.generatedImages.length > 0) {
+                                      const slides = kf.generatedImages.map(img => ({ src: imageUrls[img.id] || img.path }));
+                                      const currentIdx = kf.generatedImages.findIndex(img => img.id === kf.currentImageId);
+                                      openPreview(slides, currentIdx >= 0 ? currentIdx : 0);
+                                    } else if (currentImage) {
+                                      openPreview([{ src: imageUrls[currentImage.id] || currentImage.path }]);
+                                    }
+                                  }}
+                                >
+                                  {currentImage && imageUrl ? (
+                                    <img
+                                      src={imageUrl}
+                                      alt="关键帧"
+                                      className="w-full h-full object-cover rounded-lg"
+                                    />
+                                  ) : (
+                                    <div className="text-center">
+                                      <Camera size={48} className="mx-auto mb-2 text-slate-400" />
+                                      <p className="text-sm text-slate-500">关键帧预览图</p>
+                                      <p className="text-xs text-slate-400 mt-1">（通过提示词生成）</p>
+                                    </div>
+                                  )}
+                                  <div className="absolute top-2 right-2 bg-black/50 text-white px-2 py-1 rounded text-xs">
+                                    {selectedKeyframeIndex + 1} / {selectedShot.keyframes.length}
+                                  </div>
                                 </div>
-                              )}
-                              <div className="absolute top-2 right-2 bg-black/50 text-white px-2 py-1 rounded text-xs">
-                                {selectedKeyframeIndex + 1} / {selectedShot.keyframes.length}
-                              </div>
-                            </div>
+                              );
+                            })()}
+
+                            {/* 历史图片横向滚动 */}
+                            {(() => {
+                              const kf = selectedShot.keyframes[selectedKeyframeIndex];
+                              const hasImages = kf.generatedImages && kf.generatedImages.length > 0;
+                              
+                              if (!hasImages) return null;
+                              
+                              const handleDeleteImage = (imgId: string) => {
+                                if (!confirm('确定要删除这张图片吗？')) return;
+                                
+                                const updatedImages = kf.generatedImages!.filter(img => img.id !== imgId);
+                                const newCurrentId = updatedImages.length > 0 
+                                  ? (kf.currentImageId === imgId ? updatedImages[0].id : kf.currentImageId)
+                                  : undefined;
+                                
+                                const updatedKeyframes = [...selectedShot.keyframes!];
+                                updatedKeyframes[selectedKeyframeIndex] = {
+                                  ...kf,
+                                  generatedImages: updatedImages,
+                                  currentImageId: newCurrentId,
+                                  generatedImage: updatedImages.length > 0 ? updatedImages[updatedImages.length - 1] : undefined
+                                };
+                                const updatedShot = { ...selectedShot, keyframes: updatedKeyframes };
+                                const updatedShots = allShots.map(s => s.id === selectedShot.id ? updatedShot : s);
+                                const updatedScript = {
+                                  ...currentScript!,
+                                  parseState: {
+                                    ...currentScript!.parseState,
+                                    shots: updatedShots
+                                  }
+                                };
+                                storageService.saveScript(updatedScript);
+                                setScripts(scripts.map(s => s.id === updatedScript.id ? updatedScript : s));
+                              };
+                              
+                              const handleSelectImage = (imgId: string) => {
+                                const updatedKeyframes = [...selectedShot.keyframes!];
+                                updatedKeyframes[selectedKeyframeIndex] = {
+                                  ...kf,
+                                  currentImageId: imgId
+                                };
+                                const updatedShot = { ...selectedShot, keyframes: updatedKeyframes };
+                                const updatedShots = allShots.map(s => s.id === selectedShot.id ? updatedShot : s);
+                                const updatedScript = {
+                                  ...currentScript!,
+                                  parseState: {
+                                    ...currentScript!.parseState,
+                                    shots: updatedShots
+                                  }
+                                };
+                                storageService.saveScript(updatedScript);
+                                setScripts(scripts.map(s => s.id === updatedScript.id ? updatedScript : s));
+                              };
+                              
+                              return (
+                                <ThumbnailScroller
+                                  images={kf.generatedImages!}
+                                  currentImageId={kf.currentImageId}
+                                  imageUrls={imageUrls}
+                                  onSelect={handleSelectImage}
+                                  onDelete={handleDeleteImage}
+                                />
+                              );
+                            })()}
 
                             {/* 静态描述 */}
                             <div className="bg-slate-50 dark:bg-slate-800/50 rounded-lg p-3">
@@ -526,11 +913,81 @@ export const ShotManager: React.FC<ShotManagerProps> = ({ projectId: propProject
                                 onChange={(e) => handleUpdatePrompt(selectedKeyframeIndex, e.target.value)}
                                 className="w-full h-32 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-700 dark:text-slate-300 resize-none focus:outline-none focus:border-blue-500"
                               />
+
+                              {/* 选择生图模型 */}
+                              <div className="mt-3">
+                                <label className="text-xs text-slate-500 mb-1 block">选择生图模型</label>
+                                <Select
+                                  aria-label="选择生图模型"
+                                  placeholder={availableImageModels.length > 0 ? "选择用于生成图片的模型" : "请先在设置中配置生图模型"}
+                                  selectedKeys={selectedImageModel ? [selectedImageModel] : []}
+                                  onChange={(e) => setSelectedImageModel(e.target.value)}
+                                  isDisabled={availableImageModels.length === 0}
+                                  size="sm"
+                                  className="w-full"
+                                >
+                                  {availableImageModels.map(model => (
+                                    <SelectItem key={model.id} value={model.id}>
+                                      {model.name}
+                                    </SelectItem>
+                                  ))}
+                                </Select>
+                                {availableImageModels.length === 0 && (
+                                  <p className="text-xs text-danger mt-1">
+                                    未配置生图模型，请先在设置中添加模型
+                                  </p>
+                                )}
+                              </div>
+
+                              {/* 火山模型：分辨率选择 */}
+                              {isVolcengineModel && (
+                                <div className="mt-3">
+                                  <label className="text-xs text-slate-500 mb-1 block">分辨率</label>
+                                  <Select
+                                    aria-label="选择分辨率"
+                                    placeholder="选择分辨率"
+                                    selectedKeys={[selectedResolution]}
+                                    onChange={(e) => setSelectedResolution(e.target.value)}
+                                    size="sm"
+                                    className="w-full"
+                                  >
+                                    <SelectItem key="1K" value="1K">1K</SelectItem>
+                                    <SelectItem key="2K" value="2K">2K</SelectItem>
+                                    <SelectItem key="4K" value="4K">4K</SelectItem>
+                                  </Select>
+                                </div>
+                              )}
+
+                              {/* 宽高比选择（火山和魔搭都显示） */}
+                              <div className="mt-3">
+                                <label className="text-xs text-slate-500 mb-1 block">宽高比</label>
+                                <Select
+                                  aria-label="选择宽高比"
+                                  placeholder="选择宽高比"
+                                  selectedKeys={[selectedAspectRatio]}
+                                  onChange={(e) => setSelectedAspectRatio(e.target.value)}
+                                  size="sm"
+                                  className="w-full"
+                                >
+                                  <SelectItem key="1:1" value="1:1">1:1</SelectItem>
+                                  <SelectItem key="4:3" value="4:3">4:3</SelectItem>
+                                  <SelectItem key="3:4" value="3:4">3:4</SelectItem>
+                                  <SelectItem key="16:9" value="16:9">16:9</SelectItem>
+                                  <SelectItem key="9:16" value="9:16">9:16</SelectItem>
+                                  <SelectItem key="3:2" value="3:2">3:2</SelectItem>
+                                  <SelectItem key="2:3" value="2:3">2:3</SelectItem>
+                                  <SelectItem key="21:9" value="21:9">21:9</SelectItem>
+                                </Select>
+                                <p className="text-xs text-slate-400 mt-1">
+                                  输出尺寸: {calculateSize}
+                                </p>
+                              </div>
+
                               <div className="flex gap-2 mt-3">
                                 <Button
                                   color="primary"
                                   className="flex-1"
-                                  isDisabled={availableImageModels.length === 0}
+                                  isDisabled={availableImageModels.length === 0 || !selectedImageModel}
                                   isLoading={generatingKeyframeId === selectedShot.keyframes[selectedKeyframeIndex].id}
                                   onPress={() => handleGenerateImage(selectedKeyframeIndex)}
                                 >
@@ -610,6 +1067,7 @@ export const ShotManager: React.FC<ShotManagerProps> = ({ projectId: propProject
                 <div className="mb-4">
                   <label className="text-sm font-medium mb-2 block">选择拆分模型</label>
                   <Select
+                    aria-label="选择LLM模型"
                     label="LLM模型"
                     placeholder={availableLLMModels.length > 0 ? "选择用于拆分关键帧的模型" : "请先在设置中配置LLM模型"}
                     selectedKeys={selectedLLMModel ? [selectedLLMModel] : []}

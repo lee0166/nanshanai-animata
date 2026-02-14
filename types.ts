@@ -355,6 +355,8 @@ export interface Keyframe {
       name: string; // 场景名
     };
   };
-  generatedImage?: GeneratedImage; // 生成的关键帧图片
+  generatedImage?: GeneratedImage; // 生成的关键帧图片（兼容旧数据）
+  generatedImages?: GeneratedImage[]; // 生成的关键帧图片历史记录
+  currentImageId?: string; // 当前选中的图片ID
   status: 'pending' | 'generating' | 'completed' | 'failed';
 }

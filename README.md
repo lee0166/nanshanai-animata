@@ -1,4 +1,4 @@
-# 🎬 Kmeng AI Animata
+# 🎬 Nanshan AI Animata
 
 > **The Local-First AI Video Production Studio for Creators.**
 
@@ -11,7 +11,7 @@
 
 ## 📖 Introduction
 
-**Kmeng AI Animata** is an open-source AI video creation tool designed to transform your local computer into a professional digital studio.
+**Nanshan AI Animata** is an open-source AI video creation tool designed to transform your local computer into a professional digital studio.
 
 Built with a **Local-First** architecture, it leverages the File System Access API to read and write directly to your local drive, eliminating the need for cloud uploads and ensuring maximum data privacy. Deeply integrated with state-of-the-art models like **Volcengine (Doubao)** and **Vidu**, it provides a streamlined workflow from character design and scene building to final video generation.
 
@@ -58,10 +58,11 @@ Manage AI assets like local files—no more messy libraries.
 
 ```bash
 # 1. Clone the repository
-git clone https://github.com/your-username/kmengai-animata.git
+git clone https://github.com/your-username/nanshanai-animata.git
 
 # 2. Enter the directory
-cd kmengai-animata
+cd nanshanai-animata
+```
 
 # 3. Install dependencies
 npm install
