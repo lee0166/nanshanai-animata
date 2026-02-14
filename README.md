@@ -1,6 +1,5 @@
-# 🎬 Nanshan AI Animata
-
-> **The Local-First AI Video Production Studio for Creators.**
+# 🎬 南山AI动画工坊
+> **面向创作者的本地优先AI视频创作工作室**
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![React](https://img.shields.io/badge/React-19-blue)
@@ -9,93 +8,83 @@
 
 ---
 
-## 📖 Introduction
+## 📖 项目简介
+**南山AI动画工坊（Nanshan AI Animata）** 是一款基于“可梦AI漫剧”开源基础上拓展的AI视频创作工具，专为将你的本地电脑打造成专业级数字创作工作室而设计。
 
-**Nanshan AI Animata** is an open-source AI video creation tool designed to transform your local computer into a professional digital studio.
+项目采用**本地优先（Local-First）**架构，依托文件系统访问API直接读写本地磁盘，无需上传云端，最大限度保障数据隐私。工具深度集成**火山引擎（豆包）**、**Vidu** 等顶尖AI模型，打造从角色设计、场景搭建到最终视频生成的全流程高效工作流。
 
-Built with a **Local-First** architecture, it leverages the File System Access API to read and write directly to your local drive, eliminating the need for cloud uploads and ensuring maximum data privacy. Deeply integrated with state-of-the-art models like **Volcengine (Doubao)** and **Vidu**, it provides a streamlined workflow from character design and scene building to final video generation.
+## ✨ 核心功能
+### 🎨 角色设计
+生成风格稳定、形象统一的角色设定图，解决AI绘画中「角色形象不一致」的痛点。
+- **多风格支持**：内置动漫、3D游戏、油画、写实摄影等多种风格预设。
+- **批量生成**：并发生成多版方案，快速筛选最优效果。
+- **高保真画质**：支持4K分辨率角色生成。
 
-## ✨ Key Features
+### 🏙️ 场景创作
+为故事创作高保真背景环境，支持灵活的画面比例。
+- **自定义比例**：支持横屏（16:9）、竖屏（9:16）、正方形（1:1）。
+- **风格统一**：与角色共享风格参数，保证整体视觉协调。
 
-### 🎨 Character Design
-Generate stable, consistent character sheets with specific traits, solving the "inconsistent character" problem in AI art.
-*   **Multi-Style Support**: Built-in presets for Anime, 3D Game, Oil Painting, Photorealistic, and more.
-*   **Batch Generation**: Concurrently generate multiple variations to quickly select the best one.
-*   **High Fidelity**: Supports 4K resolution character generation.
+### 📦 道具设计
+生成道具、武器、装饰等元素，丰富作品细节与世界观。
+- **品类丰富**：可生成武器装备、家具、食物等各类道具。
+- **风格适配**：自动匹配项目整体美术风格。
+- **视觉增效**：以道具作为参考素材，为视频生成补充细节。
 
-### 🏙️ Scene Creation
-Build high-fidelity background environments for your stories with flexible aspect ratios.
-*   **Custom Ratios**: Supports Landscape (16:9), Portrait (9:16), or Square (1:1).
-*   **Style Consistency**: Share style parameters with characters to ensure visual harmony.
+### 🎥 视频生成
+依托Vidu模型驱动，提供电影级视频生成控制能力。
+- **图生视频**：
+  - **起始帧控制**：自定义开篇画面，完美匹配静态素材。
+  - **起止双帧控制**：指定画面起点与终点，精准把控叙事节奏与转场。
+- **文生视频**：直接通过文字描述生成动态视频片段。
+- **镜头控制**：调整推拉、摇移、缩放等镜头参数，实现电影级运镜效果。
 
-### 📦 Item Design
-Generate props, weapons, or decorations to enrich your world details.
-*   **Diverse Types**: Generate weapons, equipment, furniture, food, and more.
-*   **Style Matching**: Automatically adapts to the project's overall art style.
-*   **Visual Enhancement**: Use items as reference materials to add detail to your video generation.
+### 📂 智能素材管理
+像管理本地文件一样管理AI素材，告别杂乱的素材库。
+- **自动归档**：生成的角色、场景自动归类到对应 `assets/` 目录。
+- **可视化画廊**：瀑布流浏览模式，支持快速预览与拖拽操作。
+- **元数据追踪**：自动保存每次生成的提示词与参数，支持一键复现效果。
 
-### 🎥 Video Generation
-Powered by Vidu models, offering cinematic control over video generation.
-*   **Image-to-Video**:
-    *   **Start Frame Control**: Define the opening shot to perfectly match your static assets.
-    *   **Start & End Frame Control**: Specify both start and end points for precise narrative direction and transitions.
-*   **Text-to-Video**: Generate dynamic video clips directly from text descriptions.
-*   **Camera Control**: Adjust camera movement parameters (pan, tilt, zoom) for cinematic effects.
+## ⚡ 快速上手
+### 环境要求
+- **Node.js**（v18及以上版本）
+- 现代浏览器（推荐Chrome或Edge）
 
-### 📂 Smart Asset Management
-Manage AI assets like local files—no more messy libraries.
-*   **Auto-Archiving**: Generated characters and scenes are automatically sorted into corresponding `assets/` directories.
-*   **Visual Gallery**: Masonry-style browser for quick previewing and drag-and-drop.
-*   **Metadata Tracking**: Automatically saves prompts and parameters for every generation, allowing easy reproduction.
-
-## ⚡ Quick Start
-
-### Prerequisites
-*   **Node.js** (v18+)
-*   Modern Browser (Chrome or Edge recommended)
-
-### Installation
-
+### 安装部署
 ```bash
-# 1. Clone the repository
+# 1. 克隆仓库
 git clone https://github.com/your-username/nanshanai-animata.git
 
-# 2. Enter the directory
+# 2. 进入项目目录
 cd nanshanai-animata
-```
 
-# 3. Install dependencies
+# 3. 安装依赖
 npm install
 
-# 4. Start development server
+# 4. 启动开发服务
 npm run dev
 ```
 
-Visit `http://localhost:5173` to start creating.
+访问 `http://localhost:3000` 即可开始创作。
 
-## 📖 Usage Workflow
+## 📖 使用流程
+四步开启视频创作：
+1. **配置引擎**：在「设置」中填写火山引擎或Vidu的API密钥（密钥仅本地存储于LocalStorage）。
+2. **创建项目**：选择本地文件夹作为项目根目录，统一管理所有素材。
+3. **制作素材**：通过「角色」「场景」模块生成并定稿美术素材。
+4. **生成视频**：进入「片段」模块，选用已生成的图片作为起始帧，描述动作指令，即可生成视频。
 
-Start your production in just four steps:
+## 🛠️ 技术栈
+- **前端框架**：[React 19](https://react.dev/)
+- **构建工具**：[Vite](https://vitejs.dev/)
+- **UI组件库**：[HeroUI](https://www.heroui.com/)
+- **样式方案**：[Tailwind CSS v4](https://tailwindcss.com/)
+- **动画库**：[Framer Motion](https://www.framer.com/motion/)
+- **路由管理**：[React Router](https://reactrouter.com/)
+- **开发语言**：[TypeScript](https://www.typescriptlang.org/)
 
-1.  **Configure Engine**: Enter your Volcengine or Vidu API Key in **Settings** (keys stored locally in LocalStorage).
-2.  **Create Project**: Select a local folder as your project root to store all assets.
-3.  **Prepare Assets**: Use **Character** or **Scene** modules to generate and finalize your art assets.
-4.  **Produce Video**: Go to **Fragment** module, select generated images as start frames, describe the action, and generate video.
+## 🤝 贡献指南
+欢迎提交Issue与Pull Request！
 
-## 🛠️ Tech Stack
-
-*   **Frontend Framework**: [React 19](https://react.dev/)
-*   **Build Tool**: [Vite](https://vitejs.dev/)
-*   **UI Library**: [HeroUI](https://www.heroui.com/)
-*   **Styling**: [Tailwind CSS v4](https://tailwindcss.com/)
-*   **Animation**: [Framer Motion](https://www.framer.com/motion/)
-*   **Routing**: [React Router](https://reactrouter.com/)
-*   **Language**: [TypeScript](https://www.typescriptlang.org/)
-
-## 🤝 Contributing
-
-Issues and Pull Requests are welcome!
-
-## 📄 License
-
-This project is licensed under the [MIT License](LICENSE).
+## 📄 开源协议
+本项目基于 [MIT 开源协议](LICENSE) 发布。
