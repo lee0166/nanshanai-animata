@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useParams } from 'react-router-dom';
-import { Script, Shot, ScriptScene, CharacterAsset, Asset, AssetType, ModelConfig, GeneratedImage } from '../types';
+import { Script, Shot, ScriptScene, CharacterAsset, Asset, AssetType, ModelConfig, GeneratedImage, Job, JobStatus } from '../types';
 import { storageService } from '../services/storage';
 import { useApp } from '../contexts/context';
 import { useToast } from '../contexts/ToastContext';
@@ -8,6 +8,8 @@ import { usePreview } from '../components/PreviewProvider';
 import { Card, CardBody, Button, Chip, Badge, Progress, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Select, SelectItem } from "@heroui/react";
 import { Camera, Film, Clock, Users, MapPin, Scissors, AlertCircle, Eye, ChevronLeft, ChevronRight } from 'lucide-react';
 import { keyframeService } from '../services/keyframe';
+import { jobQueue } from '../services/queue';
+import { aiService } from '../services/aiService';
 import { DEFAULT_MODELS } from '../config/models';
 
 // 缩略图滚动组件
@@ -81,7 +83,7 @@ const ThumbnailScroller: React.FC<ThumbnailScrollerProps> = ({
               <div 
                 key={img.id} 
                 className={`relative flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden cursor-pointer border-2 group ${
-                  isSelected ? 'border-blue-500' : 'border-transparent hover:border-slate-300'
+                  isSelected ? 'border-primary' : 'border-transparent hover:border-slate-300'
                 }`}
                 onClick={() => onSelect(img.id)}
               >
@@ -171,7 +173,6 @@ export const ShotManager: React.FC<ShotManagerProps> = ({ projectId: propProject
   const [selectedKeyframeIndex, setSelectedKeyframeIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [splittingShotId, setSplittingShotId] = useState<string | null>(null);
-  const [generatingKeyframeId, setGeneratingKeyframeId] = useState<string | null>(null);
   const [isSplitModalOpen, setIsSplitModalOpen] = useState(false);
   const [selectedLLMModel, setSelectedLLMModel] = useState<string>('');
   const [keyframeCount, setKeyframeCount] = useState<number>(3);
@@ -180,8 +181,23 @@ export const ShotManager: React.FC<ShotManagerProps> = ({ projectId: propProject
   const [selectedResolution, setSelectedResolution] = useState<string>('1K');
   const [selectedAspectRatio, setSelectedAspectRatio] = useState<string>('16:9');
   
+  // 生图模式状态：'text-to-image' | 'reference-to-image'
+  const [generationMode, setGenerationMode] = useState<'text-to-image' | 'reference-to-image'>('reference-to-image');
+  
   // 存储图片URL的缓存
   const [imageUrls, setImageUrls] = useState<Record<string, string>>({});
+  
+  // 当前关键帧的参考图覆盖（用于删除参考图功能）
+  const [referenceImageOverride, setReferenceImageOverride] = useState<{
+    character?: boolean;
+    scene?: boolean;
+  }>({});
+
+  // 参考图缩略图URL缓存
+  const [referenceImageUrls, setReferenceImageUrls] = useState<{
+    character?: string;
+    scene?: string;
+  }>({});
 
   // 获取当前选择的模型配置
   const selectedModelConfig = useMemo(() => {
@@ -219,6 +235,42 @@ export const ShotManager: React.FC<ShotManagerProps> = ({ projectId: propProject
   const isVolcengineModel = useMemo(() => {
     return selectedModelConfig?.provider === 'volcengine';
   }, [selectedModelConfig]);
+
+  // 处理生图模式切换
+  const handleGenerationModeChange = (mode: 'text-to-image' | 'reference-to-image') => {
+    setGenerationMode(mode);
+    setReferenceImageOverride({}); // 重置参考图覆盖
+    
+    // 切换模式后，自动选择第一个可用模型
+    const imageModels = settings.models.filter(m => m.type === 'image');
+    const filtered = imageModels.filter(model => {
+      // 优先使用模型配置中的 capabilities
+      const supportsRef = model.capabilities?.supportsReferenceImage ?? true;
+      return mode === 'reference-to-image' ? supportsRef : !supportsRef;
+    });
+    
+    if (filtered.length > 0) {
+      setSelectedImageModel(filtered[0].id);
+    } else {
+      setSelectedImageModel('');
+    }
+  };
+
+  // 处理删除参考图
+  const handleRemoveReferenceImage = (type: 'character' | 'scene') => {
+    setReferenceImageOverride(prev => ({
+      ...prev,
+      [type]: true // 标记为已删除
+    }));
+  };
+
+  // 恢复参考图
+  const handleRestoreReferenceImage = (type: 'character' | 'scene') => {
+    setReferenceImageOverride(prev => ({
+      ...prev,
+      [type]: false // 取消删除标记
+    }));
+  };
 
   // 计算最终的 size 参数
   const calculateSize = useMemo(() => {
@@ -298,6 +350,37 @@ export const ShotManager: React.FC<ShotManagerProps> = ({ projectId: propProject
     loadScripts();
   }, [projectId]);
 
+  // 订阅任务队列更新
+  useEffect(() => {
+    if (!projectId) return;
+
+    const unsubscribe = jobQueue.subscribe(async (job: Job) => {
+      // 只处理关键帧生图任务
+      if (job.type !== 'generate_keyframe_image') return;
+
+      // 检查是否属于当前项目的任务
+      if (job.projectId !== projectId) return;
+
+      // 检查任务是否完成或失败
+      if (job.status === JobStatus.COMPLETED || job.status === JobStatus.FAILED) {
+        // 重新加载脚本数据
+        const updatedScripts = await storageService.getScripts(projectId);
+        setScripts(updatedScripts);
+
+        // 显示提示
+        if (job.status === JobStatus.COMPLETED) {
+          showToast('关键帧图片生成成功', 'success');
+        } else {
+          showToast(`生成失败: ${job.error || '未知错误'}`, 'error');
+        }
+      }
+    });
+
+    return () => {
+      unsubscribe();
+    };
+  }, [projectId]);
+
   // 当前选中的剧本
   const currentScript = useMemo(() => {
     return scripts.find(s => s.id === selectedScriptId);
@@ -308,56 +391,123 @@ export const ShotManager: React.FC<ShotManagerProps> = ({ projectId: propProject
     return currentScript?.parseState?.shots || [];
   }, [currentScript]);
 
-  // 加载图片URL
+  // 提取所有图片的唯一标识（id + path）
+  const getImageIdentifiers = (shots: Shot[]): string[] => {
+    const identifiers: string[] = [];
+    shots.forEach(shot => {
+      shot.keyframes?.forEach(kf => {
+        if (kf.generatedImages) {
+          kf.generatedImages.forEach(img => {
+            if (img.path) {
+              identifiers.push(`${img.id}:${img.path}`);
+            }
+          });
+        }
+        if (kf.generatedImage?.path) {
+          identifiers.push(`${kf.generatedImage.id}:${kf.generatedImage.path}`);
+        }
+      });
+    });
+    return identifiers.sort();
+  };
+
+  // 使用图片标识作为依赖
+  const imageIdentifiers = useMemo(() => getImageIdentifiers(allShots), [allShots]);
+
+  // 加载图片URL - 增量加载，不清空现有URL
   useEffect(() => {
     const loadImageUrls = async () => {
-      const urls: Record<string, string> = {};
-      
-      // 遍历所有分镜和关键帧
+      const imagesToLoad: { id: string; path: string }[] = [];
+
       allShots.forEach(shot => {
         shot.keyframes?.forEach(kf => {
           // 处理 generatedImages
           if (kf.generatedImages) {
             kf.generatedImages.forEach(img => {
-              if (img.path) {
-                // 如果是远程URL，直接使用
+              if (img.path && !imageUrls[img.id]) {
+                // 只加载还没有 URL 的图片
                 if (img.path.startsWith('http://') || img.path.startsWith('https://')) {
-                  urls[img.id] = img.path;
+                  // 远程 URL 直接设置
+                  setImageUrls(prev => ({ ...prev, [img.id]: img.path }));
                 } else {
-                  // 本地路径，需要获取可访问的URL
-                  storageService.getAssetUrl(img.path).then(url => {
-                    setImageUrls(prev => ({ ...prev, [img.id]: url }));
-                  });
+                  imagesToLoad.push({ id: img.id, path: img.path });
                 }
               }
             });
           }
           // 处理旧的 generatedImage
-          if (kf.generatedImage?.path) {
+          if (kf.generatedImage?.path && !imageUrls[kf.generatedImage.id]) {
             const img = kf.generatedImage;
             if (img.path.startsWith('http://') || img.path.startsWith('https://')) {
-              urls[img.id] = img.path;
+              setImageUrls(prev => ({ ...prev, [img.id]: img.path }));
             } else {
-              storageService.getAssetUrl(img.path).then(url => {
-                setImageUrls(prev => ({ ...prev, [img.id]: url }));
-              });
+              imagesToLoad.push({ id: img.id, path: img.path });
             }
           }
         });
       });
-      
-      setImageUrls(urls);
+
+      // 异步加载本地图片 URL
+      imagesToLoad.forEach(({ id, path }) => {
+        storageService.getAssetUrl(path).then(url => {
+          setImageUrls(prev => ({ ...prev, [id]: url }));
+        });
+      });
     };
-    
+
     if (allShots.length > 0) {
       loadImageUrls();
     }
-  }, [allShots]);
+    // 依赖改为 imageIdentifiers，只有图片列表真正变化时才触发
+  }, [imageIdentifiers]);
 
   // 当前选中的分镜
   const selectedShot = useMemo(() => {
     return allShots.find(s => s.id === selectedShotId);
   }, [allShots, selectedShotId]);
+
+  // 加载参考图缩略图URL
+  useEffect(() => {
+    const loadReferenceImageUrls = async () => {
+      if (!selectedShot?.keyframes?.[selectedKeyframeIndex]?.references) {
+        setReferenceImageUrls({});
+        return;
+      }
+
+      const refs = selectedShot.keyframes[selectedKeyframeIndex].references;
+      const urls: { character?: string; scene?: string } = {};
+
+      // 加载角色图URL
+      if (refs?.character?.id) {
+        try {
+          const assets = await storageService.getAssets(projectId);
+          const charAsset = assets.find(a => a.type === AssetType.CHARACTER && a.id === refs.character!.id);
+          if (charAsset?.filePath) {
+            urls.character = await storageService.getAssetUrl(charAsset.filePath);
+          }
+        } catch (e) {
+          console.error('加载角色缩略图失败:', e);
+        }
+      }
+
+      // 加载场景图URL
+      if (refs?.scene?.id) {
+        try {
+          const assets = await storageService.getAssets(projectId);
+          const sceneAsset = assets.find(a => a.type === AssetType.SCENE && a.id === refs.scene!.id);
+          if (sceneAsset?.filePath) {
+            urls.scene = await storageService.getAssetUrl(sceneAsset.filePath);
+          }
+        } catch (e) {
+          console.error('加载场景缩略图失败:', e);
+        }
+      }
+
+      setReferenceImageUrls(urls);
+    };
+
+    loadReferenceImageUrls();
+  }, [selectedShot, selectedKeyframeIndex, projectId]);
 
   // 默认选中第一个分镜
   useEffect(() => {
@@ -374,6 +524,50 @@ export const ShotManager: React.FC<ShotManagerProps> = ({ projectId: propProject
   const availableImageModels = useMemo(() => {
     return settings.models.filter(m => m.type === 'image');
   }, [settings.models]);
+
+  // 获取模型能力的辅助函数
+  const getModelCapabilities = useMemo(() => {
+    return (model: ModelConfig) => {
+      // 优先使用模型配置中的 capabilities（用户自定义配置）
+      if (model.capabilities && typeof model.capabilities.supportsReferenceImage === 'boolean') {
+        return {
+          supportsReferenceImage: model.capabilities.supportsReferenceImage,
+          maxReferenceImages: model.capabilities.maxReferenceImages ?? 5
+        };
+      }
+      
+      // 如果模型没有配置 capabilities，尝试从 DEFAULT_MODELS 查找
+      let defaultModel = DEFAULT_MODELS.find(m => m.modelId === model.modelId);
+      if (!defaultModel) {
+        defaultModel = DEFAULT_MODELS.find(m => m.id === model.id);
+      }
+      if (!defaultModel) {
+        defaultModel = DEFAULT_MODELS.find(m => 
+          m.provider === model.provider && m.type === model.type
+        );
+      }
+      
+      // 返回能力配置，如果找不到则默认支持参考图（为了兼容性）
+      return {
+        supportsReferenceImage: defaultModel?.capabilities?.supportsReferenceImage ?? true,
+        maxReferenceImages: defaultModel?.capabilities?.maxReferenceImages ?? 5
+      };
+    };
+  }, []);
+
+  // 根据生图模式过滤可用模型
+  const filteredImageModels = useMemo(() => {
+    return availableImageModels.filter(model => {
+      const capabilities = getModelCapabilities(model);
+      const supportsRef = capabilities.supportsReferenceImage ?? true;
+      
+      if (generationMode === 'reference-to-image') {
+        return supportsRef; // 参考图模式：只显示支持参考图的模型
+      } else {
+        return !supportsRef; // 文生图模式：只显示不支持参考图的模型
+      }
+    });
+  }, [availableImageModels, generationMode, getModelCapabilities]);
 
   // 打开拆分关键帧弹窗
   const handleOpenSplitModal = (shot: Shot) => {
@@ -428,11 +622,24 @@ export const ShotManager: React.FC<ShotManagerProps> = ({ projectId: propProject
     
     try {
       console.log('[ShotManager] 调用 keyframeService.splitKeyframes...');
+      
+      // 获取角色和场景资产用于关键帧拆分
+      const assets = await storageService.getAssets(projectId);
+      const characterAssets = selectedShotForSplit.characters
+        ?.map(charName => assets.find(a => a.type === AssetType.CHARACTER && a.name === charName))
+        .filter((a): a is CharacterAsset => !!a) || [];
+      const sceneAsset = assets.find(a => a.type === AssetType.SCENE && a.name === selectedShotForSplit.sceneName);
+      
+      console.log('[ShotManager] 拆分关键帧时找到的角色资产:', characterAssets.map(c => ({ id: c.id, name: c.name })));
+      console.log('[ShotManager] 拆分关键帧时找到的场景资产:', sceneAsset ? { id: sceneAsset.id, name: sceneAsset.name } : null);
+      
       const keyframes = await keyframeService.splitKeyframes({
         shot: selectedShotForSplit,
         keyframeCount: keyframeCount,
         projectId,
-        modelConfigId: selectedLLMModel
+        modelConfigId: selectedLLMModel,
+        characterAssets: characterAssets.length > 0 ? characterAssets : undefined,
+        sceneAsset: sceneAsset
       });
       console.log('[ShotManager] 拆分成功，关键帧数量:', keyframes.length);
 
@@ -465,7 +672,7 @@ export const ShotManager: React.FC<ShotManagerProps> = ({ projectId: propProject
   // 生成关键帧图片
   const handleGenerateImage = async (keyframeIndex: number) => {
     if (!projectId || !selectedShot || !currentScript) return;
-    
+
     if (availableImageModels.length === 0) {
       showToast('请先在设置中配置生图模型', 'error');
       return;
@@ -479,59 +686,125 @@ export const ShotManager: React.FC<ShotManagerProps> = ({ projectId: propProject
     const kf = selectedShot.keyframes?.[keyframeIndex];
     if (!kf) return;
 
-    setGeneratingKeyframeId(kf.id);
-    try {
-      // 获取项目资产作为参考
-      const assets = await storageService.getAssets(projectId);
-      const characterAsset = kf.references?.character 
-        ? assets.find(a => a.type === AssetType.CHARACTER && a.name === kf.references.character.name) as CharacterAsset
-        : undefined;
-      const sceneAsset = kf.references?.scene
-        ? assets.find(a => a.type === AssetType.SCENE && a.name === kf.references.scene.name)
-        : undefined;
+    // 立即设置 keyframe 状态为 generating
+    const updatedKeyframes = [...(selectedShot.keyframes || [])];
+    updatedKeyframes[keyframeIndex] = { ...kf, status: 'generating' };
+    const updatedShot = { ...selectedShot, keyframes: updatedKeyframes };
+    const updatedShots = allShots.map(s => s.id === selectedShot.id ? updatedShot : s);
+    const updatedScript = {
+      ...currentScript,
+      parseState: {
+        ...currentScript.parseState,
+        shots: updatedShots
+      }
+    };
+    await storageService.saveScript(updatedScript);
+    setScripts(scripts.map(s => s.id === updatedScript.id ? updatedScript : s));
 
-      console.log('[ShotManager] 开始生成图片，modelConfigId:', selectedImageModel, 'size:', calculateSize);
-      const updatedKeyframe = await keyframeService.generateKeyframeImage({
-        keyframe: kf,
-        projectId,
-        characterAsset,
-        sceneAsset,
-        modelConfigId: selectedImageModel,
-        size: calculateSize
-      });
-      console.log('[ShotManager] 生图完成，返回的 keyframe:', updatedKeyframe);
-      console.log('[ShotManager] generatedImage:', updatedKeyframe.generatedImage);
-
-      // 更新分镜数据
-      const updatedKeyframes = [...(selectedShot.keyframes || [])];
-      updatedKeyframes[keyframeIndex] = updatedKeyframe;
-      const updatedShot = { ...selectedShot, keyframes: updatedKeyframes };
-      
-      // 更新剧本
-      const updatedShots = allShots.map(s => s.id === selectedShot.id ? updatedShot : s);
-      const updatedScript = {
-        ...currentScript,
-        parseState: {
-          ...currentScript.parseState,
-          shots: updatedShots
-        }
-      };
-      
-      console.log('[ShotManager] 保存剧本...');
-      await storageService.saveScript(updatedScript);
-      console.log('[ShotManager] 剧本保存成功');
-      
-      console.log('[ShotManager] 更新 scripts 状态...');
-      setScripts(scripts.map(s => s.id === updatedScript.id ? updatedScript : s));
-      console.log('[ShotManager] scripts 状态已更新');
-      
-      showToast('图片生成成功', 'success');
-    } catch (error) {
-      console.error('生成图片失败:', error);
-      showToast('生成图片失败', 'error');
-    } finally {
-      setGeneratingKeyframeId(null);
+    // 获取参考图
+    const assets = await storageService.getAssets(projectId);
+    
+    // 诊断日志：打印 references 信息
+    console.log('[ShotManager] kf.references:', JSON.stringify(kf.references, null, 2));
+    console.log('[ShotManager] 所有角色资产:', assets.filter(a => a.type === AssetType.CHARACTER).map(a => ({ id: a.id, name: a.name })));
+    console.log('[ShotManager] 所有场景资产:', assets.filter(a => a.type === AssetType.SCENE).map(a => ({ id: a.id, name: a.name })));
+    
+    // 首先尝试用 name 查找，如果失败则尝试用 id 查找
+    let characterAsset: CharacterAsset | undefined;
+    if (kf.references?.character) {
+      // 先用 name 查找
+      characterAsset = assets.find(a => a.type === AssetType.CHARACTER && a.name === kf.references.character.name) as CharacterAsset;
+      // 如果失败，用 id 查找
+      if (!characterAsset && kf.references.character.id) {
+        characterAsset = assets.find(a => a.type === AssetType.CHARACTER && a.id === kf.references.character.id) as CharacterAsset;
+        console.log('[ShotManager] 用 id 查找角色资产:', !!characterAsset);
+      }
     }
+    
+    let sceneAsset: Asset | undefined;
+    if (kf.references?.scene) {
+      // 先用 name 查找
+      sceneAsset = assets.find(a => a.type === AssetType.SCENE && a.name === kf.references.scene.name);
+      // 如果失败，用 id 查找
+      if (!sceneAsset && kf.references.scene.id) {
+        sceneAsset = assets.find(a => a.type === AssetType.SCENE && a.id === kf.references.scene.id);
+        console.log('[ShotManager] 用 id 查找场景资产:', !!sceneAsset);
+      }
+    }
+
+    console.log('[ShotManager] characterAsset found:', !!characterAsset);
+    console.log('[ShotManager] sceneAsset found:', !!sceneAsset);
+
+    // 准备参考图 base64
+    const referenceImages: string[] = [];
+
+    const imageToBase64 = async (filePath: string): Promise<string> => {
+      const file = await storageService.getFile(filePath);
+      if (!file) throw new Error(`文件不存在: ${filePath}`);
+      const arrayBuffer = await file.arrayBuffer();
+      const uint8Array = new Uint8Array(arrayBuffer);
+      let binary = '';
+      for (let i = 0; i < uint8Array.length; i++) {
+        binary += String.fromCharCode(uint8Array[i]);
+      }
+      const base64 = btoa(binary);
+      const ext = filePath.split('.').pop()?.toLowerCase() || 'png';
+      return `data:image/${ext};base64,${base64}`;
+    };
+
+    // 根据生图模式和用户覆盖设置决定是否使用参考图
+    const useCharacterRef = generationMode === 'reference-to-image' && !referenceImageOverride.character && characterAsset?.currentImageId;
+    const useSceneRef = generationMode === 'reference-to-image' && !referenceImageOverride.scene && sceneAsset?.filePath;
+
+    if (useCharacterRef) {
+      const charImage = characterAsset.generatedImages?.find(img => img.id === characterAsset.currentImageId);
+      if (charImage?.path) {
+        try {
+          const base64 = await imageToBase64(charImage.path);
+          referenceImages.push(base64);
+          console.log('[ShotManager] 已添加角色参考图');
+        } catch (e) {
+          console.error('读取角色图失败:', e);
+        }
+      }
+    }
+
+    if (useSceneRef) {
+      try {
+        const base64 = await imageToBase64(sceneAsset.filePath);
+        referenceImages.push(base64);
+        console.log('[ShotManager] 已添加场景参考图');
+      } catch (e) {
+        console.error('读取场景图失败:', e);
+      }
+    }
+    
+    console.log('[ShotManager] 生图模式:', generationMode);
+    console.log('[ShotManager] 参考图覆盖设置:', referenceImageOverride);
+
+    console.log('[ShotManager] referenceImages count:', referenceImages.length);
+    if (referenceImages.length > 0) {
+      console.log('[ShotManager] first image preview:', referenceImages[0].substring(0, 50));
+    }
+    console.log('[ShotManager] full referenceImages:', referenceImages);
+
+    // 创建并提交任务
+    const job = aiService.createKeyframeGenerationJob({
+      projectId,
+      scriptId: currentScript.id,
+      shotId: selectedShot.id,
+      keyframeId: kf.id,
+      prompt: kf.prompt,
+      userPrompt: kf.description,
+      assetName: `${selectedShot.sceneName}-镜头${selectedShot.sequence}-关键帧${kf.sequence}`,
+      modelConfigId: selectedImageModel,
+      referenceImages,
+      resolution: calculateSize,
+      aspectRatio: selectedAspectRatio
+    });
+
+    await jobQueue.addJob(job);
+    showToast('关键帧生图任务已添加到队列', 'success');
   };
 
   // 更新提示词
@@ -629,11 +902,12 @@ export const ShotManager: React.FC<ShotManagerProps> = ({ projectId: propProject
                 onClick={() => {
                   setSelectedShotId(shot.id);
                   setSelectedKeyframeIndex(0);
+                  setReferenceImageOverride({}); // 切换分镜时重置参考图覆盖
                 }}
                 className={`p-3 rounded-lg border cursor-pointer transition-all ${
                   selectedShotId === shot.id
-                    ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
-                    : 'border-slate-200 dark:border-slate-700 hover:border-blue-300'
+                    ? 'border-primary bg-primary/10 dark:bg-primary/20'
+                    : 'border-slate-200 dark:border-slate-700 hover:border-primary/50'
                 }`}
               >
                 <div className="flex items-start justify-between mb-2">
@@ -742,7 +1016,10 @@ export const ShotManager: React.FC<ShotManagerProps> = ({ projectId: propProject
                         size="sm"
                         color={selectedKeyframeIndex === idx ? 'primary' : 'default'}
                         variant={selectedKeyframeIndex === idx ? 'solid' : 'flat'}
-                        onPress={() => setSelectedKeyframeIndex(idx)}
+                        onPress={() => {
+                          setSelectedKeyframeIndex(idx);
+                          setReferenceImageOverride({}); // 切换关键帧时重置参考图覆盖
+                        }}
                       >
                         关键帧 {idx + 1}
                         <span className="text-xs opacity-70 ml-1">{kf.duration}s</span>
@@ -880,7 +1157,7 @@ export const ShotManager: React.FC<ShotManagerProps> = ({ projectId: propProject
                               <div className="space-y-2">
                                 {selectedShot.characters?.map((char, i) => (
                                   <div key={i} className="flex items-center gap-2 text-sm">
-                                    <Users size={16} className="text-blue-500" />
+                                    <Users size={16} className="text-primary" />
                                     <span className="text-slate-700 dark:text-slate-300">{char}</span>
                                   </div>
                                 ))}
@@ -911,30 +1188,162 @@ export const ShotManager: React.FC<ShotManagerProps> = ({ projectId: propProject
                               <textarea
                                 value={selectedShot.keyframes[selectedKeyframeIndex].prompt}
                                 onChange={(e) => handleUpdatePrompt(selectedKeyframeIndex, e.target.value)}
-                                className="w-full h-32 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-700 dark:text-slate-300 resize-none focus:outline-none focus:border-blue-500"
+                                className="w-full h-32 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-700 dark:text-slate-300 resize-none focus:outline-none focus:border-primary"
                               />
+
+                              {/* 生图模式切换标签 */}
+                              <div className="mt-3">
+                                <div className="flex bg-slate-100 dark:bg-slate-800 rounded-lg p-1">
+                                  <button
+                                    className={`flex-1 py-1.5 px-3 text-xs font-medium rounded-md transition-all ${
+                                      generationMode === 'text-to-image'
+                                        ? 'bg-white dark:bg-slate-700 text-primary shadow-sm'
+                                        : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
+                                    }`}
+                                    onClick={() => handleGenerationModeChange('text-to-image')}
+                                  >
+                                    文生图
+                                  </button>
+                                  <button
+                                    className={`flex-1 py-1.5 px-3 text-xs font-medium rounded-md transition-all ${
+                                      generationMode === 'reference-to-image'
+                                        ? 'bg-white dark:bg-slate-700 text-primary shadow-sm'
+                                        : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
+                                    }`}
+                                    onClick={() => handleGenerationModeChange('reference-to-image')}
+                                  >
+                                    参考图生图
+                                  </button>
+                                </div>
+                              </div>
+
+                              {/* 参考图管理区域（仅在参考图生图模式显示） */}
+                              {generationMode === 'reference-to-image' && selectedShot.keyframes[selectedKeyframeIndex].references && (
+                                <div className="mt-3 p-3 bg-slate-50 dark:bg-slate-800/50 rounded-lg">
+                                  <div className="text-xs text-slate-500 mb-2">参考图</div>
+                                  <div className="flex gap-3">
+                                    {/* 角色参考图 */}
+                                    {selectedShot.keyframes[selectedKeyframeIndex].references.character && !referenceImageOverride.character && (
+                                      <div className="relative group">
+                                        <div className="w-16 h-16 rounded-lg bg-slate-200 dark:bg-slate-700 flex items-center justify-center overflow-hidden">
+                                          {referenceImageUrls.character ? (
+                                            <img 
+                                              src={referenceImageUrls.character} 
+                                              alt={selectedShot.keyframes[selectedKeyframeIndex].references.character.name}
+                                              className="w-full h-full object-cover"
+                                            />
+                                          ) : (
+                                            <span className="text-xs text-slate-500">角色</span>
+                                          )}
+                                        </div>
+                                        <button
+                                          className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-red-500 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                                          onClick={() => handleRemoveReferenceImage('character')}
+                                          title="删除角色参考图"
+                                        >
+                                          ×
+                                        </button>
+                                        <div className="text-xs text-slate-500 mt-1 text-center truncate w-16">
+                                          {selectedShot.keyframes[selectedKeyframeIndex].references.character.name}
+                                        </div>
+                                      </div>
+                                    )}
+                                    {referenceImageOverride.character && (
+                                      <div className="relative">
+                                        <div className="w-16 h-16 rounded-lg bg-slate-100 dark:bg-slate-800 border-2 border-dashed border-slate-300 dark:border-slate-600 flex items-center justify-center">
+                                          <span className="text-xs text-slate-400">已删除</span>
+                                        </div>
+                                        <button
+                                          className="mt-1 text-xs text-primary hover:text-primary-700"
+                                          onClick={() => handleRestoreReferenceImage('character')}
+                                        >
+                                          恢复
+                                        </button>
+                                      </div>
+                                    )}
+
+                                    {/* 场景参考图 */}
+                                    {selectedShot.keyframes[selectedKeyframeIndex].references.scene && !referenceImageOverride.scene && (
+                                      <div className="relative group">
+                                        <div className="w-16 h-16 rounded-lg bg-slate-200 dark:bg-slate-700 flex items-center justify-center overflow-hidden">
+                                          {referenceImageUrls.scene ? (
+                                            <img 
+                                              src={referenceImageUrls.scene} 
+                                              alt={selectedShot.keyframes[selectedKeyframeIndex].references.scene.name}
+                                              className="w-full h-full object-cover"
+                                            />
+                                          ) : (
+                                            <span className="text-xs text-slate-500">场景</span>
+                                          )}
+                                        </div>
+                                        <button
+                                          className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-red-500 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                                          onClick={() => handleRemoveReferenceImage('scene')}
+                                          title="删除场景参考图"
+                                        >
+                                          ×
+                                        </button>
+                                        <div className="text-xs text-slate-500 mt-1 text-center truncate w-16">
+                                          {selectedShot.keyframes[selectedKeyframeIndex].references.scene.name}
+                                        </div>
+                                      </div>
+                                    )}
+                                    {referenceImageOverride.scene && (
+                                      <div className="relative">
+                                        <div className="w-16 h-16 rounded-lg bg-slate-100 dark:bg-slate-800 border-2 border-dashed border-slate-300 dark:border-slate-600 flex items-center justify-center">
+                                          <span className="text-xs text-slate-400">已删除</span>
+                                        </div>
+                                        <button
+                                          className="mt-1 text-xs text-primary hover:text-primary-700"
+                                          onClick={() => handleRestoreReferenceImage('scene')}
+                                        >
+                                          恢复
+                                        </button>
+                                      </div>
+                                    )}
+
+                                    {/* 无参考图提示 */}
+                                    {!selectedShot.keyframes[selectedKeyframeIndex].references.character &&
+                                     !selectedShot.keyframes[selectedKeyframeIndex].references.scene && (
+                                      <div className="text-xs text-slate-400 py-2">
+                                        该关键帧未关联角色或场景
+                                      </div>
+                                    )}
+                                  </div>
+                                </div>
+                              )}
 
                               {/* 选择生图模型 */}
                               <div className="mt-3">
-                                <label className="text-xs text-slate-500 mb-1 block">选择生图模型</label>
+                                <label className="text-xs text-slate-500 mb-1 block">
+                                  选择生图模型
+                                  {generationMode === 'reference-to-image' && (
+                                    <span className="text-primary ml-1">(支持参考图)</span>
+                                  )}
+                                  {generationMode === 'text-to-image' && (
+                                    <span className="text-green-500 ml-1">(文生图)</span>
+                                  )}
+                                </label>
                                 <Select
                                   aria-label="选择生图模型"
-                                  placeholder={availableImageModels.length > 0 ? "选择用于生成图片的模型" : "请先在设置中配置生图模型"}
+                                  placeholder={filteredImageModels.length > 0 ? "选择用于生成图片的模型" : "请先在设置中配置生图模型"}
                                   selectedKeys={selectedImageModel ? [selectedImageModel] : []}
                                   onChange={(e) => setSelectedImageModel(e.target.value)}
-                                  isDisabled={availableImageModels.length === 0}
+                                  isDisabled={filteredImageModels.length === 0}
                                   size="sm"
                                   className="w-full"
                                 >
-                                  {availableImageModels.map(model => (
+                                  {filteredImageModels.map(model => (
                                     <SelectItem key={model.id} value={model.id}>
                                       {model.name}
                                     </SelectItem>
                                   ))}
                                 </Select>
-                                {availableImageModels.length === 0 && (
+                                {filteredImageModels.length === 0 && (
                                   <p className="text-xs text-danger mt-1">
-                                    未配置生图模型，请先在设置中添加模型
+                                    {generationMode === 'reference-to-image'
+                                      ? '未配置支持参考图的生图模型，请先在设置中添加'
+                                      : '未配置文生图模型，请先在设置中添加'}
                                   </p>
                                 )}
                               </div>
@@ -987,12 +1396,12 @@ export const ShotManager: React.FC<ShotManagerProps> = ({ projectId: propProject
                                 <Button
                                   color="primary"
                                   className="flex-1"
-                                  isDisabled={availableImageModels.length === 0 || !selectedImageModel}
-                                  isLoading={generatingKeyframeId === selectedShot.keyframes[selectedKeyframeIndex].id}
+                                  isDisabled={filteredImageModels.length === 0 || !selectedImageModel}
+                                  isLoading={selectedShot.keyframes[selectedKeyframeIndex].status === 'generating'}
                                   onPress={() => handleGenerateImage(selectedKeyframeIndex)}
                                 >
                                   <Camera size={16} className="mr-2" />
-                                  生成图片
+                                  {generationMode === 'reference-to-image' ? '参考图生图' : '文生图'}
                                 </Button>
                               </div>
                             </div>

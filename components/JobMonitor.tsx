@@ -145,7 +145,7 @@ const JobMonitor: React.FC = () => {
             >
                 <CardBody className="py-4 px-5 flex flex-row items-center justify-between pointer-events-none">
                     <div className="flex items-center gap-3">
-                        <div className={`p-2.5 rounded-full ${activeCount > 0 ? 'bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600' : 'bg-slate-100 dark:bg-slate-800 text-slate-500'}`}>
+                        <div className={`p-2.5 rounded-full ${activeCount > 0 ? 'bg-primary/10 dark:bg-primary/20 text-primary' : 'bg-slate-100 dark:bg-slate-800 text-slate-500'}`}>
                             {activeCount > 0 ? <Loader2 className="w-5 h-5 animate-spin" /> : <CheckCircle className="w-5 h-5" />}
                         </div>
                         <div className="flex flex-col">
@@ -179,7 +179,7 @@ const JobMonitor: React.FC = () => {
     >
       <CardHeader className="px-5 py-4 flex justify-between items-center border-b border-slate-100 dark:border-slate-800/50">
         <div className="flex items-center gap-2">
-            <Activity className="w-5 h-5 text-indigo-500" />
+            <Activity className="w-5 h-5 text-primary" />
             <span className="font-black text-sm uppercase tracking-widest text-slate-900 dark:text-slate-100">
                 {t.jobs.queue} <span className="ml-1 opacity-50">({jobs.length})</span>
             </span>
@@ -199,10 +199,10 @@ const JobMonitor: React.FC = () => {
               {displayedJobs.map(job => (
                   <div 
                       key={job.id} 
-                      className="p-4 bg-slate-50/50 dark:bg-slate-950/50 rounded-2xl border border-slate-100 dark:border-slate-800/50 hover:border-indigo-500/30 transition-all group"
+                      className="p-4 bg-slate-50/50 dark:bg-slate-950/50 rounded-2xl border border-slate-100 dark:border-slate-800/50 hover:border-primary/30 transition-all group"
                   >
                       <div className="flex justify-between items-center mb-2">
-                          <span className="font-black text-[10px] uppercase tracking-widest text-slate-500 group-hover:text-indigo-600 transition-colors">
+                          <span className="font-black text-[10px] uppercase tracking-widest text-slate-500 group-hover:text-primary transition-colors">
                               {t.jobTypes?.[job.type] || job.type}
                           </span>
                           

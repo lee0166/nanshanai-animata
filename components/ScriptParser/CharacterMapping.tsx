@@ -25,6 +25,7 @@ import { ImageGenerationPanel } from '../ProjectDetail/Shared/ImageGenerationPan
 
 interface CharacterMappingProps {
   projectId: string;
+  scriptId: string;  // 当前剧本ID
   scriptCharacters: ScriptCharacter[];
   existingCharacters: CharacterAsset[];
   onCharactersUpdate: (characters: ScriptCharacter[]) => void;
@@ -33,6 +34,7 @@ interface CharacterMappingProps {
 
 export const CharacterMapping: React.FC<CharacterMappingProps> = ({
   projectId,
+  scriptId,
   scriptCharacters,
   existingCharacters,
   onCharactersUpdate,
@@ -59,6 +61,7 @@ export const CharacterMapping: React.FC<CharacterMappingProps> = ({
       const newCharacter: CharacterAsset = {
         id: `char_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
         projectId,
+        scriptId,  // 关联当前剧本
         type: AssetType.CHARACTER,
         name: scriptChar.name,
         prompt: scriptChar.visualPrompt || `${scriptChar.name}的角色设定`,
@@ -75,7 +78,9 @@ export const CharacterMapping: React.FC<CharacterMappingProps> = ({
         updatedAt: Date.now()
       };
 
+      console.log('[CharacterMapping] 创建角色:', { name: newCharacter.name, scriptId: newCharacter.scriptId });
       await storageService.saveAsset(newCharacter);
+      console.log('[CharacterMapping] 角色保存成功');
 
       // Update mapping
       const updated = scriptCharacters.map(c =>

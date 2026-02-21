@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ModelConfig } from '../types';
+import { ModelConfig, ModelCapabilities } from '../types';
 import { DEFAULT_MODELS, COMMON_VOLC_VIDEO_PARAMS, COMMON_IMAGE_PARAMS } from '../config/models';
 import { useApp } from '../contexts/context';
 import { Save, Plus, Trash2, Monitor, Moon, Sun, FolderOpen, RefreshCcw, CheckCircle, AlertCircle, Globe, Palette, Settings as SettingsIcon, Database, Cpu, Pencil } from 'lucide-react';
@@ -99,6 +99,9 @@ const Settings: React.FC = () => {
     temperature: 0.3,
     maxTokens: 32000,
     enableThinking: false,
+    // Image generation specific params
+    supportsReferenceImage: true, // 默认支持参考图生图
+    maxReferenceImages: 5,
   });
   const [showAdvancedOptions, setShowAdvancedOptions] = useState(false);
   
@@ -156,7 +159,7 @@ const Settings: React.FC = () => {
     setSelectedProvider('');
     setShowAdd(false);
     setIsCustomModel(false);
-    setCustomModel({ provider: 'modelscope', modelId: '', apiUrl: '' });
+    setCustomModel({ provider: 'modelscope', modelId: '', apiUrl: '', temperature: 0.3, maxTokens: 32000, enableThinking: false, supportsReferenceImage: true, maxReferenceImages: 5 });
   };
 
   // Handle adding custom model
@@ -198,16 +201,33 @@ const Settings: React.FC = () => {
       enableThinking: customModel.enableThinking
     } : undefined;
 
+    // Build capabilities based on model type
+    let capabilities: ModelCapabilities = {};
+    if (selectedType === 'llm') {
+      capabilities = {
+        maxContextLength: 128000,
+        supportsStreaming: true,
+      };
+    } else if (selectedType === 'image') {
+      capabilities = {
+        maxBatchSize: 1,
+        supportsReferenceImage: customModel.supportsReferenceImage,
+        maxReferenceImages: customModel.supportsReferenceImage ? customModel.maxReferenceImages : undefined,
+      };
+    } else if (selectedType === 'video') {
+      capabilities = {
+        maxBatchSize: 1,
+        supportsReferenceImage: false,
+      };
+    }
+
     const newConfig: ModelConfig = {
       id: typeof crypto.randomUUID === 'function' ? crypto.randomUUID() : Math.random().toString(36).substring(2, 11),
       name: newModelName,
       provider: customModel.provider,
       modelId: customModel.modelId,
       type: selectedType as 'image' | 'video' | 'llm',
-      capabilities: selectedType === 'llm' ? {
-        maxContextLength: 128000,
-        supportsStreaming: true,
-      } : { maxBatchSize: 1, supportsReferenceImage: false },
+      capabilities,
       parameters: selectedType === 'image' ? COMMON_IMAGE_PARAMS : selectedType === 'video' ? COMMON_VOLC_VIDEO_PARAMS : llmParams,
       apiUrl: customModel.apiUrl || undefined,
       apiKey: newApiKey,
@@ -227,7 +247,7 @@ const Settings: React.FC = () => {
     setShowAdd(false);
     setIsCustomModel(false);
     setShowAdvancedOptions(false);
-    setCustomModel({ provider: 'modelscope', modelId: '', apiUrl: '', temperature: 0.3, maxTokens: 32000, enableThinking: false });
+    setCustomModel({ provider: 'modelscope', modelId: '', apiUrl: '', temperature: 0.3, maxTokens: 32000, enableThinking: false, supportsReferenceImage: true, maxReferenceImages: 5 });
   };
 
   const handleRemoveModel = (id: string) => {
@@ -335,7 +355,7 @@ const Settings: React.FC = () => {
         {/* Workspace Section */}
         <Card className="border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden" radius="lg">
             <CardHeader className="px-8 pt-8 pb-4 flex flex-col items-start gap-1">
-                <div className="flex items-center gap-2 text-indigo-600 dark:text-indigo-400">
+                <div className="flex items-center gap-2 text-primary">
                     <Database className="w-5 h-5" />
                     <h2 className="text-xl font-black uppercase tracking-widest">{t.settings.workspace}</h2>
                 </div>
@@ -344,7 +364,7 @@ const Settings: React.FC = () => {
             <CardBody className="px-8 pb-8 pt-4 space-y-8">
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 p-6 bg-slate-50 dark:bg-slate-950 rounded-[2rem] border border-slate-100 dark:border-slate-900">
                     <div className="flex items-center gap-5">
-                        <div className="p-4 bg-white dark:bg-slate-900 rounded-2xl shadow-sm text-indigo-600 dark:text-indigo-400 border border-slate-100 dark:border-slate-800">
+                        <div className="p-4 bg-white dark:bg-slate-900 rounded-2xl shadow-sm text-primary border border-slate-100 dark:border-slate-800">
                             <FolderOpen className="w-7 h-7" />
                         </div>
                         <div>
@@ -436,7 +456,7 @@ const Settings: React.FC = () => {
                           color="primary"
                           size="lg"
                           classNames={{
-                            wrapper: "group-data-[selected=true]:bg-indigo-600"
+                            wrapper: "group-data-[selected=true]:bg-primary"
                           }}
                         />
                     </div>
@@ -502,7 +522,7 @@ const Settings: React.FC = () => {
         {/* Appearance Section */}
         <Card className="border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden" radius="lg">
             <CardHeader className="px-8 pt-8 pb-4 flex flex-col items-start gap-1">
-                <div className="flex items-center gap-2 text-indigo-600 dark:text-indigo-400">
+                <div className="flex items-center gap-2 text-primary">
                     <Palette className="w-5 h-5" />
                     <h2 className="text-xl font-black uppercase tracking-widest">{t.settings.appearance}</h2>
                 </div>
@@ -600,7 +620,7 @@ const Settings: React.FC = () => {
         <Card className="border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden" radius="lg">
             <CardHeader className="px-8 pt-8 pb-4 flex justify-between items-end">
                 <div className="flex flex-col items-start gap-1">
-                    <div className="flex items-center gap-2 text-indigo-600 dark:text-indigo-400">
+                    <div className="flex items-center gap-2 text-primary">
                         <Cpu className="w-5 h-5" />
                         <h2 className="text-xl font-black uppercase tracking-widest">{t.settings.modelConfig}</h2>
                     </div>
@@ -619,7 +639,7 @@ const Settings: React.FC = () => {
             <CardBody className="px-8 pb-8 pt-4 space-y-8">
                 {/* Add Model Form */}
                 {showAdd && (
-                    <Card className="bg-indigo-50/30 dark:bg-indigo-900/10 border border-indigo-100 dark:border-indigo-900/20" shadow="none" radius="lg">
+                    <Card className="bg-primary/10 dark:bg-primary/20 border border-primary/20 dark:border-primary/30" shadow="none" radius="lg">
                         <CardBody className="p-8 space-y-8">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                 <Input 
@@ -678,7 +698,7 @@ const Settings: React.FC = () => {
                             {/* Custom Model Form */}
                             {isCustomModel && (
                                 <div className="space-y-6">
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6 bg-indigo-100/30 dark:bg-indigo-900/20 rounded-xl">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6 bg-primary/10 dark:bg-primary/20 rounded-xl">
                                         <Input 
                                             label="Provider"
                                             labelPlacement="outside"
@@ -727,7 +747,7 @@ const Settings: React.FC = () => {
                                     {selectedType === 'llm' && (
                                         <div className="space-y-4">
                                             <div 
-                                                className="flex items-center gap-2 cursor-pointer text-indigo-600 dark:text-indigo-400"
+                                                className="flex items-center gap-2 cursor-pointer text-primary"
                                                 onClick={() => setShowAdvancedOptions(!showAdvancedOptions)}
                                             >
                                                 <span className="font-black uppercase tracking-widest text-[13px]">
@@ -737,7 +757,7 @@ const Settings: React.FC = () => {
                                             </div>
                                             
                                             {showAdvancedOptions && (
-                                                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 p-6 bg-indigo-50/50 dark:bg-indigo-900/10 rounded-xl">
+                                                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 p-6 bg-primary/10 dark:bg-primary/20 rounded-xl">
                                                     <Input 
                                                         label="Temperature"
                                                         labelPlacement="outside"
@@ -780,6 +800,44 @@ const Settings: React.FC = () => {
                                                             <span className="text-xs text-slate-400">enable_thinking</span>
                                                         </div>
                                                     </div>
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
+
+                                    {/* Image Generation Capabilities */}
+                                    {selectedType === 'image' && (
+                                        <div className="space-y-4 p-6 bg-primary/10 dark:bg-primary/20 rounded-xl">
+                                            <div className="flex items-center gap-4">
+                                                <Switch
+                                                    isSelected={customModel.supportsReferenceImage}
+                                                    onValueChange={v => setCustomModel({...customModel, supportsReferenceImage: v})}
+                                                    size="lg"
+                                                    color="secondary"
+                                                />
+                                                <div className="flex flex-col">
+                                                    <span className="font-black uppercase tracking-widest text-[15px] text-slate-500">支持参考图生图</span>
+                                                    <span className="text-xs text-slate-400">该模型是否支持使用参考图片生成</span>
+                                                </div>
+                                            </div>
+                                            
+                                            {customModel.supportsReferenceImage && (
+                                                <div className="pl-14">
+                                                    <Input 
+                                                        label="最大参考图数量"
+                                                        labelPlacement="outside"
+                                                        type="number"
+                                                        placeholder="5"
+                                                        value={customModel.maxReferenceImages.toString()}
+                                                        onValueChange={v => setCustomModel({...customModel, maxReferenceImages: parseInt(v) || 5})}
+                                                        variant="bordered"
+                                                        radius="lg"
+                                                        size="lg"
+                                                        classNames={{
+                                                          label: "font-black uppercase tracking-widest text-[15px] mb-2 text-slate-500",
+                                                          input: "font-medium text-[15px] w-32"
+                                                        }}
+                                                    />
                                                 </div>
                                             )}
                                         </div>
@@ -878,7 +936,7 @@ const Settings: React.FC = () => {
                                     color="primary" 
                                     onPress={isCustomModel ? handleAddCustomModel : handleAddModel} 
                                     isDisabled={!selectedType || (isCustomModel ? !customModel.modelId : !selectedBaseModelId)}
-                                    className="font-black text-[14px] uppercase tracking-widest px-8 h-11 rounded-xl shadow-lg shadow-indigo-500/30"
+                                    className="font-black text-[14px] uppercase tracking-widest px-8 h-11 rounded-xl shadow-lg shadow-primary/30"
                                 >
                                     {t.settings.add}
                                 </Button>
@@ -901,6 +959,7 @@ const Settings: React.FC = () => {
                     <TableHeader>
                         <TableColumn>{t.settings.modelName}</TableColumn>
                         <TableColumn>{t.settings.modelType}</TableColumn>
+                        <TableColumn>能力</TableColumn>
                         <TableColumn>{t.settings.modelIdOnly}</TableColumn>
                         <TableColumn>API Key</TableColumn>
                         <TableColumn align="end">{t.settings.actions}</TableColumn>
@@ -910,7 +969,7 @@ const Settings: React.FC = () => {
                             <TableRow key={model.id}>
                                 <TableCell>
                                     <div className="flex items-center gap-3">
-                                      <div className={`w-2 h-2 rounded-full ${model.type === 'video' ? 'bg-indigo-500' : 'bg-pink-500'}`} />
+                                      <div className={`w-2 h-2 rounded-full ${model.type === 'video' ? 'bg-primary' : 'bg-pink-500'}`} />
                                       <span className="font-black text-slate-900 dark:text-white uppercase tracking-tight">{model.name}</span>
                                     </div>
                                 </TableCell>
@@ -923,6 +982,38 @@ const Settings: React.FC = () => {
                                     >
                                         {model.type === 'video' ? t.settings.modelTypeVideo : model.type === 'llm' ? '文本解析' : t.settings.modelTypeImage}
                                     </Chip>
+                                </TableCell>
+                                <TableCell>
+                                    {model.type === 'image' && (
+                                        <Chip
+                                            size="md"
+                                            variant="flat"
+                                            color={model.capabilities?.supportsReferenceImage ? "success" : "default"}
+                                            className="font-black text-[12px] uppercase tracking-widest px-3 h-7"
+                                        >
+                                            {model.capabilities?.supportsReferenceImage ? '支持参考图' : '文生图'}
+                                        </Chip>
+                                    )}
+                                    {model.type === 'video' && (
+                                        <Chip
+                                            size="md"
+                                            variant="flat"
+                                            color="primary"
+                                            className="font-black text-[12px] uppercase tracking-widest px-3 h-7"
+                                        >
+                                            视频生成
+                                        </Chip>
+                                    )}
+                                    {model.type === 'llm' && (
+                                        <Chip
+                                            size="md"
+                                            variant="flat"
+                                            color="success"
+                                            className="font-black text-[12px] uppercase tracking-widest px-3 h-7"
+                                        >
+                                            文本解析
+                                        </Chip>
+                                    )}
                                 </TableCell>
                                 <TableCell>
                                     <Input

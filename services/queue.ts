@@ -241,29 +241,64 @@ export class JobQueue {
                      await storageService.saveJob(job);
                      this.notify(job);
                  } else if (job.type === 'generate_video') {
-                     // For video generation, check if we have a taskId to resume polling
-                     if (job.params.taskId) {
-                         console.log(`[Queue] Resuming stale video job ${job.id} with taskId: ${job.params.taskId}`);
-                         // We don't change status, just execute (which handles resume)
-                         // But we need to ensure executeJob doesn't re-submit.
-                         // Actually executeJob calls aiService.generateVideo.
-                         // We need to make sure executeJob handles resumption if taskId is present.
-                         // Add it to inFlightIds immediately to prevent double processing in next loop
-                         // this.executeJob(job); // This is async
-                         
-                         // BUT: executeJob checks inFlightIds.
-                         // Let's just reset inFlightIds? No, we need to call executeJob.
-                         this.executeJob(job);
-                     } else {
-                         // No taskId yet, so it failed before submission completed
-                         console.log(`[Queue] Marking stale video job ${job.id} (no taskId) as FAILED.`);
-                         job.status = JobStatus.FAILED;
-                         job.error = "Task interrupted before submission";
-                         job.updatedAt = Date.now();
-                         await storageService.saveJob(job);
-                         this.notify(job);
-                     }
-                 }
+                    // For video generation, check if we have a taskId to resume polling
+                    if (job.params.taskId) {
+                        console.log(`[Queue] Resuming stale video job ${job.id} with taskId: ${job.params.taskId}`);
+                        // We don't change status, just execute (which handles resume)
+                        // But we need to ensure executeJob doesn't re-submit.
+                        // Actually executeJob calls aiService.generateVideo.
+                        // We need to make sure executeJob handles resumption if taskId is present.
+                        // Add it to inFlightIds immediately to prevent double processing in next loop
+                        // this.executeJob(job); // This is async
+
+                        // BUT: executeJob checks inFlightIds.
+                        // Let's just reset inFlightIds? No, we need to call executeJob.
+                        this.executeJob(job);
+                    } else {
+                        // No taskId yet, so it failed before submission completed
+                        console.log(`[Queue] Marking stale video job ${job.id} (no taskId) as FAILED.`);
+                        job.status = JobStatus.FAILED;
+                        job.error = "Task interrupted before submission";
+                        job.updatedAt = Date.now();
+                        await storageService.saveJob(job);
+                        this.notify(job);
+                    }
+                } else if (job.type === 'generate_keyframe_image') {
+                    const { scriptId, shotId, keyframeId } = job.params;
+
+                    if (scriptId && shotId && keyframeId) {
+                        try {
+                            const script = await storageService.getScript(scriptId, job.projectId);
+                            const shot = script?.parseState?.shots?.find(s => s.id === shotId);
+                            const keyframe = shot?.keyframes?.find(k => k.id === keyframeId);
+
+                            if (keyframe?.generatedImages && keyframe.generatedImages.length > 0) {
+                                // 检查是否有任务创建后生成的图片
+                                const newImages = keyframe.generatedImages.filter(
+                                    img => img.createdAt >= job.createdAt
+                                );
+
+                                if (newImages.length > 0) {
+                                    const latest = newImages[newImages.length - 1];
+                                    job.result = { path: latest.path, generatedImage: latest };
+                                    job.status = JobStatus.COMPLETED;
+                                    job.updatedAt = Date.now();
+                                    job.error = undefined;
+                                    await storageService.saveJob(job);
+                                    this.notify(job);
+                                    continue;
+                                }
+                            }
+                        } catch {}
+                    }
+
+                    // 未找到结果，重置为 PENDING
+                    job.status = JobStatus.PENDING;
+                    job.updatedAt = Date.now();
+                    job.error = undefined;
+                    await storageService.saveJob(job);
+                    this.notify(job);
+                }
              }
              
              // Re-fetch active jobs count after reset/resume
@@ -530,6 +565,9 @@ export class JobQueue {
             currentJob.result = { path };
             currentJob.status = JobStatus.COMPLETED;
         }
+        else if (currentJob.type === 'generate_keyframe_image') {
+            await this.executeKeyframeGenerationJob(currentJob);
+        }
     } catch (err: any) {
         console.error(`[Queue] Job ${currentJob.id} failed:`, err);
         currentJob.status = JobStatus.FAILED;
@@ -549,6 +587,120 @@ export class JobQueue {
         this.processQueue();
     }
   }
+
+    /**
+     * 执行关键帧生图任务
+     */
+    private async executeKeyframeGenerationJob(job: Job) {
+        console.log(`[Queue] 开始关键帧生图任务 ${job.id}`);
+
+        const {
+            scriptId, shotId, keyframeId,
+            prompt, modelConfigId, referenceImages, resolution, aspectRatio
+        } = job.params;
+
+        console.log('[Queue] job.params.referenceImages length:', referenceImages?.length || 0);
+        if (referenceImages && referenceImages.length > 0) {
+            console.log('[Queue] referenceImages preview:', referenceImages[0].substring(0, 50));
+        }
+
+        // 1. 调用AI生图
+        const result = await aiService.generateImage(
+            prompt,
+            modelConfigId,
+            referenceImages || [],
+            aspectRatio,
+            resolution,
+            1
+        );
+
+        if (!result.success || !result.data) {
+            throw new Error(result.error || "关键帧生图失败");
+        }
+
+        // 2. 下载并保存图片
+        const imageData = Array.isArray(result.data) ? result.data[0] : result.data;
+        const imageUrl = imageData.url || imageData.path;
+
+        let blob: Blob;
+        if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
+            try {
+                const proxyUrl = `/api/proxy?url=${encodeURIComponent(imageUrl)}`;
+                const proxyRes = await fetch(proxyUrl);
+                if (!proxyRes.ok) throw new Error('Proxy fetch failed');
+                blob = await proxyRes.blob();
+            } catch {
+                const directRes = await fetch(imageUrl);
+                if (!directRes.ok) throw new Error('Direct fetch failed');
+                blob = await directRes.blob();
+            }
+        } else {
+            throw new Error("Invalid image URL");
+        }
+
+        // 3. 保存到本地
+        const timestamp = Date.now();
+        const random = Math.random().toString(36).substring(2, 8);
+        const ext = blob.type === 'image/webp' ? 'webp' : blob.type === 'image/png' ? 'png' : 'jpg';
+        const filename = `${timestamp}_${random}.${ext}`;
+        const path = `generated/keyframes/${filename}`;
+
+        await storageService.saveBinaryFile(path, blob);
+
+        // 4. 构建 GeneratedImage
+        const generatedImage: GeneratedImage = {
+            id: crypto.randomUUID(),
+            path: path,
+            prompt: prompt,
+            userPrompt: job.params.userPrompt,
+            modelConfigId: modelConfigId,
+            modelId: imageData.modelId || modelConfigId,
+            referenceImages: referenceImages || [],
+            createdAt: Date.now(),
+            width: imageData.width,
+            height: imageData.height
+        };
+
+        // 5. 更新 Script
+        await this.updateKeyframeInScript(job, generatedImage);
+
+        // 6. 设置结果
+        job.result = { path, generatedImage };
+        job.status = JobStatus.COMPLETED;
+    }
+
+    /**
+     * 更新 Script 中的关键帧
+     */
+    private async updateKeyframeInScript(job: Job, generatedImage: GeneratedImage) {
+        const { scriptId, shotId, keyframeId } = job.params;
+
+        const script = await storageService.getScript(scriptId, job.projectId);
+        if (!script || !script.parseState?.shots) {
+            throw new Error(`Script not found: ${scriptId}`);
+        }
+
+        const shot = script.parseState.shots.find(s => s.id === shotId);
+        if (!shot || !shot.keyframes) {
+            throw new Error(`Shot or keyframes not found: ${shotId}`);
+        }
+
+        const keyframe = shot.keyframes.find(k => k.id === keyframeId);
+        if (!keyframe) {
+            throw new Error(`Keyframe not found: ${keyframeId}`);
+        }
+
+        // 更新关键帧
+        if (!keyframe.generatedImages) {
+            keyframe.generatedImages = [];
+        }
+        keyframe.generatedImages.push(generatedImage);
+        keyframe.currentImageId = generatedImage.id;
+        keyframe.generatedImage = generatedImage;
+        keyframe.status = 'completed';
+
+        await storageService.saveScript(script);
+    }
 }
 
 export const jobQueue = new JobQueue();

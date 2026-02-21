@@ -60,11 +60,11 @@ const FragmentSidebar: React.FC<FragmentSidebarProps> = ({ projectId, onSelect, 
                 onClick={() => onSelect(frag)}
                 className={`group flex flex-col gap-1 p-3 rounded-xl cursor-pointer transition-all border ${
                   isSelected 
-                    ? 'bg-indigo-50 dark:bg-slate-800 border-indigo-500 shadow-sm' 
+                    ? 'bg-primary/10 dark:bg-slate-800 border-primary shadow-sm' 
                     : 'bg-slate-50 dark:bg-slate-800/30 border-transparent hover:bg-slate-100 dark:hover:bg-slate-800/60'
                 }`}
               >
-                 <div className={`font-bold text-base truncate ${isSelected ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-900 dark:text-white'}`}>
+                 <div className={`font-bold text-base truncate ${isSelected ? 'text-primary' : 'text-slate-900 dark:text-white'}`}>
                     {frag.name}
                  </div>
                  <div className="text-xs text-slate-400 dark:text-slate-500 line-clamp-2 text-wrap leading-relaxed">

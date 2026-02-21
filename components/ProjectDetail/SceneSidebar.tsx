@@ -10,13 +10,23 @@ interface SceneSidebarProps {
   onSelect: (asset: Asset) => void;
   refreshTrigger: number;
   selectedId?: string;
+  // Script filter props
+  scriptFilter?: string;
+  scripts?: Array<{ id: string; title: string }>;
 }
 
-const SceneSidebar: React.FC<SceneSidebarProps> = ({ projectId, onSelect, refreshTrigger, selectedId }) => {
+const SceneSidebar: React.FC<SceneSidebarProps> = ({ projectId, onSelect, refreshTrigger, selectedId, scriptFilter, scripts }) => {
   const { t } = useApp();
   const [scenes, setScenes] = useState<SceneAsset[]>([]);
   const [search, setSearch] = useState('');
   const [urls, setUrls] = useState<Record<string, string>>({});
+
+  // Get script name for display
+  const getScriptName = (scriptId?: string) => {
+    if (!scriptId) return '未分类';
+    const script = scripts?.find(s => s.id === scriptId);
+    return script?.title || '未知剧本';
+  };
 
   useEffect(() => {
     loadScenes();
@@ -42,7 +52,20 @@ const SceneSidebar: React.FC<SceneSidebarProps> = ({ projectId, onSelect, refres
     setUrls(newUrls);
   };
 
-  const filtered = scenes.filter(s => s.name.toLowerCase().includes(search.toLowerCase()));
+  const filtered = scenes.filter(s => {
+    // Search filter
+    if (!s.name.toLowerCase().includes(search.toLowerCase())) return false;
+    
+    // Script filter
+    if (scriptFilter && scriptFilter !== 'all') {
+      if (scriptFilter === 'uncategorized') {
+        return !s.scriptId;
+      }
+      return s.scriptId === scriptFilter;
+    }
+    
+    return true;
+  });
 
   return (
     <div className="h-full flex flex-col bg-white dark:bg-slate-900 border-l border-slate-200 dark:border-slate-800 w-[340px]">
@@ -74,7 +97,7 @@ const SceneSidebar: React.FC<SceneSidebarProps> = ({ projectId, onSelect, refres
                 onClick={() => onSelect(scene)}
                 className={`group flex items-center gap-4 p-3 rounded-2xl cursor-pointer transition-all border ${
                   isSelected 
-                    ? 'bg-indigo-50 dark:bg-slate-800 border-indigo-500' 
+                    ? 'bg-primary/10 dark:bg-slate-800 border-primary' 
                     : 'bg-slate-50 dark:bg-slate-800/30 border-transparent hover:bg-slate-100 dark:hover:bg-slate-800/60'
                 }`}
               >
@@ -86,11 +109,11 @@ const SceneSidebar: React.FC<SceneSidebarProps> = ({ projectId, onSelect, refres
                    )}
                 </div>
                 <div className="flex-1 min-w-0 flex flex-col gap-1">
-                   <div className={`font-bold text-base truncate ${isSelected ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-900 dark:text-white'}`}>
+                   <div className={`font-bold text-base truncate ${isSelected ? 'text-primary' : 'text-slate-900 dark:text-white'}`}>
                       {scene.name}
                    </div>
                    <div className="text-xs text-slate-500 dark:text-slate-400 truncate w-full font-medium">
-                      {scene.prompt || '-'}
+                      {getScriptName(scene.scriptId)}
                    </div>
                 </div>
               </div>

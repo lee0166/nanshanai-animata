@@ -39,7 +39,7 @@ export const StyleSelector: React.FC<StyleSelectorProps> = ({
                     <div className="flex items-center gap-2">
                         <span className="text-slate-300 font-bold text-base">{t.aiParams?.style || 'Style'}</span>
                         {value && (
-                            <span className="text-tiny text-blue-400 ml-1 font-normal">
+                            <span className="text-tiny text-primary ml-1 font-normal">
                                 {settings.language === 'zh' 
                                     ? (DefaultStylePrompt as Record<string, StylePromptItem>)[value]?.nameCN 
                                     : (DefaultStylePrompt as Record<string, StylePromptItem>)[value]?.nameEN}

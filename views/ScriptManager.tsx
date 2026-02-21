@@ -548,7 +548,7 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
             <div className="space-y-2 mb-4">
               <div className="flex items-center gap-3">
                 <Progress value={parseProgress} className="flex-1" aria-label="解析进度" />
-                <span className="text-sm font-medium min-w-[3rem] text-right">{parseProgress}%</span>
+                <span className="text-sm font-medium min-w-[3rem] text-right">{parseProgress.toFixed(2)}%</span>
               </div>
               <p className="text-sm text-center text-default-500">{parseStage}</p>
             </div>
@@ -814,6 +814,7 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
                   >
                     <CharacterMapping
                       projectId={projectId!}
+                      scriptId={currentScript.id}
                       scriptCharacters={currentScript.parseState.characters || []}
                       existingCharacters={existingCharacters}
                       onCharactersUpdate={(characters) => handleUpdateParseState({ characters })}
@@ -832,6 +833,7 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
                   >
                     <SceneMapping
                       projectId={projectId!}
+                      scriptId={currentScript.id}
                       scriptScenes={currentScript.parseState.scenes || []}
                       existingScenes={existingScenes}
                       onScenesUpdate={(scenes) => handleUpdateParseState({ scenes })}
@@ -850,6 +852,7 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
                   >
                     <ItemMapping
                       projectId={projectId!}
+                      scriptId={currentScript.id}
                       scriptItems={currentScript.parseState.items || []}
                       existingItems={existingItems}
                       onItemsUpdate={(items) => handleUpdateParseState({ items })}

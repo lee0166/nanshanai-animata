@@ -36,21 +36,28 @@ interface AssetListProps {
   itemTypeFilter?: string;
   onItemTypeFilterChange?: (filter: string) => void;
   onDelete?: () => void;
+  // Character script filter props
+  scriptFilter?: string;
+  onScriptFilterChange?: (filter: string) => void;
+  scripts?: Array<{ id: string; title: string }>;
 }
 
 type ModalityFilter = 'all' | 'image' | 'video';
 type SourceFilter = 'all' | 'generated' | 'imported';
 
-const AssetList: React.FC<AssetListProps> = ({ 
-  projectId, 
-  type, 
-  refreshTrigger, 
-  onSelect, 
-  onAdd, 
+const AssetList: React.FC<AssetListProps> = ({
+  projectId,
+  type,
+  refreshTrigger,
+  onSelect,
+  onAdd,
   highlightedAssetId,
   itemTypeFilter: externalItemTypeFilter,
   onItemTypeFilterChange,
-  onDelete
+  onDelete,
+  scriptFilter: externalScriptFilter,
+  onScriptFilterChange,
+  scripts
 }) => {
   const { t } = useApp();
   const { showToast } = useToast();
@@ -100,6 +107,14 @@ const AssetList: React.FC<AssetListProps> = ({
     setLoading(true);
     try {
         const all = await storageService.getAssets(projectId);
+        
+        // Debug logging
+        console.log(`[AssetList] Loading assets for type: ${type}, projectId: ${projectId}`);
+        console.log(`[AssetList] Total assets: ${all.length}`);
+        console.log(`[AssetList] Assets by type:`, all.reduce((acc, a) => {
+            acc[a.type] = (acc[a.type] || 0) + 1;
+            return acc;
+        }, {} as Record<string, number>));
         
         // Primary Filter: By tab type
         let filtered: Asset[] = [];
@@ -323,8 +338,22 @@ const AssetList: React.FC<AssetListProps> = ({
         });
     }
 
+    // Character/Scene/Item script filter
+    if ((type === AssetType.CHARACTER || type === AssetType.SCENE || type === AssetType.ITEM) 
+        && externalScriptFilter && externalScriptFilter !== 'all') {
+        console.log(`[AssetList] Applying script filter: ${externalScriptFilter} for type: ${type}`);
+        console.log(`[AssetList] Before filter:`, result.map(a => ({ id: a.id, name: a.name, scriptId: a.scriptId })));
+        result = result.filter(asset => {
+            if (externalScriptFilter === 'uncategorized') {
+                return !asset.scriptId;
+            }
+            return asset.scriptId === externalScriptFilter;
+        });
+        console.log(`[AssetList] After filter:`, result.map(a => ({ id: a.id, name: a.name, scriptId: a.scriptId })));
+    }
+
     return result;
-  }, [assets, modalityFilter, sourceFilter, itemTypeFilter, type]);
+  }, [assets, modalityFilter, sourceFilter, itemTypeFilter, type, externalScriptFilter]);
 
   if (loading && assets.length === 0) {
     return (
@@ -351,39 +380,6 @@ const AssetList: React.FC<AssetListProps> = ({
   return (
     <>
     <div className="space-y-6">
-      {/* Filtering Header for Items Tab */}
-      {type === AssetType.ITEM && (
-        <div className="flex flex-col sm:flex-row items-center justify-start gap-4 bg-white/50 dark:bg-slate-900/50 backdrop-blur-md p-4 rounded-[2rem] border border-slate-200 dark:border-slate-800 shadow-sm">
-           <div className="flex items-center gap-2 ml-2">
-                <Filter className="w-4 h-4 text-slate-500" />
-                <span className="text-sm font-bold text-slate-600 dark:text-slate-300">{t.project.itemTypeLabel}</span>
-           </div>
-           <Select
-                aria-label={t.project.itemTypeLabel}
-                placeholder={t.project.filterAll}
-                selectedKeys={[itemTypeFilter]}
-                onChange={(e) => setItemTypeFilter(e.target.value)}
-                className="w-48"
-                variant="bordered"
-                radius="lg"
-                size="sm"
-                classNames={{
-                    value: "font-bold text-xs",
-                    trigger: "border-slate-300 dark:border-slate-700 h-9 min-h-unit-8"
-                }}
-           >
-                <SelectItem key="all" value="all" textValue={t.project.filterAll}>
-                    {t.project.filterAll}
-                </SelectItem>
-                {Object.entries(t.project.itemTypes || {}).map(([key, label]) => (
-                    <SelectItem key={key} value={key} textValue={label as string}>
-                        {label as string}
-                    </SelectItem>
-                ))}
-           </Select>
-        </div>
-      )}
-
       {/* Filtering Header for Resources Tab */}
       {isResources && (
         <div className="flex flex-col sm:flex-row items-center justify-start gap-6 bg-white/50 dark:bg-slate-900/50 backdrop-blur-md p-4 rounded-[2rem] border border-slate-200 dark:border-slate-800 shadow-sm overflow-x-auto">
@@ -498,15 +494,15 @@ const AssetList: React.FC<AssetListProps> = ({
             <Card
               isPressable
               onPress={onAdd}
-              className="bg-slate-50/50 dark:bg-slate-900/50 border-2 border-dashed border-slate-200 dark:border-slate-800 aspect-[3/4] w-full group hover:border-indigo-500/50 hover:bg-white dark:hover:bg-slate-900 transition-all duration-300"
+              className="bg-slate-50/50 dark:bg-slate-900/50 border-2 border-dashed border-slate-200 dark:border-slate-800 aspect-[3/4] w-full group hover:border-primary/50 hover:bg-white dark:hover:bg-slate-900 transition-all duration-300"
               radius="lg"
               shadow="none"
             >
               <CardBody className="flex flex-col items-center justify-center gap-4">
-                <div className="w-14 h-14 rounded-2xl bg-slate-200 dark:bg-slate-800 flex items-center justify-center text-slate-400 group-hover:bg-indigo-600 group-hover:text-white group-hover:shadow-xl group-hover:shadow-indigo-500/30 transition-all duration-500">
+                <div className="w-14 h-14 rounded-2xl bg-slate-200 dark:bg-slate-800 flex items-center justify-center text-slate-400 group-hover:bg-primary group-hover:text-white group-hover:shadow-xl group-hover:shadow-primary/30 transition-all duration-500">
                   <Plus className="w-7 h-7" />
                 </div>
-                <span className="text-[13px] font-black text-slate-400 dark:text-slate-600 uppercase tracking-[0.2em] group-hover:text-indigo-600 transition-colors">
+                <span className="text-[13px] font-black text-slate-400 dark:text-slate-600 uppercase tracking-[0.2em] group-hover:text-primary transition-colors">
                   {t.project.create}
                 </span>
               </CardBody>
@@ -523,8 +519,8 @@ const AssetList: React.FC<AssetListProps> = ({
             <Card 
               className={`group border bg-white dark:bg-slate-900 shadow-sm hover:scale-[1.02] transition-all duration-300 aspect-[3/4] w-full ${
                 highlightedAssetId === asset.id 
-                  ? 'border-indigo-500 ring-2 ring-indigo-500/20' 
-                  : 'border-slate-200 dark:border-slate-800 hover:border-indigo-500/50'
+                  ? 'border-primary ring-2 ring-primary/20' 
+                  : 'border-slate-200 dark:border-slate-800 hover:border-primary/50'
               }`}
               radius="lg"
             >

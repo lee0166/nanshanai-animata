@@ -217,7 +217,7 @@ const GenerationForm: React.FC<GenerationFormProps> = ({
     return (
         <Card className="bg-white dark:bg-slate-900 rounded-[3rem] p-10 border-none shadow-xl flex-1 flex flex-col h-full">
             <div className="flex items-center gap-4 mb-8">
-                <div className="w-12 h-12 bg-indigo-50 dark:bg-indigo-900/30 rounded-2xl flex items-center justify-center text-indigo-600 dark:text-indigo-400">
+                <div className="w-12 h-12 bg-primary/10 dark:bg-primary/20 rounded-2xl flex items-center justify-center text-primary">
                     <Sparkles className="w-6 h-6" />
                 </div>
                 <h3 className="font-black text-2xl uppercase tracking-tight">{t.project.generate}</h3>
@@ -240,7 +240,7 @@ const GenerationForm: React.FC<GenerationFormProps> = ({
                     classNames={{
                         label: "font-black text-[10px] uppercase tracking-widest text-slate-400 mb-3",
                         input: "text-base leading-relaxed",
-                        inputWrapper: "border-2 group-data-[focus=true]:border-indigo-500 p-6"
+                        inputWrapper: "border-2 group-data-[focus=true]:border-primary p-6"
                     }}
                 />
 
@@ -265,8 +265,8 @@ const GenerationForm: React.FC<GenerationFormProps> = ({
                     isDisabled={generating}
                     classNames={{
                         label: "font-black text-[10px] uppercase tracking-widest text-slate-400 mb-3",
-                        trigger: "border-2 group-data-[focus=true]:border-indigo-500 h-14",
-                        value: "font-bold text-indigo-600 dark:text-indigo-400"
+                        trigger: "border-2 group-data-[focus=true]:border-primary h-14",
+                        value: "font-bold text-primary"
                     }}
                 >
                     {models.map(m => (
@@ -409,7 +409,7 @@ const GenerationForm: React.FC<GenerationFormProps> = ({
                     onPress={handleGenerateClick}
                     isLoading={generating}
                     disabled={generating || !selectedModelId || (capabilities.requiresImageInput && referenceImages.length === 0)}
-                    className="w-full h-16 font-black uppercase tracking-widest text-sm shadow-xl shadow-indigo-500/30 active:scale-95 transition-all"
+                    className="w-full h-16 font-black uppercase tracking-widest text-sm shadow-xl shadow-primary/30 active:scale-95 transition-all"
                     endContent={!generating && <ArrowRight className="w-5 h-5" />}
                 >
                     {generating ? t.project.queued : t.project.generate}

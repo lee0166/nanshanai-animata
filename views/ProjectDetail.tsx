@@ -24,7 +24,9 @@ import {
   ModalBody, 
   ModalFooter,
   useDisclosure,
-  Spinner
+  Spinner,
+  Select,
+  SelectItem
 } from "@heroui/react";
 
 import { useToast } from '../contexts/ToastContext';
@@ -51,8 +53,15 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({ activeTab, setActiveTab, 
   const [itemTypeFilter, setItemTypeFilter] = useState<string>('all');
   const { isOpen: isAddOpen, onOpen: onAddOpen, onClose: onAddClose } = useDisclosure();
   
+  // Script Filter States - 剧本筛选状态
+  const [characterScriptFilter, setCharacterScriptFilter] = useState<string>('all');
+  const [sceneScriptFilter, setSceneScriptFilter] = useState<string>('all');
+  const [itemScriptFilter, setItemScriptFilter] = useState<string>('all');
+  const [scripts, setScripts] = useState<Array<{ id: string; title: string }>>([]);
+  
   // Creation/Edit State
   const [assetName, setAssetName] = useState('');
+  const [newAssetScriptId, setNewAssetScriptId] = useState<string>('');  // 新建资产时选择的剧本
   const [prompt, setPrompt] = useState('');
   const [selectedModelId, setSelectedModelId] = useState('');
   const [generating, setGenerating] = useState(false);
@@ -66,6 +75,23 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({ activeTab, setActiveTab, 
         onProjectLoaded(project);
     }
   }, [project, onProjectLoaded]);
+
+  // Load scripts for character script filter
+  useEffect(() => {
+    if (id) {
+      loadScripts();
+    }
+  }, [id, refreshTrigger]);
+
+  const loadScripts = async () => {
+    if (!id) return;
+    try {
+      const scriptsData = await storageService.getScripts(id);
+      setScripts(scriptsData.map(s => ({ id: s.id, title: s.title })));
+    } catch (error) {
+      console.error('Failed to load scripts:', error);
+    }
+  };
 
   useEffect(() => {
     const type = activeTab === AssetType.VIDEO_SEGMENT ? 'video' : 'image';
@@ -204,8 +230,14 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({ activeTab, setActiveTab, 
         }
     }
 
+    // Add scriptId for scene and item assets
+    if ((activeTab === AssetType.SCENE || activeTab === AssetType.ITEM) && newAssetScriptId) {
+        (newAsset as any).scriptId = newAssetScriptId;
+    }
+
     await storageService.saveAsset(newAsset);
     setAssetName('');
+    setNewAssetScriptId('');  // Reset script selection
     onAddClose();
     setRefreshTrigger(prev => prev + 1);
     setSelectedAsset(newAsset);
@@ -409,6 +441,8 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({ activeTab, setActiveTab, 
             refreshTrigger={refreshTrigger}
             selectedId={highlightedAssetId}
             filterType={itemTypeFilter}
+            scriptFilter={itemScriptFilter}
+            scripts={scripts}
           />
         )}
       </div>
@@ -442,9 +476,46 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({ activeTab, setActiveTab, 
       {/* Header */}
       <div className="px-6 md:px-10 pt-6 pb-2">
         <div className="max-w-[1600px] mx-auto flex justify-between items-center">
-          <h2 className="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tight">
-            {activeTabPlural}
-          </h2>
+          <div className="flex items-center gap-4">
+            <h2 className="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tight">
+              {activeTabPlural}
+            </h2>
+            
+            {/* Script Filter - 剧本筛选器（角色/场景/物品） */}
+            {(activeTab === AssetType.CHARACTER || activeTab === AssetType.SCENE || activeTab === AssetType.ITEM) && scripts && scripts.length > 0 && (
+              <Select
+                aria-label="剧本筛选"
+                placeholder="选择剧本"
+                selectedKeys={[
+                  activeTab === AssetType.CHARACTER ? characterScriptFilter :
+                  activeTab === AssetType.SCENE ? sceneScriptFilter :
+                  itemScriptFilter
+                ]}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  if (activeTab === AssetType.CHARACTER) setCharacterScriptFilter(value);
+                  else if (activeTab === AssetType.SCENE) setSceneScriptFilter(value);
+                  else if (activeTab === AssetType.ITEM) setItemScriptFilter(value);
+                }}
+                className="w-40"
+                variant="bordered"
+                radius="lg"
+                size="sm"
+                classNames={{
+                  value: "font-bold text-xs",
+                  trigger: "border-slate-300 dark:border-slate-700 h-8 min-h-unit-8"
+                }}
+              >
+                <SelectItem key="all" value="all" textValue="全部剧本">全部剧本</SelectItem>
+                <SelectItem key="uncategorized" value="uncategorized" textValue="未分类">未分类</SelectItem>
+                {scripts.map((script) => (
+                  <SelectItem key={script.id} value={script.id} textValue={script.title}>
+                    {script.title}
+                  </SelectItem>
+                ))}
+              </Select>
+            )}
+          </div>
         </div>
       </div>
 
@@ -462,6 +533,18 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({ activeTab, setActiveTab, 
               itemTypeFilter={itemTypeFilter}
               onItemTypeFilterChange={setItemTypeFilter}
               onDelete={() => setRefreshTrigger(prev => prev + 1)}
+              scriptFilter={
+                activeTab === AssetType.CHARACTER ? characterScriptFilter :
+                activeTab === AssetType.SCENE ? sceneScriptFilter :
+                activeTab === AssetType.ITEM ? itemScriptFilter :
+                'all'
+              }
+              onScriptFilterChange={(value) => {
+                if (activeTab === AssetType.CHARACTER) setCharacterScriptFilter(value);
+                else if (activeTab === AssetType.SCENE) setSceneScriptFilter(value);
+                else if (activeTab === AssetType.ITEM) setItemScriptFilter(value);
+              }}
+              scripts={scripts}
             />
           </div>
         </div>
@@ -482,6 +565,8 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({ activeTab, setActiveTab, 
             onSelect={(asset) => setHighlightedAssetId(asset.id)}
             refreshTrigger={refreshTrigger}
             selectedId={highlightedAssetId}
+            scriptFilter={characterScriptFilter}
+            scripts={scripts}
           />
         )}
 
@@ -500,6 +585,8 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({ activeTab, setActiveTab, 
             onSelect={(asset) => setHighlightedAssetId(asset.id)}
             refreshTrigger={refreshTrigger}
             selectedId={highlightedAssetId}
+            scriptFilter={sceneScriptFilter}
+            scripts={scripts}
           />
         )}
       </div>
@@ -527,7 +614,7 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({ activeTab, setActiveTab, 
                   {t.project.createTitle.replace('{type}', activeTabSingular)}
                 </h2>
               </ModalHeader>
-              <ModalBody>
+              <ModalBody className="flex flex-col gap-4">
                 <Input
                   label={t.project.nameLabel}
                   placeholder={t.project.namePlaceholder.replace('{type}', activeTabSingular)}
@@ -541,9 +628,35 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({ activeTab, setActiveTab, 
                   classNames={{
                     label: "font-black text-[14px] uppercase tracking-widest text-slate-400 mb-2",
                     input: "text-sm",
-                    inputWrapper: "border-2 group-data-[focus=true]:border-indigo-500"
+                    inputWrapper: "border-2 group-data-[focus=true]:border-primary"
                   }}
                 />
+                
+                {/* 场景/物品创建时选择剧本 */}
+                {(activeTab === AssetType.SCENE || activeTab === AssetType.ITEM) && scripts.length > 0 && (
+                  <Select
+                    label="所属剧本（可选）"
+                    labelPlacement="outside"
+                    placeholder="选择剧本"
+                    selectedKeys={[newAssetScriptId]}
+                    onChange={(e) => setNewAssetScriptId(e.target.value)}
+                    variant="bordered"
+                    radius="lg"
+                    size="lg"
+                    classNames={{
+                      label: "font-black text-[14px] uppercase tracking-widest text-slate-400 mb-2",
+                      value: "text-sm",
+                      trigger: "border-2"
+                    }}
+                  >
+                    <SelectItem key="" value="" textValue="不关联剧本">不关联剧本</SelectItem>
+                    {scripts.map((script) => (
+                      <SelectItem key={script.id} value={script.id} textValue={script.title}>
+                        {script.title}
+                      </SelectItem>
+                    ))}
+                  </Select>
+                )}
               </ModalBody>
               <ModalFooter>
                 <Button variant="light" onPress={onClose} className="font-bold text-slate-500">

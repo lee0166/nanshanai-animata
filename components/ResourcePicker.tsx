@@ -226,7 +226,7 @@ const ResourcePicker: React.FC<ResourcePickerProps> = ({ isOpen, onClose, onSele
                                     <Card 
                                         className={`w-full h-full border-2 transition-all duration-300 ${
                                             selectedIds.has(res.id) 
-                                            ? 'border-indigo-500 shadow-lg shadow-indigo-500/20' 
+                                            ? 'border-primary shadow-lg shadow-primary/20' 
                                             : 'border-transparent dark:bg-slate-900'
                                         }`}
                                         radius="lg"
@@ -255,7 +255,7 @@ const ResourcePicker: React.FC<ResourcePickerProps> = ({ isOpen, onClose, onSele
                                     </Card>
                                     
                                     {selectedIds.has(res.id) && (
-                                        <div className="absolute top-2 right-2 z-20 bg-indigo-600 text-white rounded-full p-1.5 shadow-lg scale-110 animate-in zoom-in-50 duration-200">
+                                        <div className="absolute top-2 right-2 z-20 bg-primary text-white rounded-full p-1.5 shadow-lg scale-110 animate-in zoom-in-50 duration-200">
                                             <Check className="w-3.5 h-3.5 stroke-[3px]" />
                                         </div>
                                     )}

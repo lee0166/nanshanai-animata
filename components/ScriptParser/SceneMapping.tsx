@@ -23,6 +23,7 @@ import { MapPin, Link2, Plus, Edit2, Wand2, CheckCircle2, Home, Sun, Cloud } fro
 
 interface SceneMappingProps {
   projectId: string;
+  scriptId: string;  // 当前剧本ID
   scriptScenes: ScriptScene[];
   existingScenes: SceneAsset[];
   onScenesUpdate: (scenes: ScriptScene[]) => void;
@@ -31,6 +32,7 @@ interface SceneMappingProps {
 
 export const SceneMapping: React.FC<SceneMappingProps> = ({
   projectId,
+  scriptId,
   scriptScenes,
   existingScenes,
   onScenesUpdate,
@@ -57,6 +59,7 @@ export const SceneMapping: React.FC<SceneMappingProps> = ({
       const newScene: SceneAsset = {
         id: `scene_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
         projectId,
+        scriptId,  // 关联当前剧本
         type: AssetType.SCENE,
         name: scriptScene.name,
         prompt: scriptScene.visualPrompt || `${scriptScene.name}的场景设定`,
