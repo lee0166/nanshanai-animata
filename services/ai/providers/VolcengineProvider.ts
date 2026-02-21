@@ -59,15 +59,20 @@ export class VolcengineProvider extends BaseProvider {
     async generateImage(prompt: string, config: ModelConfig, referenceImages: string[] = [], aspectRatio: string = '1:1', resolution: string = '2K', count: number = 1, guidanceScale?: number, extraParams?: Record<string, any>): Promise<AIResult> {
         try {
             console.log(`[VolcengineProvider] Generating image. Config ID: ${config.id}`);
+            console.log('[VolcengineProvider] received referenceImages length:', referenceImages.length);
+            if (referenceImages.length > 0) {
+                console.log('[VolcengineProvider] first image preview:', referenceImages[0].substring(0, 50));
+            }
             const apiKey = this.getApiKey(config);
             const url = `${this.getBaseUrl(config)}/images/generations`;
-            
+
             // 1. Load Images
             const loadedImages: string[] = [];
             if (referenceImages && referenceImages.length > 0) {
                  const blobs = await Promise.all(referenceImages.map(img => this.loadBlobAsBase64(img)));
                  loadedImages.push(...blobs.filter((b): b is string => !!b));
             }
+            console.log('[VolcengineProvider] loadedImages after processing:', loadedImages.length);
 
             // 2. Prepare Strategy
             const strategy = this.getStrategy(config);
@@ -79,6 +84,14 @@ export class VolcengineProvider extends BaseProvider {
             
             // 3. Prepare Request
             const body = strategy.prepareRequest(prompt, config, loadedImages, size, count, guidanceScale, extraParams);
+
+            console.log('[VolcengineProvider] body.image field:', body.image ? `present (length: ${Array.isArray(body.image) ? body.image.length : 1})` : 'not present');
+            if (body.image) {
+                const imagePreview = Array.isArray(body.image) 
+                    ? body.image[0].substring(0, 50) 
+                    : body.image.substring(0, 50);
+                console.log('[VolcengineProvider] body.image preview:', imagePreview);
+            }
 
             console.log(`[VolcengineProvider] Request body:`, JSON.stringify(body, (key, value) => {
                 if (key === 'image' || key === 'b64_json') return "<Base64_Data>";

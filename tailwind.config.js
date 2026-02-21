@@ -10,6 +10,18 @@ export default {
   darkMode: 'class',
   theme: {
     extend: {
+      animation: {
+        shimmerSmooth: 'shimmerSmooth 6s infinite',
+      },
+      keyframes: {
+        shimmerSmooth: {
+          '0%': { transform: 'translateX(-150%) skewX(-12deg)', opacity: '0' },
+          '10%': { opacity: '1' },
+          '45%': { transform: 'translateX(150%) skewX(-12deg)', opacity: '1' },
+          '55%': { transform: 'translateX(150%) skewX(-12deg)', opacity: '0' },
+          '100%': { transform: 'translateX(150%) skewX(-12deg)', opacity: '0' },
+        },
+      },
       colors: {
         // Custom Dark Palette (Mapping Slate to a cleaner, darker Zinc-like scale)
         slate: {
@@ -45,23 +57,62 @@ export default {
   },
   plugins: [heroui({
     themes: {
-      dark: {
+      light: {
         colors: {
-          background: "#050505", // Deep black for global bg
-          foreground: "#ECEDEE",
+          background: "#ffffff",
+          foreground: "#1f2937",
           primary: {
-            DEFAULT: "#3870e7ff", // Blue 600
+            50: '#fff7ed',
+            100: '#ffedd5',
+            200: '#fed7aa',
+            300: '#fdba74',
+            400: '#fb923c',
+            500: '#f97316',
+            600: '#ea580c',
+            700: '#c2410c',
+            800: '#9a3412',
+            900: '#7c2d12',
+            DEFAULT: "#ea580c",
             foreground: "#FFFFFF",
           },
           secondary: {
             DEFAULT: "#71717a",
             foreground: "#FFFFFF",
           },
-          content1: "#18181b", // Zinc 900 (Cards)
-          content2: "#27272a", // Zinc 800
+          content1: "#f9fafb",
+          content2: "#f3f4f6",
+          content3: "#e5e7eb",
+          content4: "#d1d5db",
+          focus: "#f97316",
+        }
+      },
+      dark: {
+        colors: {
+          background: "#050505",
+          foreground: "#ECEDEE",
+          primary: {
+            50: '#fff7ed',
+            100: '#ffedd5',
+            200: '#fed7aa',
+            300: '#fdba74',
+            400: '#fb923c',
+            500: '#f97316',
+            600: '#ea580c',
+            700: '#c2410c',
+            800: '#9a3412',
+            900: '#7c2d12',
+            DEFAULT: "#ea580c",
+            foreground: "#FFFFFF",
+          },
+          secondary: {
+            DEFAULT: "#71717a",
+            foreground: "#FFFFFF",
+          },
+          content1: "#18181b",
+          content2: "#27272a",
           content3: "#3f3f46",
           content4: "#52525b",
-          focus: "#3b82f6",
+          focus: "#f97316",
         }
       }
     }

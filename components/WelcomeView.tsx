@@ -1,5 +1,5 @@
 import React from 'react';
-import { Sparkles, FolderOpen } from 'lucide-react';
+import { FolderOpen } from 'lucide-react';
 import { Button, Card, CardBody } from "@heroui/react";
 import { useApp } from '../contexts/context';
 
@@ -14,8 +14,9 @@ const WelcomeView: React.FC<WelcomeViewProps> = ({ onConnect }) => {
 
   return (
     <div className="h-full flex flex-col items-center justify-center p-6 text-center max-w-[1600px] mx-auto">
-        <div className="mb-12 mt-20 p-8 bg-primary/10 rounded-[3rem] animate-pulse">
-            <Sparkles className="w-20 h-20 text-primary" />
+        <div className="mb-12 mt-20 p-8 bg-primary/10 rounded-[3rem] relative overflow-hidden">
+            <div className="absolute inset-0 animate-[shimmerSmooth_6s_infinite] bg-gradient-to-r from-transparent via-white/40 to-transparent -skew-x-12"></div>
+            <img src="/icon.png" className="w-20 h-20 object-contain relative z-10" alt="Logo" />
         </div>
         <h1 className="text-6xl font-black text-slate-900 dark:text-white mb-6 mt-5 tracking-tight uppercase leading-[0.9]">
             {t.workspace.selectTitle}

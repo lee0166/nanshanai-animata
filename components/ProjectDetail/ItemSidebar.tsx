@@ -11,13 +11,23 @@ interface ItemSidebarProps {
   refreshTrigger: number;
   selectedId?: string;
   filterType?: string; // New prop for filtering
+  // Script filter props
+  scriptFilter?: string;
+  scripts?: Array<{ id: string; title: string }>;
 }
 
-const ItemSidebar: React.FC<ItemSidebarProps> = ({ projectId, onSelect, refreshTrigger, selectedId, filterType = 'all' }) => {
+const ItemSidebar: React.FC<ItemSidebarProps> = ({ projectId, onSelect, refreshTrigger, selectedId, filterType = 'all', scriptFilter, scripts }) => {
   const { t } = useApp();
   const [items, setItems] = useState<ItemAsset[]>([]);
   const [search, setSearch] = useState('');
   const [urls, setUrls] = useState<Record<string, string>>({});
+
+  // Get script name for display
+  const getScriptName = (scriptId?: string) => {
+    if (!scriptId) return '未分类';
+    const script = scripts?.find(s => s.id === scriptId);
+    return script?.title || '未知剧本';
+  };
 
   useEffect(() => {
     loadItems();
@@ -56,8 +66,18 @@ const ItemSidebar: React.FC<ItemSidebarProps> = ({ projectId, onSelect, refreshT
         result = result.filter(s => s.itemType === filterType);
     }
 
+    // 3. Filter by Script
+    if (scriptFilter && scriptFilter !== 'all') {
+        result = result.filter(s => {
+            if (scriptFilter === 'uncategorized') {
+                return !s.scriptId;
+            }
+            return s.scriptId === scriptFilter;
+        });
+    }
+
     return result;
-  }, [items, search, filterType]);
+  }, [items, search, filterType, scriptFilter]);
 
   return (
     <div className="h-full flex flex-col bg-white dark:bg-slate-900 border-l border-slate-200 dark:border-slate-800 w-[340px] order-last">
@@ -91,7 +111,7 @@ const ItemSidebar: React.FC<ItemSidebarProps> = ({ projectId, onSelect, refreshT
                 onClick={() => onSelect(item)}
                 className={`group flex items-center gap-4 p-3 rounded-2xl cursor-pointer transition-all border ${
                   isSelected 
-                    ? 'bg-indigo-50 dark:bg-slate-800 border-indigo-500' 
+                    ? 'bg-primary/10 dark:bg-slate-800 border-primary' 
                     : 'bg-slate-50 dark:bg-slate-800/30 border-transparent hover:bg-slate-100 dark:hover:bg-slate-800/60'
                 }`}
               >
@@ -103,7 +123,7 @@ const ItemSidebar: React.FC<ItemSidebarProps> = ({ projectId, onSelect, refreshT
                    )}
                 </div>
                 <div className="flex-1 min-w-0 flex flex-col gap-1">
-                   <div className={`font-bold text-base truncate ${isSelected ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-900 dark:text-white'}`}>
+                   <div className={`font-bold text-base truncate ${isSelected ? 'text-primary' : 'text-slate-900 dark:text-white'}`}>
                       {item.name}
                    </div>
                    <div className="flex flex-col gap-1">
@@ -111,12 +131,8 @@ const ItemSidebar: React.FC<ItemSidebarProps> = ({ projectId, onSelect, refreshT
                            <Chip size="sm" variant="flat" className="h-5 text-[10px] font-bold bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400">
                                {typeLabel}
                            </Chip>
+                           <span className="text-xs text-slate-500">{getScriptName(item.scriptId)}</span>
                        </div>
-                       {item.prompt && (
-                          <div className="text-[12px] text-slate-400 truncate w-full" title={item.prompt}>
-                              {item.prompt}
-                          </div>
-                       )}
                    </div>
                 </div>
               </div>

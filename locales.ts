@@ -309,7 +309,8 @@ export const translations = {
     },
     jobTypes: {
       generate_image: "Generate Image",
-      generate_video: "Generate Video"
+      generate_video: "Generate Video",
+      generate_keyframe_image: "Generate Keyframe"
     },
     errors: {
       generationFailed: "Generation Failed",
@@ -756,7 +757,8 @@ export const translations = {
     },
     jobTypes: {
       generate_image: "生成图片",
-      generate_video: "生成视频"
+      generate_video: "生成视频",
+      generate_keyframe_image: "生成关键帧"
     },
     errors: {
       generationFailed: "生成失败",

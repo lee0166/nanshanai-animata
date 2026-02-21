@@ -23,6 +23,7 @@ import { Box, Link2, Plus, Edit2, Wand2, CheckCircle2, Sword, FileText, Gem, Ham
 
 interface ItemMappingProps {
   projectId: string;
+  scriptId: string;  // 当前剧本ID
   scriptItems: ScriptItem[];
   existingItems: ItemAsset[];
   onItemsUpdate: (items: ScriptItem[]) => void;
@@ -61,6 +62,7 @@ const categoryToItemType: Record<string, ItemType> = {
 
 export const ItemMapping: React.FC<ItemMappingProps> = ({
   projectId,
+  scriptId,
   scriptItems,
   existingItems,
   onItemsUpdate,
@@ -86,6 +88,7 @@ export const ItemMapping: React.FC<ItemMappingProps> = ({
       const newItem: ItemAsset = {
         id: `item_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
         projectId,
+        scriptId,  // 关联当前剧本
         type: AssetType.ITEM,
         name: scriptItem.name,
         prompt: scriptItem.visualPrompt || `${scriptItem.name}的物品设定`,

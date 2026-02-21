@@ -188,7 +188,7 @@ export const ImageGenerationPanel: React.FC<ImageGenerationPanelProps> = ({
 
             {/* Params Grid */}
             <div className="flex flex-col gap-2">
-                <label className="text-sm font-black text-indigo-500/80 dark:text-indigo-400 uppercase tracking-widest mb-2">
+                <label className="text-sm font-black text-primary/80 dark:text-primary-400 uppercase tracking-widest mb-2">
                     {t.aiParams.modelParams}
                 </label>
                 
@@ -218,7 +218,7 @@ export const ImageGenerationPanel: React.FC<ImageGenerationPanelProps> = ({
                 color="primary" 
                 size="lg" 
                 fullWidth 
-                className="font-bold shadow-lg shadow-indigo-500/20"
+                className="font-bold shadow-lg shadow-primary/20"
                 startContent={!generating && <Sparkles size={20} />}
                 isLoading={generating}
                 onPress={onGenerate}

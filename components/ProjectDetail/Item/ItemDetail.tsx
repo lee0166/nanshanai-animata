@@ -605,7 +605,7 @@ const ItemDetail: React.FC<ItemDetailProps> = ({ asset, onUpdate, projectId }) =
             <div className="w-[520px] flex-shrink-0 flex flex-col gap-8 overflow-y-auto pr-2 pb-10">
                 {/* 1. Basic Information */}
                 <div className="flex flex-col gap-6">
-                    <h3 className="text-sm font-black text-indigo-500/80 dark:text-indigo-400 uppercase tracking-widest mb-2">{t.project.basicInfo}</h3>
+                    <h3 className="text-sm font-black text-primary/80 dark:text-primary-400 uppercase tracking-widest mb-2">{t.project.basicInfo}</h3>
                     <div className="flex flex-col gap-4">
                         <div className="flex flex-col gap-2">
                             <label className="text-slate-300 font-bold text-base ml-1">{t.project.nameLabel}</label>
@@ -652,7 +652,7 @@ const ItemDetail: React.FC<ItemDetailProps> = ({ asset, onUpdate, projectId }) =
 
                 {/* 2. Generation Panel */}
                 <div className="flex flex-col gap-4">
-                     <h3 className="text-sm font-black text-indigo-500/80 dark:text-indigo-400 uppercase tracking-widest mb-2">{t.project.generationSettings}</h3>
+                     <h3 className="text-sm font-black text-primary/80 dark:text-primary-400 uppercase tracking-widest mb-2">{t.project.generationSettings}</h3>
                      <ImageGenerationPanel
                         projectId={projectId}
                         prompt={prompt}
@@ -716,7 +716,7 @@ const ItemDetail: React.FC<ItemDetailProps> = ({ asset, onUpdate, projectId }) =
                             return (
                                 <div key={img.id} className="relative group cursor-pointer" onClick={() => handleSelectImage(img)}>
                                     <Card 
-                                        className={`aspect-square border-2 transition-all duration-300 ${isSelected ? 'border-indigo-600 shadow-xl scale-[1.02]' : 'border-transparent hover:border-indigo-500/50 hover:shadow-lg'}`}
+                                        className={`aspect-square border-2 transition-all duration-300 ${isSelected ? 'border-primary shadow-xl scale-[1.02]' : 'border-transparent hover:border-primary/50 hover:shadow-lg'}`}
                                         radius="lg"
                                         shadow="sm"
                                     >
@@ -729,7 +729,7 @@ const ItemDetail: React.FC<ItemDetailProps> = ({ asset, onUpdate, projectId }) =
                                         </div>
                                         
                                         {isSelected && (
-                                            <div className="absolute top-2 left-2 z-20 bg-indigo-600 text-white rounded-full p-1.5 shadow-md ring-2 ring-white dark:ring-slate-900">
+                                            <div className="absolute top-2 left-2 z-20 bg-primary text-white rounded-full p-1.5 shadow-md ring-2 ring-white dark:ring-slate-900">
                                                 <Check className="w-3 h-3" />
                                             </div>
                                         )}

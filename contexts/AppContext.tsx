@@ -234,7 +234,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }}>
       {isInitializing ? (
         <div className="fixed inset-0 bg-slate-50 dark:bg-slate-950 flex flex-col items-center justify-center z-50">
-          <div className="w-12 h-12 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin mb-4"></div>
+          <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mb-4"></div>
           <p className="text-slate-600 dark:text-slate-400 font-medium animate-pulse">{t.settings.initLoading}</p>
         </div>
       ) : !browserSupported ? (
@@ -262,7 +262,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             <div className="flex flex-col gap-3">
               <button 
                 onClick={handleSwitchToSandbox}
-                className="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold transition-all shadow-lg shadow-indigo-200 dark:shadow-none"
+                className="w-full py-3 bg-primary hover:bg-primary-700 text-white rounded-xl font-bold transition-all shadow-lg shadow-primary/30 dark:shadow-none"
               >
                 {t.settings.sandboxMode}
               </button>

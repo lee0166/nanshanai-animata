@@ -30,6 +30,7 @@ export interface Project {
 export interface Asset {
   id: string;
   projectId: string;
+  scriptId?: string;  // 关联剧本ID，用于区分不同剧本的角色
   type: AssetType;
   name: string;
   prompt: string;
@@ -100,11 +101,13 @@ export interface FragmentAsset extends Asset {
 
 export interface ItemAsset extends Asset {
   itemType: ItemType;
+  scriptId?: string;  // 关联剧本ID
   generatedImages?: GeneratedImage[];
   currentImageId?: string;
 }
 
 export interface SceneAsset extends Asset {
+  scriptId?: string;  // 关联剧本ID
   generatedImages?: GeneratedImage[];
   currentImageId?: string;
 }
@@ -119,7 +122,7 @@ export interface VideoSegment extends Asset {
 
 export interface Job {
   id: string;
-  type: 'generate_image' | 'generate_video';
+  type: 'generate_image' | 'generate_video' | 'generate_keyframe_image';
   status: JobStatus;
   projectId: string;
   params: any;

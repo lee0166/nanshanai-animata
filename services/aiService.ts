@@ -36,6 +36,20 @@ export interface VideoGenerationJobParams {
     extraParams?: Record<string, any>;
 }
 
+export interface KeyframeGenerationJobParams {
+    projectId: string;
+    scriptId: string;
+    shotId: string;
+    keyframeId: string;
+    prompt: string;
+    userPrompt?: string;
+    assetName: string;
+    modelConfigId: string;
+    referenceImages?: string[];
+    resolution?: string;
+    aspectRatio?: string;
+}
+
 export class AIService {
     private providers: Map<string, IAIProvider> = new Map();
 
@@ -156,6 +170,38 @@ export class AIService {
         }
 
         return jobs;
+    }
+
+    /**
+     * 创建关键帧生图任务
+     */
+    createKeyframeGenerationJob(params: KeyframeGenerationJobParams): Job {
+        const job: Job = {
+            id: typeof crypto.randomUUID === 'function'
+                ? crypto.randomUUID()
+                : Math.random().toString(36).substring(2) + Date.now().toString(36),
+            projectId: params.projectId,
+            type: 'generate_keyframe_image',
+            status: JobStatus.PENDING,
+            createdAt: Date.now(),
+            updatedAt: Date.now(),
+            params: {
+                scriptId: params.scriptId,
+                shotId: params.shotId,
+                keyframeId: params.keyframeId,
+                prompt: params.prompt,
+                userPrompt: params.userPrompt,
+                model: params.modelConfigId,
+                modelConfigId: params.modelConfigId,
+                assetName: params.assetName,
+                referenceImages: params.referenceImages,
+                resolution: params.resolution,
+                aspectRatio: params.aspectRatio,
+                generateCount: 1
+            }
+        };
+
+        return job;
     }
 
     // Helper to get configuration for a specific identifier (strictly by config ID)

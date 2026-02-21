@@ -246,7 +246,7 @@ const Layout: React.FC<LayoutProps> = ({ children, isConnected, onConnect, activ
                 color="primary"
                 size="lg"
                 radius="full"
-                className="w-full h-16 text-lg font-black uppercase tracking-widest shadow-xl shadow-indigo-500/30 active:scale-95 transition-all"
+                className="w-full h-16 text-lg font-black uppercase tracking-widest shadow-xl shadow-primary/30 active:scale-95 transition-all"
                 onPress={onConnect}
               >
                 {t.sidebar.openWorkspace}

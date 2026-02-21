@@ -98,7 +98,7 @@ const Dashboard: React.FC = () => {
     <div className="h-full overflow-y-auto p-6 md:p-10 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-200">
       <div className="flex justify-between items-center mb-10 max-w-[1600px] mx-auto">
         <div>
-          <h1 className="text-4xl font-black mb-2 uppercase tracking-tighter bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+          <h1 className="text-4xl font-black mb-2 uppercase tracking-tighter bg-gradient-to-r from-primary to-rose-500 bg-clip-text text-transparent">
             {t.dashboard.title}
           </h1>
           <p className="text-slate-500 dark:text-slate-400 font-medium">{t.dashboard.subtitle}</p>
@@ -127,7 +127,7 @@ const Dashboard: React.FC = () => {
           >
             <CardBody className="p-8">
               <div className="flex justify-between items-start mb-6">
-                <div className="p-4 bg-indigo-50 dark:bg-indigo-900/30 rounded-2xl text-indigo-600 dark:text-indigo-400 transition-colors group-hover:bg-indigo-600 group-hover:text-white">
+                <div className="p-4 bg-primary/10 dark:bg-primary/20 rounded-2xl text-primary transition-colors group-hover:bg-primary group-hover:text-white">
                   <Folder className="w-8 h-8" />
                 </div>
                 <Tooltip content={t.settings.remove} color="danger">
@@ -144,7 +144,7 @@ const Dashboard: React.FC = () => {
                 </Tooltip>
               </div>
               
-              <h2 className="text-2xl font-black text-slate-800 dark:text-slate-100 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors mb-3">
+              <h2 className="text-2xl font-black text-slate-800 dark:text-slate-100 group-hover:text-primary transition-colors mb-3">
                 {project.name}
               </h2>
               <p className="text-slate-500 dark:text-slate-400 text-sm line-clamp-2 min-h-[2.5rem] font-medium leading-relaxed">
@@ -156,7 +156,7 @@ const Dashboard: React.FC = () => {
               <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-slate-600">
                 {t.dashboard.updated} {new Date(project.updatedAt).toLocaleDateString()}
               </span>
-              <ExternalLink className="w-4 h-4 text-slate-300 group-hover:text-indigo-500 transition-colors" />
+              <ExternalLink className="w-4 h-4 text-slate-300 group-hover:text-primary transition-colors" />
             </CardFooter>
           </Card>
           </div>
@@ -201,7 +201,7 @@ const Dashboard: React.FC = () => {
                     classNames={{
                       label: "font-black text-[15px] uppercase tracking-widest text-slate-400 mb-2",
                       input: "text-[16px]",
-                      inputWrapper: "border-2 group-data-[focus=true]:border-indigo-500"
+                      inputWrapper: "border-2 group-data-[focus=true]:border-primary"
                     }}
                   />
                   <Textarea
@@ -217,7 +217,7 @@ const Dashboard: React.FC = () => {
                     classNames={{
                       label: "font-black text-[15px] uppercase tracking-widest text-slate-400 mb-2",
                       input: "font-medium text-base",
-                      inputWrapper: "border-2 group-data-[focus=true]:border-indigo-500"
+                      inputWrapper: "border-2 group-data-[focus=true]:border-primary"
                     }}
                   />
                 </div>
