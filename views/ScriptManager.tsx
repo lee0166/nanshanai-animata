@@ -55,6 +55,8 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
   // Delete confirmation modal
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [scriptToDelete, setScriptToDelete] = useState<Script | null>(null);
+  const [deleteStats, setDeleteStats] = useState<{ characters: number; scenes: number; items: number; shots: number } | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   // Step-by-step parsing toggle
   const [showStepByStep, setShowStepByStep] = useState(false);
@@ -156,8 +158,9 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
   const handleDeleteScript = async () => {
     if (!scriptToDelete || !projectId) return;
 
+    setIsDeleting(true);
     try {
-      await storageService.deleteScript(scriptToDelete.id, projectId);
+      const stats = await storageService.deleteScript(scriptToDelete.id, projectId);
       // Remove from list
       const updatedScripts = scripts.filter(s => s.id !== scriptToDelete.id);
       setScripts(updatedScripts);
@@ -165,19 +168,37 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
       if (currentScript?.id === scriptToDelete.id) {
         setCurrentScript(updatedScripts.length > 0 ? updatedScripts[0] : null);
       }
-      showToast('剧本删除成功', 'success');
+      showToast(`剧本删除成功，同时删除了 ${stats.characters} 个角色、${stats.scenes} 个场景、${stats.items} 个物品`, 'success');
     } catch (error: any) {
       showToast(`删除失败: ${error.message}`, 'error');
     } finally {
+      setIsDeleting(false);
       setIsDeleteModalOpen(false);
       setScriptToDelete(null);
+      setDeleteStats(null);
     }
   };
 
   // Open delete confirmation modal
-  const openDeleteModal = (script: Script) => {
+  const openDeleteModal = async (script: Script) => {
     setScriptToDelete(script);
     setIsDeleteModalOpen(true);
+    // 获取关联资源统计
+    try {
+      const assets = await storageService.getAssets(projectId!);
+      const relatedAssets = assets.filter(a => a.scriptId === script.id);
+      // 计算分镜数量（从剧本的 parseState 中读取）
+      const shotCount = script.parseState?.shots?.length || 0;
+      setDeleteStats({
+        characters: relatedAssets.filter(a => a.type === AssetType.CHARACTER).length,
+        scenes: relatedAssets.filter(a => a.type === AssetType.SCENE).length,
+        items: relatedAssets.filter(a => a.type === AssetType.ITEM).length,
+        shots: shotCount
+      });
+    } catch (error) {
+      console.error('Failed to get delete stats:', error);
+      setDeleteStats({ characters: 0, scenes: 0, items: 0, shots: 0 });
+    }
   };
 
   // Handle file upload
@@ -812,14 +833,18 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
                       </div>
                     }
                   >
-                    <CharacterMapping
-                      projectId={projectId!}
-                      scriptId={currentScript.id}
-                      scriptCharacters={currentScript.parseState.characters || []}
-                      existingCharacters={existingCharacters}
-                      onCharactersUpdate={(characters) => handleUpdateParseState({ characters })}
-                      onCharacterCreated={loadExistingAssets}
-                    />
+                    <Card>
+                      <CardBody className="h-[420px] overflow-y-auto">
+                        <CharacterMapping
+                          projectId={projectId!}
+                          scriptId={currentScript.id}
+                          scriptCharacters={currentScript.parseState.characters || []}
+                          existingCharacters={existingCharacters}
+                          onCharactersUpdate={(characters) => handleUpdateParseState({ characters })}
+                          onCharacterCreated={loadExistingAssets}
+                        />
+                      </CardBody>
+                    </Card>
                   </Tab>
 
                   <Tab
@@ -831,14 +856,18 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
                       </div>
                     }
                   >
-                    <SceneMapping
-                      projectId={projectId!}
-                      scriptId={currentScript.id}
-                      scriptScenes={currentScript.parseState.scenes || []}
-                      existingScenes={existingScenes}
-                      onScenesUpdate={(scenes) => handleUpdateParseState({ scenes })}
-                      onSceneCreated={loadExistingAssets}
-                    />
+                    <Card>
+                      <CardBody className="h-[420px] overflow-y-auto">
+                        <SceneMapping
+                          projectId={projectId!}
+                          scriptId={currentScript.id}
+                          scriptScenes={currentScript.parseState.scenes || []}
+                          existingScenes={existingScenes}
+                          onScenesUpdate={(scenes) => handleUpdateParseState({ scenes })}
+                          onSceneCreated={loadExistingAssets}
+                        />
+                      </CardBody>
+                    </Card>
                   </Tab>
 
                   <Tab
@@ -850,14 +879,18 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
                       </div>
                     }
                   >
-                    <ItemMapping
-                      projectId={projectId!}
-                      scriptId={currentScript.id}
-                      scriptItems={currentScript.parseState.items || []}
-                      existingItems={existingItems}
-                      onItemsUpdate={(items) => handleUpdateParseState({ items })}
-                      onItemCreated={loadExistingAssets}
-                    />
+                    <Card>
+                      <CardBody className="h-[420px] overflow-y-auto">
+                        <ItemMapping
+                          projectId={projectId!}
+                          scriptId={currentScript.id}
+                          scriptItems={currentScript.parseState.items || []}
+                          existingItems={existingItems}
+                          onItemsUpdate={(items) => handleUpdateParseState({ items })}
+                          onItemCreated={loadExistingAssets}
+                        />
+                      </CardBody>
+                    </Card>
                   </Tab>
 
                   <Tab
@@ -976,17 +1009,37 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
       {/* Delete Confirmation Modal */}
       <Modal isOpen={isDeleteModalOpen} onClose={() => setIsDeleteModalOpen(false)}>
         <ModalContent>
-          <ModalHeader>确认删除</ModalHeader>
+          <ModalHeader className="text-danger">确认删除剧本</ModalHeader>
           <ModalBody>
-            <p className="text-default-600">
-              确定要删除剧本《{scriptToDelete?.title}》吗？此操作不可恢复。
-            </p>
+            <div className="space-y-4">
+              <p className="text-default-600">
+                确定要删除剧本《<span className="font-semibold">{scriptToDelete?.title}</span>》吗？
+              </p>
+
+              <div className="bg-danger-50 border border-danger-200 rounded-lg p-4">
+                <p className="text-danger-700 font-medium mb-2">⚠️ 警告：此操作将同时删除以下关联资源</p>
+                {deleteStats ? (
+                  <ul className="text-danger-600 space-y-1">
+                    <li>• {deleteStats.characters} 个角色</li>
+                    <li>• {deleteStats.scenes} 个场景</li>
+                    <li>• {deleteStats.items} 个物品</li>
+                    <li>• {deleteStats.shots} 个分镜</li>
+                  </ul>
+                ) : (
+                  <p className="text-danger-600">正在统计关联资源...</p>
+                )}
+              </div>
+
+              <p className="text-sm text-default-500">
+                此操作不可恢复，删除后的资源将无法找回。
+              </p>
+            </div>
           </ModalBody>
           <ModalFooter>
-            <Button variant="flat" onPress={() => setIsDeleteModalOpen(false)}>
+            <Button variant="flat" onPress={() => setIsDeleteModalOpen(false)} isDisabled={isDeleting}>
               取消
             </Button>
-            <Button color="danger" onPress={handleDeleteScript}>
+            <Button color="danger" onPress={handleDeleteScript} isLoading={isDeleting}>
               确认删除
             </Button>
           </ModalFooter>

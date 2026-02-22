@@ -16,6 +16,7 @@
 
 import { Script, ScriptParseState, ScriptMetadata, ScriptCharacter, ScriptScene, Shot, ParseStage } from '../types';
 import { storageService } from './storage';
+import { JSONRepair } from './parsing/JSONRepair';
 
 /**
  * Script Parser Configuration
@@ -679,134 +680,27 @@ export class ScriptParser {
 
   /**
    * Extracts and parses JSON from LLM response
-   * Handles various formatting issues commonly found in LLM outputs:
-   * - Markdown code blocks (```json ... ```)
-   * - Trailing commas
-   * - Single quotes instead of double quotes
-   * - Unquoted object keys
-   *
+   * Uses JSONRepair utility for robust parsing with multiple fallback strategies
+   * 
    * @param response - Raw LLM response text
    * @returns Parsed JSON object
-   * @throws Error if JSON cannot be parsed
+   * @throws Error if JSON cannot be parsed after all repair attempts
    * @template T - Expected return type
    * @private
    */
   private extractJSON<T>(response: string): T {
-    // Try to extract JSON from markdown code blocks
-    let jsonStr = response.trim();
-
-    // Remove markdown code block markers
-    const codeBlockMatch = response.match(/```(?:json)?\s*([\s\S]*?)```/);
-    if (codeBlockMatch) {
-      jsonStr = codeBlockMatch[1].trim();
-    }
-
-    // Try to find complete JSON object or array using bracket matching
-    const extracted = this.findCompleteJSON(jsonStr);
-    if (extracted) {
-      jsonStr = extracted;
-    }
-
-    // Try to parse directly first
-    try {
-      return JSON.parse(jsonStr) as T;
-    } catch (e) {
-      // If direct parse fails, try to fix common JSON errors
-      console.log('[ScriptParser] Direct JSON parse failed, attempting to fix...');
-    }
-
-    // Fix common JSON errors
-    jsonStr = jsonStr
-      // Remove trailing commas
-      .replace(/,\s*([}\]])/g, '$1')
-      // Fix single quotes used as JSON key quotes (e.g., 'key': value)
-      .replace(/'(\w+)'\s*:/g, '"$1":')
-      // Fix unquoted keys (but not in string values)
-      .replace(/(\w+):\s*("|'|\[|\{|\d|true|false|null)/g, '"$1":$2')
-      // Fix Chinese quotes to regular quotes
-      .replace(/[""]/g, '"')
-      // Fix escaped Chinese quotes
-      .replace(/\\[""]/g, '\\"');
-
-    try {
-      return JSON.parse(jsonStr) as T;
-    } catch (e) {
-      console.error('Failed to parse JSON:', jsonStr);
-      console.error('Original response:', response);
-      throw new Error('Invalid JSON response from LLM');
-    }
-  }
-
-  /**
-   * Find complete JSON object or array using bracket matching
-   * This handles nested structures correctly
-   * Returns the longer one when both are found (usually the complete structure)
-   */
-  private findCompleteJSON(str: string): string | null {
-    // Try to find both object and array
-    let objResult = this.findMatchingBrackets(str, '{', '}');
-    let arrResult = this.findMatchingBrackets(str, '[', ']');
-
-    // If both found, return the longer one (usually the complete structure)
-    if (objResult && arrResult) {
-      return objResult.length > arrResult.length ? objResult : arrResult;
-    }
-
-    // Return whichever is found
-    if (objResult) return objResult;
-    if (arrResult) return arrResult;
-
-    return null;
-  }
-
-  /**
-   * Find matching brackets using stack-based approach
-   */
-  private findMatchingBrackets(str: string, open: string, close: string): string | null {
-    let count = 0;
-    let start = -1;
-    let inString = false;
-    let escapeNext = false;
-
-    for (let i = 0; i < str.length; i++) {
-      const char = str[i];
-
-      // Handle escape sequences
-      if (escapeNext) {
-        escapeNext = false;
-        continue;
+    const result = JSONRepair.repairAndParse<T>(response);
+    
+    if (result.success && result.data) {
+      if (result.repairAttempts.length > 0) {
+        console.log(`[ScriptParser] JSON repaired using: ${result.repairAttempts.join(' -> ')}`);
       }
-      if (char === '\\') {
-        escapeNext = true;
-        continue;
-      }
-
-      // Handle strings
-      if (char === '"' && !inString) {
-        inString = true;
-        continue;
-      }
-      if (char === '"' && inString) {
-        inString = false;
-        continue;
-      }
-
-      // Skip everything inside strings
-      if (inString) continue;
-
-      // Count brackets
-      if (char === open) {
-        if (count === 0) start = i;
-        count++;
-      } else if (char === close) {
-        count--;
-        if (count === 0 && start !== -1) {
-          return str.substring(start, i + 1);
-        }
-      }
+      return result.data;
     }
-
-    return null;
+    
+    console.error('[ScriptParser] Failed to parse JSON:', result.error);
+    console.error('[ScriptParser] Original response:', response);
+    throw new Error(result.error || 'Invalid JSON response from LLM');
   }
 
   /**
