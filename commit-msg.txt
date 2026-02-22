@@ -1,0 +1,18 @@
+优化更新：质量评估、提示词生成、多剧本资产隔离、Tabs高度修复
+
+主要更新内容：
+1. 新增质量评估功能 - 剧本解析后自动进行质量评估并持久化
+2. 优化提示词生成 - PromptBuilder服务过滤临时物品、智能补充描述
+3. 修复多剧本同名资产隔离 - 按scriptId严格过滤资产，避免混淆
+4. 统一Tabs容器高度 - 所有Tab高度统一为420px
+5. 新增PromptBuilder单元测试
+
+修改文件：
+- services/promptBuilder.ts (新增)
+- services/scriptParser.ts
+- components/ScriptParser/CharacterMapping.tsx
+- components/ScriptParser/SceneMapping.tsx
+- components/ScriptParser/ShotList.tsx
+- views/ScriptManager.tsx
+- views/ProjectDetail.tsx
+- views/ShotManager.tsx
