@@ -1122,13 +1122,31 @@ export class StorageService {
     });
   }
 
-  async deleteScript(scriptId: string, projectId: string): Promise<void> {
+  async deleteScript(scriptId: string, projectId: string): Promise<{ characters: number; scenes: number; items: number }> {
     const filename = `scripts_${projectId}.json`;
-    return this.lock(filename, async () => {
+
+    // 1. 先获取关联资产统计
+    const assets = await this.getAssets(projectId);
+    const relatedAssets = assets.filter(a => a.scriptId === scriptId);
+    const stats = {
+      characters: relatedAssets.filter(a => a.type === AssetType.CHARACTER).length,
+      scenes: relatedAssets.filter(a => a.type === AssetType.SCENE).length,
+      items: relatedAssets.filter(a => a.type === AssetType.ITEM).length
+    };
+
+    // 2. 删除剧本
+    await this.lock(filename, async () => {
       let scripts = await this.getScripts(projectId);
       scripts = scripts.filter(s => s.id !== scriptId);
       await this.writeJson(filename, scripts);
     });
+
+    // 3. 级联删除关联资产（使用现有的 deleteAsset 方法）
+    for (const asset of relatedAssets) {
+      await this.deleteAsset(asset.id, projectId);
+    }
+
+    return stats;
   }
 
   async updateScriptParseState(

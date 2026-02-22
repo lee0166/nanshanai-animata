@@ -50,6 +50,8 @@ const Settings: React.FC = () => {
     apiUrl: '',
     temperature: 0.3,
     maxTokens: 4000,
+    costPer1KInput: undefined as number | undefined,
+    costPer1KOutput: undefined as number | undefined,
   });
 
   useEffect(() => {
@@ -102,6 +104,9 @@ const Settings: React.FC = () => {
     // Image generation specific params
     supportsReferenceImage: true, // 默认支持参考图生图
     maxReferenceImages: 5,
+    // 价格配置（可选）
+    costPer1KInput: undefined as number | undefined,
+    costPer1KOutput: undefined as number | undefined,
   });
   const [showAdvancedOptions, setShowAdvancedOptions] = useState(false);
   
@@ -233,6 +238,11 @@ const Settings: React.FC = () => {
       apiKey: newApiKey,
       isDefault: false,
       providerOptions,
+      // 价格配置（仅LLM模型）
+      ...(selectedType === 'llm' && {
+        costPer1KInput: customModel.costPer1KInput,
+        costPer1KOutput: customModel.costPer1KOutput,
+      }),
     };
 
     const updatedModels = [...settings.models, newConfig];
@@ -273,6 +283,9 @@ const Settings: React.FC = () => {
       apiUrl: model.apiUrl || '',
       temperature: model.parameters?.find(p => p.name === 'temperature')?.defaultValue ?? 0.3,
       maxTokens: model.parameters?.find(p => p.name === 'maxTokens')?.defaultValue ?? 4000,
+      // 价格配置
+      costPer1KInput: model.costPer1KInput,
+      costPer1KOutput: model.costPer1KOutput,
     });
     onEditOpen();
   };
@@ -305,6 +318,9 @@ const Settings: React.FC = () => {
           apiKey: editFormData.apiKey,
           apiUrl: editFormData.apiUrl || undefined,
           parameters: updatedParameters,
+          // 价格配置
+          costPer1KInput: editFormData.costPer1KInput,
+          costPer1KOutput: editFormData.costPer1KOutput,
         };
       }
       return m;
@@ -802,6 +818,52 @@ const Settings: React.FC = () => {
                                                     </div>
                                                 </div>
                                             )}
+                                            
+                                            {/* 价格配置 */}
+                                            {showAdvancedOptions && (
+                                                <div className="mt-4 pt-4 border-t border-primary/20">
+                                                    <div className="flex items-center gap-2 mb-4">
+                                                        <span className="font-black uppercase tracking-widest text-[13px] text-slate-500">价格配置（可选）</span>
+                                                        <span className="text-xs text-slate-400">用于成本估算，不配置则使用默认值</span>
+                                                    </div>
+                                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6 bg-primary/10 dark:bg-primary/20 rounded-xl">
+                                                        <Input 
+                                                            label="输入价格 ($/1K tokens)"
+                                                            labelPlacement="outside"
+                                                            type="number"
+                                                            placeholder="0.01"
+                                                            step="0.001"
+                                                            min={0}
+                                                            value={customModel.costPer1KInput?.toString() || ''}
+                                                            onValueChange={v => setCustomModel({...customModel, costPer1KInput: v ? parseFloat(v) : undefined})}
+                                                            variant="bordered"
+                                                            radius="lg"
+                                                            size="lg"
+                                                            classNames={{
+                                                              label: "font-black uppercase tracking-widest text-[15px] mb-2 text-slate-500",
+                                                              input: "font-medium text-[15px]"
+                                                            }}
+                                                        />
+                                                        <Input 
+                                                            label="输出价格 ($/1K tokens)"
+                                                            labelPlacement="outside"
+                                                            type="number"
+                                                            placeholder="0.03"
+                                                            step="0.001"
+                                                            min={0}
+                                                            value={customModel.costPer1KOutput?.toString() || ''}
+                                                            onValueChange={v => setCustomModel({...customModel, costPer1KOutput: v ? parseFloat(v) : undefined})}
+                                                            variant="bordered"
+                                                            radius="lg"
+                                                            size="lg"
+                                                            classNames={{
+                                                              label: "font-black uppercase tracking-widest text-[15px] mb-2 text-slate-500",
+                                                              input: "font-medium text-[15px]"
+                                                            }}
+                                                        />
+                                                    </div>
+                                                </div>
+                                            )}
                                         </div>
                                     )}
 
@@ -960,6 +1022,7 @@ const Settings: React.FC = () => {
                         <TableColumn>{t.settings.modelName}</TableColumn>
                         <TableColumn>{t.settings.modelType}</TableColumn>
                         <TableColumn>能力</TableColumn>
+                        <TableColumn>价格 ($/1K)</TableColumn>
                         <TableColumn>{t.settings.modelIdOnly}</TableColumn>
                         <TableColumn>API Key</TableColumn>
                         <TableColumn align="end">{t.settings.actions}</TableColumn>
@@ -1013,6 +1076,27 @@ const Settings: React.FC = () => {
                                         >
                                             文本解析
                                         </Chip>
+                                    )}
+                                </TableCell>
+                                <TableCell>
+                                    {model.type === 'llm' && (
+                                        <div className="text-xs text-slate-500">
+                                            {model.costPer1KInput !== undefined || model.costPer1KOutput !== undefined ? (
+                                                <div className="flex flex-col gap-1">
+                                                    {model.costPer1KInput !== undefined && (
+                                                        <span>输入: ${model.costPer1KInput.toFixed(3)}</span>
+                                                    )}
+                                                    {model.costPer1KOutput !== undefined && (
+                                                        <span>输出: ${model.costPer1KOutput.toFixed(3)}</span>
+                                                    )}
+                                                </div>
+                                            ) : (
+                                                <span className="text-slate-400">使用默认价格</span>
+                                            )}
+                                        </div>
+                                    )}
+                                    {model.type !== 'llm' && (
+                                        <span className="text-slate-400 text-xs">-</span>
                                     )}
                                 </TableCell>
                                 <TableCell>
@@ -1200,6 +1284,50 @@ const Settings: React.FC = () => {
                       input: "font-medium text-[15px]"
                     }}
                   />
+                </div>
+                
+                {/* 价格配置 */}
+                <div className="mt-4 pt-4 border-t border-primary/20">
+                  <div className="flex items-center gap-2 mb-3">
+                    <span className="font-black uppercase tracking-widest text-[13px] text-slate-500">价格配置（可选）</span>
+                    <span className="text-xs text-slate-400">用于成本估算</span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <Input
+                      label="输入价格 ($/1K tokens)"
+                      labelPlacement="outside"
+                      type="number"
+                      placeholder="0.01"
+                      step="0.001"
+                      min={0}
+                      value={editFormData.costPer1KInput?.toString() || ''}
+                      onValueChange={(val) => setEditFormData({ ...editFormData, costPer1KInput: val ? parseFloat(val) : undefined })}
+                      variant="bordered"
+                      radius="lg"
+                      size="lg"
+                      classNames={{
+                        label: "font-black uppercase tracking-widest text-[15px] mb-2 text-slate-500",
+                        input: "font-medium text-[15px]"
+                      }}
+                    />
+                    <Input
+                      label="输出价格 ($/1K tokens)"
+                      labelPlacement="outside"
+                      type="number"
+                      placeholder="0.03"
+                      step="0.001"
+                      min={0}
+                      value={editFormData.costPer1KOutput?.toString() || ''}
+                      onValueChange={(val) => setEditFormData({ ...editFormData, costPer1KOutput: val ? parseFloat(val) : undefined })}
+                      variant="bordered"
+                      radius="lg"
+                      size="lg"
+                      classNames={{
+                        label: "font-black uppercase tracking-widest text-[15px] mb-2 text-slate-500",
+                        input: "font-medium text-[15px]"
+                      }}
+                    />
+                  </div>
                 </div>
               </>
             )}

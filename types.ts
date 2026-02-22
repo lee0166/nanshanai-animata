@@ -206,6 +206,9 @@ export interface ModelConfig {
   isDefault?: boolean;
   apiUrl?: string;
   providerOptions?: any;
+  // 新增：价格配置（可选，用于成本估算）
+  costPer1KInput?: number;   // 输入价格（美元/1K tokens）
+  costPer1KOutput?: number;  // 输出价格（美元/1K tokens）
 }
 
 /**
