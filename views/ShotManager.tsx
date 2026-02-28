@@ -623,15 +623,24 @@ export const ShotManager: React.FC<ShotManagerProps> = ({ projectId: propProject
     try {
       console.log('[ShotManager] 调用 keyframeService.splitKeyframes...');
       
-      // 获取角色和场景资产用于关键帧拆分
+      // 获取角色和场景资产用于关键帧拆分（按当前剧本过滤）
       const assets = await storageService.getAssets(projectId);
+      // 严格按scriptId过滤：只使用当前剧本的资产
+      const currentScriptId = currentScript.id;
+      const filteredAssets = assets.filter(a => a.scriptId === currentScriptId);
+      console.log('[ShotManager] 资产过滤:', { 
+        totalAssets: assets.length, 
+        filteredAssets: filteredAssets.length,
+        currentScriptId 
+      });
+      
       const characterAssets = selectedShotForSplit.characters
-        ?.map(charName => assets.find(a => a.type === AssetType.CHARACTER && a.name === charName))
+        ?.map(charName => filteredAssets.find(a => a.type === AssetType.CHARACTER && a.name === charName))
         .filter((a): a is CharacterAsset => !!a) || [];
-      const sceneAsset = assets.find(a => a.type === AssetType.SCENE && a.name === selectedShotForSplit.sceneName);
+      const sceneAsset = filteredAssets.find(a => a.type === AssetType.SCENE && a.name === selectedShotForSplit.sceneName);
       
       console.log('[ShotManager] 拆分关键帧时找到的角色资产:', characterAssets.map(c => ({ id: c.id, name: c.name })));
-      console.log('[ShotManager] 拆分关键帧时找到的场景资产:', sceneAsset ? { id: sceneAsset.id, name: sceneAsset.name } : null);
+      console.log('[ShotManager] 拆分关键帧时找到的场景资产:', sceneAsset ? { id: sceneAsset.id, name: sceneAsset.name, scriptId: sceneAsset.scriptId } : null);
       
       const keyframes = await keyframeService.splitKeyframes({
         shot: selectedShotForSplit,
@@ -701,22 +710,26 @@ export const ShotManager: React.FC<ShotManagerProps> = ({ projectId: propProject
     await storageService.saveScript(updatedScript);
     setScripts(scripts.map(s => s.id === updatedScript.id ? updatedScript : s));
 
-    // 获取参考图
+    // 获取参考图（按当前剧本过滤）
     const assets = await storageService.getAssets(projectId);
+    // 严格按scriptId过滤：只使用当前剧本的资产
+    const currentScriptId = currentScript.id;
+    const filteredAssets = assets.filter(a => a.scriptId === currentScriptId);
     
     // 诊断日志：打印 references 信息
     console.log('[ShotManager] kf.references:', JSON.stringify(kf.references, null, 2));
-    console.log('[ShotManager] 所有角色资产:', assets.filter(a => a.type === AssetType.CHARACTER).map(a => ({ id: a.id, name: a.name })));
-    console.log('[ShotManager] 所有场景资产:', assets.filter(a => a.type === AssetType.SCENE).map(a => ({ id: a.id, name: a.name })));
+    console.log('[ShotManager] 资产过滤:', { totalAssets: assets.length, filteredAssets: filteredAssets.length, currentScriptId });
+    console.log('[ShotManager] 当前剧本角色资产:', filteredAssets.filter(a => a.type === AssetType.CHARACTER).map(a => ({ id: a.id, name: a.name, scriptId: a.scriptId })));
+    console.log('[ShotManager] 当前剧本场景资产:', filteredAssets.filter(a => a.type === AssetType.SCENE).map(a => ({ id: a.id, name: a.name, scriptId: a.scriptId })));
     
-    // 首先尝试用 name 查找，如果失败则尝试用 id 查找
+    // 首先尝试用 name 查找，如果失败则尝试用 id 查找（都在过滤后的资产中查找）
     let characterAsset: CharacterAsset | undefined;
     if (kf.references?.character) {
       // 先用 name 查找
-      characterAsset = assets.find(a => a.type === AssetType.CHARACTER && a.name === kf.references.character.name) as CharacterAsset;
+      characterAsset = filteredAssets.find(a => a.type === AssetType.CHARACTER && a.name === kf.references.character.name) as CharacterAsset;
       // 如果失败，用 id 查找
       if (!characterAsset && kf.references.character.id) {
-        characterAsset = assets.find(a => a.type === AssetType.CHARACTER && a.id === kf.references.character.id) as CharacterAsset;
+        characterAsset = filteredAssets.find(a => a.type === AssetType.CHARACTER && a.id === kf.references.character.id) as CharacterAsset;
         console.log('[ShotManager] 用 id 查找角色资产:', !!characterAsset);
       }
     }
@@ -724,10 +737,10 @@ export const ShotManager: React.FC<ShotManagerProps> = ({ projectId: propProject
     let sceneAsset: Asset | undefined;
     if (kf.references?.scene) {
       // 先用 name 查找
-      sceneAsset = assets.find(a => a.type === AssetType.SCENE && a.name === kf.references.scene.name);
+      sceneAsset = filteredAssets.find(a => a.type === AssetType.SCENE && a.name === kf.references.scene.name);
       // 如果失败，用 id 查找
       if (!sceneAsset && kf.references.scene.id) {
-        sceneAsset = assets.find(a => a.type === AssetType.SCENE && a.id === kf.references.scene.id);
+        sceneAsset = filteredAssets.find(a => a.type === AssetType.SCENE && a.id === kf.references.scene.id);
         console.log('[ShotManager] 用 id 查找场景资产:', !!sceneAsset);
       }
     }

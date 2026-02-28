@@ -3,6 +3,7 @@ import { ScriptScene, SceneAsset, AssetType } from '../../types';
 import { storageService } from '../../services/storage';
 import { useApp } from '../../contexts/context';
 import { useToast } from '../../contexts/ToastContext';
+import { ScenePromptBuilder } from '../../services/promptBuilder';
 import {
   Card,
   CardBody,
@@ -56,13 +57,16 @@ export const SceneMapping: React.FC<SceneMappingProps> = ({
   // Handle creating new scene asset from script scene
   const handleCreateScene = async (scriptScene: ScriptScene) => {
     try {
+      // 使用PromptBuilder生成纯净的提示词
+      const generatedPrompt = ScenePromptBuilder.build(scriptScene);
+      
       const newScene: SceneAsset = {
         id: `scene_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
         projectId,
         scriptId,  // 关联当前剧本
         type: AssetType.SCENE,
         name: scriptScene.name,
-        prompt: scriptScene.visualPrompt || `${scriptScene.name}的场景设定`,
+        prompt: generatedPrompt,
         metadata: {
           locationType: scriptScene.locationType,
           timeOfDay: scriptScene.timeOfDay,
@@ -70,7 +74,8 @@ export const SceneMapping: React.FC<SceneMappingProps> = ({
           weather: scriptScene.weather,
           environment: scriptScene.environment,
           sceneFunction: scriptScene.sceneFunction,
-          characters: scriptScene.characters
+          characters: scriptScene.characters,
+          visualPrompt: scriptScene.visualPrompt // 保留原始visualPrompt作为参考
         },
         createdAt: Date.now(),
         updatedAt: Date.now()

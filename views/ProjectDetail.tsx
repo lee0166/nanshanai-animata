@@ -314,7 +314,13 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({ activeTab, setActiveTab, 
         // Prevent duplicate names check (optional, but good to keep if needed)
         // However, updateAsset is atomic, checking outside might be slightly stale but acceptable for names
         const assets = await storageService.getAssets(id || '');
-        const exists = assets.some(a => a.type === updatedAsset.type && a.name === updatedAsset.name && a.id !== updatedAsset.id);
+        // 检查重复时考虑scriptId：同剧本同名才视为重复
+        const exists = assets.some(a => 
+            a.type === updatedAsset.type && 
+            a.name === updatedAsset.name && 
+            a.scriptId === updatedAsset.scriptId &&  // 同剧本才检查重复
+            a.id !== updatedAsset.id
+        );
         if (exists) {
             showToast(t.errors?.duplicateName || 'Name already exists', 'error');
             return;
