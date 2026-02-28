@@ -2,13 +2,14 @@ import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Script, ScriptParseState, ScriptCharacter, ScriptScene, ScriptItem, Shot, CharacterAsset, SceneAsset, FragmentAsset, ItemAsset, AssetType, ModelConfig } from '../types';
 import { storageService } from '../services/storage';
-import { createScriptParser, ParseProgressCallback } from '../services/scriptParser';
+import { createScriptParser, ParseProgressCallback, ScriptParserConfig } from '../services/scriptParser';
 import { useApp } from '../contexts/context';
 import { useToast } from '../contexts/ToastContext';
 import { CharacterMapping } from '../components/ScriptParser/CharacterMapping';
 import { SceneMapping } from '../components/ScriptParser/SceneMapping';
 import { ItemMapping } from '../components/ScriptParser/ItemMapping';
 import { ShotList } from '../components/ScriptParser/ShotList';
+import { QualityReport, RuleViolation } from '../services/scriptParser';
 import {
   Button,
   Card,
@@ -30,7 +31,7 @@ import {
   Badge,
   Switch
 } from "@heroui/react";
-import { FileText, Upload, Play, RotateCcw, Users, MapPin, Film, CheckCircle2, AlertCircle, Brain, Box, Trash2 } from 'lucide-react';
+import { FileText, Upload, Play, RotateCcw, Users, MapPin, Film, CheckCircle2, AlertCircle, Brain, Box, Trash2, Sparkles, AlertTriangle, Info } from 'lucide-react';
 
 interface ScriptManagerProps {
   projectId?: string;
@@ -51,6 +52,9 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
   const [parseProgress, setParseProgress] = useState(0);
   const [parseStage, setParseStage] = useState<string>('');
   const [activeParseButton, setActiveParseButton] = useState<string | null>(null); // Track which button is loading
+
+  // Quality report state
+  const [qualityReport, setQualityReport] = useState<QualityReport | null>(null);
 
   // Delete confirmation modal
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -99,6 +103,16 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
       }
     };
   }, [projectId]);
+
+  // Restore quality report from parseState when currentScript changes
+  useEffect(() => {
+    if (currentScript?.parseState?.qualityReport) {
+      setQualityReport(currentScript.parseState.qualityReport);
+      console.log('[ScriptManager] Quality report restored from parseState:', currentScript.parseState.qualityReport);
+    } else {
+      setQualityReport(null);
+    }
+  }, [currentScript]);
 
   // Load LLM models from settings (same mechanism as image/video models)
   const loadLlmModels = () => {
@@ -312,13 +326,21 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
 
     try {
       console.log('[ScriptManager] 创建ScriptParser实例...');
+      const parserConfig: Partial<ScriptParserConfig> = {
+        useSemanticChunking: true,
+        useDramaRules: true,
+        dramaRulesMinScore: 60,
+        useCache: true,
+        cacheTTL: 3600000
+      };
       const parser = createScriptParser(
         selectedModel.apiKey,
         selectedModel.apiUrl,
-        selectedModel.modelId
+        selectedModel.modelId,
+        parserConfig
       );
       parserRef.current = parser;
-      console.log('[ScriptManager] ScriptParser实例创建成功');
+      console.log('[ScriptManager] ScriptParser实例创建成功，配置:', parserConfig);
 
       const onProgress: ParseProgressCallback = (s, progress, message) => {
         console.log(`[ScriptManager] 进度更新: ${s} - ${progress}% - ${message}`);
@@ -339,6 +361,15 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
 
       console.log('%c[ScriptManager] 解析阶段完成: ' + stageNames[stage], 'color: #4CAF50; font-weight: bold;');
       showToast(`${stageNames[stage]}完成`, 'success');
+
+      // Get quality report after shots stage
+      if (stage === 'shots') {
+        const report = parser.getQualityReport();
+        if (report) {
+          setQualityReport(report);
+          console.log('[ScriptManager] Quality report received from shots stage:', report);
+        }
+      }
     } catch (error: any) {
       console.error('%c[ScriptManager] 解析阶段出错:', 'color: #f44336; font-weight: bold;', error);
       if (!isMountedRef.current) return;
@@ -368,12 +399,21 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
 
     try {
       // Create parser with model config and store ref for cleanup
+      const parserConfig: Partial<ScriptParserConfig> = {
+        useSemanticChunking: true,
+        useDramaRules: true,
+        dramaRulesMinScore: 60,
+        useCache: true,
+        cacheTTL: 3600000
+      };
       const parser = createScriptParser(
         selectedModel.apiKey,
         selectedModel.apiUrl,
-        selectedModel.modelId
+        selectedModel.modelId,
+        parserConfig
       );
       parserRef.current = parser;
+      console.log('[ScriptManager] 完整解析模式，ScriptParser配置:', parserConfig);
 
       const onProgress: ParseProgressCallback = (stage, progress, message) => {
         // Check if component is still mounted before updating state
@@ -407,6 +447,12 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
 
       if (parseState.stage === 'completed') {
         showToast('剧本解析完成', 'success');
+        // Get quality report from parser
+        const report = parser.getQualityReport();
+        if (report) {
+          setQualityReport(report);
+          console.log('[ScriptManager] Quality report received:', report);
+        }
       } else if (parseState.stage === 'error') {
         showToast(`解析失败: ${parseState.error}`, 'error');
       }
@@ -784,6 +830,7 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
                   scenes={currentScript.parseState.scenes || []}
                   onShotsUpdate={(shots) => handleUpdateParseState({ shots })}
                   projectId={projectId || ''}
+                  scriptId={currentScript.id}  // 传递当前剧本ID
                   viewMode="manager"
                 />
               </div>
@@ -802,7 +849,7 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
                 }
               >
                 <Card>
-                  <CardBody>
+                  <CardBody className="h-[420px] overflow-y-auto">
                     {currentScript.parseState.stage !== 'completed' && (
                       <div className="mb-4 p-3 bg-primary-50 border border-primary-200 rounded-lg">
                         <div className="flex items-center gap-2">
@@ -813,11 +860,9 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
                         </div>
                       </div>
                     )}
-                    <div className="max-h-[600px] overflow-y-auto">
-                      <pre className="whitespace-pre-wrap font-mono text-sm text-default-700">
-                        {currentScript.content}
-                      </pre>
-                    </div>
+                    <pre className="whitespace-pre-wrap font-mono text-sm text-default-700">
+                      {currentScript.content}
+                    </pre>
                   </CardBody>
                 </Card>
               </Tab>
@@ -909,6 +954,7 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
                           scenes={currentScript.parseState.scenes || []}
                           onShotsUpdate={(shots) => handleUpdateParseState({ shots })}
                           projectId={projectId || ''}
+                          scriptId={currentScript.id}  // 传递当前剧本ID
                           viewMode="list"
                           headerAction={
                             <Button
@@ -922,6 +968,188 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
                             </Button>
                           }
                         />
+                      </CardBody>
+                    </Card>
+                  </Tab>
+
+                  {/* Quality Assessment Tab */}
+                  <Tab
+                    key="quality"
+                    title={
+                      <div className="flex items-center gap-2">
+                        <Sparkles size={16} />
+                        <span>质量评估</span>
+                        {qualityReport && (
+                          <Chip
+                            size="sm"
+                            color={qualityReport.score >= 80 ? 'success' : qualityReport.score >= 60 ? 'primary' : qualityReport.score >= 40 ? 'warning' : 'danger'}
+                            variant="flat"
+                          >
+                            {qualityReport.score}分
+                          </Chip>
+                        )}
+                      </div>
+                    }
+                  >
+                    <Card>
+                      <CardBody className="h-[420px] overflow-y-auto">
+                        {qualityReport ? (
+                          <div className="space-y-6">
+                            {/* Score Overview - Compact Design */}
+                            <div className="flex items-center gap-4">
+                              {/* Circular Score Badge */}
+                              <div
+                                className={`w-20 h-20 rounded-full flex items-center justify-center text-2xl font-bold ${
+                                  qualityReport.score >= 80
+                                    ? 'bg-success-100 text-success-700'
+                                    : qualityReport.score >= 60
+                                    ? 'bg-primary-100 text-primary-700'
+                                    : qualityReport.score >= 40
+                                    ? 'bg-warning-100 text-warning-700'
+                                    : 'bg-danger-100 text-danger-700'
+                                }`}
+                              >
+                                {qualityReport.score}
+                              </div>
+                              {/* Quality Level & Description */}
+                              <div>
+                                <div className="text-lg font-medium">
+                                  {qualityReport.score >= 80
+                                    ? '优秀'
+                                    : qualityReport.score >= 60
+                                    ? '良好'
+                                    : qualityReport.score >= 40
+                                    ? '一般'
+                                    : '需改进'}
+                                </div>
+                                <div className="text-sm text-default-500">
+                                  {qualityReport.score >= 80
+                                    ? '剧本质量优秀，适合拍摄'
+                                    : qualityReport.score >= 60
+                                    ? '剧本整体质量良好'
+                                    : qualityReport.score >= 40
+                                    ? '剧本需要进一步优化'
+                                    : '剧本存在较多问题，建议大幅修改'}
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Violations Summary */}
+                            {qualityReport.violations.length > 0 && (
+                              <div className="grid grid-cols-3 gap-3">
+                                {(() => {
+                                  const criticalCount = qualityReport.violations.filter(v => v.severity === 'critical').length;
+                                  const warningCount = qualityReport.violations.filter(v => v.severity === 'warning').length;
+                                  const infoCount = qualityReport.violations.filter(v => v.severity === 'info').length;
+                                  return (
+                                    <>
+                                      {criticalCount > 0 && (
+                                        <div className="flex items-center gap-2 p-3 bg-danger-50 rounded-lg">
+                                          <AlertCircle className="text-danger" size={18} />
+                                          <div>
+                                            <div className="text-lg font-bold text-danger">{criticalCount}</div>
+                                            <div className="text-xs text-danger-600">严重问题</div>
+                                          </div>
+                                        </div>
+                                      )}
+                                      {warningCount > 0 && (
+                                        <div className="flex items-center gap-2 p-3 bg-warning-50 rounded-lg">
+                                          <AlertTriangle className="text-warning" size={18} />
+                                          <div>
+                                            <div className="text-lg font-bold text-warning">{warningCount}</div>
+                                            <div className="text-xs text-warning-600">警告</div>
+                                          </div>
+                                        </div>
+                                      )}
+                                      {infoCount > 0 && (
+                                        <div className="flex items-center gap-2 p-3 bg-primary-50 rounded-lg">
+                                          <Info className="text-primary" size={18} />
+                                          <div>
+                                            <div className="text-lg font-bold text-primary">{infoCount}</div>
+                                            <div className="text-xs text-primary-600">提示</div>
+                                          </div>
+                                        </div>
+                                      )}
+                                    </>
+                                  );
+                                })()}
+                              </div>
+                            )}
+
+                            {/* Critical Issues */}
+                            {qualityReport.violations.filter(v => v.severity === 'critical').length > 0 && (
+                              <div className="space-y-3">
+                                <h4 className="font-medium text-danger flex items-center gap-2">
+                                  <AlertCircle size={16} />
+                                  严重问题（需优先修复）
+                                </h4>
+                                <ul className="space-y-2">
+                                  {qualityReport.violations
+                                    .filter(v => v.severity === 'critical')
+                                    .map((v, i) => (
+                                      <li key={i} className="text-sm text-danger-600 flex items-start gap-2 p-2 bg-danger-50 rounded">
+                                        <span>•</span>
+                                        <span>{v.message}</span>
+                                      </li>
+                                    ))}
+                                </ul>
+                              </div>
+                            )}
+
+                            {/* Warnings */}
+                            {qualityReport.violations.filter(v => v.severity === 'warning').length > 0 && (
+                              <div className="space-y-3">
+                                <h4 className="font-medium text-warning flex items-center gap-2">
+                                  <AlertTriangle size={16} />
+                                  优化建议
+                                </h4>
+                                <ul className="space-y-2">
+                                  {qualityReport.violations
+                                    .filter(v => v.severity === 'warning')
+                                    .map((v, i) => (
+                                      <li key={i} className="text-sm text-warning-600 flex items-start gap-2 p-2 bg-warning-50 rounded">
+                                        <span>•</span>
+                                        <span>{v.message}</span>
+                                      </li>
+                                    ))}
+                                </ul>
+                              </div>
+                            )}
+
+                            {/* Suggestions */}
+                            {qualityReport.suggestions.length > 0 && (
+                              <div className="space-y-3">
+                                <h4 className="font-medium text-primary flex items-center gap-2">
+                                  <Sparkles size={16} />
+                                  改进建议
+                                </h4>
+                                <ul className="space-y-2">
+                                  {qualityReport.suggestions.map((s, i) => (
+                                    <li key={i} className="text-sm text-default-600 flex items-start gap-2 p-2 bg-default-100 rounded">
+                                      <span>•</span>
+                                      <span>{s}</span>
+                                    </li>
+                                  ))}
+                                </ul>
+                              </div>
+                            )}
+
+                            {/* Empty State - All Good */}
+                            {qualityReport.violations.length === 0 && qualityReport.suggestions.length === 0 && (
+                              <div className="text-center py-8">
+                                <CheckCircle2 className="text-success mx-auto mb-3" size={48} />
+                                <p className="text-success font-medium text-lg">剧本质量优秀！</p>
+                                <p className="text-default-500 text-sm mt-1">未发现明显问题</p>
+                              </div>
+                            )}
+                          </div>
+                        ) : (
+                          <div className="h-full flex flex-col items-center justify-center text-center">
+                            <Sparkles size={48} className="text-default-300 mb-4" />
+                            <p className="text-default-500 mb-2">暂无质量评估数据</p>
+                            <p className="text-default-400 text-sm">请先完成剧本解析以查看质量评估</p>
+                          </div>
+                        )}
                       </CardBody>
                     </Card>
                   </Tab>

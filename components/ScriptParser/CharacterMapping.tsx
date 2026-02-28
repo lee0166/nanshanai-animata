@@ -3,6 +3,7 @@ import { ScriptCharacter, CharacterAsset, AssetType } from '../../types';
 import { storageService } from '../../services/storage';
 import { useApp } from '../../contexts/context';
 import { useToast } from '../../contexts/ToastContext';
+import { CharacterPromptBuilder } from '../../services/promptBuilder';
 import {
   Card,
   CardBody,
@@ -58,13 +59,16 @@ export const CharacterMapping: React.FC<CharacterMappingProps> = ({
   // Handle creating new character asset from script character
   const handleCreateCharacter = async (scriptChar: ScriptCharacter) => {
     try {
+      // 使用PromptBuilder生成纯净的提示词
+      const generatedPrompt = CharacterPromptBuilder.build(scriptChar);
+      
       const newCharacter: CharacterAsset = {
         id: `char_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
         projectId,
         scriptId,  // 关联当前剧本
         type: AssetType.CHARACTER,
         name: scriptChar.name,
-        prompt: scriptChar.visualPrompt || `${scriptChar.name}的角色设定`,
+        prompt: generatedPrompt,
         gender: (scriptChar.gender === 'male' || scriptChar.gender === 'female') ? scriptChar.gender : 'unlimited',
         ageGroup: mapAgeToGroup(scriptChar.age),
         metadata: {
@@ -72,7 +76,8 @@ export const CharacterMapping: React.FC<CharacterMappingProps> = ({
           personality: scriptChar.personality,
           signatureItems: scriptChar.signatureItems,
           emotionalArc: scriptChar.emotionalArc,
-          relationships: scriptChar.relationships
+          relationships: scriptChar.relationships,
+          visualPrompt: scriptChar.visualPrompt // 保留原始visualPrompt作为参考
         },
         createdAt: Date.now(),
         updatedAt: Date.now()

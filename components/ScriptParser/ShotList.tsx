@@ -36,6 +36,7 @@ interface ShotListProps {
   onShotsUpdate: (shots: Shot[]) => void;
   onGenerateFragment?: (shot: Shot) => void;
   projectId: string; // 项目ID，用于查询资产
+  scriptId?: string; // 剧本ID，用于过滤当前剧本的资产
   viewMode?: 'list' | 'manager'; // 视图模式：list-剧本管理页面（不显示拆分按钮），manager-分镜管理页面（显示拆分按钮）
   headerAction?: React.ReactNode; // 头部区域额外操作按钮
 }
@@ -65,6 +66,7 @@ export const ShotList: React.FC<ShotListProps> = ({
   onShotsUpdate,
   onGenerateFragment,
   projectId,
+  scriptId,
   viewMode = 'list',
   headerAction
 }) => {
@@ -100,22 +102,34 @@ export const ShotList: React.FC<ShotListProps> = ({
     return settings.models.filter(m => m.type === 'image');
   }, [settings.models]);
 
-  // 加载项目资产
+  // 加载项目资产（严格按scriptId过滤，只加载当前剧本的资产）
   useEffect(() => {
     const loadProjectAssets = async () => {
       if (!projectId) return;
       try {
         const assets = await storageService.getAssets(projectId);
+        // 严格按scriptId过滤：只加载当前剧本的资产
+        // 注意：如果scriptId未提供，加载所有资产；如果提供了，只加载匹配的资产
+        const filteredAssets = assets.filter(a => {
+          if (!scriptId) return true; // 没有scriptId时加载所有（兼容旧代码）
+          return a.scriptId === scriptId; // 严格匹配当前剧本
+        });
+        console.log('[ShotList] 加载资产:', { 
+          scriptId, 
+          totalAssets: assets.length, 
+          filteredAssets: filteredAssets.length,
+          scenes: filteredAssets.filter(a => a.type === AssetType.SCENE).map(s => s.name)
+        });
         setProjectAssets({
-          characters: assets.filter(a => a.type === AssetType.CHARACTER) as CharacterAsset[],
-          scenes: assets.filter(a => a.type === AssetType.SCENE)
+          characters: filteredAssets.filter(a => a.type === AssetType.CHARACTER) as CharacterAsset[],
+          scenes: filteredAssets.filter(a => a.type === AssetType.SCENE)
         });
       } catch (error) {
         console.error('加载项目资产失败:', error);
       }
     };
     loadProjectAssets();
-  }, [projectId]);
+  }, [projectId, scriptId]);
 
   // 根据名称查找角色资产
   const findCharacterByName = (name: string): CharacterAsset | undefined => {

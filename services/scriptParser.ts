@@ -17,6 +17,40 @@
 import { Script, ScriptParseState, ScriptMetadata, ScriptCharacter, ScriptScene, Shot, ParseStage } from '../types';
 import { storageService } from './storage';
 import { JSONRepair } from './parsing/JSONRepair';
+import { SemanticChunker, SemanticChunk } from './parsing/SemanticChunker';
+import { ShortDramaRules, RuleContext, RuleViolation } from './parsing/ShortDramaRules';
+import { MultiLevelCache } from './parsing/MultiLevelCache';
+
+/**
+ * Script Parser Configuration Interface
+ */
+export interface ScriptParserConfig {
+  useSemanticChunking: boolean;
+  useDramaRules: boolean;
+  dramaRulesMinScore: number;
+  useCache: boolean;
+  cacheTTL: number;
+}
+
+/**
+ * Quality Report Interface
+ */
+export interface QualityReport {
+  score: number;
+  violations: RuleViolation[];
+  suggestions: string[];
+}
+
+/**
+ * Default Script Parser Configuration
+ */
+const DEFAULT_PARSER_CONFIG: ScriptParserConfig = {
+  useSemanticChunking: true,
+  useDramaRules: true,
+  dramaRulesMinScore: 60,
+  useCache: true,
+  cacheTTL: 3600000,
+};
 
 /**
  * Script Parser Configuration
@@ -75,45 +109,50 @@ const PROMPTS = {
 `,
 
   character: `
-请基于以下剧本内容，分析角色"{characterName}"。
+请基于以下剧本内容，分析角色"{characterName}"的外貌特征。
 
 【剧本内容】
 {content}
 
-请提取以下信息，严格按JSON格式输出（确保所有字段都存在）：
+请提取以下外貌信息，严格按JSON格式输出（确保所有字段都存在）：
 {
   "name": "角色名",
   "gender": "male/female/unknown",
   "age": "18",
   "identity": "身份/职业",
   "appearance": {
-    "height": "身高描述",
-    "build": "体型",
-    "face": "面容特征",
-    "hair": "发型",
-    "clothing": "服饰风格"
+    "height": "身高描述，如：约165cm、身材高挑",
+    "build": "体型描述，如：体型匀称、身材苗条",
+    "face": "面容特征，如：瓜子脸、柳叶眉、丹凤眼",
+    "hair": "发型描述，如：乌黑长发及腰、短发齐耳",
+    "clothing": "服饰描述，如：淡蓝色汉服长裙、白色衬衫配西裤"
   },
   "personality": ["性格1", "性格2"],
-  "signatureItems": ["标志性物品1"],
+  "signatureItems": [
+    "随身标志性物品，如：玉佩、长剑、折扇、眼镜",
+    "重要提示：只提取始终跟随人物的标志性物品",
+    "排除临时性物品：文件、笔记本、咖啡杯、手机、纸张等"
+  ],
   "emotionalArc": [
     {"phase": "初始", "emotion": "情绪状态"}
   ],
   "relationships": [
     {"character": "相关角色名", "relation": "关系描述"}
   ],
-  "visualPrompt": "仅描述核心外貌特征：性别、年龄、面容、发型、服饰、体型、标志性配饰。必须排除：临时道具（如钥匙、手机）、临时动作（如手持、握着）、场景环境、情绪表情、剧情描述。示例：古代少女约16岁，瓜子脸柳叶眉丹凤眼，乌黑长发挽成垂鬟分肖髻，身着淡紫色绣花襦裙外披白色纱衣，体态纤细，佩戴玉簪。80-120字"
+  "visualPrompt": "【系统字段，将由程序自动生成，无需填写】"
 }
 
 重要提示：
 1. age字段必须是纯数字（如"18"），不要带"岁"字
-2. visualPrompt必须纯净：只描述核心外貌形象，禁止包含：临时道具（钥匙、手机、包等）、临时动作（手持、握着等）、场景环境、剧情描述、情绪化的临时表情
-3. 标志性物品必须是贯穿故事的核心配饰（如玉簪、佩剑），而非临时道具
-4. 如果信息不足，使用合理的默认值填充所有字段
-5. 必须返回完整的JSON，不能省略任何字段
+2. appearance字段必须详细：包含面容、发型、服装的具体描述
+3. signatureItems只包含始终跟随人物的标志性物品（如玉佩、长剑），不包含临时物品（如文件、咖啡）
+4. 如果小说未提及脚部/鞋子，appearance.clothing中应包含服装风格，系统会根据风格推断鞋子
+5. 所有外貌描述将用于生成全身角色设定图（包含脚部）
+6. 必须返回完整的JSON，不能省略任何字段
 `,
 
   charactersBatch: `
-请基于以下剧本内容，一次性分析所有角色。
+请基于以下剧本内容，一次性分析所有角色的外貌特征。
 
 【剧本内容】
 {content}
@@ -121,7 +160,7 @@ const PROMPTS = {
 【角色列表】
 {characterNames}
 
-请为每个角色提取以下信息，严格按JSON数组格式输出（确保所有字段都存在）：
+请为每个角色提取以下外貌信息，严格按JSON数组格式输出（确保所有字段都存在）：
 [
   {
     "name": "角色名",
@@ -129,30 +168,36 @@ const PROMPTS = {
     "age": "18",
     "identity": "身份/职业",
     "appearance": {
-      "height": "身高描述",
-      "build": "体型",
-      "face": "面容特征",
-      "hair": "发型",
-      "clothing": "服饰风格"
+      "height": "身高描述，如：约165cm、身材高挑",
+      "build": "体型描述，如：体型匀称、身材苗条",
+      "face": "面容特征，如：瓜子脸、柳叶眉、丹凤眼",
+      "hair": "发型描述，如：乌黑长发及腰、短发齐耳",
+      "clothing": "服饰描述，如：淡蓝色汉服长裙、白色衬衫配西裤"
     },
     "personality": ["性格1", "性格2"],
-    "signatureItems": ["标志性物品1"],
+    "signatureItems": [
+      "随身标志性物品，如：玉佩、长剑、折扇、眼镜",
+      "重要提示：只提取始终跟随人物的标志性物品",
+      "排除临时性物品：文件、笔记本、咖啡杯、手机、纸张等"
+    ],
     "emotionalArc": [{"phase": "初始", "emotion": "情绪状态"}],
     "relationships": [{"character": "相关角色名", "relation": "关系描述"}],
-    "visualPrompt": "仅描述核心外貌特征：性别、年龄、面容、发型、服饰、体型、标志性配饰。必须排除：临时道具（如钥匙、手机）、临时动作（如手持、握着）、场景环境、情绪表情、剧情描述。示例：古代少女约16岁，瓜子脸柳叶眉，乌黑长发挽髻，身着淡紫色绣花襦裙，体态纤细，佩戴玉簪。60-80字"
+    "visualPrompt": "【系统字段，将由程序自动生成，无需填写】"
   }
 ]
 
 重要提示：
 1. 必须返回JSON数组，包含所有角色
 2. age字段必须是纯数字
-3. visualPrompt必须纯净：只描述核心外貌形象，禁止包含：临时道具（钥匙、手机、包等）、临时动作（手持、握着等）、场景环境、剧情描述、情绪化的临时表情
-4. 标志性物品必须是贯穿故事的核心配饰（如玉簪、佩剑），而非临时道具
-5. 如果信息不足，使用合理的默认值
+3. appearance字段必须详细：包含面容、发型、服装的具体描述
+4. signatureItems只包含始终跟随人物的标志性物品（如玉佩、长剑），不包含临时物品（如文件、咖啡）
+5. 如果小说未提及脚部/鞋子，appearance.clothing中应包含服装风格，系统会根据风格推断鞋子
+6. 所有外貌描述将用于生成全身角色设定图（包含脚部）
+7. 如果信息不足，使用合理的默认值
 `,
 
   scenesBatch: `
-请基于以下剧本内容，一次性分析所有场景。
+请基于以下剧本内容，一次性分析所有场景的环境特征。
 
 【剧本内容】
 {content}
@@ -160,33 +205,38 @@ const PROMPTS = {
 【场景列表】
 {sceneNames}
 
-请为每个场景提取以下信息，严格按JSON数组格式输出（确保所有字段都存在）：
+请为每个场景提取以下环境信息，严格按JSON数组格式输出（确保所有字段都存在）：
 [
   {
     "name": "场景名",
     "locationType": "indoor/outdoor/unknown",
-    "description": "场景描述，30字以内",
+    "description": "场景环境描述，不包含人物动作",
     "timeOfDay": "时间段",
     "season": "季节",
     "weather": "天气",
     "environment": {
-      "architecture": "建筑风格",
-      "furnishings": ["陈设1"],
-      "lighting": "光线条件",
-      "colorTone": "色调氛围"
+      "architecture": "建筑风格和环境类型",
+      "furnishings": [
+        "陈设物品列表，如：办公桌、椅子、书架",
+        "重要提示：只描述环境中的物品，不包含人物"
+      ],
+      "lighting": "光线条件，如：自然光从窗户洒入、暖黄色灯光",
+      "colorTone": "色调氛围，如：冷色调、暖色调、明亮清新"
     },
     "sceneFunction": "场景作用",
-    "visualPrompt": "用于AI生图的场景环境描述：时间、地点类型、光线、环境细节、色调、氛围。必须排除：任何角色或生物、动态动作或事件、分镜式画面描述、故事情节相关的临时元素。示例：深秋傍晚，昏暗的居民楼道，墙面斑驳，地面散落几片枯叶，光线昏黄，氛围清冷，写实风格。50字以内",
-    "characters": ["场景中出现的角色名"]
+    "visualPrompt": "【系统字段，将由程序自动生成，无需填写】",
+    "characters": ["场景中可能出现的角色名"]
   }
 ]
 
 重要提示：
 1. 必须返回JSON数组，包含所有场景
-2. description和visualPrompt控制在50字以内，节省token
-3. visualPrompt必须纯净：只描述静态场景环境，禁止包含：角色、生物、动态事件、分镜描述、剧情元素
-4. 场景描述应聚焦于可作为背景素材使用的环境特征
-5. 如果信息不足，使用合理的默认值
+2. description必须是纯环境描述，不能包含人物动作
+3. 错误示例："江哲坐在办公桌后"（包含人物动作）
+4. 正确示例："现代商务办公室，有办公桌、办公椅和文件柜"（纯环境描述）
+5. environment.furnishings只包含环境中的物品，不包含人物
+6. 场景图用于生成背景环境，不应有具体人物出现
+7. 如果信息不足，使用合理的默认值
 `,
 
   itemsBatch: `
@@ -211,16 +261,14 @@ const PROMPTS = {
     "category": "weapon/tool/jewelry/document/creature/animal/other",
     "owner": "所属角色名（如有）",
     "importance": "major/minor",
-    "visualPrompt": "用于AI生图的道具本体描述：物品类型、材质、颜色、纹理、形状、风格、标志性细节。必须排除：使用场景、与角色的互动、动态效果、故事相关的临时状态。示例：古朴青铜剑，剑身刻有龙纹，剑柄缠绕黑色丝线，整体呈现岁月沉淀的暗绿色铜锈，造型典雅庄重。50字以内"
+    "visualPrompt": "用于AI生图的描述，50字以内"
   }
 ]
 
 重要提示：
 1. 只提取对剧情有重要作用的道具
 2. 普通物品（如桌椅、衣服）不需要提取
-3. visualPrompt必须纯净：只描述道具本体特征，禁止包含：使用场景、角色互动、动态效果、临时状态
-4. 道具描述应聚焦于便于单独生成本体的特征
-5. 必须返回JSON数组
+3. 必须返回JSON数组
 `,
 
   shotsBatch: `
@@ -277,15 +325,13 @@ const PROMPTS = {
     "colorTone": "色调氛围"
   },
   "sceneFunction": "场景在故事中的作用",
-  "visualPrompt": "用于AI生图的场景环境描述：时间、地点类型、光线、环境细节、色调、氛围。必须排除：任何角色或生物、动态动作或事件、分镜式画面描述、故事情节相关的临时元素。示例：深秋傍晚，昏暗的居民楼道，墙面斑驳，地面散落几片枯叶，光线昏黄，氛围清冷，写实风格。100字以内",
+  "visualPrompt": "用于AI生图的详细视觉描述，100字以内",
   "characters": ["场景中出现的角色名"]
 }
 
 重要提示：
-1. visualPrompt必须纯净：只描述静态场景环境，禁止包含：角色、生物、动态事件、分镜描述、剧情元素
-2. 场景描述应聚焦于可作为背景素材使用的环境特征
-3. 如果信息不足，使用合理的默认值填充所有字段
-4. 必须返回完整的JSON，不能省略任何字段
+1. 如果信息不足，使用合理的默认值填充所有字段
+2. 必须返回完整的JSON，不能省略任何字段
 `,
 
   shots: `
@@ -520,19 +566,107 @@ export class ScriptParser {
   private cache: ParseCache;
   /** Hash of current content for cache key generation */
   private contentHash: string = '';
+  /** Parser configuration */
+  private parserConfig: ScriptParserConfig;
+  /** Semantic chunker instance */
+  private semanticChunker: SemanticChunker | null = null;
+  /** Short drama rules instance */
+  private dramaRules: ShortDramaRules | null = null;
+  /** Multi-level cache instance */
+  private multiLevelCache: MultiLevelCache | null = null;
+  /** Quality report from last analysis */
+  private qualityReport: QualityReport | null = null;
+  /** Current scenes for rules validation */
+  private currentScenes: ScriptScene[] = [];
+  /** Current characters for rules validation */
+  private currentCharacters: ScriptCharacter[] = [];
 
   /**
    * Creates a new script parser instance
    * @param apiKey - API key for LLM service
    * @param apiUrl - Base URL for LLM API (default: OpenAI)
    * @param model - Model name to use (default: gpt-4o-mini)
+   * @param config - Optional parser configuration
    */
-  constructor(apiKey: string, apiUrl: string = 'https://api.openai.com/v1', model: string = CONFIG.defaultModel) {
+  constructor(
+    apiKey: string,
+    apiUrl: string = 'https://api.openai.com/v1',
+    model: string = CONFIG.defaultModel,
+    config: Partial<ScriptParserConfig> = {}
+  ) {
     this.apiKey = apiKey;
     this.apiUrl = apiUrl;
     this.model = model;
     this.limiter = new ConcurrencyLimiter(CONFIG.concurrency);
-    this.cache = new ParseCache(50, 3600000); // Cache up to 50 items for 1 hour
+    this.cache = new ParseCache(50, 3600000);
+    
+    this.parserConfig = { ...DEFAULT_PARSER_CONFIG, ...config };
+    
+    console.log('[ScriptParser] Initialized with config:', {
+      useSemanticChunking: this.parserConfig.useSemanticChunking,
+      useDramaRules: this.parserConfig.useDramaRules,
+      dramaRulesMinScore: this.parserConfig.dramaRulesMinScore,
+      useCache: this.parserConfig.useCache,
+      cacheTTL: this.parserConfig.cacheTTL
+    });
+    
+    if (this.parserConfig.useSemanticChunking) {
+      this.semanticChunker = new SemanticChunker({ extractMetadata: true });
+      console.log('[ScriptParser] SemanticChunker initialized');
+    }
+    if (this.parserConfig.useDramaRules) {
+      this.dramaRules = new ShortDramaRules();
+      console.log('[ScriptParser] ShortDramaRules initialized');
+    }
+    if (this.parserConfig.useCache) {
+      this.multiLevelCache = new MultiLevelCache({ l1TTL: this.parserConfig.cacheTTL });
+      console.log('[ScriptParser] MultiLevelCache initialized');
+    }
+  }
+
+  /**
+   * Get current parser configuration
+   */
+  getConfig(): ScriptParserConfig {
+    return { ...this.parserConfig };
+  }
+
+  /**
+   * Update parser configuration
+   */
+  updateConfig(config: Partial<ScriptParserConfig>): void {
+    this.parserConfig = { ...this.parserConfig, ...config };
+    
+    if (config.useSemanticChunking !== undefined) {
+      if (config.useSemanticChunking && !this.semanticChunker) {
+        this.semanticChunker = new SemanticChunker({ extractMetadata: true });
+      } else if (!config.useSemanticChunking) {
+        this.semanticChunker = null;
+      }
+    }
+    
+    if (config.useDramaRules !== undefined) {
+      if (config.useDramaRules && !this.dramaRules) {
+        this.dramaRules = new ShortDramaRules();
+      } else if (!config.useDramaRules) {
+        this.dramaRules = null;
+      }
+    }
+    
+    if (config.useCache !== undefined) {
+      if (config.useCache && !this.multiLevelCache) {
+        this.multiLevelCache = new MultiLevelCache({ l1TTL: this.parserConfig.cacheTTL });
+      } else if (!config.useCache) {
+        this.multiLevelCache = null;
+      }
+    }
+  }
+
+  /**
+   * Get quality report from last analysis
+   */
+  getQualityReport(): QualityReport | null {
+    return this.qualityReport;
   }
 
   /**
@@ -573,6 +707,36 @@ export class ScriptParser {
    * @private
    */
   private chunkText(text: string, maxChunkSize: number = CONFIG.maxChunkSize): string[] {
+    if (this.parserConfig.useSemanticChunking && this.semanticChunker) {
+      return this.semanticChunkText(text);
+    }
+    return this.legacyChunkText(text, maxChunkSize);
+  }
+
+  /**
+   * Semantic chunking using SemanticChunker
+   * Preserves chapter boundaries and adds context
+   * @param text - Text to split
+   * @returns Array of text chunks
+   * @private
+   */
+  private semanticChunkText(text: string): string[] {
+    console.log('[ScriptParser] Using semantic chunking');
+    const chunks = this.semanticChunker!.chunkSync(text);
+    console.log(`[ScriptParser] Semantic chunking produced ${chunks.length} chunks`);
+    return chunks.map(chunk => chunk.content);
+  }
+
+  /**
+   * Legacy chunking method - splits by paragraph boundaries
+   * Preserved as fallback when semantic chunking is disabled
+   * @param text - Text to split
+   * @param maxChunkSize - Maximum size of each chunk
+   * @returns Array of text chunks
+   * @private
+   */
+  private legacyChunkText(text: string, maxChunkSize: number = CONFIG.maxChunkSize): string[] {
+    console.log('[ScriptParser] Using legacy chunking');
     const chunks: string[] = [];
     const paragraphs = text.split('\n\n');
     let currentChunk = '';
@@ -903,7 +1067,6 @@ export class ScriptParser {
   ): Promise<Shot[]> {
     console.log(`[ScriptParser] ---------- Generating Shots for Scene: ${sceneName} ----------`);
 
-    // Extract scene-specific content
     const paragraphs = content.split('\n\n');
     const sceneStartIndex = paragraphs.findIndex(p =>
       p.includes(sceneName) || p.toLowerCase().includes(sceneName.toLowerCase())
@@ -911,7 +1074,6 @@ export class ScriptParser {
 
     let sceneContent = content;
     if (sceneStartIndex >= 0) {
-      // Take content from scene start to next scene or end
       const nextSceneIndex = paragraphs.slice(sceneStartIndex + 1).findIndex(p =>
         p.includes('场景') || p.includes('地点') || p.includes('第') && p.includes('章')
       );
@@ -934,7 +1096,6 @@ export class ScriptParser {
     const shots = this.extractJSON<Shot[]>(response);
     console.log(`[ScriptParser] Generated ${shots.length} shots`);
 
-    // Log first few shots
     shots.slice(0, 3).forEach((shot, i) => {
       console.log(`[ScriptParser] Shot ${i + 1}:`);
       console.log(`  - Sequence: ${shot.sequence}`);
@@ -944,13 +1105,55 @@ export class ScriptParser {
       console.log(`  - Description: ${shot.description?.substring(0, 40)}...`);
     });
 
-    // Add IDs and scene name to shots
-    return shots.map((shot, index) => ({
+    const result = shots.map((shot, index) => ({
       ...shot,
       id: shot.id || crypto.randomUUID(),
       sceneName,
       sequence: shot.sequence || index + 1
     }));
+
+    if (this.parserConfig.useDramaRules && this.dramaRules) {
+      this.validateShotsQuality(result, sceneName);
+    }
+
+    return result;
+  }
+
+  /**
+   * Validate shots quality using ShortDramaRules
+   * @param shots - Generated shots to validate
+   * @param sceneName - Scene name for logging
+   * @private
+   */
+  private validateShotsQuality(shots: Shot[], sceneName: string): void {
+    if (!this.dramaRules) return;
+
+    console.log(`[ScriptParser] Validating shots quality for scene: ${sceneName}`);
+
+    const context: RuleContext = {
+      scenes: this.currentScenes,
+      characters: this.currentCharacters,
+      targetDuration: shots.reduce((sum, shot) => sum + (shot.duration || 0), 0)
+    };
+
+    const quality = this.dramaRules.analyzeQuality(context);
+    
+    this.qualityReport = {
+      score: quality.score,
+      violations: quality.violations,
+      suggestions: quality.suggestions
+    };
+
+    if (quality.score < this.parserConfig.dramaRulesMinScore) {
+      console.warn(`[ScriptParser] Shots quality below threshold: ${quality.score}/${this.parserConfig.dramaRulesMinScore}`);
+      console.warn(`[ScriptParser] Violations:`, quality.violations.map(v => v.message).join('; '));
+    } else {
+      console.log(`[ScriptParser] Shots quality passed: ${quality.score}`);
+    }
+
+    if (quality.suggestions.length > 0) {
+      console.log(`[ScriptParser] Suggestions:`, quality.suggestions.join('; '));
+    }
   }
 
   /**
@@ -1038,12 +1241,18 @@ export class ScriptParser {
     const shots = this.extractJSON<Shot[]>(response);
     console.log(`[ScriptParser] Parsed ${shots.length} shots from batch response`);
 
-    // Ensure all shots have IDs and scene names
-    return shots.map((shot, index) => ({
+    const result = shots.map((shot, index) => ({
       ...shot,
       id: shot.id || crypto.randomUUID(),
       sequence: shot.sequence || index + 1
     }));
+
+    // Validate quality for batch generated shots
+    if (this.parserConfig.useDramaRules && this.dramaRules) {
+      this.validateShotsQuality(result, 'batch');
+    }
+
+    return result;
   }
 
   /**
@@ -1195,6 +1404,9 @@ export class ScriptParser {
         onProgress?.('scenes', 70, '场景已存在，跳过...');
       }
 
+      this.currentScenes = scenes;
+      this.currentCharacters = characters;
+
       // Stage 4: Shots (with concurrency control and resume support)
       state.stage = 'shots';
       state.progress = 70;
@@ -1269,6 +1481,13 @@ export class ScriptParser {
       // Complete
       state.stage = 'completed';
       state.progress = 100;
+      
+      // Save quality report to state for persistence
+      if (this.qualityReport) {
+        state.qualityReport = this.qualityReport;
+        console.log('[ScriptParser] Quality report saved to parse state');
+      }
+      
       onProgress?.('completed', 100, '解析完成！');
       await this.saveState(scriptId, projectId, state);
 
@@ -1485,6 +1704,13 @@ export class ScriptParser {
           // Mark as completed after shots generation
           state.stage = 'completed';
           state.progress = 100;
+          
+          // Save quality report to state for persistence
+          if (this.qualityReport) {
+            state.qualityReport = this.qualityReport;
+            console.log('[ScriptParser] Quality report saved to parse state');
+          }
+          
           onProgress?.('completed', 100, '解析完成');
           break;
         }
@@ -1500,8 +1726,13 @@ export class ScriptParser {
 }
 
 // Export singleton instance creator
-export function createScriptParser(apiKey: string, apiUrl?: string, model?: string): ScriptParser {
-  return new ScriptParser(apiKey, apiUrl, model);
+export function createScriptParser(
+  apiKey: string,
+  apiUrl?: string,
+  model?: string,
+  config?: Partial<ScriptParserConfig>
+): ScriptParser {
+  return new ScriptParser(apiKey, apiUrl, model, config);
 }
 
 // Export helper classes for testing

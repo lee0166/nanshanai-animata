@@ -1,0 +1,1048 @@
+ [vite] connecting...
+ Download the React DevTools for a better development experience: https://react.dev/link/react-devtools
+ [AIService] Registered provider: volcengine
+ [AIService] Registered provider: vidu
+ [AIService] Registered provider: modelscope
+ [AIService] Registered provider: llm
+ [INIT] Redirecting to home from #/project/9b41f2ce-0402-4d24-94ef-c84ea5562b05
+ [INIT] Starting App Initialization...
+ [INIT] Attempting auto-connect...
+ [INIT] Starting App Initialization...
+ [INIT] Attempting auto-connect...
+ [vite] connected.
+ [INIT] autoConnect returned: true
+ [INIT] autoConnect returned: true
+ [INIT] Starting smoke test...
+ [STORAGE] Connection check: Connected=true, Responsive=true
+ [INIT] Smoke test complete.
+ [INIT] Initialization complete. FS Responsive: true, Connected: true, Elapsed: 505ms
+ [APP] Triggering jobQueue.loadQueue()...
+ [APP] Triggering jobQueue.loadQueue()...
+ [STORAGE] Connection check: Connected=true, Responsive=true
+ [STORAGE] Connection check: Connected=true, Responsive=true
+ [STORAGE] Connection check: Connected=true, Responsive=true
+ [AssetList] Loading assets for type: scene, projectId: 9b41f2ce-0402-4d24-94ef-c84ea5562b05
+ [AssetList] Total assets: 7
+ [AssetList] Assets by type: Object
+ [AssetList] Loading assets for type: scene, projectId: 9b41f2ce-0402-4d24-94ef-c84ea5562b05
+ [AssetList] Total assets: 7
+ [AssetList] Assets by type: Object
+ [ScriptParser] Initialized with config: Object
+ [ScriptParser] SemanticChunker initialized
+ [ScriptParser] ShortDramaRules initialized
+ [ScriptParser] MultiLevelCache initialized
+ [ScriptManager] 完整解析模式，ScriptParser配置: Object
+ [ScriptParser] Resuming from saved state: idle
+ [ScriptParser] ========== Stage 1: Extract Metadata ==========
+ [ScriptParser] Content length: 1611 characters
+ [ScriptParser] Prompt length: 2057 characters
+ [ScriptParser] Sending request to LLM...
+ [ScriptParser] callLLM called, retryCount: 0
+ [ScriptParser] API URL: https://api-inference.modelscope.cn/v1
+ [ScriptParser] Model: Qwen/Qwen3.5-397B-A17B
+ [ScriptParser] Calling LLMProvider.generateText...
+ [LLMProvider] ========== API Request ==========
+ [LLMProvider] Endpoint: https://api-inference.modelscope.cn/v1/chat/completions
+ [LLMProvider] Model: Qwen/Qwen3.5-397B-A17B
+ [LLMProvider] enable_thinking: false
+ [LLMProvider] Temperature: 0.3
+ [LLMProvider] Max Tokens: 4000
+ [LLMProvider] Messages count: 2
+ [LLMProvider] First message length: 48 characters
+ [LLMProvider] Request body: {
+  "model": "Qwen/Qwen3.5-397B-A17B",
+  "messages": [
+    {
+      "role": "system",
+      "content": "你是一个专业的剧本分析助手，擅长从小说/剧本中提取结构化信息。请严格按照要求的JSON格式输出。"
+    },
+    {
+      "role": "user",
+      "content": "\n请快速分析以下剧本/小说内容，提取基础元数据：\n\n【剧本内容】\n第一章 暗流\r\n鼎盛集团市场部，总监职位悬空三月，最终候选人锁定两人 —— 老员工沈若涵，与空降精英顾衍之。部门经理陈默态度暧昧，实习生夏晚则默默观察，四人的职场棋局，悄然落子。\r\n茶水间里，陈默端着咖啡凑到沈若涵身边，语气半是试探半是拉拢：“沈姐，论资历，这个总监位非你莫属，就是顾衍之那边，听说拿着总部的资源，来势汹汹。”\r\n沈若涵搅拌着咖啡，指尖微顿，抬眼时笑意不达眼底：“陈经理说笑了，凭实力竞争而已。倒是听说，顾衍之最近在抢你手上的城西项目？”\r\n陈默脸色微沉，没接话。沈若涵心中了然，陈...
+ [LLMProvider] Sending request...
+ [BaseProvider] Requesting: https://api-inference.modelscope.cn/v1/chat/completions, Mode: DEV, Localhost: true
+ [BaseProvider] Using Proxy: /api/universal-proxy -> https://api-inference.modelscope.cn/v1/chat/completions
+ [BaseProvider] Response received: 200 OK
+ [LLMProvider] Request completed in 2657ms
+ [LLMProvider] ========== API Response ==========
+ [LLMProvider] Response length: 289 characters
+ [LLMProvider] Prompt tokens: 1363
+ [LLMProvider] Completion tokens: 139
+ [LLMProvider] Total tokens: 1502
+ [LLMProvider] Response preview: {
+  "title": "暗流",
+  "wordCount": 1200,
+  "estimatedDuration": "5 分钟",
+  "characterCount": 4,
+  "cha...
+ [ScriptParser] LLM response received, length: 289
+ [ScriptParser] LLM response received, length: 289 characters
+ [ScriptParser] Metadata extracted successfully:
+   - Title: 暗流
+   - Word Count: 1200
+   - Characters: 4 (沈若涵, 顾衍之, 陈默, 夏晚)
+   - Scenes: 6 (鼎盛集团市场部, 茶水间, 顾衍之办公室, 会议室, 总部审计部, 沈若涵办公室)
+   - Genre: 现代职场
+   - Tone: 正剧
+ [ScriptParser] Processing 4 remaining characters
+ [ScriptParser] ---------- Extracting Character: 沈若涵 ----------
+ [ScriptParser] Found 1 paragraphs mentioning 沈若涵
+ [ScriptParser] Character content length: 1611 characters
+ [ScriptParser] Prompt length: 2542 characters
+ [ScriptParser] callLLM called, retryCount: 0
+ [ScriptParser] API URL: https://api-inference.modelscope.cn/v1
+ [ScriptParser] Model: Qwen/Qwen3.5-397B-A17B
+ [ScriptParser] Calling LLMProvider.generateText...
+ [LLMProvider] ========== API Request ==========
+ [LLMProvider] Endpoint: https://api-inference.modelscope.cn/v1/chat/completions
+ [LLMProvider] Model: Qwen/Qwen3.5-397B-A17B
+ [LLMProvider] enable_thinking: false
+ [LLMProvider] Temperature: 0.3
+ [LLMProvider] Max Tokens: 4000
+ [LLMProvider] Messages count: 2
+ [LLMProvider] First message length: 48 characters
+ [LLMProvider] Request body: {
+  "model": "Qwen/Qwen3.5-397B-A17B",
+  "messages": [
+    {
+      "role": "system",
+      "content": "你是一个专业的剧本分析助手，擅长从小说/剧本中提取结构化信息。请严格按照要求的JSON格式输出。"
+    },
+    {
+      "role": "user",
+      "content": "\n请基于以下剧本内容，分析角色\"沈若涵\"的外貌特征。\n\n【剧本内容】\n第一章 暗流\r\n鼎盛集团市场部，总监职位悬空三月，最终候选人锁定两人 —— 老员工沈若涵，与空降精英顾衍之。部门经理陈默态度暧昧，实习生夏晚则默默观察，四人的职场棋局，悄然落子。\r\n茶水间里，陈默端着咖啡凑到沈若涵身边，语气半是试探半是拉拢：“沈姐，论资历，这个总监位非你莫属，就是顾衍之那边，听说拿着总部的资源，来势汹汹。”\r\n沈若涵搅拌着咖啡，指尖微顿，抬眼时笑意不达眼底：“陈经理说笑了，凭实力竞争而已。倒是听说，顾衍之最近在抢你手上的城西项目？”\r\n陈默脸色微沉，没接话。沈若涵心中...
+ [LLMProvider] Sending request...
+ [BaseProvider] Requesting: https://api-inference.modelscope.cn/v1/chat/completions, Mode: DEV, Localhost: true
+ [BaseProvider] Using Proxy: /api/universal-proxy -> https://api-inference.modelscope.cn/v1/chat/completions
+ [BaseProvider] Response received: 200 OK
+ [LLMProvider] Request completed in 5866ms
+ [LLMProvider] ========== API Response ==========
+ [LLMProvider] Response length: 893 characters
+ [LLMProvider] Prompt tokens: 1586
+ [LLMProvider] Completion tokens: 412
+ [LLMProvider] Total tokens: 1998
+ [LLMProvider] Response preview: ```json
+{
+  "name": "沈若涵",
+  "gender": "female",
+  "age": "32",
+  "identity": "鼎盛集团市场部总监",
+  "appear...
+ [ScriptParser] LLM response received, length: 893
+ [ScriptParser] LLM response received, length: 893 characters
+ [ScriptParser] JSON repaired using: extracted_from_code_block
+ [ScriptParser] Raw character data parsed
+ [ScriptParser] Character validated and completed:
+   - Name: 沈若涵
+   - Gender: female
+   - Age: 32
+   - Identity: 鼎盛集团市场部总监
+   - Personality: 沉稳冷静, 谋略深远, 外柔内刚, 从容不迫
+   - Visual Prompt: 【系统字段，将由程序自动生成，无需填写】...
+ [ScriptParser] ---------- Extracting Character: 顾衍之 ----------
+ [ScriptParser] Found 1 paragraphs mentioning 顾衍之
+ [ScriptParser] Character content length: 1611 characters
+ [ScriptParser] Prompt length: 2542 characters
+ [ScriptParser] callLLM called, retryCount: 0
+ [ScriptParser] API URL: https://api-inference.modelscope.cn/v1
+ [ScriptParser] Model: Qwen/Qwen3.5-397B-A17B
+ [ScriptParser] Calling LLMProvider.generateText...
+ [LLMProvider] ========== API Request ==========
+ [LLMProvider] Endpoint: https://api-inference.modelscope.cn/v1/chat/completions
+ [LLMProvider] Model: Qwen/Qwen3.5-397B-A17B
+ [LLMProvider] enable_thinking: false
+ [LLMProvider] Temperature: 0.3
+ [LLMProvider] Max Tokens: 4000
+ [LLMProvider] Messages count: 2
+ [LLMProvider] First message length: 48 characters
+ [LLMProvider] Request body: {
+  "model": "Qwen/Qwen3.5-397B-A17B",
+  "messages": [
+    {
+      "role": "system",
+      "content": "你是一个专业的剧本分析助手，擅长从小说/剧本中提取结构化信息。请严格按照要求的JSON格式输出。"
+    },
+    {
+      "role": "user",
+      "content": "\n请基于以下剧本内容，分析角色\"顾衍之\"的外貌特征。\n\n【剧本内容】\n第一章 暗流\r\n鼎盛集团市场部，总监职位悬空三月，最终候选人锁定两人 —— 老员工沈若涵，与空降精英顾衍之。部门经理陈默态度暧昧，实习生夏晚则默默观察，四人的职场棋局，悄然落子。\r\n茶水间里，陈默端着咖啡凑到沈若涵身边，语气半是试探半是拉拢：“沈姐，论资历，这个总监位非你莫属，就是顾衍之那边，听说拿着总部的资源，来势汹汹。”\r\n沈若涵搅拌着咖啡，指尖微顿，抬眼时笑意不达眼底：“陈经理说笑了，凭实力竞争而已。倒是听说，顾衍之最近在抢你手上的城西项目？”\r\n陈默脸色微沉，没接话。沈若涵心中...
+ [LLMProvider] Sending request...
+ [BaseProvider] Requesting: https://api-inference.modelscope.cn/v1/chat/completions, Mode: DEV, Localhost: true
+ [BaseProvider] Using Proxy: /api/universal-proxy -> https://api-inference.modelscope.cn/v1/chat/completions
+ [BaseProvider] Response received: 200 OK
+ [LLMProvider] Request completed in 6138ms
+ [LLMProvider] ========== API Response ==========
+ [LLMProvider] Response length: 925 characters
+ [LLMProvider] Prompt tokens: 1586
+ [LLMProvider] Completion tokens: 433
+ [LLMProvider] Total tokens: 2019
+ [LLMProvider] Response preview: ```json
+{
+  "name": "顾衍之",
+  "gender": "male",
+  "age": "32",
+  "identity": "鼎盛集团市场部空降精英/前项目候选人",
+  ...
+ [ScriptParser] LLM response received, length: 925
+ [ScriptParser] LLM response received, length: 925 characters
+ [ScriptParser] JSON repaired using: extracted_from_code_block
+ [ScriptParser] Raw character data parsed
+ [ScriptParser] Character validated and completed:
+   - Name: 顾衍之
+   - Gender: male
+   - Age: 32
+   - Identity: 鼎盛集团市场部空降精英/前项目候选人
+   - Personality: 冷酷无情, 野心勃勃, 不择手段, 傲慢自负
+   - Visual Prompt: 【系统字段，将由程序自动生成，无需填写】...
+ [ScriptParser] ---------- Extracting Character: 陈默 ----------
+ [ScriptParser] Found 1 paragraphs mentioning 陈默
+ [ScriptParser] Character content length: 1611 characters
+ [ScriptParser] Prompt length: 2541 characters
+ [ScriptParser] callLLM called, retryCount: 0
+ [ScriptParser] API URL: https://api-inference.modelscope.cn/v1
+ [ScriptParser] Model: Qwen/Qwen3.5-397B-A17B
+ [ScriptParser] Calling LLMProvider.generateText...
+ [LLMProvider] ========== API Request ==========
+ [LLMProvider] Endpoint: https://api-inference.modelscope.cn/v1/chat/completions
+ [LLMProvider] Model: Qwen/Qwen3.5-397B-A17B
+ [LLMProvider] enable_thinking: false
+ [LLMProvider] Temperature: 0.3
+ [LLMProvider] Max Tokens: 4000
+ [LLMProvider] Messages count: 2
+ [LLMProvider] First message length: 48 characters
+ [LLMProvider] Request body: {
+  "model": "Qwen/Qwen3.5-397B-A17B",
+  "messages": [
+    {
+      "role": "system",
+      "content": "你是一个专业的剧本分析助手，擅长从小说/剧本中提取结构化信息。请严格按照要求的JSON格式输出。"
+    },
+    {
+      "role": "user",
+      "content": "\n请基于以下剧本内容，分析角色\"陈默\"的外貌特征。\n\n【剧本内容】\n第一章 暗流\r\n鼎盛集团市场部，总监职位悬空三月，最终候选人锁定两人 —— 老员工沈若涵，与空降精英顾衍之。部门经理陈默态度暧昧，实习生夏晚则默默观察，四人的职场棋局，悄然落子。\r\n茶水间里，陈默端着咖啡凑到沈若涵身边，语气半是试探半是拉拢：“沈姐，论资历，这个总监位非你莫属，就是顾衍之那边，听说拿着总部的资源，来势汹汹。”\r\n沈若涵搅拌着咖啡，指尖微顿，抬眼时笑意不达眼底：“陈经理说笑了，凭实力竞争而已。倒是听说，顾衍之最近在抢你手上的城西项目？”\r\n陈默脸色微沉，没接话。沈若涵心中了...
+ [LLMProvider] Sending request...
+ [BaseProvider] Requesting: https://api-inference.modelscope.cn/v1/chat/completions, Mode: DEV, Localhost: true
+ [BaseProvider] Using Proxy: /api/universal-proxy -> https://api-inference.modelscope.cn/v1/chat/completions
+ [BaseProvider] Response received: 200 OK
+ [LLMProvider] Request completed in 5633ms
+ [LLMProvider] ========== API Response ==========
+ [LLMProvider] Response length: 941 characters
+ [LLMProvider] Prompt tokens: 1585
+ [LLMProvider] Completion tokens: 435
+ [LLMProvider] Total tokens: 2020
+ [LLMProvider] Response preview: ```json
+{
+  "name": "陈默",
+  "gender": "male",
+  "age": "35",
+  "identity": "市场部经理",
+  "appearance": ...
+ [ScriptParser] LLM response received, length: 941
+ [ScriptParser] LLM response received, length: 941 characters
+ [ScriptParser] JSON repaired using: extracted_from_code_block
+ [ScriptParser] Raw character data parsed
+ [ScriptParser] Character validated and completed:
+   - Name: 陈默
+   - Gender: male
+   - Age: 35
+   - Identity: 市场部经理
+   - Personality: 态度暧昧, 隐忍, 易怒, 善于借势
+   - Visual Prompt: 【系统字段，将由程序自动生成，无需填写】...
+ [ScriptParser] ---------- Extracting Character: 夏晚 ----------
+ [ScriptParser] Found 1 paragraphs mentioning 夏晚
+ [ScriptParser] Character content length: 1611 characters
+ [ScriptParser] Prompt length: 2541 characters
+ [ScriptParser] callLLM called, retryCount: 0
+ [ScriptParser] API URL: https://api-inference.modelscope.cn/v1
+ [ScriptParser] Model: Qwen/Qwen3.5-397B-A17B
+ [ScriptParser] Calling LLMProvider.generateText...
+ [LLMProvider] ========== API Request ==========
+ [LLMProvider] Endpoint: https://api-inference.modelscope.cn/v1/chat/completions
+ [LLMProvider] Model: Qwen/Qwen3.5-397B-A17B
+ [LLMProvider] enable_thinking: false
+ [LLMProvider] Temperature: 0.3
+ [LLMProvider] Max Tokens: 4000
+ [LLMProvider] Messages count: 2
+ [LLMProvider] First message length: 48 characters
+ [LLMProvider] Request body: {
+  "model": "Qwen/Qwen3.5-397B-A17B",
+  "messages": [
+    {
+      "role": "system",
+      "content": "你是一个专业的剧本分析助手，擅长从小说/剧本中提取结构化信息。请严格按照要求的JSON格式输出。"
+    },
+    {
+      "role": "user",
+      "content": "\n请基于以下剧本内容，分析角色\"夏晚\"的外貌特征。\n\n【剧本内容】\n第一章 暗流\r\n鼎盛集团市场部，总监职位悬空三月，最终候选人锁定两人 —— 老员工沈若涵，与空降精英顾衍之。部门经理陈默态度暧昧，实习生夏晚则默默观察，四人的职场棋局，悄然落子。\r\n茶水间里，陈默端着咖啡凑到沈若涵身边，语气半是试探半是拉拢：“沈姐，论资历，这个总监位非你莫属，就是顾衍之那边，听说拿着总部的资源，来势汹汹。”\r\n沈若涵搅拌着咖啡，指尖微顿，抬眼时笑意不达眼底：“陈经理说笑了，凭实力竞争而已。倒是听说，顾衍之最近在抢你手上的城西项目？”\r\n陈默脸色微沉，没接话。沈若涵心中了...
+ [LLMProvider] Sending request...
+ [BaseProvider] Requesting: https://api-inference.modelscope.cn/v1/chat/completions, Mode: DEV, Localhost: true
+ [BaseProvider] Using Proxy: /api/universal-proxy -> https://api-inference.modelscope.cn/v1/chat/completions
+ [BaseProvider] Response received: 200 OK
+ [LLMProvider] Request completed in 5862ms
+ [LLMProvider] ========== API Response ==========
+ [LLMProvider] Response length: 897 characters
+ [LLMProvider] Prompt tokens: 1585
+ [LLMProvider] Completion tokens: 415
+ [LLMProvider] Total tokens: 2000
+ [LLMProvider] Response preview: ```json
+{
+  "name": "夏晚",
+  "gender": "female",
+  "age": "22",
+  "identity": "市场部实习生",
+  "appearance...
+ [ScriptParser] LLM response received, length: 897
+ [ScriptParser] LLM response received, length: 897 characters
+ [ScriptParser] JSON repaired using: extracted_from_code_block
+ [ScriptParser] Raw character data parsed
+ [ScriptParser] Character validated and completed:
+   - Name: 夏晚
+   - Gender: female
+   - Age: 22
+   - Identity: 市场部实习生
+   - Personality: 心思缜密, 善于观察, 隐忍果断, 投机取巧
+   - Visual Prompt: 【系统字段，将由程序自动生成，无需填写】...
+ [ScriptParser] Processing 6 remaining scenes
+ [ScriptParser] ---------- Extracting Scene: 鼎盛集团市场部 ----------
+ [ScriptParser] Found 1 paragraphs mentioning 鼎盛集团市场部
+ [ScriptParser] Scene content length: 1611 characters
+ [ScriptParser] Prompt length: 2113 characters
+ [ScriptParser] callLLM called, retryCount: 0
+ [ScriptParser] API URL: https://api-inference.modelscope.cn/v1
+ [ScriptParser] Model: Qwen/Qwen3.5-397B-A17B
+ [ScriptParser] Calling LLMProvider.generateText...
+ [LLMProvider] ========== API Request ==========
+ [LLMProvider] Endpoint: https://api-inference.modelscope.cn/v1/chat/completions
+ [LLMProvider] Model: Qwen/Qwen3.5-397B-A17B
+ [LLMProvider] enable_thinking: false
+ [LLMProvider] Temperature: 0.3
+ [LLMProvider] Max Tokens: 4000
+ [LLMProvider] Messages count: 2
+ [LLMProvider] First message length: 48 characters
+ [LLMProvider] Request body: {
+  "model": "Qwen/Qwen3.5-397B-A17B",
+  "messages": [
+    {
+      "role": "system",
+      "content": "你是一个专业的剧本分析助手，擅长从小说/剧本中提取结构化信息。请严格按照要求的JSON格式输出。"
+    },
+    {
+      "role": "user",
+      "content": "\n请分析以下剧本中的场景\"鼎盛集团市场部\"。\n\n【剧本内容】\n第一章 暗流\r\n鼎盛集团市场部，总监职位悬空三月，最终候选人锁定两人 —— 老员工沈若涵，与空降精英顾衍之。部门经理陈默态度暧昧，实习生夏晚则默默观察，四人的职场棋局，悄然落子。\r\n茶水间里，陈默端着咖啡凑到沈若涵身边，语气半是试探半是拉拢：“沈姐，论资历，这个总监位非你莫属，就是顾衍之那边，听说拿着总部的资源，来势汹汹。”\r\n沈若涵搅拌着咖啡，指尖微顿，抬眼时笑意不达眼底：“陈经理说笑了，凭实力竞争而已。倒是听说，顾衍之最近在抢你手上的城西项目？”\r\n陈默脸色微沉，没接话。沈若涵心中了然，陈...
+ [LLMProvider] Sending request...
+ [BaseProvider] Requesting: https://api-inference.modelscope.cn/v1/chat/completions, Mode: DEV, Localhost: true
+ [BaseProvider] Using Proxy: /api/universal-proxy -> https://api-inference.modelscope.cn/v1/chat/completions
+ [BaseProvider] Response received: 200 OK
+ [LLMProvider] Request completed in 5715ms
+ [LLMProvider] ========== API Response ==========
+ [LLMProvider] Response length: 714 characters
+ [LLMProvider] Prompt tokens: 1334
+ [LLMProvider] Completion tokens: 343
+ [LLMProvider] Total tokens: 1677
+ [LLMProvider] Response preview: ```json
+{
+  "name": "鼎盛集团市场部",
+  "locationType": "indoor",
+  "description": "鼎盛集团的核心部门，职场斗争的中心舞台。包含开...
+ [ScriptParser] LLM response received, length: 714
+ [ScriptParser] LLM response received, length: 714 characters
+ [ScriptParser] JSON repaired using: extracted_from_code_block
+ [ScriptParser] Raw scene data parsed
+ [ScriptParser] Scene validated and completed:
+   - Name: 鼎盛集团市场部
+   - Location Type: indoor
+   - Time of Day: 白天
+   - Weather: unknown
+   - Characters: 沈若涵, 顾衍之, 陈默, 夏晚
+   - Visual Prompt: 现代简约的开放式办公室，冷白光照明，玻璃隔断反射着忙碌身影。桌上散落文件与咖啡杯，人物神情各异，有的...
+ [ScriptParser] ---------- Extracting Scene: 茶水间 ----------
+ [ScriptParser] Found 1 paragraphs mentioning 茶水间
+ [ScriptParser] Scene content length: 1611 characters
+ [ScriptParser] Prompt length: 2109 characters
+ [ScriptParser] callLLM called, retryCount: 0
+ [ScriptParser] API URL: https://api-inference.modelscope.cn/v1
+ [ScriptParser] Model: Qwen/Qwen3.5-397B-A17B
+ [ScriptParser] Calling LLMProvider.generateText...
+ [LLMProvider] ========== API Request ==========
+ [LLMProvider] Endpoint: https://api-inference.modelscope.cn/v1/chat/completions
+ [LLMProvider] Model: Qwen/Qwen3.5-397B-A17B
+ [LLMProvider] enable_thinking: false
+ [LLMProvider] Temperature: 0.3
+ [LLMProvider] Max Tokens: 4000
+ [LLMProvider] Messages count: 2
+ [LLMProvider] First message length: 48 characters
+ [LLMProvider] Request body: {
+  "model": "Qwen/Qwen3.5-397B-A17B",
+  "messages": [
+    {
+      "role": "system",
+      "content": "你是一个专业的剧本分析助手，擅长从小说/剧本中提取结构化信息。请严格按照要求的JSON格式输出。"
+    },
+    {
+      "role": "user",
+      "content": "\n请分析以下剧本中的场景\"茶水间\"。\n\n【剧本内容】\n第一章 暗流\r\n鼎盛集团市场部，总监职位悬空三月，最终候选人锁定两人 —— 老员工沈若涵，与空降精英顾衍之。部门经理陈默态度暧昧，实习生夏晚则默默观察，四人的职场棋局，悄然落子。\r\n茶水间里，陈默端着咖啡凑到沈若涵身边，语气半是试探半是拉拢：“沈姐，论资历，这个总监位非你莫属，就是顾衍之那边，听说拿着总部的资源，来势汹汹。”\r\n沈若涵搅拌着咖啡，指尖微顿，抬眼时笑意不达眼底：“陈经理说笑了，凭实力竞争而已。倒是听说，顾衍之最近在抢你手上的城西项目？”\r\n陈默脸色微沉，没接话。沈若涵心中了然，陈默与顾衍...
+ [LLMProvider] Sending request...
+ [BaseProvider] Requesting: https://api-inference.modelscope.cn/v1/chat/completions, Mode: DEV, Localhost: true
+ [BaseProvider] Using Proxy: /api/universal-proxy -> https://api-inference.modelscope.cn/v1/chat/completions
+ [BaseProvider] Response received: 200 OK
+ [LLMProvider] Request completed in 4623ms
+ [LLMProvider] ========== API Response ==========
+ [LLMProvider] Response length: 643 characters
+ [LLMProvider] Prompt tokens: 1333
+ [LLMProvider] Completion tokens: 316
+ [LLMProvider] Total tokens: 1649
+ [LLMProvider] Response preview: ```json
+{
+  "name": "茶水间",
+  "locationType": "indoor",
+  "description": "鼎盛集团市场部的内部休息区域，是员工短暂放松与非正式交...
+ [ScriptParser] LLM response received, length: 643
+ [ScriptParser] LLM response received, length: 643 characters
+ [ScriptParser] JSON repaired using: extracted_from_code_block
+ [ScriptParser] Raw scene data parsed
+ [ScriptParser] Scene validated and completed:
+   - Name: 茶水间
+   - Location Type: indoor
+   - Time of Day: 下午
+   - Weather: unknown
+   - Characters: 陈默, 沈若涵
+   - Visual Prompt: 现代办公室茶水间，冷白光照明。陈默端着咖啡靠近沈若涵，两人站在吧台旁交谈。沈若涵手持勺子搅拌杯中咖啡...
+ [ScriptParser] ---------- Extracting Scene: 顾衍之办公室 ----------
+ [ScriptParser] Found 0 paragraphs mentioning 顾衍之办公室
+ [ScriptParser] Scene content length: 1611 characters
+ [ScriptParser] Prompt length: 2112 characters
+ [ScriptParser] callLLM called, retryCount: 0
+ [ScriptParser] API URL: https://api-inference.modelscope.cn/v1
+ [ScriptParser] Model: Qwen/Qwen3.5-397B-A17B
+ [ScriptParser] Calling LLMProvider.generateText...
+ [LLMProvider] ========== API Request ==========
+ [LLMProvider] Endpoint: https://api-inference.modelscope.cn/v1/chat/completions
+ [LLMProvider] Model: Qwen/Qwen3.5-397B-A17B
+ [LLMProvider] enable_thinking: false
+ [LLMProvider] Temperature: 0.3
+ [LLMProvider] Max Tokens: 4000
+ [LLMProvider] Messages count: 2
+ [LLMProvider] First message length: 48 characters
+ [LLMProvider] Request body: {
+  "model": "Qwen/Qwen3.5-397B-A17B",
+  "messages": [
+    {
+      "role": "system",
+      "content": "你是一个专业的剧本分析助手，擅长从小说/剧本中提取结构化信息。请严格按照要求的JSON格式输出。"
+    },
+    {
+      "role": "user",
+      "content": "\n请分析以下剧本中的场景\"顾衍之办公室\"。\n\n【剧本内容】\n第一章 暗流\r\n鼎盛集团市场部，总监职位悬空三月，最终候选人锁定两人 —— 老员工沈若涵，与空降精英顾衍之。部门经理陈默态度暧昧，实习生夏晚则默默观察，四人的职场棋局，悄然落子。\r\n茶水间里，陈默端着咖啡凑到沈若涵身边，语气半是试探半是拉拢：“沈姐，论资历，这个总监位非你莫属，就是顾衍之那边，听说拿着总部的资源，来势汹汹。”\r\n沈若涵搅拌着咖啡，指尖微顿，抬眼时笑意不达眼底：“陈经理说笑了，凭实力竞争而已。倒是听说，顾衍之最近在抢你手上的城西项目？”\r\n陈默脸色微沉，没接话。沈若涵心中了然，陈默...
+ [LLMProvider] Sending request...
+ [BaseProvider] Requesting: https://api-inference.modelscope.cn/v1/chat/completions, Mode: DEV, Localhost: true
+ [BaseProvider] Using Proxy: /api/universal-proxy -> https://api-inference.modelscope.cn/v1/chat/completions
+ [BaseProvider] Response received: 200 OK
+ [LLMProvider] Request completed in 5109ms
+ [LLMProvider] ========== API Response ==========
+ [LLMProvider] Response length: 659 characters
+ [LLMProvider] Prompt tokens: 1335
+ [LLMProvider] Completion tokens: 317
+ [LLMProvider] Total tokens: 1652
+ [LLMProvider] Response preview: ```json
+{
+  "name": "顾衍之办公室",
+  "locationType": "indoor",
+  "description": "鼎盛集团市场部总监候选人顾衍之的独立办公室，空间...
+ [ScriptParser] LLM response received, length: 659
+ [ScriptParser] LLM response received, length: 659 characters
+ [ScriptParser] JSON repaired using: extracted_from_code_block
+ [ScriptParser] Raw scene data parsed
+ [ScriptParser] Scene validated and completed:
+   - Name: 顾衍之办公室
+   - Location Type: indoor
+   - Time of Day: 下午
+   - Weather: unknown
+   - Characters: 顾衍之, 夏晚
+   - Visual Prompt: 现代冷峻的办公室内，一名年轻女实习生惊慌地蹲在地上收拾散落的文件，对面坐着一位神情冰冷的男高管，桌上...
+ [ScriptParser] ---------- Extracting Scene: 会议室 ----------
+ [ScriptParser] Found 0 paragraphs mentioning 会议室
+ [ScriptParser] Scene content length: 1611 characters
+ [ScriptParser] Prompt length: 2109 characters
+ [ScriptParser] callLLM called, retryCount: 0
+ [ScriptParser] API URL: https://api-inference.modelscope.cn/v1
+ [ScriptParser] Model: Qwen/Qwen3.5-397B-A17B
+ [ScriptParser] Calling LLMProvider.generateText...
+ [LLMProvider] ========== API Request ==========
+ [LLMProvider] Endpoint: https://api-inference.modelscope.cn/v1/chat/completions
+ [LLMProvider] Model: Qwen/Qwen3.5-397B-A17B
+ [LLMProvider] enable_thinking: false
+ [LLMProvider] Temperature: 0.3
+ [LLMProvider] Max Tokens: 4000
+ [LLMProvider] Messages count: 2
+ [LLMProvider] First message length: 48 characters
+ [LLMProvider] Request body: {
+  "model": "Qwen/Qwen3.5-397B-A17B",
+  "messages": [
+    {
+      "role": "system",
+      "content": "你是一个专业的剧本分析助手，擅长从小说/剧本中提取结构化信息。请严格按照要求的JSON格式输出。"
+    },
+    {
+      "role": "user",
+      "content": "\n请分析以下剧本中的场景\"会议室\"。\n\n【剧本内容】\n第一章 暗流\r\n鼎盛集团市场部，总监职位悬空三月，最终候选人锁定两人 —— 老员工沈若涵，与空降精英顾衍之。部门经理陈默态度暧昧，实习生夏晚则默默观察，四人的职场棋局，悄然落子。\r\n茶水间里，陈默端着咖啡凑到沈若涵身边，语气半是试探半是拉拢：“沈姐，论资历，这个总监位非你莫属，就是顾衍之那边，听说拿着总部的资源，来势汹汹。”\r\n沈若涵搅拌着咖啡，指尖微顿，抬眼时笑意不达眼底：“陈经理说笑了，凭实力竞争而已。倒是听说，顾衍之最近在抢你手上的城西项目？”\r\n陈默脸色微沉，没接话。沈若涵心中了然，陈默与顾衍...
+ [LLMProvider] Sending request...
+ [BaseProvider] Requesting: https://api-inference.modelscope.cn/v1/chat/completions, Mode: DEV, Localhost: true
+ [BaseProvider] Using Proxy: /api/universal-proxy -> https://api-inference.modelscope.cn/v1/chat/completions
+ [BaseProvider] Response received: 200 OK
+ [LLMProvider] Request completed in 4158ms
+ [LLMProvider] ========== API Response ==========
+ [LLMProvider] Response length: 612 characters
+ [LLMProvider] Prompt tokens: 1332
+ [LLMProvider] Completion tokens: 301
+ [LLMProvider] Total tokens: 1633
+ [LLMProvider] Response preview: ```json
+{
+  "name": "会议室",
+  "locationType": "indoor",
+  "description": "鼎盛集团市场部例会召开地，顾衍之在此抛出窃取创意的方案...
+ [ScriptParser] LLM response received, length: 612
+ [ScriptParser] LLM response received, length: 612 characters
+ [ScriptParser] JSON repaired using: extracted_from_code_block
+ [ScriptParser] Raw scene data parsed
+ [ScriptParser] Scene validated and completed:
+   - Name: 会议室
+   - Location Type: indoor
+   - Time of Day: 下午
+   - Weather: unknown
+   - Characters: 顾衍之, 陈默, 沈若涵, 夏晚
+   - Visual Prompt: 现代简约会议室，冷白光下长桌旁坐着神情各异的职员。顾衍之自信演讲，陈默脸色铁青握紧拳头，沈若涵旁观微...
+ [ScriptParser] ---------- Extracting Scene: 总部审计部 ----------
+ [ScriptParser] Found 1 paragraphs mentioning 总部审计部
+ [ScriptParser] Scene content length: 1611 characters
+ [ScriptParser] Prompt length: 2111 characters
+ [ScriptParser] callLLM called, retryCount: 0
+ [ScriptParser] API URL: https://api-inference.modelscope.cn/v1
+ [ScriptParser] Model: Qwen/Qwen3.5-397B-A17B
+ [ScriptParser] Calling LLMProvider.generateText...
+ [LLMProvider] ========== API Request ==========
+ [LLMProvider] Endpoint: https://api-inference.modelscope.cn/v1/chat/completions
+ [LLMProvider] Model: Qwen/Qwen3.5-397B-A17B
+ [LLMProvider] enable_thinking: false
+ [LLMProvider] Temperature: 0.3
+ [LLMProvider] Max Tokens: 4000
+ [LLMProvider] Messages count: 2
+ [LLMProvider] First message length: 48 characters
+ [LLMProvider] Request body: {
+  "model": "Qwen/Qwen3.5-397B-A17B",
+  "messages": [
+    {
+      "role": "system",
+      "content": "你是一个专业的剧本分析助手，擅长从小说/剧本中提取结构化信息。请严格按照要求的JSON格式输出。"
+    },
+    {
+      "role": "user",
+      "content": "\n请分析以下剧本中的场景\"总部审计部\"。\n\n【剧本内容】\n第一章 暗流\r\n鼎盛集团市场部，总监职位悬空三月，最终候选人锁定两人 —— 老员工沈若涵，与空降精英顾衍之。部门经理陈默态度暧昧，实习生夏晚则默默观察，四人的职场棋局，悄然落子。\r\n茶水间里，陈默端着咖啡凑到沈若涵身边，语气半是试探半是拉拢：“沈姐，论资历，这个总监位非你莫属，就是顾衍之那边，听说拿着总部的资源，来势汹汹。”\r\n沈若涵搅拌着咖啡，指尖微顿，抬眼时笑意不达眼底：“陈经理说笑了，凭实力竞争而已。倒是听说，顾衍之最近在抢你手上的城西项目？”\r\n陈默脸色微沉，没接话。沈若涵心中了然，陈默与...
+ [LLMProvider] Sending request...
+ [BaseProvider] Requesting: https://api-inference.modelscope.cn/v1/chat/completions, Mode: DEV, Localhost: true
+ [BaseProvider] Using Proxy: /api/universal-proxy -> https://api-inference.modelscope.cn/v1/chat/completions
+ [BaseProvider] Response received: 200 OK
+ [LLMProvider] Request completed in 4896ms
+ [LLMProvider] ========== API Response ==========
+ [LLMProvider] Response length: 657 characters
+ [LLMProvider] Prompt tokens: 1334
+ [LLMProvider] Completion tokens: 316
+ [LLMProvider] Total tokens: 1650
+ [LLMProvider] Response preview: ```json
+{
+  "name": "总部审计部",
+  "locationType": "indoor",
+  "description": "鼎盛集团总部审计部的办公区域，氛围严肃冷峻。此处是...
+ [ScriptParser] LLM response received, length: 657
+ [ScriptParser] LLM response received, length: 657 characters
+ [ScriptParser] JSON repaired using: extracted_from_code_block
+ [ScriptParser] Raw scene data parsed
+ [ScriptParser] Scene validated and completed:
+   - Name: 总部审计部
+   - Location Type: indoor
+   - Time of Day: afternoon
+   - Weather: unknown
+   - Characters: 顾衍之, 审计部人员
+   - Visual Prompt: 现代简约的审计办公室，冷白色灯光洒在灰色办公桌上，堆积的文件旁坐着一位神情紧绷的高管，对面是面无表情...
+ [ScriptParser] ---------- Extracting Scene: 沈若涵办公室 ----------
+ [ScriptParser] Found 0 paragraphs mentioning 沈若涵办公室
+ [ScriptParser] Scene content length: 1611 characters
+ [ScriptParser] Prompt length: 2112 characters
+ [ScriptParser] callLLM called, retryCount: 0
+ [ScriptParser] API URL: https://api-inference.modelscope.cn/v1
+ [ScriptParser] Model: Qwen/Qwen3.5-397B-A17B
+ [ScriptParser] Calling LLMProvider.generateText...
+ [LLMProvider] ========== API Request ==========
+ [LLMProvider] Endpoint: https://api-inference.modelscope.cn/v1/chat/completions
+ [LLMProvider] Model: Qwen/Qwen3.5-397B-A17B
+ [LLMProvider] enable_thinking: false
+ [LLMProvider] Temperature: 0.3
+ [LLMProvider] Max Tokens: 4000
+ [LLMProvider] Messages count: 2
+ [LLMProvider] First message length: 48 characters
+ [LLMProvider] Request body: {
+  "model": "Qwen/Qwen3.5-397B-A17B",
+  "messages": [
+    {
+      "role": "system",
+      "content": "你是一个专业的剧本分析助手，擅长从小说/剧本中提取结构化信息。请严格按照要求的JSON格式输出。"
+    },
+    {
+      "role": "user",
+      "content": "\n请分析以下剧本中的场景\"沈若涵办公室\"。\n\n【剧本内容】\n第一章 暗流\r\n鼎盛集团市场部，总监职位悬空三月，最终候选人锁定两人 —— 老员工沈若涵，与空降精英顾衍之。部门经理陈默态度暧昧，实习生夏晚则默默观察，四人的职场棋局，悄然落子。\r\n茶水间里，陈默端着咖啡凑到沈若涵身边，语气半是试探半是拉拢：“沈姐，论资历，这个总监位非你莫属，就是顾衍之那边，听说拿着总部的资源，来势汹汹。”\r\n沈若涵搅拌着咖啡，指尖微顿，抬眼时笑意不达眼底：“陈经理说笑了，凭实力竞争而已。倒是听说，顾衍之最近在抢你手上的城西项目？”\r\n陈默脸色微沉，没接话。沈若涵心中了然，陈默...
+ [LLMProvider] Sending request...
+ [BaseProvider] Requesting: https://api-inference.modelscope.cn/v1/chat/completions, Mode: DEV, Localhost: true
+ [BaseProvider] Using Proxy: /api/universal-proxy -> https://api-inference.modelscope.cn/v1/chat/completions
+ [BaseProvider] Response received: 200 OK
+ [LLMProvider] Request completed in 4481ms
+ [LLMProvider] ========== API Response ==========
+ [LLMProvider] Response length: 735 characters
+ [LLMProvider] Prompt tokens: 1335
+ [LLMProvider] Completion tokens: 320
+ [LLMProvider] Total tokens: 1655
+ [LLMProvider] Response preview: ```json
+{
+  "name": "沈若涵办公室",
+  "locationType": "indoor",
+  "description": "鼎盛集团市场部总监办公室，空间宽敞整洁，布置现代...
+ [ScriptParser] LLM response received, length: 735
+ [ScriptParser] LLM response received, length: 735 characters
+ [ScriptParser] JSON repaired using: extracted_from_code_block
+ [ScriptParser] Raw scene data parsed
+ [ScriptParser] Scene validated and completed:
+   - Name: 沈若涵办公室
+   - Location Type: indoor
+   - Time of Day: afternoon
+   - Weather: sunny
+   - Characters: 沈若涵, 顾衍之, 夏晚, 陈默
+   - Visual Prompt: 现代明亮的办公室内，阳光透过落地窗洒在桌面上。沈若涵端坐于皮椅上手持茶杯，神情从容淡定。对面站着神色...
+ [ScriptParser] Processing shots for 6 remaining scenes
+ [ScriptParser] ---------- Generating Shots for Scene: 鼎盛集团市场部 ----------
+ [ScriptParser] Scene content length: 1611 characters
+ [ScriptParser] Prompt length: 2244 characters
+ [ScriptParser] Characters in scene: 沈若涵, 顾衍之, 陈默, 夏晚
+ [ScriptParser] callLLM called, retryCount: 0
+ [ScriptParser] API URL: https://api-inference.modelscope.cn/v1
+ [ScriptParser] Model: Qwen/Qwen3.5-397B-A17B
+ [ScriptParser] Calling LLMProvider.generateText...
+ [LLMProvider] ========== API Request ==========
+ [LLMProvider] Endpoint: https://api-inference.modelscope.cn/v1/chat/completions
+ [LLMProvider] Model: Qwen/Qwen3.5-397B-A17B
+ [LLMProvider] enable_thinking: false
+ [LLMProvider] Temperature: 0.3
+ [LLMProvider] Max Tokens: 4000
+ [LLMProvider] Messages count: 2
+ [LLMProvider] First message length: 48 characters
+ [LLMProvider] Request body: {
+  "model": "Qwen/Qwen3.5-397B-A17B",
+  "messages": [
+    {
+      "role": "system",
+      "content": "你是一个专业的剧本分析助手，擅长从小说/剧本中提取结构化信息。请严格按照要求的JSON格式输出。"
+    },
+    {
+      "role": "user",
+      "content": "\n请为以下场景生成分镜脚本。\n\n【场景信息】\n场景名称: 鼎盛集团市场部\n场景描述: 鼎盛集团的核心部门，职场斗争的中心舞台。包含开放式办公区、经理办公室、总监办公室及茶水间。氛围紧张压抑，充满了暗流涌动的博弈气息，见证了创意窃取、证据交换与权力更迭的全过程。\n涉及角色: 沈若涵, 顾衍之, 陈默, 夏晚\n\n【剧本原文】\n第一章 暗流\r\n鼎盛集团市场部，总监职位悬空三月，最终候选人锁定两人 —— 老员工沈若涵，与空降精英顾衍之。部门经理陈默态度暧昧，实习生夏晚则默默观察，四人的职场棋局，悄然落子。\r\n茶水间里，陈默端着咖啡凑到沈若涵身边，语气半是试探半是拉...
+ [LLMProvider] Sending request...
+ [BaseProvider] Requesting: https://api-inference.modelscope.cn/v1/chat/completions, Mode: DEV, Localhost: true
+ [BaseProvider] Using Proxy: /api/universal-proxy -> https://api-inference.modelscope.cn/v1/chat/completions
+ [BaseProvider] Response received: 200 OK
+ [LLMProvider] Request completed in 26566ms
+ [LLMProvider] ========== API Response ==========
+ [LLMProvider] Response length: 4958 characters
+ [LLMProvider] Prompt tokens: 1436
+ [LLMProvider] Completion tokens: 2329
+ [LLMProvider] Total tokens: 3765
+ [LLMProvider] Response preview: ```json
+[
+  {
+    "sequence": 1,
+    "shotType": "full",
+    "cameraMovement": "static",
+    "descri...
+ [ScriptParser] LLM response received, length: 4958
+ [ScriptParser] LLM response received, length: 4958 characters
+ [ScriptParser] JSON repaired using: extracted_from_code_block
+ [ScriptParser] Generated 18 shots
+ [ScriptParser] Shot 1:
+   - Sequence: 1
+   - Type: full
+   - Movement: static
+   - Duration: 5s
+   - Description: 鼎盛集团市场部全景，开放式办公区忙碌而压抑，员工们低头工作，空气中弥漫着紧张气氛...
+ [ScriptParser] Shot 2:
+   - Sequence: 2
+   - Type: medium
+   - Movement: track
+   - Duration: 6s
+   - Description: 茶水间内，陈默端着咖啡走向正在搅拌咖啡的沈若涵，脸上带着试探性的笑容。...
+ [ScriptParser] Shot 3:
+   - Sequence: 3
+   - Type: close_up
+   - Movement: static
+   - Duration: 5s
+   - Description: 沈若涵的手指尖微顿，随后抬眼，眼神笑意不达眼底，语气平静却暗藏锋芒。...
+ [ScriptParser] Validating shots quality for scene: 鼎盛集团市场部
+ [ScriptParser] Shots quality passed: 89
+ [ScriptParser] Suggestions: 发现1个警告，建议优化
+ [ScriptParser] ---------- Generating Shots for Scene: 茶水间 ----------
+ [ScriptParser] Scene content length: 1611 characters
+ [ScriptParser] Prompt length: 2207 characters
+ [ScriptParser] Characters in scene: 陈默, 沈若涵
+ [ScriptParser] callLLM called, retryCount: 0
+ [ScriptParser] API URL: https://api-inference.modelscope.cn/v1
+ [ScriptParser] Model: Qwen/Qwen3.5-397B-A17B
+ [ScriptParser] Calling LLMProvider.generateText...
+ [LLMProvider] ========== API Request ==========
+ [LLMProvider] Endpoint: https://api-inference.modelscope.cn/v1/chat/completions
+ [LLMProvider] Model: Qwen/Qwen3.5-397B-A17B
+ [LLMProvider] enable_thinking: false
+ [LLMProvider] Temperature: 0.3
+ [LLMProvider] Max Tokens: 4000
+ [LLMProvider] Messages count: 2
+ [LLMProvider] First message length: 48 characters
+ [LLMProvider] Request body: {
+  "model": "Qwen/Qwen3.5-397B-A17B",
+  "messages": [
+    {
+      "role": "system",
+      "content": "你是一个专业的剧本分析助手，擅长从小说/剧本中提取结构化信息。请严格按照要求的JSON格式输出。"
+    },
+    {
+      "role": "user",
+      "content": "\n请为以下场景生成分镜脚本。\n\n【场景信息】\n场景名称: 茶水间\n场景描述: 鼎盛集团市场部的内部休息区域，是员工短暂放松与非正式交流的场所。此处发生了陈默试探沈若涵的关键对话，气氛表面平和实则暗流涌动。\n涉及角色: 陈默, 沈若涵\n\n【剧本原文】\n第一章 暗流\r\n鼎盛集团市场部，总监职位悬空三月，最终候选人锁定两人 —— 老员工沈若涵，与空降精英顾衍之。部门经理陈默态度暧昧，实习生夏晚则默默观察，四人的职场棋局，悄然落子。\r\n茶水间里，陈默端着咖啡凑到沈若涵身边，语气半是试探半是拉拢：“沈姐，论资历，这个总监位非你莫属，就是顾衍之那边，听说拿着总部的资源...
+ [LLMProvider] Sending request...
+ [BaseProvider] Requesting: https://api-inference.modelscope.cn/v1/chat/completions, Mode: DEV, Localhost: true
+ [BaseProvider] Using Proxy: /api/universal-proxy -> https://api-inference.modelscope.cn/v1/chat/completions
+ [BaseProvider] Response received: 200 OK
+ [LLMProvider] Request completed in 13231ms
+ [LLMProvider] ========== API Response ==========
+ [LLMProvider] Response length: 2372 characters
+ [LLMProvider] Prompt tokens: 1414
+ [LLMProvider] Completion tokens: 1073
+ [LLMProvider] Total tokens: 2487
+ [LLMProvider] Response preview: ```json
+[
+  {
+    "sequence": 1,
+    "shotType": "full",
+    "cameraMovement": "static",
+    "descri...
+ [ScriptParser] LLM response received, length: 2372
+ [ScriptParser] LLM response received, length: 2372 characters
+ [ScriptParser] JSON repaired using: extracted_from_code_block
+ [ScriptParser] Generated 9 shots
+ [ScriptParser] Shot 1:
+   - Sequence: 1
+   - Type: full
+   - Movement: static
+   - Duration: 4s
+   - Description: 鼎盛集团茶水间全景，明亮的灯光下，几名员工在背景处低声交谈或接水。前景中，沈若涵...
+ [ScriptParser] Shot 2:
+   - Sequence: 2
+   - Type: medium
+   - Movement: track
+   - Duration: 3s
+   - Description: 陈默端着冒着热气的咖啡杯，从画面左侧入画，脚步轻快地走向沈若涵，脸上挂着看似随意...
+ [ScriptParser] Shot 3:
+   - Sequence: 3
+   - Type: close_up
+   - Movement: push
+   - Duration: 5s
+   - Description: 镜头推进至陈默的面部特写，他微微侧头靠近沈若涵，眼神中透着一丝试探和拉拢的意味。...
+ [ScriptParser] Validating shots quality for scene: 茶水间
+ [ScriptParser] Shots quality passed: 89
+ [ScriptParser] Suggestions: 发现1个警告，建议优化
+ [ScriptParser] ---------- Generating Shots for Scene: 顾衍之办公室 ----------
+ [ScriptParser] Scene content length: 1611 characters
+ [ScriptParser] Prompt length: 2228 characters
+ [ScriptParser] Characters in scene: 顾衍之, 夏晚
+ [ScriptParser] callLLM called, retryCount: 0
+ [ScriptParser] API URL: https://api-inference.modelscope.cn/v1
+ [ScriptParser] Model: Qwen/Qwen3.5-397B-A17B
+ [ScriptParser] Calling LLMProvider.generateText...
+ [LLMProvider] ========== API Request ==========
+ [LLMProvider] Endpoint: https://api-inference.modelscope.cn/v1/chat/completions
+ [LLMProvider] Model: Qwen/Qwen3.5-397B-A17B
+ [LLMProvider] enable_thinking: false
+ [LLMProvider] Temperature: 0.3
+ [LLMProvider] Max Tokens: 4000
+ [LLMProvider] Messages count: 2
+ [LLMProvider] First message length: 48 characters
+ [LLMProvider] Request body: {
+  "model": "Qwen/Qwen3.5-397B-A17B",
+  "messages": [
+    {
+      "role": "system",
+      "content": "你是一个专业的剧本分析助手，擅长从小说/剧本中提取结构化信息。请严格按照要求的JSON格式输出。"
+    },
+    {
+      "role": "user",
+      "content": "\n请为以下场景生成分镜脚本。\n\n【场景信息】\n场景名称: 顾衍之办公室\n场景描述: 鼎盛集团市场部总监候选人顾衍之的独立办公室，空间现代冷峻。场景中发生了实习生夏晚故意碰掉笔记本窃取机密的关键情节，以及后续顾衍之发现文件丢失后质问夏晚的冲突场面。\n涉及角色: 顾衍之, 夏晚\n\n【剧本原文】\n第一章 暗流\r\n鼎盛集团市场部，总监职位悬空三月，最终候选人锁定两人 —— 老员工沈若涵，与空降精英顾衍之。部门经理陈默态度暧昧，实习生夏晚则默默观察，四人的职场棋局，悄然落子。\r\n茶水间里，陈默端着咖啡凑到沈若涵身边，语气半是试探半是拉拢：“沈姐，论资历，这个总监位非...
+ [LLMProvider] Sending request...
+ [BaseProvider] Requesting: https://api-inference.modelscope.cn/v1/chat/completions, Mode: DEV, Localhost: true
+ [BaseProvider] Using Proxy: /api/universal-proxy -> https://api-inference.modelscope.cn/v1/chat/completions
+ [BaseProvider] Response received: 200 OK
+ [LLMProvider] Request completed in 21095ms
+ [LLMProvider] ========== API Response ==========
+ [LLMProvider] Response length: 3746 characters
+ [LLMProvider] Prompt tokens: 1427
+ [LLMProvider] Completion tokens: 1706
+ [LLMProvider] Total tokens: 3133
+ [LLMProvider] Response preview: ```json
+[
+  {
+    "sequence": 1,
+    "shotType": "full",
+    "cameraMovement": "static",
+    "descri...
+ [ScriptParser] LLM response received, length: 3746
+ [ScriptParser] LLM response received, length: 3746 characters
+ [ScriptParser] JSON repaired using: extracted_from_code_block
+ [ScriptParser] Generated 14 shots
+ [ScriptParser] Shot 1:
+   - Sequence: 1
+   - Type: full
+   - Movement: static
+   - Duration: 4s
+   - Description: 顾衍之办公室全景，现代冷峻的装修风格，巨大的落地窗透进冷冽的光线。顾衍之坐在宽大...
+ [ScriptParser] Shot 2:
+   - Sequence: 2
+   - Type: medium
+   - Movement: track
+   - Duration: 3s
+   - Description: 镜头跟随夏晚的动作，她缓缓将文件放在桌上，眼神快速扫过桌面，锁定在顾衍之手边的黑...
+ [ScriptParser] Shot 3:
+   - Sequence: 3
+   - Type: close_up
+   - Movement: static
+   - Duration: 2s
+   - Description: 特写夏晚的手部动作，她在放下文件时故意手肘一拐，碰倒了桌上的笔记本。笔记本滑落，...
+ [ScriptParser] Validating shots quality for scene: 顾衍之办公室
+ [ScriptParser] Shots quality passed: 89
+ [ScriptParser] Suggestions: 发现1个警告，建议优化
+ [ScriptParser] ---------- Generating Shots for Scene: 会议室 ----------
+ [ScriptParser] Scene content length: 1611 characters
+ [ScriptParser] Prompt length: 2208 characters
+ [ScriptParser] Characters in scene: 顾衍之, 陈默, 沈若涵, 夏晚
+ [ScriptParser] callLLM called, retryCount: 0
+ [ScriptParser] API URL: https://api-inference.modelscope.cn/v1
+ [ScriptParser] Model: Qwen/Qwen3.5-397B-A17B
+ [ScriptParser] Calling LLMProvider.generateText...
+ [LLMProvider] ========== API Request ==========
+ [LLMProvider] Endpoint: https://api-inference.modelscope.cn/v1/chat/completions
+ [LLMProvider] Model: Qwen/Qwen3.5-397B-A17B
+ [LLMProvider] enable_thinking: false
+ [LLMProvider] Temperature: 0.3
+ [LLMProvider] Max Tokens: 4000
+ [LLMProvider] Messages count: 2
+ [LLMProvider] First message length: 48 characters
+ [LLMProvider] Request body: {
+  "model": "Qwen/Qwen3.5-397B-A17B",
+  "messages": [
+    {
+      "role": "system",
+      "content": "你是一个专业的剧本分析助手，擅长从小说/剧本中提取结构化信息。请严格按照要求的JSON格式输出。"
+    },
+    {
+      "role": "user",
+      "content": "\n请为以下场景生成分镜脚本。\n\n【场景信息】\n场景名称: 会议室\n场景描述: 鼎盛集团市场部例会召开地，顾衍之在此抛出窃取创意的方案，引发陈默的愤怒与后续冲突，是职场博弈公开化的关键场所。\n涉及角色: 顾衍之, 陈默, 沈若涵, 夏晚\n\n【剧本原文】\n第一章 暗流\r\n鼎盛集团市场部，总监职位悬空三月，最终候选人锁定两人 —— 老员工沈若涵，与空降精英顾衍之。部门经理陈默态度暧昧，实习生夏晚则默默观察，四人的职场棋局，悄然落子。\r\n茶水间里，陈默端着咖啡凑到沈若涵身边，语气半是试探半是拉拢：“沈姐，论资历，这个总监位非你莫属，就是顾衍之那边，听说拿着总部的资...
+ [LLMProvider] Sending request...
+ [BaseProvider] Requesting: https://api-inference.modelscope.cn/v1/chat/completions, Mode: DEV, Localhost: true
+ [BaseProvider] Using Proxy: /api/universal-proxy -> https://api-inference.modelscope.cn/v1/chat/completions
+ [BaseProvider] Response received: 200 OK
+ [LLMProvider] Request completed in 19791ms
+ [LLMProvider] ========== API Response ==========
+ [LLMProvider] Response length: 3392 characters
+ [LLMProvider] Prompt tokens: 1420
+ [LLMProvider] Completion tokens: 1591
+ [LLMProvider] Total tokens: 3011
+ [LLMProvider] Response preview: ```json
+[
+  {
+    "sequence": 1,
+    "shotType": "full",
+    "cameraMovement": "static",
+    "descri...
+ [ScriptParser] LLM response received, length: 3392
+ [ScriptParser] LLM response received, length: 3392 characters
+ [ScriptParser] JSON repaired using: extracted_from_code_block
+ [ScriptParser] Generated 12 shots
+ [ScriptParser] Shot 1:
+   - Sequence: 1
+   - Type: full
+   - Movement: static
+   - Duration: 4s
+   - Description: 鼎盛集团会议室全景，长桌两侧坐满员工，气氛凝重。顾衍之站在投影屏前，自信地展示 ...
+ [ScriptParser] Shot 2:
+   - Sequence: 2
+   - Type: medium
+   - Movement: push
+   - Duration: 5s
+   - Description: 镜头缓缓推向顾衍之，他手持激光笔，指着屏幕上的方案核心数据，嘴角带着一丝不易察觉...
+ [ScriptParser] Shot 3:
+   - Sequence: 3
+   - Type: close_up
+   - Movement: static
+   - Duration: 3s
+   - Description: 特写陈默的脸部，他的眼神从震惊转为愤怒，额角青筋微跳，死死盯着屏幕上那些熟悉的创...
+ [ScriptParser] Validating shots quality for scene: 会议室
+ [ScriptParser] Shots quality passed: 89
+ [ScriptParser] Suggestions: 发现1个警告，建议优化
+ [ScriptParser] ---------- Generating Shots for Scene: 总部审计部 ----------
+ [ScriptParser] Scene content length: 1611 characters
+ [ScriptParser] Prompt length: 2240 characters
+ [ScriptParser] Characters in scene: 顾衍之, 审计部人员
+ [ScriptParser] callLLM called, retryCount: 0
+ [ScriptParser] API URL: https://api-inference.modelscope.cn/v1
+ [ScriptParser] Model: Qwen/Qwen3.5-397B-A17B
+ [ScriptParser] Calling LLMProvider.generateText...
+ [LLMProvider] ========== API Request ==========
+ [LLMProvider] Endpoint: https://api-inference.modelscope.cn/v1/chat/completions
+ [LLMProvider] Model: Qwen/Qwen3.5-397B-A17B
+ [LLMProvider] enable_thinking: false
+ [LLMProvider] Temperature: 0.3
+ [LLMProvider] Max Tokens: 4000
+ [LLMProvider] Messages count: 2
+ [LLMProvider] First message length: 48 characters
+ [LLMProvider] Request body: {
+  "model": "Qwen/Qwen3.5-397B-A17B",
+  "messages": [
+    {
+      "role": "system",
+      "content": "你是一个专业的剧本分析助手，擅长从小说/剧本中提取结构化信息。请严格按照要求的JSON格式输出。"
+    },
+    {
+      "role": "user",
+      "content": "\n请为以下场景生成分镜脚本。\n\n【场景信息】\n场景名称: 总部审计部\n场景描述: 鼎盛集团总部审计部的办公区域，氛围严肃冷峻。此处是顾衍之被约谈调查的关键地点，象征着公司规则与权力的审判庭。虽然文中未直接描写内部细节，但作为介入调查的核心场所，充满了压抑的紧张感。\n涉及角色: 顾衍之, 审计部人员\n\n【剧本原文】\n第一章 暗流\r\n鼎盛集团市场部，总监职位悬空三月，最终候选人锁定两人 —— 老员工沈若涵，与空降精英顾衍之。部门经理陈默态度暧昧，实习生夏晚则默默观察，四人的职场棋局，悄然落子。\r\n茶水间里，陈默端着咖啡凑到沈若涵身边，语气半是试探半是拉拢：“沈...
+ [LLMProvider] Sending request...
+ [BaseProvider] Requesting: https://api-inference.modelscope.cn/v1/chat/completions, Mode: DEV, Localhost: true
+ [BaseProvider] Using Proxy: /api/universal-proxy -> https://api-inference.modelscope.cn/v1/chat/completions
+ [BaseProvider] Response received: 200 OK
+ [LLMProvider] Request completed in 22894ms
+ [LLMProvider] ========== API Response ==========
+ [LLMProvider] Response length: 3665 characters
+ [LLMProvider] Prompt tokens: 1433
+ [LLMProvider] Completion tokens: 1682
+ [LLMProvider] Total tokens: 3115
+ [LLMProvider] Response preview: ```json
+[
+  {
+    "sequence": 1,
+    "shotType": "extreme_long",
+    "cameraMovement": "static",
+   ...
+ [ScriptParser] LLM response received, length: 3665
+ [ScriptParser] LLM response received, length: 3665 characters
+ [ScriptParser] JSON repaired using: extracted_from_code_block
+ [ScriptParser] Generated 13 shots
+ [ScriptParser] Shot 1:
+   - Sequence: 1
+   - Type: extreme_long
+   - Movement: static
+   - Duration: 4s
+   - Description: 鼎盛集团总部大楼外景，玻璃幕墙反射着冷冽的日光，镜头缓缓下移聚焦到审计部所在的楼...
+ [ScriptParser] Shot 2:
+   - Sequence: 2
+scriptParser.ts:1102   - Type: long
+scriptParser.ts:1103   - Movement: track
+scriptParser.ts:1104   - Duration: 5s
+scriptParser.ts:1105   - Description: 镜头穿过审计部厚重的玻璃门，扫过整齐划一却空无一人的工位，最终停留在尽头一间紧闭...
+scriptParser.ts:1100 [ScriptParser] Shot 3:
+scriptParser.ts:1101   - Sequence: 3
+scriptParser.ts:1102   - Type: medium
+scriptParser.ts:1103   - Movement: push
+scriptParser.ts:1104   - Duration: 4s
+scriptParser.ts:1105   - Description: 会议室内部，顾衍之独自坐在金属质感的长桌一端，双手交握放在桌上，指节因用力而微微...
+scriptParser.ts:1131 [ScriptParser] Validating shots quality for scene: 总部审计部
+scriptParser.ts:1151 [ScriptParser] Shots quality passed: 89
+scriptParser.ts:1155 [ScriptParser] Suggestions: 发现1个警告，建议优化
+storage.ts:647 [STORAGE] Slow FileSystem write: scripts_9b41f2ce-0402-4d24-94ef-c84ea5562b05.json took 107.40ms
+scriptParser.ts:1068 [ScriptParser] ---------- Generating Shots for Scene: 沈若涵办公室 ----------
+scriptParser.ts:1083 [ScriptParser] Scene content length: 1611 characters
+scriptParser.ts:1090 [ScriptParser] Prompt length: 2228 characters
+scriptParser.ts:1091 [ScriptParser] Characters in scene: 沈若涵, 顾衍之, 夏晚, 陈默
+scriptParser.ts:778 [ScriptParser] callLLM called, retryCount: 0
+scriptParser.ts:779 [ScriptParser] API URL: https://api-inference.modelscope.cn/v1
+scriptParser.ts:780 [ScriptParser] Model: Qwen/Qwen3.5-397B-A17B
+scriptParser.ts:809 [ScriptParser] Calling LLMProvider.generateText...
+LLMProvider.ts:78 [LLMProvider] ========== API Request ==========
+LLMProvider.ts:79 [LLMProvider] Endpoint: https://api-inference.modelscope.cn/v1/chat/completions
+LLMProvider.ts:80 [LLMProvider] Model: Qwen/Qwen3.5-397B-A17B
+LLMProvider.ts:81 [LLMProvider] enable_thinking: false
+LLMProvider.ts:82 [LLMProvider] Temperature: 0.3
+LLMProvider.ts:83 [LLMProvider] Max Tokens: 4000
+LLMProvider.ts:84 [LLMProvider] Messages count: 2
+LLMProvider.ts:85 [LLMProvider] First message length: 48 characters
+LLMProvider.ts:86 [LLMProvider] Request body: {
+  "model": "Qwen/Qwen3.5-397B-A17B",
+  "messages": [
+    {
+      "role": "system",
+      "content": "你是一个专业的剧本分析助手，擅长从小说/剧本中提取结构化信息。请严格按照要求的JSON格式输出。"
+    },
+    {
+      "role": "user",
+      "content": "\n请为以下场景生成分镜脚本。\n\n【场景信息】\n场景名称: 沈若涵办公室\n场景描述: 鼎盛集团市场部总监办公室，空间宽敞整洁，布置现代简约。沈若涵在此与顾衍之进行最终对峙，并接受了陈默的臣服与夏晚的效忠，见证了职场博弈的最终落幕。\n涉及角色: 沈若涵, 顾衍之, 夏晚, 陈默\n\n【剧本原文】\n第一章 暗流\r\n鼎盛集团市场部，总监职位悬空三月，最终候选人锁定两人 —— 老员工沈若涵，与空降精英顾衍之。部门经理陈默态度暧昧，实习生夏晚则默默观察，四人的职场棋局，悄然落子。\r\n茶水间里，陈默端着咖啡凑到沈若涵身边，语气半是试探半是拉拢：“沈姐，论资历，这个总监位非...
+LLMProvider.ts:88 [LLMProvider] Sending request...
+BaseProvider.ts:63 [BaseProvider] Requesting: https://api-inference.modelscope.cn/v1/chat/completions, Mode: DEV, Localhost: true
+BaseProvider.ts:84 [BaseProvider] Using Proxy: /api/universal-proxy -> https://api-inference.modelscope.cn/v1/chat/completions
+BaseProvider.ts:99 [BaseProvider] Response received: 200 OK
+LLMProvider.ts:101 [LLMProvider] Request completed in 21333ms
+LLMProvider.ts:115 [LLMProvider] ========== API Response ==========
+LLMProvider.ts:116 [LLMProvider] Response length: 4141 characters
+LLMProvider.ts:117 [LLMProvider] Prompt tokens: 1435
+LLMProvider.ts:118 [LLMProvider] Completion tokens: 1931
+LLMProvider.ts:119 [LLMProvider] Total tokens: 3366
+LLMProvider.ts:120 [LLMProvider] Response preview: ```json
+[
+  {
+    "sequence": 1,
+    "shotType": "full",
+    "cameraMovement": "static",
+    "descri...
+scriptParser.ts:833 [ScriptParser] LLM response received, length: 4141
+scriptParser.ts:1094 [ScriptParser] LLM response received, length: 4141 characters
+scriptParser.ts:868 [ScriptParser] JSON repaired using: extracted_from_code_block
+scriptParser.ts:1097 [ScriptParser] Generated 15 shots
+scriptParser.ts:1100 [ScriptParser] Shot 1:
+scriptParser.ts:1101   - Sequence: 1
+scriptParser.ts:1102   - Type: full
+scriptParser.ts:1103   - Movement: static
+scriptParser.ts:1104   - Duration: 5s
+scriptParser.ts:1105   - Description: 鼎盛集团市场部总监办公室全景。空间宽敞明亮，现代简约风格。沈若涵坐在宽大的办公桌...
+scriptParser.ts:1100 [ScriptParser] Shot 2:
+scriptParser.ts:1101   - Sequence: 2
+scriptParser.ts:1102   - Type: medium
+scriptParser.ts:1103   - Movement: push
+scriptParser.ts:1104   - Duration: 6s
+scriptParser.ts:1105   - Description: 镜头缓缓推向顾衍之，他双手撑在桌面上，身体前倾，眼神充满威胁。...
+scriptParser.ts:1100 [ScriptParser] Shot 3:
+scriptParser.ts:1101   - Sequence: 3
+scriptParser.ts:1102   - Type: close_up
+scriptParser.ts:1103   - Movement: static
+scriptParser.ts:1104   - Duration: 4s
+scriptParser.ts:1105   - Description: 沈若涵的面部特写。她嘴角微微上扬，眼神平静如水，完全没有被威胁到的慌乱。...
+scriptParser.ts:1131 [ScriptParser] Validating shots quality for scene: 沈若涵办公室
+scriptParser.ts:1151 [ScriptParser] Shots quality passed: 89
+scriptParser.ts:1155 [ScriptParser] Suggestions: 发现1个警告，建议优化
+scriptParser.ts:1488 [ScriptParser] Quality report saved to parse state
+ScriptManager.tsx:454 [ScriptManager] Quality report received: Object
+ScriptManager.tsx:111 [ScriptManager] Quality report restored from parseState: Object
+AppContext.tsx:24 [STORAGE] Connection check: Connected=true, Responsive=true
+ShotManager.tsx:589 [ShotManager] 开始拆分关键帧...
+ShotManager.tsx:590 [ShotManager] projectId: 9b41f2ce-0402-4d24-94ef-c84ea5562b05
+ShotManager.tsx:591 [ShotManager] currentScript: script_1772256555797_kn43fom88
+ShotManager.tsx:592 [ShotManager] selectedShotForSplit: 998f89e8-ab87-4e2c-9a24-ca38094c4567
+ShotManager.tsx:593 [ShotManager] selectedLLMModel: e458cf02-9b74-4df0-af56-2db7d5798298
+ShotManager.tsx:603 [ShotManager] 选择的模型配置: Object
+ShotManager.tsx:624 [ShotManager] 调用 keyframeService.splitKeyframes...
+ShotManager.tsx:633 [ShotManager] 拆分关键帧时找到的角色资产: Array(0)
+ShotManager.tsx:634 [ShotManager] 拆分关键帧时找到的场景资产: Object
+aiService.ts:293 [AIService] Generating text with model config ID: e458cf02-9b74-4df0-af56-2db7d5798298
+aiService.ts:224 [AIService] Resolved model configuration for 'e458cf02-9b74-4df0-af56-2db7d5798298': Qwen3.5-397B (Qwen/Qwen3.5-397B-A17B)
+ModelscopeProvider.ts:215 [ModelscopeProvider] LLM Request: https://api-inference.modelscope.cn/v1/chat/completions
+ModelscopeProvider.ts:216 [ModelscopeProvider] Model: Qwen/Qwen3.5-397B-A17B
+BaseProvider.ts:63 [BaseProvider] Requesting: https://api-inference.modelscope.cn/v1/chat/completions, Mode: DEV, Localhost: true
+BaseProvider.ts:84 [BaseProvider] Using Proxy: /api/universal-proxy -> https://api-inference.modelscope.cn/v1/chat/completions
+BaseProvider.ts:99 [BaseProvider] Response received: 200 OK
+ModelscopeProvider.ts:239 [ModelscopeProvider] LLM Response received, length: 686 chars
+ShotManager.tsx:644 [ShotManager] 拆分成功，关键帧数量: 2

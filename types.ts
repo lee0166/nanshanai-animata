@@ -255,6 +255,30 @@ export interface ScriptItem {
   mappedAssetId?: string;
 }
 
+/**
+ * Rule violation severity
+ */
+export type RuleSeverity = 'critical' | 'warning' | 'info';
+
+/**
+ * Rule violation interface
+ */
+export interface RuleViolation {
+  rule: string;
+  message: string;
+  severity: RuleSeverity;
+  sceneName?: string;
+}
+
+/**
+ * Quality report interface for script analysis
+ */
+export interface QualityReport {
+  score: number;
+  violations: RuleViolation[];
+  suggestions: string[];
+}
+
 export interface ScriptParseState {
   stage: ParseStage;
   progress: number; // 0-100
@@ -266,6 +290,7 @@ export interface ScriptParseState {
   error?: string;
   currentChunkIndex?: number;
   totalChunks?: number;
+  qualityReport?: QualityReport;
 }
 
 export interface ScriptMetadata {
