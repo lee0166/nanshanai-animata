@@ -28,3 +28,29 @@ package-lock.json
 dev
 
 build/
+
+# 开发辅助文件
+ANALYSIS_REPORT.md
+commit-msg.txt
+commit.sh
+start-dev.ps1
+liucheng.html
+控制台日志.txt
+CLAUDE.md
+CHARACTER_GENERATION_GUIDE.md
+IMAGE_MODEL_PARAMS_GUIDE.md
+VIDEO_MODEL_PARAMS_GUIDE.md
+小说解析流程文档.md
+小说转短剧解析系统_融合优化方案_v2.0.md
+融合方案_实施细节与代码示例*.md
+
+# 开发文档目录
+docs/
+
+# 隐私/敏感文件
+settings-instruction.txt
+metadata.json
+
+# 备份文件
+*.backup
+*.bak
