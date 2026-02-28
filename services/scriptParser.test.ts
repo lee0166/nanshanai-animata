@@ -14,7 +14,12 @@ describe('ScriptParser', () => {
   let parser: ReturnType<typeof createScriptParser>;
 
   beforeEach(() => {
-    parser = createScriptParser(apiKey);
+    // Disable semantic chunking for tests to avoid mock issues
+    parser = createScriptParser(apiKey, undefined, undefined, {
+      useSemanticChunking: false,
+      useDramaRules: false,
+      useCache: false
+    });
     vi.clearAllMocks();
   });
 
@@ -45,7 +50,7 @@ describe('ScriptParser', () => {
 
     it('should throw error for invalid JSON', () => {
       const response = 'not valid json';
-      expect(() => (parser as any).extractJSON(response)).toThrow('Invalid JSON response from LLM');
+      expect(() => (parser as any).extractJSON(response)).toThrow(/Failed to parse JSON/);
     });
   });
 

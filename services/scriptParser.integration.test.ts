@@ -8,6 +8,18 @@ vi.mock('./storage', () => ({
   },
 }));
 
+// Mock SemanticChunker
+vi.mock('./parsing/SemanticChunker', () => ({
+  SemanticChunker: class MockSemanticChunker {
+    chunkSync(text: string) {
+      return [
+        { content: 'chunk1' },
+        { content: 'chunk2' }
+      ];
+    }
+  }
+}));
+
 describe('ScriptParser Integration', () => {
   const apiKey = 'test-api-key';
 
