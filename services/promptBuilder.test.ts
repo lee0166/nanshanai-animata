@@ -153,4 +153,115 @@ describe('ScenePromptBuilder', () => {
     expect(prompt).toContain('沙发');
     expect(prompt).toContain('场景设定图');
   });
+
+  it('should filter out character names from description', () => {
+    const scene: ScriptScene = {
+      name: '沈若涵办公室',
+      locationType: 'indoor',
+      description: '沈若涵在此与顾衍之进行最终对峙，并接受了陈默的臣服与夏晚的效忠，见证了职场博弈的最终落幕，空间宽敞整洁，布置现代简约',
+      timeOfDay: '下午',
+      weather: '晴朗',
+      environment: {
+        architecture: '鼎盛集团市场部总监办公室',
+        furnishings: ['办公桌', '皮质办公椅', '茶杯', '落地窗'],
+        lighting: 'natural sunlight streaming through windows',
+        colorTone: 'bright and professional with cool undertones'
+      },
+      sceneFunction: '最终对峙场景',
+      visualPrompt: '',
+      characters: ['沈若涵', '顾衍之', '陈默', '夏晚']
+    };
+
+    const prompt = ScenePromptBuilder.build(scene);
+    
+    console.log('Filtered scene prompt:', prompt);
+    
+    // 验证过滤了人名
+    expect(prompt).not.toContain('沈若涵');
+    expect(prompt).not.toContain('顾衍之');
+    expect(prompt).not.toContain('陈默');
+    expect(prompt).not.toContain('夏晚');
+    
+    // 验证过滤了剧情动词
+    expect(prompt).not.toContain('对峙');
+    expect(prompt).not.toContain('接受');
+    expect(prompt).not.toContain('臣服');
+    expect(prompt).not.toContain('效忠');
+    expect(prompt).not.toContain('见证');
+    expect(prompt).not.toContain('博弈');
+    expect(prompt).not.toContain('落幕');
+    expect(prompt).not.toContain('在此');
+    
+    // 验证保留了纯环境描述
+    expect(prompt).toContain('空间宽敞整洁');
+    expect(prompt).toContain('布置现代简约');
+    expect(prompt).toContain('办公桌');
+    expect(prompt).toContain('落地窗');
+    
+    // 验证包含场景图要求
+    expect(prompt).toContain('场景设定图');
+    expect(prompt).toContain('无人物');
+  });
+
+  it('should filter out action descriptions', () => {
+    const scene: ScriptScene = {
+      name: '会议室',
+      locationType: 'indoor',
+      description: '江哲坐在主位，苏晴站在窗边眺望，林峰拿着文件走进来，三人正在进行激烈的谈判',
+      environment: {
+        architecture: '大型会议室',
+        furnishings: ['会议桌', '皮椅', '投影仪']
+      },
+      sceneFunction: '谈判场景',
+      visualPrompt: '',
+      characters: ['江哲', '苏晴', '林峰']
+    };
+
+    const prompt = ScenePromptBuilder.build(scene);
+    
+    console.log('Action-filtered prompt:', prompt);
+    
+    // 验证过滤了人名
+    expect(prompt).not.toContain('江哲');
+    expect(prompt).not.toContain('苏晴');
+    expect(prompt).not.toContain('林峰');
+    
+    // 验证过滤了动作
+    expect(prompt).not.toContain('坐');
+    expect(prompt).not.toContain('站');
+    expect(prompt).not.toContain('拿');
+    expect(prompt).not.toContain('走');
+    expect(prompt).not.toContain('谈判');
+    
+    // 验证保留了环境描述
+    expect(prompt).toContain('大型会议室');
+    expect(prompt).toContain('会议桌');
+  });
+
+  it('should filter plot-related furnishings', () => {
+    const scene: ScriptScene = {
+      name: '战场',
+      locationType: 'outdoor',
+      description: '古战场遗址',
+      environment: {
+        architecture: '古战场',
+        furnishings: ['残破的旗帜', '散落的武器', '对峙的双方阵地', '谈判用的帐篷']
+      },
+      sceneFunction: '决战场景',
+      visualPrompt: '',
+      characters: ['将军A', '将军B']
+    };
+
+    const prompt = ScenePromptBuilder.build(scene);
+    
+    console.log('Furnishings-filtered prompt:', prompt);
+    
+    // 验证过滤了包含剧情词的陈设
+    expect(prompt).not.toContain('对峙');
+    expect(prompt).not.toContain('谈判');
+    
+    // 验证保留了其他陈设
+    expect(prompt).toContain('残破的旗帜');
+    expect(prompt).toContain('散落的武器');
+  });
 });
