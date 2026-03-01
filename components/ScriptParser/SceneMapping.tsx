@@ -54,47 +54,99 @@ export const SceneMapping: React.FC<SceneMappingProps> = ({
     showToast(assetId ? '已关联现有场景' : '已取消关联', 'success');
   };
 
+  // 纯创建逻辑 - 只创建资产，不更新状态
+  const createSceneAsset = async (scriptScene: ScriptScene): Promise<string> => {
+    const generatedPrompt = ScenePromptBuilder.build(scriptScene);
+    
+    const newScene: SceneAsset = {
+      id: `scene_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+      projectId,
+      scriptId,  // 关联当前剧本
+      type: AssetType.SCENE,
+      name: scriptScene.name,
+      prompt: generatedPrompt,
+      metadata: {
+        locationType: scriptScene.locationType,
+        timeOfDay: scriptScene.timeOfDay,
+        season: scriptScene.season,
+        weather: scriptScene.weather,
+        environment: scriptScene.environment,
+        sceneFunction: scriptScene.sceneFunction,
+        characters: scriptScene.characters,
+        visualPrompt: scriptScene.visualPrompt
+      },
+      createdAt: Date.now(),
+      updatedAt: Date.now()
+    };
+
+    await storageService.saveAsset(newScene);
+    return newScene.id;
+  };
+
   // Handle creating new scene asset from script scene
   const handleCreateScene = async (scriptScene: ScriptScene) => {
     try {
-      // 使用PromptBuilder生成纯净的提示词
-      const generatedPrompt = ScenePromptBuilder.build(scriptScene);
+      // 1. 创建资产（不更新状态）
+      const assetId = await createSceneAsset(scriptScene);
       
-      const newScene: SceneAsset = {
-        id: `scene_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-        projectId,
-        scriptId,  // 关联当前剧本
-        type: AssetType.SCENE,
-        name: scriptScene.name,
-        prompt: generatedPrompt,
-        metadata: {
-          locationType: scriptScene.locationType,
-          timeOfDay: scriptScene.timeOfDay,
-          season: scriptScene.season,
-          weather: scriptScene.weather,
-          environment: scriptScene.environment,
-          sceneFunction: scriptScene.sceneFunction,
-          characters: scriptScene.characters,
-          visualPrompt: scriptScene.visualPrompt // 保留原始visualPrompt作为参考
-        },
-        createdAt: Date.now(),
-        updatedAt: Date.now()
-      };
-
-      await storageService.saveAsset(newScene);
-
-      // Update mapping
+      // 2. 更新状态
       const updated = scriptScenes.map(s =>
-        s.name === scriptScene.name ? { ...s, mappedAssetId: newScene.id } : s
+        s.name === scriptScene.name ? { ...s, mappedAssetId: assetId } : s
       );
       onScenesUpdate(updated);
 
-      // Notify parent to refresh existing scenes list
+      // 3. 通知父组件刷新
       onSceneCreated?.();
 
       showToast(`场景 "${scriptScene.name}" 创建成功`, 'success');
     } catch (error: any) {
       showToast(`创建失败: ${error.message}`, 'error');
+    }
+  };
+
+  // 批量创建场景 - 彻底修复竞态条件
+  const handleBatchCreateScenes = async () => {
+    const unmapped = scriptScenes.filter(s => !s.mappedAssetId);
+    if (unmapped.length === 0) {
+      showToast('所有场景已关联', 'info');
+      return;
+    }
+
+    const createdMappings: { name: string; assetId: string }[] = [];
+    const failedScenes: string[] = [];
+
+    try {
+      // 第一步：串行创建所有资产（不更新状态）
+      for (const scene of unmapped) {
+        try {
+          const assetId = await createSceneAsset(scene);  // 只创建，不更新状态
+          createdMappings.push({ name: scene.name, assetId });
+        } catch (error) {
+          console.error(`[SceneMapping] 创建场景 ${scene.name} 失败:`, error);
+          failedScenes.push(scene.name);
+        }
+      }
+
+      // 第二步：统一更新所有状态（只更新一次）
+      if (createdMappings.length > 0) {
+        const updated = scriptScenes.map(s => {
+          const mapping = createdMappings.find(m => m.name === s.name);
+          return mapping ? { ...s, mappedAssetId: mapping.assetId } : s;
+        });
+        onScenesUpdate(updated);  // 关键：只更新一次
+        onSceneCreated?.();
+        
+        if (failedScenes.length > 0) {
+          showToast(`成功创建 ${createdMappings.length} 个场景，${failedScenes.length} 个失败`, 'warning');
+        } else {
+          showToast(`成功创建 ${createdMappings.length} 个场景`, 'success');
+        }
+      } else {
+        showToast('创建失败，请重试', 'error');
+      }
+    } catch (error) {
+      console.error('[SceneMapping] 批量创建场景失败:', error);
+      showToast('批量创建失败', 'error');
     }
   };
 
@@ -153,14 +205,7 @@ export const SceneMapping: React.FC<SceneMappingProps> = ({
             color="primary"
             size="sm"
             startContent={<Plus size={16} />}
-            onPress={() => {
-              const unmapped = scriptScenes.filter(s => !s.mappedAssetId);
-              if (unmapped.length === 0) {
-                showToast('所有场景已关联', 'info');
-                return;
-              }
-              Promise.all(unmapped.map(s => handleCreateScene(s)));
-            }}
+            onPress={handleBatchCreateScenes}
           >
             批量创建
           </Button>

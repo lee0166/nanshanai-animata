@@ -3,13 +3,15 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { Script, ScriptParseState, ScriptCharacter, ScriptScene, ScriptItem, Shot, CharacterAsset, SceneAsset, FragmentAsset, ItemAsset, AssetType, ModelConfig } from '../types';
 import { storageService } from '../services/storage';
 import { createScriptParser, ParseProgressCallback, ScriptParserConfig } from '../services/scriptParser';
+import { TextCleaner } from '../services/textCleaner';
 import { useApp } from '../contexts/context';
 import { useToast } from '../contexts/ToastContext';
 import { CharacterMapping } from '../components/ScriptParser/CharacterMapping';
 import { SceneMapping } from '../components/ScriptParser/SceneMapping';
 import { ItemMapping } from '../components/ScriptParser/ItemMapping';
 import { ShotList } from '../components/ScriptParser/ShotList';
-import { QualityReport, RuleViolation } from '../services/scriptParser';
+import { QualityReport } from '../services/scriptParser';
+import type { RuleViolation } from '../services/parsing/ShortDramaRules';
 import {
   Button,
   Card,
@@ -221,8 +223,30 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
     if (!file) return;
 
     try {
-      const text = await file.text();
-      setScriptContent(text);
+      const rawText = await file.text();
+      
+      // 检测文本编码问题
+      const issues = TextCleaner.detectEncodingIssues(rawText);
+      if (issues.length > 0) {
+        console.log('[ScriptManager] Detected encoding issues:', issues);
+      }
+      
+      // 清洗文本
+      const cleanResult = TextCleaner.process(rawText);
+      console.log('[ScriptManager] Text cleaned:', {
+        originalLength: cleanResult.stats.originalLength,
+        cleanedLength: cleanResult.stats.cleanedLength,
+        removedChars: cleanResult.stats.removedChars,
+        chapterCount: cleanResult.stats.chapterCount
+      });
+      
+      setScriptContent(cleanResult.cleanedText);
+      
+      // 如果有多个章节，显示提示
+      if (cleanResult.chapters.length > 1) {
+        showToast(`检测到 ${cleanResult.chapters.length} 个章节`, 'info');
+      }
+      
       // Try to extract title from filename
       const title = file.name.replace(/\.[^/.]+$/, '');
       setScriptTitle(title);

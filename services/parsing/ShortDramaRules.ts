@@ -161,8 +161,8 @@ export class ShortDramaRules {
         const introCharacters = new Set<string>();
         
         introScenes.forEach(scene => {
-          scene.characters?.forEach(char => {
-            introCharacters.add(char.name);
+          scene.characters?.forEach(charName => {
+            introCharacters.add(charName);
           });
         });
 
@@ -243,7 +243,7 @@ export class ShortDramaRules {
     if (sceneIndex === 0) {
       suggestions.push({
         type: 'extreme_closeup',
-        subject: scene.characters[0]?.name || '主角',
+        subject: scene.characters[0] || '主角',
         duration: 3,
         motivation: '黄金3秒，制造视觉冲击'
       });
@@ -261,7 +261,7 @@ export class ShortDramaRules {
       
       suggestions.push({
         type: 'closeup',
-        subject: scene.characters[0]?.name || '主角',
+        subject: scene.characters[0] || '主角',
         duration: 3,
         motivation: '捕捉情绪反应'
       });
@@ -271,7 +271,7 @@ export class ShortDramaRules {
     if (this.detectEmotion(scene.description) === 'high') {
       suggestions.push({
         type: 'closeup',
-        subject: scene.characters[0]?.name || '主角',
+        subject: scene.characters[0] || '主角',
         duration: 4,
         motivation: '强调情感表达'
       });

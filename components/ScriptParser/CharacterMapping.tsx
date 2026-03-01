@@ -56,49 +56,102 @@ export const CharacterMapping: React.FC<CharacterMappingProps> = ({
     showToast(assetId ? '已关联现有角色' : '已取消关联', 'success');
   };
 
+  // 纯创建逻辑 - 只创建资产，不更新状态
+  const createCharacterAsset = async (scriptChar: ScriptCharacter): Promise<string> => {
+    const generatedPrompt = CharacterPromptBuilder.build(scriptChar);
+    
+    const newCharacter: CharacterAsset = {
+      id: `char_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+      projectId,
+      scriptId,  // 关联当前剧本
+      type: AssetType.CHARACTER,
+      name: scriptChar.name,
+      prompt: generatedPrompt,
+      gender: (scriptChar.gender === 'male' || scriptChar.gender === 'female') ? scriptChar.gender : 'unlimited',
+      ageGroup: mapAgeToGroup(scriptChar.age),
+      metadata: {
+        scriptDescription: JSON.stringify(scriptChar.appearance),
+        personality: scriptChar.personality,
+        signatureItems: scriptChar.signatureItems,
+        emotionalArc: scriptChar.emotionalArc,
+        relationships: scriptChar.relationships,
+        visualPrompt: scriptChar.visualPrompt
+      },
+      createdAt: Date.now(),
+      updatedAt: Date.now()
+    };
+
+    console.log('[CharacterMapping] 创建角色:', { name: newCharacter.name, scriptId: newCharacter.scriptId });
+    await storageService.saveAsset(newCharacter);
+    console.log('[CharacterMapping] 角色保存成功');
+    
+    return newCharacter.id;
+  };
+
   // Handle creating new character asset from script character
   const handleCreateCharacter = async (scriptChar: ScriptCharacter) => {
     try {
-      // 使用PromptBuilder生成纯净的提示词
-      const generatedPrompt = CharacterPromptBuilder.build(scriptChar);
+      // 1. 创建资产（不更新状态）
+      const assetId = await createCharacterAsset(scriptChar);
       
-      const newCharacter: CharacterAsset = {
-        id: `char_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-        projectId,
-        scriptId,  // 关联当前剧本
-        type: AssetType.CHARACTER,
-        name: scriptChar.name,
-        prompt: generatedPrompt,
-        gender: (scriptChar.gender === 'male' || scriptChar.gender === 'female') ? scriptChar.gender : 'unlimited',
-        ageGroup: mapAgeToGroup(scriptChar.age),
-        metadata: {
-          scriptDescription: JSON.stringify(scriptChar.appearance),
-          personality: scriptChar.personality,
-          signatureItems: scriptChar.signatureItems,
-          emotionalArc: scriptChar.emotionalArc,
-          relationships: scriptChar.relationships,
-          visualPrompt: scriptChar.visualPrompt // 保留原始visualPrompt作为参考
-        },
-        createdAt: Date.now(),
-        updatedAt: Date.now()
-      };
-
-      console.log('[CharacterMapping] 创建角色:', { name: newCharacter.name, scriptId: newCharacter.scriptId });
-      await storageService.saveAsset(newCharacter);
-      console.log('[CharacterMapping] 角色保存成功');
-
-      // Update mapping
+      // 2. 更新状态
       const updated = scriptCharacters.map(c =>
-        c.name === scriptChar.name ? { ...c, mappedAssetId: newCharacter.id } : c
+        c.name === scriptChar.name ? { ...c, mappedAssetId: assetId } : c
       );
       onCharactersUpdate(updated);
 
-      // Notify parent to refresh existing characters list
+      // 3. 通知父组件刷新
       onCharacterCreated?.();
 
       showToast(`角色 "${scriptChar.name}" 创建成功`, 'success');
     } catch (error: any) {
       showToast(`创建失败: ${error.message}`, 'error');
+    }
+  };
+
+  // 批量创建角色 - 彻底修复竞态条件
+  const handleBatchCreateCharacters = async () => {
+    const unmapped = scriptCharacters.filter(c => !c.mappedAssetId);
+    if (unmapped.length === 0) {
+      showToast('所有角色已关联', 'info');
+      return;
+    }
+
+    setIsGenerating(true);
+    const createdMappings: { name: string; assetId: string }[] = [];
+    const failedCharacters: string[] = [];
+
+    try {
+      // 第一步：串行创建所有资产（不更新状态）
+      for (const char of unmapped) {
+        try {
+          const assetId = await createCharacterAsset(char);  // 只创建，不更新状态
+          createdMappings.push({ name: char.name, assetId });
+        } catch (error) {
+          console.error(`[CharacterMapping] 创建角色 ${char.name} 失败:`, error);
+          failedCharacters.push(char.name);
+        }
+      }
+
+      // 第二步：统一更新所有状态（只更新一次）
+      if (createdMappings.length > 0) {
+        const updated = scriptCharacters.map(c => {
+          const mapping = createdMappings.find(m => m.name === c.name);
+          return mapping ? { ...c, mappedAssetId: mapping.assetId } : c;
+        });
+        onCharactersUpdate(updated);  // 关键：只更新一次
+        onCharacterCreated?.();
+        
+        if (failedCharacters.length > 0) {
+          showToast(`成功创建 ${createdMappings.length} 个角色，${failedCharacters.length} 个失败`, 'warning');
+        } else {
+          showToast(`成功创建 ${createdMappings.length} 个角色`, 'success');
+        }
+      } else {
+        showToast('创建失败，请重试', 'error');
+      }
+    } finally {
+      setIsGenerating(false);
     }
   };
 
@@ -223,15 +276,9 @@ export const CharacterMapping: React.FC<CharacterMappingProps> = ({
           color="primary"
           size="sm"
           startContent={<Plus size={16} />}
-          onPress={() => {
-            // Batch create all unmapped characters
-            const unmapped = scriptCharacters.filter(c => !c.mappedAssetId);
-            if (unmapped.length === 0) {
-              showToast('所有角色已关联', 'info');
-              return;
-            }
-            Promise.all(unmapped.map(c => handleCreateCharacter(c)));
-          }}
+          isLoading={isGenerating}
+          isDisabled={isGenerating}
+          onPress={handleBatchCreateCharacters}
         >
           批量创建未关联角色
         </Button>

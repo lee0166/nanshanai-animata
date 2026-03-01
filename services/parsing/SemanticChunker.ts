@@ -78,6 +78,26 @@ export class SemanticChunker {
   }
 
   /**
+   * 同步分块方法
+   * 用于scriptParser.ts中的同步调用
+   */
+  chunkSync(content: string): SemanticChunk[] {
+    // 步骤1: 识别所有潜在分割点
+    const boundaries = this.identifyBoundaries(content);
+
+    // 步骤2: 生成分块
+    const chunks = this.createChunks(content, boundaries);
+
+    // 步骤3: 为每个分块添加上下文
+    this.addContext(chunks);
+
+    // 注意：同步方法跳过元数据提取（需要LLM调用）
+    // 如果需要完整的元数据，请使用异步的 chunk() 方法
+
+    return chunks;
+  }
+
+  /**
    * 识别所有潜在分割点
    */
   private identifyBoundaries(content: string): ChunkBoundary[] {

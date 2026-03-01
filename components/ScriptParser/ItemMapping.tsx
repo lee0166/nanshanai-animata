@@ -83,34 +83,87 @@ export const ItemMapping: React.FC<ItemMappingProps> = ({
   };
 
   // Handle creating new item asset from script item
+  // 纯创建逻辑 - 只创建资产，不更新状态
+  const createItemAsset = async (scriptItem: ScriptItem): Promise<string> => {
+    const newItem: ItemAsset = {
+      id: `item_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+      projectId,
+      scriptId,  // 关联当前剧本
+      type: AssetType.ITEM,
+      name: scriptItem.name,
+      prompt: scriptItem.visualPrompt || `${scriptItem.name}的物品设定`,
+      itemType: categoryToItemType[scriptItem.category] || ItemType.PROP,
+      createdAt: Date.now(),
+      updatedAt: Date.now()
+    };
+
+    await storageService.saveAsset(newItem);
+    return newItem.id;
+  };
+
   const handleCreateItem = async (scriptItem: ScriptItem) => {
     try {
-      const newItem: ItemAsset = {
-        id: `item_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-        projectId,
-        scriptId,  // 关联当前剧本
-        type: AssetType.ITEM,
-        name: scriptItem.name,
-        prompt: scriptItem.visualPrompt || `${scriptItem.name}的物品设定`,
-        itemType: categoryToItemType[scriptItem.category] || ItemType.PROP,
-        createdAt: Date.now(),
-        updatedAt: Date.now()
-      };
-
-      await storageService.saveAsset(newItem);
-
-      // Update mapping
+      // 1. 创建资产（不更新状态）
+      const assetId = await createItemAsset(scriptItem);
+      
+      // 2. 更新状态
       const updated = scriptItems.map(i =>
-        i.name === scriptItem.name ? { ...i, mappedAssetId: newItem.id } : i
+        i.name === scriptItem.name ? { ...i, mappedAssetId: assetId } : i
       );
       onItemsUpdate(updated);
 
-      // Notify parent to refresh existing items list
+      // 3. 通知父组件刷新
       onItemCreated?.();
 
       showToast(`物品 "${scriptItem.name}" 创建成功`, 'success');
     } catch (error: any) {
       showToast(`创建失败: ${error.message}`, 'error');
+    }
+  };
+
+  // 批量创建物品 - 彻底修复竞态条件
+  const handleBatchCreateItems = async () => {
+    const unmapped = scriptItems.filter(i => !i.mappedAssetId);
+    if (unmapped.length === 0) {
+      showToast('所有道具已关联', 'info');
+      return;
+    }
+
+    const createdMappings: { name: string; assetId: string }[] = [];
+    const failedItems: string[] = [];
+
+    try {
+      // 第一步：串行创建所有资产（不更新状态）
+      for (const item of unmapped) {
+        try {
+          const assetId = await createItemAsset(item);  // 只创建，不更新状态
+          createdMappings.push({ name: item.name, assetId });
+        } catch (error) {
+          console.error(`[ItemMapping] 创建物品 ${item.name} 失败:`, error);
+          failedItems.push(item.name);
+        }
+      }
+
+      // 第二步：统一更新所有状态（只更新一次）
+      if (createdMappings.length > 0) {
+        const updated = scriptItems.map(i => {
+          const mapping = createdMappings.find(m => m.name === i.name);
+          return mapping ? { ...i, mappedAssetId: mapping.assetId } : i;
+        });
+        onItemsUpdate(updated);  // 关键：只更新一次
+        onItemCreated?.();
+        
+        if (failedItems.length > 0) {
+          showToast(`成功创建 ${createdMappings.length} 个道具，${failedItems.length} 个失败`, 'warning');
+        } else {
+          showToast(`成功创建 ${createdMappings.length} 个道具`, 'success');
+        }
+      } else {
+        showToast('创建失败，请重试', 'error');
+      }
+    } catch (error) {
+      console.error('[ItemMapping] 批量创建道具失败:', error);
+      showToast('批量创建失败', 'error');
     }
   };
 
@@ -145,14 +198,7 @@ export const ItemMapping: React.FC<ItemMappingProps> = ({
           color="primary"
           size="sm"
           startContent={<Plus size={16} />}
-          onPress={() => {
-            const unmapped = scriptItems.filter(i => !i.mappedAssetId);
-            if (unmapped.length === 0) {
-              showToast('所有道具已关联', 'info');
-              return;
-            }
-            Promise.all(unmapped.map(i => handleCreateItem(i)));
-          }}
+          onPress={handleBatchCreateItems}
         >
           批量创建未关联道具
         </Button>

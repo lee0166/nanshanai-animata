@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI影视资产生成平台 - 小说解析完整流程</title>
+    <title>AI影视资产生成平台 - 小说解析实际工作流程</title>
     <style>
         * {
             margin: 0;
@@ -13,18 +13,20 @@
         
         body {
             font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
             min-height: 100vh;
             padding: 20px;
+            color: #e0e0e0;
         }
         
         .container {
             max-width: 1400px;
             margin: 0 auto;
-            background: white;
+            background: rgba(255, 255, 255, 0.05);
             border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
             overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
         
         .header {
@@ -56,7 +58,7 @@
         
         .phase-title {
             font-size: 1.8em;
-            color: #333;
+            color: #fff;
             margin-bottom: 20px;
             display: flex;
             align-items: center;
@@ -72,17 +74,18 @@
         }
         
         .step {
-            background: #f8f9fa;
+            background: rgba(0, 0, 0, 0.2);
             border-radius: 15px;
             padding: 25px;
             margin-bottom: 20px;
-            border: 1px solid #e9ecef;
+            border: 1px solid rgba(255, 255, 255, 0.1);
             transition: all 0.3s ease;
         }
         
         .step:hover {
-            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
             transform: translateX(5px);
+            background: rgba(0, 0, 0, 0.3);
         }
         
         .step-header {
@@ -106,47 +109,34 @@
         
         .step-title {
             font-size: 1.3em;
-            color: #333;
+            color: #fff;
             font-weight: 600;
         }
         
         .step-desc {
-            color: #666;
+            color: #bbb;
             margin-bottom: 15px;
             line-height: 1.6;
         }
         
-        .prompt-box {
-            background: #2d3748;
-            border-radius: 10px;
-            padding: 20px;
-            margin: 15px 0;
-            overflow-x: auto;
-        }
-        
-        .prompt-label {
-            color: #48bb78;
+        .file-path {
+            display: inline-block;
+            background: rgba(123, 44, 191, 0.3);
+            color: #b794f6;
+            padding: 4px 10px;
+            border-radius: 4px;
             font-size: 0.85em;
-            font-weight: bold;
-            margin-bottom: 10px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-        
-        .prompt-content {
-            color: #e2e8f0;
-            font-family: 'Consolas', 'Monaco', monospace;
-            font-size: 0.9em;
-            line-height: 1.6;
-            white-space: pre-wrap;
+            font-family: 'Consolas', monospace;
+            margin: 5px 0;
         }
         
         .code-block {
-            background: #1a202c;
+            background: #1e1e1e;
             border-radius: 8px;
             padding: 15px;
             margin: 10px 0;
             overflow-x: auto;
+            border: 1px solid #333;
         }
         
         .code-block code {
@@ -156,12 +146,29 @@
             line-height: 1.5;
         }
         
-        .highlight {
-            background: linear-gradient(120deg, #ffeaa7 0%, #ffeaa7 100%);
-            background-repeat: no-repeat;
-            background-size: 100% 40%;
-            background-position: 0 88%;
-            padding: 0 4px;
+        .code-block .comment { color: #6a9955; }
+        .code-block .keyword { color: #569cd6; }
+        .code-block .string { color: #ce9178; }
+        
+        .data-example {
+            background: rgba(0, 212, 255, 0.1);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+        }
+        
+        .data-example h4 {
+            color: #00d4ff;
+            margin-bottom: 10px;
+            font-size: 0.9em;
+        }
+        
+        .data-example pre {
+            font-family: 'Consolas', monospace;
+            font-size: 0.8em;
+            color: #ccc;
+            overflow-x: auto;
         }
         
         .flow-arrow {
@@ -179,56 +186,21 @@
         }
         
         .tech-tag {
-            background: #edf2f7;
-            color: #4a5568;
+            background: rgba(102, 126, 234, 0.2);
+            color: #a0aec0;
             padding: 5px 12px;
             border-radius: 15px;
             font-size: 0.85em;
-            border: 1px solid #e2e8f0;
-        }
-        
-        .optimization-badge {
-            display: inline-block;
-            background: #48bb78;
-            color: white;
-            padding: 3px 10px;
-            border-radius: 12px;
-            font-size: 0.75em;
-            margin-left: 10px;
-        }
-        
-        .warning-badge {
-            display: inline-block;
-            background: #ed8936;
-            color: white;
-            padding: 3px 10px;
-            border-radius: 12px;
-            font-size: 0.75em;
-            margin-left: 10px;
-        }
-        
-        .info-box {
-            background: #ebf8ff;
-            border-left: 4px solid #4299e1;
-            padding: 15px;
-            margin: 15px 0;
-            border-radius: 0 8px 8px 0;
-        }
-        
-        .info-box-title {
-            color: #2b6cb0;
-            font-weight: bold;
-            margin-bottom: 8px;
+            border: 1px solid rgba(102, 126, 234, 0.3);
         }
         
         table {
             width: 100%;
             border-collapse: collapse;
             margin: 20px 0;
-            background: white;
+            background: rgba(0, 0, 0, 0.2);
             border-radius: 8px;
             overflow: hidden;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
         
         th {
@@ -241,22 +213,52 @@
         
         td {
             padding: 12px 15px;
-            border-bottom: 1px solid #e2e8f0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            color: #bbb;
         }
         
         tr:hover {
-            background: #f7fafc;
+            background: rgba(255, 255, 255, 0.05);
         }
         
-        .footer {
-            background: #2d3748;
-            color: white;
-            padding: 30px;
+        .parse-stages {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .parse-stage {
+            background: rgba(102, 126, 234, 0.1);
+            border: 1px solid rgba(102, 126, 234, 0.3);
+            border-radius: 10px;
+            padding: 15px;
             text-align: center;
         }
         
-        .footer p {
-            opacity: 0.8;
+        .parse-stage-number {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .parse-stage-name {
+            font-weight: 600;
+            color: #fff;
+            margin: 10px 0;
+        }
+        
+        .parse-stage-progress {
+            font-size: 0.85em;
+            color: #888;
+        }
+        
+        .footer {
+            background: rgba(0, 0, 0, 0.3);
+            color: #888;
+            padding: 30px;
+            text-align: center;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
         }
         
         @media (max-width: 768px) {
@@ -271,6 +273,10 @@
             .header h1 {
                 font-size: 1.8em;
             }
+            
+            .parse-stages {
+                grid-template-columns: repeat(2, 1fr);
+            }
         }
     </style>
 </head>
@@ -278,7 +284,7 @@
     <div class="container">
         <div class="header">
             <h1>🎬 AI影视资产生成平台</h1>
-            <p>小说解析完整流程文档 - 从上传到解析完成</p>
+            <p>小说解析实际工作流程 - 基于项目代码现状</p>
         </div>
         
         <div class="content">
@@ -292,40 +298,40 @@
                     <tr>
                         <th>阶段</th>
                         <th>主要功能</th>
-                        <th>涉及模块</th>
-                        <th>预估耗时</th>
-                    </tr>
-                    <tr>
-                        <td><strong>Phase 0</strong></td>
-                        <td>小说上传与预处理</td>
-                        <td>文件上传、文本清洗</td>
-                        <td>1-5秒</td>
+                        <th>涉及文件</th>
+                        <th>输出结果</th>
                     </tr>
                     <tr>
                         <td><strong>Phase 1</strong></td>
-                        <td>基础解析架构</td>
-                        <td>语义分块、JSON修复、模型路由、状态管理</td>
-                        <td>30-60秒</td>
+                        <td>小说上传与文本处理</td>
+                        <td>ScriptManager.tsx, textCleaner.ts</td>
+                        <td>清洗后的文本、章节结构</td>
                     </tr>
                     <tr>
                         <td><strong>Phase 2</strong></td>
-                        <td>效率优化</td>
-                        <td>RAG检索、多级缓存</td>
-                        <td>20-40秒</td>
+                        <td>剧本解析（4阶段流水线）</td>
+                        <td>scriptParser.ts</td>
+                        <td>元数据、角色、场景、分镜</td>
                     </tr>
                     <tr>
                         <td><strong>Phase 3</strong></td>
-                        <td>业务优化</td>
-                        <td>短剧规则检查、人工审核</td>
-                        <td>10-30秒(人工)</td>
+                        <td>数据存储</td>
+                        <td>storage.ts</td>
+                        <td>持久化存储到本地文件系统</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Phase 4</strong></td>
+                        <td>结果展示与资产创建</td>
+                        <td>CharacterMapping.tsx, SceneMapping.tsx, ShotList.tsx</td>
+                        <td>可视化展示、批量创建资产</td>
                     </tr>
                 </table>
             </div>
 
-            <!-- Phase 0: 上传阶段 -->
+            <!-- Phase 1: 上传与文本处理 -->
             <div class="phase">
                 <h2 class="phase-title">
-                    Phase 0: 小说上传与预处理
+                    Phase 1: 小说上传与文本处理
                     <span class="phase-badge">准备阶段</span>
                 </h2>
                 
@@ -335,12 +341,15 @@
                         <div class="step-title">文件上传</div>
                     </div>
                     <div class="step-desc">
-                        用户上传小说文件(txt/pdf/docx)，系统进行文件格式验证和大小检查。
+                        用户在剧本管理页面点击"导入剧本"按钮，选择小说文件。支持 .txt、.md、.docx 格式。
                     </div>
-                    <div class="tech-stack">
-                        <span class="tech-tag">文件验证</span>
-                        <span class="tech-tag">格式转换</span>
-                        <span class="tech-tag">编码检测</span>
+                    <div class="file-path">views/ScriptManager.tsx:831-839</div>
+                    <div class="code-block">
+                        <code>&lt;input
+  type="file"
+  accept=".txt,.md,.docx"
+  onChange={handleFileUpload}
+/&gt;</code>
                     </div>
                 </div>
                 
@@ -349,83 +358,57 @@
                 <div class="step">
                     <div class="step-header">
                         <div class="step-number">2</div>
-                        <div class="step-title">文本清洗</div>
+                        <div class="step-title">文本读取与编码检测</div>
                     </div>
                     <div class="step-desc">
-                        提取纯文本内容，去除广告、页眉页脚、特殊符号等无关内容。
+                        使用 File API 读取文件内容，检测编码问题（乱码、混合换行符、多余空行等）。
                     </div>
+                    <div class="file-path">views/ScriptManager.tsx:221-256</div>
                     <div class="code-block">
-                        <code>// 文本清洗示例
-function cleanText(rawText: string): string {
-  return rawText
-    .replace(/广告[\s\S]*?广告结束/g, '')  // 去除广告
-    .replace(/第[一二三四五六七八九十]+章/g, '\n【第$1章】\n')  // 统一章节标记
-    .replace(/\s+/g, ' ')  // 合并空白
-    .trim();
+                        <code><span class="keyword">const</span> <span class="string">handleFileUpload</span> = <span class="keyword">async</span> (e) => {
+  <span class="keyword">const</span> file = e.target.files?.[0];
+  <span class="keyword">const</span> rawText = <span class="keyword">await</span> file.text();
+  
+  <span class="comment">// 检测编码问题</span>
+  <span class="keyword">const</span> issues = TextCleaner.detectEncodingIssues(rawText);
+  
+  <span class="comment">// 清洗文本</span>
+  <span class="keyword">const</span> cleanResult = TextCleaner.process(rawText);
+  setScriptContent(cleanResult.cleanedText);
 }</code>
                     </div>
                 </div>
-            </div>
-
-            <!-- Phase 1: 基础架构 -->
-            <div class="phase">
-                <h2 class="phase-title">
-                    Phase 1: 基础解析架构
-                    <span class="phase-badge">核心阶段</span>
-                </h2>
+                
+                <div class="flow-arrow">⬇</div>
                 
                 <div class="step">
                     <div class="step-header">
                         <div class="step-number">3</div>
-                        <div class="step-title">语义分块 <span class="optimization-badge">优化</span></div>
+                        <div class="step-title">文本清洗</div>
                     </div>
                     <div class="step-desc">
-                        使用<span class="highlight">SemanticChunker</span>进行智能分块，按章节、段落、句子边界分割，避免切断叙事逻辑。
+                        对原始文本进行清洗处理：统一换行符、去除控制字符、合并多余空行、去除首尾空白等。
                     </div>
-                    
-                    <div class="info-box">
-                        <div class="info-box-title">💡 优化前 vs 优化后</div>
-                        <p><strong>优化前:</strong> 固定6000字符分块，可能切断对话或场景</p>
-                        <p><strong>优化后:</strong> 语义边界识别，保持叙事完整性</p>
-                    </div>
-                    
-                    <div class="prompt-box">
-                        <div class="prompt-label">系统提示词 (System Prompt)</div>
-                        <div class="prompt-content">你是一个专业的文本分块助手。请根据以下规则对小说文本进行分块：
-
-1. 优先按【第X章】分割
-2. 章节内按段落分割（双换行）
-3. 每块保留前500字作为上下文
-4. 提取关键信息：人物、场景、情绪
-
-输出格式要求：
-{
-  "chunks": [
-    {
-      "id": "chunk_0",
-      "content": "文本内容",
-      "prevContext": "前文摘要",
-      "metadata": {
-        "characters": ["人物名"],
-        "sceneHint": "场景提示",
-        "importance": 1-10
-      }
-    }
-  ]
-}</div>
-                    </div>
-                    
-                    <div class="prompt-box">
-                        <div class="prompt-label">用户提示词 (User Prompt)</div>
-                        <div class="prompt-content">请对以下小说文本进行语义分块：
-
-[小说文本内容，约10万字]
-
-要求：
-- 识别所有章节边界
-- 每块不超过4000 tokens
-- 标注每块的人物和场景信息
-- 评估每块的重要性评分</div>
+                    <div class="file-path">services/textCleaner.ts:29-59</div>
+                    <div class="code-block">
+                        <code><span class="keyword">static</span> clean(text: <span class="keyword">string</span>): <span class="keyword">string</span> {
+  <span class="keyword">let</span> cleaned = text;
+  
+  <span class="comment">// 1. 统一换行符</span>
+  cleaned = cleaned.replace(<span class="string">/\r\n/g</span>, <span class="string">'\n'</span>);
+  cleaned = cleaned.replace(<span class="string">/\r/g</span>, <span class="string">'\n'</span>);
+  
+  <span class="comment">// 2. 去除控制字符</span>
+  cleaned = cleaned.replace(<span class="string">/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F-\x9F]/g</span>, <span class="string">''</span>);
+  
+  <span class="comment">// 3. 合并多余空行</span>
+  cleaned = cleaned.replace(<span class="string">/\n{3,}/g</span>, <span class="string">'\n\n'</span>);
+  
+  <span class="comment">// 4. 去除首尾空白</span>
+  cleaned = cleaned.trim();
+  
+  <span class="keyword">return</span> cleaned;
+}</code>
                     </div>
                 </div>
                 
@@ -434,102 +417,79 @@ function cleanText(rawText: string): string {
                 <div class="step">
                     <div class="step-header">
                         <div class="step-number">4</div>
-                        <div class="step-title">全局摘要生成 <span class="optimization-badge">模型路由</span></div>
+                        <div class="step-title">章节提取</div>
                     </div>
                     <div class="step-desc">
-                        使用<span class="highlight">ModelRouter</span>自动选择kimi模型（长上下文优势）生成小说全局摘要。
+                        识别章节标题（第X章、Chapter X、X. 标题等），提取章节结构。
                     </div>
-                    
-                    <div class="prompt-box">
-                        <div class="prompt-label">系统提示词 (System Prompt) - 路由至 kimi</div>
-                        <div class="prompt-content">你是一个专业的小说分析助手。请基于提供的小说文本生成全局摘要。
-
-你需要分析：
-1. 核心主题和中心思想
-2. 主要情节线索
-3. 人物关系网络
-4. 情感基调
-5. 关键转折点
-
-要求：
-- 摘要长度500-800字
-- 突出核心冲突
-- 标注重要伏笔
-- 保持客观准确</div>
-                    </div>
-                    
-                    <div class="prompt-box">
-                        <div class="prompt-label">用户提示词 (User Prompt)</div>
-                        <div class="prompt-content">小说文本：[分块后的全文内容]
-
-请生成全局摘要，包括：
-1. 一句话概括核心故事
-2. 详细情节摘要
-3. 人物关系图描述
-4. 情感基调分析
-5. 关键转折点列表</div>
-                    </div>
-                    
-                    <div class="tech-stack">
-                        <span class="tech-tag">kimi-128k</span>
-                        <span class="tech-tag">长上下文</span>
-                        <span class="tech-tag">成本: $0.012/1K</span>
+                    <div class="file-path">services/textCleaner.ts:66-122</div>
+                    <div class="data-example">
+                        <h4>章节提取结果</h4>
+                        <pre>{
+  chapters: [
+    { title: "第一章 开始", content: "...", index: 1 },
+    { title: "第二章 发展", content: "...", index: 2 }
+  ],
+  stats: {
+    originalLength: 50000,
+    cleanedLength: 48000,
+    chapterCount: 10,
+    removedChars: 2000
+  }
+}</pre>
                     </div>
                 </div>
+            </div>
+
+            <!-- Phase 2: 剧本解析 -->
+            <div class="phase">
+                <h2 class="phase-title">
+                    Phase 2: 剧本解析
+                    <span class="phase-badge">核心阶段</span>
+                </h2>
                 
-                <div class="flow-arrow">⬇</div>
-                
+                <div class="parse-stages">
+                    <div class="parse-stage">
+                        <div class="parse-stage-number">1</div>
+                        <div class="parse-stage-name">元数据</div>
+                        <div class="parse-stage-progress">10-20%</div>
+                    </div>
+                    <div class="parse-stage">
+                        <div class="parse-stage-number">2</div>
+                        <div class="parse-stage-name">角色分析</div>
+                        <div class="parse-stage-progress">25-50%</div>
+                    </div>
+                    <div class="parse-stage">
+                        <div class="parse-stage-number">3</div>
+                        <div class="parse-stage-name">场景分析</div>
+                        <div class="parse-stage-progress">50-70%</div>
+                    </div>
+                    <div class="parse-stage">
+                        <div class="parse-stage-number">4</div>
+                        <div class="parse-stage-name">分镜生成</div>
+                        <div class="parse-stage-progress">70-100%</div>
+                    </div>
+                </div>
+
                 <div class="step">
                     <div class="step-header">
                         <div class="step-number">5</div>
-                        <div class="step-title">实体提取 <span class="optimization-badge">轻量模型</span></div>
+                        <div class="step-title">解析触发</div>
                     </div>
                     <div class="step-desc">
-                        使用<span class="highlight">gpt-4o-mini</span>（成本最低）提取人物、地点、物品等实体。
+                        用户点击"一键解析"或选择分步解析。支持断点续传，可从上次中断处继续。
                     </div>
-                    
-                    <div class="prompt-box">
-                        <div class="prompt-label">系统提示词 (System Prompt) - 路由至 gpt-4o-mini</div>
-                        <div class="prompt-content">你是一个实体识别专家。请从小说文本中提取所有实体。
+                    <div class="file-path">views/ScriptManager.tsx:412-501</div>
+                    <div class="code-block">
+                        <code><span class="comment">// 一键解析（全自动）</span>
+<span class="keyword">const</span> handleParseScript = <span class="keyword">async</span> () => {
+  <span class="comment">// 完整解析流程：metadata → characters → scenes → shots</span>
+};
 
-实体类型：
-1. PERSON - 人物（姓名、称谓、代号）
-2. LOCATION - 地点（国家、城市、建筑、场景）
-3. ORGANIZATION - 组织（门派、公司、机构）
-4. ITEM - 物品（武器、道具、宝物）
-5. EVENT - 事件（节日、战役、会议）
-
-输出JSON格式：
-{
-  "entities": [
-    {
-      "name": "实体名称",
-      "type": "实体类型",
-      "mentions": ["别名1", "别名2"],
-      "firstAppearance": "首次出现章节",
-      "description": "简要描述"
-    }
-  ]
-}</div>
-                    </div>
-                    
-                    <div class="prompt-box">
-                        <div class="prompt-label">用户提示词 (User Prompt)</div>
-                        <div class="prompt-content">请从以下小说文本中提取所有实体：
-
-[小说文本内容]
-
-要求：
-- 识别人物的所有称谓和别名
-- 标注每个实体的首次出现位置
-- 提供简要描述
-- 按重要性排序</div>
-                    </div>
-                    
-                    <div class="tech-stack">
-                        <span class="tech-tag">gpt-4o-mini</span>
-                        <span class="tech-tag">低成本</span>
-                        <span class="tech-tag">成本: $0.00015/1K</span>
+<span class="comment">// 分步解析（手动控制）</span>
+<span class="keyword">const</span> handleParseStage = <span class="keyword">async</span> (stage: <span class="string">'metadata'</span> | <span class="string">'characters'</span> | <span class="string">'scenes'</span> | <span class="string">'shots'</span>) => {
+  <span class="comment">// 单独执行某个解析阶段</span>
+};</code>
                     </div>
                 </div>
                 
@@ -538,61 +498,25 @@ function cleanText(rawText: string): string {
                 <div class="step">
                     <div class="step-header">
                         <div class="step-number">6</div>
-                        <div class="step-title">角色深度分析 <span class="optimization-badge">精准模型</span></div>
+                        <div class="step-title">Stage 1: 元数据提取</div>
                     </div>
                     <div class="step-desc">
-                        使用<span class="highlight">gpt-4o</span>对每个主要角色进行深度分析，包括性格、外貌、情感弧线等。
+                        提取作品标题、字数、角色数量、场景数量、故事类型、整体基调等基础信息。输入前3000字符。
                     </div>
-                    
-                    <div class="prompt-box">
-                        <div class="prompt-label">系统提示词 (System Prompt) - 路由至 gpt-4o</div>
-                        <div class="prompt-content">你是一个角色分析专家。请对小说角色进行深度分析。
-
-分析维度：
-1. 外貌特征 - 五官、身材、穿着、标志性特征
-2. 性格特质 - 核心性格、行为模式、语言风格
-3. 背景故事 - 出身、经历、动机
-4. 情感弧线 - 情感变化轨迹、关键转折点
-5. 人物关系 - 与其他角色的关系网络
-6. 视觉提示 - 用于AI绘画的详细描述
-
-输出JSON格式：
-{
-  "name": "角色名",
-  "appearance": {
-    "face": "面部特征",
-    "body": "身材特征",
-    "clothing": "服装风格",
-    "distinctiveFeatures": ["特征1", "特征2"]
-  },
-  "personality": ["特质1", "特质2"],
-  "emotionalArc": [
-    {"stage": "阶段1", "emotion": "情绪状态", "trigger": "触发事件"}
-  ],
-  "visualPrompt": "AI绘画提示词"
-}</div>
-                    </div>
-                    
-                    <div class="prompt-box">
-                        <div class="prompt-label">用户提示词 (User Prompt) - 角色: 林黛玉</div>
-                        <div class="prompt-content">请深度分析角色"林黛玉"：
-
-上下文信息：
-- 全局摘要：[摘要内容]
-- 相关文本片段：[RAG检索到的相关段落]
-- 人物关系：[关系网络]
-
-要求：
-1. 提取所有外貌描写
-2. 分析性格的多面性
-3. 绘制情感变化曲线
-4. 生成AI绘画提示词（英文，详细描述外貌、服装、表情、场景）</div>
-                    </div>
-                    
-                    <div class="tech-stack">
-                        <span class="tech-tag">gpt-4o</span>
-                        <span class="tech-tag">高质量</span>
-                        <span class="tech-tag">成本: $0.005/1K</span>
+                    <div class="file-path">services/scriptParser.ts:949-970</div>
+                    <div class="data-example">
+                        <h4>元数据输出</h4>
+                        <pre>{
+  title: "作品标题",
+  wordCount: 15000,
+  estimatedDuration: "10分钟",
+  characterCount: 8,
+  characterNames: ["角色1", "角色2"],
+  sceneCount: 12,
+  sceneNames: ["场景1", "场景2"],
+  genre: "古装宅斗",
+  tone: "爽剧"
+}</pre>
                     </div>
                 </div>
                 
@@ -601,36 +525,30 @@ function cleanText(rawText: string): string {
                 <div class="step">
                     <div class="step-header">
                         <div class="step-number">7</div>
-                        <div class="step-title">场景分析</div>
+                        <div class="step-title">Stage 2: 角色分析</div>
                     </div>
                     <div class="step-desc">
-                        分析每个场景的地点类型、环境特征、视觉风格。
+                        分析每个角色的外貌特征、性格特质、标志性物品、情感弧线、人物关系、视觉提示等。使用批量API调用优化。
                     </div>
-                    
-                    <div class="prompt-box">
-                        <div class="prompt-label">系统提示词 (System Prompt)</div>
-                        <div class="prompt-content">你是一个场景分析专家。请分析小说中的场景设置。
-
-分析维度：
-1. 地点类型 - indoor/outdoor, urban/natural
-2. 环境特征 - 时间、天气、光线、氛围
-3. 场景功能 - 开场、冲突、转折、高潮、结局
-4. 视觉风格 - 色彩基调、光影效果、构图建议
-5. 涉及角色 - 场景中出现的角色
-
-输出JSON格式：
-{
-  "name": "场景名",
-  "locationType": "地点类型",
-  "environment": {
-    "time": "时间",
-    "weather": "天气",
-    "lighting": "光线",
-    "atmosphere": "氛围"
+                    <div class="file-path">services/scriptParser.ts:975-1025, 1183-1205</div>
+                    <div class="data-example">
+                        <h4>角色分析输出</h4>
+                        <pre>{
+  name: "角色名",
+  gender: "female",
+  age: "25",
+  identity: "身份",
+  appearance: {
+    height: "165cm",
+    build: "苗条",
+    face: "瓜子脸",
+    hair: "长发",
+    clothing: "古装"
   },
-  "sceneFunction": "场景功能",
-  "visualPrompt": "AI绘画提示词"
-}</div>
+  personality: ["温柔", "坚强"],
+  signatureItems: ["玉佩"],
+  visualPrompt: "AI绘画提示词"
+}</pre>
                     </div>
                 </div>
                 
@@ -639,24 +557,29 @@ function cleanText(rawText: string): string {
                 <div class="step">
                     <div class="step-header">
                         <div class="step-number">8</div>
-                        <div class="step-title">JSON修复 <span class="optimization-badge">容错增强</span></div>
+                        <div class="step-title">Stage 3: 场景分析</div>
                     </div>
                     <div class="step-desc">
-                        使用<span class="highlight">JSONRepair</span>自动修复LLM返回的各种JSON格式错误。
+                        分析每个场景的地点类型、时间、天气、环境特征、场景功能、视觉提示等。
                     </div>
-                    
-                    <div class="info-box">
-                        <div class="info-box-title">🔧 修复策略（5级）</div>
-                        <p>1. 代码块提取 → 2. 括号匹配 → 3. 常见错误修复 → 4. 激进修复 → 5. 部分提取</p>
-                    </div>
-                    
-                    <div class="code-block">
-                        <code>// JSON修复示例
-const result = JSONRepair.repairAndParse(response);
-if (result.success) {
-  console.log(`修复策略: ${result.repairAttempts.join(' -> ')}`);
-  return result.data;
-}</code>
+                    <div class="file-path">services/scriptParser.ts:1030-1078</div>
+                    <div class="data-example">
+                        <h4>场景分析输出</h4>
+                        <pre>{
+  name: "场景名",
+  locationType: "indoor",
+  description: "纯环境描述",
+  timeOfDay: "晚上",
+  season: "春天",
+  weather: "晴朗",
+  environment: {
+    architecture: "古代建筑",
+    furnishings: ["桌椅", "屏风"],
+    lighting: "烛光",
+    colorTone: "暖色调"
+  },
+  visualPrompt: "AI绘画提示词"
+}</pre>
                     </div>
                 </div>
                 
@@ -665,75 +588,54 @@ if (result.success) {
                 <div class="step">
                     <div class="step-header">
                         <div class="step-number">9</div>
-                        <div class="step-title">状态管理 <span class="optimization-badge">断点续传</span></div>
+                        <div class="step-title">Stage 4: 分镜生成</div>
                     </div>
                     <div class="step-desc">
-                        使用<span class="highlight">ParseStateManager</span>进行细粒度状态管理，支持子任务级断点续传。
+                        为每个场景生成分镜脚本，包括景别、运镜、画面描述、时长、台词等。
                     </div>
-                    
-                    <div class="code-block">
-                        <code>// 子任务状态管理
-parseStateManager.createSubTask('character', '林黛玉');
-parseStateManager.startSubTask('character_林黛玉');
-// ... 执行解析 ...
-parseStateManager.completeSubTask('character_林黛玉', result, {
-  modelUsed: 'gpt-4o',
-  tokenUsed: 2500
-});</code>
+                    <div class="file-path">services/scriptParser.ts:1083-1141</div>
+                    <div class="data-example">
+                        <h4>分镜输出</h4>
+                        <pre>{
+  id: "shot_xxx",
+  sequence: 1,
+  sceneName: "场景名",
+  shotType: "medium",
+  cameraMovement: "static",
+  description: "画面描述",
+  duration: 5,
+  characters: ["角色1"]
+}</pre>
+                    </div>
+                    <div class="tech-stack">
+                        <span class="tech-tag">景别：极远景→远景→全景→中景→近景→特写→极特写</span>
                     </div>
                 </div>
             </div>
 
-            <!-- Phase 2: 效率优化 -->
+            <!-- Phase 3: 数据存储 -->
             <div class="phase">
                 <h2 class="phase-title">
-                    Phase 2: 效率优化
-                    <span class="phase-badge">性能阶段</span>
+                    Phase 3: 数据存储
+                    <span class="phase-badge">持久化</span>
                 </h2>
                 
                 <div class="step">
                     <div class="step-header">
                         <div class="step-number">10</div>
-                        <div class="step-title">RAG检索增强 <span class="optimization-badge">上下文优化</span></div>
+                        <div class="step-title">存储架构</div>
                     </div>
                     <div class="step-desc">
-                        使用<span class="highlight">RAGRetrieval</span>进行向量检索，为每个角色/场景检索最相关的原文片段。
+                        使用浏览器 File System Access API 存储数据到本地文件系统。每个项目独立存储。
                     </div>
-                    
-                    <div class="prompt-box">
-                        <div class="prompt-label">RAG检索流程</div>
-                        <div class="prompt-content">1. 构建向量存储
-   - 为每个分块生成embedding
-   - 存储到内存向量库
-
-2. 检索相关上下文
-   - 生成查询向量
-   - 计算余弦相似度
-   - 返回TopK相关分块
-
-3. 生成增强提示词
-   - 组合检索结果
-   - 限制token数量
-   - 注入到用户提示词</div>
-                    </div>
-                    
-                    <div class="prompt-box">
-                        <div class="prompt-label">增强后的用户提示词示例</div>
-                        <div class="prompt-content">基于以下小说原文片段回答问题：
-
----
-[相关原文片段1 - 相似度: 0.92]
-林黛玉手持花锄，将落花埋入土中，感叹人生无常...
-
----
-[相关原文片段2 - 相似度: 0.87]
-黛玉葬花是《红楼梦》中的经典场景，体现了她敏感细腻的性格...
-
----
-
-问题：分析林黛玉"葬花"场景的情感内涵
-
-请严格基于上述原文片段回答，不要添加原文中没有的信息。</div>
+                    <div class="file-path">services/storage.ts:1080-1173</div>
+                    <div class="code-block">
+                        <code><span class="comment">// 存储路径</span>
+工作目录/
+├── settings.json          <span class="comment">// 应用设置</span>
+├── projects.json          <span class="comment">// 项目列表</span>
+├── scripts_{projectId}.json <span class="comment">// 剧本数据</span>
+└── assets_{projectId}.json  <span class="comment">// 资产数据</span></code>
                     </div>
                 </div>
                 
@@ -742,82 +644,28 @@ parseStateManager.completeSubTask('character_林黛玉', result, {
                 <div class="step">
                     <div class="step-header">
                         <div class="step-number">11</div>
-                        <div class="step-title">多级缓存 <span class="optimization-badge">成本降低60%</span></div>
+                        <div class="step-title">剧本数据结构</div>
                     </div>
                     <div class="step-desc">
-                        使用<span class="highlight">MultiLevelCache</span>实现L1/L2/L3三级缓存，避免重复API调用。
+                        解析结果存储在 Script 对象中，包含原文内容、解析状态、元数据、角色、场景、分镜等。
                     </div>
-                    
-                    <div class="info-box">
-                        <div class="info-box-title">💾 三级缓存架构</div>
-                        <p><strong>L1 (内存):</strong> 5分钟TTL，命中率25%</p>
-                        <p><strong>L2 (IndexedDB):</strong> 1小时TTL，命中率30%</p>
-                        <p><strong>L3 (云端):</strong> 24小时TTL，命中率10%</p>
-                        <p><strong>总命中率:</strong> 65%</p>
-                    </div>
-                    
-                    <div class="code-block">
-                        <code>// 缓存使用示例
-const cacheKey = cache.generateKey('character_analysis', {
-  name: '林黛玉',
-  scene: '葬花'
-});
-
-// 先查缓存
-let result = await cache.get(cacheKey);
-if (!result) {
-  // 缓存未命中，调用API
-  result = await modelRouter.routeAndExecute('character_analysis', prompt);
-  // 存入缓存
-  await cache.set(cacheKey, result);
-}</code>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Phase 3: 业务优化 -->
-            <div class="phase">
-                <h2 class="phase-title">
-                    Phase 3: 业务优化
-                    <span class="phase-badge">质量阶段</span>
-                </h2>
-                
-                <div class="step">
-                    <div class="step-header">
-                        <div class="step-number">12</div>
-                        <div class="step-title">短剧规则检查 <span class="optimization-badge">专业优化</span></div>
-                    </div>
-                    <div class="step-desc">
-                        使用<span class="highlight">ShortDramaRules</span>进行短剧专业化规则检查。
-                    </div>
-                    
-                    <div class="info-box">
-                        <div class="info-box-title">📋 5大短剧规则</div>
-                        <p><strong>1. 黄金3秒:</strong> 开场必须有强冲突或悬念</p>
-                        <p><strong>2. 冲突密度:</strong> 每60秒至少1个冲突点</p>
-                        <p><strong>3. 情绪曲线:</strong> 必须有高潮和低谷</p>
-                        <p><strong>4. 角色出场:</strong> 主要角色60秒内出场</p>
-                        <p><strong>5. 场景多样性:</strong> 避免场景过于单一</p>
-                    </div>
-                    
-                    <div class="prompt-box">
-                        <div class="prompt-label">规则检查结果示例</div>
-                        <div class="prompt-content">{
-  "score": 85,
-  "violations": [
-    {
-      "ruleId": "conflict_density",
-      "ruleName": "冲突密度规则",
-      "severity": "warning",
-      "message": "冲突点不足，当前3个，建议至少5个",
-      "suggestion": "增加角色间的矛盾或外部阻碍"
-    }
-  ],
-  "suggestions": [
-    "剧本质量良好，符合短剧制作标准",
-    "建议增加场景数量以丰富剧情"
-  ]
-}</div>
+                    <div class="file-path">types.ts:236-294</div>
+                    <div class="data-example">
+                        <h4>Script 数据结构</h4>
+                        <pre>{
+  id: "script_xxx",
+  projectId: "project_xxx",
+  title: "剧本标题",
+  content: "剧本原文内容...",
+  parseState: {
+    stage: "completed",
+    progress: 100,
+    metadata: { /* 元数据 */ },
+    characters: [ /* 角色数组 */ ],
+    scenes: [ /* 场景数组 */ ],
+    shots: [ /* 分镜数组 */ ]
+  }
+}</pre>
                     </div>
                 </div>
                 
@@ -825,39 +673,51 @@ if (!result) {
                 
                 <div class="step">
                     <div class="step-header">
-                        <div class="step-number">13</div>
-                        <div class="step-title">分镜生成</div>
+                        <div class="step-number">12</div>
+                        <div class="step-title">原子操作与并发控制</div>
                     </div>
                     <div class="step-desc">
-                        基于场景和角色信息生成分镜脚本。
+                        使用文件锁确保并发安全，支持断点续传和进度恢复。
                     </div>
-                    
-                    <div class="prompt-box">
-                        <div class="prompt-label">系统提示词 (System Prompt)</div>
-                        <div class="prompt-content">你是一个专业导演。请为以下场景设计分镜。
+                    <div class="code-block">
+                        <code><span class="keyword">async</span> saveScript(script: Script): Promise&lt;<span class="keyword">void</span>&gt; {
+  <span class="keyword">return</span> <span class="keyword">this</span>.lock(filename, <span class="keyword">async</span> () => {
+    <span class="keyword">const</span> scripts = <span class="keyword">await</span> <span class="keyword">this</span>.getScripts(script.projectId);
+    <span class="comment">// 原子更新</span>
+    scripts[index] = script;
+    <span class="keyword">await</span> <span class="keyword">this</span>.writeJson(filename, scripts);
+  });
+}</code>
+                    </div>
+                </div>
+            </div>
 
-分镜要求：
-1. 景别选择 - 特写/近景/中景/全景/远景
-2. 镜头运动 - 推/拉/摇/移/跟/升/降
-3. 拍摄角度 - 平视/俯视/仰视/倾斜
-4. 时长控制 - 每个镜头3-10秒
-5. 画面内容 - 详细描述画面元素
-
-输出JSON格式：
-{
-  "shots": [
-    {
-      "shotNumber": 1,
-      "shotType": "特写",
-      "cameraMovement": "推镜头",
-      "duration": 3,
-      "description": "画面描述",
-      "characters": ["角色名"],
-      "dialogue": "台词",
-      "visualPrompt": "AI绘画提示词"
-    }
-  ]
-}</div>
+            <!-- Phase 4: 结果展示 -->
+            <div class="phase">
+                <h2 class="phase-title">
+                    Phase 4: 结果展示与资产创建
+                    <span class="phase-badge">应用阶段</span>
+                </h2>
+                
+                <div class="step">
+                    <div class="step-header">
+                        <div class="step-number">13</div>
+                        <div class="step-title">角色映射</div>
+                    </div>
+                    <div class="step-desc">
+                        展示解析出的角色列表，支持关联到现有角色或批量创建新角色资产。
+                    </div>
+                    <div class="file-path">components/ScriptParser/CharacterMapping.tsx</div>
+                    <div class="code-block">
+                        <code><span class="comment">// 批量创建角色</span>
+<span class="keyword">const</span> handleBatchCreateCharacters = <span class="keyword">async</span> () => {
+  <span class="comment">// 1. 串行创建所有资产</span>
+  <span class="keyword">for</span> (<span class="keyword">const</span> char <span class="keyword">of</span> unmapped) {
+    <span class="keyword">const</span> assetId = <span class="keyword">await</span> createCharacterAsset(char);
+  }
+  <span class="comment">// 2. 统一更新所有状态</span>
+  onCharactersUpdate(updated);
+}</code>
                     </div>
                 </div>
                 
@@ -866,140 +726,129 @@ if (!result) {
                 <div class="step">
                     <div class="step-header">
                         <div class="step-number">14</div>
-                        <div class="step-title">人工审核 (HITL) <span class="warning-badge">关键节点</span></div>
+                        <div class="step-title">场景映射</div>
                     </div>
                     <div class="step-desc">
-                        使用<span class="highlight">HumanInTheLoop</span>在关键节点进行人工审核，确保质量。
+                        展示解析出的场景列表，支持创建场景资产。
                     </div>
-                    
-                    <div class="info-box">
-                        <div class="info-box-title">👥 4个审核节点</div>
-                        <p><strong>1. Story Bible:</strong> 故事圣经审核（锁定后不可变）</p>
-                        <p><strong>2. Character Design:</strong> 角色设计审核</p>
-                        <p><strong>3. Scene Outline:</strong> 场景大纲审核</p>
-                        <p><strong>4. Shot List:</strong> 分镜列表审核</p>
-                    </div>
-                    
-                    <div class="prompt-box">
-                        <div class="prompt-label">审核界面提示词</div>
-                        <div class="prompt-content">【故事圣经审核】
-
-请审核以下内容：
-
-📖 核心设定
-- 主题: [主题内容]
-- 基调: [情感基调]
-- 目标受众: [受众群体]
-
-👤 主要角色
-[角色列表及设定]
-
-🎬 关键场景
-[场景列表]
-
-✅ 审核选项:
-[通过] - 内容符合要求，进入下一阶段
-[修改] - 需要调整，请填写修改意见
-[拒绝] - 不符合要求，需要重新生成
-
-💡 修改建议:
-[文本输入框]</div>
-                    </div>
+                    <div class="file-path">components/ScriptParser/SceneMapping.tsx</div>
                 </div>
-            </div>
-
-            <!-- 输出结果 -->
-            <div class="phase">
-                <h2 class="phase-title">
-                    输出结果
-                    <span class="phase-badge">完成</span>
-                </h2>
+                
+                <div class="flow-arrow">⬇</div>
                 
                 <div class="step">
                     <div class="step-header">
                         <div class="step-number">15</div>
-                        <div class="step-title">生成完整解析结果</div>
+                        <div class="step-title">分镜管理</div>
                     </div>
                     <div class="step-desc">
-                        整合所有解析结果，生成最终的Script对象。
+                        表格/卡片视图展示分镜，支持编辑、删除、关键帧拆分。
                     </div>
-                    
+                    <div class="file-path">components/ScriptParser/ShotList.tsx</div>
+                </div>
+                
+                <div class="flow-arrow">⬇</div>
+                
+                <div class="step">
+                    <div class="step-header">
+                        <div class="step-number">16</div>
+                        <div class="step-title">关键帧生成</div>
+                    </div>
+                    <div class="step-desc">
+                        使用LLM将分镜拆分为2-4个关键帧，使用生图模型生成关键帧图片。
+                    </div>
+                    <div class="file-path">services/keyframe/KeyframeService.ts, KeyframeEngine.ts</div>
                     <div class="code-block">
-                        <code>// 最终输出结构
-{
-  "id": "script_xxx",
-  "projectId": "project_xxx",
-  "title": "小说标题",
-  "content": "原始文本",
-  "parseState": {
-    "stage": "completed",
-    "progress": 100,
-    "metadata": { ... },
-    "characters": [ ... ],
-    "scenes": [ ... ],
-    "shots": [ ... ]
-  },
-  "costEstimate": {
-    "totalTokens": 150000,
-    "totalUSD": 0.35,
-    "breakdown": { ... }
-  }
-}</code>
+                        <code><span class="comment">// 关键帧拆分</span>
+<span class="keyword">const</span> keyframes = <span class="keyword">await</span> keyframeService.splitKeyframes({
+  shot,
+  keyframeCount: 3,
+  projectId,
+  characterAssets,
+  sceneAsset
+});
+
+<span class="comment">// 生成关键帧图片</span>
+<span class="keyword">const</span> generatedImage = <span class="keyword">await</span> aiService.generateImage({
+  prompt: keyframe.prompt,
+  referenceImages
+});</code>
                     </div>
                 </div>
             </div>
 
-            <!-- 成本分析 -->
+            <!-- 关键文件汇总 -->
             <div class="phase">
                 <h2 class="phase-title">
-                    💰 成本分析
-                    <span class="phase-badge">经济效益</span>
+                    📁 关键文件路径汇总
+                    <span class="phase-badge">参考</span>
                 </h2>
                 
                 <table>
                     <tr>
-                        <th>优化项</th>
-                        <th>优化前</th>
-                        <th>优化后</th>
-                        <th>节约</th>
+                        <th>类别</th>
+                        <th>文件路径</th>
+                        <th>功能说明</th>
                     </tr>
                     <tr>
-                        <td>模型路由</td>
-                        <td>全部gpt-4o ($0.005/1K)</td>
-                        <td>智能选择 ($0.00015-$0.012/1K)</td>
-                        <td>20%</td>
+                        <td rowspan="5">页面与组件</td>
+                        <td>views/ScriptManager.tsx</td>
+                        <td>剧本管理主页面</td>
                     </tr>
                     <tr>
-                        <td>多级缓存</td>
-                        <td>0%命中率</td>
-                        <td>65%命中率</td>
-                        <td>35%</td>
+                        <td>components/ScriptParser/CharacterMapping.tsx</td>
+                        <td>角色映射组件</td>
                     </tr>
                     <tr>
-                        <td>语义分块</td>
-                        <td>固定6000字符</td>
-                        <td>智能边界</td>
-                        <td>15%</td>
+                        <td>components/ScriptParser/SceneMapping.tsx</td>
+                        <td>场景映射组件</td>
                     </tr>
                     <tr>
-                        <td>RAG检索</td>
-                        <td>全量上下文</td>
-                        <td>精准检索</td>
-                        <td>10%</td>
+                        <td>components/ScriptParser/ItemMapping.tsx</td>
+                        <td>物品映射组件</td>
                     </tr>
                     <tr>
-                        <td><strong>总计</strong></td>
-                        <td><strong>$1.64/部</strong></td>
-                        <td><strong>$0.33/部</strong></td>
-                        <td><strong>80%</strong></td>
+                        <td>components/ScriptParser/ShotList.tsx</td>
+                        <td>分镜列表组件</td>
+                    </tr>
+                    <tr>
+                        <td rowspan="4">核心服务</td>
+                        <td>services/textCleaner.ts</td>
+                        <td>文本清洗服务</td>
+                    </tr>
+                    <tr>
+                        <td>services/scriptParser.ts</td>
+                        <td>剧本解析器（1759行）</td>
+                    </tr>
+                    <tr>
+                        <td>services/storage.ts</td>
+                        <td>存储服务</td>
+                    </tr>
+                    <tr>
+                        <td>services/aiService.ts</td>
+                        <td>AI服务统一入口</td>
+                    </tr>
+                    <tr>
+                        <td rowspan="2">关键帧</td>
+                        <td>services/keyframe/KeyframeService.ts</td>
+                        <td>关键帧服务</td>
+                    </tr>
+                    <tr>
+                        <td>services/keyframe/KeyframeEngine.ts</td>
+                        <td>关键帧引擎</td>
+                    </tr>
+                    <tr>
+                        <td>类型定义</td>
+                        <td>types.ts</td>
+                        <td>所有TypeScript类型定义</td>
                     </tr>
                 </table>
             </div>
         </div>
         
         <div class="footer">
-            <p>AI影视资产生成平台 - 小说解析流程文档</p>
-            <p>基于优化后的架构 | 141个测试用例全部通过 | 完全向后兼容</p>
+            <p>📅 基于项目代码现状生成 | 🎬 AI影视资产生成平台</p>
+            <p style="margin-top: 10px; font-size: 0.9em;">反映实际工作流程，非设计文档</p>
         </div>
     </div>
 </body>
