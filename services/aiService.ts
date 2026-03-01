@@ -6,6 +6,9 @@ import { findModelConfig } from '../config/models';
 import { ViduProvider } from './ai/providers/ViduProvider';
 import { ModelscopeProvider } from './ai/providers/ModelscopeProvider';
 import { LLMProvider } from './ai/providers/LLMProvider';
+import { ErrorHandler, UserFriendlyError } from './errorHandler';
+
+export type { UserFriendlyError };
 
 export interface GenerationJobParams {
     projectId: string;
@@ -251,17 +254,33 @@ export class AIService {
     async generateImage(prompt: string, modelConfigId: string, referenceImages: string[], aspectRatio?: string, resolution?: string, count: number = 1, guidanceScale?: number, extraParams?: Record<string, any>): Promise<AIResult> {
         console.log(`[AIService] Generating image with model config ID: ${modelConfigId}, count: ${count}`);
         
-        const config = await this.getModelConfig(modelConfigId);
-        if (!config) {
-            return { success: false, error: `Model configuration not found for ID: ${modelConfigId}` };
-        }
+        try {
+            const config = await this.getModelConfig(modelConfigId);
+            if (!config) {
+                const error = ErrorHandler.handle(`Model configuration not found for ID: ${modelConfigId}`);
+                return { success: false, error: error.message };
+            }
 
-        const provider = this.providers.get(config.provider);
-        if (!provider) {
-             return { success: false, error: `Unsupported provider: ${config.provider}` };
+            const provider = this.providers.get(config.provider);
+            if (!provider) {
+                const error = ErrorHandler.handle(`Unsupported provider: ${config.provider}`);
+                return { success: false, error: error.message };
+            }
+            
+            const result = await provider.generateImage(prompt, config, referenceImages, aspectRatio, resolution, count, guidanceScale, extraParams);
+            
+            // 如果返回失败，转换错误信息
+            if (!result.success && result.error) {
+                const friendlyError = ErrorHandler.handle(result.error);
+                return { ...result, error: friendlyError.message };
+            }
+            
+            return result;
+        } catch (error) {
+            const friendlyError = ErrorHandler.handle(error);
+            console.error('[AIService] generateImage error:', error);
+            return { success: false, error: friendlyError.message };
         }
-        
-        return provider.generateImage(prompt, config, referenceImages, aspectRatio, resolution, count, guidanceScale, extraParams);
     }
 
     async generateVideo(prompt: string, modelConfigId: string, startImage?: string, endImage?: string, existingTaskId?: string, onTaskId?: (id: string) => void, extraParams?: Record<string, any>): Promise<AIResult> {
