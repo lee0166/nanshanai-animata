@@ -3,852 +3,1046 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI影视资产生成平台 - 小说解析实际工作流程</title>
+    <title>AI影视资产生成平台 - 小说解析技术流程详解</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-        
+
         body {
-            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            background: #0d1117;
             min-height: 100vh;
-            padding: 20px;
-            color: #e0e0e0;
+            color: #c9d1d9;
+            line-height: 1.6;
         }
-        
+
         .container {
-            max-width: 1400px;
+            max-width: 1600px;
             margin: 0 auto;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
-            overflow: hidden;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 20px;
         }
-        
+
+        /* 头部 */
         .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 40px;
-            text-align: center;
+            background: linear-gradient(135deg, #161b22 0%, #21262d 100%);
+            border: 1px solid #30363d;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
         }
-        
+
         .header h1 {
-            font-size: 2.5em;
+            font-size: 1.8rem;
+            color: #58a6ff;
             margin-bottom: 10px;
         }
-        
+
         .header p {
-            font-size: 1.2em;
-            opacity: 0.9;
+            color: #8b949e;
+            font-size: 0.95rem;
         }
-        
-        .content {
-            padding: 40px;
+
+        /* 技术流程卡片 */
+        .tech-card {
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            overflow: hidden;
         }
-        
-        .phase {
-            margin-bottom: 50px;
-            border-left: 4px solid #667eea;
-            padding-left: 30px;
+
+        .tech-header {
+            background: #21262d;
+            padding: 20px 25px;
+            border-bottom: 1px solid #30363d;
+            display: flex;
+            align-items: center;
+            gap: 15px;
         }
-        
-        .phase-title {
-            font-size: 1.8em;
+
+        .step-badge {
+            background: #238636;
             color: #fff;
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 0.9rem;
         }
-        
-        .phase-badge {
-            background: #667eea;
-            color: white;
-            padding: 5px 15px;
-            border-radius: 20px;
-            font-size: 0.6em;
-            margin-left: 15px;
+
+        .tech-title {
+            flex: 1;
         }
-        
-        .step {
-            background: rgba(0, 0, 0, 0.2);
-            border-radius: 15px;
+
+        .tech-title h2 {
+            color: #fff;
+            font-size: 1.3rem;
+            margin-bottom: 5px;
+        }
+
+        .tech-title .file-path {
+            color: #8b949e;
+            font-size: 0.85rem;
+        }
+
+        .tech-content {
             padding: 25px;
-            margin-bottom: 20px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            transition: all 0.3s ease;
         }
-        
-        .step:hover {
-            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
-            transform: translateX(5px);
-            background: rgba(0, 0, 0, 0.3);
+
+        /* 输入输出区域 */
+        .io-section {
+            display: grid;
+            grid-template-columns: 1fr 60px 1fr;
+            gap: 20px;
+            margin-bottom: 25px;
         }
-        
-        .step-header {
-            display: flex;
-            align-items: center;
+
+        .io-box {
+            background: #0d1117;
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            padding: 20px;
+        }
+
+        .io-box h3 {
+            color: #58a6ff;
+            font-size: 0.9rem;
             margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #21262d;
         }
-        
-        .step-number {
-            background: #667eea;
-            color: white;
-            width: 35px;
-            height: 35px;
-            border-radius: 50%;
+
+        .io-arrow {
             display: flex;
             align-items: center;
             justify-content: center;
-            font-weight: bold;
-            margin-right: 15px;
+            font-size: 2rem;
+            color: #238636;
         }
-        
-        .step-title {
-            font-size: 1.3em;
-            color: #fff;
-            font-weight: 600;
-        }
-        
-        .step-desc {
-            color: #bbb;
-            margin-bottom: 15px;
-            line-height: 1.6;
-        }
-        
-        .file-path {
-            display: inline-block;
-            background: rgba(123, 44, 191, 0.3);
-            color: #b794f6;
-            padding: 4px 10px;
-            border-radius: 4px;
-            font-size: 0.85em;
-            font-family: 'Consolas', monospace;
-            margin: 5px 0;
-        }
-        
-        .code-block {
-            background: #1e1e1e;
-            border-radius: 8px;
-            padding: 15px;
-            margin: 10px 0;
-            overflow-x: auto;
-            border: 1px solid #333;
-        }
-        
-        .code-block code {
-            color: #68d391;
-            font-family: 'Consolas', 'Monaco', monospace;
-            font-size: 0.85em;
-            line-height: 1.5;
-        }
-        
-        .code-block .comment { color: #6a9955; }
-        .code-block .keyword { color: #569cd6; }
-        .code-block .string { color: #ce9178; }
-        
-        .data-example {
-            background: rgba(0, 212, 255, 0.1);
-            border: 1px solid rgba(0, 212, 255, 0.3);
-            border-radius: 8px;
-            padding: 15px;
-            margin: 10px 0;
-        }
-        
-        .data-example h4 {
-            color: #00d4ff;
-            margin-bottom: 10px;
-            font-size: 0.9em;
-        }
-        
-        .data-example pre {
-            font-family: 'Consolas', monospace;
-            font-size: 0.8em;
-            color: #ccc;
-            overflow-x: auto;
-        }
-        
-        .flow-arrow {
-            text-align: center;
-            font-size: 2em;
-            color: #667eea;
-            margin: 20px 0;
-        }
-        
-        .tech-stack {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
+
+        /* 规则列表 */
+        .rules-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 15px;
             margin-top: 15px;
         }
-        
-        .tech-tag {
-            background: rgba(102, 126, 234, 0.2);
-            color: #a0aec0;
-            padding: 5px 12px;
-            border-radius: 15px;
-            font-size: 0.85em;
-            border: 1px solid rgba(102, 126, 234, 0.3);
+
+        .rule-item {
+            background: #0d1117;
+            border-left: 3px solid #58a6ff;
+            padding: 15px;
+            border-radius: 0 8px 8px 0;
         }
-        
-        table {
+
+        .rule-item h4 {
+            color: #fff;
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+        }
+
+        .rule-item .code {
+            color: #a5d6ff;
+            font-size: 0.8rem;
+            background: #21262d;
+            padding: 8px;
+            border-radius: 4px;
+            margin-top: 8px;
+            overflow-x: auto;
+        }
+
+        /* 数据表格 */
+        .data-table {
             width: 100%;
             border-collapse: collapse;
-            margin: 20px 0;
-            background: rgba(0, 0, 0, 0.2);
-            border-radius: 8px;
-            overflow: hidden;
+            margin-top: 15px;
+            font-size: 0.85rem;
         }
-        
-        th {
-            background: #667eea;
-            color: white;
-            padding: 15px;
+
+        .data-table th {
+            background: #21262d;
+            color: #58a6ff;
+            padding: 12px;
             text-align: left;
-            font-weight: 600;
+            border-bottom: 2px solid #30363d;
         }
-        
-        td {
-            padding: 12px 15px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            color: #bbb;
+
+        .data-table td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #21262d;
+            color: #c9d1d9;
         }
-        
-        tr:hover {
-            background: rgba(255, 255, 255, 0.05);
+
+        .data-table tr:hover td {
+            background: #21262d;
         }
-        
-        .parse-stages {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 15px;
+
+        /* 代码块 */
+        .code-block {
+            background: #0d1117;
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 15px;
+            overflow-x: auto;
+        }
+
+        .code-block .comment {
+            color: #8b949e;
+        }
+
+        .code-block .keyword {
+            color: #ff7b72;
+        }
+
+        .code-block .string {
+            color: #a5d6ff;
+        }
+
+        .code-block .function {
+            color: #d2a8ff;
+        }
+
+        .code-block .variable {
+            color: #79c0ff;
+        }
+
+        /* 流程图 */
+        .flow-chart {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
             margin: 20px 0;
         }
-        
-        .parse-stage {
-            background: rgba(102, 126, 234, 0.1);
-            border: 1px solid rgba(102, 126, 234, 0.3);
-            border-radius: 10px;
-            padding: 15px;
-            text-align: center;
+
+        .flow-step {
+            display: flex;
+            align-items: center;
+            gap: 15px;
         }
-        
-        .parse-stage-number {
-            font-size: 1.5em;
-            font-weight: bold;
-            color: #667eea;
+
+        .flow-box {
+            background: #21262d;
+            border: 1px solid #30363d;
+            padding: 12px 20px;
+            border-radius: 6px;
+            min-width: 200px;
         }
-        
-        .parse-stage-name {
-            font-weight: 600;
+
+        .flow-box h4 {
             color: #fff;
-            margin: 10px 0;
+            font-size: 0.9rem;
         }
-        
-        .parse-stage-progress {
-            font-size: 0.85em;
-            color: #888;
+
+        .flow-box p {
+            color: #8b949e;
+            font-size: 0.8rem;
+            margin-top: 4px;
         }
-        
-        .footer {
-            background: rgba(0, 0, 0, 0.3);
-            color: #888;
-            padding: 30px;
+
+        .flow-arrow-down {
+            color: #238636;
+            font-size: 1.5rem;
+            margin-left: 20px;
+        }
+
+        /* 标签 */
+        .tag {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            margin-right: 8px;
+        }
+
+        .tag-green {
+            background: rgba(35, 134, 54, 0.2);
+            color: #3fb950;
+        }
+
+        .tag-blue {
+            background: rgba(88, 166, 255, 0.2);
+            color: #58a6ff;
+        }
+
+        .tag-yellow {
+            background: rgba(210, 153, 34, 0.2);
+            color: #d29922;
+        }
+
+        /* 统计信息 */
+        .stats-bar {
+            display: flex;
+            gap: 30px;
+            padding: 20px;
+            background: #0d1117;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+
+        .stat-item {
             text-align: center;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
         }
-        
-        @media (max-width: 768px) {
-            .content {
-                padding: 20px;
+
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #58a6ff;
+        }
+
+        .stat-label {
+            color: #8b949e;
+            font-size: 0.85rem;
+            margin-top: 5px;
+        }
+
+        /* 配置参数 */
+        .config-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .config-item {
+            background: #0d1117;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #30363d;
+        }
+
+        .config-item h4 {
+            color: #d29922;
+            font-size: 0.85rem;
+            margin-bottom: 8px;
+        }
+
+        .config-item p {
+            color: #c9d1d9;
+            font-size: 0.85rem;
+        }
+
+        .config-item .value {
+            color: #a5d6ff;
+            font-family: monospace;
+        }
+
+        /* 响应式 */
+        @media (max-width: 1200px) {
+            .io-section {
+                grid-template-columns: 1fr;
             }
-            
-            .phase {
-                padding-left: 15px;
+
+            .io-arrow {
+                transform: rotate(90deg);
             }
-            
-            .header h1 {
-                font-size: 1.8em;
-            }
-            
-            .parse-stages {
-                grid-template-columns: repeat(2, 1fr);
-            }
+        }
+
+        /* 滚动条 */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #0d1117;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #30363d;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #484f58;
         }
     </style>
 </head>
 <body>
     <div class="container">
+        <!-- 头部 -->
         <div class="header">
-            <h1>🎬 AI影视资产生成平台</h1>
-            <p>小说解析实际工作流程 - 基于项目代码现状</p>
+            <h1>🎬 AI影视资产生成平台 - 技术流程详解</h1>
+            <p>细颗粒度技术实现 | 从原始文本到AI生成资产的完整数据流</p>
         </div>
-        
-        <div class="content">
-            <!-- 流程概览 -->
-            <div class="phase">
-                <h2 class="phase-title">
-                    📋 流程概览
-                    <span class="phase-badge">总览</span>
-                </h2>
-                <table>
-                    <tr>
-                        <th>阶段</th>
-                        <th>主要功能</th>
-                        <th>涉及文件</th>
-                        <th>输出结果</th>
-                    </tr>
-                    <tr>
-                        <td><strong>Phase 1</strong></td>
-                        <td>小说上传与文本处理</td>
-                        <td>ScriptManager.tsx, textCleaner.ts</td>
-                        <td>清洗后的文本、章节结构</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Phase 2</strong></td>
-                        <td>剧本解析（4阶段流水线）</td>
-                        <td>scriptParser.ts</td>
-                        <td>元数据、角色、场景、分镜</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Phase 3</strong></td>
-                        <td>数据存储</td>
-                        <td>storage.ts</td>
-                        <td>持久化存储到本地文件系统</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Phase 4</strong></td>
-                        <td>结果展示与资产创建</td>
-                        <td>CharacterMapping.tsx, SceneMapping.tsx, ShotList.tsx</td>
-                        <td>可视化展示、批量创建资产</td>
-                    </tr>
+
+        <!-- Step 1: 文本清洗 -->
+        <div class="tech-card">
+            <div class="tech-header">
+                <div class="step-badge">STEP 1</div>
+                <div class="tech-title">
+                    <h2>文本预处理与清洗</h2>
+                    <div class="file-path">services/textCleaner.ts | TextCleaner.process()</div>
+                </div>
+            </div>
+            <div class="tech-content">
+                <div class="io-section">
+                    <div class="io-box">
+                        <h3>📥 输入数据</h3>
+                        <p>原始小说文本（txt/html/docx）</p>
+                        <div class="code-block" style="margin-top: 10px;">
+<span class="variable">原始文本</span>: <span class="string">string</span>
+<span class="comment">// 包含HTML实体、控制字符、不一致换行符</span>
+                        </div>
+                    </div>
+                    <div class="io-arrow">→</div>
+                    <div class="io-box">
+                        <h3>📤 输出数据</h3>
+                        <p>TextCleanResult 对象</p>
+                        <div class="code-block" style="margin-top: 10px;">
+{
+  <span class="variable">cleanedText</span>: <span class="string">string</span>,
+  <span class="variable">chapters</span>: <span class="string">Chapter[]</span>,
+  <span class="variable">stats</span>: {
+    <span class="variable">originalLength</span>: <span class="string">number</span>,
+    <span class="variable">cleanedLength</span>: <span class="string">number</span>,
+    <span class="variable">chapterCount</span>: <span class="string">number</span>,
+    <span class="variable">removedChars</span>: <span class="string">number</span>
+  }
+}
+                        </div>
+                    </div>
+                </div>
+
+                <h3 style="color: #58a6ff; margin-bottom: 15px;">⚙️ 7条系统性清洗规则</h3>
+                <div class="rules-grid">
+                    <div class="rule-item">
+                        <h4>1. 统一换行符</h4>
+                        <p>将 \r\n 和 \r 统一转换为 \n</p>
+                        <div class="code">cleaned.replace(/\r\n/g, '\n')</div>
+                    </div>
+                    <div class="rule-item">
+                        <h4>2. 去除控制字符</h4>
+                        <p>保留换行、制表符，清除其他控制字符</p>
+                        <div class="code">replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F-\x9F]/g, '')</div>
+                    </div>
+                    <div class="rule-item">
+                        <h4>3. 合并多余空行</h4>
+                        <p>3个及以上换行合并为2个</p>
+                        <div class="code">replace(/\n{3,}/g, '\n\n')</div>
+                    </div>
+                    <div class="rule-item">
+                        <h4>4. 去除行首尾空白</h4>
+                        <p>清除每行开头和结尾的空格和制表符</p>
+                        <div class="code">replace(/^[ \t]+|[ \t]+$/gm, '')</div>
+                    </div>
+                    <div class="rule-item">
+                        <h4>5. 统一空格</h4>
+                        <p>多个空格合并为一个</p>
+                        <div class="code">replace(/[ \t]+/g, ' ')</div>
+                    </div>
+                    <div class="rule-item">
+                        <h4>6. 去除空行空格</h4>
+                        <p>清除空行中的空格字符</p>
+                        <div class="code">replace(/\n[ \t]+\n/g, '\n\n')</div>
+                    </div>
+                    <div class="rule-item">
+                        <h4>7. 章节提取</h4>
+                        <p>识别【第X章】、Chapter X、X. 标题等格式</p>
+                        <div class="code">/^第[一二三四五六七八九十百千万\d]+[章集回节]/m</div>
+                    </div>
+                </div>
+
+                <div class="stats-bar">
+                    <div class="stat-item">
+                        <div class="stat-value">7</div>
+                        <div class="stat-label">清洗规则</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">27</div>
+                        <div class="stat-label">测试用例</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">3</div>
+                        <div class="stat-label">章节匹配模式</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 2: 语义分块 -->
+        <div class="tech-card">
+            <div class="tech-header">
+                <div class="step-badge">STEP 2</div>
+                <div class="tech-title">
+                    <h2>语义分块与上下文管理</h2>
+                    <div class="file-path">services/parsing/SemanticChunker.ts | SemanticChunker.chunk()</div>
+                </div>
+            </div>
+            <div class="tech-content">
+                <div class="io-section">
+                    <div class="io-box">
+                        <h3>📥 输入数据</h3>
+                        <p>清洗后的章节内容</p>
+                        <div class="code-block" style="margin-top: 10px;">
+<span class="variable">content</span>: <span class="string">string</span>
+<span class="variable">options</span>: {
+  <span class="variable">maxTokens</span>: <span class="string">4000</span>,
+  <span class="variable">preserveParagraphs</span>: <span class="string">true</span>,
+  <span class="variable">extractMetadata</span>: <span class="string">false</span>
+}
+                        </div>
+                    </div>
+                    <div class="io-arrow">→</div>
+                    <div class="io-box">
+                        <h3>📤 输出数据</h3>
+                        <p>SemanticChunk[] 数组</p>
+                        <div class="code-block" style="margin-top: 10px;">
+{
+  <span class="variable">id</span>: <span class="string">string</span>,
+  <span class="variable">content</span>: <span class="string">string</span>,
+  <span class="variable">prevContext</span>: <span class="string">string</span>,  <span class="comment">// 前500字</span>
+  <span class="variable">boundaries</span>: <span class="string">ChunkBoundary[]</span>,
+  <span class="variable">metadata</span>: {
+    <span class="variable">characters</span>: <span class="string">string[]</span>,
+    <span class="variable">sceneHint</span>: <span class="string">string</span>,
+    <span class="variable">importance</span>: <span class="string">number</span>,
+    <span class="variable">chunkType</span>: <span class="string">'dialogue'|'action'|'description'|'transition'</span>
+  }
+}
+                        </div>
+                    </div>
+                </div>
+
+                <h3 style="color: #58a6ff; margin-bottom: 15px;">⚙️ 分隔符优先级规则（按权重排序）</h3>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>优先级</th>
+                            <th>分隔符类型</th>
+                            <th>匹配模式（正则）</th>
+                            <th>权重</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><span class="tag tag-green">最高</span></td>
+                            <td>章节标记</td>
+                            <td><code>/【第[一二三四五六七八九十百千万]+[章回]】/g</code></td>
+                            <td>100</td>
+                        </tr>
+                        <tr>
+                            <td><span class="tag tag-green">最高</span></td>
+                            <td>章节标记</td>
+                            <td><code>/第[一二三四五六七八九十百千万]+章/g</code></td>
+                            <td>100</td>
+                        </tr>
+                        <tr>
+                            <td><span class="tag tag-green">最高</span></td>
+                            <td>Chapter标记</td>
+                            <td><code>/Chapter\s+\d+/gi</code></td>
+                            <td>100</td>
+                        </tr>
+                        <tr>
+                            <td><span class="tag tag-blue">中等</span></td>
+                            <td>段落边界</td>
+                            <td><code>/\n{2,}/g</code></td>
+                            <td>50</td>
+                        </tr>
+                        <tr>
+                            <td><span class="tag tag-yellow">低</span></td>
+                            <td>句子边界</td>
+                            <td><code>/[。！？；]/g</code></td>
+                            <td>20</td>
+                        </tr>
+                    </tbody>
                 </table>
-            </div>
 
-            <!-- Phase 1: 上传与文本处理 -->
-            <div class="phase">
-                <h2 class="phase-title">
-                    Phase 1: 小说上传与文本处理
-                    <span class="phase-badge">准备阶段</span>
-                </h2>
-                
-                <div class="step">
-                    <div class="step-header">
-                        <div class="step-number">1</div>
-                        <div class="step-title">文件上传</div>
-                    </div>
-                    <div class="step-desc">
-                        用户在剧本管理页面点击"导入剧本"按钮，选择小说文件。支持 .txt、.md、.docx 格式。
-                    </div>
-                    <div class="file-path">views/ScriptManager.tsx:831-839</div>
-                    <div class="code-block">
-                        <code>&lt;input
-  type="file"
-  accept=".txt,.md,.docx"
-  onChange={handleFileUpload}
-/&gt;</code>
-                    </div>
-                </div>
-                
-                <div class="flow-arrow">⬇</div>
-                
-                <div class="step">
-                    <div class="step-header">
-                        <div class="step-number">2</div>
-                        <div class="step-title">文本读取与编码检测</div>
-                    </div>
-                    <div class="step-desc">
-                        使用 File API 读取文件内容，检测编码问题（乱码、混合换行符、多余空行等）。
-                    </div>
-                    <div class="file-path">views/ScriptManager.tsx:221-256</div>
-                    <div class="code-block">
-                        <code><span class="keyword">const</span> <span class="string">handleFileUpload</span> = <span class="keyword">async</span> (e) => {
-  <span class="keyword">const</span> file = e.target.files?.[0];
-  <span class="keyword">const</span> rawText = <span class="keyword">await</span> file.text();
+                <div class="code-block" style="margin-top: 20px;">
+<span class="comment">// 分块算法核心逻辑</span>
+<span class="keyword">async</span> <span class="function">chunk</span>(<span class="variable">content</span>: <span class="string">string</span>): <span class="string">Promise&lt;SemanticChunk[]&gt;</span> {
+  <span class="comment">// 步骤1: 识别所有潜在分割点</span>
+  <span class="keyword">const</span> <span class="variable">boundaries</span> = <span class="keyword">this</span>.<span class="function">identifyBoundaries</span>(content);
   
-  <span class="comment">// 检测编码问题</span>
-  <span class="keyword">const</span> issues = TextCleaner.detectEncodingIssues(rawText);
+  <span class="comment">// 步骤2: 基于权重和maxTokens生成分块</span>
+  <span class="keyword">const</span> <span class="variable">chunks</span> = <span class="keyword">this</span>.<span class="function">createChunks</span>(content, boundaries);
   
-  <span class="comment">// 清洗文本</span>
-  <span class="keyword">const</span> cleanResult = TextCleaner.process(rawText);
-  setScriptContent(cleanResult.cleanedText);
-}</code>
-                    </div>
-                </div>
-                
-                <div class="flow-arrow">⬇</div>
-                
-                <div class="step">
-                    <div class="step-header">
-                        <div class="step-number">3</div>
-                        <div class="step-title">文本清洗</div>
-                    </div>
-                    <div class="step-desc">
-                        对原始文本进行清洗处理：统一换行符、去除控制字符、合并多余空行、去除首尾空白等。
-                    </div>
-                    <div class="file-path">services/textCleaner.ts:29-59</div>
-                    <div class="code-block">
-                        <code><span class="keyword">static</span> clean(text: <span class="keyword">string</span>): <span class="keyword">string</span> {
-  <span class="keyword">let</span> cleaned = text;
+  <span class="comment">// 步骤3: 为每个分块添加上下文（前500字）</span>
+  <span class="keyword">this</span>.<span class="function">addContext</span>(chunks);
   
-  <span class="comment">// 1. 统一换行符</span>
-  cleaned = cleaned.replace(<span class="string">/\r\n/g</span>, <span class="string">'\n'</span>);
-  cleaned = cleaned.replace(<span class="string">/\r/g</span>, <span class="string">'\n'</span>);
+  <span class="comment">// 步骤4: 提取元数据（角色、场景提示、重要性）</span>
+  <span class="keyword">await</span> <span class="keyword">this</span>.<span class="function">enrichMetadata</span>(chunks);
   
-  <span class="comment">// 2. 去除控制字符</span>
-  cleaned = cleaned.replace(<span class="string">/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F-\x9F]/g</span>, <span class="string">''</span>);
-  
-  <span class="comment">// 3. 合并多余空行</span>
-  cleaned = cleaned.replace(<span class="string">/\n{3,}/g</span>, <span class="string">'\n\n'</span>);
-  
-  <span class="comment">// 4. 去除首尾空白</span>
-  cleaned = cleaned.trim();
-  
-  <span class="keyword">return</span> cleaned;
-}</code>
-                    </div>
-                </div>
-                
-                <div class="flow-arrow">⬇</div>
-                
-                <div class="step">
-                    <div class="step-header">
-                        <div class="step-number">4</div>
-                        <div class="step-title">章节提取</div>
-                    </div>
-                    <div class="step-desc">
-                        识别章节标题（第X章、Chapter X、X. 标题等），提取章节结构。
-                    </div>
-                    <div class="file-path">services/textCleaner.ts:66-122</div>
-                    <div class="data-example">
-                        <h4>章节提取结果</h4>
-                        <pre>{
-  chapters: [
-    { title: "第一章 开始", content: "...", index: 1 },
-    { title: "第二章 发展", content: "...", index: 2 }
-  ],
-  stats: {
-    originalLength: 50000,
-    cleanedLength: 48000,
-    chapterCount: 10,
-    removedChars: 2000
-  }
-}</pre>
-                    </div>
+  <span class="keyword">return</span> chunks;
+}
                 </div>
             </div>
+        </div>
 
-            <!-- Phase 2: 剧本解析 -->
-            <div class="phase">
-                <h2 class="phase-title">
-                    Phase 2: 剧本解析
-                    <span class="phase-badge">核心阶段</span>
-                </h2>
-                
-                <div class="parse-stages">
-                    <div class="parse-stage">
-                        <div class="parse-stage-number">1</div>
-                        <div class="parse-stage-name">元数据</div>
-                        <div class="parse-stage-progress">10-20%</div>
+        <!-- Step 3: 元数据提取 -->
+        <div class="tech-card">
+            <div class="tech-header">
+                <div class="step-badge">STEP 3</div>
+                <div class="tech-title">
+                    <h2>元数据提取（Metadata）</h2>
+                    <div class="file-path">services/scriptParser.ts | parseMetadata()</div>
+                </div>
+            </div>
+            <div class="tech-content">
+                <div class="io-section">
+                    <div class="io-box">
+                        <h3>📥 输入数据</h3>
+                        <p>分块后的文本内容 + LLM配置</p>
+                        <div class="code-block" style="margin-top: 10px;">
+<span class="variable">content</span>: <span class="string">string</span>
+<span class="variable">modelConfig</span>: {
+  <span class="variable">modelId</span>: <span class="string">'gpt-4o-mini'</span>,
+  <span class="variable">temperature</span>: <span class="string">0.3</span>,
+  <span class="variable">maxTokens</span>: <span class="string">2000</span>
+}
+                        </div>
                     </div>
-                    <div class="parse-stage">
-                        <div class="parse-stage-number">2</div>
-                        <div class="parse-stage-name">角色分析</div>
-                        <div class="parse-stage-progress">25-50%</div>
-                    </div>
-                    <div class="parse-stage">
-                        <div class="parse-stage-number">3</div>
-                        <div class="parse-stage-name">场景分析</div>
-                        <div class="parse-stage-progress">50-70%</div>
-                    </div>
-                    <div class="parse-stage">
-                        <div class="parse-stage-number">4</div>
-                        <div class="parse-stage-name">分镜生成</div>
-                        <div class="parse-stage-progress">70-100%</div>
+                    <div class="io-arrow">→</div>
+                    <div class="io-box">
+                        <h3>📤 输出数据</h3>
+                        <p>ScriptMetadata JSON对象</p>
+                        <div class="code-block" style="margin-top: 10px;">
+{
+  <span class="variable">title</span>: <span class="string">"作品标题"</span>,
+  <span class="variable">wordCount</span>: <span class="string">15000</span>,
+  <span class="variable">estimatedDuration</span>: <span class="string">"10分钟"</span>,
+  <span class="variable">characterCount</span>: <span class="string">8</span>,
+  <span class="variable">characterNames</span>: [<span class="string">"角色1"</span>, <span class="string">"角色2"</span>],
+  <span class="variable">sceneCount</span>: <span class="string">12</span>,
+  <span class="variable">genre</span>: <span class="string">"古装宅斗"</span>,
+  <span class="variable">tone</span>: <span class="string">"爽剧"</span>
+}
+                        </div>
                     </div>
                 </div>
 
-                <div class="step">
-                    <div class="step-header">
-                        <div class="step-number">5</div>
-                        <div class="step-title">解析触发</div>
-                    </div>
-                    <div class="step-desc">
-                        用户点击"一键解析"或选择分步解析。支持断点续传，可从上次中断处继续。
-                    </div>
-                    <div class="file-path">views/ScriptManager.tsx:412-501</div>
-                    <div class="code-block">
-                        <code><span class="comment">// 一键解析（全自动）</span>
-<span class="keyword">const</span> handleParseScript = <span class="keyword">async</span> () => {
-  <span class="comment">// 完整解析流程：metadata → characters → scenes → shots</span>
-};
+                <h3 style="color: #58a6ff; margin-bottom: 15px;">⚙️ Prompt模板（Metadata提取）</h3>
+                <div class="code-block">
+<span class="comment">// services/scriptParser.ts:78-110</span>
+<span class="keyword">const</span> <span class="variable">METADATA_PROMPT</span> = <span class="string">`
+请快速分析以下剧本/小说内容，提取基础元数据：
 
-<span class="comment">// 分步解析（手动控制）</span>
-<span class="keyword">const</span> handleParseStage = <span class="keyword">async</span> (stage: <span class="string">'metadata'</span> | <span class="string">'characters'</span> | <span class="string">'scenes'</span> | <span class="string">'shots'</span>) => {
-  <span class="comment">// 单独执行某个解析阶段</span>
-};</code>
+【剧本内容】
+{content}
+
+请提取：
+1. 作品标题
+2. 总字数
+3. 预估时长（如"10分钟"）
+4. 主要角色数量
+5. 主要角色名称列表（仅名称）
+6. 主要场景数量
+7. 主要场景名称列表（仅名称）
+8. 章节/幕数
+9. 故事类型（古装/现代/科幻/悬疑等）
+10. 整体基调（喜剧/悲剧/正剧）
+
+请严格按以下JSON格式输出：
+{
+  "title": "作品标题",
+  "wordCount": 15000,
+  "estimatedDuration": "10分钟",
+  "characterCount": 8,
+  "characterNames": ["角色1", "角色2"],
+  "sceneCount": 12,
+  "sceneNames": ["场景1", "场景2"],
+  "chapterCount": 5,
+  "genre": "古装宅斗",
+  "tone": "爽剧"
+}
+`</span>
+                </div>
+
+                <div class="config-grid">
+                    <div class="config-item">
+                        <h4>CONFIG.maxRetries</h4>
+                        <p>最大重试次数: <span class="value">3</span></p>
+                    </div>
+                    <div class="config-item">
+                        <h4>CONFIG.retryDelay</h4>
+                        <p>重试延迟: <span class="value">2000ms</span> (指数退避)</p>
+                    </div>
+                    <div class="config-item">
+                        <h4>CONFIG.timeout</h4>
+                        <p>API超时: <span class="value">60000ms</span></p>
+                    </div>
+                    <div class="config-item">
+                        <h4>CONFIG.concurrency</h4>
+                        <p>并发控制: <span class="value">1</span> (避免限流)</p>
                     </div>
                 </div>
-                
-                <div class="flow-arrow">⬇</div>
-                
-                <div class="step">
-                    <div class="step-header">
-                        <div class="step-number">6</div>
-                        <div class="step-title">Stage 1: 元数据提取</div>
-                    </div>
-                    <div class="step-desc">
-                        提取作品标题、字数、角色数量、场景数量、故事类型、整体基调等基础信息。输入前3000字符。
-                    </div>
-                    <div class="file-path">services/scriptParser.ts:949-970</div>
-                    <div class="data-example">
-                        <h4>元数据输出</h4>
-                        <pre>{
-  title: "作品标题",
-  wordCount: 15000,
-  estimatedDuration: "10分钟",
-  characterCount: 8,
-  characterNames: ["角色1", "角色2"],
-  sceneCount: 12,
-  sceneNames: ["场景1", "场景2"],
-  genre: "古装宅斗",
-  tone: "爽剧"
-}</pre>
-                    </div>
+            </div>
+        </div>
+
+        <!-- Step 4: 角色分析 -->
+        <div class="tech-card">
+            <div class="tech-header">
+                <div class="step-badge">STEP 4</div>
+                <div class="tech-title">
+                    <h2>角色分析（Characters）</h2>
+                    <div class="file-path">services/scriptParser.ts | parseCharacters()</div>
                 </div>
-                
-                <div class="flow-arrow">⬇</div>
-                
-                <div class="step">
-                    <div class="step-header">
-                        <div class="step-number">7</div>
-                        <div class="step-title">Stage 2: 角色分析</div>
+            </div>
+            <div class="tech-content">
+                <div class="io-section">
+                    <div class="io-box">
+                        <h3>📥 输入数据</h3>
+                        <p>角色名称列表 + 剧本全文</p>
+                        <div class="code-block" style="margin-top: 10px;">
+<span class="variable">characterNames</span>: <span class="string">string[]</span>
+<span class="variable">scriptContent</span>: <span class="string">string</span>
+<span class="comment">// 对每个角色单独调用LLM</span>
+                        </div>
                     </div>
-                    <div class="step-desc">
-                        分析每个角色的外貌特征、性格特质、标志性物品、情感弧线、人物关系、视觉提示等。使用批量API调用优化。
-                    </div>
-                    <div class="file-path">services/scriptParser.ts:975-1025, 1183-1205</div>
-                    <div class="data-example">
-                        <h4>角色分析输出</h4>
-                        <pre>{
-  name: "角色名",
-  gender: "female",
-  age: "25",
-  identity: "身份",
-  appearance: {
-    height: "165cm",
-    build: "苗条",
-    face: "瓜子脸",
-    hair: "长发",
-    clothing: "古装"
+                    <div class="io-arrow">→</div>
+                    <div class="io-box">
+                        <h3>📤 输出数据</h3>
+                        <p>ScriptCharacter[] 数组</p>
+                        <div class="code-block" style="margin-top: 10px;">
+{
+  <span class="variable">id</span>: <span class="string">string</span>,
+  <span class="variable">name</span>: <span class="string">"角色名"</span>,
+  <span class="variable">gender</span>: <span class="string">"male"|"female"|"unknown"</span>,
+  <span class="variable">age</span>: <span class="string">"18"</span>,  <span class="comment">// 纯数字</span>
+  <span class="variable">identity</span>: <span class="string">"身份/职业"</span>,
+  <span class="variable">appearance</span>: {
+    <span class="variable">height</span>: <span class="string">string</span>,
+    <span class="variable">build</span>: <span class="string">string</span>,
+    <span class="variable">face</span>: <span class="string">string</span>,
+    <span class="variable">hair</span>: <span class="string">string</span>,
+    <span class="variable">clothing</span>: <span class="string">string</span>
   },
-  personality: ["温柔", "坚强"],
-  signatureItems: ["玉佩"],
-  visualPrompt: "AI绘画提示词"
-}</pre>
+  <span class="variable">signatureItems</span>: <span class="string">string[]</span>,
+  <span class="variable">visualPrompt</span>: <span class="string">string</span>
+}
+                        </div>
                     </div>
                 </div>
-                
-                <div class="flow-arrow">⬇</div>
-                
-                <div class="step">
-                    <div class="step-header">
-                        <div class="step-number">8</div>
-                        <div class="step-title">Stage 3: 场景分析</div>
-                    </div>
-                    <div class="step-desc">
-                        分析每个场景的地点类型、时间、天气、环境特征、场景功能、视觉提示等。
-                    </div>
-                    <div class="file-path">services/scriptParser.ts:1030-1078</div>
-                    <div class="data-example">
-                        <h4>场景分析输出</h4>
-                        <pre>{
-  name: "场景名",
-  locationType: "indoor",
-  description: "纯环境描述",
-  timeOfDay: "晚上",
-  season: "春天",
-  weather: "晴朗",
-  environment: {
-    architecture: "古代建筑",
-    furnishings: ["桌椅", "屏风"],
-    lighting: "烛光",
-    colorTone: "暖色调"
+
+                <h3 style="color: #58a6ff; margin-bottom: 15px;">⚙️ 外貌特征提取Prompt</h3>
+                <div class="code-block">
+<span class="comment">// 角色外貌特征JSON Schema</span>
+{
+  <span class="variable">name</span>: <span class="string">"角色名"</span>,
+  <span class="variable">gender</span>: <span class="string">"male/female/unknown"</span>,
+  <span class="variable">age</span>: <span class="string">"18"</span>,  <span class="comment">// 必须是纯数字</span>
+  <span class="variable">identity</span>: <span class="string">"身份/职业"</span>,
+  <span class="variable">appearance</span>: {
+    <span class="variable">height</span>: <span class="string">"身高描述，如：约165cm、身材高挑"</span>,
+    <span class="variable">build</span>: <span class="string">"体型描述，如：体型匀称、身材苗条"</span>,
+    <span class="variable">face</span>: <span class="string">"面容特征，如：瓜子脸、柳叶眉、丹凤眼"</span>,
+    <span class="variable">hair</span>: <span class="string">"发型描述，如：乌黑长发及腰、短发齐耳"</span>,
+    <span class="variable">clothing</span>: <span class="string">"服饰描述，如：淡蓝色汉服长裙"</span>
   },
-  visualPrompt: "AI绘画提示词"
-}</pre>
-                    </div>
+  <span class="variable">signatureItems</span>: [
+    <span class="string">"随身标志性物品：玉佩、长剑、折扇、眼镜"</span>,
+    <span class="string">"排除临时性物品：文件、笔记本、咖啡杯、手机"</span>
+  ]
+}
                 </div>
-                
-                <div class="flow-arrow">⬇</div>
-                
-                <div class="step">
-                    <div class="step-header">
-                        <div class="step-number">9</div>
-                        <div class="step-title">Stage 4: 分镜生成</div>
+
+                <div class="stats-bar">
+                    <div class="stat-item">
+                        <div class="stat-value">8</div>
+                        <div class="stat-label">提取字段</div>
                     </div>
-                    <div class="step-desc">
-                        为每个场景生成分镜脚本，包括景别、运镜、画面描述、时长、台词等。
+                    <div class="stat-item">
+                        <div class="stat-value">5</div>
+                        <div class="stat-label">外貌维度</div>
                     </div>
-                    <div class="file-path">services/scriptParser.ts:1083-1141</div>
-                    <div class="data-example">
-                        <h4>分镜输出</h4>
-                        <pre>{
-  id: "shot_xxx",
-  sequence: 1,
-  sceneName: "场景名",
-  shotType: "medium",
-  cameraMovement: "static",
-  description: "画面描述",
-  duration: 5,
-  characters: ["角色1"]
-}</pre>
-                    </div>
-                    <div class="tech-stack">
-                        <span class="tech-tag">景别：极远景→远景→全景→中景→近景→特写→极特写</span>
+                    <div class="stat-item">
+                        <div class="stat-value">∞</div>
+                        <div class="stat-label">并发处理</div>
                     </div>
                 </div>
             </div>
+        </div>
 
-            <!-- Phase 3: 数据存储 -->
-            <div class="phase">
-                <h2 class="phase-title">
-                    Phase 3: 数据存储
-                    <span class="phase-badge">持久化</span>
-                </h2>
-                
-                <div class="step">
-                    <div class="step-header">
-                        <div class="step-number">10</div>
-                        <div class="step-title">存储架构</div>
-                    </div>
-                    <div class="step-desc">
-                        使用浏览器 File System Access API 存储数据到本地文件系统。每个项目独立存储。
-                    </div>
-                    <div class="file-path">services/storage.ts:1080-1173</div>
-                    <div class="code-block">
-                        <code><span class="comment">// 存储路径</span>
-工作目录/
-├── settings.json          <span class="comment">// 应用设置</span>
-├── projects.json          <span class="comment">// 项目列表</span>
-├── scripts_{projectId}.json <span class="comment">// 剧本数据</span>
-└── assets_{projectId}.json  <span class="comment">// 资产数据</span></code>
-                    </div>
-                </div>
-                
-                <div class="flow-arrow">⬇</div>
-                
-                <div class="step">
-                    <div class="step-header">
-                        <div class="step-number">11</div>
-                        <div class="step-title">剧本数据结构</div>
-                    </div>
-                    <div class="step-desc">
-                        解析结果存储在 Script 对象中，包含原文内容、解析状态、元数据、角色、场景、分镜等。
-                    </div>
-                    <div class="file-path">types.ts:236-294</div>
-                    <div class="data-example">
-                        <h4>Script 数据结构</h4>
-                        <pre>{
-  id: "script_xxx",
-  projectId: "project_xxx",
-  title: "剧本标题",
-  content: "剧本原文内容...",
-  parseState: {
-    stage: "completed",
-    progress: 100,
-    metadata: { /* 元数据 */ },
-    characters: [ /* 角色数组 */ ],
-    scenes: [ /* 场景数组 */ ],
-    shots: [ /* 分镜数组 */ ]
-  }
-}</pre>
-                    </div>
-                </div>
-                
-                <div class="flow-arrow">⬇</div>
-                
-                <div class="step">
-                    <div class="step-header">
-                        <div class="step-number">12</div>
-                        <div class="step-title">原子操作与并发控制</div>
-                    </div>
-                    <div class="step-desc">
-                        使用文件锁确保并发安全，支持断点续传和进度恢复。
-                    </div>
-                    <div class="code-block">
-                        <code><span class="keyword">async</span> saveScript(script: Script): Promise&lt;<span class="keyword">void</span>&gt; {
-  <span class="keyword">return</span> <span class="keyword">this</span>.lock(filename, <span class="keyword">async</span> () => {
-    <span class="keyword">const</span> scripts = <span class="keyword">await</span> <span class="keyword">this</span>.getScripts(script.projectId);
-    <span class="comment">// 原子更新</span>
-    scripts[index] = script;
-    <span class="keyword">await</span> <span class="keyword">this</span>.writeJson(filename, scripts);
-  });
-}</code>
-                    </div>
+        <!-- Step 5: 场景分析 -->
+        <div class="tech-card">
+            <div class="tech-header">
+                <div class="step-badge">STEP 5</div>
+                <div class="tech-title">
+                    <h2>场景分析（Scenes）</h2>
+                    <div class="file-path">services/scriptParser.ts | parseScenes()</div>
                 </div>
             </div>
+            <div class="tech-content">
+                <div class="io-section">
+                    <div class="io-box">
+                        <h3>📥 输入数据</h3>
+                        <p>场景名称列表 + 剧本全文</p>
+                        <div class="code-block" style="margin-top: 10px;">
+<span class="variable">sceneNames</span>: <span class="string">string[]</span>
+<span class="variable">scriptContent</span>: <span class="string">string</span>
+                        </div>
+                    </div>
+                    <div class="io-arrow">→</div>
+                    <div class="io-box">
+                        <h3>📤 输出数据</h3>
+                        <p>ScriptScene[] 数组</p>
+                        <div class="code-block" style="margin-top: 10px;">
+{
+  <span class="variable">id</span>: <span class="string">string</span>,
+  <span class="variable">name</span>: <span class="string">"场景名"</span>,
+  <span class="variable">location</span>: <span class="string">"内景/外景"</span>,
+  <span class="variable">time</span>: <span class="string">"日/夜/晨/昏"</span>,
+  <span class="variable">description</span>: <span class="string">"场景描述"</span>,
+  <span class="variable">atmosphere</span>: <span class="string">"氛围基调"</span>,
+  <span class="variable">lighting</span>: <span class="string">"光线描述"</span>,
+  <span class="variable">visualPrompt</span>: <span class="string">"图生图提示词"</span>
+}
+                        </div>
+                    </div>
+                </div>
 
-            <!-- Phase 4: 结果展示 -->
-            <div class="phase">
-                <h2 class="phase-title">
-                    Phase 4: 结果展示与资产创建
-                    <span class="phase-badge">应用阶段</span>
-                </h2>
-                
-                <div class="step">
-                    <div class="step-header">
-                        <div class="step-number">13</div>
-                        <div class="step-title">角色映射</div>
-                    </div>
-                    <div class="step-desc">
-                        展示解析出的角色列表，支持关联到现有角色或批量创建新角色资产。
-                    </div>
-                    <div class="file-path">components/ScriptParser/CharacterMapping.tsx</div>
-                    <div class="code-block">
-                        <code><span class="comment">// 批量创建角色</span>
-<span class="keyword">const</span> handleBatchCreateCharacters = <span class="keyword">async</span> () => {
-  <span class="comment">// 1. 串行创建所有资产</span>
-  <span class="keyword">for</span> (<span class="keyword">const</span> char <span class="keyword">of</span> unmapped) {
-    <span class="keyword">const</span> assetId = <span class="keyword">await</span> createCharacterAsset(char);
-  }
-  <span class="comment">// 2. 统一更新所有状态</span>
-  onCharactersUpdate(updated);
-}</code>
-                    </div>
-                </div>
-                
-                <div class="flow-arrow">⬇</div>
-                
-                <div class="step">
-                    <div class="step-header">
-                        <div class="step-number">14</div>
-                        <div class="step-title">场景映射</div>
-                    </div>
-                    <div class="step-desc">
-                        展示解析出的场景列表，支持创建场景资产。
-                    </div>
-                    <div class="file-path">components/ScriptParser/SceneMapping.tsx</div>
-                </div>
-                
-                <div class="flow-arrow">⬇</div>
-                
-                <div class="step">
-                    <div class="step-header">
-                        <div class="step-number">15</div>
-                        <div class="step-title">分镜管理</div>
-                    </div>
-                    <div class="step-desc">
-                        表格/卡片视图展示分镜，支持编辑、删除、关键帧拆分。
-                    </div>
-                    <div class="file-path">components/ScriptParser/ShotList.tsx</div>
-                </div>
-                
-                <div class="flow-arrow">⬇</div>
-                
-                <div class="step">
-                    <div class="step-header">
-                        <div class="step-number">16</div>
-                        <div class="step-title">关键帧生成</div>
-                    </div>
-                    <div class="step-desc">
-                        使用LLM将分镜拆分为2-4个关键帧，使用生图模型生成关键帧图片。
-                    </div>
-                    <div class="file-path">services/keyframe/KeyframeService.ts, KeyframeEngine.ts</div>
-                    <div class="code-block">
-                        <code><span class="comment">// 关键帧拆分</span>
-<span class="keyword">const</span> keyframes = <span class="keyword">await</span> keyframeService.splitKeyframes({
-  shot,
-  keyframeCount: 3,
-  projectId,
-  characterAssets,
-  sceneAsset
-});
-
-<span class="comment">// 生成关键帧图片</span>
-<span class="keyword">const</span> generatedImage = <span class="keyword">await</span> aiService.generateImage({
-  prompt: keyframe.prompt,
-  referenceImages
-});</code>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 关键文件汇总 -->
-            <div class="phase">
-                <h2 class="phase-title">
-                    📁 关键文件路径汇总
-                    <span class="phase-badge">参考</span>
-                </h2>
-                
-                <table>
-                    <tr>
-                        <th>类别</th>
-                        <th>文件路径</th>
-                        <th>功能说明</th>
-                    </tr>
-                    <tr>
-                        <td rowspan="5">页面与组件</td>
-                        <td>views/ScriptManager.tsx</td>
-                        <td>剧本管理主页面</td>
-                    </tr>
-                    <tr>
-                        <td>components/ScriptParser/CharacterMapping.tsx</td>
-                        <td>角色映射组件</td>
-                    </tr>
-                    <tr>
-                        <td>components/ScriptParser/SceneMapping.tsx</td>
-                        <td>场景映射组件</td>
-                    </tr>
-                    <tr>
-                        <td>components/ScriptParser/ItemMapping.tsx</td>
-                        <td>物品映射组件</td>
-                    </tr>
-                    <tr>
-                        <td>components/ScriptParser/ShotList.tsx</td>
-                        <td>分镜列表组件</td>
-                    </tr>
-                    <tr>
-                        <td rowspan="4">核心服务</td>
-                        <td>services/textCleaner.ts</td>
-                        <td>文本清洗服务</td>
-                    </tr>
-                    <tr>
-                        <td>services/scriptParser.ts</td>
-                        <td>剧本解析器（1759行）</td>
-                    </tr>
-                    <tr>
-                        <td>services/storage.ts</td>
-                        <td>存储服务</td>
-                    </tr>
-                    <tr>
-                        <td>services/aiService.ts</td>
-                        <td>AI服务统一入口</td>
-                    </tr>
-                    <tr>
-                        <td rowspan="2">关键帧</td>
-                        <td>services/keyframe/KeyframeService.ts</td>
-                        <td>关键帧服务</td>
-                    </tr>
-                    <tr>
-                        <td>services/keyframe/KeyframeEngine.ts</td>
-                        <td>关键帧引擎</td>
-                    </tr>
-                    <tr>
-                        <td>类型定义</td>
-                        <td>types.ts</td>
-                        <td>所有TypeScript类型定义</td>
-                    </tr>
+                <h3 style="color: #58a6ff; margin-bottom: 15px;">⚙️ 场景特征提取维度</h3>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>维度</th>
+                            <th>提取内容</th>
+                            <th>示例</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>空间位置</td>
+                            <td>内景/外景 + 具体地点</td>
+                            <td>内景-宫殿大殿、外景-御花园</td>
+                        </tr>
+                        <tr>
+                            <td>时间标记</td>
+                            <td>日/夜/晨/昏/特定时段</td>
+                            <td>清晨、黄昏、深夜</td>
+                        </tr>
+                        <tr>
+                            <td>建筑风格</td>
+                            <td>建筑类型和装饰特征</td>
+                            <td>雕梁画栋、现代简约</td>
+                        </tr>
+                        <tr>
+                            <td>氛围描述</td>
+                            <td>情绪基调和环境氛围</td>
+                            <td>紧张压抑、温馨浪漫</td>
+                        </tr>
+                        <tr>
+                            <td>光线条件</td>
+                            <td>光源方向和光线质量</td>
+                            <td>侧逆光、柔和散射光</td>
+                        </tr>
+                        <tr>
+                            <td>色调风格</td>
+                            <td>整体色彩倾向</td>
+                            <td>暖色调、冷色调、高对比</td>
+                        </tr>
+                    </tbody>
                 </table>
             </div>
         </div>
-        
-        <div class="footer">
-            <p>📅 基于项目代码现状生成 | 🎬 AI影视资产生成平台</p>
-            <p style="margin-top: 10px; font-size: 0.9em;">反映实际工作流程，非设计文档</p>
+
+        <!-- Step 6: 分镜生成 -->
+        <div class="tech-card">
+            <div class="tech-header">
+                <div class="step-badge">STEP 6</div>
+                <div class="tech-title">
+                    <h2>分镜生成与关键帧（Shots & Keyframes）</h2>
+                    <div class="file-path">services/scriptParser.ts | parseShots() | KeyframeEngine.splitKeyframes()</div>
+                </div>
+            </div>
+            <div class="tech-content">
+                <div class="io-section">
+                    <div class="io-box">
+                        <h3>📥 输入数据</h3>
+                        <p>场景列表 + 角色列表 + 剧本全文</p>
+                        <div class="code-block" style="margin-top: 10px;">
+<span class="variable">scenes</span>: <span class="string">ScriptScene[]</span>
+<span class="variable">characters</span>: <span class="string">ScriptCharacter[]</span>
+<span class="variable">scriptContent</span>: <span class="string">string</span>
+                        </div>
+                    </div>
+                    <div class="io-arrow">→</div>
+                    <div class="io-box">
+                        <h3>📤 输出数据</h3>
+                        <p>Shot[] 数组（包含Keyframes）</p>
+                        <div class="code-block" style="margin-top: 10px;">
+{
+  <span class="variable">id</span>: <span class="string">string</span>,
+  <span class="variable">sequence</span>: <span class="string">number</span>,
+  <span class="variable">sceneName</span>: <span class="string">string</span>,
+  <span class="variable">shotType</span>: <span class="string">ShotType</span>,
+  <span class="variable">cameraMovement</span>: <span class="string">string</span>,
+  <span class="variable">description</span>: <span class="string">string</span>,
+  <span class="variable">duration</span>: <span class="string">number</span>,
+  <span class="variable">keyframes</span>: <span class="string">Keyframe[]</span>
+}
+                        </div>
+                    </div>
+                </div>
+
+                <h3 style="color: #58a6ff; margin-bottom: 15px;">⚙️ 镜头类型（ShotType）</h3>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>类型</th>
+                            <th>英文标识</th>
+                            <th>描述</th>
+                            <th>用途</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><span class="tag tag-green">极远景</span></td>
+                            <td>extreme_long</td>
+                            <td>展示环境全貌</td>
+                            <td>开场、转场、大场面</td>
+                        </tr>
+                        <tr>
+                            <td><span class="tag tag-green">远景</span></td>
+                            <td>long</td>
+                            <td>人物全身+环境</td>
+                            <td>动作场景、舞蹈</td>
+                        </tr>
+                        <tr>
+                            <td><span class="tag tag-blue">全景</span></td>
+                            <td>full</td>
+                            <td>人物全身</td>
+                            <td>服装展示、肢体语言</td>
+                        </tr>
+                        <tr>
+                            <td><span class="tag tag-blue">中景</span></td>
+                            <td>medium</td>
+                            <td>人物膝盖以上</td>
+                            <td>对话场景、双人互动</td>
+                        </tr>
+                        <tr>
+                            <td><span class="tag tag-yellow">近景</span></td>
+                            <td>close</td>
+                            <td>人物胸部以上</td>
+                            <td>表情刻画、情感戏</td>
+                        </tr>
+                        <tr>
+                            <td><span class="tag tag-yellow">特写</span></td>
+                            <td>extreme_close</td>
+                            <td>面部或局部</td>
+                            <td>眼神、细节、情绪高潮</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3 style="color: #58a6ff; margin: 25px 0 15px;">⚙️ 关键帧拆分Prompt</h3>
+                <div class="code-block">
+<span class="comment">// services/keyframe/KeyframeEngine.ts:63-100</span>
+<span class="keyword">const</span> <span class="variable">SPLIT_PROMPT</span> = <span class="string">`你是一位专业的电影分镜师。
+请将以下分镜描述拆分为${keyframeCount}个连贯的静态关键帧。
+
+【分镜信息】
+- 场景：${sceneDesc}
+- 景别：${shot.shotType}
+- 运镜：${shot.cameraMovement}
+- 时长：${shot.duration}秒
+- 角色：${characterDesc}
+
+【画面描述】
+${shot.description}
+
+【拆分要求】
+1. 按动作时间线排序（起始→过渡→结束）
+2. 每个关键帧必须是静态画面，描述具体姿态
+3. 保持角色和场景一致性
+4. 符合${shot.shotType}景别要求
+5. 总时长控制在${shot.duration}秒内
+
+【输出格式】
+{
+  "keyframes": [
+    {
+      "sequence": 1,
+      "description": "静态画面描述（具体姿态）",
+      "prompt": "图生图提示词，包含角色特征、场景特征、光影风格",
+      "duration": 时长秒数
+    }
+  ]
+}`</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 质量评估 -->
+        <div class="tech-card">
+            <div class="tech-header">
+                <div class="step-badge" style="background: #d29922;">QA</div>
+                <div class="tech-title">
+                    <h2>质量评估系统</h2>
+                    <div class="file-path">services/parsing/QualityAnalyzer.ts | ShortDramaRules.ts</div>
+                </div>
+            </div>
+            <div class="tech-content">
+                <h3 style="color: #58a6ff; margin-bottom: 15px;">⚙️ 5维度质量评分</h3>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>维度</th>
+                            <th>权重</th>
+                            <th>检查内容</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>完整性</td>
+                            <td>25%</td>
+                            <td>角色描述完整度、场景描述完整度、分镜覆盖率</td>
+                        </tr>
+                        <tr>
+                            <td>准确性</td>
+                            <td>20%</td>
+                            <td>角色名一致性、场景名一致性、数据格式正确性</td>
+                        </tr>
+                        <tr>
+                            <td>一致性</td>
+                            <td>20%</td>
+                            <td>角色特征前后一致、场景描述不矛盾</td>
+                        </tr>
+                        <tr>
+                            <td>可用性</td>
+                            <td>20%</td>
+                            <td>提示词可用性、参考图可关联性、生成成功率</td>
+                        </tr>
+                        <tr>
+                            <td>戏剧性</td>
+                            <td>15%</td>
+                            <td>黄金3秒、冲突密度、节奏把控</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3 style="color: #58a6ff; margin: 25px 0 15px;">⚙️ 短剧规则引擎</h3>
+                <div class="rules-grid">
+                    <div class="rule-item">
+                        <h4>🏆 黄金3秒规则</h4>
+                        <p>开场3秒内必须有强冲突或悬念</p>
+                        <div class="code">detectConflict() || detectSuspense()</div>
+                    </div>
+                    <div class="rule-item">
+                        <h4>⚡ 冲突密度规则</h4>
+                        <p>每60秒至少1个冲突点</p>
+                        <div class="code">minConflicts = Math.ceil(duration / 60)</div>
+                    </div>
+                    <div class="rule-item">
+                        <h4>🎭 角色鲜明度</h4>
+                        <p>主要角色特征描述完整性检查</p>
+                        <div class="code">description.length >= minCharacterDescriptionLength</div>
+                    </div>
+                    <div class="rule-item">
+                        <h4>🎪 场景丰富度</h4>
+                        <p>场景多样性和视觉冲击力评估</p>
+                        <div class="code">uniqueScenes / totalScenes ratio</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 页脚 -->
+        <div class="header" style="text-align: center; margin-top: 40px;">
+            <p style="color: #8b949e;">Kmeng AI Animata - 技术实现详解</p>
+            <p style="color: #484f58; font-size: 0.85rem; margin-top: 10px;">基于项目全局状态文档 | 最后更新：2026-03-03</p>
         </div>
     </div>
 </body>
