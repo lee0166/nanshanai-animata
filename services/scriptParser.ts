@@ -14,12 +14,13 @@
  * @version 1.0.0
  */
 
-import { Script, ScriptParseState, ScriptMetadata, ScriptCharacter, ScriptScene, Shot, ParseStage } from '../types';
+import { Script, ScriptParseState, ScriptMetadata, ScriptCharacter, ScriptScene, ScriptItem, Shot, ParseStage } from '../types';
 import { storageService } from './storage';
 import { JSONRepair } from './parsing/JSONRepair';
 import { SemanticChunker, SemanticChunk } from './parsing/SemanticChunker';
 import { ShortDramaRules, RuleContext, RuleViolation } from './parsing/ShortDramaRules';
 import { MultiLevelCache } from './parsing/MultiLevelCache';
+import { QualityAnalyzer, DetailedQualityReport } from './parsing/QualityAnalyzer';
 
 /**
  * Script Parser Configuration Interface
@@ -596,11 +597,15 @@ export class ScriptParser {
   /** Multi-level cache instance */
   private multiLevelCache: MultiLevelCache | null = null;
   /** Quality report from last analysis */
-  private qualityReport: QualityReport | null = null;
+  private qualityReport: DetailedQualityReport | null = null;
   /** Current scenes for rules validation */
   private currentScenes: ScriptScene[] = [];
   /** Current characters for rules validation */
   private currentCharacters: ScriptCharacter[] = [];
+  /** Current items for quality validation */
+  private currentItems: ScriptItem[] = [];
+  /** Quality analyzer instance */
+  private qualityAnalyzer: QualityAnalyzer | null = null;
 
   /**
    * Creates a new script parser instance
@@ -643,6 +648,12 @@ export class ScriptParser {
       this.multiLevelCache = new MultiLevelCache({ l1TTL: this.parserConfig.cacheTTL });
       console.log('[ScriptParser] MultiLevelCache initialized');
     }
+    
+    // Initialize quality analyzer
+    this.qualityAnalyzer = new QualityAnalyzer({
+      dramaticRulesMinScore: this.parserConfig.dramaRulesMinScore,
+    });
+    console.log('[ScriptParser] QualityAnalyzer initialized');
   }
 
   /**
@@ -686,8 +697,38 @@ export class ScriptParser {
   /**
    * Get quality report from last analysis
    */
-  getQualityReport(): QualityReport | null {
+  getQualityReport(): DetailedQualityReport | null {
     return this.qualityReport;
+  }
+
+  /**
+   * Generate quality report for current parsing state
+   * Can be called at any stage to get real-time quality feedback
+   */
+  generateQualityReport(
+    metadata: ScriptMetadata | undefined,
+    characters: ScriptCharacter[],
+    scenes: ScriptScene[],
+    items: ScriptItem[],
+    shots: Shot[],
+    stage: 'metadata' | 'characters' | 'scenes' | 'shots' | 'completed'
+  ): DetailedQualityReport | null {
+    if (!this.qualityAnalyzer) {
+      console.warn('[ScriptParser] QualityAnalyzer not initialized');
+      return null;
+    }
+
+    const report = this.qualityAnalyzer.analyze(metadata, characters, scenes, items, shots, stage);
+    this.qualityReport = report;
+    
+    console.log(`[ScriptParser] Quality report generated for stage: ${stage}`, {
+      score: report.score,
+      grade: report.overallGrade,
+      confidence: report.confidence,
+      issues: report.violations.length,
+    });
+
+    return report;
   }
 
   /**
@@ -1133,47 +1174,44 @@ export class ScriptParser {
       sequence: shot.sequence || index + 1
     }));
 
-    if (this.parserConfig.useDramaRules && this.dramaRules) {
-      this.validateShotsQuality(result, sceneName);
-    }
+    // Note: Quality validation is now done once at the end of all shots generation
+    // to avoid duplicate reports. See generateFinalQualityReport().
 
     return result;
   }
 
   /**
-   * Validate shots quality using ShortDramaRules
+   * Validate shots quality using QualityAnalyzer
    * @param shots - Generated shots to validate
    * @param sceneName - Scene name for logging
    * @private
    */
   private validateShotsQuality(shots: Shot[], sceneName: string): void {
-    if (!this.dramaRules) return;
+    if (!this.qualityAnalyzer) return;
 
     console.log(`[ScriptParser] Validating shots quality for scene: ${sceneName}`);
 
-    const context: RuleContext = {
-      scenes: this.currentScenes,
-      characters: this.currentCharacters,
-      targetDuration: shots.reduce((sum, shot) => sum + (shot.duration || 0), 0)
-    };
-
-    const quality = this.dramaRules.analyzeQuality(context);
+    // Use the new comprehensive quality analyzer
+    const report = this.qualityAnalyzer.analyze(
+      undefined, // metadata not needed for shot validation
+      this.currentCharacters,
+      this.currentScenes,
+      this.currentItems,
+      shots,
+      'shots'
+    );
     
-    this.qualityReport = {
-      score: quality.score,
-      violations: quality.violations,
-      suggestions: quality.suggestions
-    };
+    this.qualityReport = report;
 
-    if (quality.score < this.parserConfig.dramaRulesMinScore) {
-      console.warn(`[ScriptParser] Shots quality below threshold: ${quality.score}/${this.parserConfig.dramaRulesMinScore}`);
-      console.warn(`[ScriptParser] Violations:`, quality.violations.map(v => v.message).join('; '));
+    if (report.score < this.parserConfig.dramaRulesMinScore) {
+      console.warn(`[ScriptParser] Shots quality below threshold: ${report.score}/${this.parserConfig.dramaRulesMinScore}`);
+      console.warn(`[ScriptParser] Violations:`, report.violations.map(v => v.message).join('; '));
     } else {
-      console.log(`[ScriptParser] Shots quality passed: ${quality.score}`);
+      console.log(`[ScriptParser] Shots quality passed: ${report.score}/${this.parserConfig.dramaRulesMinScore}`);
     }
 
-    if (quality.suggestions.length > 0) {
-      console.log(`[ScriptParser] Suggestions:`, quality.suggestions.join('; '));
+    if (report.recommendations.length > 0) {
+      console.log(`[ScriptParser] Recommendations:`, report.recommendations.slice(0, 3).join('; '));
     }
   }
 
@@ -1268,10 +1306,8 @@ export class ScriptParser {
       sequence: shot.sequence || index + 1
     }));
 
-    // Validate quality for batch generated shots
-    if (this.parserConfig.useDramaRules && this.dramaRules) {
-      this.validateShotsQuality(result, 'batch');
-    }
+    // Note: Quality validation is now done once at the end of all shots generation
+    // to avoid duplicate reports. See generateFinalQualityReport().
 
     return result;
   }
@@ -1721,6 +1757,22 @@ export class ScriptParser {
           }
 
           state.progress = 95;
+
+          // Generate final quality report after all shots are generated
+          // This ensures we only generate one comprehensive report instead of per-scene reports
+          if (this.parserConfig.useDramaRules && this.qualityAnalyzer) {
+            console.log('[ScriptParser] Generating final quality report for all scenes...');
+            const finalReport = this.qualityAnalyzer.analyze(
+              state.metadata,
+              this.currentCharacters,
+              this.currentScenes,
+              this.currentItems,
+              state.shots || [],
+              'completed'
+            );
+            this.qualityReport = finalReport;
+            console.log(`[ScriptParser] Final quality report: ${finalReport.score}分 (${finalReport.overallGrade}级)`);
+          }
 
           // Mark as completed after shots generation
           state.stage = 'completed';
