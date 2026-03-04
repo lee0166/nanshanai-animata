@@ -293,17 +293,164 @@ export interface ScriptParseState {
   qualityReport?: QualityReport;
 }
 
+/**
+ * 故事结构定义
+ * 用于描述剧本的三幕式/英雄之旅等经典结构
+ */
+export interface StoryStructure {
+  /** 结构类型 */
+  structureType: 'three_act' | 'hero_journey' | 'five_act' | 'other';
+  /** 第一幕：设定（占25%） */
+  act1: string;
+  /** 第二幕上：对抗（占25%） */
+  act2a: string;
+  /** 第二幕下：低谷（占25%） */
+  act2b: string;
+  /** 第三幕：结局（占25%） */
+  act3: string;
+  /** 中点转折 */
+  midpoint: string;
+  /** 高潮 */
+  climax: string;
+}
+
+/**
+ * 视觉风格定义
+ * 用于统一整个剧本的视觉呈现风格
+ */
+export interface VisualStyle {
+  /** 美术指导风格（如：写实电影感、动漫风格、水墨国风等） */
+  artDirection: string;
+  /** 艺术风格标签 */
+  artStyle: string;
+  /** 风格详细描述（100字以内） */
+  artStyleDescription: string;
+  /** 主色调（3-5个十六进制颜色或颜色名称） */
+  colorPalette: string[];
+  /** 色彩情绪（如：温暖明亮、冷峻压抑、复古怀旧） */
+  colorMood: string;
+  /** 摄影风格（如：手持纪实、稳定器流畅、电影感构图） */
+  cinematography: string;
+  /** 光影风格（如：自然光、戏剧光、noir风格） */
+  lightingStyle: string;
+}
+
+/**
+ * 时代背景定义
+ * 用于确保剧本的时代一致性
+ */
+export interface EraContext {
+  /** 具体年代（如：2024年、1980年代、唐代） */
+  era: string;
+  /** 时代特征描述（100字以内） */
+  eraDescription: string;
+  /** 地理背景（如：北京、纽约、虚构城市） */
+  location: string;
+  /** 季节（如：春季、贯穿全篇的夏季） */
+  season?: string;
+  /** 主要时间段（如：白天、夜晚、黄昏） */
+  timeOfDay?: string;
+}
+
+/**
+ * 情绪曲线节点
+ * 用于描述故事的情绪起伏和对应的视觉色调
+ */
+export interface EmotionalPoint {
+  /** 情节点名称 */
+  plotPoint: string;
+  /** 主导情绪（如：喜悦、悲伤、紧张、愤怒） */
+  emotion: string;
+  /** 情绪强度（0-10） */
+  intensity: number;
+  /** 对应的视觉色调 */
+  colorTone: string;
+  /** 在故事中的位置百分比（0-100） */
+  percentage: number;
+}
+
+/**
+ * 一致性规则定义
+ * 用于后续阶段的一致性校验
+ */
+export interface ConsistencyRules {
+  /** 角色必须保持的特征（角色名 -> 特征列表） */
+  characterTraits: Record<string, string[]>;
+  /** 时代限制（如：不能出现手机、汽车等） */
+  eraConstraints: string[];
+  /** 风格限制（如：必须保持写实风格） */
+  styleConstraints: string[];
+  /** 禁止出现的元素 */
+  forbiddenElements: string[];
+}
+
+/**
+ * 剧本元数据
+ * 包含剧本的基本信息和全局上下文
+ */
 export interface ScriptMetadata {
+  // ===== 基础信息 =====
+  /** 剧本标题 */
   title: string;
+  /** 字数 */
   wordCount: number;
+  /** 预估时长 */
   estimatedDuration: string;
+  /** 角色数量 */
   characterCount: number;
+  /** 角色名称列表 */
   characterNames: string[];
+  /** 场景数量 */
   sceneCount: number;
+  /** 场景名称列表 */
   sceneNames: string[];
+  /** 章节数量 */
   chapterCount: number;
+  /** 类型/题材 */
   genre: string;
+  /** 基调 */
   tone: string;
+
+  // ===== Phase 1 新增：故事核心层 =====
+  /** 故事梗概（100-200字） */
+  synopsis?: string;
+  /** 一句话简介（30字以内） */
+  logline?: string;
+  /** 核心冲突 */
+  coreConflict?: string;
+  /** 主题思想列表 */
+  theme?: string[];
+
+  // ===== Phase 1 新增：故事结构层 =====
+  /** 故事结构（三幕式/英雄之旅等） */
+  storyStructure?: StoryStructure;
+
+  // ===== Phase 1 新增：视觉风格层 =====
+  /** 视觉风格定义 */
+  visualStyle?: VisualStyle;
+
+  // ===== Phase 1 新增：时代背景层 =====
+  /** 时代背景 */
+  eraContext?: EraContext;
+
+  // ===== Phase 1 新增：情绪曲线层 =====
+  /** 情绪曲线 */
+  emotionalArc?: EmotionalPoint[];
+
+  // ===== Phase 1 新增：一致性规则层 =====
+  /** 一致性规则（用于后续阶段校验） */
+  consistencyRules?: ConsistencyRules;
+
+  // ===== Phase 1 新增：参考层 =====
+  /** 参考信息 */
+  references?: {
+    /** 参考影片 */
+    films?: string[];
+    /** 参考导演 */
+    directors?: string[];
+    /** 参考艺术风格 */
+    artStyles?: string[];
+  };
 }
 
 export interface ScriptCharacter {
