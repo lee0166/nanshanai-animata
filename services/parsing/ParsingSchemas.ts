@@ -7,9 +7,77 @@
 import { z } from 'zod';
 
 // ==========================================
-// Schema 1: 元数据提取
+// Schema 1: 故事结构
+// ==========================================
+export const StoryStructureSchema = z.object({
+  structureType: z.enum(['three_act', 'hero_journey', 'five_act', 'other']).default('other'),
+  act1: z.string().default(''),
+  act2a: z.string().default(''),
+  act2b: z.string().default(''),
+  act3: z.string().default(''),
+  midpoint: z.string().default(''),
+  climax: z.string().default(''),
+});
+
+// ==========================================
+// Schema 2: 视觉风格
+// ==========================================
+export const VisualStyleSchema = z.object({
+  artDirection: z.string().default(''),
+  artStyle: z.string().default(''),
+  artStyleDescription: z.string().default(''),
+  colorPalette: z.array(z.string()).default([]),
+  colorMood: z.string().default(''),
+  cinematography: z.string().default(''),
+  lightingStyle: z.string().default(''),
+});
+
+// ==========================================
+// Schema 3: 时代背景
+// ==========================================
+export const EraContextSchema = z.object({
+  era: z.string().default(''),
+  eraDescription: z.string().default(''),
+  location: z.string().default(''),
+  season: z.string().optional(),
+  timeOfDay: z.string().optional(),
+});
+
+// ==========================================
+// Schema 4: 情绪曲线节点
+// ==========================================
+export const EmotionalPointSchema = z.object({
+  plotPoint: z.string(),
+  emotion: z.string(),
+  intensity: z.number().int().min(0).max(10),
+  colorTone: z.string(),
+  percentage: z.number().min(0).max(100),
+});
+
+// ==========================================
+// Schema 5: 一致性规则
+// ==========================================
+export const ConsistencyRulesSchema = z.object({
+  characterTraits: z.record(z.array(z.string())).default({}),
+  eraConstraints: z.array(z.string()).default([]),
+  styleConstraints: z.array(z.string()).default([]),
+  forbiddenElements: z.array(z.string()).default([]),
+});
+
+// ==========================================
+// Schema 6: 参考信息
+// ==========================================
+export const ReferencesSchema = z.object({
+  films: z.array(z.string()).default([]),
+  directors: z.array(z.string()).default([]),
+  artStyles: z.array(z.string()).default([]),
+});
+
+// ==========================================
+// Schema 7: 元数据提取（扩展版）
 // ==========================================
 export const ScriptMetadataSchema = z.object({
+  // 基础信息
   title: z.string().min(1),
   wordCount: z.number().int().min(0),
   estimatedDuration: z.string(),
@@ -20,10 +88,34 @@ export const ScriptMetadataSchema = z.object({
   chapterCount: z.number().int().min(0),
   genre: z.string(),
   tone: z.string(),
+  
+  // Phase 1 新增：故事核心层
+  synopsis: z.string().optional(),
+  logline: z.string().optional(),
+  coreConflict: z.string().optional(),
+  theme: z.array(z.string()).optional(),
+  
+  // Phase 1 新增：故事结构层
+  storyStructure: StoryStructureSchema.optional(),
+  
+  // Phase 1 新增：视觉风格层
+  visualStyle: VisualStyleSchema.optional(),
+  
+  // Phase 1 新增：时代背景层
+  eraContext: EraContextSchema.optional(),
+  
+  // Phase 1 新增：情绪曲线层
+  emotionalArc: z.array(EmotionalPointSchema).optional(),
+  
+  // Phase 1 新增：一致性规则层
+  consistencyRules: ConsistencyRulesSchema.optional(),
+  
+  // Phase 1 新增：参考层
+  references: ReferencesSchema.optional(),
 });
 
 // ==========================================
-// Schema 2: 角色外观
+// Schema 8: 角色外观
 // ==========================================
 export const CharacterAppearanceSchema = z.object({
   height: z.string().default('中等身高'),
@@ -34,7 +126,7 @@ export const CharacterAppearanceSchema = z.object({
 });
 
 // ==========================================
-// Schema 3: 情绪曲线节点
+// Schema 9: 情绪曲线节点（角色层面）
 // ==========================================
 export const EmotionalArcNodeSchema = z.object({
   phase: z.string(),
@@ -42,7 +134,7 @@ export const EmotionalArcNodeSchema = z.object({
 });
 
 // ==========================================
-// Schema 4: 角色关系
+// Schema 10: 角色关系
 // ==========================================
 export const CharacterRelationshipSchema = z.object({
   character: z.string(),
@@ -50,7 +142,7 @@ export const CharacterRelationshipSchema = z.object({
 });
 
 // ==========================================
-// Schema 5: 完整角色
+// Schema 11: 完整角色
 // ==========================================
 export const ScriptCharacterSchema = z.object({
   name: z.string().min(1),
@@ -66,7 +158,7 @@ export const ScriptCharacterSchema = z.object({
 });
 
 // ==========================================
-// Schema 6: 场景环境
+// Schema 12: 场景环境
 // ==========================================
 export const SceneEnvironmentSchema = z.object({
   architecture: z.string().default('普通建筑'),
@@ -76,7 +168,7 @@ export const SceneEnvironmentSchema = z.object({
 });
 
 // ==========================================
-// Schema 7: 完整场景
+// Schema 13: 完整场景
 // ==========================================
 export const ScriptSceneSchema = z.object({
   name: z.string().min(1),
@@ -92,7 +184,7 @@ export const ScriptSceneSchema = z.object({
 });
 
 // ==========================================
-// Schema 8: 道具
+// Schema 14: 道具
 // ==========================================
 export const ScriptItemSchema = z.object({
   name: z.string().min(1),
@@ -104,7 +196,7 @@ export const ScriptItemSchema = z.object({
 });
 
 // ==========================================
-// Schema 9: 分镜
+// Schema 15: 分镜
 // ==========================================
 export const ShotSchema = z.object({
   id: z.string().optional(),
@@ -130,6 +222,12 @@ export const ShotArraySchema = z.array(ShotSchema);
 // ==========================================
 // TypeScript类型导出
 // ==========================================
+export type StoryStructure = z.infer<typeof StoryStructureSchema>;
+export type VisualStyle = z.infer<typeof VisualStyleSchema>;
+export type EraContext = z.infer<typeof EraContextSchema>;
+export type EmotionalPoint = z.infer<typeof EmotionalPointSchema>;
+export type ConsistencyRules = z.infer<typeof ConsistencyRulesSchema>;
+export type References = z.infer<typeof ReferencesSchema>;
 export type ScriptMetadata = z.infer<typeof ScriptMetadataSchema>;
 export type CharacterAppearance = z.infer<typeof CharacterAppearanceSchema>;
 export type EmotionalArcNode = z.infer<typeof EmotionalArcNodeSchema>;
