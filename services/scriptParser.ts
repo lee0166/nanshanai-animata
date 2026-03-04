@@ -21,6 +21,16 @@ import { SemanticChunker, SemanticChunk } from './parsing/SemanticChunker';
 import { ShortDramaRules, RuleContext, RuleViolation } from './parsing/ShortDramaRules';
 import { MultiLevelCache } from './parsing/MultiLevelCache';
 import { QualityAnalyzer, DetailedQualityReport } from './parsing/QualityAnalyzer';
+import {
+  ScriptMetadataSchema,
+  ScriptCharacterArraySchema,
+  ScriptSceneArraySchema,
+  ShotArraySchema,
+  ScriptItemArraySchema,
+  getJsonSchemaDescription,
+  getArraySchemaDescription,
+} from './parsing/ParsingSchemas';
+import { z } from 'zod';
 
 /**
  * Script Parser Configuration Interface
@@ -924,17 +934,75 @@ export class ScriptParser {
    */
   private extractJSON<T>(response: string): T {
     const result = JSONRepair.repairAndParse<T>(response);
-    
+
     if (result.success && result.data) {
       if (result.repairAttempts.length > 0) {
         console.log(`[ScriptParser] JSON repaired using: ${result.repairAttempts.join(' -> ')}`);
       }
       return result.data;
     }
-    
+
     console.error('[ScriptParser] Failed to parse JSON:', result.error);
     console.error('[ScriptParser] Original response:', response);
     throw new Error(result.error || 'Invalid JSON response from LLM');
+  }
+
+  /**
+   * 使用结构化输出调用LLM（新方案）
+   * @param prompt 用户提示词
+   * @param schema Zod Schema用于类型校验
+   * @param schemaDescription Schema描述（给LLM看的）
+   * @param systemPrompt 系统提示词
+   */
+  private async callStructuredLLM<T>(
+    prompt: string,
+    schema: z.ZodType<T>,
+    schemaDescription: string,
+    systemPrompt?: string
+  ): Promise<T> {
+    console.log(`[ScriptParser] callStructuredLLM called`);
+    console.log(`[ScriptParser] API URL: ${this.apiUrl}`);
+    console.log(`[ScriptParser] Model: ${this.model}`);
+
+    // Use LLMProvider for structured output
+    const { llmProvider } = await import('./ai/providers/LLMProvider');
+
+    const config = {
+      id: 'temp',
+      name: 'Temp',
+      provider: 'llm',
+      modelId: this.model,
+      apiUrl: this.apiUrl,
+      apiKey: this.apiKey,
+      type: 'llm' as const,
+      parameters: [],
+      capabilities: {
+        supportsJsonMode: true, // 启用JSON Mode
+        supportsImageInput: false,
+        supportsVideoInput: false,
+        supportsTextOutput: true,
+        supportsImageOutput: false,
+        supportsVideoOutput: false,
+        maxTokens: 4000,
+        maxInputTokens: 8000
+      }
+    };
+
+    console.log('[ScriptParser] Calling LLMProvider.generateStructured...');
+    const result = await llmProvider.generateStructured(
+      prompt,
+      config,
+      schema,
+      schemaDescription,
+      systemPrompt || '你是一个专业的剧本分析助手，擅长从小说/剧本中提取结构化信息。'
+    );
+
+    if (!result.success || !result.data) {
+      throw new Error(result.error || 'Failed to get structured output from LLM');
+    }
+
+    console.log(`[ScriptParser] Structured output received successfully`);
+    return result.data;
   }
 
   /**
@@ -985,21 +1053,25 @@ export class ScriptParser {
   }
 
   /**
-   * Stage 1: Extract metadata
+   * Stage 1: Extract metadata (使用结构化输出)
    */
   async extractMetadata(content: string): Promise<ScriptMetadata> {
-    console.log('[ScriptParser] ========== Stage 1: Extract Metadata ==========');
+    console.log('[ScriptParser] ========== Stage 1: Extract Metadata (Structured Output) ==========');
     console.log(`[ScriptParser] Content length: ${content.length} characters`);
 
     const prompt = PROMPTS.metadata.replace('{content}', content.substring(0, 3000));
     console.log(`[ScriptParser] Prompt length: ${prompt.length} characters`);
-    console.log('[ScriptParser] Sending request to LLM...');
+    console.log('[ScriptParser] Sending structured output request to LLM...');
 
-    const response = await this.callLLM(prompt);
-    console.log(`[ScriptParser] LLM response received, length: ${response.length} characters`);
+    // 使用新的结构化输出方法
+    const metadata = await this.callStructuredLLM(
+      prompt,
+      ScriptMetadataSchema,
+      getJsonSchemaDescription(ScriptMetadataSchema),
+      '你是一个专业的剧本分析助手，擅长从小说/剧本中提取结构化元数据信息。'
+    );
 
-    const metadata = this.extractJSON<ScriptMetadata>(response);
-    console.log('[ScriptParser] Metadata extracted successfully:');
+    console.log('[ScriptParser] Metadata extracted successfully (Structured Output):');
     console.log(`  - Title: ${metadata.title}`);
     console.log(`  - Word Count: ${metadata.wordCount}`);
     console.log(`  - Characters: ${metadata.characterCount} (${metadata.characterNames?.join(', ')})`);

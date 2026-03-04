@@ -22,7 +22,8 @@
     "type-check": "tsc --noEmit",
     "test": "vitest",
     "test:ui": "vitest --ui",
-    "test:coverage": "vitest --coverage"
+    "test:coverage": "vitest --coverage",
+    "optimize:parsing:step1": "node scripts/optimize-parsing-step1.mjs"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
@@ -34,7 +35,8 @@
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
     "react-router-dom": "^7.11.0",
-    "yet-another-react-lightbox": "^3.28.0"
+    "yet-another-react-lightbox": "^3.28.0",
+    "zod": "^3.25.76"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.1.18",

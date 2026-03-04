@@ -1,8 +1,8 @@
 import { ModelConfig } from '../../types';
 
-export interface AIResult {
+export interface AIResult<T = any> {
     success: boolean;
-    data?: any;
+    data?: T;
     error?: string;
     metadata?: Record<string, any>;
 }

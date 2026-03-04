@@ -1023,6 +1023,7 @@ export const DEFAULT_MODELS: ModelConfig[] = [
     capabilities: {
       maxContextLength: 128000,
       supportsStreaming: true,
+      supportsJsonMode: true,
     },
     apiUrl: "https://api.openai.com/v1",
     parameters: [
@@ -1055,6 +1056,7 @@ export const DEFAULT_MODELS: ModelConfig[] = [
     capabilities: {
       maxContextLength: 128000,
       supportsStreaming: true,
+      supportsJsonMode: true,
     },
     apiUrl: "https://api.openai.com/v1",
     parameters: [

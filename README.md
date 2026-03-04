@@ -163,7 +163,7 @@ npm install
 npm run dev
 ```
 
-启动后访问 `http://localhost:3000` 即可使用。
+启动后访问 `http://localhost:5173` 即可使用。
 
 ### 生产构建
 
