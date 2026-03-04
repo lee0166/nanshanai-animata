@@ -54,3 +54,10 @@ metadata.json
 # 备份文件
 *.backup
 *.bak
+
+# ChromaDB数据
+data/chroma_db/
+data/models/
+
+# 测试数据
+test_data/

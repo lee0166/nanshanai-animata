@@ -12,6 +12,8 @@ import { ItemMapping } from '../components/ScriptParser/ItemMapping';
 import { ShotList } from '../components/ScriptParser/ShotList';
 import { QualityReport } from '../services/scriptParser';
 import type { RuleViolation } from '../services/parsing/ShortDramaRules';
+import { VectorMemoryToggle } from '../components/VectorMemoryToggle';
+import { vectorMemoryConfig } from '../services/parsing/VectorMemoryConfig';
 import {
   Button,
   Card,
@@ -70,6 +72,8 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
   // Script content for upload
   const [scriptTitle, setScriptTitle] = useState('');
   const [scriptContent, setScriptContent] = useState('');
+  const [scriptWordCount, setScriptWordCount] = useState(0); // 字数统计
+  const [useVectorMemory, setUseVectorMemory] = useState(false); // 智能记忆开关
 
   // Existing assets for mapping
   const [existingCharacters, setExistingCharacters] = useState<CharacterAsset[]>([]);
@@ -242,6 +246,14 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
       
       setScriptContent(cleanResult.cleanedText);
       
+      // 统计字数
+      const wordCount = cleanResult.cleanedText.length;
+      setScriptWordCount(wordCount);
+      
+      // 自动检测是否需要启用智能记忆
+      const shouldEnable = vectorMemoryConfig.shouldEnable(wordCount);
+      setUseVectorMemory(shouldEnable);
+      
       // 如果有多个章节，显示提示
       if (cleanResult.chapters.length > 1) {
         showToast(`检测到 ${cleanResult.chapters.length} 个章节`, 'info');
@@ -355,7 +367,13 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
         useDramaRules: true,
         dramaRulesMinScore: 60,
         useCache: true,
-        cacheTTL: 3600000
+        cacheTTL: 3600000,
+        enableVectorMemory: useVectorMemory, // 传递智能记忆开关状态
+        vectorMemoryConfig: useVectorMemory ? {
+          autoEnableThreshold: 50000,
+          chromaDbUrl: 'http://localhost:8000',
+          collectionName: 'script_memory'
+        } : undefined
       };
       const parser = createScriptParser(
         selectedModel.apiKey,
@@ -1230,8 +1248,24 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
               label="剧本内容"
               placeholder="粘贴剧本内容或上传文件..."
               value={scriptContent}
-              onChange={(e) => setScriptContent(e.target.value)}
+              onChange={(e) => {
+                const newContent = e.target.value;
+                setScriptContent(newContent);
+                // 实时更新字数统计
+                const newWordCount = newContent.length;
+                setScriptWordCount(newWordCount);
+                // 重新检测
+                const shouldEnable = vectorMemoryConfig.shouldEnable(newWordCount);
+                setUseVectorMemory(shouldEnable);
+              }}
               minRows={10}
+            />
+
+            {/* 智能记忆开关 - 始终显示 */}
+            <VectorMemoryToggle
+              wordCount={scriptWordCount}
+              onToggle={(enabled) => setUseVectorMemory(enabled)}
+              showAutoDetect={true}
             />
 
             <div className="text-sm text-default-500">

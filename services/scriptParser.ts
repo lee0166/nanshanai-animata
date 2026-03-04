@@ -41,6 +41,12 @@ export interface ScriptParserConfig {
   dramaRulesMinScore: number;
   useCache: boolean;
   cacheTTL: number;
+  enableVectorMemory?: boolean; // 启用向量记忆
+  vectorMemoryConfig?: {
+    autoEnableThreshold?: number;
+    chromaDbUrl?: string;
+    collectionName?: string;
+  };
 }
 
 /**
