@@ -9,13 +9,13 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { Switch, Tooltip, Chip, Button } from '@heroui/react';
-import { Brain, Info, AlertCircle, CheckCircle } from 'lucide-react';
-import { vectorMemoryConfig, VECTOR_MEMORY_MESSAGES } from '../services/parsing/VectorMemoryConfig';
+import { Switch, Tooltip, Chip } from '@heroui/react';
+import { Brain, AlertCircle, CheckCircle } from 'lucide-react';
+import { vectorMemoryConfig } from '../services/parsing/VectorMemoryConfig';
 
 interface VectorMemoryToggleProps {
   wordCount: number;  // 小说字数
-  onToggle?: (enabled: boolean) => void;  // 开关回调
+  onToggle?: (enabled: boolean) => void | Promise<void>;  // 开关回调（支持异步）
   showAutoDetect?: boolean;  // 是否显示自动检测提示
 }
 
@@ -26,19 +26,13 @@ export const VectorMemoryToggle: React.FC<VectorMemoryToggleProps> = ({
 }) => {
   const [enabled, setEnabled] = useState(false);
   const [isLongNovel, setIsLongNovel] = useState(false);
-  const [showPrompt, setShowPrompt] = useState(false);
   const [serverStatus, setServerStatus] = useState<'unknown' | 'running' | 'stopped'>('unknown');
-  const [isFirstTime, setIsFirstTime] = useState(false);
 
   // 初始化
   useEffect(() => {
     const config = vectorMemoryConfig.getConfig();
     setEnabled(config.enabled);
     setIsLongNovel(wordCount >= config.autoEnableThreshold);
-    
-    // 检查是否首次使用
-    const hasUsedBefore = localStorage.getItem('vectorMemoryUsed');
-    setIsFirstTime(!hasUsedBefore);
     
     // 检查服务器状态
     checkServerStatus();
@@ -52,35 +46,20 @@ export const VectorMemoryToggle: React.FC<VectorMemoryToggleProps> = ({
 
   // 处理开关
   const handleToggle = async (newEnabled: boolean) => {
-    // 先更新开关状态（让用户可以自由开关）
+    // 先更新UI状态
     setEnabled(newEnabled);
-    vectorMemoryConfig.setEnabled(newEnabled);
-    onToggle?.(newEnabled);
     
-    // 标记已使用过
-    localStorage.setItem('vectorMemoryUsed', 'true');
-    
-    // 如果开启，检查服务器状态并提示
-    if (newEnabled) {
-      const isRunning = await vectorMemoryConfig.checkServerStatus();
-      if (!isRunning) {
-        setServerStatus('stopped');
-        // 显示提示，但不阻止开关
-        setShowPrompt(true);
+    // 调用父组件的回调（可能包含异步操作，如模型下载）
+    if (onToggle) {
+      try {
+        await onToggle(newEnabled);
+      } catch (error) {
+        // 如果回调失败（如下载失败），恢复开关状态
+        console.error('[VectorMemoryToggle] Toggle failed:', error);
+        setEnabled(!newEnabled);
       }
     }
   };
-
-  // 获取提示信息
-  const getPromptContent = () => {
-    if (serverStatus === 'stopped' && enabled) {
-      return vectorMemoryConfig.getServerNotRunningPrompt();
-    }
-    
-    return vectorMemoryConfig.getUserPrompt(wordCount, isFirstTime);
-  };
-
-  const prompt = getPromptContent();
 
   // 空内容时的提示
   if (wordCount === 0) {
@@ -165,43 +144,6 @@ export const VectorMemoryToggle: React.FC<VectorMemoryToggleProps> = ({
               <span>ChromaDB服务未运行，请启动服务</span>
             </div>
           )}
-        </div>
-      )}
-
-      {/* 提示弹窗 */}
-      {showPrompt && prompt?.show && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-xl p-6 max-w-md w-full mx-4 shadow-2xl">
-            <h3 className="text-lg font-semibold mb-3">{prompt.title}</h3>
-            <div className="text-gray-600 whitespace-pre-line mb-6">
-              {prompt.message}
-            </div>
-            <div className="flex gap-3 justify-end">
-              {prompt.actions.map((action, index) => (
-                <Button
-                  key={index}
-                  color={action.primary ? 'primary' : 'default'}
-                  variant={action.primary ? 'solid' : 'flat'}
-                  onPress={() => {
-                    setShowPrompt(false);
-                    if (action.action === 'enable') {
-                      handleToggle(true);
-                    } else if (action.action === 'disable') {
-                      handleToggle(false);
-                    } else if (action.action === 'normal') {
-                      setEnabled(false);
-                      onToggle?.(false);
-                    } else if (action.action === 'retry') {
-                      checkServerStatus();
-                      setShowPrompt(true);
-                    }
-                  }}
-                >
-                  {action.label}
-                </Button>
-              ))}
-            </div>
-          </div>
         </div>
       )}
 

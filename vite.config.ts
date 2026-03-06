@@ -7,6 +7,148 @@ export default defineConfig(({ mode }) => {
     const env = loadEnv(mode, '.', '');
 
     const setupProxy = (middlewares: any) => {
+        // Hugging Face Model Proxy - 转发到 ModelScope 镜像
+        middlewares.use('/hf-proxy/', async (req: any, res: any, next: any) => {
+            // 将 /hf-proxy/Xenova/all-MiniLM-L6-v2/... 转换为 ModelScope URL
+            // ModelScope URL 格式: https://www.modelscope.cn/models/Xenova/all-MiniLM-L6-v2/resolve/master/config.json
+            const modelPath = req.url.replace(/^\//, ''); // 移除开头的 /
+            const targetUrl = `https://www.modelscope.cn/models/${modelPath}`;
+            
+            try {
+                console.log(`[HF Proxy] ${req.method} -> ${targetUrl}`);
+
+                const response = await fetch(targetUrl, {
+                    method: req.method,
+                    headers: {
+                        'Accept': req.headers['accept'] || '*/*',
+                        'User-Agent': req.headers['user-agent'] || 'Mozilla/5.0'
+                    }
+                });
+
+                res.statusCode = response.status;
+                res.statusMessage = response.statusText;
+                
+                response.headers.forEach((value, key) => {
+                    res.setHeader(key, value);
+                });
+                
+                // 添加 CORS 头
+                res.setHeader('Access-Control-Allow-Origin', '*');
+                
+                if (req.method === 'OPTIONS') {
+                    res.statusCode = 200;
+                    res.end();
+                    return;
+                }
+                
+                const arrayBuffer = await response.arrayBuffer();
+                res.end(Buffer.from(arrayBuffer));
+
+            } catch (e: any) {
+                console.error('[HF Proxy] Error:', e);
+                res.statusCode = 500;
+                res.setHeader('Access-Control-Allow-Origin', '*');
+                res.end(`HF proxy error: ${e.message}`);
+            }
+        });
+
+        // Local Model Files Proxy - 提供本地模型文件访问
+        middlewares.use('/data/models/', (req: any, res: any, next: any) => {
+            const filePath = path.join(__dirname, 'data', 'models', req.url);
+            
+            // 添加 CORS 头
+            res.setHeader('Access-Control-Allow-Origin', '*');
+            res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
+            res.setHeader('Access-Control-Allow-Headers', '*');
+            
+            if (req.method === 'OPTIONS') {
+                res.statusCode = 200;
+                res.end();
+                return;
+            }
+            
+            if (!fs.existsSync(filePath)) {
+                console.error(`[Model Proxy] File not found: ${filePath}`);
+                res.statusCode = 404;
+                res.end('Model file not found');
+                return;
+            }
+            
+            console.log(`[Model Proxy] Serving: ${req.url}`);
+            
+            const stat = fs.statSync(filePath);
+            res.setHeader('Content-Type', 'application/octet-stream');
+            res.setHeader('Content-Length', stat.size);
+            
+            const stream = fs.createReadStream(filePath);
+            stream.pipe(res);
+            
+            stream.on('error', (err) => {
+                console.error(`[Model Proxy] Error reading file: ${err.message}`);
+                res.statusCode = 500;
+                res.end('Error reading model file');
+            });
+        });
+
+        // Chroma DB Proxy - 解决 CORS 问题
+        middlewares.use('/chroma', async (req: any, res: any, next: any) => {
+            const targetUrl = `http://localhost:8000${req.url}`;
+            
+            try {
+                console.log(`[Chroma Proxy] ${req.method} -> ${targetUrl}`);
+
+                const chunks: any[] = [];
+                for await (const chunk of req) {
+                    chunks.push(chunk);
+                }
+                const body = chunks.length > 0 ? Buffer.concat(chunks) : undefined;
+
+                const headers = new Headers();
+                for (const [key, value] of Object.entries(req.headers as Record<string, string | string[]>)) {
+                    if (!['host', 'origin', 'content-length', 'connection'].includes(key.toLowerCase())) {
+                        if (Array.isArray(value)) {
+                            value.forEach(v => headers.append(key, v));
+                        } else if (value) {
+                            headers.append(key, value);
+                        }
+                    }
+                }
+
+                const response = await fetch(targetUrl, {
+                    method: req.method,
+                    headers: headers,
+                    body: body
+                });
+
+                res.statusCode = response.status;
+                res.statusMessage = response.statusText;
+                
+                response.headers.forEach((value, key) => {
+                    res.setHeader(key, value);
+                });
+                
+                // 添加 CORS 头
+                res.setHeader('Access-Control-Allow-Origin', '*');
+                res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+                res.setHeader('Access-Control-Allow-Headers', '*');
+                
+                if (req.method === 'OPTIONS') {
+                    res.statusCode = 200;
+                    res.end();
+                    return;
+                }
+                
+                const arrayBuffer = await response.arrayBuffer();
+                res.end(Buffer.from(arrayBuffer));
+
+            } catch (e: any) {
+                console.error('[Chroma Proxy] Error:', e);
+                res.statusCode = 500;
+                res.setHeader('Access-Control-Allow-Origin', '*');
+                res.end(`Chroma proxy error: ${e.message}`);
+            }
+        });
+
         // Universal Proxy for dynamic API endpoints
         middlewares.use('/api/universal-proxy', async (req: any, res: any, next: any) => {
            if (req.method === 'OPTIONS') {

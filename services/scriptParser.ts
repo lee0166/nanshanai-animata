@@ -960,14 +960,18 @@ export class ScriptParser {
     }
 
     try {
-      this.vectorMemory = new VectorMemory(
-        this.parserConfig.vectorMemoryConfig?.chromaDbUrl,
-        this.parserConfig.vectorMemoryConfig?.collectionName || 'script_memory'
-      );
-      await this.vectorMemory.initialize();
-
+      // 先初始化 EmbeddingService
       this.embeddingService = new EmbeddingService();
       await this.embeddingService.initialize();
+      console.log('[ScriptParser] Embedding service initialized');
+
+      // 再初始化 VectorMemory，传入已初始化的 EmbeddingService
+      this.vectorMemory = new VectorMemory(
+        this.parserConfig.vectorMemoryConfig?.chromaDbUrl,
+        this.parserConfig.vectorMemoryConfig?.collectionName || 'script_memory',
+        this.embeddingService // 共享 EmbeddingService 实例，避免重复下载模型
+      );
+      await this.vectorMemory.initialize();
 
       console.log('[ScriptParser] Vector memory initialized');
     } catch (error) {

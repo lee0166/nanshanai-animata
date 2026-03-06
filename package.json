@@ -23,7 +23,11 @@
     "test": "vitest",
     "test:ui": "vitest --ui",
     "test:coverage": "vitest --coverage",
-    "optimize:parsing:step1": "node scripts/optimize-parsing-step1.mjs"
+    "optimize:parsing:step1": "node scripts/optimize-parsing-step1.mjs",
+    "download-model": "node scripts/download-model.js && node scripts/download-wasm.js",
+    "download-wasm": "node scripts/download-wasm.js",
+    "check-model-update": "node scripts/check-model-update.js",
+    "chroma": ".venv-chroma\\Scripts\\chroma run --path ./data/chroma_db"
   },
   "dependencies": {
     "@chroma-core/default-embed": "^0.1.9",

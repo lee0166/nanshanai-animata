@@ -8,7 +8,7 @@
  * @version 2.0.0
  */
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import {
   Card,
   CardBody,
@@ -183,42 +183,88 @@ const IssuesByDimension: React.FC<{
 };
 
 /**
- * 维度评分条组件
+ * 维度评分条组件 - 带动画效果
  */
-const DimensionScoreBar: React.FC<{ score: DimensionScore }> = ({ score }) => {
+const DimensionScoreBar: React.FC<{ score: DimensionScore; index: number }> = ({ score, index }) => {
   const color = getScoreColor(score.score);
   const issueCount = score.issues.length;
+  const [animatedScore, setAnimatedScore] = useState(0);
+
+  // 得分动画效果
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      const duration = 800; // 动画持续时间
+      const steps = 30; // 动画步数
+      const stepValue = score.score / steps;
+      let currentStep = 0;
+
+      const interval = setInterval(() => {
+        currentStep++;
+        if (currentStep >= steps) {
+          setAnimatedScore(score.score);
+          clearInterval(interval);
+        } else {
+          setAnimatedScore(Math.round(stepValue * currentStep));
+        }
+      }, duration / steps);
+
+      return () => clearInterval(interval);
+    }, index * 150); // 错开动画时间
+
+    return () => clearTimeout(timer);
+  }, [score.score, index]);
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-2 p-3 rounded-lg bg-content2/50 hover:bg-content2 transition-colors">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <span className="text-default-500">{getDimensionIcon(score.dimension)}</span>
-          <span className="text-sm font-medium">{getDimensionName(score.dimension)}</span>
-          <span className="text-xs text-default-400">({Math.round(score.weight * 100)}%)</span>
+          <div className={`p-1.5 rounded-md bg-${color}-100 text-${color}-600`}>
+            {getDimensionIcon(score.dimension)}
+          </div>
+          <div>
+            <span className="text-sm font-medium">{getDimensionName(score.dimension)}</span>
+            <span className="text-xs text-default-400 ml-2">权重 {Math.round(score.weight * 100)}%</span>
+          </div>
         </div>
         <div className="flex items-center gap-2">
           {issueCount > 0 && (
-            <Chip size="sm" color={color as any} variant="flat">
+            <Chip size="sm" color={color as any} variant="flat" className="text-xs">
               {issueCount} 个问题
             </Chip>
           )}
-          <Chip size="sm" color={color as any} variant="flat">
-            {score.score}分
-          </Chip>
+          <div className={`text-lg font-bold text-${color}`}>
+            {animatedScore}<span className="text-sm text-default-400">/100</span>
+          </div>
         </div>
       </div>
-      <Progress value={score.score} color={color as any} size="sm" aria-label={`${getDimensionName(score.dimension)}评分`} />
+      <div className="relative">
+        <Progress 
+          value={animatedScore} 
+          color={color as any} 
+          size="md"
+          className="h-2"
+          aria-label={`${getDimensionName(score.dimension)}评分`}
+        />
+        {/* 分数标记点 */}
+        <div 
+          className="absolute top-0 w-3 h-3 rounded-full bg-white border-2 border-current transform -translate-y-0.5 transition-all duration-300"
+          style={{ 
+            left: `${animatedScore}%`,
+            color: `var(--heroui-${color})`,
+            marginLeft: '-6px'
+          }}
+        />
+      </div>
       {score.details.length > 0 && (
-        <div className="text-xs text-default-500 space-y-1 pl-6">
+        <div className="text-xs text-default-500 space-y-1 pl-9 pt-1">
           {score.details.slice(0, 2).map((detail, idx) => (
-            <div key={idx} className="flex items-center gap-1">
-              <CheckCircle2 className="w-3 h-3 text-success" />
-              <span>{detail}</span>
+            <div key={idx} className="flex items-center gap-1.5">
+              <CheckCircle2 className="w-3 h-3 text-success flex-shrink-0" />
+              <span className="truncate">{detail}</span>
             </div>
           ))}
           {score.details.length > 2 && (
-            <div className="text-default-400">还有 {score.details.length - 2} 项...</div>
+            <div className="text-default-400 pl-4">还有 {score.details.length - 2} 项...</div>
           )}
         </div>
       )}
@@ -227,27 +273,54 @@ const DimensionScoreBar: React.FC<{ score: DimensionScore }> = ({ score }) => {
 };
 
 /**
- * 统计信息卡片
+ * 统计信息卡片 - 优化样式
  */
 const StatisticsCard: React.FC<{ statistics: DetailedQualityReport['statistics'] }> = ({ statistics }) => {
   const stats = [
-    { icon: <Users className="w-4 h-4" />, label: '角色', value: statistics.totalCharacters, subValue: `${statistics.charactersWithDescription}个有描述` },
-    { icon: <Map className="w-4 h-4" />, label: '场景', value: statistics.totalScenes, subValue: `${statistics.scenesWithShots}个有分镜` },
-    { icon: <Box className="w-4 h-4" />, label: '物品', value: statistics.totalItems, subValue: '' },
-    { icon: <Film className="w-4 h-4" />, label: '分镜', value: statistics.totalShots, subValue: `平均${statistics.avgShotsPerScene}个/场景` },
+    { 
+      icon: <Users className="w-5 h-5" />, 
+      label: '角色', 
+      value: statistics.totalCharacters, 
+      subValue: `${statistics.charactersWithDescription}个有描述`,
+      color: 'primary'
+    },
+    { 
+      icon: <Map className="w-5 h-5" />, 
+      label: '场景', 
+      value: statistics.totalScenes, 
+      subValue: `${statistics.scenesWithShots}个有分镜`,
+      color: 'success'
+    },
+    { 
+      icon: <Box className="w-5 h-5" />, 
+      label: '物品', 
+      value: statistics.totalItems, 
+      subValue: statistics.totalItems > 0 ? '已识别' : '未识别',
+      color: 'warning'
+    },
+    { 
+      icon: <Film className="w-5 h-5" />, 
+      label: '分镜', 
+      value: statistics.totalShots, 
+      subValue: `平均${statistics.avgShotsPerScene}个/场景`,
+      color: 'danger'
+    },
   ];
 
   return (
-    <div className="grid grid-cols-2 gap-3">
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
       {stats.map((stat, idx) => (
-        <div key={idx} className="bg-content2 rounded-lg p-3">
-          <div className="flex items-center gap-2 text-default-500 mb-1">
+        <div 
+          key={idx} 
+          className="bg-content2/50 hover:bg-content2 rounded-xl p-4 transition-all duration-200 border border-transparent hover:border-content3"
+        >
+          <div className={`flex items-center gap-2 text-${stat.color} mb-2`}>
             {stat.icon}
-            <span className="text-xs">{stat.label}</span>
+            <span className="text-xs font-medium">{stat.label}</span>
           </div>
-          <div className="text-2xl font-bold">{stat.value}</div>
+          <div className="text-3xl font-bold text-foreground">{stat.value}</div>
           {stat.subValue && (
-            <div className="text-xs text-default-400">{stat.subValue}</div>
+            <div className="text-xs text-default-400 mt-1">{stat.subValue}</div>
           )}
         </div>
       ))}
@@ -297,20 +370,25 @@ export const QualityReportCard: React.FC<QualityReportCardProps> = ({ report, t 
   }, [report.dimensionScores]);
 
   return (
-    <Card className="w-full">
-      <CardHeader className="flex items-center justify-between pb-2">
-        <div className="flex items-center gap-3">
-          <div className={`w-12 h-12 rounded-full flex items-center justify-center text-lg font-bold ${getGradeColor(report.overallGrade)}`}>
+    <Card className="w-full shadow-lg">
+      {/* 标题区域 - 优化样式 */}
+      <CardHeader className="flex items-center justify-between pb-3 border-b border-divider">
+        <div className="flex items-center gap-4">
+          {/* 总体评级徽章 */}
+          <div className={`w-14 h-14 rounded-2xl flex items-center justify-center text-xl font-bold shadow-md ${getGradeColor(report.overallGrade)}`}>
             {report.overallGrade}
           </div>
           <div>
-            <h4 className="font-bold text-lg">解析质量报告</h4>
-            <div className="flex items-center gap-2 text-sm text-default-500">
-              <span>综合评分</span>
-              <Chip size="sm" color={scoreColor as any} variant="flat">
+            <h4 className="font-bold text-xl text-foreground">解析质量报告</h4>
+            <div className="flex items-center gap-3 text-sm text-default-500 mt-1">
+              <span className="flex items-center gap-1">
+                <Award className="w-4 h-4" />
+                综合评分
+              </span>
+              <Chip size="sm" color={scoreColor as any} variant="flat" className="font-medium">
                 {report.score}分
               </Chip>
-              <span>·</span>
+              <span className="text-default-300">|</span>
               <span>置信度 {Math.round(report.confidence * 100)}%</span>
             </div>
           </div>
@@ -321,31 +399,32 @@ export const QualityReportCard: React.FC<QualityReportCardProps> = ({ report, t 
           size="sm"
           onPress={() => setExpanded(!expanded)}
           title={expanded ? "收起" : "展开"}
+          className="hover:bg-content2"
         >
-          {expanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+          {expanded ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
         </Button>
       </CardHeader>
 
-      <CardBody className="pt-0">
-        {/* 问题概览 - 新的展示方式 */}
+      <CardBody className="pt-4">
+        {/* 问题概览 - 优化展示方式 */}
         {totalIssues > 0 ? (
-          <div className="mb-4">
+          <div className="mb-5 p-4 rounded-xl bg-content2/30">
             <div className="flex flex-wrap gap-2 mb-3">
               {criticalCount > 0 && (
-                <Badge color="danger" variant="flat" className="px-3 py-1">
-                  <AlertCircle className="w-3 h-3 mr-1" />
+                <Badge color="danger" variant="flat" className="px-3 py-1.5 text-sm">
+                  <AlertCircle className="w-4 h-4 mr-1.5" />
                   {criticalCount} 个严重
                 </Badge>
               )}
               {warningCount > 0 && (
-                <Badge color="warning" variant="flat" className="px-3 py-1">
-                  <AlertTriangle className="w-3 h-3 mr-1" />
+                <Badge color="warning" variant="flat" className="px-3 py-1.5 text-sm">
+                  <AlertTriangle className="w-4 h-4 mr-1.5" />
                   {warningCount} 个警告
                 </Badge>
               )}
               {infoCount > 0 && (
-                <Badge color="primary" variant="flat" className="px-3 py-1">
-                  <Info className="w-3 h-3 mr-1" />
+                <Badge color="primary" variant="flat" className="px-3 py-1.5 text-sm">
+                  <Info className="w-4 h-4 mr-1.5" />
                   {infoCount} 个提示
                 </Badge>
               )}
@@ -360,6 +439,7 @@ export const QualityReportCard: React.FC<QualityReportCardProps> = ({ report, t 
                     size="sm"
                     variant="flat"
                     color={dim.score < 60 ? 'danger' : dim.score < 80 ? 'warning' : 'primary'}
+                    className="text-xs"
                   >
                     {dim.name}: {dim.count}个
                   </Chip>
@@ -368,29 +448,29 @@ export const QualityReportCard: React.FC<QualityReportCardProps> = ({ report, t 
             )}
           </div>
         ) : (
-          <div className="flex items-center gap-2 text-success mb-4">
-            <CheckCircle2 className="w-5 h-5" />
-            <span>质量检查通过，未发现明显问题</span>
+          <div className="flex items-center gap-3 text-success mb-5 p-4 rounded-xl bg-success-50">
+            <CheckCircle2 className="w-6 h-6" />
+            <span className="font-medium">质量检查通过，未发现明显问题</span>
           </div>
         )}
 
         {/* 维度评分 */}
-        <div className="space-y-4 mb-4">
-          <h5 className="font-medium text-sm flex items-center gap-2">
-            <BarChart3 className="w-4 h-4" />
+        <div className="space-y-3 mb-4">
+          <h5 className="font-medium text-sm flex items-center gap-2 px-1">
+            <BarChart3 className="w-4 h-4 text-primary" />
             质量维度分析
           </h5>
-          {report.dimensionScores.map((score) => (
-            <DimensionScoreBar key={score.dimension} score={score} />
+          {report.dimensionScores.map((score, index) => (
+            <DimensionScoreBar key={score.dimension} score={score} index={index} />
           ))}
         </div>
 
-        <Divider className="my-4" />
+        <Divider className="my-5" />
 
         {/* 统计信息 */}
-        <div className="mb-4">
-          <h5 className="font-medium text-sm mb-3 flex items-center gap-2">
-            <TrendingUp className="w-4 h-4" />
+        <div className="mb-5">
+          <h5 className="font-medium text-sm mb-4 flex items-center gap-2 px-1">
+            <TrendingUp className="w-4 h-4 text-success" />
             数据统计
           </h5>
           <StatisticsCard statistics={report.statistics} />

@@ -16,6 +16,9 @@ import { DetailedQualityReport } from '../services/parsing/QualityAnalyzer';
 import QualityReportCard from '../components/ScriptParser/QualityReportCard';
 import { VectorMemoryToggle } from '../components/VectorMemoryToggle';
 import { vectorMemoryConfig } from '../services/parsing/VectorMemoryConfig';
+import { ParseConfigConfirmModal } from '../components/ParseConfigConfirmModal';
+import { ModelDownloadProgress } from '../components/ModelDownloadProgress';
+import { EmbeddingService } from '../services/parsing/EmbeddingService';
 
 // Professional Analysis Components
 import { SoundDesignTab } from '../src/components/ScriptParser/SoundDesignTab';
@@ -85,7 +88,22 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
   const [scriptTitle, setScriptTitle] = useState('');
   const [scriptContent, setScriptContent] = useState('');
   const [scriptWordCount, setScriptWordCount] = useState(0); // 字数统计
-  const [useVectorMemory, setUseVectorMemory] = useState(false); // 智能记忆开关
+  const [useVectorMemory, setUseVectorMemory] = useState(() => {
+    // 从配置读取初始状态，尊重用户手动选择
+    return vectorMemoryConfig.getConfig().enabled;
+  }); // 智能记忆开关
+
+  // Parse config confirmation modal
+  const [showParseConfirm, setShowParseConfirm] = useState(false);
+
+  // Model download modal
+  const [showModelDownloadModal, setShowModelDownloadModal] = useState(false);
+  const [modelDownloadState, setModelDownloadState] = useState({
+    status: 'idle' as 'idle' | 'downloading' | 'success' | 'error',
+    progress: 0,
+    retryCount: 0
+  });
+  const [embeddingService] = useState(() => new EmbeddingService());
 
   // Existing assets for mapping
   const [existingCharacters, setExistingCharacters] = useState<CharacterAsset[]>([]);
@@ -276,8 +294,17 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
       setScriptWordCount(wordCount);
       
       // 自动检测是否需要启用智能记忆
-      const shouldEnable = vectorMemoryConfig.shouldEnable(wordCount);
-      setUseVectorMemory(shouldEnable);
+      // 只有用户未手动开启时，才根据字数自动检测
+      const config = vectorMemoryConfig.getConfig();
+      if (!config.enabled) {
+        const shouldEnable = vectorMemoryConfig.shouldEnable(wordCount);
+        setUseVectorMemory(shouldEnable);
+        // 同时更新配置
+        if (shouldEnable) {
+          vectorMemoryConfig.setEnabled(true);
+        }
+      }
+      // 如果用户已手动开启，保持开启状态，不做任何操作
       
       // 如果有多个章节，显示提示
       if (cleanResult.chapters.length > 1) {
@@ -336,14 +363,18 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
   };
 
   // Get selected LLM model config
-  const getSelectedModel = () => {
+  const getSelectedModel = (showError: boolean = true) => {
     const selectedModel = llmModels.find(m => m.id === selectedLlmModelId);
     if (!selectedModel) {
-      showToast('请先在设置中配置并选择LLM模型', 'error');
+      if (showError) {
+        showToast('请先在设置中配置并选择LLM模型', 'error');
+      }
       return null;
     }
     if (!selectedModel.apiKey) {
-      showToast('所选LLM模型未配置API密钥', 'error');
+      if (showError) {
+        showToast('所选LLM模型未配置API密钥', 'error');
+      }
       return null;
     }
     return selectedModel;
@@ -396,7 +427,7 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
         enableVectorMemory: useVectorMemory, // 传递智能记忆开关状态
         vectorMemoryConfig: useVectorMemory ? {
           autoEnableThreshold: 50000,
-          chromaDbUrl: 'http://localhost:8000',
+          chromaDbUrl: '/chroma',  // 使用 Vite 代理，避免 CORS
           collectionName: 'script_memory'
         } : undefined,
         // ✅ 启用迭代优化引擎
@@ -494,7 +525,7 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
         enableVectorMemory: useVectorMemory,
         vectorMemoryConfig: useVectorMemory ? {
           autoEnableThreshold: 50000,
-          chromaDbUrl: 'http://localhost:8000',
+          chromaDbUrl: '/chroma',  // 使用 Vite 代理，避免 CORS
           collectionName: 'script_memory'
         } : undefined,
         // ✅ 启用迭代优化引擎
@@ -724,7 +755,7 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
                 size="sm"
                 {...('color' in mainButton ? { color: mainButton.color } : { variant: mainButton.variant })}
                 startContent={mainButton.icon}
-                onPress={handleParseScript}
+                onPress={() => setShowParseConfirm(true)}
                 isLoading={activeParseButton === 'full'}
                 isDisabled={isParsing || llmModels.length === 0}
               >
@@ -1327,7 +1358,39 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
             {/* 智能记忆开关 - 始终显示 */}
             <VectorMemoryToggle
               wordCount={scriptWordCount}
-              onToggle={(enabled) => setUseVectorMemory(enabled)}
+              onToggle={async (enabled) => {
+                if (enabled) {
+                  // 开启智能记忆，显示下载弹窗
+                  setShowModelDownloadModal(true);
+                  
+                  // 订阅下载进度
+                  const unsubscribe = embeddingService.onDownloadProgress((state) => {
+                    setModelDownloadState(state);
+                  });
+
+                  try {
+                    // 尝试初始化（会自动下载模型）
+                    await embeddingService.initialize();
+                    
+                    // 下载成功
+                    setUseVectorMemory(true);
+                    vectorMemoryConfig.setEnabled(true);
+                    
+                    // 延迟关闭弹窗
+                    setTimeout(() => {
+                      setShowModelDownloadModal(false);
+                    }, 1500);
+                  } catch (error) {
+                    console.error('[ScriptManager] Model download failed:', error);
+                  } finally {
+                    unsubscribe();
+                  }
+                } else {
+                  // 关闭智能记忆
+                  setUseVectorMemory(false);
+                  vectorMemoryConfig.setEnabled(false);
+                }
+              }}
               showAutoDetect={true}
             />
 
@@ -1394,6 +1457,60 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
           </ModalFooter>
         </ModalContent>
       </Modal>
+
+      {/* Parse Config Confirmation Modal */}
+      <ParseConfigConfirmModal
+        isOpen={showParseConfirm}
+        onClose={() => setShowParseConfirm(false)}
+        onConfirm={() => {
+          setShowParseConfirm(false);
+          handleParseScript();
+        }}
+        scriptTitle={currentScript?.title || scriptTitle}
+        wordCount={scriptWordCount || currentScript?.content?.length || 0}
+        useVectorMemory={useVectorMemory}
+        onVectorMemoryToggle={(enabled) => {
+          setUseVectorMemory(enabled);
+          vectorMemoryConfig.setEnabled(enabled);
+        }}
+        modelName={getSelectedModel(false)?.name || '深度求索 V3'}
+        parseMode="完整解析"
+      />
+
+      {/* Model Download Progress Modal */}
+      <ModelDownloadProgress
+        isOpen={showModelDownloadModal}
+        downloadState={modelDownloadState}
+        onRetry={async () => {
+          const unsubscribe = embeddingService.onDownloadProgress((state) => {
+            setModelDownloadState(state);
+          });
+
+          try {
+            await embeddingService.retryDownload();
+            setUseVectorMemory(true);
+            vectorMemoryConfig.setEnabled(true);
+            setTimeout(() => {
+              setShowModelDownloadModal(false);
+            }, 1500);
+          } catch (error) {
+            console.error('[ScriptManager] Model retry failed:', error);
+          } finally {
+            unsubscribe();
+          }
+        }}
+        onCancel={() => {
+          setShowModelDownloadModal(false);
+          setUseVectorMemory(false);
+          vectorMemoryConfig.setEnabled(false);
+        }}
+        onUseStandardMode={() => {
+          setShowModelDownloadModal(false);
+          setUseVectorMemory(false);
+          vectorMemoryConfig.setEnabled(false);
+        }}
+        manualGuide={embeddingService.getManualDownloadGuide()}
+      />
     </div>
   );
 };

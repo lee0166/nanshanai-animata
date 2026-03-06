@@ -39,16 +39,26 @@ export class VectorMemory {
   private dbPath: string;
   private collectionName: string;
   private embeddingService: EmbeddingService;
+  private externalEmbeddingService: boolean = false;
 
   constructor(
     dbPath: string = 'http://localhost:8000',
-    collectionName: string = 'script_memory'
+    collectionName: string = 'script_memory',
+    embeddingService?: EmbeddingService
   ) {
     // ChromaDB v2+ 需要HTTP服务器
     // 本地持久化需要通过HTTP服务器
     this.dbPath = dbPath;
     this.collectionName = collectionName;
-    this.embeddingService = new EmbeddingService();
+    
+    // 如果提供了外部的 EmbeddingService，则使用它
+    if (embeddingService) {
+      this.embeddingService = embeddingService;
+      this.externalEmbeddingService = true;
+    } else {
+      this.embeddingService = new EmbeddingService();
+      this.externalEmbeddingService = false;
+    }
   }
 
   /**

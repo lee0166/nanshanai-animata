@@ -33,7 +33,7 @@ export const DEFAULT_VECTOR_MEMORY_CONFIG: VectorMemoryConfig = {
   enabled: false,  // 默认关闭，用户手动开启
   autoEnableThreshold: 50000,  // 5万字自动提示
   autoDetect: true,  // 自动检测小说长度
-  chromaDbUrl: 'http://localhost:8000',
+  chromaDbUrl: '/chroma',  // 使用 Vite 代理，避免 CORS 问题
   collectionName: 'script_memory',
   verbose: false
 };
@@ -208,7 +208,7 @@ export class VectorMemoryConfigManager {
    */
   async checkServerStatus(): Promise<boolean> {
     try {
-      const response = await fetch(`${this.config.chromaDbUrl}/api/v1/heartbeat`, {
+      const response = await fetch(`${this.config.chromaDbUrl}/api/v2/heartbeat`, {
         method: 'GET',
         signal: AbortSignal.timeout(3000)
       });

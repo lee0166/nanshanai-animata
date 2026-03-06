@@ -2,11 +2,36 @@
  * EmbeddingService - 文本向量化服务
  * 使用本地Embedding模型，无需外部API
  * 
+ * 注意：浏览器环境无法通过 env.remoteHost 配置下载源
+ * 模型文件需要通过预下载脚本提前准备到本地缓存
+ * 
+ * 预下载命令：npm run download-model
+ * 
  * @module services/parsing/EmbeddingService
- * @version 1.0.0
+ * @version 3.0.0
  */
 
-import { pipeline, Pipeline } from '@xenova/transformers';
+import { pipeline, Pipeline, env } from '@xenova/transformers';
+
+// 配置 Transformers.js 使用本地模型缓存
+// 浏览器环境：配置本地路径，避免从 CDN 下载
+if (typeof window !== 'undefined') {
+  // 浏览器环境：使用相对路径，让库从 /models/ 加载
+  // 模型文件放在 public/models/ 目录，Vite 会自动提供静态文件服务
+  env.remoteHost = window.location.origin;
+  env.remotePathTemplate = '/models/{model}/{file}';
+  
+  // 配置 ONNX Runtime WASM 文件路径，避免从 CDN 下载
+  // WASM 文件放在 public/ort-wasm/ 目录
+  if (env.backends && env.backends.onnx && env.backends.onnx.wasm) {
+    env.backends.onnx.wasm.wasmPaths = '/ort-wasm/';
+  }
+}
+// Node.js 环境：使用 ModelScope 镜像（用于预下载脚本）
+else {
+  env.remoteHost = 'https://www.modelscope.cn';
+  env.remotePathTemplate = '{model}/resolve/master/{file}';
+}
 
 export interface EmbeddingResult {
   text: string;
@@ -14,11 +39,30 @@ export interface EmbeddingResult {
   dimensions: number;
 }
 
+export interface ModelDownloadState {
+  status: 'idle' | 'checking' | 'downloading' | 'success' | 'error';
+  progress: number; // 0-100
+  totalSize?: string;
+  downloadedSize?: string;
+  error?: string;
+  retryCount: number;
+  localModelExists: boolean;
+}
+
 export class EmbeddingService {
   private embedder: Pipeline | null = null;
   private modelName: string;
   private isInitializing: boolean = false;
   private initPromise: Promise<void> | null = null;
+  
+  // 下载状态管理
+  private downloadState: ModelDownloadState = {
+    status: 'idle',
+    progress: 0,
+    retryCount: 0,
+    localModelExists: false
+  };
+  private downloadListeners: ((state: ModelDownloadState) => void)[] = [];
 
   constructor(
     modelName: string = 'Xenova/all-MiniLM-L6-v2' // 轻量级模型，384维
@@ -27,11 +71,54 @@ export class EmbeddingService {
   }
 
   /**
+   * 检查本地模型是否存在
+   */
+  private checkLocalModel(): boolean {
+    // 在浏览器环境中，@xenova/transformers 会自动检查本地缓存
+    // 缓存位置：/data/models/Xenova/all-MiniLM-L6-v2/
+    // 我们假设如果之前运行过 download-model 脚本，模型就会存在
+    
+    // 注意：由于浏览器安全限制，无法直接检查文件系统
+    // 我们通过尝试加载来判断模型是否存在
+    return false; // 默认返回 false，让 initialize 方法去尝试加载
+  }
+
+  /**
+   * 订阅下载状态
+   */
+  onDownloadProgress(callback: (state: ModelDownloadState) => void): () => void {
+    this.downloadListeners.push(callback);
+    // 立即通知当前状态
+    callback(this.downloadState);
+    return () => {
+      this.downloadListeners = this.downloadListeners.filter(cb => cb !== callback);
+    };
+  }
+
+  /**
+   * 更新下载状态
+   */
+  private updateDownloadState(state: Partial<ModelDownloadState>): void {
+    this.downloadState = { ...this.downloadState, ...state };
+    this.downloadListeners.forEach(cb => cb(this.downloadState));
+  }
+
+  /**
+   * 获取当前下载状态
+   */
+  getDownloadState(): ModelDownloadState {
+    return { ...this.downloadState };
+  }
+
+  /**
    * 初始化Embedding模型
-   * 首次调用会下载模型（约80MB）
+   * 
+   * 浏览器环境：依赖本地缓存，如果模型不存在会失败
+   * Node.js 环境：可以从 ModelScope 下载
    */
   async initialize(): Promise<void> {
     if (this.embedder) {
+      this.updateDownloadState({ status: 'success', progress: 100, localModelExists: true });
       return; // 已初始化
     }
 
@@ -40,6 +127,7 @@ export class EmbeddingService {
     }
 
     this.isInitializing = true;
+    this.updateDownloadState({ status: 'checking', progress: 0 });
     this.initPromise = this.doInitialize();
 
     return this.initPromise;
@@ -48,26 +136,135 @@ export class EmbeddingService {
   private async doInitialize(): Promise<void> {
     try {
       console.log(`[EmbeddingService] Loading model: ${this.modelName}`);
-      console.log('[EmbeddingService] First time may take a while to download...');
-
-      // 创建feature-extraction pipeline
-      this.embedder = await pipeline(
-        'feature-extraction',
-        this.modelName,
-        {
-          quantized: true, // 使用量化模型，减少内存占用
-          revision: 'main',
-          cache_dir: './data/models' // 模型缓存目录
+      
+      // 检查是否在浏览器环境
+      const isBrowser = typeof window !== 'undefined';
+      
+      if (isBrowser) {
+        console.log('[EmbeddingService] Browser environment detected');
+        console.log('[EmbeddingService] Checking local model cache...');
+        
+        // 浏览器环境：尝试加载本地模型
+        // 如果模型不存在，会抛出错误
+        this.updateDownloadState({ status: 'downloading', progress: 50 });
+        
+        try {
+          this.embedder = await pipeline(
+            'feature-extraction',
+            this.modelName,
+            {
+              quantized: true,
+              revision: 'main',
+              cache_dir: './data/models'
+            }
+          );
+          
+          this.updateDownloadState({ 
+            status: 'success', 
+            progress: 100,
+            localModelExists: true 
+          });
+          console.log('[EmbeddingService] Model loaded from local cache');
+        } catch (error) {
+          // 本地模型不存在，显示友好错误
+          console.error('[EmbeddingService] Local model not found');
+          this.updateDownloadState({ 
+            status: 'error', 
+            progress: 0,
+            localModelExists: false,
+            error: '本地模型不存在，请先运行 npm run download-model 下载模型文件'
+          });
+          throw new Error('Local model not found. Please run "npm run download-model" first.');
         }
-      );
-
-      console.log('[EmbeddingService] Model loaded successfully');
+      } else {
+        // Node.js 环境：可以从 ModelScope 下载
+        console.log('[EmbeddingService] Node.js environment detected');
+        console.log('[EmbeddingService] Downloading from ModelScope if needed...');
+        
+        this.updateDownloadState({ status: 'downloading', progress: 0 });
+        
+        this.embedder = await pipeline(
+          'feature-extraction',
+          this.modelName,
+          {
+            quantized: true,
+            revision: 'main',
+            cache_dir: './data/models'
+          }
+        );
+        
+        this.updateDownloadState({ 
+          status: 'success', 
+          progress: 100,
+          localModelExists: true 
+        });
+        console.log('[EmbeddingService] Model loaded successfully');
+      }
     } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      this.updateDownloadState({ 
+        status: 'error', 
+        error: errorMessage,
+        localModelExists: false
+      });
       console.error('[EmbeddingService] Failed to load model:', error);
       throw error;
     } finally {
       this.isInitializing = false;
     }
+  }
+
+  /**
+   * 重试下载
+   * 在浏览器环境中，重试没有意义，因为无法下载
+   * 在 Node.js 环境中，可以尝试重新下载
+   */
+  async retryDownload(): Promise<void> {
+    const isBrowser = typeof window !== 'undefined';
+    
+    if (isBrowser) {
+      // 浏览器环境：无法重试下载，直接失败
+      throw new Error('Browser environment cannot download models. Please run "npm run download-model" in Node.js environment.');
+    }
+    
+    // Node.js 环境：可以重试
+    this.downloadState.retryCount++;
+    this.embedder = null;
+    this.updateDownloadState({ 
+      status: 'downloading', 
+      progress: 0,
+      error: undefined 
+    });
+    await this.initialize();
+  }
+
+  /**
+   * 获取手动下载指引
+   */
+  getManualDownloadGuide(): {
+    modelName: string;
+    downloadCommand: string;
+    targetPath: string;
+    instructions: string[];
+    requirements: string[];
+  } {
+    return {
+      modelName: 'Xenova/all-MiniLM-L6-v2',
+      downloadCommand: 'npm run download-model',
+      targetPath: './data/models/Xenova/all-MiniLM-L6-v2/',
+      instructions: [
+        '1. 确保已安装 Node.js 环境',
+        '2. 在项目根目录运行命令：npm run download-model',
+        '3. 等待脚本下载完成（约 80MB）',
+        '4. 刷新浏览器页面',
+        '5. 重新开启智能记忆功能'
+      ],
+      requirements: [
+        'Node.js 环境（用于运行下载脚本）',
+        '约 80MB 磁盘空间',
+        '网络连接（用于从 ModelScope 下载）'
+      ]
+    };
   }
 
   /**
@@ -90,8 +287,8 @@ export class EmbeddingService {
 
     // 生成向量
     const output = await this.embedder(truncatedText, {
-      pooling: 'mean', // 使用mean pooling
-      normalize: true  // 归一化
+      pooling: 'mean',
+      normalize: true
     });
 
     // 提取向量数据
@@ -167,7 +364,7 @@ export class EmbeddingService {
   getModelInfo(): { name: string; dimensions: number } {
     return {
       name: this.modelName,
-      dimensions: 384 // all-MiniLM-L6-v2 的维度
+      dimensions: 384
     };
   }
 }

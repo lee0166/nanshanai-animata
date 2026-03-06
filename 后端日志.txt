@@ -1,5 +1,3 @@
-(索引):971 [Intervention]Images loaded lazily and replaced with placeholders. Load events are deferred. See https://go.microsoft.com/fwlink/?linkid=2048113
-已导航到http://localhost:3000/
 client:789 [vite] connecting...
 react-dom-client.development.js:28004 Download the React DevTools for a better development experience: https://react.dev/link/react-devtools
 aiService.ts:68 [AIService] Registered provider: volcengine
@@ -14,1141 +12,221 @@ client:912 [vite] connected.
 AppContext.tsx:121 [INIT] autoConnect returned: false
 AppContext.tsx:121 [INIT] autoConnect returned: false
 AppContext.tsx:24 [STORAGE] Connection check: Connected=false, Responsive=true
-AppContext.tsx:147 [INIT] Initialization complete. FS Responsive: true, Connected: false, Elapsed: 503ms
+AppContext.tsx:147 [INIT] Initialization complete. FS Responsive: true, Connected: false, Elapsed: 501ms
 storage.ts:495 [STORAGE] Triggering showDirectoryPicker...
 AppContext.tsx:24 [STORAGE] Connection check: Connected=false, Responsive=true
 storage.ts:499 [STORAGE] Directory picker success: ProjectML
 AppContext.tsx:24 [STORAGE] Connection check: Connected=true, Responsive=true
 App.tsx:32 [APP] Triggering jobQueue.loadQueue()...
 AppContext.tsx:24 [STORAGE] Connection check: Connected=true, Responsive=true
-Settings.tsx:59 [Settings] Syncing durationBudgetConfig from settings: {platform: 'bilibili', useDurationBudget: true, useDynamicDuration: true, useProductionPrompt: true, useShotQC: true, …}
-Settings.tsx:74 [Settings] durationBudgetConfig updated: {platform: 'bilibili', pace: 'normal', useDurationBudget: true, useDynamicDuration: true, useProductionPrompt: true, …}
-Settings.tsx:59 [Settings] Syncing durationBudgetConfig from settings: {platform: 'bilibili', useDurationBudget: true, useDynamicDuration: true, useProductionPrompt: true, useShotQC: true, …}
-Settings.tsx:74 [Settings] durationBudgetConfig updated: {platform: 'bilibili', pace: 'normal', useDurationBudget: true, useDynamicDuration: true, useProductionPrompt: true, …}
-Settings.tsx:74 [Settings] durationBudgetConfig updated: {platform: 'bilibili', pace: 'normal', useDurationBudget: true, useDynamicDuration: true, useProductionPrompt: true, …}
-[Violation]'message' handler 用时 <N> 毫秒
-[Violation]'message' handler 用时 <N> 毫秒
-[Violation]'message' handler 用时 <N> 毫秒
-[Violation]'message' handler 用时 <N> 毫秒
-[Violation]'message' handler 用时 <N> 毫秒
-[Violation]'message' handler 用时 <N> 毫秒
-[Violation]'message' handler 用时 <N> 毫秒
-[Violation]'message' handler 用时 <N> 毫秒
-[Violation]'message' handler 用时 <N> 毫秒
-[DOM] Password field is not contained in a form: (More info: <URL>)
-[DOM] Password field is not contained in a form: (More info: <URL>)
-[DOM] Password field is not contained in a form: (More info: <URL>)
-[DOM] Password field is not contained in a form: (More info: <URL>)
-[DOM] Password field is not contained in a form: (More info: <URL>)
-[DOM] Password field is not contained in a form: (More info: <URL>)
-[DOM] Password field is not contained in a form: (More info: <URL>)
-[DOM] Password field is not contained in a form: (More info: <URL>)
-[DOM] Password field is not contained in a form: (More info: <URL>)
-[DOM] Password field is not contained in a form: (More info: <URL>)
-[DOM] Password field is not contained in a form: (More info: <URL>)
-[DOM] Password field is not contained in a form: (More info: <URL>)
-Settings.tsx:74 [Settings] durationBudgetConfig updated: {platform: 'kuaishou', pace: 'normal', useDurationBudget: true, useDynamicDuration: true, useProductionPrompt: true, …}
-Settings.tsx:74 [Settings] durationBudgetConfig updated: {platform: 'kuaishou', pace: 'fast', useDurationBudget: true, useDynamicDuration: true, useProductionPrompt: true, …}
-Settings.tsx:393 [Settings] Saving duration budget config: {platform: 'kuaishou', pace: 'fast', useDurationBudget: true, useDynamicDuration: true, useProductionPrompt: true, …}
-Settings.tsx:59 [Settings] Syncing durationBudgetConfig from settings: {platform: 'kuaishou', pace: 'fast', useDurationBudget: true, useDynamicDuration: true, useProductionPrompt: true, …}
-react-dom-client.development.js:18985 [Violation]'click' handler took 201ms
-Settings.tsx:74 [Settings] durationBudgetConfig updated: {platform: 'kuaishou', pace: 'fast', useDurationBudget: true, useDynamicDuration: true, useProductionPrompt: true, …}
-storage.ts:647 [STORAGE] Slow FileSystem write: settings.json took 241.60ms
-Settings.tsx:404 [Settings] Settings saved successfully
-Settings.tsx:74 [Settings] durationBudgetConfig updated: {platform: 'kuaishou', pace: 'fast', useDurationBudget: true, useDynamicDuration: true, useProductionPrompt: true, …}
+ScriptManager.tsx:145 [ScriptManager] ========== useEffect: currentScript changed ==========
+ScriptManager.tsx:146 [ScriptManager] currentScript exists: false
+ScriptManager.tsx:147 [ScriptManager] parseState exists: false
+ScriptManager.tsx:148 [ScriptManager] qualityReport exists: false
+ScriptManager.tsx:161 [ScriptManager] No quality report in parseState, setting to null
+ScriptManager.tsx:145 [ScriptManager] ========== useEffect: currentScript changed ==========
+ScriptManager.tsx:146 [ScriptManager] currentScript exists: false
+ScriptManager.tsx:147 [ScriptManager] parseState exists: false
+ScriptManager.tsx:148 [ScriptManager] qualityReport exists: false
+ScriptManager.tsx:161 [ScriptManager] No quality report in parseState, setting to null
 AppContext.tsx:24 [STORAGE] Connection check: Connected=true, Responsive=true
 AppContext.tsx:24 [STORAGE] Connection check: Connected=true, Responsive=true
-Settings.tsx:393 [Settings] Saving duration budget config: {platform: 'kuaishou', pace: 'fast', useDurationBudget: true, useDynamicDuration: true, useProductionPrompt: true, …}
-Settings.tsx:59 [Settings] Syncing durationBudgetConfig from settings: {platform: 'kuaishou', pace: 'fast', useDurationBudget: true, useDynamicDuration: true, useProductionPrompt: true, …}
-react-dom-client.development.js:18985 [Violation]'click' handler took 190ms
-Settings.tsx:74 [Settings] durationBudgetConfig updated: {platform: 'kuaishou', pace: 'fast', useDurationBudget: true, useDynamicDuration: true, useProductionPrompt: true, …}
-storage.ts:647 [STORAGE] Slow FileSystem write: settings.json took 230.20ms
-Settings.tsx:404 [Settings] Settings saved successfully
-Settings.tsx:74 [Settings] durationBudgetConfig updated: {platform: 'kuaishou', pace: 'fast', useDurationBudget: true, useDynamicDuration: true, useProductionPrompt: true, …}
+ScriptManager.tsx:278 [ScriptManager] Detected encoding issues: ['混合使用多种换行符']
+ScriptManager.tsx:283 [ScriptManager] Text cleaned: {originalLength: 7370, cleanedLength: 7033, removedChars: 337, chapterCount: 1}
+[Violation]Forced reflow while executing JavaScript took 75ms
+提取 已完成加载:GET "<URL>"。
+提取 已完成加载:GET "<URL>"。
+提取 已完成加载:GET "<URL>"。
+提取 已完成加载:GET "<URL>"。
+提取 已完成加载:GET "<URL>"。
+EmbeddingService.ts:132 [EmbeddingService] Loading model: Xenova/all-MiniLM-L6-v2
+EmbeddingService.ts:138 [EmbeddingService] Browser environment detected
+EmbeddingService.ts:139 [EmbeddingService] Checking local model cache...
+ModelDownloadProgress.tsx:81  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+$204d9ebcedfb8806$export$ed5abd763a836edc @ useProgressBar.ts:44
+useProgress @ chunk-MXO63OUV.mjs:41
+HeroUI.Progress @ chunk-VFIJPDYX.mjs:19
+react_stack_bottom_frame @ react-dom-client.development.js:25904
+renderWithHooks @ react-dom-client.development.js:7662
+updateForwardRef @ react-dom-client.development.js:9724
+beginWork @ react-dom-client.development.js:12117
+runWithFiberInDEV @ react-dom-client.development.js:871
+performUnitOfWork @ react-dom-client.development.js:17641
+workLoopSync @ react-dom-client.development.js:17469
+renderRootSync @ react-dom-client.development.js:17450
+performWorkOnRoot @ react-dom-client.development.js:16504
+performSyncWorkOnRoot @ react-dom-client.development.js:18972
+flushSyncWorkAcrossRoots_impl @ react-dom-client.development.js:18814
+flushSyncWork$1 @ react-dom-client.development.js:16898
+batchedUpdates$1 @ react-dom-client.development.js:3263
+dispatchEventForPluginEventSystem @ react-dom-client.development.js:19320
+dispatchEvent @ react-dom-client.development.js:23585
+dispatchDiscreteEvent @ react-dom-client.development.js:23553
+<HeroUI.Progress>
+exports.jsxDEV @ react-jsx-dev-runtime.development.js:335
+renderContent @ ModelDownloadProgress.tsx:81
+ModelDownloadProgress @ ModelDownloadProgress.tsx:216
+react_stack_bottom_frame @ react-dom-client.development.js:25904
+renderWithHooksAgain @ react-dom-client.development.js:7762
+renderWithHooks @ react-dom-client.development.js:7674
+updateFunctionComponent @ react-dom-client.development.js:10166
+beginWork @ react-dom-client.development.js:11778
+runWithFiberInDEV @ react-dom-client.development.js:871
+performUnitOfWork @ react-dom-client.development.js:17641
+workLoopSync @ react-dom-client.development.js:17469
+renderRootSync @ react-dom-client.development.js:17450
+performWorkOnRoot @ react-dom-client.development.js:16504
+performSyncWorkOnRoot @ react-dom-client.development.js:18972
+flushSyncWorkAcrossRoots_impl @ react-dom-client.development.js:18814
+flushSyncWork$1 @ react-dom-client.development.js:16898
+batchedUpdates$1 @ react-dom-client.development.js:3263
+dispatchEventForPluginEventSystem @ react-dom-client.development.js:19320
+dispatchEvent @ react-dom-client.development.js:23585
+dispatchDiscreteEvent @ react-dom-client.development.js:23553
+ModelDownloadProgress.tsx:81  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+$204d9ebcedfb8806$export$ed5abd763a836edc @ useProgressBar.ts:44
+useProgress @ chunk-MXO63OUV.mjs:41
+HeroUI.Progress @ chunk-VFIJPDYX.mjs:19
+react_stack_bottom_frame @ react-dom-client.development.js:25904
+renderWithHooksAgain @ react-dom-client.development.js:7762
+renderWithHooks @ react-dom-client.development.js:7674
+updateForwardRef @ react-dom-client.development.js:9724
+beginWork @ react-dom-client.development.js:12117
+runWithFiberInDEV @ react-dom-client.development.js:871
+performUnitOfWork @ react-dom-client.development.js:17641
+workLoopSync @ react-dom-client.development.js:17469
+renderRootSync @ react-dom-client.development.js:17450
+performWorkOnRoot @ react-dom-client.development.js:16504
+performSyncWorkOnRoot @ react-dom-client.development.js:18972
+flushSyncWorkAcrossRoots_impl @ react-dom-client.development.js:18814
+flushSyncWork$1 @ react-dom-client.development.js:16898
+batchedUpdates$1 @ react-dom-client.development.js:3263
+dispatchEventForPluginEventSystem @ react-dom-client.development.js:19320
+dispatchEvent @ react-dom-client.development.js:23585
+dispatchDiscreteEvent @ react-dom-client.development.js:23553
+<HeroUI.Progress>
+exports.jsxDEV @ react-jsx-dev-runtime.development.js:335
+renderContent @ ModelDownloadProgress.tsx:81
+ModelDownloadProgress @ ModelDownloadProgress.tsx:216
+react_stack_bottom_frame @ react-dom-client.development.js:25904
+renderWithHooksAgain @ react-dom-client.development.js:7762
+renderWithHooks @ react-dom-client.development.js:7674
+updateFunctionComponent @ react-dom-client.development.js:10166
+beginWork @ react-dom-client.development.js:11778
+runWithFiberInDEV @ react-dom-client.development.js:871
+performUnitOfWork @ react-dom-client.development.js:17641
+workLoopSync @ react-dom-client.development.js:17469
+renderRootSync @ react-dom-client.development.js:17450
+performWorkOnRoot @ react-dom-client.development.js:16504
+performSyncWorkOnRoot @ react-dom-client.development.js:18972
+flushSyncWorkAcrossRoots_impl @ react-dom-client.development.js:18814
+flushSyncWork$1 @ react-dom-client.development.js:16898
+batchedUpdates$1 @ react-dom-client.development.js:3263
+dispatchEventForPluginEventSystem @ react-dom-client.development.js:19320
+dispatchEvent @ react-dom-client.development.js:23585
+dispatchDiscreteEvent @ react-dom-client.development.js:23553
+ModelDownloadProgress.tsx:81  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+$204d9ebcedfb8806$export$ed5abd763a836edc @ useProgressBar.ts:44
+useProgress @ chunk-MXO63OUV.mjs:41
+HeroUI.Progress @ chunk-VFIJPDYX.mjs:19
+react_stack_bottom_frame @ react-dom-client.development.js:25904
+renderWithHooks @ react-dom-client.development.js:7662
+updateForwardRef @ react-dom-client.development.js:9724
+beginWork @ react-dom-client.development.js:12117
+runWithFiberInDEV @ react-dom-client.development.js:871
+performUnitOfWork @ react-dom-client.development.js:17641
+workLoopSync @ react-dom-client.development.js:17469
+renderRootSync @ react-dom-client.development.js:17450
+performWorkOnRoot @ react-dom-client.development.js:16504
+performWorkOnRootViaSchedulerTask @ react-dom-client.development.js:18957
+performWorkUntilDeadline @ scheduler.development.js:45
+<HeroUI.Progress>
+exports.jsxDEV @ react-jsx-dev-runtime.development.js:335
+renderContent @ ModelDownloadProgress.tsx:81
+ModelDownloadProgress @ ModelDownloadProgress.tsx:216
+react_stack_bottom_frame @ react-dom-client.development.js:25904
+renderWithHooksAgain @ react-dom-client.development.js:7762
+renderWithHooks @ react-dom-client.development.js:7674
+updateFunctionComponent @ react-dom-client.development.js:10166
+beginWork @ react-dom-client.development.js:11778
+runWithFiberInDEV @ react-dom-client.development.js:871
+performUnitOfWork @ react-dom-client.development.js:17641
+workLoopSync @ react-dom-client.development.js:17469
+renderRootSync @ react-dom-client.development.js:17450
+performWorkOnRoot @ react-dom-client.development.js:16504
+performSyncWorkOnRoot @ react-dom-client.development.js:18972
+flushSyncWorkAcrossRoots_impl @ react-dom-client.development.js:18814
+flushSyncWork$1 @ react-dom-client.development.js:16898
+batchedUpdates$1 @ react-dom-client.development.js:3263
+dispatchEventForPluginEventSystem @ react-dom-client.development.js:19320
+dispatchEvent @ react-dom-client.development.js:23585
+dispatchDiscreteEvent @ react-dom-client.development.js:23553
+ModelDownloadProgress.tsx:81  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+$204d9ebcedfb8806$export$ed5abd763a836edc @ useProgressBar.ts:44
+useProgress @ chunk-MXO63OUV.mjs:41
+HeroUI.Progress @ chunk-VFIJPDYX.mjs:19
+react_stack_bottom_frame @ react-dom-client.development.js:25904
+renderWithHooksAgain @ react-dom-client.development.js:7762
+renderWithHooks @ react-dom-client.development.js:7674
+updateForwardRef @ react-dom-client.development.js:9724
+beginWork @ react-dom-client.development.js:12117
+runWithFiberInDEV @ react-dom-client.development.js:871
+performUnitOfWork @ react-dom-client.development.js:17641
+workLoopSync @ react-dom-client.development.js:17469
+renderRootSync @ react-dom-client.development.js:17450
+performWorkOnRoot @ react-dom-client.development.js:16504
+performWorkOnRootViaSchedulerTask @ react-dom-client.development.js:18957
+performWorkUntilDeadline @ scheduler.development.js:45
+<HeroUI.Progress>
+exports.jsxDEV @ react-jsx-dev-runtime.development.js:335
+renderContent @ ModelDownloadProgress.tsx:81
+ModelDownloadProgress @ ModelDownloadProgress.tsx:216
+react_stack_bottom_frame @ react-dom-client.development.js:25904
+renderWithHooksAgain @ react-dom-client.development.js:7762
+renderWithHooks @ react-dom-client.development.js:7674
+updateFunctionComponent @ react-dom-client.development.js:10166
+beginWork @ react-dom-client.development.js:11778
+runWithFiberInDEV @ react-dom-client.development.js:871
+performUnitOfWork @ react-dom-client.development.js:17641
+workLoopSync @ react-dom-client.development.js:17469
+renderRootSync @ react-dom-client.development.js:17450
+performWorkOnRoot @ react-dom-client.development.js:16504
+performSyncWorkOnRoot @ react-dom-client.development.js:18972
+flushSyncWorkAcrossRoots_impl @ react-dom-client.development.js:18814
+flushSyncWork$1 @ react-dom-client.development.js:16898
+batchedUpdates$1 @ react-dom-client.development.js:3263
+dispatchEventForPluginEventSystem @ react-dom-client.development.js:19320
+dispatchEvent @ react-dom-client.development.js:23585
+dispatchDiscreteEvent @ react-dom-client.development.js:23553
 AppContext.tsx:24 [STORAGE] Connection check: Connected=true, Responsive=true
-已导航到http://localhost:3000/
-client:789 [vite] connecting...
-react-dom-client.development.js:28004 Download the React DevTools for a better development experience: https://react.dev/link/react-devtools
-aiService.ts:68 [AIService] Registered provider: volcengine
-aiService.ts:68 [AIService] Registered provider: vidu
-aiService.ts:68 [AIService] Registered provider: modelscope
-aiService.ts:68 [AIService] Registered provider: llm
-AppContext.tsx:98 [INIT] Redirecting to home from #/settings
-AppContext.tsx:103 [INIT] Starting App Initialization...
-AppContext.tsx:119 [INIT] Attempting auto-connect...
-AppContext.tsx:103 [INIT] Starting App Initialization...
-AppContext.tsx:119 [INIT] Attempting auto-connect...
-client:912 [vite] connected.
-AppContext.tsx:121 [INIT] autoConnect returned: true
-AppContext.tsx:121 [INIT] autoConnect returned: true
-AppContext.tsx:125 [INIT] Starting smoke test...
-AppContext.tsx:24 [STORAGE] Connection check: Connected=true, Responsive=true
-AppContext.tsx:132 [INIT] Smoke test complete.
-AppContext.tsx:147 [INIT] Initialization complete. FS Responsive: true, Connected: true, Elapsed: 1117ms
-App.tsx:32 [APP] Triggering jobQueue.loadQueue()...
-App.tsx:32 [APP] Triggering jobQueue.loadQueue()...
-AppContext.tsx:24 [STORAGE] Connection check: Connected=true, Responsive=true
-ScriptManager.tsx:123 [ScriptManager] ========== useEffect: currentScript changed ==========
-ScriptManager.tsx:124 [ScriptManager] currentScript exists: false
-ScriptManager.tsx:125 [ScriptManager] parseState exists: false
-ScriptManager.tsx:126 [ScriptManager] qualityReport exists: false
-ScriptManager.tsx:139 [ScriptManager] No quality report in parseState, setting to null
-ScriptManager.tsx:123 [ScriptManager] ========== useEffect: currentScript changed ==========
-ScriptManager.tsx:124 [ScriptManager] currentScript exists: false
-ScriptManager.tsx:125 [ScriptManager] parseState exists: false
-ScriptManager.tsx:126 [ScriptManager] qualityReport exists: false
-ScriptManager.tsx:139 [ScriptManager] No quality report in parseState, setting to null
-ScriptManager.tsx:123 [ScriptManager] ========== useEffect: currentScript changed ==========
-ScriptManager.tsx:124 [ScriptManager] currentScript exists: true
-ScriptManager.tsx:125 [ScriptManager] parseState exists: true
-ScriptManager.tsx:126 [ScriptManager] qualityReport exists: true
-ScriptManager.tsx:130 [ScriptManager] Restoring quality report: {score: 93, violationsCount: 9, suggestionsCount: 5, type: 'object'}
-ScriptManager.tsx:137 [ScriptManager] ========== Quality Report Restored ==========
-storage.ts:695 [STORAGE] Slow FileSystem read: scripts_6e3493c1-3504-4c25-ba0f-b4d3167504ea.json took 146.40ms
-ScriptManager.tsx:123 [ScriptManager] ========== useEffect: currentScript changed ==========
-ScriptManager.tsx:124 [ScriptManager] currentScript exists: true
-ScriptManager.tsx:125 [ScriptManager] parseState exists: true
-ScriptManager.tsx:126 [ScriptManager] qualityReport exists: true
-ScriptManager.tsx:130 [ScriptManager] Restoring quality report: {score: 93, violationsCount: 9, suggestionsCount: 5, type: 'object'}
-ScriptManager.tsx:137 [ScriptManager] ========== Quality Report Restored ==========
-VectorMemoryConfig.ts:211   GET http://localhost:8000/api/v1/heartbeat net::ERR_CONNECTION_REFUSED
-checkServerStatus @ VectorMemoryConfig.ts:211
-checkServerStatus @ VectorMemoryToggle.tsx:49
-(匿名) @ VectorMemoryToggle.tsx:44
-react_stack_bottom_frame @ react-dom-client.development.js:25989
-runWithFiberInDEV @ react-dom-client.development.js:871
-commitHookEffectListMount @ react-dom-client.development.js:13249
-commitHookPassiveMountEffects @ react-dom-client.development.js:13336
-commitPassiveMountOnFiber @ react-dom-client.development.js:15484
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15718
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15476
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15718
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15718
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15718
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15718
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15476
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15718
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15476
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15718
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15476
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15718
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15476
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15718
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15476
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15718
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15718
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15476
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15718
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15476
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15476
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15718
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15476
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15718
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15476
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15718
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15476
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15718
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15476
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15476
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15718
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15718
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15476
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15718
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15476
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15718
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15718
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15476
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15476
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15476
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15718
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15476
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15718
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15476
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15718
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15476
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15718
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15476
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15476
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15718
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15476
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15718
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15476
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15476
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15718
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15476
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15718
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15519
-flushPassiveEffects @ react-dom-client.development.js:18432
-flushPendingEffects @ react-dom-client.development.js:18358
-flushSpawnedWork @ react-dom-client.development.js:18323
-commitRoot @ react-dom-client.development.js:17955
-commitRootWhenReady @ react-dom-client.development.js:16824
-performWorkOnRoot @ react-dom-client.development.js:16722
-performSyncWorkOnRoot @ react-dom-client.development.js:18972
-flushSyncWorkAcrossRoots_impl @ react-dom-client.development.js:18814
-processRootScheduleInMicrotask @ react-dom-client.development.js:18853
-(匿名) @ react-dom-client.development.js:18991
-<VectorMemoryToggle>
-exports.jsxDEV @ react-jsx-dev-runtime.development.js:335
-ScriptManager @ ScriptManager.tsx:1281
-react_stack_bottom_frame @ react-dom-client.development.js:25904
-renderWithHooksAgain @ react-dom-client.development.js:7762
-renderWithHooks @ react-dom-client.development.js:7674
-updateFunctionComponent @ react-dom-client.development.js:10166
-beginWork @ react-dom-client.development.js:11778
-runWithFiberInDEV @ react-dom-client.development.js:871
-performUnitOfWork @ react-dom-client.development.js:17641
-workLoopSync @ react-dom-client.development.js:17469
-renderRootSync @ react-dom-client.development.js:17450
-performWorkOnRoot @ react-dom-client.development.js:16504
-performSyncWorkOnRoot @ react-dom-client.development.js:18972
-flushSyncWorkAcrossRoots_impl @ react-dom-client.development.js:18814
-processRootScheduleInMicrotask @ react-dom-client.development.js:18853
-(匿名) @ react-dom-client.development.js:18991
-<ScriptManager>
-exports.jsxDEV @ react-jsx-dev-runtime.development.js:335
-ProjectDetail @ ProjectDetail.tsx:464
-react_stack_bottom_frame @ react-dom-client.development.js:25904
-renderWithHooksAgain @ react-dom-client.development.js:7762
-renderWithHooks @ react-dom-client.development.js:7674
-updateFunctionComponent @ react-dom-client.development.js:10166
-beginWork @ react-dom-client.development.js:11778
-runWithFiberInDEV @ react-dom-client.development.js:871
-performUnitOfWork @ react-dom-client.development.js:17641
-workLoopSync @ react-dom-client.development.js:17469
-renderRootSync @ react-dom-client.development.js:17450
-performWorkOnRoot @ react-dom-client.development.js:16504
-performWorkOnRootViaSchedulerTask @ react-dom-client.development.js:18957
-performWorkUntilDeadline @ scheduler.development.js:45
-<ProjectDetail>
-exports.jsxDEV @ react-jsx-dev-runtime.development.js:335
-App @ App.tsx:78
-react_stack_bottom_frame @ react-dom-client.development.js:25904
-renderWithHooksAgain @ react-dom-client.development.js:7762
-renderWithHooks @ react-dom-client.development.js:7674
-updateFunctionComponent @ react-dom-client.development.js:10166
-beginWork @ react-dom-client.development.js:11778
-runWithFiberInDEV @ react-dom-client.development.js:871
-performUnitOfWork @ react-dom-client.development.js:17641
-workLoopSync @ react-dom-client.development.js:17469
-renderRootSync @ react-dom-client.development.js:17450
-performWorkOnRoot @ react-dom-client.development.js:16504
-performWorkOnRootViaSchedulerTask @ react-dom-client.development.js:18957
-performWorkUntilDeadline @ scheduler.development.js:45
-<App>
-exports.jsxDEV @ react-jsx-dev-runtime.development.js:335
-(匿名) @ index.tsx:20
-VectorMemoryConfig.ts:211   GET http://localhost:8000/api/v1/heartbeat net::ERR_CONNECTION_REFUSED
-checkServerStatus @ VectorMemoryConfig.ts:211
-checkServerStatus @ VectorMemoryToggle.tsx:49
-(匿名) @ VectorMemoryToggle.tsx:44
-react_stack_bottom_frame @ react-dom-client.development.js:25989
-runWithFiberInDEV @ react-dom-client.development.js:871
-commitHookEffectListMount @ react-dom-client.development.js:13249
-commitHookPassiveMountEffects @ react-dom-client.development.js:13336
-reconnectPassiveEffects @ react-dom-client.development.js:15832
-recursivelyTraverseReconnectPassiveEffects @ react-dom-client.development.js:15784
-reconnectPassiveEffects @ react-dom-client.development.js:15885
-recursivelyTraverseReconnectPassiveEffects @ react-dom-client.development.js:15784
-reconnectPassiveEffects @ react-dom-client.development.js:15824
-recursivelyTraverseReconnectPassiveEffects @ react-dom-client.development.js:15784
-reconnectPassiveEffects @ react-dom-client.development.js:15885
-recursivelyTraverseReconnectPassiveEffects @ react-dom-client.development.js:15784
-reconnectPassiveEffects @ react-dom-client.development.js:15885
-recursivelyTraverseReconnectPassiveEffects @ react-dom-client.development.js:15784
-reconnectPassiveEffects @ react-dom-client.development.js:15885
-recursivelyTraverseReconnectPassiveEffects @ react-dom-client.development.js:15784
-reconnectPassiveEffects @ react-dom-client.development.js:15885
-recursivelyTraverseReconnectPassiveEffects @ react-dom-client.development.js:15784
-reconnectPassiveEffects @ react-dom-client.development.js:15824
-recursivelyTraverseReconnectPassiveEffects @ react-dom-client.development.js:15784
-reconnectPassiveEffects @ react-dom-client.development.js:15885
-recursivelyTraverseReconnectPassiveEffects @ react-dom-client.development.js:15784
-reconnectPassiveEffects @ react-dom-client.development.js:15824
-recursivelyTraverseReconnectPassiveEffects @ react-dom-client.development.js:15784
-reconnectPassiveEffects @ react-dom-client.development.js:15885
-recursivelyTraverseReconnectPassiveEffects @ react-dom-client.development.js:15784
-reconnectPassiveEffects @ react-dom-client.development.js:15824
-recursivelyTraverseReconnectPassiveEffects @ react-dom-client.development.js:15784
-reconnectPassiveEffects @ react-dom-client.development.js:15885
-recursivelyTraverseReconnectPassiveEffects @ react-dom-client.development.js:15784
-reconnectPassiveEffects @ react-dom-client.development.js:15824
-recursivelyTraverseReconnectPassiveEffects @ react-dom-client.development.js:15784
-reconnectPassiveEffects @ react-dom-client.development.js:15885
-recursivelyTraverseReconnectPassiveEffects @ react-dom-client.development.js:15784
-reconnectPassiveEffects @ react-dom-client.development.js:15824
-recursivelyTraverseReconnectPassiveEffects @ react-dom-client.development.js:15784
-reconnectPassiveEffects @ react-dom-client.development.js:15885
-recursivelyTraverseReconnectPassiveEffects @ react-dom-client.development.js:15784
-reconnectPassiveEffects @ react-dom-client.development.js:15885
-recursivelyTraverseReconnectPassiveEffects @ react-dom-client.development.js:15784
-reconnectPassiveEffects @ react-dom-client.development.js:15824
-recursivelyTraverseReconnectPassiveEffects @ react-dom-client.development.js:15784
-reconnectPassiveEffects @ react-dom-client.development.js:15885
-recursivelyTraverseReconnectPassiveEffects @ react-dom-client.development.js:15784
-reconnectPassiveEffects @ react-dom-client.development.js:15824
-doubleInvokeEffectsOnFiber @ react-dom-client.development.js:18703
-runWithFiberInDEV @ react-dom-client.development.js:871
-recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom-client.development.js:18667
-recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom-client.development.js:18673
-recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom-client.development.js:18673
-recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom-client.development.js:18673
-recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom-client.development.js:18673
-recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom-client.development.js:18673
-recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom-client.development.js:18673
-recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom-client.development.js:18673
-recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom-client.development.js:18673
-recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom-client.development.js:18673
-recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom-client.development.js:18673
-recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom-client.development.js:18673
-recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom-client.development.js:18673
-recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom-client.development.js:18673
-recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom-client.development.js:18673
-recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom-client.development.js:18673
-recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom-client.development.js:18673
-recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom-client.development.js:18673
-recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom-client.development.js:18673
-recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom-client.development.js:18673
-recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom-client.development.js:18673
-recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom-client.development.js:18673
-recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom-client.development.js:18673
-recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom-client.development.js:18673
-recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom-client.development.js:18673
-recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom-client.development.js:18673
-recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom-client.development.js:18673
-recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom-client.development.js:18673
-recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom-client.development.js:18673
-recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom-client.development.js:18673
-recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom-client.development.js:18673
-recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom-client.development.js:18673
-recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom-client.development.js:18673
-recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom-client.development.js:18673
-recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom-client.development.js:18673
-recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom-client.development.js:18673
-recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom-client.development.js:18673
-recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom-client.development.js:18673
-commitDoubleInvokeEffectsInDEV @ react-dom-client.development.js:18712
-flushPassiveEffects @ react-dom-client.development.js:18439
-flushPendingEffects @ react-dom-client.development.js:18358
-flushSpawnedWork @ react-dom-client.development.js:18323
-commitRoot @ react-dom-client.development.js:17955
-commitRootWhenReady @ react-dom-client.development.js:16824
-performWorkOnRoot @ react-dom-client.development.js:16722
-performSyncWorkOnRoot @ react-dom-client.development.js:18972
-flushSyncWorkAcrossRoots_impl @ react-dom-client.development.js:18814
-processRootScheduleInMicrotask @ react-dom-client.development.js:18853
-(匿名) @ react-dom-client.development.js:18991
-<VectorMemoryToggle>
-exports.jsxDEV @ react-jsx-dev-runtime.development.js:335
-ScriptManager @ ScriptManager.tsx:1281
-react_stack_bottom_frame @ react-dom-client.development.js:25904
-renderWithHooksAgain @ react-dom-client.development.js:7762
-renderWithHooks @ react-dom-client.development.js:7674
-updateFunctionComponent @ react-dom-client.development.js:10166
-beginWork @ react-dom-client.development.js:11778
-runWithFiberInDEV @ react-dom-client.development.js:871
-performUnitOfWork @ react-dom-client.development.js:17641
-workLoopSync @ react-dom-client.development.js:17469
-renderRootSync @ react-dom-client.development.js:17450
-performWorkOnRoot @ react-dom-client.development.js:16504
-performSyncWorkOnRoot @ react-dom-client.development.js:18972
-flushSyncWorkAcrossRoots_impl @ react-dom-client.development.js:18814
-processRootScheduleInMicrotask @ react-dom-client.development.js:18853
-(匿名) @ react-dom-client.development.js:18991
-<ScriptManager>
-exports.jsxDEV @ react-jsx-dev-runtime.development.js:335
-ProjectDetail @ ProjectDetail.tsx:464
-react_stack_bottom_frame @ react-dom-client.development.js:25904
-renderWithHooksAgain @ react-dom-client.development.js:7762
-renderWithHooks @ react-dom-client.development.js:7674
-updateFunctionComponent @ react-dom-client.development.js:10166
-beginWork @ react-dom-client.development.js:11778
-runWithFiberInDEV @ react-dom-client.development.js:871
-performUnitOfWork @ react-dom-client.development.js:17641
-workLoopSync @ react-dom-client.development.js:17469
-renderRootSync @ react-dom-client.development.js:17450
-performWorkOnRoot @ react-dom-client.development.js:16504
-performWorkOnRootViaSchedulerTask @ react-dom-client.development.js:18957
-performWorkUntilDeadline @ scheduler.development.js:45
-<ProjectDetail>
-exports.jsxDEV @ react-jsx-dev-runtime.development.js:335
-App @ App.tsx:78
-react_stack_bottom_frame @ react-dom-client.development.js:25904
-renderWithHooksAgain @ react-dom-client.development.js:7762
-renderWithHooks @ react-dom-client.development.js:7674
-updateFunctionComponent @ react-dom-client.development.js:10166
-beginWork @ react-dom-client.development.js:11778
-runWithFiberInDEV @ react-dom-client.development.js:871
-performUnitOfWork @ react-dom-client.development.js:17641
-workLoopSync @ react-dom-client.development.js:17469
-renderRootSync @ react-dom-client.development.js:17450
-performWorkOnRoot @ react-dom-client.development.js:16504
-performWorkOnRootViaSchedulerTask @ react-dom-client.development.js:18957
-performWorkUntilDeadline @ scheduler.development.js:45
-<App>
-exports.jsxDEV @ react-jsx-dev-runtime.development.js:335
-(匿名) @ index.tsx:20
-VectorMemoryConfig.ts:211 提取 加载失败:GET "http://localhost:8000/api/v1/heartbeat".
-checkServerStatus @ VectorMemoryConfig.ts:211
-checkServerStatus @ VectorMemoryToggle.tsx:49
-(匿名) @ VectorMemoryToggle.tsx:44
-react_stack_bottom_frame @ react-dom-client.development.js:25989
-runWithFiberInDEV @ react-dom-client.development.js:871
-commitHookEffectListMount @ react-dom-client.development.js:13249
-commitHookPassiveMountEffects @ react-dom-client.development.js:13336
-commitPassiveMountOnFiber @ react-dom-client.development.js:15484
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15718
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15476
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15718
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15718
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15718
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15718
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15476
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15718
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15476
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15718
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15476
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15718
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15476
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15718
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15476
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15718
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15718
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15476
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15718
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15476
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15476
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15718
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15476
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15718
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15476
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15718
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15476
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15718
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15476
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15476
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15718
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15718
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15476
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15718
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15476
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15718
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15718
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15476
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15476
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15476
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15718
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15476
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15718
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15476
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15718
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15476
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15718
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15476
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15476
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15718
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15476
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15718
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15476
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15476
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15718
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15476
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15718
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15519
-flushPassiveEffects @ react-dom-client.development.js:18432
-flushPendingEffects @ react-dom-client.development.js:18358
-flushSpawnedWork @ react-dom-client.development.js:18323
-commitRoot @ react-dom-client.development.js:17955
-commitRootWhenReady @ react-dom-client.development.js:16824
-performWorkOnRoot @ react-dom-client.development.js:16722
-performSyncWorkOnRoot @ react-dom-client.development.js:18972
-flushSyncWorkAcrossRoots_impl @ react-dom-client.development.js:18814
-processRootScheduleInMicrotask @ react-dom-client.development.js:18853
-(匿名) @ react-dom-client.development.js:18991
-<VectorMemoryToggle>
-exports.jsxDEV @ react-jsx-dev-runtime.development.js:335
-ScriptManager @ ScriptManager.tsx:1281
-react_stack_bottom_frame @ react-dom-client.development.js:25904
-renderWithHooksAgain @ react-dom-client.development.js:7762
-renderWithHooks @ react-dom-client.development.js:7674
-updateFunctionComponent @ react-dom-client.development.js:10166
-beginWork @ react-dom-client.development.js:11778
-runWithFiberInDEV @ react-dom-client.development.js:871
-performUnitOfWork @ react-dom-client.development.js:17641
-workLoopSync @ react-dom-client.development.js:17469
-renderRootSync @ react-dom-client.development.js:17450
-performWorkOnRoot @ react-dom-client.development.js:16504
-performSyncWorkOnRoot @ react-dom-client.development.js:18972
-flushSyncWorkAcrossRoots_impl @ react-dom-client.development.js:18814
-processRootScheduleInMicrotask @ react-dom-client.development.js:18853
-(匿名) @ react-dom-client.development.js:18991
-<ScriptManager>
-exports.jsxDEV @ react-jsx-dev-runtime.development.js:335
-ProjectDetail @ ProjectDetail.tsx:464
-react_stack_bottom_frame @ react-dom-client.development.js:25904
-renderWithHooksAgain @ react-dom-client.development.js:7762
-renderWithHooks @ react-dom-client.development.js:7674
-updateFunctionComponent @ react-dom-client.development.js:10166
-beginWork @ react-dom-client.development.js:11778
-runWithFiberInDEV @ react-dom-client.development.js:871
-performUnitOfWork @ react-dom-client.development.js:17641
-workLoopSync @ react-dom-client.development.js:17469
-renderRootSync @ react-dom-client.development.js:17450
-performWorkOnRoot @ react-dom-client.development.js:16504
-performWorkOnRootViaSchedulerTask @ react-dom-client.development.js:18957
-performWorkUntilDeadline @ scheduler.development.js:45
-<ProjectDetail>
-exports.jsxDEV @ react-jsx-dev-runtime.development.js:335
-App @ App.tsx:78
-react_stack_bottom_frame @ react-dom-client.development.js:25904
-renderWithHooksAgain @ react-dom-client.development.js:7762
-renderWithHooks @ react-dom-client.development.js:7674
-updateFunctionComponent @ react-dom-client.development.js:10166
-beginWork @ react-dom-client.development.js:11778
-runWithFiberInDEV @ react-dom-client.development.js:871
-performUnitOfWork @ react-dom-client.development.js:17641
-workLoopSync @ react-dom-client.development.js:17469
-renderRootSync @ react-dom-client.development.js:17450
-performWorkOnRoot @ react-dom-client.development.js:16504
-performWorkOnRootViaSchedulerTask @ react-dom-client.development.js:18957
-performWorkUntilDeadline @ scheduler.development.js:45
-<App>
-exports.jsxDEV @ react-jsx-dev-runtime.development.js:335
-(匿名) @ index.tsx:20
-VectorMemoryConfig.ts:211 提取 加载失败:GET "http://localhost:8000/api/v1/heartbeat".
-checkServerStatus @ VectorMemoryConfig.ts:211
-checkServerStatus @ VectorMemoryToggle.tsx:49
-(匿名) @ VectorMemoryToggle.tsx:44
-react_stack_bottom_frame @ react-dom-client.development.js:25989
-runWithFiberInDEV @ react-dom-client.development.js:871
-commitHookEffectListMount @ react-dom-client.development.js:13249
-commitHookPassiveMountEffects @ react-dom-client.development.js:13336
-reconnectPassiveEffects @ react-dom-client.development.js:15832
-recursivelyTraverseReconnectPassiveEffects @ react-dom-client.development.js:15784
-reconnectPassiveEffects @ react-dom-client.development.js:15885
-recursivelyTraverseReconnectPassiveEffects @ react-dom-client.development.js:15784
-reconnectPassiveEffects @ react-dom-client.development.js:15824
-recursivelyTraverseReconnectPassiveEffects @ react-dom-client.development.js:15784
-reconnectPassiveEffects @ react-dom-client.development.js:15885
-recursivelyTraverseReconnectPassiveEffects @ react-dom-client.development.js:15784
-reconnectPassiveEffects @ react-dom-client.development.js:15885
-recursivelyTraverseReconnectPassiveEffects @ react-dom-client.development.js:15784
-reconnectPassiveEffects @ react-dom-client.development.js:15885
-recursivelyTraverseReconnectPassiveEffects @ react-dom-client.development.js:15784
-reconnectPassiveEffects @ react-dom-client.development.js:15885
-recursivelyTraverseReconnectPassiveEffects @ react-dom-client.development.js:15784
-reconnectPassiveEffects @ react-dom-client.development.js:15824
-recursivelyTraverseReconnectPassiveEffects @ react-dom-client.development.js:15784
-reconnectPassiveEffects @ react-dom-client.development.js:15885
-recursivelyTraverseReconnectPassiveEffects @ react-dom-client.development.js:15784
-reconnectPassiveEffects @ react-dom-client.development.js:15824
-recursivelyTraverseReconnectPassiveEffects @ react-dom-client.development.js:15784
-reconnectPassiveEffects @ react-dom-client.development.js:15885
-recursivelyTraverseReconnectPassiveEffects @ react-dom-client.development.js:15784
-reconnectPassiveEffects @ react-dom-client.development.js:15824
-recursivelyTraverseReconnectPassiveEffects @ react-dom-client.development.js:15784
-reconnectPassiveEffects @ react-dom-client.development.js:15885
-recursivelyTraverseReconnectPassiveEffects @ react-dom-client.development.js:15784
-reconnectPassiveEffects @ react-dom-client.development.js:15824
-recursivelyTraverseReconnectPassiveEffects @ react-dom-client.development.js:15784
-reconnectPassiveEffects @ react-dom-client.development.js:15885
-recursivelyTraverseReconnectPassiveEffects @ react-dom-client.development.js:15784
-reconnectPassiveEffects @ react-dom-client.development.js:15824
-recursivelyTraverseReconnectPassiveEffects @ react-dom-client.development.js:15784
-reconnectPassiveEffects @ react-dom-client.development.js:15885
-recursivelyTraverseReconnectPassiveEffects @ react-dom-client.development.js:15784
-reconnectPassiveEffects @ react-dom-client.development.js:15885
-recursivelyTraverseReconnectPassiveEffects @ react-dom-client.development.js:15784
-reconnectPassiveEffects @ react-dom-client.development.js:15824
-recursivelyTraverseReconnectPassiveEffects @ react-dom-client.development.js:15784
-reconnectPassiveEffects @ react-dom-client.development.js:15885
-recursivelyTraverseReconnectPassiveEffects @ react-dom-client.development.js:15784
-reconnectPassiveEffects @ react-dom-client.development.js:15824
-doubleInvokeEffectsOnFiber @ react-dom-client.development.js:18703
-runWithFiberInDEV @ react-dom-client.development.js:871
-recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom-client.development.js:18667
-recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom-client.development.js:18673
-recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom-client.development.js:18673
-recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom-client.development.js:18673
-recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom-client.development.js:18673
-recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom-client.development.js:18673
-recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom-client.development.js:18673
-recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom-client.development.js:18673
-recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom-client.development.js:18673
-recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom-client.development.js:18673
-recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom-client.development.js:18673
-recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom-client.development.js:18673
-recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom-client.development.js:18673
-recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom-client.development.js:18673
-recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom-client.development.js:18673
-recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom-client.development.js:18673
-recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom-client.development.js:18673
-recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom-client.development.js:18673
-recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom-client.development.js:18673
-recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom-client.development.js:18673
-recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom-client.development.js:18673
-recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom-client.development.js:18673
-recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom-client.development.js:18673
-recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom-client.development.js:18673
-recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom-client.development.js:18673
-recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom-client.development.js:18673
-recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom-client.development.js:18673
-recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom-client.development.js:18673
-recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom-client.development.js:18673
-recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom-client.development.js:18673
-recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom-client.development.js:18673
-recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom-client.development.js:18673
-recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom-client.development.js:18673
-recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom-client.development.js:18673
-recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom-client.development.js:18673
-recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom-client.development.js:18673
-recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom-client.development.js:18673
-recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom-client.development.js:18673
-commitDoubleInvokeEffectsInDEV @ react-dom-client.development.js:18712
-flushPassiveEffects @ react-dom-client.development.js:18439
-flushPendingEffects @ react-dom-client.development.js:18358
-flushSpawnedWork @ react-dom-client.development.js:18323
-commitRoot @ react-dom-client.development.js:17955
-commitRootWhenReady @ react-dom-client.development.js:16824
-performWorkOnRoot @ react-dom-client.development.js:16722
-performSyncWorkOnRoot @ react-dom-client.development.js:18972
-flushSyncWorkAcrossRoots_impl @ react-dom-client.development.js:18814
-processRootScheduleInMicrotask @ react-dom-client.development.js:18853
-(匿名) @ react-dom-client.development.js:18991
-<VectorMemoryToggle>
-exports.jsxDEV @ react-jsx-dev-runtime.development.js:335
-ScriptManager @ ScriptManager.tsx:1281
-react_stack_bottom_frame @ react-dom-client.development.js:25904
-renderWithHooksAgain @ react-dom-client.development.js:7762
-renderWithHooks @ react-dom-client.development.js:7674
-updateFunctionComponent @ react-dom-client.development.js:10166
-beginWork @ react-dom-client.development.js:11778
-runWithFiberInDEV @ react-dom-client.development.js:871
-performUnitOfWork @ react-dom-client.development.js:17641
-workLoopSync @ react-dom-client.development.js:17469
-renderRootSync @ react-dom-client.development.js:17450
-performWorkOnRoot @ react-dom-client.development.js:16504
-performSyncWorkOnRoot @ react-dom-client.development.js:18972
-flushSyncWorkAcrossRoots_impl @ react-dom-client.development.js:18814
-processRootScheduleInMicrotask @ react-dom-client.development.js:18853
-(匿名) @ react-dom-client.development.js:18991
-<ScriptManager>
-exports.jsxDEV @ react-jsx-dev-runtime.development.js:335
-ProjectDetail @ ProjectDetail.tsx:464
-react_stack_bottom_frame @ react-dom-client.development.js:25904
-renderWithHooksAgain @ react-dom-client.development.js:7762
-renderWithHooks @ react-dom-client.development.js:7674
-updateFunctionComponent @ react-dom-client.development.js:10166
-beginWork @ react-dom-client.development.js:11778
-runWithFiberInDEV @ react-dom-client.development.js:871
-performUnitOfWork @ react-dom-client.development.js:17641
-workLoopSync @ react-dom-client.development.js:17469
-renderRootSync @ react-dom-client.development.js:17450
-performWorkOnRoot @ react-dom-client.development.js:16504
-performWorkOnRootViaSchedulerTask @ react-dom-client.development.js:18957
-performWorkUntilDeadline @ scheduler.development.js:45
-<ProjectDetail>
-exports.jsxDEV @ react-jsx-dev-runtime.development.js:335
-App @ App.tsx:78
-react_stack_bottom_frame @ react-dom-client.development.js:25904
-renderWithHooksAgain @ react-dom-client.development.js:7762
-renderWithHooks @ react-dom-client.development.js:7674
-updateFunctionComponent @ react-dom-client.development.js:10166
-beginWork @ react-dom-client.development.js:11778
-runWithFiberInDEV @ react-dom-client.development.js:871
-performUnitOfWork @ react-dom-client.development.js:17641
-workLoopSync @ react-dom-client.development.js:17469
-renderRootSync @ react-dom-client.development.js:17450
-performWorkOnRoot @ react-dom-client.development.js:16504
-performWorkOnRootViaSchedulerTask @ react-dom-client.development.js:18957
-performWorkUntilDeadline @ scheduler.development.js:45
-<App>
-exports.jsxDEV @ react-jsx-dev-runtime.development.js:335
-(匿名) @ index.tsx:20
-AppContext.tsx:24 [STORAGE] Connection check: Connected=true, Responsive=true
-ScriptManager.tsx:256 [ScriptManager] Detected encoding issues: ['混合使用多种换行符']
-ScriptManager.tsx:261 [ScriptManager] Text cleaned: {originalLength: 7370, cleanedLength: 7033, removedChars: 337, chapterCount: 1}
-[Violation]Forced reflow while executing JavaScript took 68ms
-VectorMemoryConfig.ts:211 提取 加载失败:GET "http://localhost:8000/api/v1/heartbeat".
-checkServerStatus @ VectorMemoryConfig.ts:211
-checkServerStatus @ VectorMemoryToggle.tsx:49
-(匿名) @ VectorMemoryToggle.tsx:44
-react_stack_bottom_frame @ react-dom-client.development.js:25989
-runWithFiberInDEV @ react-dom-client.development.js:871
-commitHookEffectListMount @ react-dom-client.development.js:13249
-commitHookPassiveMountEffects @ react-dom-client.development.js:13336
-commitPassiveMountOnFiber @ react-dom-client.development.js:15484
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15718
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15476
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15718
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15718
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15718
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15718
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15476
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15718
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15476
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15718
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15476
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15718
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15476
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15718
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15476
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15718
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15718
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15476
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15718
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15476
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15476
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15718
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15476
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15718
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15476
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15718
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15476
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15718
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15476
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15476
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15718
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15718
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15476
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15718
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15476
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15718
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15718
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15476
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15476
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15476
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15718
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15476
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15718
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15476
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15718
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15476
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15718
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15476
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15476
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15718
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15476
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15718
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15476
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15476
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15718
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15476
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15718
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15519
-flushPassiveEffects @ react-dom-client.development.js:18432
-flushPendingEffects @ react-dom-client.development.js:18358
-performSyncWorkOnRoot @ react-dom-client.development.js:18969
-flushSyncWorkAcrossRoots_impl @ react-dom-client.development.js:18814
-flushSpawnedWork @ react-dom-client.development.js:18334
-commitRoot @ react-dom-client.development.js:17955
-commitRootWhenReady @ react-dom-client.development.js:16824
-performWorkOnRoot @ react-dom-client.development.js:16722
-performWorkOnRootViaSchedulerTask @ react-dom-client.development.js:18957
-performWorkUntilDeadline @ scheduler.development.js:45
-<VectorMemoryToggle>
-exports.jsxDEV @ react-jsx-dev-runtime.development.js:335
-ScriptManager @ ScriptManager.tsx:1281
-react_stack_bottom_frame @ react-dom-client.development.js:25904
-renderWithHooksAgain @ react-dom-client.development.js:7762
-renderWithHooks @ react-dom-client.development.js:7674
-updateFunctionComponent @ react-dom-client.development.js:10166
-beginWork @ react-dom-client.development.js:11778
-runWithFiberInDEV @ react-dom-client.development.js:871
-performUnitOfWork @ react-dom-client.development.js:17641
-workLoopSync @ react-dom-client.development.js:17469
-renderRootSync @ react-dom-client.development.js:17450
-performWorkOnRoot @ react-dom-client.development.js:16504
-performSyncWorkOnRoot @ react-dom-client.development.js:18972
-flushSyncWorkAcrossRoots_impl @ react-dom-client.development.js:18814
-processRootScheduleInMicrotask @ react-dom-client.development.js:18853
-(匿名) @ react-dom-client.development.js:18991
-VectorMemoryConfig.ts:211   GET http://localhost:8000/api/v1/heartbeat net::ERR_CONNECTION_REFUSED
-checkServerStatus @ VectorMemoryConfig.ts:211
-checkServerStatus @ VectorMemoryToggle.tsx:49
-(匿名) @ VectorMemoryToggle.tsx:44
-react_stack_bottom_frame @ react-dom-client.development.js:25989
-runWithFiberInDEV @ react-dom-client.development.js:871
-commitHookEffectListMount @ react-dom-client.development.js:13249
-commitHookPassiveMountEffects @ react-dom-client.development.js:13336
-commitPassiveMountOnFiber @ react-dom-client.development.js:15484
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15718
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15476
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15718
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15718
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15718
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15718
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15476
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15718
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15476
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15718
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15476
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15718
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15476
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15718
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15476
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15718
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15718
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15476
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15718
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15476
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15476
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15718
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15476
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15718
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15476
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15718
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15476
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15718
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15476
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15476
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15718
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15718
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15476
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15718
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15476
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15718
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15718
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15476
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15476
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15476
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15718
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15476
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15718
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15476
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15718
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15476
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15718
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15476
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15476
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15718
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15476
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15718
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15476
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15476
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15718
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15476
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15718
-recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
-commitPassiveMountOnFiber @ react-dom-client.development.js:15519
-flushPassiveEffects @ react-dom-client.development.js:18432
-flushPendingEffects @ react-dom-client.development.js:18358
-performSyncWorkOnRoot @ react-dom-client.development.js:18969
-flushSyncWorkAcrossRoots_impl @ react-dom-client.development.js:18814
-flushSpawnedWork @ react-dom-client.development.js:18334
-commitRoot @ react-dom-client.development.js:17955
-commitRootWhenReady @ react-dom-client.development.js:16824
-performWorkOnRoot @ react-dom-client.development.js:16722
-performWorkOnRootViaSchedulerTask @ react-dom-client.development.js:18957
-performWorkUntilDeadline @ scheduler.development.js:45
-<VectorMemoryToggle>
-exports.jsxDEV @ react-jsx-dev-runtime.development.js:335
-ScriptManager @ ScriptManager.tsx:1281
-react_stack_bottom_frame @ react-dom-client.development.js:25904
-renderWithHooksAgain @ react-dom-client.development.js:7762
-renderWithHooks @ react-dom-client.development.js:7674
-updateFunctionComponent @ react-dom-client.development.js:10166
-beginWork @ react-dom-client.development.js:11778
-runWithFiberInDEV @ react-dom-client.development.js:871
-performUnitOfWork @ react-dom-client.development.js:17641
-workLoopSync @ react-dom-client.development.js:17469
-renderRootSync @ react-dom-client.development.js:17450
-performWorkOnRoot @ react-dom-client.development.js:16504
-performSyncWorkOnRoot @ react-dom-client.development.js:18972
-flushSyncWorkAcrossRoots_impl @ react-dom-client.development.js:18814
-processRootScheduleInMicrotask @ react-dom-client.development.js:18853
-(匿名) @ react-dom-client.development.js:18991
-AppContext.tsx:24 [STORAGE] Connection check: Connected=true, Responsive=true
-storage.ts:1119 [Storage] ========== Saving Script ==========
-storage.ts:1120 [Storage] Script ID: script_1772729769367_p4ulkx2t9
-storage.ts:1121 [Storage] Has parseState: true
-storage.ts:1122 [Storage] Has qualityReport: false
-storage.ts:1138 [Storage] New script added
-storage.ts:1142 [Storage] ========== Script Saved ==========
-ScriptManager.tsx:123 [ScriptManager] ========== useEffect: currentScript changed ==========
-ScriptManager.tsx:124 [ScriptManager] currentScript exists: true
-ScriptManager.tsx:125 [ScriptManager] parseState exists: true
-ScriptManager.tsx:126 [ScriptManager] qualityReport exists: false
-ScriptManager.tsx:139 [ScriptManager] No quality report in parseState, setting to null
-scriptParser.ts:874 [ScriptParser] Initialized with config: {useSemanticChunking: true, useDramaRules: true, dramaRulesMinScore: 60, useCache: true, cacheTTL: 3600000, …}
-scriptParser.ts:887 [ScriptParser] SemanticChunker initialized
-scriptParser.ts:891 [ScriptParser] ShortDramaRules initialized
-scriptParser.ts:895 [ScriptParser] MultiLevelCache initialized
-scriptParser.ts:902 [ScriptParser] QualityAnalyzer initialized
-scriptParser.ts:1000 [ScriptParser] ContextInjector initialized
-scriptParser.ts:1003 [ScriptParser] Global context support initialized
-scriptParser.ts:958 [ScriptParser] Vector memory disabled
-scriptParser.ts:945 [ScriptParser] IterativeRefinementEngine initialized
-scriptParser.ts:928 [ScriptParser] Budget calculation functions ready
-ScriptManager.tsx:523 [ScriptManager] 完整解析模式，ScriptParser配置: {useSemanticChunking: true, useDramaRules: true, dramaRulesMinScore: 60, useCache: true, cacheTTL: 3600000, …}
-storage.ts:1103 [Storage] ========== Getting Script ==========
-storage.ts:1104 [Storage] Script ID: script_1772729769367_p4ulkx2t9
-storage.ts:1107 [Storage] Script found: true
-storage.ts:1111 [Storage] No quality report in loaded script
-storage.ts:1113 [Storage] ========== Script Loaded ==========
-scriptParser.ts:2434 [ScriptParser] Resuming from saved state: idle
-scriptParser.ts:1593 [ScriptParser] ========== Stage 1: Extract Metadata (Structured Output) ==========
-scriptParser.ts:1594 [ScriptParser] Content length: 7033 characters
-scriptParser.ts:1597 [ScriptParser] Prompt length: 3446 characters
-scriptParser.ts:1598 [ScriptParser] Sending structured output request to LLM...
-scriptParser.ts:1407 [ScriptParser] callStructuredLLM called for metadata
-scriptParser.ts:1408 [ScriptParser] API URL: https://ark.cn-beijing.volces.com/api/v3
-scriptParser.ts:1409 [ScriptParser] Model: deepseek-v3-250324
-scriptParser.ts:1410 [ScriptParser] Max Tokens: 4000
-scriptParser.ts:1436 [ScriptParser] Calling LLMProvider.generateStructured...
-LLMProvider.ts:240 [LLMProvider] ========== Structured Output Request ==========
-LLMProvider.ts:241 [LLMProvider] Endpoint: https://ark.cn-beijing.volces.com/api/v3/chat/completions
-LLMProvider.ts:242 [LLMProvider] Model: deepseek-v3-250324
-LLMProvider.ts:243 [LLMProvider] JSON Mode: true
-LLMProvider.ts:245 [LLMProvider] Sending structured output request...
-BaseProvider.ts:63 [BaseProvider] Requesting: https://ark.cn-beijing.volces.com/api/v3/chat/completions, Mode: DEV, Localhost: true
-BaseProvider.ts:84 [BaseProvider] Using Proxy: /api/universal-proxy -> https://ark.cn-beijing.volces.com/api/v3/chat/completions
-BaseProvider.ts:99 [BaseProvider] Response received: 200 OK
-LLMProvider.ts:258 [LLMProvider] Structured request completed in 4792ms
-LLMProvider.ts:269 [LLMProvider] Response length: 284 characters
-LLMProvider.ts:277  [LLMProvider] Direct JSON parse failed, trying repair...
-generateStructured @ LLMProvider.ts:277
-await in generateStructured
-callStructuredLLM @ scriptParser.ts:1437
-await in callStructuredLLM
-extractMetadata @ scriptParser.ts:1601
-parseScript @ scriptParser.ts:2450
-await in parseScript
-handleParseScript @ ScriptManager.tsx:541
+EmbeddingService.ts:146 提取 加载失败:GET "https://cdn.jsdelivr.net/npm/@xenova/transformers@2.17.2/dist/ort-wasm-simd.wasm".
+(匿名) @ ort-wasm.js:46
+r @ ort-wasm.js:46
+(匿名) @ wasm-factory.ts:151
+e.initializeWebAssembly @ wasm-factory.ts:118
+e.initWasm @ proxy-wrapper.ts:133
+init @ backend-wasm.ts:41
+resolveBackend @ backend-impl.ts:85
+create @ inference-session-impl.ts:188
+constructSession @ models.js:126
+await in constructSession
+from_pretrained @ models.js:795
+from_pretrained @ models.js:5519
+await in from_pretrained
+loadItems @ pipelines.js:3271
+pipeline @ pipelines.js:3219
+doInitialize @ EmbeddingService.ts:146
+initialize @ EmbeddingService.ts:125
+onToggle @ ScriptManager.tsx:1373
+handleToggle @ VectorMemoryToggle.tsx:55
+(匿名) @ useControlledState.ts:61
+updateSelected @ useToggleState.ts:46
+onChange @ useToggle.ts:64
 (匿名) @ index.mjs:362
-(匿名) @ usePress.ts:249
-onClick @ usePress.ts:548
 executeDispatch @ react-dom-client.development.js:19116
 runWithFiberInDEV @ react-dom-client.development.js:871
 processDispatchQueue @ react-dom-client.development.js:19166
@@ -1157,650 +235,60 @@ batchedUpdates$1 @ react-dom-client.development.js:3255
 dispatchEventForPluginEventSystem @ react-dom-client.development.js:19320
 dispatchEvent @ react-dom-client.development.js:23585
 dispatchDiscreteEvent @ react-dom-client.development.js:23553
-LLMProvider.ts:296 [LLMProvider] Structured output validated successfully
-scriptParser.ts:1449 [ScriptParser] Structured output received successfully
-scriptParser.ts:1609 [ScriptParser] Metadata extracted successfully (Structured Output):
-scriptParser.ts:1610   - Title: 混沌四灵根
-scriptParser.ts:1611   - Word Count: 15000
-scriptParser.ts:1612   - Characters: 3 (林清玄, 王虎, 云澜子)
-scriptParser.ts:1613   - Scenes: 5 (杂役院, 后山黑风崖, 青云宗山门, 炼丹房, 炼器房)
-scriptParser.ts:1614   - Genre: 仙侠修真
-scriptParser.ts:1615   - Tone: 正剧
-scriptParser.ts:1552 [ScriptParser] ========== Extracting Global Context ==========
-scriptParser.ts:1534 [ScriptParser] GlobalContextExtractor initialized with maxTokens: 5000
-scriptParser.ts:1537 [ScriptParser] GlobalContextExtractor initialized with model config
-LLMProvider.ts:81 [LLMProvider] ========== API Request ==========
-LLMProvider.ts:82 [LLMProvider] Endpoint: https://ark.cn-beijing.volces.com/api/v3/chat/completions
-LLMProvider.ts:83 [LLMProvider] Model: deepseek-v3-250324
-LLMProvider.ts:84 [LLMProvider] enable_thinking: false
-LLMProvider.ts:85 [LLMProvider] Temperature: 0.3
-LLMProvider.ts:86 [LLMProvider] Max Tokens: 5000
-LLMProvider.ts:87 [LLMProvider] Messages count: 2
-LLMProvider.ts:88 [LLMProvider] First message length: 48 characters
-提取 已完成加载:POST "<URL>"。
-提取 已完成加载:POST "<URL>"。
-提取 已完成加载:POST "<URL>"。
-提取 已完成加载:POST "<URL>"。
-提取 已完成加载:POST "<URL>"。
-提取 已完成加载:POST "<URL>"。
-提取 已完成加载:POST "<URL>"。
-提取 已完成加载:POST "<URL>"。
-提取 已完成加载:POST "<URL>"。
-提取 已完成加载:POST "<URL>"。
-提取 已完成加载:POST "<URL>"。
-提取 已完成加载:POST "<URL>"。
-提取 已完成加载:POST "<URL>"。
-提取 已完成加载:POST "<URL>"。
-提取 已完成加载:POST "<URL>"。
-提取 已完成加载:POST "<URL>"。
-提取 已完成加载:POST "<URL>"。
-提取 已完成加载:POST "<URL>"。
-LLMProvider.ts:89 [LLMProvider] Request body: {
-  "model": "deepseek-v3-250324",
-  "messages": [
-    {
-      "role": "system",
-      "content": "你是一个专业的剧本分析助手，擅长从小说/剧本中提取结构化信息。请严格按照要求的JSON格式输出。"
-    },
-    {
-      "role": "user",
-      "content": "\n请深入分析以下剧本/小说的故事核心：\n\n【剧本内容】\n## 第一章 杂役苦\n青云宗，东域三大修仙宗门之一，立宗三千年，山门矗立于青云山脉之巅，云雾缭绕，灵气流淌，仙鹤盘旋，琼楼玉宇隐于云海之间，是无数凡人与低阶修士梦寐以求的修仙圣地。\n\n可这圣地的荣光，从来照不进山脚下的杂役院。\n\n杂役院位于青云宗最外围，没有灵脉滋养，没有丹药供给，连空气中的灵气都稀薄得可怜。这里住着的，都是灵根低劣、无缘正式入宗的少年人，每日做着劈柴、挑水、炼丹房采药、炼器房烧火的粗活，若三年内无法踏入炼气一层，便会被逐出宗门，重回凡尘，终老一生。\n\n林清玄便是杂役院中的一员。\n\n他年方十五...
-LLMProvider.ts:91 [LLMProvider] Sending request...
-BaseProvider.ts:63 [BaseProvider] Requesting: https://ark.cn-beijing.volces.com/api/v3/chat/completions, Mode: DEV, Localhost: true
-BaseProvider.ts:84 [BaseProvider] Using Proxy: /api/universal-proxy -> https://ark.cn-beijing.volces.com/api/v3/chat/completions
-BaseProvider.ts:99 [BaseProvider] Response received: 200 OK
-LLMProvider.ts:104 [LLMProvider] Request completed in 8460ms
-LLMProvider.ts:118 [LLMProvider] ========== API Response ==========
-LLMProvider.ts:119 [LLMProvider] Response length: 549 characters
-LLMProvider.ts:120 [LLMProvider] Prompt tokens: 4939
-LLMProvider.ts:121 [LLMProvider] Completion tokens: 313
-LLMProvider.ts:122 [LLMProvider] Total tokens: 5252
-LLMProvider.ts:123 [LLMProvider] Response preview: ```json
-{
-  "synopsis": "林清玄是青云宗杂役院的废灵根弟子，受尽欺凌却始终不放弃修仙梦想。一次意外坠崖，他唤醒墨玉佩中的残魂云澜子，得知自己并非废灵根而是混沌四灵根的天才。获得...
-LLMProvider.ts:81 [LLMProvider] ========== API Request ==========
-LLMProvider.ts:82 [LLMProvider] Endpoint: https://ark.cn-beijing.volces.com/api/v3/chat/completions
-LLMProvider.ts:83 [LLMProvider] Model: deepseek-v3-250324
-LLMProvider.ts:84 [LLMProvider] enable_thinking: false
-LLMProvider.ts:85 [LLMProvider] Temperature: 0.3
-LLMProvider.ts:86 [LLMProvider] Max Tokens: 5000
-LLMProvider.ts:87 [LLMProvider] Messages count: 2
-LLMProvider.ts:88 [LLMProvider] First message length: 51 characters
-LLMProvider.ts:89 [LLMProvider] Request body: {
-  "model": "deepseek-v3-250324",
-  "messages": [
-    {
-      "role": "system",
-      "content": "你是一个专业的视觉风格分析助手，擅长从剧本中提取视觉和美术风格信息。请严格按照要求的JSON格式输出。"
-    },
-    {
-      "role": "user",
-      "content": "\n基于以下故事信息，分析视觉风格：\n\n【故事梗概】\n林清玄是青云宗杂役院的废灵根弟子，受尽欺凌却始终不放弃修仙梦想。一次意外坠崖，他唤醒墨玉佩中的残魂云澜子，得知自己并非废灵根而是混沌四灵根的天才。获得《混沌归元诀》后，林清玄修为暴涨，在外门考核中一鸣惊人，击败内门弟子赵昊，被金丹长老收为亲传弟子，从此踏上真正的仙途。\n\n【核心冲突】\n主角天赋被误解为废灵根，与外界偏见及自身命运抗争。\n\n【剧本片段】\n## 第一章 杂役苦\n青云宗，东域三大修仙宗门之一，立宗三千年，山门矗立于青云山脉之巅，云雾缭绕，灵气流淌，仙鹤盘旋，琼楼玉宇隐于云海之间，是无数凡人与低阶修士梦...
-LLMProvider.ts:91 [LLMProvider] Sending request...
-BaseProvider.ts:63 [BaseProvider] Requesting: https://ark.cn-beijing.volces.com/api/v3/chat/completions, Mode: DEV, Localhost: true
-BaseProvider.ts:84 [BaseProvider] Using Proxy: /api/universal-proxy -> https://ark.cn-beijing.volces.com/api/v3/chat/completions
-BaseProvider.ts:99 [BaseProvider] Response received: 200 OK
-LLMProvider.ts:104 [LLMProvider] Request completed in 6001ms
-LLMProvider.ts:118 [LLMProvider] ========== API Response ==========
-LLMProvider.ts:119 [LLMProvider] Response length: 441 characters
-LLMProvider.ts:120 [LLMProvider] Prompt tokens: 3773
-LLMProvider.ts:121 [LLMProvider] Completion tokens: 224
-LLMProvider.ts:122 [LLMProvider] Total tokens: 3997
-LLMProvider.ts:123 [LLMProvider] Response preview: ```json
-{
-  "artDirection": "水墨国风",
-  "artStyle": "仙侠水墨",
-  "artStyleDescription": "融合传统水墨画的留白与晕染技法，...
-LLMProvider.ts:81 [LLMProvider] ========== API Request ==========
-LLMProvider.ts:82 [LLMProvider] Endpoint: https://ark.cn-beijing.volces.com/api/v3/chat/completions
-LLMProvider.ts:83 [LLMProvider] Model: deepseek-v3-250324
-LLMProvider.ts:84 [LLMProvider] enable_thinking: false
-LLMProvider.ts:85 [LLMProvider] Temperature: 0.3
-LLMProvider.ts:86 [LLMProvider] Max Tokens: 5000
-LLMProvider.ts:87 [LLMProvider] Messages count: 2
-LLMProvider.ts:88 [LLMProvider] First message length: 51 characters
-LLMProvider.ts:89 [LLMProvider] Request body: {
-  "model": "deepseek-v3-250324",
-  "messages": [
-    {
-      "role": "system",
-      "content": "你是一个专业的时代背景分析助手，擅长从剧本中提取时代和地理背景信息。请严格按照要求的JSON格式输出。"
-    },
-    {
-      "role": "user",
-      "content": "\n请分析以下剧本的时代背景：\n\n【剧本内容】\n## 第一章 杂役苦\n青云宗，东域三大修仙宗门之一，立宗三千年，山门矗立于青云山脉之巅，云雾缭绕，灵气流淌，仙鹤盘旋，琼楼玉宇隐于云海之间，是无数凡人与低阶修士梦寐以求的修仙圣地。\n\n可这圣地的荣光，从来照不进山脚下的杂役院。\n\n杂役院位于青云宗最外围，没有灵脉滋养，没有丹药供给，连空气中的灵气都稀薄得可怜。这里住着的，都是灵根低劣、无缘正式入宗的少年人，每日做着劈柴、挑水、炼丹房采药、炼器房烧火的粗活，若三年内无法踏入炼气一层，便会被逐出宗门，重回凡尘，终老一生。\n\n林清玄便是杂役院中的一员。\n\n他年方十五，身...
-LLMProvider.ts:91 [LLMProvider] Sending request...
-BaseProvider.ts:63 [BaseProvider] Requesting: https://ark.cn-beijing.volces.com/api/v3/chat/completions, Mode: DEV, Localhost: true
-BaseProvider.ts:84 [BaseProvider] Using Proxy: /api/universal-proxy -> https://ark.cn-beijing.volces.com/api/v3/chat/completions
-BaseProvider.ts:99 [BaseProvider] Response received: 200 OK
-LLMProvider.ts:104 [LLMProvider] Request completed in 3420ms
-LLMProvider.ts:118 [LLMProvider] ========== API Response ==========
-LLMProvider.ts:119 [LLMProvider] Response length: 210 characters
-LLMProvider.ts:120 [LLMProvider] Prompt tokens: 3552
-LLMProvider.ts:121 [LLMProvider] Completion tokens: 104
-LLMProvider.ts:122 [LLMProvider] Total tokens: 3656
-LLMProvider.ts:123 [LLMProvider] Response preview: ```json
-{
-  "era": "修仙时代",
-  "eraDescription": "这是一个以修仙为主的世界，宗门林立，修士追求长生与力量。社会等级森严，灵根资质决定命运，强者为尊。灵气是...
-LLMProvider.ts:81 [LLMProvider] ========== API Request ==========
-LLMProvider.ts:82 [LLMProvider] Endpoint: https://ark.cn-beijing.volces.com/api/v3/chat/completions
-LLMProvider.ts:83 [LLMProvider] Model: deepseek-v3-250324
-LLMProvider.ts:84 [LLMProvider] enable_thinking: false
-LLMProvider.ts:85 [LLMProvider] Temperature: 0.3
-LLMProvider.ts:86 [LLMProvider] Max Tokens: 5000
-LLMProvider.ts:87 [LLMProvider] Messages count: 2
-LLMProvider.ts:88 [LLMProvider] First message length: 51 characters
-LLMProvider.ts:89 [LLMProvider] Request body: {
-  "model": "deepseek-v3-250324",
-  "messages": [
-    {
-      "role": "system",
-      "content": "你是一个专业的情绪分析助手，擅长从剧本中提取情绪曲线和情感变化信息。请严格按照要求的JSON格式输出。"
-    },
-    {
-      "role": "user",
-      "content": "\n基于以下故事信息，分析情绪曲线：\n\n【故事梗概】\n林清玄是青云宗杂役院的废灵根弟子，受尽欺凌却始终不放弃修仙梦想。一次意外坠崖，他唤醒墨玉佩中的残魂云澜子，得知自己并非废灵根而是混沌四灵根的天才。获得《混沌归元诀》后，林清玄修为暴涨，在外门考核中一鸣惊人，击败内门弟子赵昊，被金丹长老收为亲传弟子，从此踏上真正的仙途。\n\n【故事结构】\n第一幕：废灵根弟子受尽欺凌，坚守修仙梦想。\n第二幕上：坠崖唤醒墨玉佩，获得混沌灵根传承。\n第二幕下：修为暴涨引发嫉妒，面对内门弟子打压。\n第三幕：外门考核一鸣惊人，被金丹长老收徒。\n中点：墨玉佩觉醒，主角认知到真实天赋。\n高潮：...
-LLMProvider.ts:91 [LLMProvider] Sending request...
-BaseProvider.ts:63 [BaseProvider] Requesting: https://ark.cn-beijing.volces.com/api/v3/chat/completions, Mode: DEV, Localhost: true
-BaseProvider.ts:84 [BaseProvider] Using Proxy: /api/universal-proxy -> https://ark.cn-beijing.volces.com/api/v3/chat/completions
-BaseProvider.ts:99 [BaseProvider] Response received: 200 OK
-LLMProvider.ts:104 [LLMProvider] Request completed in 12383ms
-LLMProvider.ts:118 [LLMProvider] ========== API Response ==========
-LLMProvider.ts:119 [LLMProvider] Response length: 1386 characters
-LLMProvider.ts:120 [LLMProvider] Prompt tokens: 3774
-LLMProvider.ts:121 [LLMProvider] Completion tokens: 488
-LLMProvider.ts:122 [LLMProvider] Total tokens: 4262
-LLMProvider.ts:123 [LLMProvider] Response preview: ```json
-{
-  "overallMood": "励志向上",
-  "arc": [
-    {
-      "plotPoint": "开场",
-      "emotion": "压抑",
-...
-scriptParser.ts:1565 [ScriptParser] Global context extracted successfully:
-scriptParser.ts:1566   - Story synopsis: 林清玄是青云宗杂役院的废灵根弟子，受尽欺凌却始终不放弃修仙梦想。一次意外坠崖，他唤醒墨玉佩中的残魂云...
-scriptParser.ts:1567   - Visual style: 仙侠水墨
-scriptParser.ts:1568   - Era: 修仙时代
-scriptParser.ts:1569   - Emotional arc points: 10
-scriptParser.ts:1570   - Consistency rules: 0 era constraints
-scriptParser.ts:1623 [ScriptParser] Global context merged into metadata
-scriptParser.ts:2473 [ScriptParser] Processing 3 remaining characters
-scriptParser.ts:1639 [ScriptParser] ---------- Extracting Character: 林清玄 ----------
-scriptParser.ts:1655 [ScriptParser] Found 66 paragraphs mentioning 林清玄
-scriptParser.ts:1661 [ScriptParser] Character content length: 3186 characters
-scriptParser.ts:1666 [ScriptParser] Prompt length: 4117 characters
-scriptParser.ts:1289 [ScriptParser] callLLM called for character, retryCount: 0
-scriptParser.ts:1290 [ScriptParser] API URL: https://ark.cn-beijing.volces.com/api/v3
-scriptParser.ts:1291 [ScriptParser] Model: deepseek-v3-250324
-scriptParser.ts:1292 [ScriptParser] Max Tokens: 6000
-scriptParser.ts:1321 [ScriptParser] Calling LLMProvider.generateText...
-LLMProvider.ts:81 [LLMProvider] ========== API Request ==========
-LLMProvider.ts:82 [LLMProvider] Endpoint: https://ark.cn-beijing.volces.com/api/v3/chat/completions
-LLMProvider.ts:83 [LLMProvider] Model: deepseek-v3-250324
-LLMProvider.ts:84 [LLMProvider] enable_thinking: false
-LLMProvider.ts:85 [LLMProvider] Temperature: 0.3
-LLMProvider.ts:86 [LLMProvider] Max Tokens: 6000
-LLMProvider.ts:87 [LLMProvider] Messages count: 2
-LLMProvider.ts:88 [LLMProvider] First message length: 48 characters
-LLMProvider.ts:89 [LLMProvider] Request body: {
-  "model": "deepseek-v3-250324",
-  "messages": [
-    {
-      "role": "system",
-      "content": "你是一个专业的剧本分析助手，擅长从小说/剧本中提取结构化信息。请严格按照要求的JSON格式输出。"
-    },
-    {
-      "role": "user",
-      "content": "\n请基于以下剧本内容，分析角色\"林清玄\"的外貌特征。\n\n【剧本内容】\n林清玄便是杂役院中的一员。\n\n此刻，夕阳西下，余晖洒在杂役院的青石地上，林清玄刚从后山挑完三十担水，肩头被扁担磨得通红，额角的汗水顺着下颌滑落，滴在干裂的土地上。他放下木桶，扶着墙喘了口气，刚想拿起墙角的干硬窝头，一只脚突然踹在了他的后腰上。\n\n林清玄猝不及防，扑倒在地，窝头滚落在泥水里，沾满了污渍。\n\n“哟，这不是咱们杂役院的废灵根林清玄吗？挑完水了？”尖酸的声音响起，说话的是杂役院的头目王虎，三灵根，如今已是炼气一层的修士，仗着修为高，整日欺压杂役院的弟子。\n\n王虎身后跟着两个跟班，一脸戏...
-LLMProvider.ts:91 [LLMProvider] Sending request...
-BaseProvider.ts:63 [BaseProvider] Requesting: https://ark.cn-beijing.volces.com/api/v3/chat/completions, Mode: DEV, Localhost: true
-BaseProvider.ts:84 [BaseProvider] Using Proxy: /api/universal-proxy -> https://ark.cn-beijing.volces.com/api/v3/chat/completions
-BaseProvider.ts:99 [BaseProvider] Response received: 200 OK
-LLMProvider.ts:104 [LLMProvider] Request completed in 6606ms
-LLMProvider.ts:118 [LLMProvider] ========== API Response ==========
-LLMProvider.ts:119 [LLMProvider] Response length: 690 characters
-LLMProvider.ts:120 [LLMProvider] Prompt tokens: 2635
-LLMProvider.ts:121 [LLMProvider] Completion tokens: 286
-LLMProvider.ts:122 [LLMProvider] Total tokens: 2921
-LLMProvider.ts:123 [LLMProvider] Response preview: ```json
-{
-  "name": "林清玄",
-  "gender": "male",
-  "age": "18",
-  "identity": "杂役院弟子/青云宗亲传弟子",
-  "appe...
-scriptParser.ts:1345 [ScriptParser] LLM response received, length: 690
-scriptParser.ts:1669 [ScriptParser] LLM response received, length: 690 characters
-scriptParser.ts:1380 [ScriptParser] JSON repaired using: extracted_from_code_block
-scriptParser.ts:1672 [ScriptParser] Raw character data parsed
-scriptParser.ts:1676 [ScriptParser] Character validated and completed:
-scriptParser.ts:1677   - Name: 林清玄
-scriptParser.ts:1678   - Gender: male
-scriptParser.ts:1679   - Age: 18
-scriptParser.ts:1680   - Identity: 杂役院弟子/青云宗亲传弟子
-scriptParser.ts:1681   - Personality: 隐忍, 坚毅
-scriptParser.ts:1682   - Visual Prompt: 林清玄的角色形象...
-scriptParser.ts:1639 [ScriptParser] ---------- Extracting Character: 王虎 ----------
-scriptParser.ts:1655 [ScriptParser] Found 19 paragraphs mentioning 王虎
-scriptParser.ts:1661 [ScriptParser] Character content length: 1133 characters
-scriptParser.ts:1666 [ScriptParser] Prompt length: 2063 characters
-scriptParser.ts:1289 [ScriptParser] callLLM called for character, retryCount: 0
-scriptParser.ts:1290 [ScriptParser] API URL: https://ark.cn-beijing.volces.com/api/v3
-scriptParser.ts:1291 [ScriptParser] Model: deepseek-v3-250324
-scriptParser.ts:1292 [ScriptParser] Max Tokens: 6000
-scriptParser.ts:1321 [ScriptParser] Calling LLMProvider.generateText...
-LLMProvider.ts:81 [LLMProvider] ========== API Request ==========
-LLMProvider.ts:82 [LLMProvider] Endpoint: https://ark.cn-beijing.volces.com/api/v3/chat/completions
-LLMProvider.ts:83 [LLMProvider] Model: deepseek-v3-250324
-LLMProvider.ts:84 [LLMProvider] enable_thinking: false
-LLMProvider.ts:85 [LLMProvider] Temperature: 0.3
-LLMProvider.ts:86 [LLMProvider] Max Tokens: 6000
-LLMProvider.ts:87 [LLMProvider] Messages count: 2
-LLMProvider.ts:88 [LLMProvider] First message length: 48 characters
-LLMProvider.ts:89 [LLMProvider] Request body: {
-  "model": "deepseek-v3-250324",
-  "messages": [
-    {
-      "role": "system",
-      "content": "你是一个专业的剧本分析助手，擅长从小说/剧本中提取结构化信息。请严格按照要求的JSON格式输出。"
-    },
-    {
-      "role": "user",
-      "content": "\n请基于以下剧本内容，分析角色\"王虎\"的外貌特征。\n\n【剧本内容】\n“哟，这不是咱们杂役院的废灵根林清玄吗？挑完水了？”尖酸的声音响起，说话的是杂役院的头目王虎，三灵根，如今已是炼气一层的修士，仗着修为高，整日欺压杂役院的弟子。\n\n王虎身后跟着两个跟班，一脸戏谑地看着趴在地上的林清玄。\n\n“王虎哥，这伪灵根就是没用，挑个水都磨磨蹭蹭，要是我，早卷铺盖滚出青云宗了。”\n“就是，占着杂役院的位置，浪费粮食，也不知道执事大人当初怎么会选他。”\n\n王虎一脚将窝头踩得稀烂，嗤笑道：“一个废人，也配吃东西？今日炼丹房缺采药的，你去后山黑风崖采十株凝露草，采不到，今晚就别回杂役...
-LLMProvider.ts:91 [LLMProvider] Sending request...
-BaseProvider.ts:63 [BaseProvider] Requesting: https://ark.cn-beijing.volces.com/api/v3/chat/completions, Mode: DEV, Localhost: true
-BaseProvider.ts:84 [BaseProvider] Using Proxy: /api/universal-proxy -> https://ark.cn-beijing.volces.com/api/v3/chat/completions
-BaseProvider.ts:99 [BaseProvider] Response received: 200 OK
-LLMProvider.ts:104 [LLMProvider] Request completed in 5276ms
-LLMProvider.ts:118 [LLMProvider] ========== API Response ==========
-LLMProvider.ts:119 [LLMProvider] Response length: 562 characters
-LLMProvider.ts:120 [LLMProvider] Prompt tokens: 1256
-LLMProvider.ts:121 [LLMProvider] Completion tokens: 241
-LLMProvider.ts:122 [LLMProvider] Total tokens: 1497
-LLMProvider.ts:123 [LLMProvider] Response preview: ```json
-{
-  "name": "王虎",
-  "gender": "male",
-  "age": "20",
-  "identity": "杂役院头目，后晋升为外门弟子",
-  "appe...
-scriptParser.ts:1345 [ScriptParser] LLM response received, length: 562
-scriptParser.ts:1669 [ScriptParser] LLM response received, length: 562 characters
-scriptParser.ts:1380 [ScriptParser] JSON repaired using: extracted_from_code_block
-scriptParser.ts:1672 [ScriptParser] Raw character data parsed
-scriptParser.ts:1676 [ScriptParser] Character validated and completed:
-scriptParser.ts:1677   - Name: 王虎
-scriptParser.ts:1678   - Gender: male
-scriptParser.ts:1679   - Age: 20
-scriptParser.ts:1680   - Identity: 杂役院头目，后晋升为外门弟子
-scriptParser.ts:1681   - Personality: 嚣张, 欺软怕硬
-scriptParser.ts:1682   - Visual Prompt: 王虎的角色形象...
-scriptParser.ts:1639 [ScriptParser] ---------- Extracting Character: 云澜子 ----------
-scriptParser.ts:1655 [ScriptParser] Found 8 paragraphs mentioning 云澜子
-scriptParser.ts:1661 [ScriptParser] Character content length: 633 characters
-scriptParser.ts:1666 [ScriptParser] Prompt length: 1564 characters
-scriptParser.ts:1289 [ScriptParser] callLLM called for character, retryCount: 0
-scriptParser.ts:1290 [ScriptParser] API URL: https://ark.cn-beijing.volces.com/api/v3
-scriptParser.ts:1291 [ScriptParser] Model: deepseek-v3-250324
-scriptParser.ts:1292 [ScriptParser] Max Tokens: 6000
-scriptParser.ts:1321 [ScriptParser] Calling LLMProvider.generateText...
-LLMProvider.ts:81 [LLMProvider] ========== API Request ==========
-LLMProvider.ts:82 [LLMProvider] Endpoint: https://ark.cn-beijing.volces.com/api/v3/chat/completions
-LLMProvider.ts:83 [LLMProvider] Model: deepseek-v3-250324
-LLMProvider.ts:84 [LLMProvider] enable_thinking: false
-LLMProvider.ts:85 [LLMProvider] Temperature: 0.3
-LLMProvider.ts:86 [LLMProvider] Max Tokens: 6000
-LLMProvider.ts:87 [LLMProvider] Messages count: 2
-LLMProvider.ts:88 [LLMProvider] First message length: 48 characters
-LLMProvider.ts:89 [LLMProvider] Request body: {
-  "model": "deepseek-v3-250324",
-  "messages": [
-    {
-      "role": "system",
-      "content": "你是一个专业的剧本分析助手，擅长从小说/剧本中提取结构化信息。请严格按照要求的JSON格式输出。"
-    },
-    {
-      "role": "user",
-      "content": "\n请基于以下剧本内容，分析角色\"云澜子\"的外貌特征。\n\n【剧本内容】\n“无妨，老夫云澜子，曾是一名散修。”残魂云澜子淡淡道，“小友，你可知你这灵根，并非废灵根？”\n\n“伪灵根？不过是凡夫俗子的愚昧之见罢了。”云澜子轻笑一声，语气中带着一丝不屑，“你这是**混沌四灵根**，看似驳杂，实则蕴含混沌本源，乃是万中无一的修仙奇才！只是混沌灵根需要特殊功法引导，才能吸纳灵气，寻常功法根本无法催动，才会被误认为废灵根。”\n\n“老夫沉睡万年，一身修为尽失，只留下一部功法与一缕本源灵气，尽数藏于这墨玉佩之中。”云澜子道，“这部《混沌归元诀》，乃是老夫毕生所创，专为混沌灵根量身打造，修炼...
-LLMProvider.ts:91 [LLMProvider] Sending request...
-BaseProvider.ts:63 [BaseProvider] Requesting: https://ark.cn-beijing.volces.com/api/v3/chat/completions, Mode: DEV, Localhost: true
-BaseProvider.ts:84 [BaseProvider] Using Proxy: /api/universal-proxy -> https://ark.cn-beijing.volces.com/api/v3/chat/completions
-BaseProvider.ts:99 [BaseProvider] Response received: 200 OK
-LLMProvider.ts:104 [LLMProvider] Request completed in 5619ms
-LLMProvider.ts:118 [LLMProvider] ========== API Response ==========
-LLMProvider.ts:119 [LLMProvider] Response length: 457 characters
-LLMProvider.ts:120 [LLMProvider] Prompt tokens: 901
-LLMProvider.ts:121 [LLMProvider] Completion tokens: 173
-LLMProvider.ts:122 [LLMProvider] Total tokens: 1074
-LLMProvider.ts:123 [LLMProvider] Response preview: ```json
-{
-  "name": "云澜子",
-  "gender": "male",
-  "age": "unknown",
-  "identity": "散修",
-  "appearance...
-scriptParser.ts:1345 [ScriptParser] LLM response received, length: 457
-scriptParser.ts:1669 [ScriptParser] LLM response received, length: 457 characters
-scriptParser.ts:1380 [ScriptParser] JSON repaired using: extracted_from_code_block
-scriptParser.ts:1672 [ScriptParser] Raw character data parsed
-scriptParser.ts:1676 [ScriptParser] Character validated and completed:
-scriptParser.ts:1677   - Name: 云澜子
-scriptParser.ts:1678   - Gender: male
-scriptParser.ts:1679   - Age: unknown
-scriptParser.ts:1680   - Identity: 散修
-scriptParser.ts:1681   - Personality: 淡然, 不屑
-scriptParser.ts:1682   - Visual Prompt: 云澜子的角色形象...
-scriptParser.ts:2525 [ScriptParser] Processing 5 remaining scenes
-scriptParser.ts:1694 [ScriptParser] ---------- Extracting Scene: 杂役院 ----------
-scriptParser.ts:1710 [ScriptParser] Found 19 paragraphs mentioning 杂役院
-scriptParser.ts:1715 [ScriptParser] Scene content length: 1166 characters
-scriptParser.ts:1720 [ScriptParser] Prompt length: 1664 characters
-scriptParser.ts:1289 [ScriptParser] callLLM called for scene, retryCount: 0
-scriptParser.ts:1290 [ScriptParser] API URL: https://ark.cn-beijing.volces.com/api/v3
-scriptParser.ts:1291 [ScriptParser] Model: deepseek-v3-250324
-scriptParser.ts:1292 [ScriptParser] Max Tokens: 6000
-scriptParser.ts:1321 [ScriptParser] Calling LLMProvider.generateText...
-LLMProvider.ts:81 [LLMProvider] ========== API Request ==========
-LLMProvider.ts:82 [LLMProvider] Endpoint: https://ark.cn-beijing.volces.com/api/v3/chat/completions
-LLMProvider.ts:83 [LLMProvider] Model: deepseek-v3-250324
-LLMProvider.ts:84 [LLMProvider] enable_thinking: false
-LLMProvider.ts:85 [LLMProvider] Temperature: 0.3
-LLMProvider.ts:86 [LLMProvider] Max Tokens: 6000
-LLMProvider.ts:87 [LLMProvider] Messages count: 2
-LLMProvider.ts:88 [LLMProvider] First message length: 48 characters
-LLMProvider.ts:89 [LLMProvider] Request body: {
-  "model": "deepseek-v3-250324",
-  "messages": [
-    {
-      "role": "system",
-      "content": "你是一个专业的剧本分析助手，擅长从小说/剧本中提取结构化信息。请严格按照要求的JSON格式输出。"
-    },
-    {
-      "role": "user",
-      "content": "\n请分析以下剧本中的场景\"杂役院\"。\n\n【剧本内容】\n可这圣地的荣光，从来照不进山脚下的杂役院。\n\n杂役院位于青云宗最外围，没有灵脉滋养，没有丹药供给，连空气中的灵气都稀薄得可怜。这里住着的，都是灵根低劣、无缘正式入宗的少年人，每日做着劈柴、挑水、炼丹房采药、炼器房烧火的粗活，若三年内无法踏入炼气一层，便会被逐出宗门，重回凡尘，终老一生。\n\n林清玄便是杂役院中的一员。\n\n此刻，夕阳西下，余晖洒在杂役院的青石地上，林清玄刚从后山挑完三十担水，肩头被扁担磨得通红，额角的汗水顺着下颌滑落，滴在干裂的土地上。他放下木桶，扶着墙喘了口气，刚想拿起墙角的干硬窝头，一只脚突然踹在...
-LLMProvider.ts:91 [LLMProvider] Sending request...
-BaseProvider.ts:63 [BaseProvider] Requesting: https://ark.cn-beijing.volces.com/api/v3/chat/completions, Mode: DEV, Localhost: true
-BaseProvider.ts:84 [BaseProvider] Using Proxy: /api/universal-proxy -> https://ark.cn-beijing.volces.com/api/v3/chat/completions
-BaseProvider.ts:99 [BaseProvider] Response received: 200 OK
-LLMProvider.ts:104 [LLMProvider] Request completed in 6528ms
-LLMProvider.ts:118 [LLMProvider] ========== API Response ==========
-LLMProvider.ts:119 [LLMProvider] Response length: 534 characters
-LLMProvider.ts:120 [LLMProvider] Prompt tokens: 1051
-LLMProvider.ts:121 [LLMProvider] Completion tokens: 265
-LLMProvider.ts:122 [LLMProvider] Total tokens: 1316
-LLMProvider.ts:123 [LLMProvider] Response preview: ```json
-{
-  "name": "杂役院",
-  "locationType": "outdoor",
-  "description": "位于青云宗最外围的杂役院，没有灵脉滋养，灵气稀薄，住...
-scriptParser.ts:1345 [ScriptParser] LLM response received, length: 534
-scriptParser.ts:1723 [ScriptParser] LLM response received, length: 534 characters
-scriptParser.ts:1380 [ScriptParser] JSON repaired using: extracted_from_code_block
-scriptParser.ts:1726 [ScriptParser] Raw scene data parsed
-scriptParser.ts:1730 [ScriptParser] Scene validated and completed:
-scriptParser.ts:1731   - Name: 杂役院
-scriptParser.ts:1732   - Location Type: outdoor
-scriptParser.ts:1733   - Time of Day: 傍晚至深夜
-scriptParser.ts:1734   - Weather: unknown
-scriptParser.ts:1735   - Characters: 林清玄, 王虎
-scriptParser.ts:1736   - Visual Prompt: 夕阳下的杂役院，青石地上洒着余晖，简陋的建筑显得破败。林清玄肩头通红，汗水滴落，王虎嚣张地踩碎窝头。...
-scriptParser.ts:1694 [ScriptParser] ---------- Extracting Scene: 后山黑风崖 ----------
-scriptParser.ts:1710 [ScriptParser] Found 1 paragraphs mentioning 后山黑风崖
-scriptParser.ts:1715 [ScriptParser] Scene content length: 7033 characters
-scriptParser.ts:1720 [ScriptParser] Prompt length: 5500 characters
-scriptParser.ts:1289 [ScriptParser] callLLM called for scene, retryCount: 0
-scriptParser.ts:1290 [ScriptParser] API URL: https://ark.cn-beijing.volces.com/api/v3
-scriptParser.ts:1291 [ScriptParser] Model: deepseek-v3-250324
-scriptParser.ts:1292 [ScriptParser] Max Tokens: 6000
-scriptParser.ts:1321 [ScriptParser] Calling LLMProvider.generateText...
-LLMProvider.ts:81 [LLMProvider] ========== API Request ==========
-LLMProvider.ts:82 [LLMProvider] Endpoint: https://ark.cn-beijing.volces.com/api/v3/chat/completions
-LLMProvider.ts:83 [LLMProvider] Model: deepseek-v3-250324
-LLMProvider.ts:84 [LLMProvider] enable_thinking: false
-LLMProvider.ts:85 [LLMProvider] Temperature: 0.3
-LLMProvider.ts:86 [LLMProvider] Max Tokens: 6000
-LLMProvider.ts:87 [LLMProvider] Messages count: 2
-LLMProvider.ts:88 [LLMProvider] First message length: 48 characters
-LLMProvider.ts:89 [LLMProvider] Request body: {
-  "model": "deepseek-v3-250324",
-  "messages": [
-    {
-      "role": "system",
-      "content": "你是一个专业的剧本分析助手，擅长从小说/剧本中提取结构化信息。请严格按照要求的JSON格式输出。"
-    },
-    {
-      "role": "user",
-      "content": "\n请分析以下剧本中的场景\"后山黑风崖\"。\n\n【剧本内容】\n## 第一章 杂役苦\n青云宗，东域三大修仙宗门之一，立宗三千年，山门矗立于青云山脉之巅，云雾缭绕，灵气流淌，仙鹤盘旋，琼楼玉宇隐于云海之间，是无数凡人与低阶修士梦寐以求的修仙圣地。\n\n可这圣地的荣光，从来照不进山脚下的杂役院。\n\n杂役院位于青云宗最外围，没有灵脉滋养，没有丹药供给，连空气中的灵气都稀薄得可怜。这里住着的，都是灵根低劣、无缘正式入宗的少年人，每日做着劈柴、挑水、炼丹房采药、炼器房烧火的粗活，若三年内无法踏入炼气一层，便会被逐出宗门，重回凡尘，终老一生。\n\n林清玄便是杂役院中的一员。\n\n他年...
-LLMProvider.ts:91 [LLMProvider] Sending request...
-BaseProvider.ts:63 [BaseProvider] Requesting: https://ark.cn-beijing.volces.com/api/v3/chat/completions, Mode: DEV, Localhost: true
-BaseProvider.ts:84 [BaseProvider] Using Proxy: /api/universal-proxy -> https://ark.cn-beijing.volces.com/api/v3/chat/completions
-BaseProvider.ts:99 [BaseProvider] Response received: 200 OK
-LLMProvider.ts:104 [LLMProvider] Request completed in 6816ms
-LLMProvider.ts:118 [LLMProvider] ========== API Response ==========
-LLMProvider.ts:119 [LLMProvider] Response length: 500 characters
-LLMProvider.ts:120 [LLMProvider] Prompt tokens: 3594
-LLMProvider.ts:121 [LLMProvider] Completion tokens: 244
-LLMProvider.ts:122 [LLMProvider] Total tokens: 3838
-LLMProvider.ts:123 [LLMProvider] Response preview: ```json
-{
-  "name": "后山黑风崖",
-  "locationType": "outdoor",
-  "description": "青云宗外围的险地，崖壁陡峭，常有低阶妖兽出没，凝...
-scriptParser.ts:1345 [ScriptParser] LLM response received, length: 500
-scriptParser.ts:1723 [ScriptParser] LLM response received, length: 500 characters
-scriptParser.ts:1380 [ScriptParser] JSON repaired using: extracted_from_code_block
-scriptParser.ts:1726 [ScriptParser] Raw scene data parsed
-scriptParser.ts:1730 [ScriptParser] Scene validated and completed:
-scriptParser.ts:1731   - Name: 后山黑风崖
-scriptParser.ts:1732   - Location Type: outdoor
-scriptParser.ts:1733   - Time of Day: 傍晚
-scriptParser.ts:1734   - Weather: unknown
-scriptParser.ts:1735   - Characters: 林清玄, 云澜子
-scriptParser.ts:1736   - Visual Prompt: 陡峭的崖壁直插云霄，崖边零星生长着淡蓝色的凝露草，崖风呼啸，云雾缭绕，远处夕阳的余晖为险峻的崖壁镀上...
-scriptParser.ts:1694 [ScriptParser] ---------- Extracting Scene: 青云宗山门 ----------
-scriptParser.ts:1710 [ScriptParser] Found 0 paragraphs mentioning 青云宗山门
-scriptParser.ts:1715 [ScriptParser] Scene content length: 7033 characters
-scriptParser.ts:1720 [ScriptParser] Prompt length: 5500 characters
-scriptParser.ts:1289 [ScriptParser] callLLM called for scene, retryCount: 0
-scriptParser.ts:1290 [ScriptParser] API URL: https://ark.cn-beijing.volces.com/api/v3
-scriptParser.ts:1291 [ScriptParser] Model: deepseek-v3-250324
-scriptParser.ts:1292 [ScriptParser] Max Tokens: 6000
-scriptParser.ts:1321 [ScriptParser] Calling LLMProvider.generateText...
-LLMProvider.ts:81 [LLMProvider] ========== API Request ==========
-LLMProvider.ts:82 [LLMProvider] Endpoint: https://ark.cn-beijing.volces.com/api/v3/chat/completions
-LLMProvider.ts:83 [LLMProvider] Model: deepseek-v3-250324
-LLMProvider.ts:84 [LLMProvider] enable_thinking: false
-LLMProvider.ts:85 [LLMProvider] Temperature: 0.3
-LLMProvider.ts:86 [LLMProvider] Max Tokens: 6000
-LLMProvider.ts:87 [LLMProvider] Messages count: 2
-LLMProvider.ts:88 [LLMProvider] First message length: 48 characters
-LLMProvider.ts:89 [LLMProvider] Request body: {
-  "model": "deepseek-v3-250324",
-  "messages": [
-    {
-      "role": "system",
-      "content": "你是一个专业的剧本分析助手，擅长从小说/剧本中提取结构化信息。请严格按照要求的JSON格式输出。"
-    },
-    {
-      "role": "user",
-      "content": "\n请分析以下剧本中的场景\"青云宗山门\"。\n\n【剧本内容】\n## 第一章 杂役苦\n青云宗，东域三大修仙宗门之一，立宗三千年，山门矗立于青云山脉之巅，云雾缭绕，灵气流淌，仙鹤盘旋，琼楼玉宇隐于云海之间，是无数凡人与低阶修士梦寐以求的修仙圣地。\n\n可这圣地的荣光，从来照不进山脚下的杂役院。\n\n杂役院位于青云宗最外围，没有灵脉滋养，没有丹药供给，连空气中的灵气都稀薄得可怜。这里住着的，都是灵根低劣、无缘正式入宗的少年人，每日做着劈柴、挑水、炼丹房采药、炼器房烧火的粗活，若三年内无法踏入炼气一层，便会被逐出宗门，重回凡尘，终老一生。\n\n林清玄便是杂役院中的一员。\n\n他年...
-LLMProvider.ts:91 [LLMProvider] Sending request...
-BaseProvider.ts:63 [BaseProvider] Requesting: https://ark.cn-beijing.volces.com/api/v3/chat/completions, Mode: DEV, Localhost: true
-BaseProvider.ts:84 [BaseProvider] Using Proxy: /api/universal-proxy -> https://ark.cn-beijing.volces.com/api/v3/chat/completions
-BaseProvider.ts:99 [BaseProvider] Response received: 200 OK
-LLMProvider.ts:104 [LLMProvider] Request completed in 6197ms
-LLMProvider.ts:118 [LLMProvider] ========== API Response ==========
-LLMProvider.ts:119 [LLMProvider] Response length: 537 characters
-LLMProvider.ts:120 [LLMProvider] Prompt tokens: 3593
-LLMProvider.ts:121 [LLMProvider] Completion tokens: 267
-LLMProvider.ts:122 [LLMProvider] Total tokens: 3860
-LLMProvider.ts:123 [LLMProvider] Response preview: ```json
-{
-  "name": "青云宗山门",
-  "locationType": "outdoor",
-  "description": "青云宗山门矗立于青云山脉之巅，云雾缭绕，灵气流淌...
-scriptParser.ts:1345 [ScriptParser] LLM response received, length: 537
-scriptParser.ts:1723 [ScriptParser] LLM response received, length: 537 characters
-scriptParser.ts:1380 [ScriptParser] JSON repaired using: extracted_from_code_block
-scriptParser.ts:1726 [ScriptParser] Raw scene data parsed
-scriptParser.ts:1730 [ScriptParser] Scene validated and completed:
-scriptParser.ts:1731   - Name: 青云宗山门
-scriptParser.ts:1732   - Location Type: outdoor
-scriptParser.ts:1733   - Time of Day: day
-scriptParser.ts:1734   - Weather: clear
-scriptParser.ts:1735   - Characters: 林清玄, 王虎, 外门执事
-scriptParser.ts:1736   - Visual Prompt: 高耸入云的山门，云雾缭绕，仙鹤盘旋，琼楼玉宇隐现，灵气如流水般环绕，测灵石碑矗立广场中央，整体氛围仙...
-scriptParser.ts:1694 [ScriptParser] ---------- Extracting Scene: 炼丹房 ----------
-scriptParser.ts:1710 [ScriptParser] Found 2 paragraphs mentioning 炼丹房
-scriptParser.ts:1715 [ScriptParser] Scene content length: 7033 characters
-scriptParser.ts:1720 [ScriptParser] Prompt length: 5498 characters
-scriptParser.ts:1289 [ScriptParser] callLLM called for scene, retryCount: 0
-scriptParser.ts:1290 [ScriptParser] API URL: https://ark.cn-beijing.volces.com/api/v3
-scriptParser.ts:1291 [ScriptParser] Model: deepseek-v3-250324
-scriptParser.ts:1292 [ScriptParser] Max Tokens: 6000
-scriptParser.ts:1321 [ScriptParser] Calling LLMProvider.generateText...
-LLMProvider.ts:81 [LLMProvider] ========== API Request ==========
-LLMProvider.ts:82 [LLMProvider] Endpoint: https://ark.cn-beijing.volces.com/api/v3/chat/completions
-LLMProvider.ts:83 [LLMProvider] Model: deepseek-v3-250324
-LLMProvider.ts:84 [LLMProvider] enable_thinking: false
-LLMProvider.ts:85 [LLMProvider] Temperature: 0.3
-LLMProvider.ts:86 [LLMProvider] Max Tokens: 6000
-LLMProvider.ts:87 [LLMProvider] Messages count: 2
-LLMProvider.ts:88 [LLMProvider] First message length: 48 characters
-LLMProvider.ts:89 [LLMProvider] Request body: {
-  "model": "deepseek-v3-250324",
-  "messages": [
-    {
-      "role": "system",
-      "content": "你是一个专业的剧本分析助手，擅长从小说/剧本中提取结构化信息。请严格按照要求的JSON格式输出。"
-    },
-    {
-      "role": "user",
-      "content": "\n请分析以下剧本中的场景\"炼丹房\"。\n\n【剧本内容】\n## 第一章 杂役苦\n青云宗，东域三大修仙宗门之一，立宗三千年，山门矗立于青云山脉之巅，云雾缭绕，灵气流淌，仙鹤盘旋，琼楼玉宇隐于云海之间，是无数凡人与低阶修士梦寐以求的修仙圣地。\n\n可这圣地的荣光，从来照不进山脚下的杂役院。\n\n杂役院位于青云宗最外围，没有灵脉滋养，没有丹药供给，连空气中的灵气都稀薄得可怜。这里住着的，都是灵根低劣、无缘正式入宗的少年人，每日做着劈柴、挑水、炼丹房采药、炼器房烧火的粗活，若三年内无法踏入炼气一层，便会被逐出宗门，重回凡尘，终老一生。\n\n林清玄便是杂役院中的一员。\n\n他年方十...
-LLMProvider.ts:91 [LLMProvider] Sending request...
-BaseProvider.ts:63 [BaseProvider] Requesting: https://ark.cn-beijing.volces.com/api/v3/chat/completions, Mode: DEV, Localhost: true
-BaseProvider.ts:84 [BaseProvider] Using Proxy: /api/universal-proxy -> https://ark.cn-beijing.volces.com/api/v3/chat/completions
-BaseProvider.ts:99 [BaseProvider] Response received: 200 OK
-LLMProvider.ts:104 [LLMProvider] Request completed in 6295ms
-LLMProvider.ts:118 [LLMProvider] ========== API Response ==========
-LLMProvider.ts:119 [LLMProvider] Response length: 533 characters
-LLMProvider.ts:120 [LLMProvider] Prompt tokens: 3591
-LLMProvider.ts:121 [LLMProvider] Completion tokens: 227
-LLMProvider.ts:122 [LLMProvider] Total tokens: 3818
-LLMProvider.ts:123 [LLMProvider] Response preview: ```json
-{
-  "name": "炼丹房",
-  "locationType": "indoor",
-  "description": "青云宗内用于炼制丹药的场所，杂役弟子需要在此处进行采药...
-scriptParser.ts:1345 [ScriptParser] LLM response received, length: 533
-scriptParser.ts:1723 [ScriptParser] LLM response received, length: 533 characters
-scriptParser.ts:1380 [ScriptParser] JSON repaired using: extracted_from_code_block
-scriptParser.ts:1726 [ScriptParser] Raw scene data parsed
-scriptParser.ts:1730 [ScriptParser] Scene validated and completed:
-scriptParser.ts:1731   - Name: 炼丹房
-scriptParser.ts:1732   - Location Type: indoor
-scriptParser.ts:1733   - Time of Day: daytime
-scriptParser.ts:1734   - Weather: unknown
-scriptParser.ts:1735   - Characters: 林清玄, 王虎
-scriptParser.ts:1736   - Visual Prompt: 一个传统的炼丹房，中央摆放着巨大的青铜炼丹炉，炉火微微燃烧，散发出温暖的光芒。四周的架子上摆满了各种...
-scriptParser.ts:1694 [ScriptParser] ---------- Extracting Scene: 炼器房 ----------
-scriptParser.ts:1710 [ScriptParser] Found 1 paragraphs mentioning 炼器房
-scriptParser.ts:1715 [ScriptParser] Scene content length: 7033 characters
-scriptParser.ts:1720 [ScriptParser] Prompt length: 5498 characters
-scriptParser.ts:1289 [ScriptParser] callLLM called for scene, retryCount: 0
-scriptParser.ts:1290 [ScriptParser] API URL: https://ark.cn-beijing.volces.com/api/v3
-scriptParser.ts:1291 [ScriptParser] Model: deepseek-v3-250324
-scriptParser.ts:1292 [ScriptParser] Max Tokens: 6000
-scriptParser.ts:1321 [ScriptParser] Calling LLMProvider.generateText...
-LLMProvider.ts:81 [LLMProvider] ========== API Request ==========
-LLMProvider.ts:82 [LLMProvider] Endpoint: https://ark.cn-beijing.volces.com/api/v3/chat/completions
-LLMProvider.ts:83 [LLMProvider] Model: deepseek-v3-250324
-LLMProvider.ts:84 [LLMProvider] enable_thinking: false
-LLMProvider.ts:85 [LLMProvider] Temperature: 0.3
-LLMProvider.ts:86 [LLMProvider] Max Tokens: 6000
-LLMProvider.ts:87 [LLMProvider] Messages count: 2
-LLMProvider.ts:88 [LLMProvider] First message length: 48 characters
-LLMProvider.ts:89 [LLMProvider] Request body: {
-  "model": "deepseek-v3-250324",
-  "messages": [
-    {
-      "role": "system",
-      "content": "你是一个专业的剧本分析助手，擅长从小说/剧本中提取结构化信息。请严格按照要求的JSON格式输出。"
-    },
-    {
-      "role": "user",
-      "content": "\n请分析以下剧本中的场景\"炼器房\"。\n\n【剧本内容】\n## 第一章 杂役苦\n青云宗，东域三大修仙宗门之一，立宗三千年，山门矗立于青云山脉之巅，云雾缭绕，灵气流淌，仙鹤盘旋，琼楼玉宇隐于云海之间，是无数凡人与低阶修士梦寐以求的修仙圣地。\n\n可这圣地的荣光，从来照不进山脚下的杂役院。\n\n杂役院位于青云宗最外围，没有灵脉滋养，没有丹药供给，连空气中的灵气都稀薄得可怜。这里住着的，都是灵根低劣、无缘正式入宗的少年人，每日做着劈柴、挑水、炼丹房采药、炼器房烧火的粗活，若三年内无法踏入炼气一层，便会被逐出宗门，重回凡尘，终老一生。\n\n林清玄便是杂役院中的一员。\n\n他年方十...
-LLMProvider.ts:91 [LLMProvider] Sending request...
-BaseProvider.ts:63 [BaseProvider] Requesting: https://ark.cn-beijing.volces.com/api/v3/chat/completions, Mode: DEV, Localhost: true
-BaseProvider.ts:84 [BaseProvider] Using Proxy: /api/universal-proxy -> https://ark.cn-beijing.volces.com/api/v3/chat/completions
-BaseProvider.ts:99 [BaseProvider] Response received: 200 OK
-LLMProvider.ts:104 [LLMProvider] Request completed in 6152ms
-LLMProvider.ts:118 [LLMProvider] ========== API Response ==========
-LLMProvider.ts:119 [LLMProvider] Response length: 546 characters
-LLMProvider.ts:120 [LLMProvider] Prompt tokens: 3592
-LLMProvider.ts:121 [LLMProvider] Completion tokens: 259
-LLMProvider.ts:122 [LLMProvider] Total tokens: 3851
-LLMProvider.ts:123 [LLMProvider] Response preview: ```json
-{
-  "name": "炼器房",
-  "locationType": "indoor",
-  "description": "青云宗杂役院内的炼器房，是杂役弟子日常劳作的地方之一。...
-scriptParser.ts:1345 [ScriptParser] LLM response received, length: 546
-scriptParser.ts:1723 [ScriptParser] LLM response received, length: 546 characters
-scriptParser.ts:1380 [ScriptParser] JSON repaired using: extracted_from_code_block
-scriptParser.ts:1726 [ScriptParser] Raw scene data parsed
-scriptParser.ts:1730 [ScriptParser] Scene validated and completed:
-scriptParser.ts:1731   - Name: 炼器房
-scriptParser.ts:1732   - Location Type: indoor
-scriptParser.ts:1733   - Time of Day: daytime
-scriptParser.ts:1734   - Weather: unknown
-scriptParser.ts:1735   - Characters: 林清玄
-scriptParser.ts:1736   - Visual Prompt: 一个简陋的炼器房，墙壁被烟熏得发黑，中央是一个巨大的炼器炉，炉火熊熊燃烧。角落里堆放着柴火和各种工具...
-scriptParser.ts:2572 [ScriptParser] Starting iterative refinement...
-IterativeRefinementEngine.ts:153 [IterativeRefinementEngine] Starting refinement process...
-IterativeRefinementEngine.ts:154 [IterativeRefinementEngine] Config: maxIterations=3, targetScore=85
-QualityEvaluator.ts:133 [QualityEvaluator] Starting quality evaluation...
-QualityEvaluator.ts:161 [QualityEvaluator] Evaluation completed in 1ms, score: 62
-IterativeRefinementEngine.ts:171 [IterativeRefinementEngine] Initial quality score: 62
-IterativeRefinementEngine.ts:175 
-[IterativeRefinementEngine] === Iteration 1/3 ===
-IterativeRefinementEngine.ts:239 [IterativeRefinementEngine] Running consistency check...
-ConsistencyChecker.ts:201 [ConsistencyChecker] Starting consistency check...
-ConsistencyChecker.ts:250 [ConsistencyChecker] Check completed in 1ms, score: 100
-IterativeRefinementEngine.ts:247 [IterativeRefinementEngine] Found 0 violations
-IterativeRefinementEngine.ts:254 [IterativeRefinementEngine] Running quality evaluation...
-QualityEvaluator.ts:133 [QualityEvaluator] Starting quality evaluation...
-QualityEvaluator.ts:161 [QualityEvaluator] Evaluation completed in 0ms, score: 62
-IterativeRefinementEngine.ts:262 [IterativeRefinementEngine] Quality score: 62
-IterativeRefinementEngine.ts:264   [completeness] 60/25
-IterativeRefinementEngine.ts:264   [accuracy] 44/25
-IterativeRefinementEngine.ts:264   [consistency] 80/30
-IterativeRefinementEngine.ts:264   [usability] 60/20
-IterativeRefinementEngine.ts:278 [IterativeRefinementEngine] Generating refinement actions...
-RefinementEngine.ts:155 [RefinementEngine] Generating refinement actions...
-RefinementEngine.ts:175 [RefinementEngine] Generated 3 refinement actions
-IterativeRefinementEngine.ts:280 [IterativeRefinementEngine] Generated 3 actions
-IterativeRefinementEngine.ts:283 [IterativeRefinementEngine] Applying refinements...
-RefinementEngine.ts:521 [RefinementEngine] Applying 3 refinements...
-RefinementEngine.ts:557 [RefinementEngine] Applied: 0, Skipped: 3, Failed: 0
-IterativeRefinementEngine.ts:291 [IterativeRefinementEngine] Applied: 0, Skipped: 3, Failed: 0
-IterativeRefinementEngine.ts:200 [IterativeRefinementEngine] Iteration 1 completed in 1ms, improvement: 0.00
-IterativeRefinementEngine.ts:328 [IterativeRefinementEngine] Improvement (0.00) below threshold (2)
-IterativeRefinementEngine.ts:204 [IterativeRefinementEngine] Stopping iteration: termination condition met
-IterativeRefinementEngine.ts:212 
-[IterativeRefinementEngine] Refinement completed in 3ms
-IterativeRefinementEngine.ts:213 [IterativeRefinementEngine] Final quality score: 62 (improvement: 0.00)
-scriptParser.ts:2595 [ScriptParser] Refinement completed with no significant improvement
-scriptParser.ts:2614 [ScriptParser] Starting duration budget calculation...
-scriptParser.ts:2660  [ScriptParser] Budget validation warnings: ['平均每镜时长 8.4秒 过长，可能导致节奏拖沓']
-parseScript @ scriptParser.ts:2660
-await in parseScript
-handleParseScript @ ScriptManager.tsx:541
+<input>
+exports.jsx @ react-jsx-runtime.development.js:335
+HeroUI.Switch @ chunk-I3A4XRYQ.mjs:30
+react_stack_bottom_frame @ react-dom-client.development.js:25904
+renderWithHooksAgain @ react-dom-client.development.js:7762
+renderWithHooks @ react-dom-client.development.js:7674
+updateForwardRef @ react-dom-client.development.js:9724
+beginWork @ react-dom-client.development.js:12117
+runWithFiberInDEV @ react-dom-client.development.js:871
+performUnitOfWork @ react-dom-client.development.js:17641
+workLoopSync @ react-dom-client.development.js:17469
+renderRootSync @ react-dom-client.development.js:17450
+performWorkOnRoot @ react-dom-client.development.js:16504
+performWorkOnRootViaSchedulerTask @ react-dom-client.development.js:18957
+performWorkUntilDeadline @ scheduler.development.js:45
+<HeroUI.Switch>
+exports.jsxDEV @ react-jsx-dev-runtime.development.js:335
+VectorMemoryToggle @ VectorMemoryToggle.tsx:122
+react_stack_bottom_frame @ react-dom-client.development.js:25904
+renderWithHooksAgain @ react-dom-client.development.js:7762
+renderWithHooks @ react-dom-client.development.js:7674
+updateFunctionComponent @ react-dom-client.development.js:10166
+beginWork @ react-dom-client.development.js:11778
+runWithFiberInDEV @ react-dom-client.development.js:871
+performUnitOfWork @ react-dom-client.development.js:17641
+workLoopSync @ react-dom-client.development.js:17469
+renderRootSync @ react-dom-client.development.js:17450
+performWorkOnRoot @ react-dom-client.development.js:16504
+performWorkOnRootViaSchedulerTask @ react-dom-client.development.js:18957
+performWorkUntilDeadline @ scheduler.development.js:45
+EmbeddingService.ts:146   GET https://cdn.jsdelivr.net/npm/@xenova/transformers@2.17.2/dist/ort-wasm-simd.wasm net::ERR_CONNECTION_TIMED_OUT
+(匿名) @ ort-wasm.js:46
+r @ ort-wasm.js:46
+(匿名) @ wasm-factory.ts:151
+e.initializeWebAssembly @ wasm-factory.ts:118
+e.initWasm @ proxy-wrapper.ts:133
+init @ backend-wasm.ts:41
+resolveBackend @ backend-impl.ts:85
+create @ inference-session-impl.ts:188
+constructSession @ models.js:126
+await in constructSession
+from_pretrained @ models.js:795
+from_pretrained @ models.js:5519
+await in from_pretrained
+loadItems @ pipelines.js:3271
+pipeline @ pipelines.js:3219
+doInitialize @ EmbeddingService.ts:146
+initialize @ EmbeddingService.ts:125
+onToggle @ ScriptManager.tsx:1373
+handleToggle @ VectorMemoryToggle.tsx:55
+(匿名) @ useControlledState.ts:61
+updateSelected @ useToggleState.ts:46
+onChange @ useToggle.ts:64
 (匿名) @ index.mjs:362
-(匿名) @ usePress.ts:249
-onClick @ usePress.ts:548
 executeDispatch @ react-dom-client.development.js:19116
 runWithFiberInDEV @ react-dom-client.development.js:871
 processDispatchQueue @ react-dom-client.development.js:19166
@@ -1809,364 +297,181 @@ batchedUpdates$1 @ react-dom-client.development.js:3255
 dispatchEventForPluginEventSystem @ react-dom-client.development.js:19320
 dispatchEvent @ react-dom-client.development.js:23585
 dispatchDiscreteEvent @ react-dom-client.development.js:23553
-scriptParser.ts:2667 [ScriptParser] Budget calculated: 125s total, 5 scenes
-scriptParser.ts:2696 [ScriptParser] Processing shots for 5 remaining scenes
-scriptParser.ts:1763 [ScriptParser] ---------- Generating Shots for Scene: 杂役院 ----------
-scriptParser.ts:1764 [ScriptParser] useProductionPrompt: true
-scriptParser.ts:1779 [ScriptParser] Scene content length: 1610 characters
-scriptParser.ts:1796 [ScriptParser] Using production prompt
-scriptParser.ts:1807 [ScriptParser] Prompt length: 2692 characters
-scriptParser.ts:1808 [ScriptParser] Characters in scene: 林清玄, 王虎
-scriptParser.ts:1289 [ScriptParser] callLLM called for shots, retryCount: 0
-scriptParser.ts:1290 [ScriptParser] API URL: https://ark.cn-beijing.volces.com/api/v3
-scriptParser.ts:1291 [ScriptParser] Model: deepseek-v3-250324
-scriptParser.ts:1292 [ScriptParser] Max Tokens: 12000
-scriptParser.ts:1321 [ScriptParser] Calling LLMProvider.generateText...
-LLMProvider.ts:81 [LLMProvider] ========== API Request ==========
-LLMProvider.ts:82 [LLMProvider] Endpoint: https://ark.cn-beijing.volces.com/api/v3/chat/completions
-LLMProvider.ts:83 [LLMProvider] Model: deepseek-v3-250324
-LLMProvider.ts:84 [LLMProvider] enable_thinking: false
-LLMProvider.ts:85 [LLMProvider] Temperature: 0.3
-LLMProvider.ts:86 [LLMProvider] Max Tokens: 12000
-LLMProvider.ts:87 [LLMProvider] Messages count: 2
-LLMProvider.ts:88 [LLMProvider] First message length: 48 characters
-LLMProvider.ts:89 [LLMProvider] Request body: {
-  "model": "deepseek-v3-250324",
-  "messages": [
-    {
-      "role": "system",
-      "content": "你是一个专业的剧本分析助手，擅长从小说/剧本中提取结构化信息。请严格按照要求的JSON格式输出。"
-    },
-    {
-      "role": "user",
-      "content": "\n请为以下场景生成专业级分镜脚本。你是一个资深的影视导演，需要严格按照生产规范生成分镜。\n\n【场景信息】\n场景名称: 杂役院\n场景描述: 位于青云宗最外围的杂役院，没有灵脉滋养，灵气稀薄，住着灵根低劣的少年人，每日做着粗活。\n涉及角色: 林清玄, 王虎\n\n【剧本原文】\n可这圣地的荣光，从来照不进山脚下的杂役院。\n\n杂役院位于青云宗最外围，没有灵脉滋养，没有丹药供给，连空气中的灵气都稀薄得可怜。这里住着的，都是灵根低劣、无缘正式入宗的少年人，每日做着劈柴、挑水、炼丹房采药、炼器房烧火的粗活，若三年内无法踏入炼气一层，便会被逐出宗门，重回凡尘，终老一生。\n\n林清玄便是...
-LLMProvider.ts:91 [LLMProvider] Sending request...
-BaseProvider.ts:63 [BaseProvider] Requesting: https://ark.cn-beijing.volces.com/api/v3/chat/completions, Mode: DEV, Localhost: true
-BaseProvider.ts:84 [BaseProvider] Using Proxy: /api/universal-proxy -> https://ark.cn-beijing.volces.com/api/v3/chat/completions
-BaseProvider.ts:99 [BaseProvider] Response received: 200 OK
-LLMProvider.ts:104 [LLMProvider] Request completed in 16678ms
-LLMProvider.ts:118 [LLMProvider] ========== API Response ==========
-LLMProvider.ts:119 [LLMProvider] Response length: 1657 characters
-LLMProvider.ts:120 [LLMProvider] Prompt tokens: 1798
-LLMProvider.ts:121 [LLMProvider] Completion tokens: 681
-LLMProvider.ts:122 [LLMProvider] Total tokens: 2479
-LLMProvider.ts:123 [LLMProvider] Response preview: ```json
-[
-  {
-    "sequence": 1,
-    "shotType": "wide",
-    "cameraMovement": "slow pan right",
-   ...
-scriptParser.ts:1345 [ScriptParser] LLM response received, length: 1657
-scriptParser.ts:1811 [ScriptParser] LLM response received, length: 1657 characters
-scriptParser.ts:1380 [ScriptParser] JSON repaired using: extracted_from_code_block
-scriptParser.ts:1814 [ScriptParser] Generated 6 shots
-scriptParser.ts:1817 [ScriptParser] Shot 1:
-scriptParser.ts:1818   - Sequence: 1
-scriptParser.ts:1819   - Type: wide
-scriptParser.ts:1820   - Movement: slow pan right
-scriptParser.ts:1821   - Duration: 7s
-scriptParser.ts:1822   - Description: 夕阳下的杂役院全景，青石地面，破旧的房屋，远处可见青云宗雄伟的山门...
-scriptParser.ts:1817 [ScriptParser] Shot 2:
-scriptParser.ts:1818   - Sequence: 2
-scriptParser.ts:1819   - Type: medium
-scriptParser.ts:1820   - Movement: static
-scriptParser.ts:1821   - Duration: 4s
-scriptParser.ts:1822   - Description: 林清玄放下水桶的特写，汗水滴落，手扶墙壁喘息...
-scriptParser.ts:1817 [ScriptParser] Shot 3:
-scriptParser.ts:1818   - Sequence: 3
-scriptParser.ts:1819   - Type: close-up
-scriptParser.ts:1820   - Movement: push in
-scriptParser.ts:1821   - Duration: 3s
-scriptParser.ts:1822   - Description: 泥水中滚动的窝头特写，突然被一只脚踩碎...
-scriptParser.ts:1763 [ScriptParser] ---------- Generating Shots for Scene: 后山黑风崖 ----------
-scriptParser.ts:1764 [ScriptParser] useProductionPrompt: true
-scriptParser.ts:1779 [ScriptParser] Scene content length: 813 characters
-scriptParser.ts:1796 [ScriptParser] Using production prompt
-scriptParser.ts:1807 [ScriptParser] Prompt length: 1894 characters
-scriptParser.ts:1808 [ScriptParser] Characters in scene: 林清玄, 云澜子
-scriptParser.ts:1289 [ScriptParser] callLLM called for shots, retryCount: 0
-scriptParser.ts:1290 [ScriptParser] API URL: https://ark.cn-beijing.volces.com/api/v3
-scriptParser.ts:1291 [ScriptParser] Model: deepseek-v3-250324
-scriptParser.ts:1292 [ScriptParser] Max Tokens: 12000
-scriptParser.ts:1321 [ScriptParser] Calling LLMProvider.generateText...
-LLMProvider.ts:81 [LLMProvider] ========== API Request ==========
-LLMProvider.ts:82 [LLMProvider] Endpoint: https://ark.cn-beijing.volces.com/api/v3/chat/completions
-LLMProvider.ts:83 [LLMProvider] Model: deepseek-v3-250324
-LLMProvider.ts:84 [LLMProvider] enable_thinking: false
-LLMProvider.ts:85 [LLMProvider] Temperature: 0.3
-LLMProvider.ts:86 [LLMProvider] Max Tokens: 12000
-LLMProvider.ts:87 [LLMProvider] Messages count: 2
-LLMProvider.ts:88 [LLMProvider] First message length: 48 characters
-LLMProvider.ts:89 [LLMProvider] Request body: {
-  "model": "deepseek-v3-250324",
-  "messages": [
-    {
-      "role": "system",
-      "content": "你是一个专业的剧本分析助手，擅长从小说/剧本中提取结构化信息。请严格按照要求的JSON格式输出。"
-    },
-    {
-      "role": "user",
-      "content": "\n请为以下场景生成专业级分镜脚本。你是一个资深的影视导演，需要严格按照生产规范生成分镜。\n\n【场景信息】\n场景名称: 后山黑风崖\n场景描述: 青云宗外围的险地，崖壁陡峭，常有低阶妖兽出没，凝露草长在崖边最险峻之处。\n涉及角色: 林清玄, 云澜子\n\n【剧本原文】\n王虎一脚将窝头踩得稀烂，嗤笑道：“一个废人，也配吃东西？今日炼丹房缺采药的，你去后山黑风崖采十株凝露草，采不到，今晚就别回杂役院了。”\n\n黑风崖是青云宗外围的险地，崖壁陡峭，常有低阶妖兽出没，凝露草长在崖边最险峻之处，杂役弟子去采药，稍有不慎便会摔得粉身碎骨。以往这种活，都是王虎推给林清玄。\n\n林清玄攥紧了...
-LLMProvider.ts:91 [LLMProvider] Sending request...
-BaseProvider.ts:63 [BaseProvider] Requesting: https://ark.cn-beijing.volces.com/api/v3/chat/completions, Mode: DEV, Localhost: true
-BaseProvider.ts:84 [BaseProvider] Using Proxy: /api/universal-proxy -> https://ark.cn-beijing.volces.com/api/v3/chat/completions
-BaseProvider.ts:99 [BaseProvider] Response received: 200 OK
-LLMProvider.ts:104 [LLMProvider] Request completed in 8161ms
-LLMProvider.ts:118 [LLMProvider] ========== API Response ==========
-LLMProvider.ts:119 [LLMProvider] Response length: 859 characters
-LLMProvider.ts:120 [LLMProvider] Prompt tokens: 1226
-LLMProvider.ts:121 [LLMProvider] Completion tokens: 363
-LLMProvider.ts:122 [LLMProvider] Total tokens: 1589
-LLMProvider.ts:123 [LLMProvider] Response preview: ```json
-[
-  {
-    "sequence": 1,
-    "shotType": "wide",
-    "cameraMovement": "slow pan",
-    "desc...
-scriptParser.ts:1345 [ScriptParser] LLM response received, length: 859
-scriptParser.ts:1811 [ScriptParser] LLM response received, length: 859 characters
-scriptParser.ts:1380 [ScriptParser] JSON repaired using: extracted_from_code_block
-scriptParser.ts:1814 [ScriptParser] Generated 3 shots
-scriptParser.ts:1817 [ScriptParser] Shot 1:
-scriptParser.ts:1818   - Sequence: 1
-scriptParser.ts:1819   - Type: wide
-scriptParser.ts:1820   - Movement: slow pan
-scriptParser.ts:1821   - Duration: 6s
-scriptParser.ts:1822   - Description: 远景镜头，从林清玄的背影缓缓推向黑风崖全景，陡峭的崖壁和崖边摇曳的凝露草...
-scriptParser.ts:1817 [ScriptParser] Shot 2:
-scriptParser.ts:1818   - Sequence: 2
-scriptParser.ts:1819   - Type: medium close-up
-scriptParser.ts:1820   - Movement: push in
-scriptParser.ts:1821   - Duration: 4s
-scriptParser.ts:1822   - Description: 中近景，林清玄系麻绳的手部特写，指节因用力泛白...
-scriptParser.ts:1817 [ScriptParser] Shot 3:
-scriptParser.ts:1818   - Sequence: 3
-scriptParser.ts:1819   - Type: extreme close-up
-scriptParser.ts:1820   - Movement: handheld
-scriptParser.ts:1821   - Duration: 9s
-scriptParser.ts:1822   - Description: 大特写，鲜血滴在墨玉佩上的瞬间，墨色光芒突然迸发...
-scriptParser.ts:1763 [ScriptParser] ---------- Generating Shots for Scene: 青云宗山门 ----------
-scriptParser.ts:1764 [ScriptParser] useProductionPrompt: true
-scriptParser.ts:1779 [ScriptParser] Scene content length: 7033 characters
-scriptParser.ts:1796 [ScriptParser] Using production prompt
-scriptParser.ts:1807 [ScriptParser] Prompt length: 7111 characters
-scriptParser.ts:1808 [ScriptParser] Characters in scene: 林清玄, 王虎, 外门执事
-scriptParser.ts:1289 [ScriptParser] callLLM called for shots, retryCount: 0
-scriptParser.ts:1290 [ScriptParser] API URL: https://ark.cn-beijing.volces.com/api/v3
-scriptParser.ts:1291 [ScriptParser] Model: deepseek-v3-250324
-scriptParser.ts:1292 [ScriptParser] Max Tokens: 12000
-scriptParser.ts:1321 [ScriptParser] Calling LLMProvider.generateText...
-LLMProvider.ts:81 [LLMProvider] ========== API Request ==========
-LLMProvider.ts:82 [LLMProvider] Endpoint: https://ark.cn-beijing.volces.com/api/v3/chat/completions
-LLMProvider.ts:83 [LLMProvider] Model: deepseek-v3-250324
-LLMProvider.ts:84 [LLMProvider] enable_thinking: false
-LLMProvider.ts:85 [LLMProvider] Temperature: 0.3
-LLMProvider.ts:86 [LLMProvider] Max Tokens: 12000
-LLMProvider.ts:87 [LLMProvider] Messages count: 2
-LLMProvider.ts:88 [LLMProvider] First message length: 48 characters
-LLMProvider.ts:89 [LLMProvider] Request body: {
-  "model": "deepseek-v3-250324",
-  "messages": [
-    {
-      "role": "system",
-      "content": "你是一个专业的剧本分析助手，擅长从小说/剧本中提取结构化信息。请严格按照要求的JSON格式输出。"
-    },
-    {
-      "role": "user",
-      "content": "\n请为以下场景生成专业级分镜脚本。你是一个资深的影视导演，需要严格按照生产规范生成分镜。\n\n【场景信息】\n场景名称: 青云宗山门\n场景描述: 青云宗山门矗立于青云山脉之巅，云雾缭绕，灵气流淌，仙鹤盘旋，琼楼玉宇隐于云海之间，是无数凡人与低阶修士梦寐以求的修仙圣地。\n涉及角色: 林清玄, 王虎, 外门执事\n\n【剧本原文】\n## 第一章 杂役苦\n青云宗，东域三大修仙宗门之一，立宗三千年，山门矗立于青云山脉之巅，云雾缭绕，灵气流淌，仙鹤盘旋，琼楼玉宇隐于云海之间，是无数凡人与低阶修士梦寐以求的修仙圣地。\n\n可这圣地的荣光，从来照不进山脚下的杂役院。\n\n杂役院位于青云宗...
-LLMProvider.ts:91 [LLMProvider] Sending request...
-BaseProvider.ts:63 [BaseProvider] Requesting: https://ark.cn-beijing.volces.com/api/v3/chat/completions, Mode: DEV, Localhost: true
-BaseProvider.ts:84 [BaseProvider] Using Proxy: /api/universal-proxy -> https://ark.cn-beijing.volces.com/api/v3/chat/completions
-BaseProvider.ts:99 [BaseProvider] Response received: 200 OK
-LLMProvider.ts:104 [LLMProvider] Request completed in 14040ms
-LLMProvider.ts:118 [LLMProvider] ========== API Response ==========
-LLMProvider.ts:119 [LLMProvider] Response length: 1374 characters
-LLMProvider.ts:120 [LLMProvider] Prompt tokens: 4684
-LLMProvider.ts:121 [LLMProvider] Completion tokens: 590
-LLMProvider.ts:122 [LLMProvider] Total tokens: 5274
-LLMProvider.ts:123 [LLMProvider] Response preview: ```json
-[
-  {
-    "sequence": 1,
-    "shotType": "extreme wide",
-    "cameraMovement": "slow zoom in...
-scriptParser.ts:1345 [ScriptParser] LLM response received, length: 1374
-scriptParser.ts:1811 [ScriptParser] LLM response received, length: 1374 characters
-scriptParser.ts:1380 [ScriptParser] JSON repaired using: extracted_from_code_block
-scriptParser.ts:1814 [ScriptParser] Generated 5 shots
-scriptParser.ts:1817 [ScriptParser] Shot 1:
-scriptParser.ts:1818   - Sequence: 1
-scriptParser.ts:1819   - Type: extreme wide
-scriptParser.ts:1820   - Movement: slow zoom in
-scriptParser.ts:1821   - Duration: 8s
-scriptParser.ts:1822   - Description: 云雾缭绕的青云山脉全景，仙鹤盘旋，琼楼玉宇隐现，镜头缓缓推进至山门石阶...
-scriptParser.ts:1817 [ScriptParser] Shot 2:
-scriptParser.ts:1818   - Sequence: 2
-scriptParser.ts:1819   - Type: medium
-scriptParser.ts:1820   - Movement: handheld tracking
-scriptParser.ts:1821   - Duration: 4s
-scriptParser.ts:1822   - Description: 林清玄挑水背影的中景跟拍，汗水滴落，扁担压弯的细节特写穿插...
-scriptParser.ts:1817 [ScriptParser] Shot 3:
-scriptParser.ts:1818   - Sequence: 3
-scriptParser.ts:1819   - Type: close-up
-scriptParser.ts:1820   - Movement: static
-scriptParser.ts:1821   - Duration: 3s
-scriptParser.ts:1822   - Description: 泥水中窝头的特写，突然被脏靴踩碎，镜头快速上摇至王虎嚣张表情...
-scriptParser.ts:1763 [ScriptParser] ---------- Generating Shots for Scene: 炼丹房 ----------
-scriptParser.ts:1764 [ScriptParser] useProductionPrompt: true
-scriptParser.ts:1779 [ScriptParser] Scene content length: 1587 characters
-scriptParser.ts:1796 [ScriptParser] Using production prompt
-scriptParser.ts:1807 [ScriptParser] Prompt length: 2672 characters
-scriptParser.ts:1808 [ScriptParser] Characters in scene: 林清玄, 王虎
-scriptParser.ts:1289 [ScriptParser] callLLM called for shots, retryCount: 0
-scriptParser.ts:1290 [ScriptParser] API URL: https://ark.cn-beijing.volces.com/api/v3
-scriptParser.ts:1291 [ScriptParser] Model: deepseek-v3-250324
-scriptParser.ts:1292 [ScriptParser] Max Tokens: 12000
-scriptParser.ts:1321 [ScriptParser] Calling LLMProvider.generateText...
-LLMProvider.ts:81 [LLMProvider] ========== API Request ==========
-LLMProvider.ts:82 [LLMProvider] Endpoint: https://ark.cn-beijing.volces.com/api/v3/chat/completions
-LLMProvider.ts:83 [LLMProvider] Model: deepseek-v3-250324
-LLMProvider.ts:84 [LLMProvider] enable_thinking: false
-LLMProvider.ts:85 [LLMProvider] Temperature: 0.3
-LLMProvider.ts:86 [LLMProvider] Max Tokens: 12000
-LLMProvider.ts:87 [LLMProvider] Messages count: 2
-LLMProvider.ts:88 [LLMProvider] First message length: 48 characters
-LLMProvider.ts:89 [LLMProvider] Request body: {
-  "model": "deepseek-v3-250324",
-  "messages": [
-    {
-      "role": "system",
-      "content": "你是一个专业的剧本分析助手，擅长从小说/剧本中提取结构化信息。请严格按照要求的JSON格式输出。"
-    },
-    {
-      "role": "user",
-      "content": "\n请为以下场景生成专业级分镜脚本。你是一个资深的影视导演，需要严格按照生产规范生成分镜。\n\n【场景信息】\n场景名称: 炼丹房\n场景描述: 青云宗内用于炼制丹药的场所，杂役弟子需要在此处进行采药等粗活。\n涉及角色: 林清玄, 王虎\n\n【剧本原文】\n杂役院位于青云宗最外围，没有灵脉滋养，没有丹药供给，连空气中的灵气都稀薄得可怜。这里住着的，都是灵根低劣、无缘正式入宗的少年人，每日做着劈柴、挑水、炼丹房采药、炼器房烧火的粗活，若三年内无法踏入炼气一层，便会被逐出宗门，重回凡尘，终老一生。\n\n林清玄便是杂役院中的一员。\n\n他年方十五，身着洗得发白的粗布杂役服，身形清瘦，面...
-LLMProvider.ts:91 [LLMProvider] Sending request...
-BaseProvider.ts:63 [BaseProvider] Requesting: https://ark.cn-beijing.volces.com/api/v3/chat/completions, Mode: DEV, Localhost: true
-BaseProvider.ts:84 [BaseProvider] Using Proxy: /api/universal-proxy -> https://ark.cn-beijing.volces.com/api/v3/chat/completions
-BaseProvider.ts:99 [BaseProvider] Response received: 200 OK
-LLMProvider.ts:104 [LLMProvider] Request completed in 12501ms
-LLMProvider.ts:118 [LLMProvider] ========== API Response ==========
-LLMProvider.ts:119 [LLMProvider] Response length: 1395 characters
-LLMProvider.ts:120 [LLMProvider] Prompt tokens: 1774
-LLMProvider.ts:121 [LLMProvider] Completion tokens: 579
-LLMProvider.ts:122 [LLMProvider] Total tokens: 2353
-LLMProvider.ts:123 [LLMProvider] Response preview: ```json
-[
-  {
-    "sequence": 1,
-    "shotType": "full",
-    "cameraMovement": "static",
-    "descri...
-scriptParser.ts:1345 [ScriptParser] LLM response received, length: 1395
-scriptParser.ts:1811 [ScriptParser] LLM response received, length: 1395 characters
-scriptParser.ts:1380 [ScriptParser] JSON repaired using: extracted_from_code_block
-scriptParser.ts:1814 [ScriptParser] Generated 5 shots
-scriptParser.ts:1817 [ScriptParser] Shot 1:
-scriptParser.ts:1818   - Sequence: 1
-scriptParser.ts:1819   - Type: full
-scriptParser.ts:1820   - Movement: static
-scriptParser.ts:1821   - Duration: 6s
-scriptParser.ts:1822   - Description: 夕阳下的杂役院全景，林清玄挑着水桶疲惫地走进画面，放下水桶时露出磨红的肩膀...
-scriptParser.ts:1817 [ScriptParser] Shot 2:
-scriptParser.ts:1818   - Sequence: 2
-scriptParser.ts:1819   - Type: medium
-scriptParser.ts:1820   - Movement: push-in
-scriptParser.ts:1821   - Duration: 3s
-scriptParser.ts:1822   - Description: 林清玄伸手去拿窝头的特写，突然被踹倒，窝头滚落泥水...
-scriptParser.ts:1817 [ScriptParser] Shot 3:
-scriptParser.ts:1818   - Sequence: 3
-scriptParser.ts:1819   - Type: close-up
-scriptParser.ts:1820   - Movement: handheld
-scriptParser.ts:1821   - Duration: 4s
-scriptParser.ts:1822   - Description: 林清玄面部特写，平静眼神中藏着隐忍，背景虚化的王虎正在说话...
-scriptParser.ts:1763 [ScriptParser] ---------- Generating Shots for Scene: 炼器房 ----------
-scriptParser.ts:1764 [ScriptParser] useProductionPrompt: true
-scriptParser.ts:1779 [ScriptParser] Scene content length: 1587 characters
-scriptParser.ts:1796 [ScriptParser] Using production prompt
-scriptParser.ts:1807 [ScriptParser] Prompt length: 2686 characters
-scriptParser.ts:1808 [ScriptParser] Characters in scene: 林清玄
-scriptParser.ts:1289 [ScriptParser] callLLM called for shots, retryCount: 0
-scriptParser.ts:1290 [ScriptParser] API URL: https://ark.cn-beijing.volces.com/api/v3
-scriptParser.ts:1291 [ScriptParser] Model: deepseek-v3-250324
-scriptParser.ts:1292 [ScriptParser] Max Tokens: 12000
-scriptParser.ts:1321 [ScriptParser] Calling LLMProvider.generateText...
-LLMProvider.ts:81 [LLMProvider] ========== API Request ==========
-LLMProvider.ts:82 [LLMProvider] Endpoint: https://ark.cn-beijing.volces.com/api/v3/chat/completions
-LLMProvider.ts:83 [LLMProvider] Model: deepseek-v3-250324
-LLMProvider.ts:84 [LLMProvider] enable_thinking: false
-LLMProvider.ts:85 [LLMProvider] Temperature: 0.3
-LLMProvider.ts:86 [LLMProvider] Max Tokens: 12000
-LLMProvider.ts:87 [LLMProvider] Messages count: 2
-LLMProvider.ts:88 [LLMProvider] First message length: 48 characters
-LLMProvider.ts:89 [LLMProvider] Request body: {
-  "model": "deepseek-v3-250324",
-  "messages": [
-    {
-      "role": "system",
-      "content": "你是一个专业的剧本分析助手，擅长从小说/剧本中提取结构化信息。请严格按照要求的JSON格式输出。"
-    },
-    {
-      "role": "user",
-      "content": "\n请为以下场景生成专业级分镜脚本。你是一个资深的影视导演，需要严格按照生产规范生成分镜。\n\n【场景信息】\n场景名称: 炼器房\n场景描述: 青云宗杂役院内的炼器房，是杂役弟子日常劳作的地方之一。这里环境简陋，设备陈旧，主要用于烧火等粗活。\n涉及角色: 林清玄\n\n【剧本原文】\n杂役院位于青云宗最外围，没有灵脉滋养，没有丹药供给，连空气中的灵气都稀薄得可怜。这里住着的，都是灵根低劣、无缘正式入宗的少年人，每日做着劈柴、挑水、炼丹房采药、炼器房烧火的粗活，若三年内无法踏入炼气一层，便会被逐出宗门，重回凡尘，终老一生。\n\n林清玄便是杂役院中的一员。\n\n他年方十五，身着洗得发...
-LLMProvider.ts:91 [LLMProvider] Sending request...
-BaseProvider.ts:63 [BaseProvider] Requesting: https://ark.cn-beijing.volces.com/api/v3/chat/completions, Mode: DEV, Localhost: true
-BaseProvider.ts:84 [BaseProvider] Using Proxy: /api/universal-proxy -> https://ark.cn-beijing.volces.com/api/v3/chat/completions
-BaseProvider.ts:99 [BaseProvider] Response received: 200 OK
-LLMProvider.ts:104 [LLMProvider] Request completed in 17998ms
-LLMProvider.ts:118 [LLMProvider] ========== API Response ==========
-LLMProvider.ts:119 [LLMProvider] Response length: 1759 characters
-LLMProvider.ts:120 [LLMProvider] Prompt tokens: 1783
-LLMProvider.ts:121 [LLMProvider] Completion tokens: 774
-LLMProvider.ts:122 [LLMProvider] Total tokens: 2557
-LLMProvider.ts:123 [LLMProvider] Response preview: ```json
-[
-  {
-    "sequence": 1,
-    "shotType": "full",
-    "cameraMovement": "static",
-    "descri...
-scriptParser.ts:1345 [ScriptParser] LLM response received, length: 1759
-scriptParser.ts:1811 [ScriptParser] LLM response received, length: 1759 characters
-scriptParser.ts:1380 [ScriptParser] JSON repaired using: extracted_from_code_block
-scriptParser.ts:1814 [ScriptParser] Generated 6 shots
-scriptParser.ts:1817 [ScriptParser] Shot 1:
-scriptParser.ts:1818   - Sequence: 1
-scriptParser.ts:1819   - Type: full
-scriptParser.ts:1820   - Movement: static
-scriptParser.ts:1821   - Duration: 8s
-scriptParser.ts:1822   - Description: 低角度仰拍炼器房全景，夕阳余晖透过破旧窗户洒在青石地面，林清玄挑着水桶的剪影从镜...
-scriptParser.ts:1817 [ScriptParser] Shot 2:
-scriptParser.ts:1818   - Sequence: 2
-scriptParser.ts:1819   - Type: medium
-scriptParser.ts:1820   - Movement: push-in
-scriptParser.ts:1821   - Duration: 3s
-scriptParser.ts:1822   - Description: 跟拍林清玄放下水桶的特写，汗水滴落时镜头快速下移捕捉水滴砸地瞬间...
-scriptParser.ts:1817 [ScriptParser] Shot 3:
-scriptParser.ts:1818   - Sequence: 3
-scriptParser.ts:1819   - Type: close-up
-scriptParser.ts:1820   - Movement: handheld
-scriptParser.ts:1821   - Duration: 4s
-scriptParser.ts:1822   - Description: 剧烈晃动的特写：泥水中的窝头被王虎靴底碾碎，镜头突然上摇至林清玄攥紧的拳头...
-scriptParser.ts:2762 [ScriptParser] ========== Generating Quality Report (Full Parse) ==========
-scriptParser.ts:2763 [ScriptParser] Input data: {hasMetadata: true, charactersCount: 3, scenesCount: 5, itemsCount: 0, shotsCount: 25}
-scriptParser.ts:2781 [ScriptParser] ========== Quality Report Generated ==========
-scriptParser.ts:2782 [ScriptParser] Score: 93
-scriptParser.ts:2783 [ScriptParser] Grade: A
-scriptParser.ts:2784 [ScriptParser] Confidence: 0.91
-scriptParser.ts:2785 [ScriptParser] Violations: 10
-scriptParser.ts:2786 [ScriptParser] Suggestions: 5
-scriptParser.ts:2792 [ScriptParser] ========== Saving to State ==========
-scriptParser.ts:2793 [ScriptParser] state.qualityReport set: true
-scriptParser.ts:2794 [ScriptParser] state.qualityReport.score: 93
-ScriptManager.tsx:559 [ScriptManager] ========== Getting Quality Report ==========
-ScriptManager.tsx:561 [ScriptManager] Report from parser: {exists: true, score: 93, type: 'object', hasViolations: true, hasSuggestions: true}
-ScriptManager.tsx:571 [ScriptManager] ========== Quality Report Set to State ==========
-ScriptManager.tsx:123 [ScriptManager] ========== useEffect: currentScript changed ==========
-ScriptManager.tsx:124 [ScriptManager] currentScript exists: true
-ScriptManager.tsx:125 [ScriptManager] parseState exists: true
-ScriptManager.tsx:126 [ScriptManager] qualityReport exists: true
-ScriptManager.tsx:130 [ScriptManager] Restoring quality report: {score: 93, violationsCount: 10, suggestionsCount: 5, type: 'object'}
-ScriptManager.tsx:137 [ScriptManager] ========== Quality Report Restored ==========
+<input>
+exports.jsx @ react-jsx-runtime.development.js:335
+HeroUI.Switch @ chunk-I3A4XRYQ.mjs:30
+react_stack_bottom_frame @ react-dom-client.development.js:25904
+renderWithHooksAgain @ react-dom-client.development.js:7762
+renderWithHooks @ react-dom-client.development.js:7674
+updateForwardRef @ react-dom-client.development.js:9724
+beginWork @ react-dom-client.development.js:12117
+runWithFiberInDEV @ react-dom-client.development.js:871
+performUnitOfWork @ react-dom-client.development.js:17641
+workLoopSync @ react-dom-client.development.js:17469
+renderRootSync @ react-dom-client.development.js:17450
+performWorkOnRoot @ react-dom-client.development.js:16504
+performWorkOnRootViaSchedulerTask @ react-dom-client.development.js:18957
+performWorkUntilDeadline @ scheduler.development.js:45
+<HeroUI.Switch>
+exports.jsxDEV @ react-jsx-dev-runtime.development.js:335
+VectorMemoryToggle @ VectorMemoryToggle.tsx:122
+react_stack_bottom_frame @ react-dom-client.development.js:25904
+renderWithHooksAgain @ react-dom-client.development.js:7762
+renderWithHooks @ react-dom-client.development.js:7674
+updateFunctionComponent @ react-dom-client.development.js:10166
+beginWork @ react-dom-client.development.js:11778
+runWithFiberInDEV @ react-dom-client.development.js:871
+performUnitOfWork @ react-dom-client.development.js:17641
+workLoopSync @ react-dom-client.development.js:17469
+renderRootSync @ react-dom-client.development.js:17450
+performWorkOnRoot @ react-dom-client.development.js:16504
+performWorkOnRootViaSchedulerTask @ react-dom-client.development.js:18957
+performWorkUntilDeadline @ scheduler.development.js:45
+EmbeddingService.ts:164  [EmbeddingService] Local model not found
+doInitialize @ EmbeddingService.ts:164
+await in doInitialize
+initialize @ EmbeddingService.ts:125
+onToggle @ ScriptManager.tsx:1373
+handleToggle @ VectorMemoryToggle.tsx:55
+(匿名) @ useControlledState.ts:61
+updateSelected @ useToggleState.ts:46
+onChange @ useToggle.ts:64
+(匿名) @ index.mjs:362
+executeDispatch @ react-dom-client.development.js:19116
+runWithFiberInDEV @ react-dom-client.development.js:871
+processDispatchQueue @ react-dom-client.development.js:19166
+(匿名) @ react-dom-client.development.js:19767
+batchedUpdates$1 @ react-dom-client.development.js:3255
+dispatchEventForPluginEventSystem @ react-dom-client.development.js:19320
+dispatchEvent @ react-dom-client.development.js:23585
+dispatchDiscreteEvent @ react-dom-client.development.js:23553
+<input>
+exports.jsx @ react-jsx-runtime.development.js:335
+HeroUI.Switch @ chunk-I3A4XRYQ.mjs:30
+react_stack_bottom_frame @ react-dom-client.development.js:25904
+renderWithHooksAgain @ react-dom-client.development.js:7762
+renderWithHooks @ react-dom-client.development.js:7674
+updateForwardRef @ react-dom-client.development.js:9724
+beginWork @ react-dom-client.development.js:12117
+runWithFiberInDEV @ react-dom-client.development.js:871
+performUnitOfWork @ react-dom-client.development.js:17641
+workLoopSync @ react-dom-client.development.js:17469
+renderRootSync @ react-dom-client.development.js:17450
+performWorkOnRoot @ react-dom-client.development.js:16504
+performWorkOnRootViaSchedulerTask @ react-dom-client.development.js:18957
+performWorkUntilDeadline @ scheduler.development.js:45
+<HeroUI.Switch>
+exports.jsxDEV @ react-jsx-dev-runtime.development.js:335
+VectorMemoryToggle @ VectorMemoryToggle.tsx:122
+react_stack_bottom_frame @ react-dom-client.development.js:25904
+renderWithHooksAgain @ react-dom-client.development.js:7762
+renderWithHooks @ react-dom-client.development.js:7674
+updateFunctionComponent @ react-dom-client.development.js:10166
+beginWork @ react-dom-client.development.js:11778
+runWithFiberInDEV @ react-dom-client.development.js:871
+performUnitOfWork @ react-dom-client.development.js:17641
+workLoopSync @ react-dom-client.development.js:17469
+renderRootSync @ react-dom-client.development.js:17450
+performWorkOnRoot @ react-dom-client.development.js:16504
+performWorkOnRootViaSchedulerTask @ react-dom-client.development.js:18957
+performWorkUntilDeadline @ scheduler.development.js:45
+EmbeddingService.ts:204  [EmbeddingService] Failed to load model: Error: Local model not found. Please run "npm run download-model" first.
+    at EmbeddingService.doInitialize (EmbeddingService.ts:171:17)
+    at async onToggle (ScriptManager.tsx:1373:21)
+    at async handleToggle (VectorMemoryToggle.tsx:55:9)
+doInitialize @ EmbeddingService.ts:204
+await in doInitialize
+initialize @ EmbeddingService.ts:125
+onToggle @ ScriptManager.tsx:1373
+handleToggle @ VectorMemoryToggle.tsx:55
+(匿名) @ useControlledState.ts:61
+updateSelected @ useToggleState.ts:46
+onChange @ useToggle.ts:64
+(匿名) @ index.mjs:362
+executeDispatch @ react-dom-client.development.js:19116
+runWithFiberInDEV @ react-dom-client.development.js:871
+processDispatchQueue @ react-dom-client.development.js:19166
+(匿名) @ react-dom-client.development.js:19767
+batchedUpdates$1 @ react-dom-client.development.js:3255
+dispatchEventForPluginEventSystem @ react-dom-client.development.js:19320
+dispatchEvent @ react-dom-client.development.js:23585
+dispatchDiscreteEvent @ react-dom-client.development.js:23553
+<input>
+exports.jsx @ react-jsx-runtime.development.js:335
+HeroUI.Switch @ chunk-I3A4XRYQ.mjs:30
+react_stack_bottom_frame @ react-dom-client.development.js:25904
+renderWithHooksAgain @ react-dom-client.development.js:7762
+renderWithHooks @ react-dom-client.development.js:7674
+updateForwardRef @ react-dom-client.development.js:9724
+beginWork @ react-dom-client.development.js:12117
+runWithFiberInDEV @ react-dom-client.development.js:871
+performUnitOfWork @ react-dom-client.development.js:17641
+workLoopSync @ react-dom-client.development.js:17469
+renderRootSync @ react-dom-client.development.js:17450
+performWorkOnRoot @ react-dom-client.development.js:16504
+performWorkOnRootViaSchedulerTask @ react-dom-client.development.js:18957
+performWorkUntilDeadline @ scheduler.development.js:45
+<HeroUI.Switch>
+exports.jsxDEV @ react-jsx-dev-runtime.development.js:335
+VectorMemoryToggle @ VectorMemoryToggle.tsx:122
+react_stack_bottom_frame @ react-dom-client.development.js:25904
+renderWithHooksAgain @ react-dom-client.development.js:7762
+renderWithHooks @ react-dom-client.development.js:7674
+updateFunctionComponent @ react-dom-client.development.js:10166
+beginWork @ react-dom-client.development.js:11778
+runWithFiberInDEV @ react-dom-client.development.js:871
+performUnitOfWork @ react-dom-client.development.js:17641
+workLoopSync @ react-dom-client.development.js:17469
+renderRootSync @ react-dom-client.development.js:17450
+performWorkOnRoot @ react-dom-client.development.js:16504
+performWorkOnRootViaSchedulerTask @ react-dom-client.development.js:18957
+performWorkUntilDeadline @ scheduler.development.js:45
+ScriptManager.tsx:1384  [ScriptManager] Model download failed: Error: Local model not found. Please run "npm run download-model" first.
+    at EmbeddingService.doInitialize (EmbeddingService.ts:171:17)
+    at async onToggle (ScriptManager.tsx:1373:21)
+    at async handleToggle (VectorMemoryToggle.tsx:55:9)
+onToggle @ ScriptManager.tsx:1384
+await in onToggle
+handleToggle @ VectorMemoryToggle.tsx:55
+(匿名) @ useControlledState.ts:61
+updateSelected @ useToggleState.ts:46
+onChange @ useToggle.ts:64
+(匿名) @ index.mjs:362
+executeDispatch @ react-dom-client.development.js:19116
+runWithFiberInDEV @ react-dom-client.development.js:871
+processDispatchQueue @ react-dom-client.development.js:19166
+(匿名) @ react-dom-client.development.js:19767
+batchedUpdates$1 @ react-dom-client.development.js:3255
+dispatchEventForPluginEventSystem @ react-dom-client.development.js:19320
+dispatchEvent @ react-dom-client.development.js:23585
+dispatchDiscreteEvent @ react-dom-client.development.js:23553
+<input>
+exports.jsx @ react-jsx-runtime.development.js:335
+HeroUI.Switch @ chunk-I3A4XRYQ.mjs:30
+react_stack_bottom_frame @ react-dom-client.development.js:25904
+renderWithHooksAgain @ react-dom-client.development.js:7762
+renderWithHooks @ react-dom-client.development.js:7674
+updateForwardRef @ react-dom-client.development.js:9724
+beginWork @ react-dom-client.development.js:12117
+runWithFiberInDEV @ react-dom-client.development.js:871
+performUnitOfWork @ react-dom-client.development.js:17641
+workLoopSync @ react-dom-client.development.js:17469
+renderRootSync @ react-dom-client.development.js:17450
+performWorkOnRoot @ react-dom-client.development.js:16504
+performWorkOnRootViaSchedulerTask @ react-dom-client.development.js:18957
+performWorkUntilDeadline @ scheduler.development.js:45
+<HeroUI.Switch>
+exports.jsxDEV @ react-jsx-dev-runtime.development.js:335
+VectorMemoryToggle @ VectorMemoryToggle.tsx:122
+react_stack_bottom_frame @ react-dom-client.development.js:25904
+renderWithHooksAgain @ react-dom-client.development.js:7762
+renderWithHooks @ react-dom-client.development.js:7674
+updateFunctionComponent @ react-dom-client.development.js:10166
+beginWork @ react-dom-client.development.js:11778
+runWithFiberInDEV @ react-dom-client.development.js:871
+performUnitOfWork @ react-dom-client.development.js:17641
+workLoopSync @ react-dom-client.development.js:17469
+renderRootSync @ react-dom-client.development.js:17450
+performWorkOnRoot @ react-dom-client.development.js:16504
+performWorkOnRootViaSchedulerTask @ react-dom-client.development.js:18957
+performWorkUntilDeadline @ scheduler.development.js:45
