@@ -61,7 +61,8 @@ export class LLMProvider extends BaseProvider implements IAIProvider {
       const temperature = extraParams?.temperature ?? 
         config.parameters?.find(p => p.name === 'temperature')?.defaultValue ?? 0.3;
       const maxTokens = extraParams?.maxTokens ?? 
-        config.parameters?.find(p => p.name === 'maxTokens')?.defaultValue ?? 4000;
+        config.parameters?.find(p => p.name === 'maxTokens')?.defaultValue ??
+        config.capabilities?.maxTokens ?? 4000;
 
       // Build request body - conditionally add enable_thinking for providers that need it
       const requestBody: LLMRequest & { enable_thinking?: boolean } = {
@@ -215,7 +216,8 @@ export class LLMProvider extends BaseProvider implements IAIProvider {
 
       // 从配置获取参数
       const temperature = config.parameters?.find(p => p.name === 'temperature')?.defaultValue ?? 0.3;
-      const maxTokens = config.parameters?.find(p => p.name === 'maxTokens')?.defaultValue ?? 4000;
+      const maxTokens = config.parameters?.find(p => p.name === 'maxTokens')?.defaultValue ??
+        config.capabilities?.maxTokens ?? 4000;
 
       // 检查模型是否支持json_mode
       const useJsonMode = config.capabilities?.supportsJsonMode ?? false;

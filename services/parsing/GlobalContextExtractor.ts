@@ -14,9 +14,11 @@
  * @version 1.0.0
  */
 
-import type { 
-  LLMProvider 
+import { 
+  llmProvider 
 } from '../ai/providers/LLMProvider';
+import { JSONRepair } from './JSONRepair';
+import type { ModelConfig } from '../../types';
 import type { 
   ScriptMetadata, 
   StoryStructure, 
@@ -92,14 +94,14 @@ export interface EmotionalContext {
  * 全局上下文提取器
  */
 export class GlobalContextExtractor {
-  private llmProvider: LLMProvider;
+  private modelConfig: ModelConfig;
 
   /**
    * 构造函数
-   * @param llmProvider - LLM提供者实例
+   * @param config - 模型配置
    */
-  constructor(llmProvider: LLMProvider) {
-    this.llmProvider = llmProvider;
+  constructor(config: ModelConfig) {
+    this.modelConfig = config;
   }
 
   /**
@@ -174,14 +176,31 @@ ${content.substring(0, 8000)}
 `;
 
     try {
-      const result = await this.llmProvider.generate(prompt);
+      const result = await llmProvider.generateText(
+        prompt,
+        this.modelConfig,
+        '你是一个专业的剧本分析助手，擅长从小说/剧本中提取结构化信息。请严格按照要求的JSON格式输出。'
+      );
       
       if (!result.success || !result.data) {
         throw new Error('Failed to extract story context: ' + result.error);
       }
 
-      // 解析JSON响应
-      const parsed = JSON.parse(result.data);
+      // 使用 JSONRepair 解析JSON响应（处理 markdown 代码块）
+      const repairResult = JSONRepair.repairAndParse<{
+        synopsis: string;
+        logline: string;
+        coreConflict: string;
+        themes: string[];
+        structure: StoryStructure;
+      }>(result.data);
+
+      if (!repairResult.success || !repairResult.data) {
+        console.error('[GlobalContextExtractor] Failed to parse story context:', repairResult.error);
+        throw new Error('Failed to parse story context: ' + repairResult.error);
+      }
+
+      const parsed = repairResult.data;
       
       return {
         synopsis: parsed.synopsis || '',
@@ -237,32 +256,69 @@ ${content.substring(0, 5000)}
   "colorMood": "色彩情绪（如：温暖明亮、冷峻压抑、复古怀旧）",
   "cinematography": "摄影风格（如：手持纪实、稳定器流畅、电影感构图）",
   "lightingStyle": "光影风格（如：自然光、戏剧光、noir风格）",
-  "references": ["参考影片1", "参考导演1", "参考影片2"]
+  "referenceFilms": ["参考影片1", "参考影片2"],
+  "referenceDirectors": ["参考导演1", "参考导演2"]
 }
 
 注意：
 1. 必须返回有效的JSON格式
 2. colorPalette提供3-5个十六进制颜色代码
-3. references提供1-3个参考影片或导演
+3. referenceFilms提供1-3个参考影片名称
+4. referenceDirectors提供1-3个参考导演名称
 `;
 
     try {
-      const result = await this.llmProvider.generate(prompt);
+      const result = await llmProvider.generateText(
+        prompt,
+        this.modelConfig,
+        '你是一个专业的视觉风格分析助手，擅长从剧本中提取视觉和美术风格信息。请严格按照要求的JSON格式输出。'
+      );
       
       if (!result.success || !result.data) {
         throw new Error('Failed to extract visual context: ' + result.error);
       }
 
-      const parsed = JSON.parse(result.data);
+      // 使用 JSONRepair 解析JSON响应（处理 markdown 代码块）
+      const repairResult = JSONRepair.repairAndParse<{
+        artDirection: string;
+        artStyle: string;
+        artStyleDescription?: string;
+        colorPalette: string[];
+        colorMood: string;
+        cinematography: string;
+        lightingStyle: string;
+        references?: string[];
+        referenceFilms?: string[];
+        referenceDirectors?: string[];
+      }>(result.data);
+
+      if (!repairResult.success || !repairResult.data) {
+        console.error('[GlobalContextExtractor] Failed to parse visual context:', repairResult.error);
+        throw new Error('Failed to parse visual context: ' + repairResult.error);
+      }
+
+      const parsed = repairResult.data;
+      
+      // 兼容旧格式：如果存在 references 字段，从中提取影片和导演
+      let referenceFilms: string[] = parsed.referenceFilms || [];
+      let referenceDirectors: string[] = parsed.referenceDirectors || [];
+      
+      if (parsed.references && parsed.references.length > 0) {
+        referenceFilms = parsed.references.filter(r => !r.includes('导演'));
+        referenceDirectors = parsed.references.filter(r => r.includes('导演'));
+      }
       
       return {
         artDirection: parsed.artDirection || '',
         artStyle: parsed.artStyle || '',
+        artStyleDescription: parsed.artStyleDescription || '',
         colorPalette: parsed.colorPalette || [],
         colorMood: parsed.colorMood || '',
         cinematography: parsed.cinematography || '',
         lightingStyle: parsed.lightingStyle || '',
-        references: parsed.references || [],
+        references: [...referenceFilms, ...referenceDirectors],
+        referenceFilms,
+        referenceDirectors,
       };
     } catch (error) {
       console.error('Error extracting visual context:', error);
@@ -309,13 +365,31 @@ ${content.substring(0, 5000)}
 `;
 
     try {
-      const result = await this.llmProvider.generate(prompt);
+      const result = await llmProvider.generateText(
+        prompt,
+        this.modelConfig,
+        '你是一个专业的时代背景分析助手，擅长从剧本中提取时代和地理背景信息。请严格按照要求的JSON格式输出。'
+      );
       
       if (!result.success || !result.data) {
         throw new Error('Failed to extract era context: ' + result.error);
       }
 
-      const parsed = JSON.parse(result.data);
+      // 使用 JSONRepair 解析JSON响应（处理 markdown 代码块）
+      const repairResult = JSONRepair.repairAndParse<{
+        era: string;
+        eraDescription: string;
+        location: string;
+        season?: string;
+        timeOfDay?: string;
+      }>(result.data);
+
+      if (!repairResult.success || !repairResult.data) {
+        console.error('[GlobalContextExtractor] Failed to parse era context:', repairResult.error);
+        throw new Error('Failed to parse era context: ' + repairResult.error);
+      }
+
+      const parsed = repairResult.data;
       
       return {
         era: parsed.era || '现代',
@@ -386,13 +460,34 @@ ${content.substring(0, 5000)}
 `;
 
     try {
-      const result = await this.llmProvider.generate(prompt);
+      const result = await llmProvider.generateText(
+        prompt,
+        this.modelConfig,
+        '你是一个专业的情绪分析助手，擅长从剧本中提取情绪曲线和情感变化信息。请严格按照要求的JSON格式输出。'
+      );
       
       if (!result.success || !result.data) {
         throw new Error('Failed to extract emotional arc: ' + result.error);
       }
 
-      const parsed = JSON.parse(result.data);
+      // 使用 JSONRepair 解析JSON响应（处理 markdown 代码块）
+      const repairResult = JSONRepair.repairAndParse<{
+        overallMood: string;
+        arc: Array<{
+          plotPoint: string;
+          emotion: string;
+          intensity: number;
+          colorTone: string;
+          percentage: number;
+        }>;
+      }>(result.data);
+
+      if (!repairResult.success || !repairResult.data) {
+        console.error('[GlobalContextExtractor] Failed to parse emotional arc:', repairResult.error);
+        throw new Error('Failed to parse emotional arc: ' + repairResult.error);
+      }
+
+      const parsed = repairResult.data;
       
       return {
         overallMood: parsed.overallMood || '',
@@ -510,8 +605,8 @@ ${content.substring(0, 5000)}
       
       // 参考层
       references: {
-        films: context.visual.references.filter(r => !r.includes('导演')),
-        directors: context.visual.references.filter(r => r.includes('导演')),
+        films: context.visual.referenceFilms || context.visual.references?.filter(r => !r.includes('导演')) || [],
+        directors: context.visual.referenceDirectors || context.visual.references?.filter(r => r.includes('导演')) || [],
         artStyles: [],
       },
     };
@@ -536,6 +631,6 @@ ${content.substring(0, 5000)}
 }
 
 // 导出默认实例创建函数
-export function createGlobalContextExtractor(llmProvider: LLMProvider): GlobalContextExtractor {
-  return new GlobalContextExtractor(llmProvider);
+export function createGlobalContextExtractor(config: ModelConfig): GlobalContextExtractor {
+  return new GlobalContextExtractor(config);
 }

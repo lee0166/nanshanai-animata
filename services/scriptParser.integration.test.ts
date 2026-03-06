@@ -44,8 +44,20 @@ describe('ScriptParser Integration', () => {
         useDramaRules: true
       });
       (parser as any).currentScenes = [{ name: '场景1', characters: ['角色1'], description: '描述' }];
-      (parser as any).currentCharacters = ['角色1'];
-      (parser as any).validateShotsQuality([], '测试场景');
+      (parser as any).currentCharacters = [{ name: '角色1', appearance: {}, personality: [], signatureItems: [], emotionalArc: [], relationships: [], visualPrompt: '角色1' }];
+      const mockShots = [
+        { 
+          id: '1', 
+          sequence: 1, 
+          sceneName: '场景1',
+          shotType: 'wide',
+          cameraMovement: 'static',
+          description: '测试分镜',
+          visualPrompt: '测试提示词',
+          duration: 5
+        }
+      ];
+      (parser as any).validateShotsQuality(mockShots, '测试场景');
       const report = parser.getQualityReport();
       expect(report).toBeDefined();
       expect(report?.score).toBeDefined();

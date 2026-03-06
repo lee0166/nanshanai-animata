@@ -187,6 +187,15 @@ export default defineConfig(({ mode }) => {
         alias: {
           '@': path.resolve(__dirname, '.'),
         }
+      },
+      optimizeDeps: {
+        include: ['chromadb', '@chroma-core/default-embed'],
+        exclude: ['@chroma-core/default-embed']
+      },
+      build: {
+        commonjsOptions: {
+          transformMixedEsModules: true,
+        }
       }
     };
 });

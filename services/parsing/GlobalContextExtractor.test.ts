@@ -12,19 +12,39 @@ import {
   StoryContext,
   VisualContext,
 } from './GlobalContextExtractor';
-import type { LLMProvider } from '../ai/providers/LLMProvider';
+import * as LLMProviderModule from '../ai/providers/LLMProvider';
+import type { ModelConfig } from '../../types';
+
+// Mock llmProvider
+vi.mock('../ai/providers/LLMProvider', () => ({
+  llmProvider: {
+    generateText: vi.fn(),
+  },
+}));
 
 describe('GlobalContextExtractor', () => {
-  let mockLLMProvider: LLMProvider;
+  let mockGenerateText: ReturnType<typeof vi.fn>;
   let extractor: GlobalContextExtractor;
+  const mockModelConfig: ModelConfig = {
+    id: 'test-model',
+    name: 'Test Model',
+    provider: 'llm',
+    modelId: 'test',
+    apiUrl: 'http://test',
+    apiKey: 'test-key',
+    type: 'llm',
+    parameters: [],
+    capabilities: {
+      supportsJsonMode: true,
+      supportsSystemPrompt: true,
+    },
+  };
 
   beforeEach(() => {
-    mockLLMProvider = {
-      generate: vi.fn(),
-      generateStructured: vi.fn(),
-    } as unknown as LLMProvider;
-
-    extractor = new GlobalContextExtractor(mockLLMProvider);
+    vi.clearAllMocks();
+    mockGenerateText = vi.fn();
+    (LLMProviderModule.llmProvider as any).generateText = mockGenerateText;
+    extractor = new GlobalContextExtractor(mockModelConfig);
   });
 
   describe('基本功能', () => {
@@ -34,7 +54,7 @@ describe('GlobalContextExtractor', () => {
     });
 
     it('createGlobalContextExtractor工厂函数应该正确工作', () => {
-      const instance = createGlobalContextExtractor(mockLLMProvider);
+      const instance = createGlobalContextExtractor(mockModelConfig);
       expect(instance).toBeInstanceOf(GlobalContextExtractor);
     });
   });
@@ -42,7 +62,7 @@ describe('GlobalContextExtractor', () => {
   describe('extract方法', () => {
     it('应该返回完整的GlobalContext对象', async () => {
       // Mock LLM响应
-      vi.mocked(mockLLMProvider.generate)
+      mockGenerateText
         .mockResolvedValueOnce({
           success: true,
           data: JSON.stringify({
@@ -111,7 +131,7 @@ describe('GlobalContextExtractor', () => {
     });
 
     it('当LLM调用失败时应该返回默认值', async () => {
-      vi.mocked(mockLLMProvider.generate).mockRejectedValue(new Error('LLM Error'));
+      mockGenerateText.mockRejectedValue(new Error('LLM Error'));
 
       const content = '测试剧本内容';
       const result = await extractor.extract(content);
@@ -187,7 +207,7 @@ describe('GlobalContextExtractor', () => {
 
   describe('一致性规则生成', () => {
     it('古代背景应该生成相应的时代限制', async () => {
-      vi.mocked(mockLLMProvider.generate)
+      mockGenerateText
         .mockResolvedValueOnce({
           success: true,
           data: JSON.stringify({
@@ -243,7 +263,7 @@ describe('GlobalContextExtractor', () => {
     });
 
     it('写实风格应该生成相应的风格限制', async () => {
-      vi.mocked(mockLLMProvider.generate)
+      mockGenerateText
         .mockResolvedValueOnce({
           success: true,
           data: JSON.stringify({

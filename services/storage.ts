@@ -1100,25 +1100,46 @@ export class StorageService {
   }
 
   async getScript(scriptId: string, projectId: string): Promise<Script | null> {
+    console.log('[Storage] ========== Getting Script ==========');
+    console.log('[Storage] Script ID:', scriptId);
     const scripts = await this.getScripts(projectId);
-    return scripts.find(s => s.id === scriptId) || null;
+    const script = scripts.find(s => s.id === scriptId) || null;
+    console.log('[Storage] Script found:', !!script);
+    if (script?.parseState?.qualityReport) {
+      console.log('[Storage] Quality Report Score:', script.parseState.qualityReport.score);
+    } else {
+      console.log('[Storage] No quality report in loaded script');
+    }
+    console.log('[Storage] ========== Script Loaded ==========');
+    return script;
   }
 
   async saveScript(script: Script): Promise<void> {
     const filename = `scripts_${script.projectId}.json`;
+    console.log('[Storage] ========== Saving Script ==========');
+    console.log('[Storage] Script ID:', script.id);
+    console.log('[Storage] Has parseState:', !!script.parseState);
+    console.log('[Storage] Has qualityReport:', !!script.parseState?.qualityReport);
+    if (script.parseState?.qualityReport) {
+      console.log('[Storage] Quality Report Score:', script.parseState.qualityReport.score);
+    }
+
     return this.lock(filename, async () => {
       const scripts = await this.getScripts(script.projectId);
       const index = scripts.findIndex(s => s.id === script.id);
-      
+
       script.updatedAt = Date.now();
-      
+
       if (index >= 0) {
         scripts[index] = script;
+        console.log('[Storage] Script updated at index:', index);
       } else {
         scripts.push(script);
+        console.log('[Storage] New script added');
       }
-      
+
       await this.writeJson(filename, scripts);
+      console.log('[Storage] ========== Script Saved ==========');
     });
   }
 

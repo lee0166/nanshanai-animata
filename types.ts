@@ -229,6 +229,16 @@ export interface AppSettings {
   pollingInterval: number;
   useSandbox: boolean;
   maxConcurrentJobs?: number;
+  // Duration Budget Configuration
+  durationBudget?: {
+    platform: 'douyin' | 'kuaishou' | 'bilibili' | 'premium';
+    pace: 'fast' | 'normal' | 'slow';
+    useDurationBudget: boolean;
+    useDynamicDuration: boolean;
+    useProductionPrompt: boolean;
+    useShotQC: boolean;
+    qcAutoAdjust: boolean;
+  };
 }
 
 // --- Script Parsing Types ---
@@ -243,7 +253,7 @@ export interface Script {
   updatedAt: number;
 }
 
-export type ParseStage = 'idle' | 'metadata' | 'characters' | 'scenes' | 'items' | 'shots' | 'completed' | 'error';
+export type ParseStage = 'idle' | 'metadata' | 'characters' | 'scenes' | 'refinement' | 'budget' | 'items' | 'shots' | 'completed' | 'error';
 
 export interface ScriptItem {
   name: string;
@@ -291,6 +301,8 @@ export interface ScriptParseState {
   currentChunkIndex?: number;
   totalChunks?: number;
   qualityReport?: QualityReport;
+  refinementResult?: any; // Iterative refinement result
+  durationBudget?: any; // Duration budget from BudgetPlanner
 }
 
 /**
@@ -454,7 +466,9 @@ export interface ScriptMetadata {
 }
 
 export interface ScriptCharacter {
+  id?: string;
   name: string;
+  description?: string;
   gender?: 'male' | 'female' | 'unknown';
   age?: string;
   identity?: string;
@@ -480,6 +494,7 @@ export interface ScriptCharacter {
 }
 
 export interface ScriptScene {
+  id?: string;
   name: string;
   locationType: 'indoor' | 'outdoor' | 'unknown';
   description: string;
@@ -505,9 +520,11 @@ export interface Shot {
   id: string;
   sequence: number;
   sceneName: string;
+  sceneId?: string;
   shotType: ShotType;
   cameraMovement: CameraMovement;
   description: string;
+  type?: ShotType;
   dialogue?: string;
   sound?: string;
   duration: number;

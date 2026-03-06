@@ -55,15 +55,15 @@ describe('ScriptParser', () => {
   });
 
   describe('chunkText', () => {
-    it('should split text into chunks by paragraphs when exceeding max size', () => {
+    it('should split text into chunks by paragraphs when exceeding max size', async () => {
       const text = 'Para 1\n\nPara 2\n\nPara 3';
-      const chunks = (parser as any).chunkText(text, 10); // Small chunk size to force splitting
+      const chunks = await (parser as any).chunkText(text, 10); // Small chunk size to force splitting
       expect(chunks.length).toBeGreaterThanOrEqual(1);
     });
 
-    it('should respect max chunk size', () => {
+    it('should respect max chunk size', async () => {
       const text = 'A'.repeat(200) + '\n\n' + 'B'.repeat(200);
-      const chunks = (parser as any).chunkText(text, 250);
+      const chunks = await (parser as any).chunkText(text, 250);
       expect(chunks.length).toBeGreaterThanOrEqual(2);
     });
   });

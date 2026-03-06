@@ -12,8 +12,20 @@ import { ItemMapping } from '../components/ScriptParser/ItemMapping';
 import { ShotList } from '../components/ScriptParser/ShotList';
 import { QualityReport } from '../services/scriptParser';
 import type { RuleViolation } from '../services/parsing/ShortDramaRules';
+import { DetailedQualityReport } from '../services/parsing/QualityAnalyzer';
+import QualityReportCard from '../components/ScriptParser/QualityReportCard';
 import { VectorMemoryToggle } from '../components/VectorMemoryToggle';
 import { vectorMemoryConfig } from '../services/parsing/VectorMemoryConfig';
+
+// Professional Analysis Components
+import { SoundDesignTab } from '../src/components/ScriptParser/SoundDesignTab';
+import { StructureDetailTab } from '../src/components/ScriptParser/StructureDetailTab';
+
+// Script Analysis Components
+import { StoryOverviewCard } from '../components/ScriptAnalysis/StoryOverviewCard';
+import { VisualStyleCard } from '../components/ScriptAnalysis/VisualStyleCard';
+import { EmotionalArcChart } from '../components/ScriptAnalysis/EmotionalArcChart';
+import { StoryStructureDiagram } from '../components/ScriptAnalysis/StoryStructureDiagram';
 import {
   Button,
   Card,
@@ -35,7 +47,7 @@ import {
   Badge,
   Switch
 } from "@heroui/react";
-import { FileText, Upload, Play, RotateCcw, Users, MapPin, Film, CheckCircle2, AlertCircle, Brain, Box, Trash2, Sparkles, AlertTriangle, Info } from 'lucide-react';
+import { FileText, Upload, Play, RotateCcw, Users, MapPin, Film, CheckCircle2, AlertCircle, Brain, Box, Trash2, Sparkles, AlertTriangle, Info, BookOpen, Layout, Palette, Music } from 'lucide-react';
 
 interface ScriptManagerProps {
   projectId?: string;
@@ -46,7 +58,7 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
   const { projectId: urlProjectId } = useParams<{ projectId: string }>();
   const projectId = propProjectId || urlProjectId;
   const navigate = useNavigate();
-  const { settings, isConnected, checkConnection } = useApp();
+  const { settings, isConnected, checkConnection, t } = useApp();
   const { showToast } = useToast();
 
   const [scripts, setScripts] = useState<Script[]>([]);
@@ -112,10 +124,23 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
 
   // Restore quality report from parseState when currentScript changes
   useEffect(() => {
+    console.log('[ScriptManager] ========== useEffect: currentScript changed ==========');
+    console.log('[ScriptManager] currentScript exists:', !!currentScript);
+    console.log('[ScriptManager] parseState exists:', !!currentScript?.parseState);
+    console.log('[ScriptManager] qualityReport exists:', !!currentScript?.parseState?.qualityReport);
+
     if (currentScript?.parseState?.qualityReport) {
-      setQualityReport(currentScript.parseState.qualityReport);
-      console.log('[ScriptManager] Quality report restored from parseState:', currentScript.parseState.qualityReport);
+      const report = currentScript.parseState.qualityReport;
+      console.log('[ScriptManager] Restoring quality report:', {
+        score: report.score,
+        violationsCount: report.violations?.length,
+        suggestionsCount: report.suggestions?.length,
+        type: typeof report
+      });
+      setQualityReport(report);
+      console.log('[ScriptManager] ========== Quality Report Restored ==========');
     } else {
+      console.log('[ScriptManager] No quality report in parseState, setting to null');
       setQualityReport(null);
     }
   }, [currentScript]);
@@ -373,7 +398,26 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
           autoEnableThreshold: 50000,
           chromaDbUrl: 'http://localhost:8000',
           collectionName: 'script_memory'
-        } : undefined
+        } : undefined,
+        // ✅ 启用迭代优化引擎
+        enableIterativeRefinement: true,
+        iterativeRefinementConfig: {
+          maxIterations: 3,
+          targetQualityScore: 85,
+          minImprovementThreshold: 2,
+          autoApplySafeRefinements: true,
+          confidenceThreshold: 0.7,
+          verboseLogging: true
+        },
+        // ✅ 启用时长预算规划（从设置中读取）
+        useDurationBudget: settings.durationBudget?.useDurationBudget ?? false,
+        targetPlatform: settings.durationBudget?.platform || 'douyin',
+        paceType: settings.durationBudget?.pace || 'normal',
+        useDynamicDuration: settings.durationBudget?.useDynamicDuration ?? false,
+        useProductionPrompt: settings.durationBudget?.useProductionPrompt ?? false,
+        useShotQC: settings.durationBudget?.useShotQC ?? false,
+        qcAutoAdjust: settings.durationBudget?.qcAutoAdjust ?? false,
+        qcTolerance: 0.15
       };
       const parser = createScriptParser(
         selectedModel.apiKey,
@@ -446,7 +490,32 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
         useDramaRules: true,
         dramaRulesMinScore: 60,
         useCache: true,
-        cacheTTL: 3600000
+        cacheTTL: 3600000,
+        enableVectorMemory: useVectorMemory,
+        vectorMemoryConfig: useVectorMemory ? {
+          autoEnableThreshold: 50000,
+          chromaDbUrl: 'http://localhost:8000',
+          collectionName: 'script_memory'
+        } : undefined,
+        // ✅ 启用迭代优化引擎
+        enableIterativeRefinement: true,
+        iterativeRefinementConfig: {
+          maxIterations: 3,
+          targetQualityScore: 85,
+          minImprovementThreshold: 2,
+          autoApplySafeRefinements: true,
+          confidenceThreshold: 0.7,
+          verboseLogging: true
+        },
+        // ✅ 启用时长预算规划（从设置中读取）
+        useDurationBudget: settings.durationBudget?.useDurationBudget ?? false,
+        targetPlatform: settings.durationBudget?.platform || 'douyin',
+        paceType: settings.durationBudget?.pace || 'normal',
+        useDynamicDuration: settings.durationBudget?.useDynamicDuration ?? false,
+        useProductionPrompt: settings.durationBudget?.useProductionPrompt ?? false,
+        useShotQC: settings.durationBudget?.useShotQC ?? false,
+        qcAutoAdjust: settings.durationBudget?.qcAutoAdjust ?? false,
+        qcTolerance: 0.15
       };
       const parser = createScriptParser(
         selectedModel.apiKey,
@@ -489,11 +558,23 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
 
       if (parseState.stage === 'completed') {
         showToast('剧本解析完成', 'success');
+
         // Get quality report from parser
+        console.log('[ScriptManager] ========== Getting Quality Report ==========');
         const report = parser.getQualityReport();
+        console.log('[ScriptManager] Report from parser:', {
+          exists: !!report,
+          score: report?.score,
+          type: typeof report,
+          hasViolations: report?.violations ? report.violations.length > 0 : false,
+          hasSuggestions: report?.suggestions ? report.suggestions.length > 0 : false
+        });
+
         if (report) {
           setQualityReport(report);
-          console.log('[ScriptManager] Quality report received:', report);
+          console.log('[ScriptManager] ========== Quality Report Set to State ==========');
+        } else {
+          console.warn('[ScriptManager] No quality report received from parser!');
         }
       } else if (parseState.stage === 'error') {
         showToast(`解析失败: ${parseState.error}`, 'error');
@@ -909,6 +990,133 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
                 </Card>
               </Tab>
 
+              {/* Overview Tab - 剧本概览 */}
+              {currentScript.parseState.stage === 'completed' && currentScript.parseState.metadata && (
+                <Tab
+                  key="overview"
+                  title={
+                    <div className="flex items-center gap-2">
+                      <BookOpen size={16} />
+                      <span>概览</span>
+                    </div>
+                  }
+                >
+                  <Card>
+                    <CardBody className="h-[420px] overflow-y-auto">
+                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                        {/* Story Overview */}
+                        <StoryOverviewCard
+                          metadata={currentScript.parseState.metadata}
+                          t={{}}
+                        />
+                        
+                        {/* Visual Style */}
+                        <VisualStyleCard
+                          metadata={currentScript.parseState.metadata}
+                          t={{}}
+                        />
+                        
+                        {/* Emotional Arc - Full Width */}
+                        <div className="lg:col-span-2">
+                          <EmotionalArcChart
+                            emotionalArc={currentScript.parseState.metadata.emotionalArc}
+                            overallMood={currentScript.parseState.metadata.overallMood}
+                            t={{}}
+                          />
+                        </div>
+                      </div>
+                    </CardBody>
+                  </Card>
+                </Tab>
+              )}
+
+              {/* Structure Tab - 故事结构 */}
+              {currentScript.parseState.stage === 'completed' && currentScript.parseState.metadata?.storyStructure && (
+                <Tab
+                  key="structure"
+                  title={
+                    <div className="flex items-center gap-2">
+                      <Layout size={16} />
+                      <span>结构</span>
+                    </div>
+                  }
+                >
+                  <Card>
+                    <CardBody className="h-[420px] overflow-y-auto">
+                      <StoryStructureDiagram
+                        storyStructure={currentScript.parseState.metadata.storyStructure}
+                        t={{}}
+                      />
+                    </CardBody>
+                  </Card>
+                </Tab>
+              )}
+
+              {/* Visual Tab - 视觉风格详情 */}
+              {currentScript.parseState.stage === 'completed' && currentScript.parseState.metadata?.visualStyle && (
+                <Tab
+                  key="visual"
+                  title={
+                    <div className="flex items-center gap-2">
+                      <Palette size={16} />
+                      <span>视觉</span>
+                    </div>
+                  }
+                >
+                  <Card>
+                    <CardBody className="h-[420px] overflow-y-auto">
+                      <VisualStyleCard
+                        metadata={currentScript.parseState.metadata}
+                        t={{}}
+                      />
+                    </CardBody>
+                  </Card>
+                </Tab>
+              )}
+
+              {/* Sound Design Tab - 声音设计分析 */}
+              {currentScript.parseState.stage === 'completed' && currentScript.parseState.metadata?.emotionalArc && (
+                <Tab
+                  key="sound"
+                  title={
+                    <div className="flex items-center gap-2">
+                      <Music size={16} />
+                      <span>声音</span>
+                    </div>
+                  }
+                >
+                  <Card>
+                    <CardBody className="h-[420px] overflow-y-auto">
+                      <SoundDesignTab
+                        metadata={currentScript.parseState.metadata}
+                        shots={currentScript.parseState.shots || []}
+                      />
+                    </CardBody>
+                  </Card>
+                </Tab>
+              )}
+
+              {/* Structure Detail Tab - 剧本结构详细分析 */}
+              {currentScript.parseState.stage === 'completed' && currentScript.parseState.metadata?.storyStructure && (
+                <Tab
+                  key="structure-detail"
+                  title={
+                    <div className="flex items-center gap-2">
+                      <Layout size={16} />
+                      <span>结构分析</span>
+                    </div>
+                  }
+                >
+                  <Card>
+                    <CardBody className="h-[420px] overflow-y-auto">
+                      <StructureDetailTab
+                        metadata={currentScript.parseState.metadata}
+                      />
+                    </CardBody>
+                  </Card>
+                </Tab>
+              )}
+
               {currentScript.parseState.stage === 'completed' && (
                 <>
                   <Tab
@@ -1036,155 +1244,10 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
                     <Card>
                       <CardBody className="h-[420px] overflow-y-auto">
                         {qualityReport ? (
-                          <div className="space-y-6">
-                            {/* Score Overview - Compact Design */}
-                            <div className="flex items-center gap-4">
-                              {/* Circular Score Badge */}
-                              <div
-                                className={`w-20 h-20 rounded-full flex items-center justify-center text-2xl font-bold ${
-                                  qualityReport.score >= 80
-                                    ? 'bg-success-100 text-success-700'
-                                    : qualityReport.score >= 60
-                                    ? 'bg-primary-100 text-primary-700'
-                                    : qualityReport.score >= 40
-                                    ? 'bg-warning-100 text-warning-700'
-                                    : 'bg-danger-100 text-danger-700'
-                                }`}
-                              >
-                                {qualityReport.score}
-                              </div>
-                              {/* Quality Level & Description */}
-                              <div>
-                                <div className="text-lg font-medium">
-                                  {qualityReport.score >= 80
-                                    ? '优秀'
-                                    : qualityReport.score >= 60
-                                    ? '良好'
-                                    : qualityReport.score >= 40
-                                    ? '一般'
-                                    : '需改进'}
-                                </div>
-                                <div className="text-sm text-default-500">
-                                  {qualityReport.score >= 80
-                                    ? '剧本质量优秀，适合拍摄'
-                                    : qualityReport.score >= 60
-                                    ? '剧本整体质量良好'
-                                    : qualityReport.score >= 40
-                                    ? '剧本需要进一步优化'
-                                    : '剧本存在较多问题，建议大幅修改'}
-                                </div>
-                              </div>
-                            </div>
-
-                            {/* Violations Summary */}
-                            {qualityReport.violations.length > 0 && (
-                              <div className="grid grid-cols-3 gap-3">
-                                {(() => {
-                                  const criticalCount = qualityReport.violations.filter(v => v.severity === 'critical').length;
-                                  const warningCount = qualityReport.violations.filter(v => v.severity === 'warning').length;
-                                  const infoCount = qualityReport.violations.filter(v => v.severity === 'info').length;
-                                  return (
-                                    <>
-                                      {criticalCount > 0 && (
-                                        <div className="flex items-center gap-2 p-3 bg-danger-50 rounded-lg">
-                                          <AlertCircle className="text-danger" size={18} />
-                                          <div>
-                                            <div className="text-lg font-bold text-danger">{criticalCount}</div>
-                                            <div className="text-xs text-danger-600">严重问题</div>
-                                          </div>
-                                        </div>
-                                      )}
-                                      {warningCount > 0 && (
-                                        <div className="flex items-center gap-2 p-3 bg-warning-50 rounded-lg">
-                                          <AlertTriangle className="text-warning" size={18} />
-                                          <div>
-                                            <div className="text-lg font-bold text-warning">{warningCount}</div>
-                                            <div className="text-xs text-warning-600">警告</div>
-                                          </div>
-                                        </div>
-                                      )}
-                                      {infoCount > 0 && (
-                                        <div className="flex items-center gap-2 p-3 bg-primary-50 rounded-lg">
-                                          <Info className="text-primary" size={18} />
-                                          <div>
-                                            <div className="text-lg font-bold text-primary">{infoCount}</div>
-                                            <div className="text-xs text-primary-600">提示</div>
-                                          </div>
-                                        </div>
-                                      )}
-                                    </>
-                                  );
-                                })()}
-                              </div>
-                            )}
-
-                            {/* Critical Issues */}
-                            {qualityReport.violations.filter(v => v.severity === 'critical').length > 0 && (
-                              <div className="space-y-3">
-                                <h4 className="font-medium text-danger flex items-center gap-2">
-                                  <AlertCircle size={16} />
-                                  严重问题（需优先修复）
-                                </h4>
-                                <ul className="space-y-2">
-                                  {qualityReport.violations
-                                    .filter(v => v.severity === 'critical')
-                                    .map((v, i) => (
-                                      <li key={i} className="text-sm text-danger-600 flex items-start gap-2 p-2 bg-danger-50 rounded">
-                                        <span>•</span>
-                                        <span>{v.message}</span>
-                                      </li>
-                                    ))}
-                                </ul>
-                              </div>
-                            )}
-
-                            {/* Warnings */}
-                            {qualityReport.violations.filter(v => v.severity === 'warning').length > 0 && (
-                              <div className="space-y-3">
-                                <h4 className="font-medium text-warning flex items-center gap-2">
-                                  <AlertTriangle size={16} />
-                                  优化建议
-                                </h4>
-                                <ul className="space-y-2">
-                                  {qualityReport.violations
-                                    .filter(v => v.severity === 'warning')
-                                    .map((v, i) => (
-                                      <li key={i} className="text-sm text-warning-600 flex items-start gap-2 p-2 bg-warning-50 rounded">
-                                        <span>•</span>
-                                        <span>{v.message}</span>
-                                      </li>
-                                    ))}
-                                </ul>
-                              </div>
-                            )}
-
-                            {/* Suggestions */}
-                            {qualityReport.suggestions.length > 0 && (
-                              <div className="space-y-3">
-                                <h4 className="font-medium text-primary flex items-center gap-2">
-                                  <Sparkles size={16} />
-                                  改进建议
-                                </h4>
-                                <ul className="space-y-2">
-                                  {qualityReport.suggestions.map((s, i) => (
-                                    <li key={i} className="text-sm text-default-600 flex items-start gap-2 p-2 bg-default-100 rounded">
-                                      <span>•</span>
-                                      <span>{s}</span>
-                                    </li>
-                                  ))}
-                                </ul>
-                              </div>
-                            )}
-
-                            {/* Empty State - All Good */}
-                            {qualityReport.violations.length === 0 && qualityReport.suggestions.length === 0 && (
-                              <div className="text-center py-8">
-                                <CheckCircle2 className="text-success mx-auto mb-3" size={48} />
-                                <p className="text-success font-medium text-lg">剧本质量优秀！</p>
-                                <p className="text-default-500 text-sm mt-1">未发现明显问题</p>
-                              </div>
-                            )}
-                          </div>
+                          <QualityReportCard
+                            report={qualityReport as unknown as DetailedQualityReport}
+                            t={t}
+                          />
                         ) : (
                           <div className="h-full flex flex-col items-center justify-center text-center">
                             <Sparkles size={48} className="text-default-300 mb-4" />
