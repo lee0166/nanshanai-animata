@@ -2500,6 +2500,174 @@ export class ScriptParser {
   }
 
   /**
+   * Phase 3.3: Chunked parsing for long texts (>5000 words)
+   * Splits text into semantic chunks and parses each chunk separately
+   * Then merges results with deduplication
+   */
+  async parseChunkedScript(
+    content: string,
+    onProgress?: ParseProgressCallback
+  ): Promise<ScriptParseState> {
+    console.log(`[ScriptParser] ========== Chunked Text Parse Path ==========`);
+    console.log(`[ScriptParser] Content length: ${content.length} characters`);
+
+    const state: ScriptParseState = {
+      stage: 'metadata',
+      progress: 0
+    };
+
+    try {
+      // Step 1: Semantic chunking
+      onProgress?.('metadata', 5, '正在分块...');
+      
+      if (!this.semanticChunker) {
+        this.semanticChunker = new SemanticChunker({ 
+          maxTokens: 3000, // Smaller chunks for long texts
+          preserveParagraphs: true,
+          extractMetadata: false
+        });
+      }
+
+      const chunks = await this.semanticChunker.chunk(content);
+      console.log(`[ScriptParser] Text split into ${chunks.length} chunks`);
+      state.progress = 10;
+
+      // Step 2: Extract metadata from first chunk only
+      onProgress?.('metadata', 10, '正在提取元数据...');
+      state.metadata = await this.extractMetadata(chunks[0].content);
+      state.progress = 20;
+
+      // Step 3: Parse each chunk for characters and scenes
+      const allCharacters: ScriptCharacter[] = [];
+      const allScenes: ScriptScene[] = [];
+      const characterNames = new Set<string>();
+      const sceneNames = new Set<string>();
+
+      for (let i = 0; i < chunks.length; i++) {
+        const chunk = chunks[i];
+        const progress = 20 + (i / chunks.length) * 40;
+        onProgress?.('characters', progress, `正在解析第 ${i + 1}/${chunks.length} 块...`);
+
+        // Extract characters from this chunk
+        if (state.metadata.characterNames) {
+          const chunkCharacters = await this.extractAllCharactersWithContext(
+            chunk.content,
+            state.metadata.characterNames.filter(name => !characterNames.has(name))
+          );
+          
+          for (const char of chunkCharacters) {
+            if (!characterNames.has(char.name)) {
+              characterNames.add(char.name);
+              allCharacters.push(char);
+            }
+          }
+        }
+
+        // Extract scenes from this chunk
+        if (state.metadata.sceneNames) {
+          const chunkScenes = await this.extractAllScenesWithContext(
+            chunk.content,
+            state.metadata.sceneNames.filter(name => !sceneNames.has(name))
+          );
+          
+          for (const scene of chunkScenes) {
+            if (!sceneNames.has(scene.name)) {
+              sceneNames.add(scene.name);
+              allScenes.push(scene);
+            }
+          }
+        }
+
+        // Small delay between chunks to avoid rate limiting
+        if (i < chunks.length - 1) {
+          await new Promise(resolve => setTimeout(resolve, 500));
+        }
+      }
+
+      state.characters = allCharacters;
+      state.scenes = allScenes;
+      state.progress = 60;
+      console.log(`[ScriptParser] Chunked extraction complete: ${allCharacters.length} characters, ${allScenes.length} scenes`);
+
+      // Step 4: Generate shots in batches
+      onProgress?.('shots', 60, '正在生成分镜...');
+      
+      if (state.scenes.length > 0) {
+        const BATCH_SIZE = 3;
+        const allShots: Shot[] = [];
+        
+        for (let i = 0; i < state.scenes.length; i += BATCH_SIZE) {
+          const batch = state.scenes.slice(i, i + BATCH_SIZE);
+          const batchNum = Math.floor(i / BATCH_SIZE) + 1;
+          const totalBatches = Math.ceil(state.scenes.length / BATCH_SIZE);
+          
+          onProgress?.('shots', 60 + (i / state.scenes.length) * 30, `正在生成分镜 (批次 ${batchNum}/${totalBatches})...`);
+          
+          try {
+            const batchShots = await this.generateAllShotsWithContext(content, batch);
+            allShots.push(...batchShots);
+          } catch (e) {
+            console.error(`[ScriptParser] Batch ${batchNum} failed:`, e);
+            // Fallback: generate placeholder shots
+            for (const scene of batch) {
+              allShots.push({
+                id: crypto.randomUUID(),
+                sceneName: scene.name,
+                sequence: allShots.length + 1,
+                shotType: 'medium',
+                cameraMovement: 'static',
+                duration: 3,
+                description: `${scene.name} - ${scene.description?.substring(0, 30) || '场景描述'}...`,
+                visualPrompt: scene.visualPrompt || scene.name
+              });
+            }
+          }
+          
+          // Small delay between batches
+          if (i + BATCH_SIZE < state.scenes.length) {
+            await new Promise(resolve => setTimeout(resolve, 300));
+          }
+        }
+        
+        state.shots = allShots;
+        console.log(`[ScriptParser] Generated ${allShots.length} shots`);
+      } else {
+        state.shots = [];
+      }
+      
+      state.progress = 90;
+
+      // Step 5: Generate quality report
+      if (this.parserConfig.useDramaRules && this.qualityAnalyzer) {
+        const report = this.qualityAnalyzer.analyze(
+          state.metadata,
+          state.characters,
+          state.scenes,
+          [],
+          state.shots || [],
+          'completed'
+        );
+        this.qualityReport = report;
+        state.qualityReport = report;
+      }
+
+      state.stage = 'completed';
+      state.progress = 100;
+      onProgress?.('completed', 100, '解析完成！');
+
+      console.log(`[ScriptParser] ========== Chunked Parse Completed ==========`);
+      console.log(`[ScriptParser] Characters: ${state.characters?.length}, Scenes: ${state.scenes?.length}, Shots: ${state.shots?.length}`);
+
+    } catch (error: any) {
+      state.stage = 'error';
+      state.error = error.message;
+      throw error;
+    }
+
+    return state;
+  }
+
+  /**
    * Full parsing pipeline with progress tracking and error recovery
    * 
    * V2 优化：添加详细的性能监控日志
@@ -2544,6 +2712,19 @@ export class ScriptParser {
       const fastDuration = Date.now() - fastStartTime;
       console.log(`[ScriptParser] ========== Fast Path Completed ==========`);
       console.log(`[ScriptParser] Total duration: ${fastDuration}ms (${(fastDuration/1000).toFixed(1)}s)`);
+      console.log(`[ScriptParser] ==========================================`);
+      await this.saveState(scriptId, projectId, result);
+      return result;
+    }
+
+    // Phase 3.3: Chunked path for long texts
+    if (strategySelection.strategy === 'chunked' && !resumeFromState) {
+      console.log(`[ScriptParser] Using CHUNKED PATH (${strategySelection.reason})`);
+      const chunkedStartTime = Date.now();
+      const result = await this.parseChunkedScript(content, onProgress);
+      const chunkedDuration = Date.now() - chunkedStartTime;
+      console.log(`[ScriptParser] ========== Chunked Path Completed ==========`);
+      console.log(`[ScriptParser] Total duration: ${chunkedDuration}ms (${(chunkedDuration/1000).toFixed(1)}s)`);
       console.log(`[ScriptParser] ==========================================`);
       await this.saveState(scriptId, projectId, result);
       return result;
