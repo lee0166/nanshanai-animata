@@ -2302,38 +2302,34 @@ export class ScriptParser {
       const remainingCharacterNames = characterNames.filter(name => !existingCharacterNames.has(name));
 
       if (remainingCharacterNames.length > 0) {
-        console.log(`[ScriptParser] Processing ${remainingCharacterNames.length} remaining characters`);
+        console.log(`[ScriptParser] Processing ${remainingCharacterNames.length} remaining characters using batch extraction`);
 
-        // Process characters concurrently with limit
-        const characterPromises = remainingCharacterNames.map((name, index) =>
-          this.limiter.run(async () => {
-            const overallIndex = existingCharacters.length + index;
-            onProgress?.('characters', 25 + (overallIndex / characterNames.length) * 25, `正在分析角色: ${name}`);
-
-            try {
-              const character = await this.extractCharacter(content, name);
-              characters.push(character);
-            } catch (e) {
-              console.error(`Failed to extract character ${name}:`, e);
-              // Add placeholder character
-              characters.push({
-                name,
-                appearance: {},
-                personality: [],
-                signatureItems: [],
-                emotionalArc: [],
-                relationships: [],
-                visualPrompt: name
-              });
-            }
-
-            state.characters = characters;
-            state.progress = 25 + ((overallIndex + 1) / characterNames.length) * 25;
-            await this.saveState(scriptId, projectId, state);
-          })
-        );
-
-        await Promise.all(characterPromises);
+        try {
+          // V2: Use batch extraction for all remaining characters
+          onProgress?.('characters', 25, `正在批量分析 ${remainingCharacterNames.length} 个角色...`);
+          const newCharacters = await this.extractAllCharactersWithContext(content, remainingCharacterNames);
+          characters.push(...newCharacters);
+          state.characters = characters;
+          state.progress = 50;
+          await this.saveState(scriptId, projectId, state);
+          console.log(`[ScriptParser] Batch extracted ${newCharacters.length} characters in 1 API call`);
+        } catch (e) {
+          console.error('[ScriptParser] Batch character extraction failed:', e);
+          // Fallback: add placeholder characters
+          remainingCharacterNames.forEach(name => {
+            characters.push({
+              name,
+              appearance: {},
+              personality: [],
+              signatureItems: [],
+              emotionalArc: [],
+              relationships: [],
+              visualPrompt: name
+            });
+          });
+          state.characters = characters;
+          await this.saveState(scriptId, projectId, state);
+        }
       } else {
         console.log('[ScriptParser] All characters already processed, skipping...');
         onProgress?.('characters', 50, '角色已存在，跳过...');
@@ -2356,38 +2352,34 @@ export class ScriptParser {
       const remainingSceneNames = sceneNames.filter(name => !existingSceneNames.has(name));
 
       if (remainingSceneNames.length > 0) {
-        console.log(`[ScriptParser] Processing ${remainingSceneNames.length} remaining scenes`);
+        console.log(`[ScriptParser] Processing ${remainingSceneNames.length} remaining scenes using batch extraction`);
 
-        // Process scenes concurrently with limit
-        const scenePromises = remainingSceneNames.map((name, index) =>
-          this.limiter.run(async () => {
-            const overallIndex = existingScenes.length + index;
-            onProgress?.('scenes', 50 + (overallIndex / sceneNames.length) * 20, `正在分析场景: ${name}`);
-
-            try {
-              const scene = await this.extractScene(content, name);
-              scenes.push(scene);
-            } catch (e) {
-              console.error(`Failed to extract scene ${name}:`, e);
-              // Add placeholder scene
-              scenes.push({
-                name,
-                locationType: 'unknown',
-                description: name,
-                environment: {},
-                sceneFunction: '',
-                visualPrompt: name,
-                characters: []
-              });
-            }
-
-            state.scenes = scenes;
-            state.progress = 50 + ((overallIndex + 1) / sceneNames.length) * 20;
-            await this.saveState(scriptId, projectId, state);
-          })
-        );
-
-        await Promise.all(scenePromises);
+        try {
+          // V2: Use batch extraction for all remaining scenes
+          onProgress?.('scenes', 50, `正在批量分析 ${remainingSceneNames.length} 个场景...`);
+          const newScenes = await this.extractAllScenesWithContext(content, remainingSceneNames);
+          scenes.push(...newScenes);
+          state.scenes = scenes;
+          state.progress = 70;
+          await this.saveState(scriptId, projectId, state);
+          console.log(`[ScriptParser] Batch extracted ${newScenes.length} scenes in 1 API call`);
+        } catch (e) {
+          console.error('[ScriptParser] Batch scene extraction failed:', e);
+          // Fallback: add placeholder scenes
+          remainingSceneNames.forEach(name => {
+            scenes.push({
+              name,
+              locationType: 'unknown',
+              description: name,
+              environment: {},
+              sceneFunction: '',
+              visualPrompt: name,
+              characters: []
+            });
+          });
+          state.scenes = scenes;
+          await this.saveState(scriptId, projectId, state);
+        }
       } else {
         console.log('[ScriptParser] All scenes already processed, skipping...');
         onProgress?.('scenes', 70, '场景已存在，跳过...');

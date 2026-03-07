@@ -4,19 +4,19 @@ aiService.ts:68 [AIService] Registered provider: volcengine
 aiService.ts:68 [AIService] Registered provider: vidu
 aiService.ts:68 [AIService] Registered provider: modelscope
 aiService.ts:68 [AIService] Registered provider: llm
+AppContext.tsx:98 [INIT] Redirecting to home from #/project/6a3e9f65-3116-4acc-a7cb-6b0a19f71bc4
 AppContext.tsx:103 [INIT] Starting App Initialization...
 AppContext.tsx:119 [INIT] Attempting auto-connect...
 AppContext.tsx:103 [INIT] Starting App Initialization...
 AppContext.tsx:119 [INIT] Attempting auto-connect...
 client:912 [vite] connected.
-AppContext.tsx:121 [INIT] autoConnect returned: false
-AppContext.tsx:121 [INIT] autoConnect returned: false
-AppContext.tsx:24 [STORAGE] Connection check: Connected=false, Responsive=true
-AppContext.tsx:147 [INIT] Initialization complete. FS Responsive: true, Connected: false, Elapsed: 501ms
-storage.ts:495 [STORAGE] Triggering showDirectoryPicker...
-AppContext.tsx:24 [STORAGE] Connection check: Connected=false, Responsive=true
-storage.ts:499 [STORAGE] Directory picker success: ProjectML
+AppContext.tsx:121 [INIT] autoConnect returned: true
+AppContext.tsx:121 [INIT] autoConnect returned: true
+AppContext.tsx:125 [INIT] Starting smoke test...
 AppContext.tsx:24 [STORAGE] Connection check: Connected=true, Responsive=true
+AppContext.tsx:132 [INIT] Smoke test complete.
+AppContext.tsx:147 [INIT] Initialization complete. FS Responsive: true, Connected: true, Elapsed: 500ms
+App.tsx:32 [APP] Triggering jobQueue.loadQueue()...
 App.tsx:32 [APP] Triggering jobQueue.loadQueue()...
 AppContext.tsx:24 [STORAGE] Connection check: Connected=true, Responsive=true
 ScriptManager.tsx:145 [ScriptManager] ========== useEffect: currentScript changed ==========
@@ -29,204 +29,169 @@ ScriptManager.tsx:146 [ScriptManager] currentScript exists: false
 ScriptManager.tsx:147 [ScriptManager] parseState exists: false
 ScriptManager.tsx:148 [ScriptManager] qualityReport exists: false
 ScriptManager.tsx:161 [ScriptManager] No quality report in parseState, setting to null
+ScriptManager.tsx:145 [ScriptManager] ========== useEffect: currentScript changed ==========
+ScriptManager.tsx:146 [ScriptManager] currentScript exists: true
+ScriptManager.tsx:147 [ScriptManager] parseState exists: true
+ScriptManager.tsx:148 [ScriptManager] qualityReport exists: false
+ScriptManager.tsx:161 [ScriptManager] No quality report in parseState, setting to null
+storage.ts:695 [STORAGE] Slow FileSystem read: scripts_6a3e9f65-3116-4acc-a7cb-6b0a19f71bc4.json took 135.00ms
+ScriptManager.tsx:145 [ScriptManager] ========== useEffect: currentScript changed ==========
+ScriptManager.tsx:146 [ScriptManager] currentScript exists: true
+ScriptManager.tsx:147 [ScriptManager] parseState exists: true
+ScriptManager.tsx:148 [ScriptManager] qualityReport exists: false
+ScriptManager.tsx:161 [ScriptManager] No quality report in parseState, setting to null
+scriptParser.ts:880 [ScriptParser] Initialized with config: {useSemanticChunking: true, useDramaRules: true, dramaRulesMinScore: 60, useCache: true, cacheTTL: 3600000, …}
+scriptParser.ts:893 [ScriptParser] SemanticChunker initialized
+scriptParser.ts:897 [ScriptParser] ShortDramaRules initialized
+scriptParser.ts:901 [ScriptParser] MultiLevelCache initialized
+scriptParser.ts:908 [ScriptParser] QualityAnalyzer initialized
+scriptParser.ts:979 [ScriptParser] ContextInjector initialized
+scriptParser.ts:982 [ScriptParser] Global context support initialized
+scriptParser.ts:953 [ScriptParser] IterativeRefinementEngine initialized
+scriptParser.ts:936 [ScriptParser] Budget calculation functions ready
+ScriptManager.tsx:440 [ScriptManager] 完整解析模式，ScriptParser配置: {useSemanticChunking: true, useDramaRules: true, dramaRulesMinScore: 60, useCache: true, cacheTTL: 3600000, …}
+scriptParser.ts:2248 [ScriptParser] ========== Starting Parse Script ==========
+scriptParser.ts:2249 [ScriptParser] Content length: 339 characters
+scriptParser.ts:2250 [ScriptParser] Config: concurrency=3, callDelay=100ms
+storage.ts:1103 [Storage] ========== Getting Script ==========
+storage.ts:1104 [Storage] Script ID: script_1772877404189_fwhnl1rbb
+storage.ts:1107 [Storage] Script found: true
+storage.ts:1111 [Storage] No quality report in loaded script
+storage.ts:1113 [Storage] ========== Script Loaded ==========
+scriptParser.ts:1514 [ScriptParser] ========== Stage 1: Extract Metadata (Structured Output) ==========
+scriptParser.ts:1515 [ScriptParser] Content length: 339 characters
+scriptParser.ts:1518 [ScriptParser] Prompt length: 785 characters
+scriptParser.ts:1519 [ScriptParser] Sending structured output request to LLM...
+scriptParser.ts:1328 [ScriptParser] callStructuredLLM called for metadata
+scriptParser.ts:1329 [ScriptParser] API URL: https://ark.cn-beijing.volces.com/api/v3
+scriptParser.ts:1330 [ScriptParser] Model: doubao-seed-1-6-251015
+scriptParser.ts:1331 [ScriptParser] Max Tokens: 4000
+scriptParser.ts:1357 [ScriptParser] Calling LLMProvider.generateStructured...
+LLMProvider.ts:240 [LLMProvider] ========== Structured Output Request ==========
+LLMProvider.ts:241 [LLMProvider] Endpoint: https://ark.cn-beijing.volces.com/api/v3/chat/completions
+LLMProvider.ts:242 [LLMProvider] Model: doubao-seed-1-6-251015
+LLMProvider.ts:243 [LLMProvider] JSON Mode: true
+LLMProvider.ts:245 [LLMProvider] Sending structured output request...
+BaseProvider.ts:63 [BaseProvider] Requesting: https://ark.cn-beijing.volces.com/api/v3/chat/completions, Mode: DEV, Localhost: true
+BaseProvider.ts:84 [BaseProvider] Using Proxy: /api/universal-proxy -> https://ark.cn-beijing.volces.com/api/v3/chat/completions
 AppContext.tsx:24 [STORAGE] Connection check: Connected=true, Responsive=true
 AppContext.tsx:24 [STORAGE] Connection check: Connected=true, Responsive=true
-ScriptManager.tsx:278 [ScriptManager] Detected encoding issues: ['混合使用多种换行符']
-ScriptManager.tsx:283 [ScriptManager] Text cleaned: {originalLength: 7370, cleanedLength: 7033, removedChars: 337, chapterCount: 1}
-[Violation]Forced reflow while executing JavaScript took 75ms
-提取 已完成加载:GET "<URL>"。
-提取 已完成加载:GET "<URL>"。
-提取 已完成加载:GET "<URL>"。
-提取 已完成加载:GET "<URL>"。
-提取 已完成加载:GET "<URL>"。
-EmbeddingService.ts:132 [EmbeddingService] Loading model: Xenova/all-MiniLM-L6-v2
-EmbeddingService.ts:138 [EmbeddingService] Browser environment detected
-EmbeddingService.ts:139 [EmbeddingService] Checking local model cache...
-ModelDownloadProgress.tsx:81  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-$204d9ebcedfb8806$export$ed5abd763a836edc @ useProgressBar.ts:44
-useProgress @ chunk-MXO63OUV.mjs:41
-HeroUI.Progress @ chunk-VFIJPDYX.mjs:19
-react_stack_bottom_frame @ react-dom-client.development.js:25904
-renderWithHooks @ react-dom-client.development.js:7662
-updateForwardRef @ react-dom-client.development.js:9724
-beginWork @ react-dom-client.development.js:12117
-runWithFiberInDEV @ react-dom-client.development.js:871
-performUnitOfWork @ react-dom-client.development.js:17641
-workLoopSync @ react-dom-client.development.js:17469
-renderRootSync @ react-dom-client.development.js:17450
-performWorkOnRoot @ react-dom-client.development.js:16504
-performSyncWorkOnRoot @ react-dom-client.development.js:18972
-flushSyncWorkAcrossRoots_impl @ react-dom-client.development.js:18814
-flushSyncWork$1 @ react-dom-client.development.js:16898
-batchedUpdates$1 @ react-dom-client.development.js:3263
-dispatchEventForPluginEventSystem @ react-dom-client.development.js:19320
-dispatchEvent @ react-dom-client.development.js:23585
-dispatchDiscreteEvent @ react-dom-client.development.js:23553
-<HeroUI.Progress>
-exports.jsxDEV @ react-jsx-dev-runtime.development.js:335
-renderContent @ ModelDownloadProgress.tsx:81
-ModelDownloadProgress @ ModelDownloadProgress.tsx:216
-react_stack_bottom_frame @ react-dom-client.development.js:25904
-renderWithHooksAgain @ react-dom-client.development.js:7762
-renderWithHooks @ react-dom-client.development.js:7674
-updateFunctionComponent @ react-dom-client.development.js:10166
-beginWork @ react-dom-client.development.js:11778
-runWithFiberInDEV @ react-dom-client.development.js:871
-performUnitOfWork @ react-dom-client.development.js:17641
-workLoopSync @ react-dom-client.development.js:17469
-renderRootSync @ react-dom-client.development.js:17450
-performWorkOnRoot @ react-dom-client.development.js:16504
-performSyncWorkOnRoot @ react-dom-client.development.js:18972
-flushSyncWorkAcrossRoots_impl @ react-dom-client.development.js:18814
-flushSyncWork$1 @ react-dom-client.development.js:16898
-batchedUpdates$1 @ react-dom-client.development.js:3263
-dispatchEventForPluginEventSystem @ react-dom-client.development.js:19320
-dispatchEvent @ react-dom-client.development.js:23585
-dispatchDiscreteEvent @ react-dom-client.development.js:23553
-ModelDownloadProgress.tsx:81  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-$204d9ebcedfb8806$export$ed5abd763a836edc @ useProgressBar.ts:44
-useProgress @ chunk-MXO63OUV.mjs:41
-HeroUI.Progress @ chunk-VFIJPDYX.mjs:19
-react_stack_bottom_frame @ react-dom-client.development.js:25904
-renderWithHooksAgain @ react-dom-client.development.js:7762
-renderWithHooks @ react-dom-client.development.js:7674
-updateForwardRef @ react-dom-client.development.js:9724
-beginWork @ react-dom-client.development.js:12117
-runWithFiberInDEV @ react-dom-client.development.js:871
-performUnitOfWork @ react-dom-client.development.js:17641
-workLoopSync @ react-dom-client.development.js:17469
-renderRootSync @ react-dom-client.development.js:17450
-performWorkOnRoot @ react-dom-client.development.js:16504
-performSyncWorkOnRoot @ react-dom-client.development.js:18972
-flushSyncWorkAcrossRoots_impl @ react-dom-client.development.js:18814
-flushSyncWork$1 @ react-dom-client.development.js:16898
-batchedUpdates$1 @ react-dom-client.development.js:3263
-dispatchEventForPluginEventSystem @ react-dom-client.development.js:19320
-dispatchEvent @ react-dom-client.development.js:23585
-dispatchDiscreteEvent @ react-dom-client.development.js:23553
-<HeroUI.Progress>
-exports.jsxDEV @ react-jsx-dev-runtime.development.js:335
-renderContent @ ModelDownloadProgress.tsx:81
-ModelDownloadProgress @ ModelDownloadProgress.tsx:216
-react_stack_bottom_frame @ react-dom-client.development.js:25904
-renderWithHooksAgain @ react-dom-client.development.js:7762
-renderWithHooks @ react-dom-client.development.js:7674
-updateFunctionComponent @ react-dom-client.development.js:10166
-beginWork @ react-dom-client.development.js:11778
-runWithFiberInDEV @ react-dom-client.development.js:871
-performUnitOfWork @ react-dom-client.development.js:17641
-workLoopSync @ react-dom-client.development.js:17469
-renderRootSync @ react-dom-client.development.js:17450
-performWorkOnRoot @ react-dom-client.development.js:16504
-performSyncWorkOnRoot @ react-dom-client.development.js:18972
-flushSyncWorkAcrossRoots_impl @ react-dom-client.development.js:18814
-flushSyncWork$1 @ react-dom-client.development.js:16898
-batchedUpdates$1 @ react-dom-client.development.js:3263
-dispatchEventForPluginEventSystem @ react-dom-client.development.js:19320
-dispatchEvent @ react-dom-client.development.js:23585
-dispatchDiscreteEvent @ react-dom-client.development.js:23553
-ModelDownloadProgress.tsx:81  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-$204d9ebcedfb8806$export$ed5abd763a836edc @ useProgressBar.ts:44
-useProgress @ chunk-MXO63OUV.mjs:41
-HeroUI.Progress @ chunk-VFIJPDYX.mjs:19
-react_stack_bottom_frame @ react-dom-client.development.js:25904
-renderWithHooks @ react-dom-client.development.js:7662
-updateForwardRef @ react-dom-client.development.js:9724
-beginWork @ react-dom-client.development.js:12117
-runWithFiberInDEV @ react-dom-client.development.js:871
-performUnitOfWork @ react-dom-client.development.js:17641
-workLoopSync @ react-dom-client.development.js:17469
-renderRootSync @ react-dom-client.development.js:17450
-performWorkOnRoot @ react-dom-client.development.js:16504
-performWorkOnRootViaSchedulerTask @ react-dom-client.development.js:18957
-performWorkUntilDeadline @ scheduler.development.js:45
-<HeroUI.Progress>
-exports.jsxDEV @ react-jsx-dev-runtime.development.js:335
-renderContent @ ModelDownloadProgress.tsx:81
-ModelDownloadProgress @ ModelDownloadProgress.tsx:216
-react_stack_bottom_frame @ react-dom-client.development.js:25904
-renderWithHooksAgain @ react-dom-client.development.js:7762
-renderWithHooks @ react-dom-client.development.js:7674
-updateFunctionComponent @ react-dom-client.development.js:10166
-beginWork @ react-dom-client.development.js:11778
-runWithFiberInDEV @ react-dom-client.development.js:871
-performUnitOfWork @ react-dom-client.development.js:17641
-workLoopSync @ react-dom-client.development.js:17469
-renderRootSync @ react-dom-client.development.js:17450
-performWorkOnRoot @ react-dom-client.development.js:16504
-performSyncWorkOnRoot @ react-dom-client.development.js:18972
-flushSyncWorkAcrossRoots_impl @ react-dom-client.development.js:18814
-flushSyncWork$1 @ react-dom-client.development.js:16898
-batchedUpdates$1 @ react-dom-client.development.js:3263
-dispatchEventForPluginEventSystem @ react-dom-client.development.js:19320
-dispatchEvent @ react-dom-client.development.js:23585
-dispatchDiscreteEvent @ react-dom-client.development.js:23553
-ModelDownloadProgress.tsx:81  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-$204d9ebcedfb8806$export$ed5abd763a836edc @ useProgressBar.ts:44
-useProgress @ chunk-MXO63OUV.mjs:41
-HeroUI.Progress @ chunk-VFIJPDYX.mjs:19
-react_stack_bottom_frame @ react-dom-client.development.js:25904
-renderWithHooksAgain @ react-dom-client.development.js:7762
-renderWithHooks @ react-dom-client.development.js:7674
-updateForwardRef @ react-dom-client.development.js:9724
-beginWork @ react-dom-client.development.js:12117
-runWithFiberInDEV @ react-dom-client.development.js:871
-performUnitOfWork @ react-dom-client.development.js:17641
-workLoopSync @ react-dom-client.development.js:17469
-renderRootSync @ react-dom-client.development.js:17450
-performWorkOnRoot @ react-dom-client.development.js:16504
-performWorkOnRootViaSchedulerTask @ react-dom-client.development.js:18957
-performWorkUntilDeadline @ scheduler.development.js:45
-<HeroUI.Progress>
-exports.jsxDEV @ react-jsx-dev-runtime.development.js:335
-renderContent @ ModelDownloadProgress.tsx:81
-ModelDownloadProgress @ ModelDownloadProgress.tsx:216
-react_stack_bottom_frame @ react-dom-client.development.js:25904
-renderWithHooksAgain @ react-dom-client.development.js:7762
-renderWithHooks @ react-dom-client.development.js:7674
-updateFunctionComponent @ react-dom-client.development.js:10166
-beginWork @ react-dom-client.development.js:11778
-runWithFiberInDEV @ react-dom-client.development.js:871
-performUnitOfWork @ react-dom-client.development.js:17641
-workLoopSync @ react-dom-client.development.js:17469
-renderRootSync @ react-dom-client.development.js:17450
-performWorkOnRoot @ react-dom-client.development.js:16504
-performSyncWorkOnRoot @ react-dom-client.development.js:18972
-flushSyncWorkAcrossRoots_impl @ react-dom-client.development.js:18814
-flushSyncWork$1 @ react-dom-client.development.js:16898
-batchedUpdates$1 @ react-dom-client.development.js:3263
-dispatchEventForPluginEventSystem @ react-dom-client.development.js:19320
-dispatchEvent @ react-dom-client.development.js:23585
-dispatchDiscreteEvent @ react-dom-client.development.js:23553
+BaseProvider.ts:99 [BaseProvider] Response received: 200 OK
+LLMProvider.ts:258 [LLMProvider] Structured request completed in 59416ms
+LLMProvider.ts:269 [LLMProvider] Response length: 300 characters
+LLMProvider.ts:296 [LLMProvider] Structured output validated successfully
+scriptParser.ts:1370 [ScriptParser] Structured output received successfully
+scriptParser.ts:1530 [ScriptParser] Metadata extracted successfully (Structured Output):
+scriptParser.ts:1531   - Title: 青衫昭雪
+scriptParser.ts:1532   - Word Count: 390
+scriptParser.ts:1533   - Characters: 7 (沈清辞, 苏砚, 萧景渊, 吏部尚书, 皇上, 丞相, 沈砚)
+scriptParser.ts:1534   - Scenes: 5 (沈家抄斩现场, 民间隐居地, 京城吏部, 萧景渊试探场所, 朝会大殿)
+scriptParser.ts:1535   - Genre: 古装
+scriptParser.ts:1536   - Tone: 正剧
+scriptParser.ts:1473 [ScriptParser] ========== Extracting Global Context ==========
+scriptParser.ts:1455 [ScriptParser] GlobalContextExtractor initialized with maxTokens: 5000
+scriptParser.ts:1458 [ScriptParser] GlobalContextExtractor initialized with model config
+GlobalContextExtractor.ts:119 [GlobalContextExtractor] Starting optimized extraction (single LLM call)...
+LLMProvider.ts:81 [LLMProvider] ========== API Request ==========
+LLMProvider.ts:82 [LLMProvider] Endpoint: https://ark.cn-beijing.volces.com/api/v3/chat/completions
+LLMProvider.ts:83 [LLMProvider] Model: doubao-seed-1-6-251015
+LLMProvider.ts:84 [LLMProvider] enable_thinking: false
+LLMProvider.ts:85 [LLMProvider] Temperature: 0.3
+LLMProvider.ts:86 [LLMProvider] Max Tokens: 5000
+LLMProvider.ts:87 [LLMProvider] Messages count: 2
+LLMProvider.ts:88 [LLMProvider] First message length: 48 characters
+LLMProvider.ts:89 [LLMProvider] Request body: {
+  "model": "doubao-seed-1-6-251015",
+  "messages": [
+    {
+      "role": "system",
+      "content": "你是一个专业的剧本分析助手，擅长从小说/剧本中提取结构化信息。请严格按照要求的JSON格式输出。"
+    },
+    {
+      "role": "user",
+      "content": "\n请深入分析以下剧本/小说，一次性提取故事核心、视觉风格和时代背景信息。\n\n【剧本内容】\n大靖王朝，御史大夫沈砚因弹劾丞相谋逆，被诬陷下狱，沈家满门抄斩，独留幼子沈清辞被忠仆所救，隐于民间。十年后，沈清辞化名苏砚，以布衣身份入京城，蛰伏于吏部当差，伺机翻案。\n\n他聪慧过人，行事低调，很快凭借精准的断案能力得到吏部尚书赏识，却也引起丞相之子萧景渊的注意。萧景渊多疑狠辣，察觉苏砚身份蹊跷，屡次试探刁难，皆被沈清辞巧妙化解。\n\n一次，萧景渊设计陷害吏部尚书贪腐，欲嫁祸沈清辞。沈清辞早有防备，提前收集萧景渊勾结地方官的证据，借朝会之机，当众呈给皇上。皇上震怒，下令彻查丞相一...
+LLMProvider.ts:91 [LLMProvider] Sending request...
+BaseProvider.ts:63 [BaseProvider] Requesting: https://ark.cn-beijing.volces.com/api/v3/chat/completions, Mode: DEV, Localhost: true
+BaseProvider.ts:84 [BaseProvider] Using Proxy: /api/universal-proxy -> https://ark.cn-beijing.volces.com/api/v3/chat/completions
+提取 已完成加载:POST "<URL>"。
+提取 已完成加载:POST "<URL>"。
+提取 已完成加载:POST "<URL>"。
+提取 已完成加载:POST "<URL>"。
+提取 已完成加载:POST "<URL>"。
+提取 已完成加载:POST "<URL>"。
+提取 已完成加载:POST "<URL>"。
+提取 已完成加载:POST "<URL>"。
 AppContext.tsx:24 [STORAGE] Connection check: Connected=true, Responsive=true
-EmbeddingService.ts:146 提取 加载失败:GET "https://cdn.jsdelivr.net/npm/@xenova/transformers@2.17.2/dist/ort-wasm-simd.wasm".
-(匿名) @ ort-wasm.js:46
-r @ ort-wasm.js:46
-(匿名) @ wasm-factory.ts:151
-e.initializeWebAssembly @ wasm-factory.ts:118
-e.initWasm @ proxy-wrapper.ts:133
-init @ backend-wasm.ts:41
-resolveBackend @ backend-impl.ts:85
-create @ inference-session-impl.ts:188
-constructSession @ models.js:126
-await in constructSession
-from_pretrained @ models.js:795
-from_pretrained @ models.js:5519
-await in from_pretrained
-loadItems @ pipelines.js:3271
-pipeline @ pipelines.js:3219
-doInitialize @ EmbeddingService.ts:146
-initialize @ EmbeddingService.ts:125
-onToggle @ ScriptManager.tsx:1373
-handleToggle @ VectorMemoryToggle.tsx:55
-(匿名) @ useControlledState.ts:61
-updateSelected @ useToggleState.ts:46
-onChange @ useToggle.ts:64
+BaseProvider.ts:99 [BaseProvider] Response received: 200 OK
+LLMProvider.ts:104 [LLMProvider] Request completed in 41026ms
+LLMProvider.ts:118 [LLMProvider] ========== API Response ==========
+LLMProvider.ts:119 [LLMProvider] Response length: 1056 characters
+LLMProvider.ts:120 [LLMProvider] Prompt tokens: 798
+LLMProvider.ts:121 [LLMProvider] Completion tokens: 1782
+LLMProvider.ts:122 [LLMProvider] Total tokens: 2580
+LLMProvider.ts:123 [LLMProvider] Response preview: {
+  "story": {
+    "synopsis": "大靖王朝御史沈砚遭诬陷满门抄斩，幼子沈清辞被忠仆所救隐民间。十年后化名苏砚入吏部，凭断案能力获赏识，遭丞相子萧景渊试探陷害。他提前收集证...
+GlobalContextExtractor.ts:127 [GlobalContextExtractor] Unified extraction completed in 41028ms
+LLMProvider.ts:81 [LLMProvider] ========== API Request ==========
+LLMProvider.ts:82 [LLMProvider] Endpoint: https://ark.cn-beijing.volces.com/api/v3/chat/completions
+LLMProvider.ts:83 [LLMProvider] Model: doubao-seed-1-6-251015
+LLMProvider.ts:84 [LLMProvider] enable_thinking: false
+LLMProvider.ts:85 [LLMProvider] Temperature: 0.3
+LLMProvider.ts:86 [LLMProvider] Max Tokens: 5000
+LLMProvider.ts:87 [LLMProvider] Messages count: 2
+LLMProvider.ts:88 [LLMProvider] First message length: 51 characters
+LLMProvider.ts:89 [LLMProvider] Request body: {
+  "model": "doubao-seed-1-6-251015",
+  "messages": [
+    {
+      "role": "system",
+      "content": "你是一个专业的情绪分析助手，擅长从剧本中提取情绪曲线和情感变化信息。请严格按照要求的JSON格式输出。"
+    },
+    {
+      "role": "user",
+      "content": "\n基于以下故事信息，分析情绪曲线：\n\n【故事梗概】\n大靖王朝御史沈砚遭诬陷满门抄斩，幼子沈清辞被忠仆所救隐民间。十年后化名苏砚入吏部，凭断案能力获赏识，遭丞相子萧景渊试探陷害。他提前收集证据，朝会呈给皇上，揭露身份，终使沈家冤案昭雪，获封御史中丞。\n\n【故事结构】\n第一幕：沈砚被陷，沈清辞幸存后化名入京城吏部\n第二幕上：苏砚得赏识，遭萧景渊多次试探刁难\n第二幕下：萧景渊设计陷害苏砚与吏部尚书\n第三幕：丞相倒台，沈家昭雪，苏砚封御史中丞\n中点：苏砚提前收集萧景渊勾结地方官的证据\n高潮：苏砚朝会呈证据，公开身份揭露真相\n\n【剧本片段】\n大靖王朝，御史...
+LLMProvider.ts:91 [LLMProvider] Sending request...
+BaseProvider.ts:63 [BaseProvider] Requesting: https://ark.cn-beijing.volces.com/api/v3/chat/completions, Mode: DEV, Localhost: true
+BaseProvider.ts:84 [BaseProvider] Using Proxy: /api/universal-proxy -> https://ark.cn-beijing.volces.com/api/v3/chat/completions
+BaseProvider.ts:99 [BaseProvider] Response received: 200 OK
+LLMProvider.ts:104 [LLMProvider] Request completed in 40283ms
+LLMProvider.ts:118 [LLMProvider] ========== API Response ==========
+LLMProvider.ts:119 [LLMProvider] Response length: 1458 characters
+LLMProvider.ts:120 [LLMProvider] Prompt tokens: 709
+LLMProvider.ts:121 [LLMProvider] Completion tokens: 1757
+LLMProvider.ts:122 [LLMProvider] Total tokens: 2466
+LLMProvider.ts:123 [LLMProvider] Response preview: {
+  "overallMood": "悬疑紧张且励志复仇",
+  "arc": [
+    {
+      "plotPoint": "沈家蒙冤，幼子幸存",
+      "emotion": "悲...
+scriptParser.ts:1486 [ScriptParser] Global context extracted successfully:
+scriptParser.ts:1487   - Story synopsis: 大靖王朝御史沈砚遭诬陷满门抄斩，幼子沈清辞被忠仆所救隐民间。十年后化名苏砚入吏部，凭断案能力获赏识，...
+scriptParser.ts:1488   - Visual style: 古风写实+水墨意境
+scriptParser.ts:1489   - Era: 大靖王朝
+scriptParser.ts:1490   - Emotional arc points: 10
+scriptParser.ts:1491   - Consistency rules: 3 era constraints
+scriptParser.ts:1544 [ScriptParser] Global context merged into metadata
+scriptParser.ts:2305 [ScriptParser] Processing 7 remaining characters
+scriptParser.ts:2317  Failed to extract character 沈清辞: TypeError: this.extractCharacter is not a function
+    at scriptParser.ts:2314:44
+    at ConcurrencyLimiter.run (scriptParser.ts:665:20)
+    at scriptParser.ts:2309:24
+    at Array.map (<anonymous>)
+    at ScriptParser.parseScript (scriptParser.ts:2308:59)
+    at async handleParseScript (ScriptManager.tsx:458:26)
+(匿名) @ scriptParser.ts:2317
+run @ scriptParser.ts:665
+(匿名) @ scriptParser.ts:2309
+parseScript @ scriptParser.ts:2308
+await in parseScript
+handleParseScript @ ScriptManager.tsx:458
+onConfirm @ ScriptManager.tsx:1254
 (匿名) @ index.mjs:362
+(匿名) @ usePress.ts:249
+onClick @ usePress.ts:548
 executeDispatch @ react-dom-client.development.js:19116
 runWithFiberInDEV @ react-dom-client.development.js:871
 processDispatchQueue @ react-dom-client.development.js:19166
@@ -235,9 +200,9 @@ batchedUpdates$1 @ react-dom-client.development.js:3255
 dispatchEventForPluginEventSystem @ react-dom-client.development.js:19320
 dispatchEvent @ react-dom-client.development.js:23585
 dispatchDiscreteEvent @ react-dom-client.development.js:23553
-<input>
-exports.jsx @ react-jsx-runtime.development.js:335
-HeroUI.Switch @ chunk-I3A4XRYQ.mjs:30
+<button>
+exports.jsxs @ react-jsx-runtime.development.js:349
+HeroUI.Button @ chunk-WBUKVQRU.mjs:27
 react_stack_bottom_frame @ react-dom-client.development.js:25904
 renderWithHooksAgain @ react-dom-client.development.js:7762
 renderWithHooks @ react-dom-client.development.js:7674
@@ -248,11 +213,13 @@ performUnitOfWork @ react-dom-client.development.js:17641
 workLoopSync @ react-dom-client.development.js:17469
 renderRootSync @ react-dom-client.development.js:17450
 performWorkOnRoot @ react-dom-client.development.js:16504
-performWorkOnRootViaSchedulerTask @ react-dom-client.development.js:18957
-performWorkUntilDeadline @ scheduler.development.js:45
-<HeroUI.Switch>
+performSyncWorkOnRoot @ react-dom-client.development.js:18972
+flushSyncWorkAcrossRoots_impl @ react-dom-client.development.js:18814
+processRootScheduleInMicrotask @ react-dom-client.development.js:18853
+(匿名) @ react-dom-client.development.js:18991
+<HeroUI.Button>
 exports.jsxDEV @ react-jsx-dev-runtime.development.js:335
-VectorMemoryToggle @ VectorMemoryToggle.tsx:122
+ParseConfigConfirmModal @ ParseConfigConfirmModal.tsx:192
 react_stack_bottom_frame @ react-dom-client.development.js:25904
 renderWithHooksAgain @ react-dom-client.development.js:7762
 renderWithHooks @ react-dom-client.development.js:7674
@@ -263,32 +230,27 @@ performUnitOfWork @ react-dom-client.development.js:17641
 workLoopSync @ react-dom-client.development.js:17469
 renderRootSync @ react-dom-client.development.js:17450
 performWorkOnRoot @ react-dom-client.development.js:16504
-performWorkOnRootViaSchedulerTask @ react-dom-client.development.js:18957
-performWorkUntilDeadline @ scheduler.development.js:45
-EmbeddingService.ts:146   GET https://cdn.jsdelivr.net/npm/@xenova/transformers@2.17.2/dist/ort-wasm-simd.wasm net::ERR_CONNECTION_TIMED_OUT
-(匿名) @ ort-wasm.js:46
-r @ ort-wasm.js:46
-(匿名) @ wasm-factory.ts:151
-e.initializeWebAssembly @ wasm-factory.ts:118
-e.initWasm @ proxy-wrapper.ts:133
-init @ backend-wasm.ts:41
-resolveBackend @ backend-impl.ts:85
-create @ inference-session-impl.ts:188
-constructSession @ models.js:126
-await in constructSession
-from_pretrained @ models.js:795
-from_pretrained @ models.js:5519
-await in from_pretrained
-loadItems @ pipelines.js:3271
-pipeline @ pipelines.js:3219
-doInitialize @ EmbeddingService.ts:146
-initialize @ EmbeddingService.ts:125
-onToggle @ ScriptManager.tsx:1373
-handleToggle @ VectorMemoryToggle.tsx:55
-(匿名) @ useControlledState.ts:61
-updateSelected @ useToggleState.ts:46
-onChange @ useToggle.ts:64
+performSyncWorkOnRoot @ react-dom-client.development.js:18972
+flushSyncWorkAcrossRoots_impl @ react-dom-client.development.js:18814
+processRootScheduleInMicrotask @ react-dom-client.development.js:18853
+(匿名) @ react-dom-client.development.js:18991
+scriptParser.ts:2317  Failed to extract character 苏砚: TypeError: this.extractCharacter is not a function
+    at scriptParser.ts:2314:44
+    at ConcurrencyLimiter.run (scriptParser.ts:665:20)
+    at scriptParser.ts:2309:24
+    at Array.map (<anonymous>)
+    at ScriptParser.parseScript (scriptParser.ts:2308:59)
+    at async handleParseScript (ScriptManager.tsx:458:26)
+(匿名) @ scriptParser.ts:2317
+run @ scriptParser.ts:665
+(匿名) @ scriptParser.ts:2309
+parseScript @ scriptParser.ts:2308
+await in parseScript
+handleParseScript @ ScriptManager.tsx:458
+onConfirm @ ScriptManager.tsx:1254
 (匿名) @ index.mjs:362
+(匿名) @ usePress.ts:249
+onClick @ usePress.ts:548
 executeDispatch @ react-dom-client.development.js:19116
 runWithFiberInDEV @ react-dom-client.development.js:871
 processDispatchQueue @ react-dom-client.development.js:19166
@@ -297,9 +259,9 @@ batchedUpdates$1 @ react-dom-client.development.js:3255
 dispatchEventForPluginEventSystem @ react-dom-client.development.js:19320
 dispatchEvent @ react-dom-client.development.js:23585
 dispatchDiscreteEvent @ react-dom-client.development.js:23553
-<input>
-exports.jsx @ react-jsx-runtime.development.js:335
-HeroUI.Switch @ chunk-I3A4XRYQ.mjs:30
+<button>
+exports.jsxs @ react-jsx-runtime.development.js:349
+HeroUI.Button @ chunk-WBUKVQRU.mjs:27
 react_stack_bottom_frame @ react-dom-client.development.js:25904
 renderWithHooksAgain @ react-dom-client.development.js:7762
 renderWithHooks @ react-dom-client.development.js:7674
@@ -310,11 +272,13 @@ performUnitOfWork @ react-dom-client.development.js:17641
 workLoopSync @ react-dom-client.development.js:17469
 renderRootSync @ react-dom-client.development.js:17450
 performWorkOnRoot @ react-dom-client.development.js:16504
-performWorkOnRootViaSchedulerTask @ react-dom-client.development.js:18957
-performWorkUntilDeadline @ scheduler.development.js:45
-<HeroUI.Switch>
+performSyncWorkOnRoot @ react-dom-client.development.js:18972
+flushSyncWorkAcrossRoots_impl @ react-dom-client.development.js:18814
+processRootScheduleInMicrotask @ react-dom-client.development.js:18853
+(匿名) @ react-dom-client.development.js:18991
+<HeroUI.Button>
 exports.jsxDEV @ react-jsx-dev-runtime.development.js:335
-VectorMemoryToggle @ VectorMemoryToggle.tsx:122
+ParseConfigConfirmModal @ ParseConfigConfirmModal.tsx:192
 react_stack_bottom_frame @ react-dom-client.development.js:25904
 renderWithHooksAgain @ react-dom-client.development.js:7762
 renderWithHooks @ react-dom-client.development.js:7674
@@ -325,18 +289,27 @@ performUnitOfWork @ react-dom-client.development.js:17641
 workLoopSync @ react-dom-client.development.js:17469
 renderRootSync @ react-dom-client.development.js:17450
 performWorkOnRoot @ react-dom-client.development.js:16504
-performWorkOnRootViaSchedulerTask @ react-dom-client.development.js:18957
-performWorkUntilDeadline @ scheduler.development.js:45
-EmbeddingService.ts:164  [EmbeddingService] Local model not found
-doInitialize @ EmbeddingService.ts:164
-await in doInitialize
-initialize @ EmbeddingService.ts:125
-onToggle @ ScriptManager.tsx:1373
-handleToggle @ VectorMemoryToggle.tsx:55
-(匿名) @ useControlledState.ts:61
-updateSelected @ useToggleState.ts:46
-onChange @ useToggle.ts:64
+performSyncWorkOnRoot @ react-dom-client.development.js:18972
+flushSyncWorkAcrossRoots_impl @ react-dom-client.development.js:18814
+processRootScheduleInMicrotask @ react-dom-client.development.js:18853
+(匿名) @ react-dom-client.development.js:18991
+scriptParser.ts:2317  Failed to extract character 萧景渊: TypeError: this.extractCharacter is not a function
+    at scriptParser.ts:2314:44
+    at ConcurrencyLimiter.run (scriptParser.ts:665:20)
+    at scriptParser.ts:2309:24
+    at Array.map (<anonymous>)
+    at ScriptParser.parseScript (scriptParser.ts:2308:59)
+    at async handleParseScript (ScriptManager.tsx:458:26)
+(匿名) @ scriptParser.ts:2317
+run @ scriptParser.ts:665
+(匿名) @ scriptParser.ts:2309
+parseScript @ scriptParser.ts:2308
+await in parseScript
+handleParseScript @ ScriptManager.tsx:458
+onConfirm @ ScriptManager.tsx:1254
 (匿名) @ index.mjs:362
+(匿名) @ usePress.ts:249
+onClick @ usePress.ts:548
 executeDispatch @ react-dom-client.development.js:19116
 runWithFiberInDEV @ react-dom-client.development.js:871
 processDispatchQueue @ react-dom-client.development.js:19166
@@ -345,9 +318,9 @@ batchedUpdates$1 @ react-dom-client.development.js:3255
 dispatchEventForPluginEventSystem @ react-dom-client.development.js:19320
 dispatchEvent @ react-dom-client.development.js:23585
 dispatchDiscreteEvent @ react-dom-client.development.js:23553
-<input>
-exports.jsx @ react-jsx-runtime.development.js:335
-HeroUI.Switch @ chunk-I3A4XRYQ.mjs:30
+<button>
+exports.jsxs @ react-jsx-runtime.development.js:349
+HeroUI.Button @ chunk-WBUKVQRU.mjs:27
 react_stack_bottom_frame @ react-dom-client.development.js:25904
 renderWithHooksAgain @ react-dom-client.development.js:7762
 renderWithHooks @ react-dom-client.development.js:7674
@@ -358,11 +331,13 @@ performUnitOfWork @ react-dom-client.development.js:17641
 workLoopSync @ react-dom-client.development.js:17469
 renderRootSync @ react-dom-client.development.js:17450
 performWorkOnRoot @ react-dom-client.development.js:16504
-performWorkOnRootViaSchedulerTask @ react-dom-client.development.js:18957
-performWorkUntilDeadline @ scheduler.development.js:45
-<HeroUI.Switch>
+performSyncWorkOnRoot @ react-dom-client.development.js:18972
+flushSyncWorkAcrossRoots_impl @ react-dom-client.development.js:18814
+processRootScheduleInMicrotask @ react-dom-client.development.js:18853
+(匿名) @ react-dom-client.development.js:18991
+<HeroUI.Button>
 exports.jsxDEV @ react-jsx-dev-runtime.development.js:335
-VectorMemoryToggle @ VectorMemoryToggle.tsx:122
+ParseConfigConfirmModal @ ParseConfigConfirmModal.tsx:192
 react_stack_bottom_frame @ react-dom-client.development.js:25904
 renderWithHooksAgain @ react-dom-client.development.js:7762
 renderWithHooks @ react-dom-client.development.js:7674
@@ -373,21 +348,27 @@ performUnitOfWork @ react-dom-client.development.js:17641
 workLoopSync @ react-dom-client.development.js:17469
 renderRootSync @ react-dom-client.development.js:17450
 performWorkOnRoot @ react-dom-client.development.js:16504
-performWorkOnRootViaSchedulerTask @ react-dom-client.development.js:18957
-performWorkUntilDeadline @ scheduler.development.js:45
-EmbeddingService.ts:204  [EmbeddingService] Failed to load model: Error: Local model not found. Please run "npm run download-model" first.
-    at EmbeddingService.doInitialize (EmbeddingService.ts:171:17)
-    at async onToggle (ScriptManager.tsx:1373:21)
-    at async handleToggle (VectorMemoryToggle.tsx:55:9)
-doInitialize @ EmbeddingService.ts:204
-await in doInitialize
-initialize @ EmbeddingService.ts:125
-onToggle @ ScriptManager.tsx:1373
-handleToggle @ VectorMemoryToggle.tsx:55
-(匿名) @ useControlledState.ts:61
-updateSelected @ useToggleState.ts:46
-onChange @ useToggle.ts:64
+performSyncWorkOnRoot @ react-dom-client.development.js:18972
+flushSyncWorkAcrossRoots_impl @ react-dom-client.development.js:18814
+processRootScheduleInMicrotask @ react-dom-client.development.js:18853
+(匿名) @ react-dom-client.development.js:18991
+scriptParser.ts:2317  Failed to extract character 吏部尚书: TypeError: this.extractCharacter is not a function
+    at scriptParser.ts:2314:44
+    at ConcurrencyLimiter.run (scriptParser.ts:665:20)
+    at async Promise.all (:3001/index 3)
+    at async ScriptParser.parseScript (scriptParser.ts:2336:9)
+    at async handleParseScript (ScriptManager.tsx:458:26)
+(匿名) @ scriptParser.ts:2317
+run @ scriptParser.ts:665
+await in run
+(匿名) @ scriptParser.ts:2309
+parseScript @ scriptParser.ts:2308
+await in parseScript
+handleParseScript @ ScriptManager.tsx:458
+onConfirm @ ScriptManager.tsx:1254
 (匿名) @ index.mjs:362
+(匿名) @ usePress.ts:249
+onClick @ usePress.ts:548
 executeDispatch @ react-dom-client.development.js:19116
 runWithFiberInDEV @ react-dom-client.development.js:871
 processDispatchQueue @ react-dom-client.development.js:19166
@@ -396,9 +377,9 @@ batchedUpdates$1 @ react-dom-client.development.js:3255
 dispatchEventForPluginEventSystem @ react-dom-client.development.js:19320
 dispatchEvent @ react-dom-client.development.js:23585
 dispatchDiscreteEvent @ react-dom-client.development.js:23553
-<input>
-exports.jsx @ react-jsx-runtime.development.js:335
-HeroUI.Switch @ chunk-I3A4XRYQ.mjs:30
+<button>
+exports.jsxs @ react-jsx-runtime.development.js:349
+HeroUI.Button @ chunk-WBUKVQRU.mjs:27
 react_stack_bottom_frame @ react-dom-client.development.js:25904
 renderWithHooksAgain @ react-dom-client.development.js:7762
 renderWithHooks @ react-dom-client.development.js:7674
@@ -409,11 +390,13 @@ performUnitOfWork @ react-dom-client.development.js:17641
 workLoopSync @ react-dom-client.development.js:17469
 renderRootSync @ react-dom-client.development.js:17450
 performWorkOnRoot @ react-dom-client.development.js:16504
-performWorkOnRootViaSchedulerTask @ react-dom-client.development.js:18957
-performWorkUntilDeadline @ scheduler.development.js:45
-<HeroUI.Switch>
+performSyncWorkOnRoot @ react-dom-client.development.js:18972
+flushSyncWorkAcrossRoots_impl @ react-dom-client.development.js:18814
+processRootScheduleInMicrotask @ react-dom-client.development.js:18853
+(匿名) @ react-dom-client.development.js:18991
+<HeroUI.Button>
 exports.jsxDEV @ react-jsx-dev-runtime.development.js:335
-VectorMemoryToggle @ VectorMemoryToggle.tsx:122
+ParseConfigConfirmModal @ ParseConfigConfirmModal.tsx:192
 react_stack_bottom_frame @ react-dom-client.development.js:25904
 renderWithHooksAgain @ react-dom-client.development.js:7762
 renderWithHooks @ react-dom-client.development.js:7674
@@ -424,19 +407,27 @@ performUnitOfWork @ react-dom-client.development.js:17641
 workLoopSync @ react-dom-client.development.js:17469
 renderRootSync @ react-dom-client.development.js:17450
 performWorkOnRoot @ react-dom-client.development.js:16504
-performWorkOnRootViaSchedulerTask @ react-dom-client.development.js:18957
-performWorkUntilDeadline @ scheduler.development.js:45
-ScriptManager.tsx:1384  [ScriptManager] Model download failed: Error: Local model not found. Please run "npm run download-model" first.
-    at EmbeddingService.doInitialize (EmbeddingService.ts:171:17)
-    at async onToggle (ScriptManager.tsx:1373:21)
-    at async handleToggle (VectorMemoryToggle.tsx:55:9)
-onToggle @ ScriptManager.tsx:1384
-await in onToggle
-handleToggle @ VectorMemoryToggle.tsx:55
-(匿名) @ useControlledState.ts:61
-updateSelected @ useToggleState.ts:46
-onChange @ useToggle.ts:64
+performSyncWorkOnRoot @ react-dom-client.development.js:18972
+flushSyncWorkAcrossRoots_impl @ react-dom-client.development.js:18814
+processRootScheduleInMicrotask @ react-dom-client.development.js:18853
+(匿名) @ react-dom-client.development.js:18991
+scriptParser.ts:2317  Failed to extract character 皇上: TypeError: this.extractCharacter is not a function
+    at scriptParser.ts:2314:44
+    at ConcurrencyLimiter.run (scriptParser.ts:665:20)
+    at async Promise.all (:3001/index 4)
+    at async ScriptParser.parseScript (scriptParser.ts:2336:9)
+    at async handleParseScript (ScriptManager.tsx:458:26)
+(匿名) @ scriptParser.ts:2317
+run @ scriptParser.ts:665
+await in run
+(匿名) @ scriptParser.ts:2309
+parseScript @ scriptParser.ts:2308
+await in parseScript
+handleParseScript @ ScriptManager.tsx:458
+onConfirm @ ScriptManager.tsx:1254
 (匿名) @ index.mjs:362
+(匿名) @ usePress.ts:249
+onClick @ usePress.ts:548
 executeDispatch @ react-dom-client.development.js:19116
 runWithFiberInDEV @ react-dom-client.development.js:871
 processDispatchQueue @ react-dom-client.development.js:19166
@@ -445,9 +436,9 @@ batchedUpdates$1 @ react-dom-client.development.js:3255
 dispatchEventForPluginEventSystem @ react-dom-client.development.js:19320
 dispatchEvent @ react-dom-client.development.js:23585
 dispatchDiscreteEvent @ react-dom-client.development.js:23553
-<input>
-exports.jsx @ react-jsx-runtime.development.js:335
-HeroUI.Switch @ chunk-I3A4XRYQ.mjs:30
+<button>
+exports.jsxs @ react-jsx-runtime.development.js:349
+HeroUI.Button @ chunk-WBUKVQRU.mjs:27
 react_stack_bottom_frame @ react-dom-client.development.js:25904
 renderWithHooksAgain @ react-dom-client.development.js:7762
 renderWithHooks @ react-dom-client.development.js:7674
@@ -458,11 +449,13 @@ performUnitOfWork @ react-dom-client.development.js:17641
 workLoopSync @ react-dom-client.development.js:17469
 renderRootSync @ react-dom-client.development.js:17450
 performWorkOnRoot @ react-dom-client.development.js:16504
-performWorkOnRootViaSchedulerTask @ react-dom-client.development.js:18957
-performWorkUntilDeadline @ scheduler.development.js:45
-<HeroUI.Switch>
+performSyncWorkOnRoot @ react-dom-client.development.js:18972
+flushSyncWorkAcrossRoots_impl @ react-dom-client.development.js:18814
+processRootScheduleInMicrotask @ react-dom-client.development.js:18853
+(匿名) @ react-dom-client.development.js:18991
+<HeroUI.Button>
 exports.jsxDEV @ react-jsx-dev-runtime.development.js:335
-VectorMemoryToggle @ VectorMemoryToggle.tsx:122
+ParseConfigConfirmModal @ ParseConfigConfirmModal.tsx:192
 react_stack_bottom_frame @ react-dom-client.development.js:25904
 renderWithHooksAgain @ react-dom-client.development.js:7762
 renderWithHooks @ react-dom-client.development.js:7674
@@ -473,5 +466,820 @@ performUnitOfWork @ react-dom-client.development.js:17641
 workLoopSync @ react-dom-client.development.js:17469
 renderRootSync @ react-dom-client.development.js:17450
 performWorkOnRoot @ react-dom-client.development.js:16504
-performWorkOnRootViaSchedulerTask @ react-dom-client.development.js:18957
-performWorkUntilDeadline @ scheduler.development.js:45
+performSyncWorkOnRoot @ react-dom-client.development.js:18972
+flushSyncWorkAcrossRoots_impl @ react-dom-client.development.js:18814
+processRootScheduleInMicrotask @ react-dom-client.development.js:18853
+(匿名) @ react-dom-client.development.js:18991
+scriptParser.ts:2317  Failed to extract character 丞相: TypeError: this.extractCharacter is not a function
+    at scriptParser.ts:2314:44
+    at ConcurrencyLimiter.run (scriptParser.ts:665:20)
+    at async Promise.all (:3001/index 5)
+    at async ScriptParser.parseScript (scriptParser.ts:2336:9)
+    at async handleParseScript (ScriptManager.tsx:458:26)
+(匿名) @ scriptParser.ts:2317
+run @ scriptParser.ts:665
+await in run
+(匿名) @ scriptParser.ts:2309
+parseScript @ scriptParser.ts:2308
+await in parseScript
+handleParseScript @ ScriptManager.tsx:458
+onConfirm @ ScriptManager.tsx:1254
+(匿名) @ index.mjs:362
+(匿名) @ usePress.ts:249
+onClick @ usePress.ts:548
+executeDispatch @ react-dom-client.development.js:19116
+runWithFiberInDEV @ react-dom-client.development.js:871
+processDispatchQueue @ react-dom-client.development.js:19166
+(匿名) @ react-dom-client.development.js:19767
+batchedUpdates$1 @ react-dom-client.development.js:3255
+dispatchEventForPluginEventSystem @ react-dom-client.development.js:19320
+dispatchEvent @ react-dom-client.development.js:23585
+dispatchDiscreteEvent @ react-dom-client.development.js:23553
+<button>
+exports.jsxs @ react-jsx-runtime.development.js:349
+HeroUI.Button @ chunk-WBUKVQRU.mjs:27
+react_stack_bottom_frame @ react-dom-client.development.js:25904
+renderWithHooksAgain @ react-dom-client.development.js:7762
+renderWithHooks @ react-dom-client.development.js:7674
+updateForwardRef @ react-dom-client.development.js:9724
+beginWork @ react-dom-client.development.js:12117
+runWithFiberInDEV @ react-dom-client.development.js:871
+performUnitOfWork @ react-dom-client.development.js:17641
+workLoopSync @ react-dom-client.development.js:17469
+renderRootSync @ react-dom-client.development.js:17450
+performWorkOnRoot @ react-dom-client.development.js:16504
+performSyncWorkOnRoot @ react-dom-client.development.js:18972
+flushSyncWorkAcrossRoots_impl @ react-dom-client.development.js:18814
+processRootScheduleInMicrotask @ react-dom-client.development.js:18853
+(匿名) @ react-dom-client.development.js:18991
+<HeroUI.Button>
+exports.jsxDEV @ react-jsx-dev-runtime.development.js:335
+ParseConfigConfirmModal @ ParseConfigConfirmModal.tsx:192
+react_stack_bottom_frame @ react-dom-client.development.js:25904
+renderWithHooksAgain @ react-dom-client.development.js:7762
+renderWithHooks @ react-dom-client.development.js:7674
+updateFunctionComponent @ react-dom-client.development.js:10166
+beginWork @ react-dom-client.development.js:11778
+runWithFiberInDEV @ react-dom-client.development.js:871
+performUnitOfWork @ react-dom-client.development.js:17641
+workLoopSync @ react-dom-client.development.js:17469
+renderRootSync @ react-dom-client.development.js:17450
+performWorkOnRoot @ react-dom-client.development.js:16504
+performSyncWorkOnRoot @ react-dom-client.development.js:18972
+flushSyncWorkAcrossRoots_impl @ react-dom-client.development.js:18814
+processRootScheduleInMicrotask @ react-dom-client.development.js:18853
+(匿名) @ react-dom-client.development.js:18991
+scriptParser.ts:2317  Failed to extract character 沈砚: TypeError: this.extractCharacter is not a function
+    at scriptParser.ts:2314:44
+    at ConcurrencyLimiter.run (scriptParser.ts:665:20)
+    at async Promise.all (:3001/index 6)
+    at async ScriptParser.parseScript (scriptParser.ts:2336:9)
+    at async handleParseScript (ScriptManager.tsx:458:26)
+(匿名) @ scriptParser.ts:2317
+run @ scriptParser.ts:665
+await in run
+(匿名) @ scriptParser.ts:2309
+parseScript @ scriptParser.ts:2308
+await in parseScript
+handleParseScript @ ScriptManager.tsx:458
+onConfirm @ ScriptManager.tsx:1254
+(匿名) @ index.mjs:362
+(匿名) @ usePress.ts:249
+onClick @ usePress.ts:548
+executeDispatch @ react-dom-client.development.js:19116
+runWithFiberInDEV @ react-dom-client.development.js:871
+processDispatchQueue @ react-dom-client.development.js:19166
+(匿名) @ react-dom-client.development.js:19767
+batchedUpdates$1 @ react-dom-client.development.js:3255
+dispatchEventForPluginEventSystem @ react-dom-client.development.js:19320
+dispatchEvent @ react-dom-client.development.js:23585
+dispatchDiscreteEvent @ react-dom-client.development.js:23553
+<button>
+exports.jsxs @ react-jsx-runtime.development.js:349
+HeroUI.Button @ chunk-WBUKVQRU.mjs:27
+react_stack_bottom_frame @ react-dom-client.development.js:25904
+renderWithHooksAgain @ react-dom-client.development.js:7762
+renderWithHooks @ react-dom-client.development.js:7674
+updateForwardRef @ react-dom-client.development.js:9724
+beginWork @ react-dom-client.development.js:12117
+runWithFiberInDEV @ react-dom-client.development.js:871
+performUnitOfWork @ react-dom-client.development.js:17641
+workLoopSync @ react-dom-client.development.js:17469
+renderRootSync @ react-dom-client.development.js:17450
+performWorkOnRoot @ react-dom-client.development.js:16504
+performSyncWorkOnRoot @ react-dom-client.development.js:18972
+flushSyncWorkAcrossRoots_impl @ react-dom-client.development.js:18814
+processRootScheduleInMicrotask @ react-dom-client.development.js:18853
+(匿名) @ react-dom-client.development.js:18991
+<HeroUI.Button>
+exports.jsxDEV @ react-jsx-dev-runtime.development.js:335
+ParseConfigConfirmModal @ ParseConfigConfirmModal.tsx:192
+react_stack_bottom_frame @ react-dom-client.development.js:25904
+renderWithHooksAgain @ react-dom-client.development.js:7762
+renderWithHooks @ react-dom-client.development.js:7674
+updateFunctionComponent @ react-dom-client.development.js:10166
+beginWork @ react-dom-client.development.js:11778
+runWithFiberInDEV @ react-dom-client.development.js:871
+performUnitOfWork @ react-dom-client.development.js:17641
+workLoopSync @ react-dom-client.development.js:17469
+renderRootSync @ react-dom-client.development.js:17450
+performWorkOnRoot @ react-dom-client.development.js:16504
+performSyncWorkOnRoot @ react-dom-client.development.js:18972
+flushSyncWorkAcrossRoots_impl @ react-dom-client.development.js:18814
+processRootScheduleInMicrotask @ react-dom-client.development.js:18853
+(匿名) @ react-dom-client.development.js:18991
+scriptParser.ts:2359 [ScriptParser] Processing 5 remaining scenes
+scriptParser.ts:2371  Failed to extract scene 沈家抄斩现场: TypeError: this.extractScene is not a function
+    at scriptParser.ts:2368:40
+    at ConcurrencyLimiter.run (scriptParser.ts:665:20)
+    at scriptParser.ts:2363:24
+    at Array.map (<anonymous>)
+    at ScriptParser.parseScript (scriptParser.ts:2362:51)
+    at async handleParseScript (ScriptManager.tsx:458:26)
+(匿名) @ scriptParser.ts:2371
+run @ scriptParser.ts:665
+(匿名) @ scriptParser.ts:2363
+parseScript @ scriptParser.ts:2362
+await in parseScript
+handleParseScript @ ScriptManager.tsx:458
+onConfirm @ ScriptManager.tsx:1254
+(匿名) @ index.mjs:362
+(匿名) @ usePress.ts:249
+onClick @ usePress.ts:548
+executeDispatch @ react-dom-client.development.js:19116
+runWithFiberInDEV @ react-dom-client.development.js:871
+processDispatchQueue @ react-dom-client.development.js:19166
+(匿名) @ react-dom-client.development.js:19767
+batchedUpdates$1 @ react-dom-client.development.js:3255
+dispatchEventForPluginEventSystem @ react-dom-client.development.js:19320
+dispatchEvent @ react-dom-client.development.js:23585
+dispatchDiscreteEvent @ react-dom-client.development.js:23553
+<button>
+exports.jsxs @ react-jsx-runtime.development.js:349
+HeroUI.Button @ chunk-WBUKVQRU.mjs:27
+react_stack_bottom_frame @ react-dom-client.development.js:25904
+renderWithHooksAgain @ react-dom-client.development.js:7762
+renderWithHooks @ react-dom-client.development.js:7674
+updateForwardRef @ react-dom-client.development.js:9724
+beginWork @ react-dom-client.development.js:12117
+runWithFiberInDEV @ react-dom-client.development.js:871
+performUnitOfWork @ react-dom-client.development.js:17641
+workLoopSync @ react-dom-client.development.js:17469
+renderRootSync @ react-dom-client.development.js:17450
+performWorkOnRoot @ react-dom-client.development.js:16504
+performSyncWorkOnRoot @ react-dom-client.development.js:18972
+flushSyncWorkAcrossRoots_impl @ react-dom-client.development.js:18814
+processRootScheduleInMicrotask @ react-dom-client.development.js:18853
+(匿名) @ react-dom-client.development.js:18991
+<HeroUI.Button>
+exports.jsxDEV @ react-jsx-dev-runtime.development.js:335
+ParseConfigConfirmModal @ ParseConfigConfirmModal.tsx:192
+react_stack_bottom_frame @ react-dom-client.development.js:25904
+renderWithHooksAgain @ react-dom-client.development.js:7762
+renderWithHooks @ react-dom-client.development.js:7674
+updateFunctionComponent @ react-dom-client.development.js:10166
+beginWork @ react-dom-client.development.js:11778
+runWithFiberInDEV @ react-dom-client.development.js:871
+performUnitOfWork @ react-dom-client.development.js:17641
+workLoopSync @ react-dom-client.development.js:17469
+renderRootSync @ react-dom-client.development.js:17450
+performWorkOnRoot @ react-dom-client.development.js:16504
+performSyncWorkOnRoot @ react-dom-client.development.js:18972
+flushSyncWorkAcrossRoots_impl @ react-dom-client.development.js:18814
+processRootScheduleInMicrotask @ react-dom-client.development.js:18853
+(匿名) @ react-dom-client.development.js:18991
+scriptParser.ts:2371  Failed to extract scene 民间隐居地: TypeError: this.extractScene is not a function
+    at scriptParser.ts:2368:40
+    at ConcurrencyLimiter.run (scriptParser.ts:665:20)
+    at scriptParser.ts:2363:24
+    at Array.map (<anonymous>)
+    at ScriptParser.parseScript (scriptParser.ts:2362:51)
+    at async handleParseScript (ScriptManager.tsx:458:26)
+(匿名) @ scriptParser.ts:2371
+run @ scriptParser.ts:665
+(匿名) @ scriptParser.ts:2363
+parseScript @ scriptParser.ts:2362
+await in parseScript
+handleParseScript @ ScriptManager.tsx:458
+onConfirm @ ScriptManager.tsx:1254
+(匿名) @ index.mjs:362
+(匿名) @ usePress.ts:249
+onClick @ usePress.ts:548
+executeDispatch @ react-dom-client.development.js:19116
+runWithFiberInDEV @ react-dom-client.development.js:871
+processDispatchQueue @ react-dom-client.development.js:19166
+(匿名) @ react-dom-client.development.js:19767
+batchedUpdates$1 @ react-dom-client.development.js:3255
+dispatchEventForPluginEventSystem @ react-dom-client.development.js:19320
+dispatchEvent @ react-dom-client.development.js:23585
+dispatchDiscreteEvent @ react-dom-client.development.js:23553
+<button>
+exports.jsxs @ react-jsx-runtime.development.js:349
+HeroUI.Button @ chunk-WBUKVQRU.mjs:27
+react_stack_bottom_frame @ react-dom-client.development.js:25904
+renderWithHooksAgain @ react-dom-client.development.js:7762
+renderWithHooks @ react-dom-client.development.js:7674
+updateForwardRef @ react-dom-client.development.js:9724
+beginWork @ react-dom-client.development.js:12117
+runWithFiberInDEV @ react-dom-client.development.js:871
+performUnitOfWork @ react-dom-client.development.js:17641
+workLoopSync @ react-dom-client.development.js:17469
+renderRootSync @ react-dom-client.development.js:17450
+performWorkOnRoot @ react-dom-client.development.js:16504
+performSyncWorkOnRoot @ react-dom-client.development.js:18972
+flushSyncWorkAcrossRoots_impl @ react-dom-client.development.js:18814
+processRootScheduleInMicrotask @ react-dom-client.development.js:18853
+(匿名) @ react-dom-client.development.js:18991
+<HeroUI.Button>
+exports.jsxDEV @ react-jsx-dev-runtime.development.js:335
+ParseConfigConfirmModal @ ParseConfigConfirmModal.tsx:192
+react_stack_bottom_frame @ react-dom-client.development.js:25904
+renderWithHooksAgain @ react-dom-client.development.js:7762
+renderWithHooks @ react-dom-client.development.js:7674
+updateFunctionComponent @ react-dom-client.development.js:10166
+beginWork @ react-dom-client.development.js:11778
+runWithFiberInDEV @ react-dom-client.development.js:871
+performUnitOfWork @ react-dom-client.development.js:17641
+workLoopSync @ react-dom-client.development.js:17469
+renderRootSync @ react-dom-client.development.js:17450
+performWorkOnRoot @ react-dom-client.development.js:16504
+performSyncWorkOnRoot @ react-dom-client.development.js:18972
+flushSyncWorkAcrossRoots_impl @ react-dom-client.development.js:18814
+processRootScheduleInMicrotask @ react-dom-client.development.js:18853
+(匿名) @ react-dom-client.development.js:18991
+scriptParser.ts:2371  Failed to extract scene 京城吏部: TypeError: this.extractScene is not a function
+    at scriptParser.ts:2368:40
+    at ConcurrencyLimiter.run (scriptParser.ts:665:20)
+    at scriptParser.ts:2363:24
+    at Array.map (<anonymous>)
+    at ScriptParser.parseScript (scriptParser.ts:2362:51)
+    at async handleParseScript (ScriptManager.tsx:458:26)
+(匿名) @ scriptParser.ts:2371
+run @ scriptParser.ts:665
+(匿名) @ scriptParser.ts:2363
+parseScript @ scriptParser.ts:2362
+await in parseScript
+handleParseScript @ ScriptManager.tsx:458
+onConfirm @ ScriptManager.tsx:1254
+(匿名) @ index.mjs:362
+(匿名) @ usePress.ts:249
+onClick @ usePress.ts:548
+executeDispatch @ react-dom-client.development.js:19116
+runWithFiberInDEV @ react-dom-client.development.js:871
+processDispatchQueue @ react-dom-client.development.js:19166
+(匿名) @ react-dom-client.development.js:19767
+batchedUpdates$1 @ react-dom-client.development.js:3255
+dispatchEventForPluginEventSystem @ react-dom-client.development.js:19320
+dispatchEvent @ react-dom-client.development.js:23585
+dispatchDiscreteEvent @ react-dom-client.development.js:23553
+<button>
+exports.jsxs @ react-jsx-runtime.development.js:349
+HeroUI.Button @ chunk-WBUKVQRU.mjs:27
+react_stack_bottom_frame @ react-dom-client.development.js:25904
+renderWithHooksAgain @ react-dom-client.development.js:7762
+renderWithHooks @ react-dom-client.development.js:7674
+updateForwardRef @ react-dom-client.development.js:9724
+beginWork @ react-dom-client.development.js:12117
+runWithFiberInDEV @ react-dom-client.development.js:871
+performUnitOfWork @ react-dom-client.development.js:17641
+workLoopSync @ react-dom-client.development.js:17469
+renderRootSync @ react-dom-client.development.js:17450
+performWorkOnRoot @ react-dom-client.development.js:16504
+performSyncWorkOnRoot @ react-dom-client.development.js:18972
+flushSyncWorkAcrossRoots_impl @ react-dom-client.development.js:18814
+processRootScheduleInMicrotask @ react-dom-client.development.js:18853
+(匿名) @ react-dom-client.development.js:18991
+<HeroUI.Button>
+exports.jsxDEV @ react-jsx-dev-runtime.development.js:335
+ParseConfigConfirmModal @ ParseConfigConfirmModal.tsx:192
+react_stack_bottom_frame @ react-dom-client.development.js:25904
+renderWithHooksAgain @ react-dom-client.development.js:7762
+renderWithHooks @ react-dom-client.development.js:7674
+updateFunctionComponent @ react-dom-client.development.js:10166
+beginWork @ react-dom-client.development.js:11778
+runWithFiberInDEV @ react-dom-client.development.js:871
+performUnitOfWork @ react-dom-client.development.js:17641
+workLoopSync @ react-dom-client.development.js:17469
+renderRootSync @ react-dom-client.development.js:17450
+performWorkOnRoot @ react-dom-client.development.js:16504
+performSyncWorkOnRoot @ react-dom-client.development.js:18972
+flushSyncWorkAcrossRoots_impl @ react-dom-client.development.js:18814
+processRootScheduleInMicrotask @ react-dom-client.development.js:18853
+(匿名) @ react-dom-client.development.js:18991
+scriptParser.ts:2371  Failed to extract scene 萧景渊试探场所: TypeError: this.extractScene is not a function
+    at scriptParser.ts:2368:40
+    at ConcurrencyLimiter.run (scriptParser.ts:665:20)
+    at async Promise.all (:3001/index 3)
+    at async ScriptParser.parseScript (scriptParser.ts:2390:9)
+    at async handleParseScript (ScriptManager.tsx:458:26)
+(匿名) @ scriptParser.ts:2371
+run @ scriptParser.ts:665
+await in run
+(匿名) @ scriptParser.ts:2363
+parseScript @ scriptParser.ts:2362
+await in parseScript
+handleParseScript @ ScriptManager.tsx:458
+onConfirm @ ScriptManager.tsx:1254
+(匿名) @ index.mjs:362
+(匿名) @ usePress.ts:249
+onClick @ usePress.ts:548
+executeDispatch @ react-dom-client.development.js:19116
+runWithFiberInDEV @ react-dom-client.development.js:871
+processDispatchQueue @ react-dom-client.development.js:19166
+(匿名) @ react-dom-client.development.js:19767
+batchedUpdates$1 @ react-dom-client.development.js:3255
+dispatchEventForPluginEventSystem @ react-dom-client.development.js:19320
+dispatchEvent @ react-dom-client.development.js:23585
+dispatchDiscreteEvent @ react-dom-client.development.js:23553
+<button>
+exports.jsxs @ react-jsx-runtime.development.js:349
+HeroUI.Button @ chunk-WBUKVQRU.mjs:27
+react_stack_bottom_frame @ react-dom-client.development.js:25904
+renderWithHooksAgain @ react-dom-client.development.js:7762
+renderWithHooks @ react-dom-client.development.js:7674
+updateForwardRef @ react-dom-client.development.js:9724
+beginWork @ react-dom-client.development.js:12117
+runWithFiberInDEV @ react-dom-client.development.js:871
+performUnitOfWork @ react-dom-client.development.js:17641
+workLoopSync @ react-dom-client.development.js:17469
+renderRootSync @ react-dom-client.development.js:17450
+performWorkOnRoot @ react-dom-client.development.js:16504
+performSyncWorkOnRoot @ react-dom-client.development.js:18972
+flushSyncWorkAcrossRoots_impl @ react-dom-client.development.js:18814
+processRootScheduleInMicrotask @ react-dom-client.development.js:18853
+(匿名) @ react-dom-client.development.js:18991
+<HeroUI.Button>
+exports.jsxDEV @ react-jsx-dev-runtime.development.js:335
+ParseConfigConfirmModal @ ParseConfigConfirmModal.tsx:192
+react_stack_bottom_frame @ react-dom-client.development.js:25904
+renderWithHooksAgain @ react-dom-client.development.js:7762
+renderWithHooks @ react-dom-client.development.js:7674
+updateFunctionComponent @ react-dom-client.development.js:10166
+beginWork @ react-dom-client.development.js:11778
+runWithFiberInDEV @ react-dom-client.development.js:871
+performUnitOfWork @ react-dom-client.development.js:17641
+workLoopSync @ react-dom-client.development.js:17469
+renderRootSync @ react-dom-client.development.js:17450
+performWorkOnRoot @ react-dom-client.development.js:16504
+performSyncWorkOnRoot @ react-dom-client.development.js:18972
+flushSyncWorkAcrossRoots_impl @ react-dom-client.development.js:18814
+processRootScheduleInMicrotask @ react-dom-client.development.js:18853
+(匿名) @ react-dom-client.development.js:18991
+scriptParser.ts:2371  Failed to extract scene 朝会大殿: TypeError: this.extractScene is not a function
+    at scriptParser.ts:2368:40
+    at ConcurrencyLimiter.run (scriptParser.ts:665:20)
+    at async Promise.all (:3001/index 4)
+    at async ScriptParser.parseScript (scriptParser.ts:2390:9)
+    at async handleParseScript (ScriptManager.tsx:458:26)
+(匿名) @ scriptParser.ts:2371
+run @ scriptParser.ts:665
+await in run
+(匿名) @ scriptParser.ts:2363
+parseScript @ scriptParser.ts:2362
+await in parseScript
+handleParseScript @ ScriptManager.tsx:458
+onConfirm @ ScriptManager.tsx:1254
+(匿名) @ index.mjs:362
+(匿名) @ usePress.ts:249
+onClick @ usePress.ts:548
+executeDispatch @ react-dom-client.development.js:19116
+runWithFiberInDEV @ react-dom-client.development.js:871
+processDispatchQueue @ react-dom-client.development.js:19166
+(匿名) @ react-dom-client.development.js:19767
+batchedUpdates$1 @ react-dom-client.development.js:3255
+dispatchEventForPluginEventSystem @ react-dom-client.development.js:19320
+dispatchEvent @ react-dom-client.development.js:23585
+dispatchDiscreteEvent @ react-dom-client.development.js:23553
+<button>
+exports.jsxs @ react-jsx-runtime.development.js:349
+HeroUI.Button @ chunk-WBUKVQRU.mjs:27
+react_stack_bottom_frame @ react-dom-client.development.js:25904
+renderWithHooksAgain @ react-dom-client.development.js:7762
+renderWithHooks @ react-dom-client.development.js:7674
+updateForwardRef @ react-dom-client.development.js:9724
+beginWork @ react-dom-client.development.js:12117
+runWithFiberInDEV @ react-dom-client.development.js:871
+performUnitOfWork @ react-dom-client.development.js:17641
+workLoopSync @ react-dom-client.development.js:17469
+renderRootSync @ react-dom-client.development.js:17450
+performWorkOnRoot @ react-dom-client.development.js:16504
+performSyncWorkOnRoot @ react-dom-client.development.js:18972
+flushSyncWorkAcrossRoots_impl @ react-dom-client.development.js:18814
+processRootScheduleInMicrotask @ react-dom-client.development.js:18853
+(匿名) @ react-dom-client.development.js:18991
+<HeroUI.Button>
+exports.jsxDEV @ react-jsx-dev-runtime.development.js:335
+ParseConfigConfirmModal @ ParseConfigConfirmModal.tsx:192
+react_stack_bottom_frame @ react-dom-client.development.js:25904
+renderWithHooksAgain @ react-dom-client.development.js:7762
+renderWithHooks @ react-dom-client.development.js:7674
+updateFunctionComponent @ react-dom-client.development.js:10166
+beginWork @ react-dom-client.development.js:11778
+runWithFiberInDEV @ react-dom-client.development.js:871
+performUnitOfWork @ react-dom-client.development.js:17641
+workLoopSync @ react-dom-client.development.js:17469
+renderRootSync @ react-dom-client.development.js:17450
+performWorkOnRoot @ react-dom-client.development.js:16504
+performSyncWorkOnRoot @ react-dom-client.development.js:18972
+flushSyncWorkAcrossRoots_impl @ react-dom-client.development.js:18814
+processRootScheduleInMicrotask @ react-dom-client.development.js:18853
+(匿名) @ react-dom-client.development.js:18991
+scriptParser.ts:2407 [ScriptParser] Starting iterative refinement...
+IterativeRefinementEngine.ts:153 [IterativeRefinementEngine] Starting refinement process...
+IterativeRefinementEngine.ts:154 [IterativeRefinementEngine] Config: maxIterations=3, targetScore=85
+QualityEvaluator.ts:133 [QualityEvaluator] Starting quality evaluation...
+QualityEvaluator.ts:161 [QualityEvaluator] Evaluation completed in 0ms, score: 60
+IterativeRefinementEngine.ts:171 [IterativeRefinementEngine] Initial quality score: 60
+IterativeRefinementEngine.ts:175 
+[IterativeRefinementEngine] === Iteration 1/3 ===
+IterativeRefinementEngine.ts:239 [IterativeRefinementEngine] Running consistency check...
+ConsistencyChecker.ts:201 [ConsistencyChecker] Starting consistency check...
+ConsistencyChecker.ts:250 [ConsistencyChecker] Check completed in 0ms, score: 100
+IterativeRefinementEngine.ts:247 [IterativeRefinementEngine] Found 0 violations
+IterativeRefinementEngine.ts:254 [IterativeRefinementEngine] Running quality evaluation...
+QualityEvaluator.ts:133 [QualityEvaluator] Starting quality evaluation...
+QualityEvaluator.ts:161 [QualityEvaluator] Evaluation completed in 0ms, score: 60
+IterativeRefinementEngine.ts:262 [IterativeRefinementEngine] Quality score: 60
+IterativeRefinementEngine.ts:264   [completeness] 60/25
+IterativeRefinementEngine.ts:264   [accuracy] 44/25
+IterativeRefinementEngine.ts:264   [consistency] 80/30
+IterativeRefinementEngine.ts:264   [usability] 50/20
+IterativeRefinementEngine.ts:278 [IterativeRefinementEngine] Generating refinement actions...
+RefinementEngine.ts:155 [RefinementEngine] Generating refinement actions...
+RefinementEngine.ts:175 [RefinementEngine] Generated 12 refinement actions
+IterativeRefinementEngine.ts:280 [IterativeRefinementEngine] Generated 12 actions
+IterativeRefinementEngine.ts:283 [IterativeRefinementEngine] Applying refinements...
+RefinementEngine.ts:521 [RefinementEngine] Applying 12 refinements...
+RefinementEngine.ts:557 [RefinementEngine] Applied: 0, Skipped: 12, Failed: 0
+IterativeRefinementEngine.ts:291 [IterativeRefinementEngine] Applied: 0, Skipped: 12, Failed: 0
+IterativeRefinementEngine.ts:200 [IterativeRefinementEngine] Iteration 1 completed in 1ms, improvement: 0.00
+IterativeRefinementEngine.ts:328 [IterativeRefinementEngine] Improvement (0.00) below threshold (2)
+IterativeRefinementEngine.ts:204 [IterativeRefinementEngine] Stopping iteration: termination condition met
+IterativeRefinementEngine.ts:212 
+[IterativeRefinementEngine] Refinement completed in 2ms
+IterativeRefinementEngine.ts:213 [IterativeRefinementEngine] Final quality score: 60 (improvement: 0.00)
+scriptParser.ts:2430 [ScriptParser] Refinement completed with no significant improvement
+scriptParser.ts:2449 [ScriptParser] Starting duration budget calculation...
+scriptParser.ts:2502 [ScriptParser] Budget calculated: 27s total, 5 scenes
+scriptParser.ts:2532 [ScriptParser] Processing shots for 5 remaining scenes
+scriptParser.ts:1582 [ScriptParser] ---------- Generating Shots for Scene: 沈家抄斩现场 ----------
+scriptParser.ts:1583 [ScriptParser] useProductionPrompt: true
+scriptParser.ts:1598 [ScriptParser] Scene content length: 339 characters
+scriptParser.ts:1615 [ScriptParser] Using production prompt
+scriptParser.ts:1626 [ScriptParser] Prompt length: 1379 characters
+scriptParser.ts:1627 [ScriptParser] Characters in scene: 
+scriptParser.ts:1210 [ScriptParser] callLLM called for shots, retryCount: 0
+scriptParser.ts:1211 [ScriptParser] API URL: https://ark.cn-beijing.volces.com/api/v3
+scriptParser.ts:1212 [ScriptParser] Model: doubao-seed-1-6-251015
+scriptParser.ts:1213 [ScriptParser] Max Tokens: 12000
+scriptParser.ts:1582 [ScriptParser] ---------- Generating Shots for Scene: 民间隐居地 ----------
+scriptParser.ts:1583 [ScriptParser] useProductionPrompt: true
+scriptParser.ts:1598 [ScriptParser] Scene content length: 339 characters
+scriptParser.ts:1615 [ScriptParser] Using production prompt
+scriptParser.ts:1626 [ScriptParser] Prompt length: 1377 characters
+scriptParser.ts:1627 [ScriptParser] Characters in scene: 
+scriptParser.ts:1210 [ScriptParser] callLLM called for shots, retryCount: 0
+scriptParser.ts:1211 [ScriptParser] API URL: https://ark.cn-beijing.volces.com/api/v3
+scriptParser.ts:1212 [ScriptParser] Model: doubao-seed-1-6-251015
+scriptParser.ts:1213 [ScriptParser] Max Tokens: 12000
+scriptParser.ts:1582 [ScriptParser] ---------- Generating Shots for Scene: 京城吏部 ----------
+scriptParser.ts:1583 [ScriptParser] useProductionPrompt: true
+scriptParser.ts:1598 [ScriptParser] Scene content length: 339 characters
+scriptParser.ts:1615 [ScriptParser] Using production prompt
+scriptParser.ts:1626 [ScriptParser] Prompt length: 1374 characters
+scriptParser.ts:1627 [ScriptParser] Characters in scene: 
+scriptParser.ts:1210 [ScriptParser] callLLM called for shots, retryCount: 0
+scriptParser.ts:1211 [ScriptParser] API URL: https://ark.cn-beijing.volces.com/api/v3
+scriptParser.ts:1212 [ScriptParser] Model: doubao-seed-1-6-251015
+scriptParser.ts:1213 [ScriptParser] Max Tokens: 12000
+scriptParser.ts:1242 [ScriptParser] Calling LLMProvider.generateText...
+LLMProvider.ts:81 [LLMProvider] ========== API Request ==========
+LLMProvider.ts:82 [LLMProvider] Endpoint: https://ark.cn-beijing.volces.com/api/v3/chat/completions
+LLMProvider.ts:83 [LLMProvider] Model: doubao-seed-1-6-251015
+LLMProvider.ts:84 [LLMProvider] enable_thinking: false
+LLMProvider.ts:85 [LLMProvider] Temperature: 0.3
+LLMProvider.ts:86 [LLMProvider] Max Tokens: 12000
+LLMProvider.ts:87 [LLMProvider] Messages count: 2
+LLMProvider.ts:88 [LLMProvider] First message length: 48 characters
+LLMProvider.ts:89 [LLMProvider] Request body: {
+  "model": "doubao-seed-1-6-251015",
+  "messages": [
+    {
+      "role": "system",
+      "content": "你是一个专业的剧本分析助手，擅长从小说/剧本中提取结构化信息。请严格按照要求的JSON格式输出。"
+    },
+    {
+      "role": "user",
+      "content": "\n请为以下场景生成专业级分镜脚本。你是一个资深的影视导演，需要严格按照生产规范生成分镜。\n\n【场景信息】\n场景名称: 沈家抄斩现场\n场景描述: 沈家抄斩现场\n涉及角色: \n\n【剧本原文】\n大靖王朝，御史大夫沈砚因弹劾丞相谋逆，被诬陷下狱，沈家满门抄斩，独留幼子沈清辞被忠仆所救，隐于民间。十年后，沈清辞化名苏砚，以布衣身份入京城，蛰伏于吏部当差，伺机翻案。\n\n他聪慧过人，行事低调，很快凭借精准的断案能力得到吏部尚书赏识，却也引起丞相之子萧景渊的注意。萧景渊多疑狠辣，察觉苏砚身份蹊跷，屡次试探刁难，皆被沈清辞巧妙化解。\n\n一次，萧景渊设计陷害吏部尚书贪腐，欲嫁...
+LLMProvider.ts:91 [LLMProvider] Sending request...
+BaseProvider.ts:63 [BaseProvider] Requesting: https://ark.cn-beijing.volces.com/api/v3/chat/completions, Mode: DEV, Localhost: true
+BaseProvider.ts:84 [BaseProvider] Using Proxy: /api/universal-proxy -> https://ark.cn-beijing.volces.com/api/v3/chat/completions
+scriptParser.ts:1242 [ScriptParser] Calling LLMProvider.generateText...
+LLMProvider.ts:81 [LLMProvider] ========== API Request ==========
+LLMProvider.ts:82 [LLMProvider] Endpoint: https://ark.cn-beijing.volces.com/api/v3/chat/completions
+LLMProvider.ts:83 [LLMProvider] Model: doubao-seed-1-6-251015
+LLMProvider.ts:84 [LLMProvider] enable_thinking: false
+LLMProvider.ts:85 [LLMProvider] Temperature: 0.3
+LLMProvider.ts:86 [LLMProvider] Max Tokens: 12000
+LLMProvider.ts:87 [LLMProvider] Messages count: 2
+LLMProvider.ts:88 [LLMProvider] First message length: 48 characters
+LLMProvider.ts:89 [LLMProvider] Request body: {
+  "model": "doubao-seed-1-6-251015",
+  "messages": [
+    {
+      "role": "system",
+      "content": "你是一个专业的剧本分析助手，擅长从小说/剧本中提取结构化信息。请严格按照要求的JSON格式输出。"
+    },
+    {
+      "role": "user",
+      "content": "\n请为以下场景生成专业级分镜脚本。你是一个资深的影视导演，需要严格按照生产规范生成分镜。\n\n【场景信息】\n场景名称: 民间隐居地\n场景描述: 民间隐居地\n涉及角色: \n\n【剧本原文】\n大靖王朝，御史大夫沈砚因弹劾丞相谋逆，被诬陷下狱，沈家满门抄斩，独留幼子沈清辞被忠仆所救，隐于民间。十年后，沈清辞化名苏砚，以布衣身份入京城，蛰伏于吏部当差，伺机翻案。\n\n他聪慧过人，行事低调，很快凭借精准的断案能力得到吏部尚书赏识，却也引起丞相之子萧景渊的注意。萧景渊多疑狠辣，察觉苏砚身份蹊跷，屡次试探刁难，皆被沈清辞巧妙化解。\n\n一次，萧景渊设计陷害吏部尚书贪腐，欲嫁祸沈...
+LLMProvider.ts:91 [LLMProvider] Sending request...
+BaseProvider.ts:63 [BaseProvider] Requesting: https://ark.cn-beijing.volces.com/api/v3/chat/completions, Mode: DEV, Localhost: true
+BaseProvider.ts:84 [BaseProvider] Using Proxy: /api/universal-proxy -> https://ark.cn-beijing.volces.com/api/v3/chat/completions
+scriptParser.ts:1242 [ScriptParser] Calling LLMProvider.generateText...
+LLMProvider.ts:81 [LLMProvider] ========== API Request ==========
+LLMProvider.ts:82 [LLMProvider] Endpoint: https://ark.cn-beijing.volces.com/api/v3/chat/completions
+LLMProvider.ts:83 [LLMProvider] Model: doubao-seed-1-6-251015
+LLMProvider.ts:84 [LLMProvider] enable_thinking: false
+LLMProvider.ts:85 [LLMProvider] Temperature: 0.3
+LLMProvider.ts:86 [LLMProvider] Max Tokens: 12000
+LLMProvider.ts:87 [LLMProvider] Messages count: 2
+LLMProvider.ts:88 [LLMProvider] First message length: 48 characters
+LLMProvider.ts:89 [LLMProvider] Request body: {
+  "model": "doubao-seed-1-6-251015",
+  "messages": [
+    {
+      "role": "system",
+      "content": "你是一个专业的剧本分析助手，擅长从小说/剧本中提取结构化信息。请严格按照要求的JSON格式输出。"
+    },
+    {
+      "role": "user",
+      "content": "\n请为以下场景生成专业级分镜脚本。你是一个资深的影视导演，需要严格按照生产规范生成分镜。\n\n【场景信息】\n场景名称: 京城吏部\n场景描述: 京城吏部\n涉及角色: \n\n【剧本原文】\n大靖王朝，御史大夫沈砚因弹劾丞相谋逆，被诬陷下狱，沈家满门抄斩，独留幼子沈清辞被忠仆所救，隐于民间。十年后，沈清辞化名苏砚，以布衣身份入京城，蛰伏于吏部当差，伺机翻案。\n\n他聪慧过人，行事低调，很快凭借精准的断案能力得到吏部尚书赏识，却也引起丞相之子萧景渊的注意。萧景渊多疑狠辣，察觉苏砚身份蹊跷，屡次试探刁难，皆被沈清辞巧妙化解。\n\n一次，萧景渊设计陷害吏部尚书贪腐，欲嫁祸沈清辞...
+LLMProvider.ts:91 [LLMProvider] Sending request...
+BaseProvider.ts:63 [BaseProvider] Requesting: https://ark.cn-beijing.volces.com/api/v3/chat/completions, Mode: DEV, Localhost: true
+BaseProvider.ts:84 [BaseProvider] Using Proxy: /api/universal-proxy -> https://ark.cn-beijing.volces.com/api/v3/chat/completions
+BaseProvider.ts:99 [BaseProvider] Response received: 200 OK
+LLMProvider.ts:104 [LLMProvider] Request completed in 38655ms
+LLMProvider.ts:118 [LLMProvider] ========== API Response ==========
+LLMProvider.ts:119 [LLMProvider] Response length: 924 characters
+LLMProvider.ts:120 [LLMProvider] Prompt tokens: 953
+LLMProvider.ts:121 [LLMProvider] Completion tokens: 1635
+LLMProvider.ts:122 [LLMProvider] Total tokens: 2588
+LLMProvider.ts:123 [LLMProvider] Response preview: [
+  {
+    "sequence": 1,
+    "shotType": "full",
+    "cameraMovement": "static",
+    "description": ...
+scriptParser.ts:1266 [ScriptParser] LLM response received, length: 924
+scriptParser.ts:1630 [ScriptParser] LLM response received, length: 924 characters
+scriptParser.ts:1633 [ScriptParser] Generated 3 shots
+scriptParser.ts:1636 [ScriptParser] Shot 1:
+scriptParser.ts:1637   - Sequence: 1
+scriptParser.ts:1638   - Type: full
+scriptParser.ts:1639   - Movement: static
+scriptParser.ts:1640   - Duration: 2s
+scriptParser.ts:1641   - Description: 全景俯拍沈家府邸，大门被持剑官兵包围，府内火光摇曳，远处隐约传来哭喊与兵器碰撞声...
+scriptParser.ts:1636 [ScriptParser] Shot 2:
+scriptParser.ts:1637   - Sequence: 2
+scriptParser.ts:1638   - Type: medium
+scriptParser.ts:1639   - Movement: tracking
+scriptParser.ts:1640   - Duration: 1.9s
+scriptParser.ts:1641   - Description: 中景跟拍忠仆抱着幼子沈清辞从侧门悄悄跑出，忠仆低头疾走，神色慌张，不时回头张望...
+scriptParser.ts:1636 [ScriptParser] Shot 3:
+scriptParser.ts:1637   - Sequence: 3
+scriptParser.ts:1638   - Type: close-up
+scriptParser.ts:1639   - Movement: static
+scriptParser.ts:1640   - Duration: 1.8s
+scriptParser.ts:1641   - Description: 特写忠仆攥着沈家玉佩的手，玉佩上清晰刻着“沈”字，背景是模糊的逃跑身影...
+scriptParser.ts:1582 [ScriptParser] ---------- Generating Shots for Scene: 萧景渊试探场所 ----------
+scriptParser.ts:1583 [ScriptParser] useProductionPrompt: true
+scriptParser.ts:1598 [ScriptParser] Scene content length: 339 characters
+scriptParser.ts:1615 [ScriptParser] Using production prompt
+scriptParser.ts:1626 [ScriptParser] Prompt length: 1397 characters
+scriptParser.ts:1627 [ScriptParser] Characters in scene: 
+scriptParser.ts:1210 [ScriptParser] callLLM called for shots, retryCount: 0
+scriptParser.ts:1211 [ScriptParser] API URL: https://ark.cn-beijing.volces.com/api/v3
+scriptParser.ts:1212 [ScriptParser] Model: doubao-seed-1-6-251015
+scriptParser.ts:1213 [ScriptParser] Max Tokens: 12000
+scriptParser.ts:1242 [ScriptParser] Calling LLMProvider.generateText...
+LLMProvider.ts:81 [LLMProvider] ========== API Request ==========
+LLMProvider.ts:82 [LLMProvider] Endpoint: https://ark.cn-beijing.volces.com/api/v3/chat/completions
+LLMProvider.ts:83 [LLMProvider] Model: doubao-seed-1-6-251015
+LLMProvider.ts:84 [LLMProvider] enable_thinking: false
+LLMProvider.ts:85 [LLMProvider] Temperature: 0.3
+LLMProvider.ts:86 [LLMProvider] Max Tokens: 12000
+LLMProvider.ts:87 [LLMProvider] Messages count: 2
+LLMProvider.ts:88 [LLMProvider] First message length: 48 characters
+LLMProvider.ts:89 [LLMProvider] Request body: {
+  "model": "doubao-seed-1-6-251015",
+  "messages": [
+    {
+      "role": "system",
+      "content": "你是一个专业的剧本分析助手，擅长从小说/剧本中提取结构化信息。请严格按照要求的JSON格式输出。"
+    },
+    {
+      "role": "user",
+      "content": "\n请为以下场景生成专业级分镜脚本。你是一个资深的影视导演，需要严格按照生产规范生成分镜。\n\n【场景信息】\n场景名称: 萧景渊试探场所\n场景描述: 萧景渊试探场所\n涉及角色: \n\n【剧本原文】\n大靖王朝，御史大夫沈砚因弹劾丞相谋逆，被诬陷下狱，沈家满门抄斩，独留幼子沈清辞被忠仆所救，隐于民间。十年后，沈清辞化名苏砚，以布衣身份入京城，蛰伏于吏部当差，伺机翻案。\n\n他聪慧过人，行事低调，很快凭借精准的断案能力得到吏部尚书赏识，却也引起丞相之子萧景渊的注意。萧景渊多疑狠辣，察觉苏砚身份蹊跷，屡次试探刁难，皆被沈清辞巧妙化解。\n\n一次，萧景渊设计陷害吏部尚书贪腐，...
+LLMProvider.ts:91 [LLMProvider] Sending request...
+BaseProvider.ts:63 [BaseProvider] Requesting: https://ark.cn-beijing.volces.com/api/v3/chat/completions, Mode: DEV, Localhost: true
+BaseProvider.ts:84 [BaseProvider] Using Proxy: /api/universal-proxy -> https://ark.cn-beijing.volces.com/api/v3/chat/completions
+BaseProvider.ts:99 [BaseProvider] Response received: 200 OK
+LLMProvider.ts:104 [LLMProvider] Request completed in 41567ms
+LLMProvider.ts:118 [LLMProvider] ========== API Response ==========
+LLMProvider.ts:119 [LLMProvider] Response length: 1016 characters
+LLMProvider.ts:120 [LLMProvider] Prompt tokens: 946
+LLMProvider.ts:121 [LLMProvider] Completion tokens: 1800
+LLMProvider.ts:122 [LLMProvider] Total tokens: 2746
+LLMProvider.ts:123 [LLMProvider] Response preview: [
+  {
+    "sequence": 1,
+    "shotType": "full",
+    "cameraMovement": "static",
+    "description": ...
+scriptParser.ts:1266 [ScriptParser] LLM response received, length: 1016
+scriptParser.ts:1630 [ScriptParser] LLM response received, length: 1016 characters
+scriptParser.ts:1633 [ScriptParser] Generated 3 shots
+scriptParser.ts:1636 [ScriptParser] Shot 1:
+scriptParser.ts:1637   - Sequence: 1
+scriptParser.ts:1638   - Type: full
+scriptParser.ts:1639   - Movement: static
+scriptParser.ts:1640   - Duration: 1.5s
+scriptParser.ts:1641   - Description: 全景俯拍吏部大堂，文书堆叠如山，官员们低头忙碌，苏砚（沈清辞）身着布衣在角落专注...
+scriptParser.ts:1636 [ScriptParser] Shot 2:
+scriptParser.ts:1637   - Sequence: 2
+scriptParser.ts:1638   - Type: medium
+scriptParser.ts:1639   - Movement: slow push
+scriptParser.ts:1640   - Duration: 1.6s
+scriptParser.ts:1641   - Description: 中景聚焦苏砚与吏部尚书，苏砚双手递上卷宗，尚书接过翻看后，对苏砚投以肯定点头，苏...
+scriptParser.ts:1636 [ScriptParser] Shot 3:
+scriptParser.ts:1637   - Sequence: 3
+scriptParser.ts:1638   - Type: close-up
+scriptParser.ts:1639   - Movement: static
+scriptParser.ts:1640   - Duration: 1.5s
+scriptParser.ts:1641   - Description: 特写萧景渊的眼睛，瞳孔微缩，嘴角勾起冷冽冷笑，背景虚化可见苏砚的身影...
+scriptParser.ts:1582 [ScriptParser] ---------- Generating Shots for Scene: 朝会大殿 ----------
+scriptParser.ts:1583 [ScriptParser] useProductionPrompt: true
+scriptParser.ts:1598 [ScriptParser] Scene content length: 339 characters
+scriptParser.ts:1615 [ScriptParser] Using production prompt
+scriptParser.ts:1626 [ScriptParser] Prompt length: 1388 characters
+scriptParser.ts:1627 [ScriptParser] Characters in scene: 
+scriptParser.ts:1210 [ScriptParser] callLLM called for shots, retryCount: 0
+scriptParser.ts:1211 [ScriptParser] API URL: https://ark.cn-beijing.volces.com/api/v3
+scriptParser.ts:1212 [ScriptParser] Model: doubao-seed-1-6-251015
+scriptParser.ts:1213 [ScriptParser] Max Tokens: 12000
+scriptParser.ts:1242 [ScriptParser] Calling LLMProvider.generateText...
+LLMProvider.ts:81 [LLMProvider] ========== API Request ==========
+LLMProvider.ts:82 [LLMProvider] Endpoint: https://ark.cn-beijing.volces.com/api/v3/chat/completions
+LLMProvider.ts:83 [LLMProvider] Model: doubao-seed-1-6-251015
+LLMProvider.ts:84 [LLMProvider] enable_thinking: false
+LLMProvider.ts:85 [LLMProvider] Temperature: 0.3
+LLMProvider.ts:86 [LLMProvider] Max Tokens: 12000
+LLMProvider.ts:87 [LLMProvider] Messages count: 2
+LLMProvider.ts:88 [LLMProvider] First message length: 48 characters
+LLMProvider.ts:89 [LLMProvider] Request body: {
+  "model": "doubao-seed-1-6-251015",
+  "messages": [
+    {
+      "role": "system",
+      "content": "你是一个专业的剧本分析助手，擅长从小说/剧本中提取结构化信息。请严格按照要求的JSON格式输出。"
+    },
+    {
+      "role": "user",
+      "content": "\n请为以下场景生成专业级分镜脚本。你是一个资深的影视导演，需要严格按照生产规范生成分镜。\n\n【场景信息】\n场景名称: 朝会大殿\n场景描述: 朝会大殿\n涉及角色: \n\n【剧本原文】\n大靖王朝，御史大夫沈砚因弹劾丞相谋逆，被诬陷下狱，沈家满门抄斩，独留幼子沈清辞被忠仆所救，隐于民间。十年后，沈清辞化名苏砚，以布衣身份入京城，蛰伏于吏部当差，伺机翻案。\n\n他聪慧过人，行事低调，很快凭借精准的断案能力得到吏部尚书赏识，却也引起丞相之子萧景渊的注意。萧景渊多疑狠辣，察觉苏砚身份蹊跷，屡次试探刁难，皆被沈清辞巧妙化解。\n\n一次，萧景渊设计陷害吏部尚书贪腐，欲嫁祸沈清辞...
+LLMProvider.ts:91 [LLMProvider] Sending request...
+BaseProvider.ts:63 [BaseProvider] Requesting: https://ark.cn-beijing.volces.com/api/v3/chat/completions, Mode: DEV, Localhost: true
+BaseProvider.ts:84 [BaseProvider] Using Proxy: /api/universal-proxy -> https://ark.cn-beijing.volces.com/api/v3/chat/completions
+BaseProvider.ts:99 [BaseProvider] Response received: 200 OK
+LLMProvider.ts:104 [LLMProvider] Request completed in 62428ms
+LLMProvider.ts:118 [LLMProvider] ========== API Response ==========
+LLMProvider.ts:119 [LLMProvider] Response length: 974 characters
+LLMProvider.ts:120 [LLMProvider] Prompt tokens: 949
+LLMProvider.ts:121 [LLMProvider] Completion tokens: 2637
+LLMProvider.ts:122 [LLMProvider] Total tokens: 3586
+LLMProvider.ts:123 [LLMProvider] Response preview: [
+  {
+    "sequence": 1,
+    "shotType": "full",
+    "cameraMovement": "static",
+    "description": ...
+scriptParser.ts:1266 [ScriptParser] LLM response received, length: 974
+scriptParser.ts:1630 [ScriptParser] LLM response received, length: 974 characters
+scriptParser.ts:1633 [ScriptParser] Generated 3 shots
+scriptParser.ts:1636 [ScriptParser] Shot 1:
+scriptParser.ts:1637   - Sequence: 1
+scriptParser.ts:1638   - Type: full
+scriptParser.ts:1639   - Movement: static
+scriptParser.ts:1640   - Duration: 1.6s
+scriptParser.ts:1641   - Description: 全景俯拍，山林深处一间简陋木屋，屋顶飘着袅袅炊烟，周围绿树环绕，静谧安宁...
+scriptParser.ts:1636 [ScriptParser] Shot 2:
+scriptParser.ts:1637   - Sequence: 2
+scriptParser.ts:1638   - Type: medium
+scriptParser.ts:1639   - Movement: slow push-in
+scriptParser.ts:1640   - Duration: 1.5s
+scriptParser.ts:1641   - Description: 中景，木屋门口，忠仆老陈蹲下身给年幼的沈清辞整理衣角，沈清辞眼神带着倔强与哀伤，...
+scriptParser.ts:1636 [ScriptParser] Shot 3:
+scriptParser.ts:1637   - Sequence: 3
+scriptParser.ts:1638   - Type: close-up
+scriptParser.ts:1639   - Movement: static
+scriptParser.ts:1640   - Duration: 1.4s
+scriptParser.ts:1641   - Description: 特写沈清辞稚嫩的手紧紧握着一枚刻有‘沈’字的玉佩，指节微微用力...
+BaseProvider.ts:99 [BaseProvider] Response received: 200 OK
+LLMProvider.ts:104 [LLMProvider] Request completed in 42156ms
+LLMProvider.ts:118 [LLMProvider] ========== API Response ==========
+LLMProvider.ts:119 [LLMProvider] Response length: 968 characters
+LLMProvider.ts:120 [LLMProvider] Prompt tokens: 957
+LLMProvider.ts:121 [LLMProvider] Completion tokens: 1876
+LLMProvider.ts:122 [LLMProvider] Total tokens: 2833
+LLMProvider.ts:123 [LLMProvider] Response preview: [
+  {
+    "sequence": 1,
+    "shotType": "full",
+    "cameraMovement": "static",
+    "description": ...
+scriptParser.ts:1266 [ScriptParser] LLM response received, length: 968
+scriptParser.ts:1630 [ScriptParser] LLM response received, length: 968 characters
+scriptParser.ts:1633 [ScriptParser] Generated 3 shots
+scriptParser.ts:1636 [ScriptParser] Shot 1:
+scriptParser.ts:1637   - Sequence: 1
+scriptParser.ts:1638   - Type: full
+scriptParser.ts:1639   - Movement: static
+scriptParser.ts:1640   - Duration: 1.8s
+scriptParser.ts:1641   - Description: 竖屏全景，朝会大殿庄严肃穆，文武百官分列两侧，沈清辞（苏砚）身着布衣手持卷轴，站...
+scriptParser.ts:1636 [ScriptParser] Shot 2:
+scriptParser.ts:1637   - Sequence: 2
+scriptParser.ts:1638   - Type: medium close-up
+scriptParser.ts:1639   - Movement: push
+scriptParser.ts:1640   - Duration: 2.5s
+scriptParser.ts:1641   - Description: 竖屏中近景，镜头缓缓推向沈清辞，他从怀中取出刻有“沈”字的玉佩举至胸前，眼神锐利...
+scriptParser.ts:1636 [ScriptParser] Shot 3:
+scriptParser.ts:1637   - Sequence: 3
+scriptParser.ts:1638   - Type: close-up
+scriptParser.ts:1639   - Movement: static
+scriptParser.ts:1640   - Duration: 1.4s
+scriptParser.ts:1641   - Description: 竖屏特写，皇上龙颜大怒，手掌拍向龙案...
+BaseProvider.ts:99 [BaseProvider] Response received: 200 OK
+LLMProvider.ts:104 [LLMProvider] Request completed in 58419ms
+LLMProvider.ts:118 [LLMProvider] ========== API Response ==========
+LLMProvider.ts:119 [LLMProvider] Response length: 959 characters
+LLMProvider.ts:120 [LLMProvider] Prompt tokens: 963
+LLMProvider.ts:121 [LLMProvider] Completion tokens: 2374
+LLMProvider.ts:122 [LLMProvider] Total tokens: 3337
+LLMProvider.ts:123 [LLMProvider] Response preview: [
+  {
+    "sequence": 1,
+    "shotType": "medium",
+    "cameraMovement": "static",
+    "description"...
+scriptParser.ts:1266 [ScriptParser] LLM response received, length: 959
+scriptParser.ts:1630 [ScriptParser] LLM response received, length: 959 characters
+scriptParser.ts:1301 [ScriptParser] JSON repaired using: fixed_common_errors
+scriptParser.ts:1633 [ScriptParser] Generated 3 shots
+scriptParser.ts:1636 [ScriptParser] Shot 1:
+scriptParser.ts:1637   - Sequence: 1
+scriptParser.ts:1638   - Type: medium
+scriptParser.ts:1639   - Movement: static
+scriptParser.ts:1640   - Duration: 2s
+scriptParser.ts:1641   - Description: 中景固定镜头，萧景渊坐在暗色调书房内，手指敲击桌面，眼神阴鸷地盯着苏砚（沈清辞）...
+scriptParser.ts:1636 [ScriptParser] Shot 2:
+scriptParser.ts:1637   - Sequence: 2
+scriptParser.ts:1638   - Type: close-up
+scriptParser.ts:1639   - Movement: slow pan
+scriptParser.ts:1640   - Duration: 2.9s
+scriptParser.ts:1641   - Description: 特写慢移镜头，沈清辞的手指拂过袖中密函边缘，指尖微颤却坚定，背景是吏部办公的模糊...
+scriptParser.ts:1636 [ScriptParser] Shot 3:
+scriptParser.ts:1637   - Sequence: 3
+scriptParser.ts:1638   - Type: wide-to-close
+scriptParser.ts:1639   - Movement: push
+scriptParser.ts:1640   - Duration: 2.1s
+scriptParser.ts:1641   - Description: 全景推至特写，朝会大殿上沈清辞高举密函，镜头聚焦他坚定的眼神，玉佩从布衣滑落一角...
+scriptParser.ts:2599 [ScriptParser] ========== Generating Quality Report (Full Parse) ==========
+scriptParser.ts:2600 [ScriptParser] Input data: {hasMetadata: true, charactersCount: 7, scenesCount: 5, itemsCount: 0, shotsCount: 15}
+scriptParser.ts:2618 [ScriptParser] ========== Quality Report Generated ==========
+scriptParser.ts:2619 [ScriptParser] Score: 75
+scriptParser.ts:2620 [ScriptParser] Grade: C
+scriptParser.ts:2621 [ScriptParser] Confidence: 0.72
+scriptParser.ts:2622 [ScriptParser] Violations: 34
+scriptParser.ts:2623 [ScriptParser] Suggestions: 5
+scriptParser.ts:2629 [ScriptParser] ========== Saving to State ==========
+scriptParser.ts:2630 [ScriptParser] state.qualityReport set: true
+scriptParser.ts:2631 [ScriptParser] state.qualityReport.score: 75
+scriptParser.ts:2641 [ScriptParser] ========== Parse Completed ==========
+scriptParser.ts:2642 [ScriptParser] Total duration: 239288ms (239.3s)
+scriptParser.ts:2643 [ScriptParser] Stage timings:
+scriptParser.ts:2646 [ScriptParser]   - metadata: 140838ms (58.9%)
+scriptParser.ts:2646 [ScriptParser]   - characters: 540ms (0.2%)
+scriptParser.ts:2646 [ScriptParser]   - scenes: 337ms (0.1%)
+scriptParser.ts:2646 [ScriptParser]   - shots: 97273ms (40.7%)
+scriptParser.ts:2648 [ScriptParser] Content length: 339 chars
+scriptParser.ts:2649 [ScriptParser] Characters: 7, Scenes: 5
+scriptParser.ts:2650 [ScriptParser] ==========================================
+ScriptManager.tsx:476 [ScriptManager] ========== Getting Quality Report ==========
+ScriptManager.tsx:478 [ScriptManager] Report from parser: {exists: true, score: 75, type: 'object', hasViolations: true, hasSuggestions: true}
+ScriptManager.tsx:488 [ScriptManager] ========== Quality Report Set to State ==========
+ScriptManager.tsx:145 [ScriptManager] ========== useEffect: currentScript changed ==========
+ScriptManager.tsx:146 [ScriptManager] currentScript exists: true
+ScriptManager.tsx:147 [ScriptManager] parseState exists: true
+ScriptManager.tsx:148 [ScriptManager] qualityReport exists: true
+ScriptManager.tsx:152 [ScriptManager] Restoring quality report: {score: 75, violationsCount: 34, suggestionsCount: 5, type: 'object'}
+ScriptManager.tsx:159 [ScriptManager] ========== Quality Report Restored ==========
