@@ -791,32 +791,6 @@ const Settings: React.FC = () => {
                             />
                         </div>
 
-                        {/* Use Dynamic Duration */}
-                        <div className="flex items-center justify-between gap-4 p-4 bg-slate-50 dark:bg-slate-950 rounded-xl border border-slate-100 dark:border-slate-900">
-                            <div className="flex items-center gap-3">
-                                <div className="p-2 bg-secondary/10 rounded-lg">
-                                    <Zap className="w-5 h-5 text-secondary" />
-                                </div>
-                                <div>
-                                    <label className="block text-[15px] font-black text-slate-900 dark:text-white uppercase tracking-widest">
-                                        {t.settings.durationBudget?.useDynamicDuration || '启用动态时长'}
-                                    </label>
-                                    <p className="text-[13px] text-slate-400 font-medium">
-                                        {t.settings.durationBudget?.useDynamicDurationDesc || '根据内容自动调整分镜时长'}
-                                    </p>
-                                </div>
-                            </div>
-                            <Switch
-                                isSelected={durationBudgetConfig.useDynamicDuration}
-                                onValueChange={(val) => updateDurationBudget('useDynamicDuration', val)}
-                                color="secondary"
-                                size="lg"
-                                classNames={{
-                                    wrapper: "group-data-[selected=true]:bg-secondary"
-                                }}
-                            />
-                        </div>
-
                         {/* Use Production Prompt */}
                         <div className="flex items-center justify-between gap-4 p-4 bg-slate-50 dark:bg-slate-950 rounded-xl border border-slate-100 dark:border-slate-900">
                             <div className="flex items-center gap-3">
@@ -869,31 +843,6 @@ const Settings: React.FC = () => {
                             />
                         </div>
 
-                        {/* QC Auto Adjust */}
-                        <div className="flex items-center justify-between gap-4 p-4 bg-slate-50 dark:bg-slate-950 rounded-xl border border-slate-100 dark:border-slate-900 md:col-span-2">
-                            <div className="flex items-center gap-3">
-                                <div className="p-2 bg-danger/10 rounded-lg">
-                                    <RefreshCcw className="w-5 h-5 text-danger" />
-                                </div>
-                                <div>
-                                    <label className="block text-[15px] font-black text-slate-900 dark:text-white uppercase tracking-widest">
-                                        {t.settings.durationBudget?.qcAutoAdjust || '自动调整不符合预算的分镜'}
-                                    </label>
-                                    <p className="text-[13px] text-slate-400 font-medium">
-                                        {t.settings.durationBudget?.qcAutoAdjustDesc || '当分镜时长超出预算时自动进行优化调整'}
-                                    </p>
-                                </div>
-                            </div>
-                            <Switch
-                                isSelected={durationBudgetConfig.qcAutoAdjust}
-                                onValueChange={(val) => updateDurationBudget('qcAutoAdjust', val)}
-                                color="danger"
-                                size="lg"
-                                classNames={{
-                                    wrapper: "group-data-[selected=true]:bg-danger"
-                                }}
-                            />
-                        </div>
                     </div>
                 </div>
             </CardBody>
