@@ -81,8 +81,8 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
   const [deleteStats, setDeleteStats] = useState<{ characters: number; scenes: number; items: number; shots: number } | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  // Step-by-step parsing toggle
-  const [showStepByStep, setShowStepByStep] = useState(false);
+  // Note: Step-by-step parsing has been removed in v2
+  // All parsing now goes through handleParseScript with automatic strategy selection
 
   // Script content for upload
   const [scriptTitle, setScriptTitle] = useState('');
@@ -380,128 +380,8 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
     return selectedModel;
   };
 
-  // Parse a specific stage (step-by-step parsing)
-  const handleParseStage = async (stage: 'metadata' | 'characters' | 'scenes' | 'shots', buttonId: string) => {
-    console.log('%c[ScriptManager] ========================================', 'color: #2196F3; font-size: 14px; font-weight: bold;');
-    console.log(`%c[ScriptManager] 开始解析阶段: ${stage}`, 'color: #2196F3; font-size: 12px;');
-    console.log('%c[ScriptManager] ========================================', 'color: #2196F3; font-size: 14px; font-weight: bold;');
-
-    if (!currentScript || !projectId) {
-      console.error('[ScriptManager] 错误: 未选择剧本或项目ID');
-      return;
-    }
-
-    console.log('[ScriptManager] 当前剧本:', currentScript.title);
-    console.log('[ScriptManager] 剧本内容长度:', currentScript.content.length, '字符');
-
-    const selectedModel = getSelectedModel();
-    if (!selectedModel) {
-      console.error('[ScriptManager] 错误: 未选择模型');
-      return;
-    }
-
-    console.log('[ScriptManager] 使用模型:', selectedModel.name);
-    console.log('[ScriptManager] 模型ID:', selectedModel.modelId);
-    console.log('[ScriptManager] API端点:', selectedModel.apiUrl);
-
-    setActiveParseButton(buttonId);
-    setIsParsing(true);
-    setParseProgress(0);
-
-    const stageNames: Record<string, string> = {
-      metadata: '提取元数据',
-      characters: '分析角色',
-      scenes: '分析场景',
-      shots: '生成分镜'
-    };
-    setParseStage(`准备${stageNames[stage]}...`);
-
-    try {
-      console.log('[ScriptManager] 创建ScriptParser实例...');
-      const parserConfig: Partial<ScriptParserConfig> = {
-        useSemanticChunking: true,
-        useDramaRules: true,
-        dramaRulesMinScore: 60,
-        useCache: true,
-        cacheTTL: 3600000,
-        enableVectorMemory: useVectorMemory, // 传递智能记忆开关状态
-        vectorMemoryConfig: useVectorMemory ? {
-          autoEnableThreshold: 50000,
-          chromaDbUrl: '/chroma',  // 使用 Vite 代理，避免 CORS
-          collectionName: 'script_memory'
-        } : undefined,
-        // ✅ 启用迭代优化引擎
-        enableIterativeRefinement: true,
-        iterativeRefinementConfig: {
-          maxIterations: 3,
-          targetQualityScore: 85,
-          minImprovementThreshold: 2,
-          autoApplySafeRefinements: true,
-          confidenceThreshold: 0.7,
-          verboseLogging: true
-        },
-        // ✅ 启用时长预算规划（从设置中读取）
-        useDurationBudget: settings.durationBudget?.useDurationBudget ?? false,
-        targetPlatform: settings.durationBudget?.platform || 'douyin',
-        paceType: settings.durationBudget?.pace || 'normal',
-        useDynamicDuration: settings.durationBudget?.useDynamicDuration ?? false,
-        useProductionPrompt: settings.durationBudget?.useProductionPrompt ?? false,
-        useShotQC: settings.durationBudget?.useShotQC ?? false,
-        qcAutoAdjust: settings.durationBudget?.qcAutoAdjust ?? false,
-        qcTolerance: 0.15
-      };
-      const parser = createScriptParser(
-        selectedModel.apiKey,
-        selectedModel.apiUrl,
-        selectedModel.modelId,
-        selectedModel.provider,
-        parserConfig
-      );
-      parserRef.current = parser;
-      console.log('[ScriptManager] ScriptParser实例创建成功，配置:', parserConfig);
-
-      const onProgress: ParseProgressCallback = (s, progress, message) => {
-        console.log(`[ScriptManager] 进度更新: ${s} - ${progress}% - ${message}`);
-        if (!isMountedRef.current) return;
-        setParseProgress(progress);
-        setParseStage(message || stageNames[s] || s);
-      };
-
-      const currentState = currentScript.parseState || { stage: 'idle', progress: 0 };
-      console.log('[ScriptManager] 调用parser.parseStage...');
-      const newState = await parser.parseStage(stage, currentScript.content, currentState, onProgress);
-      console.log('[ScriptManager] parser.parseStage返回成功');
-
-      if (!isMountedRef.current) return;
-
-      const updatedScript = { ...currentScript, parseState: newState };
-      setCurrentScript(updatedScript);
-
-      console.log('%c[ScriptManager] 解析阶段完成: ' + stageNames[stage], 'color: #4CAF50; font-weight: bold;');
-      showToast(`${stageNames[stage]}完成`, 'success');
-
-      // Get quality report after shots stage
-      if (stage === 'shots') {
-        const report = parser.getQualityReport();
-        if (report) {
-          setQualityReport(report);
-          console.log('[ScriptManager] Quality report received from shots stage:', report);
-        }
-      }
-    } catch (error: any) {
-      console.error('%c[ScriptManager] 解析阶段出错:', 'color: #f44336; font-weight: bold;', error);
-      if (!isMountedRef.current) return;
-      if (error.name !== 'AbortError') {
-        showToast(`${stageNames[stage]}失败: ${error.message}`, 'error');
-      }
-    } finally {
-      if (isMountedRef.current) {
-        setIsParsing(false);
-        setActiveParseButton(null);
-      }
-      parserRef.current = null;
-    }
-  };
+  // Note: handleParseStage has been removed in v2
+  // All parsing now goes through handleParseScript with automatic strategy selection
 
   // Parse script (full auto-parsing)
   const handleParseScript = async () => {
@@ -777,102 +657,7 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
             </div>
           )}
 
-          {/* Quick Step-by-step Parsing */}
-          {!isParsing && (
-            <div className="pt-4 border-t border-default-200">
-              <div className="flex items-center gap-3 mb-2">
-                <Switch
-                  size="sm"
-                  isSelected={showStepByStep}
-                  onValueChange={setShowStepByStep}
-                  aria-label="显示分步解析"
-                />
-                <div className="flex flex-col">
-                  <span className="text-sm text-default-500">快捷分步解析</span>
-                  <span className="text-xs text-default-400">推荐用于长剧本</span>
-                </div>
-              </div>
-              {showStepByStep && (
-                <>
-                  {/* Progress Indicator */}
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className="flex gap-1">
-                      {stepProgress.steps.map((step, index) => (
-                        <div
-                          key={step.key}
-                          className={`w-8 h-2 rounded-full transition-colors ${
-                            step.hasData
-                              ? 'bg-success'
-                              : index === stepProgress.completedCount
-                              ? 'bg-primary'
-                              : 'bg-default-200'
-                          }`}
-                        />
-                      ))}
-                    </div>
-                    <span className="text-sm">
-                      {stepProgress.isComplete ? (
-                        <span className="text-success">全部完成 ✓</span>
-                      ) : stepProgress.completedCount === 0 ? (
-                        <span className="text-default-500">准备开始</span>
-                      ) : (
-                        <span className="text-primary">
-                          {stepProgress.steps[stepProgress.completedCount - 1]?.label}完成
-                          {stepProgress.nextStep && (
-                            <>，下一步：<span className="font-medium">{stepProgress.nextStep.label}</span></>
-                          )}
-                        </span>
-                      )}
-                    </span>
-                  </div>
-
-                  {/* Step Buttons */}
-                  <div className="flex flex-wrap gap-2">
-                    <Button
-                      size="sm"
-                      variant="flat"
-                      onPress={() => handleParseStage('metadata', 'metadata')}
-                      isLoading={activeParseButton === 'metadata'}
-                      isDisabled={!canParseMetadata || llmModels.length === 0}
-                      className={parseState.metadata ? 'bg-success-100 text-success-700' : ''}
-                    >
-                      1️⃣ 元数据
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="flat"
-                      onPress={() => handleParseStage('characters', 'characters')}
-                      isLoading={activeParseButton === 'characters'}
-                      isDisabled={!canParseCharacters || llmModels.length === 0}
-                      className={parseState.characters ? 'bg-success-100 text-success-700' : ''}
-                    >
-                      2️⃣ 角色
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="flat"
-                      onPress={() => handleParseStage('scenes', 'scenes')}
-                      isLoading={activeParseButton === 'scenes'}
-                      isDisabled={!canParseScenes || llmModels.length === 0}
-                      className={parseState.scenes ? 'bg-success-100 text-success-700' : ''}
-                    >
-                      3️⃣ 场景
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="flat"
-                      onPress={() => handleParseStage('shots', 'shots')}
-                      isLoading={activeParseButton === 'shots'}
-                      isDisabled={!canParseShots || llmModels.length === 0}
-                      className={parseState.shots ? 'bg-success-100 text-success-700' : ''}
-                    >
-                      4️⃣ 分镜
-                    </Button>
-                  </div>
-                </>
-              )}
-            </div>
-          )}
+          {/* Note: Step-by-step parsing UI has been removed in v2 */}
 
           {/* Completion Stats */}
           {parseState.stage === 'completed' && (
