@@ -910,8 +910,8 @@ export class ScriptParser {
     // Initialize global context extractor and context injector
     this.initializeGlobalContextSupport();
 
-    // Initialize vector memory if enabled
-    this.initializeVectorMemory();
+    // Note: VectorMemory has been removed in v2
+    // this.initializeVectorMemory();
 
     // Initialize iterative refinement engine if enabled
     this.initializeIterativeRefinement();
