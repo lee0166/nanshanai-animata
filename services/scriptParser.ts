@@ -35,6 +35,7 @@ import { GlobalContextExtractor, GlobalContext } from './parsing/GlobalContextEx
 import { ContextInjector, InjectionOptions } from './parsing/ContextInjector';
 import { IterativeRefinementEngine, IterativeRefinementConfig, IterativeRefinementResult } from './parsing/refinement/IterativeRefinementEngine';
 import { DurationBudget, SceneBudget, calculateBudget, validateBudget } from './parsing/BudgetPlanner';
+import { ParseStrategySelector, StrategySelection, ParseStrategy, StrategySelectorConfig } from './parsing/ParseStrategySelector';
 
 /**
  * Script Parser Configuration Interface
@@ -131,6 +132,21 @@ export interface ScriptParserConfig {
     /** 高潮场景最小长镜头时长（秒） */
     climaxMinLongShotDuration?: number;
   };
+
+  // ========== 策略选择器配置 ==========
+
+  /**
+   * 强制使用特定解析策略
+   * 设置后，解析器将忽略自动策略选择，使用指定策略
+   * @default undefined (自动选择)
+   */
+  forcedStrategy?: ParseStrategy;
+
+  /**
+   * 策略选择器配置
+   * 用于自定义策略选择的阈值和参数
+   */
+  strategySelectorConfig?: Partial<StrategySelectorConfig>;
 }
 
 /**
@@ -849,6 +865,10 @@ export class ScriptParser {
   private iterativeRefinementResult: IterativeRefinementResult | null = null;
   /** Duration budget result from last calculation */
   private durationBudget: DurationBudget | null = null;
+  /** Strategy selector for automatic strategy selection */
+  private strategySelector: ParseStrategySelector | null = null;
+  /** Last strategy selection result */
+  private lastStrategySelection: StrategySelection | null = null;
 
   /**
    * Creates a new script parser instance
@@ -873,6 +893,12 @@ export class ScriptParser {
     this.cache = new ParseCache(50, 3600000);
 
     this.parserConfig = { ...DEFAULT_PARSER_CONFIG, ...config };
+
+    // Initialize strategy selector
+    this.strategySelector = new ParseStrategySelector({
+      ...this.parserConfig.strategySelectorConfig,
+      forcedStrategy: this.parserConfig.forcedStrategy
+    });
 
     console.log('[ScriptParser] Initialized with config:', {
       useSemanticChunking: this.parserConfig.useSemanticChunking,
@@ -1052,6 +1078,43 @@ export class ScriptParser {
     });
 
     return report;
+  }
+
+  /**
+   * Get the last strategy selection result
+   * Useful for UI display and debugging
+   */
+  getLastStrategySelection(): StrategySelection | null {
+    return this.lastStrategySelection;
+  }
+
+  /**
+   * Force a specific parsing strategy (user override)
+   * @param strategy - Strategy to force, or undefined to reset to auto
+   */
+  forceStrategy(strategy: ParseStrategy | undefined): void {
+    if (this.strategySelector) {
+      this.strategySelector.forceStrategy(strategy);
+      console.log(`[ScriptParser] Strategy ${strategy ? 'forced to: ' + strategy : 'reset to auto'}`);
+    }
+  }
+
+  /**
+   * Get current strategy configuration
+   */
+  getStrategyConfig(): StrategySelectorConfig | null {
+    return this.strategySelector?.getConfig() || null;
+  }
+
+  /**
+   * Update strategy selector configuration
+   * @param config - Partial configuration update
+   */
+  updateStrategyConfig(config: Partial<StrategySelectorConfig>): void {
+    if (this.strategySelector) {
+      this.strategySelector.updateConfig(config);
+      console.log('[ScriptParser] Strategy config updated:', config);
+    }
   }
 
   /**
@@ -2449,27 +2512,44 @@ export class ScriptParser {
     onProgress?: ParseProgressCallback,
     resumeFromState?: ScriptParseState
   ): Promise<ScriptParseState> {
-    // V3: 策略选择 - 短文本使用快速路径
-    const wordCount = this.countWords(content);
+    // Phase 3.1: Use strategy selector for automatic strategy selection
     console.log(`[ScriptParser] ========== Starting Parse Script ==========`);
-    console.log(`[ScriptParser] Content length: ${content.length} characters, Word count: ${wordCount}`);
-    console.log(`[ScriptParser] Config: concurrency=${CONFIG.concurrency}, callDelay=${CONFIG.callDelay}ms`);
+    
+    let strategySelection: StrategySelection;
+    if (this.strategySelector && !resumeFromState) {
+      strategySelection = this.strategySelector.selectStrategy(content);
+      this.lastStrategySelection = strategySelection;
+      console.log(`[ScriptParser] Strategy selected: ${strategySelection.strategy}`);
+      console.log(`[ScriptParser] Reason: ${strategySelection.reason}`);
+      console.log(`[ScriptParser] Word count: ${strategySelection.wordCount}`);
+      console.log(`[ScriptParser] Estimated time: ${strategySelection.estimatedTime}s`);
+      console.log(`[ScriptParser] Recommended batch size: ${strategySelection.recommendedBatchSize}`);
+    } else {
+      // Fallback to legacy logic
+      const wordCount = this.countWords(content);
+      strategySelection = {
+        strategy: wordCount < 800 ? 'fast' : 'standard',
+        reason: 'Legacy fallback selection',
+        wordCount,
+        estimatedTime: wordCount < 800 ? 60 : Math.ceil(wordCount / 200) * 15,
+        recommendedBatchSize: wordCount < 800 ? 10 : 5
+      };
+    }
 
-    // 短文本快速路径 (< 800字)
-    if (wordCount < 800 && !resumeFromState) {
-      console.log(`[ScriptParser] Using SHORT TEXT FAST PATH (< 800 words)`);
+    // Phase 3.1: Route to appropriate parsing strategy
+    if (strategySelection.strategy === 'fast' && !resumeFromState) {
+      console.log(`[ScriptParser] Using FAST PATH (${strategySelection.reason})`);
       const fastStartTime = Date.now();
       const result = await this.parseShortScript(content, onProgress);
       const fastDuration = Date.now() - fastStartTime;
       console.log(`[ScriptParser] ========== Fast Path Completed ==========`);
       console.log(`[ScriptParser] Total duration: ${fastDuration}ms (${(fastDuration/1000).toFixed(1)}s)`);
       console.log(`[ScriptParser] ==========================================`);
-      // Save state for persistence
       await this.saveState(scriptId, projectId, result);
       return result;
     }
 
-    console.log(`[ScriptParser] Using STANDARD PARSE PATH (>= 800 words or resuming)`);
+    console.log(`[ScriptParser] Using ${strategySelection.strategy.toUpperCase()} PATH (${strategySelection.reason})`);
 
     // V2: 性能监控 - 记录总耗时
     const totalStartTime = Date.now();
