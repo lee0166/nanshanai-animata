@@ -33,7 +33,6 @@ import {
 import { z } from 'zod';
 import { GlobalContextExtractor, GlobalContext } from './parsing/GlobalContextExtractor';
 import { ContextInjector, InjectionOptions } from './parsing/ContextInjector';
-import { VectorMemory } from './parsing/VectorMemory';
 import { EmbeddingService } from './parsing/EmbeddingService';
 import { IterativeRefinementEngine, IterativeRefinementConfig, IterativeRefinementResult } from './parsing/refinement/IterativeRefinementEngine';
 import { DurationBudget, SceneBudget, calculateBudget, validateBudget } from './parsing/BudgetPlanner';
@@ -47,12 +46,8 @@ export interface ScriptParserConfig {
   dramaRulesMinScore: number;
   useCache: boolean;
   cacheTTL: number;
-  enableVectorMemory?: boolean; // 启用向量记忆
-  vectorMemoryConfig?: {
-    autoEnableThreshold?: number;
-    chromaDbUrl?: string;
-    collectionName?: string;
-  };
+  // Note: VectorMemory/ChromaDB has been removed in v2
+  // enableVectorMemory?: boolean;
   enableIterativeRefinement?: boolean; // 启用迭代优化
   iterativeRefinementConfig?: Partial<IterativeRefinementConfig>; // 迭代优化配置
 
@@ -845,8 +840,6 @@ export class ScriptParser {
   private contextInjector: ContextInjector | null = null;
   /** Extracted global context for all parsing stages */
   private globalContext: GlobalContext | null = null;
-  /** Vector memory instance for long text semantic memory */
-  private vectorMemory: VectorMemory | null = null;
   /** Embedding service for vector generation */
   private embeddingService: EmbeddingService | null = null;
   /** Whether to use global context injection */
@@ -920,6 +913,8 @@ export class ScriptParser {
 
     // Initialize budget planner if enabled
     this.initializeBudgetPlanner();
+
+    // Note: VectorMemory has been removed in v2
   }
 
   /**
@@ -954,39 +949,6 @@ export class ScriptParser {
     } catch (error) {
       console.warn('[ScriptParser] Failed to initialize iterative refinement engine:', error);
       this.iterativeRefinementEngine = null;
-    }
-  }
-
-  /**
-   * Initialize vector memory for long text semantic memory
-   * @private
-   */
-  private async initializeVectorMemory(): Promise<void> {
-    if (!this.parserConfig.enableVectorMemory) {
-      console.log('[ScriptParser] Vector memory disabled');
-      return;
-    }
-
-    try {
-      // 先初始化 EmbeddingService
-      this.embeddingService = new EmbeddingService();
-      await this.embeddingService.initialize();
-      console.log('[ScriptParser] Embedding service initialized');
-
-      // 再初始化 VectorMemory，传入已初始化的 EmbeddingService
-      this.vectorMemory = new VectorMemory(
-        this.parserConfig.vectorMemoryConfig?.chromaDbUrl,
-        this.parserConfig.vectorMemoryConfig?.collectionName || 'script_memory',
-        this.embeddingService // 共享 EmbeddingService 实例，避免重复下载模型
-      );
-      await this.vectorMemory.initialize();
-
-      console.log('[ScriptParser] Vector memory initialized');
-    } catch (error) {
-      console.warn('[ScriptParser] Failed to initialize vector memory:', error);
-      // 失败时不阻止解析流程，回退到普通模式
-      this.vectorMemory = null;
-      this.embeddingService = null;
     }
   }
 
@@ -1137,7 +1099,6 @@ export class ScriptParser {
   /**
    * Semantic chunking using SemanticChunker
    * Preserves chapter boundaries and adds context
-   * Stores chunks to vector database if enabled
    * @param text - Text to split
    * @returns Array of text chunks
    * @private
@@ -1149,49 +1110,9 @@ export class ScriptParser {
     const chunks = await this.semanticChunker!.chunk(text);
     console.log(`[ScriptParser] Semantic chunking produced ${chunks.length} chunks`);
 
-    // Store chunks to vector database if enabled
-    if (this.parserConfig.enableVectorMemory && this.vectorMemory && this.embeddingService) {
-      try {
-        await this.storeChunksToVectorDB(chunks, text.slice(0, 100));
-        console.log('[ScriptParser] Chunks stored to vector database');
-      } catch (error) {
-        console.warn('[ScriptParser] Failed to store chunks to vector DB:', error);
-        // Storage failure should not block parsing flow
-      }
-    }
+    // Note: VectorMemory has been removed in v2
 
     return chunks.map(chunk => chunk.content);
-  }
-
-  /**
-   * Store chunks to vector database
-   * @param chunks - Semantic chunks to store
-   * @param source - Source identifier (e.g., script title)
-   * @private
-   */
-  private async storeChunksToVectorDB(chunks: SemanticChunk[], source: string): Promise<void> {
-    if (!this.vectorMemory || !this.embeddingService) return;
-
-    // Generate embeddings
-    const texts = chunks.map(c => c.content);
-    const embeddings = await this.embeddingService.embedBatch(texts);
-
-    // Build documents
-    const documents = chunks.map((chunk, index) => ({
-      id: chunk.id,
-      text: chunk.content,
-      metadata: {
-        chunkIndex: index,
-        characters: chunk.metadata.characters,
-        sceneHint: chunk.metadata.sceneHint,
-        importance: chunk.metadata.importance,
-        wordCount: chunk.metadata.wordCount,
-        source: source
-      }
-    }));
-
-    // Store to vector database
-    await this.vectorMemory.addDocuments(documents, embeddings);
   }
 
   /**
@@ -1254,25 +1175,8 @@ export class ScriptParser {
     }
   }
 
-  /**
-   * Clear vector memory resources
-   * @public
-   */
-  async clearVectorMemory(): Promise<void> {
-    if (this.vectorMemory) {
-      await this.vectorMemory.clear();
-      console.log('[ScriptParser] Vector memory cleared');
-    }
-  }
-
-  /**
-   * Get vector memory statistics
-   * @public
-   */
-  async getVectorMemoryStats(): Promise<{ count: number } | null> {
-    if (!this.vectorMemory) return null;
-    return await this.vectorMemory.getStats();
-  }
+  // Note: VectorMemory has been removed in v2
+  // clearVectorMemory() and getVectorMemoryStats() methods removed
 
   /**
    * Makes API request to LLM with timeout and automatic retry

@@ -32,12 +32,8 @@ export interface ChunkerOptions {
   maxTokens?: number;
   preserveParagraphs?: boolean;
   extractMetadata?: boolean;
-  enableVectorMemory?: boolean; // 启用向量记忆（默认false，用户手动开启）
-  vectorMemoryConfig?: {
-    autoEnableThreshold?: number;  // 自动启用阈值（字数）
-    chromaDbUrl?: string;          // ChromaDB地址
-    collectionName?: string;       // 集合名称
-  };
+  // Note: VectorMemory/ChromaDB has been removed in v2
+  // enableVectorMemory?: boolean;
 }
 
 export class SemanticChunker {
@@ -57,7 +53,6 @@ export class SemanticChunker {
       maxTokens: 4000,
       preserveParagraphs: true,
       extractMetadata: false,
-      enableVectorMemory: false, // 默认关闭，需要显式启用
       ...options
     };
   }
@@ -257,122 +252,6 @@ export class SemanticChunker {
   // ==========================================
   // 向量记忆相关方法（新增）
   // ==========================================
-
-  /**
-   * 将分块存入向量数据库
-   * 用于长文本记忆
-   */
-  async storeChunksToVectorDB(
-    chunks: SemanticChunk[],
-    sourceId: string
-  ): Promise<void> {
-    const { vectorMemory } = await import('./VectorMemory');
-    const { embeddingService } = await import('./EmbeddingService');
-
-    console.log(`[SemanticChunker] Storing ${chunks.length} chunks to VectorDB...`);
-
-    // 初始化服务
-    await vectorMemory.initialize();
-
-    // 准备文档
-    const documents = chunks.map((chunk, index) => ({
-      id: `${sourceId}_chunk_${index}`,
-      text: chunk.content,
-      metadata: {
-        chunkIndex: index,
-        characters: chunk.metadata.characters,
-        sceneHint: chunk.metadata.sceneHint,
-        importance: chunk.metadata.importance,
-        wordCount: chunk.metadata.wordCount,
-        source: sourceId
-      }
-    }));
-
-    // 生成向量
-    const texts = documents.map(d => d.text);
-    const embeddingResults = await embeddingService.embedBatch(texts);
-    const embeddings = embeddingResults.map(r => r.embedding);
-
-    // 存入向量数据库
-    await vectorMemory.addDocuments(documents, embeddings);
-
-    console.log(`[SemanticChunker] Stored ${chunks.length} chunks to VectorDB successfully`);
-  }
-
-  /**
-   * 语义召回相关上下文
-   * 替代原有的固定窗口截取
-   */
-  async recallRelevantContext(
-    queryText: string,
-    sourceId: string,
-    nResults: number = 3
-  ): Promise<string> {
-    const { vectorMemory } = await import('./VectorMemory');
-
-    console.log(`[SemanticChunker] Recalling context for: "${queryText.substring(0, 50)}..."`);
-
-    // 初始化服务
-    await vectorMemory.initialize();
-
-    // 语义搜索
-    const results = await vectorMemory.query(
-      queryText,
-      nResults,
-      { source: sourceId } // 只搜索同一来源的文档
-    );
-
-    if (results.length === 0) {
-      console.log('[SemanticChunker] No relevant context found');
-      return '';
-    }
-
-    // 拼接相关上下文
-    const contextParts = results.map(r =>
-      `[相关度: ${(1 - r.distance).toFixed(2)}] ${r.text.substring(0, 200)}...`
-    );
-
-    const context = contextParts.join('\n\n');
-    console.log(`[SemanticChunker] Recalled ${results.length} relevant contexts`);
-
-    return context;
-  }
-
-  /**
-   * 获取智能上下文（替代原有的slice(-500)）
-   * 结合语义召回和最近分块
-   */
-  async getSmartContext(
-    currentChunk: SemanticChunk,
-    allChunks: SemanticChunk[],
-    currentIndex: number,
-    sourceId: string
-  ): Promise<string> {
-    // 1. 语义召回相关上下文
-    const semanticContext = await this.recallRelevantContext(
-      currentChunk.content,
-      sourceId,
-      3
-    );
-
-    // 2. 取前一分块的结尾（保持叙事连贯性）
-    let prevContext = '';
-    if (currentIndex > 0) {
-      const prevChunk = allChunks[currentIndex - 1];
-      prevContext = prevChunk.content.slice(-300); // 减少到300字符
-    }
-
-    // 3. 合并上下文
-    const combinedContext = `
-【前文衔接】
-${prevContext}
-
-【语义相关上下文】
-${semanticContext}
-    `.trim();
-
-    return combinedContext;
-  }
 
   /**
    * 获取指定位置所在的分块
