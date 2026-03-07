@@ -2563,7 +2563,7 @@ export class ScriptParser {
       state.metadata = await this.extractMetadata(chunks[0].content);
       state.progress = 20;
 
-      // Step 3: Parse each chunk for characters and scenes
+      // Step 3: Parse each chunk for characters and scenes (Phase 2.2: Parallel extraction)
       const allCharacters: ScriptCharacter[] = [];
       const allScenes: ScriptScene[] = [];
       const characterNames = new Set<string>();
@@ -2572,36 +2572,69 @@ export class ScriptParser {
       for (let i = 0; i < chunks.length; i++) {
         const chunk = chunks[i];
         const progress = 20 + (i / chunks.length) * 40;
-        onProgress?.('characters', progress, `正在解析第 ${i + 1}/${chunks.length} 块...`);
+        onProgress?.('characters', progress, `正在并行解析第 ${i + 1}/${chunks.length} 块...`);
 
-        // Extract characters from this chunk
+        // Prepare extraction tasks for parallel execution
+        const extractionTasks: Promise<void>[] = [];
+
+        // Character extraction task
         if (state.metadata.characterNames) {
-          const chunkCharacters = await this.extractAllCharactersWithContext(
-            chunk.content,
-            state.metadata.characterNames.filter(name => !characterNames.has(name))
-          );
-          
-          for (const char of chunkCharacters) {
-            if (!characterNames.has(char.name)) {
-              characterNames.add(char.name);
-              allCharacters.push(char);
+          const characterTask = (async () => {
+            const remainingCharacterNames = state.metadata!.characterNames!.filter(
+              name => !characterNames.has(name)
+            );
+            if (remainingCharacterNames.length === 0) return;
+
+            try {
+              const chunkCharacters = await this.extractAllCharactersWithContext(
+                chunk.content,
+                remainingCharacterNames
+              );
+              
+              for (const char of chunkCharacters) {
+                if (!characterNames.has(char.name)) {
+                  characterNames.add(char.name);
+                  allCharacters.push(char);
+                }
+              }
+            } catch (error) {
+              console.error(`[ScriptParser] Character extraction failed for chunk ${i + 1}:`, error);
             }
-          }
+          })();
+          extractionTasks.push(characterTask);
         }
 
-        // Extract scenes from this chunk
+        // Scene extraction task
         if (state.metadata.sceneNames) {
-          const chunkScenes = await this.extractAllScenesWithContext(
-            chunk.content,
-            state.metadata.sceneNames.filter(name => !sceneNames.has(name))
-          );
-          
-          for (const scene of chunkScenes) {
-            if (!sceneNames.has(scene.name)) {
-              sceneNames.add(scene.name);
-              allScenes.push(scene);
+          const sceneTask = (async () => {
+            const remainingSceneNames = state.metadata!.sceneNames!.filter(
+              name => !sceneNames.has(name)
+            );
+            if (remainingSceneNames.length === 0) return;
+
+            try {
+              const chunkScenes = await this.extractAllScenesWithContext(
+                chunk.content,
+                remainingSceneNames
+              );
+              
+              for (const scene of chunkScenes) {
+                if (!sceneNames.has(scene.name)) {
+                  sceneNames.add(scene.name);
+                  allScenes.push(scene);
+                }
+              }
+            } catch (error) {
+              console.error(`[ScriptParser] Scene extraction failed for chunk ${i + 1}:`, error);
             }
-          }
+          })();
+          extractionTasks.push(sceneTask);
+        }
+
+        // Execute extractions in parallel
+        if (extractionTasks.length > 0) {
+          console.log(`[ScriptParser] Executing ${extractionTasks.length} extraction tasks in parallel for chunk ${i + 1}...`);
+          await Promise.all(extractionTasks);
         }
 
         // Small delay between chunks to avoid rate limiting
