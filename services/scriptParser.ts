@@ -1553,113 +1553,11 @@ export class ScriptParser {
     return result;
   }
 
-  /**
-   * Stage 2: Extract character details (with caching)
-   */
-  async extractCharacter(content: string, characterName: string): Promise<ScriptCharacter> {
-    console.log(`[ScriptParser] ---------- Extracting Character: ${characterName} ----------`);
+  // Note: extractCharacter method has been removed in v2
+  // Use extractAllCharactersWithContext for batch extraction
 
-    // Check cache first
-    const cacheKey = `char:${characterName}:${this.hashContent(content.substring(0, 1000))}`;
-    const cached = this.cache.get(cacheKey);
-    if (cached) {
-      console.log(`[ScriptParser] Cache hit for character: ${characterName}`);
-      return cached as ScriptCharacter;
-    }
-
-    // Extract relevant paragraphs containing the character
-    const paragraphs = content.split('\n\n');
-    const relevantParagraphs = paragraphs.filter(p =>
-      p.includes(characterName) ||
-      p.includes(characterName.split('').join('.*?')) // Fuzzy match for Chinese names
-    );
-    console.log(`[ScriptParser] Found ${relevantParagraphs.length} paragraphs mentioning ${characterName}`);
-
-    // If not enough content, use the whole text
-    const characterContent = relevantParagraphs.length > 3
-      ? relevantParagraphs.join('\n\n')
-      : content;
-    console.log(`[ScriptParser] Character content length: ${characterContent.length} characters`);
-
-    const prompt = PROMPTS.character
-      .replace('{content}', characterContent.substring(0, 5000))
-      .replace('{characterName}', characterName);
-    console.log(`[ScriptParser] Prompt length: ${prompt.length} characters`);
-
-    const response = await this.callLLM(prompt, 'character');
-    console.log(`[ScriptParser] LLM response received, length: ${response.length} characters`);
-
-    const rawCharacter = this.extractJSON<Partial<ScriptCharacter>>(response);
-    console.log(`[ScriptParser] Raw character data parsed`);
-
-    // Validate and fill missing fields
-    const character = this.validateCharacter(rawCharacter, characterName);
-    console.log(`[ScriptParser] Character validated and completed:`);
-    console.log(`  - Name: ${character.name}`);
-    console.log(`  - Gender: ${character.gender}`);
-    console.log(`  - Age: ${character.age}`);
-    console.log(`  - Identity: ${character.identity}`);
-    console.log(`  - Personality: ${character.personality?.join(', ')}`);
-    console.log(`  - Visual Prompt: ${character.visualPrompt?.substring(0, 50)}...`);
-
-    // Cache the result
-    this.cache.set(cacheKey, character);
-
-    return character;
-  }
-
-  /**
-   * Stage 3: Extract scene details (with caching)
-   */
-  async extractScene(content: string, sceneName: string): Promise<ScriptScene> {
-    console.log(`[ScriptParser] ---------- Extracting Scene: ${sceneName} ----------`);
-
-    // Check cache first
-    const cacheKey = `scene:${sceneName}:${this.hashContent(content.substring(0, 1000))}`;
-    const cached = this.cache.get(cacheKey);
-    if (cached) {
-      console.log(`[ScriptParser] Cache hit for scene: ${sceneName}`);
-      return cached as ScriptScene;
-    }
-
-    // Extract relevant paragraphs containing the scene
-    const paragraphs = content.split('\n\n');
-    const relevantParagraphs = paragraphs.filter(p =>
-      p.includes(sceneName) ||
-      p.toLowerCase().includes(sceneName.toLowerCase())
-    );
-    console.log(`[ScriptParser] Found ${relevantParagraphs.length} paragraphs mentioning ${sceneName}`);
-
-    const sceneContent = relevantParagraphs.length > 2
-      ? relevantParagraphs.join('\n\n')
-      : content;
-    console.log(`[ScriptParser] Scene content length: ${sceneContent.length} characters`);
-
-    const prompt = PROMPTS.scene
-      .replace('{content}', sceneContent.substring(0, 5000))
-      .replace('{sceneName}', sceneName);
-    console.log(`[ScriptParser] Prompt length: ${prompt.length} characters`);
-
-    const response = await this.callLLM(prompt, 'scene');
-    console.log(`[ScriptParser] LLM response received, length: ${response.length} characters`);
-
-    const rawScene = this.extractJSON<Partial<ScriptScene>>(response);
-    console.log(`[ScriptParser] Raw scene data parsed`);
-
-    // Validate and fill missing fields
-    const scene = this.validateScene(rawScene, sceneName);
-    console.log(`[ScriptParser] Scene validated and completed:`);
-    console.log(`  - Name: ${scene.name}`);
-    console.log(`  - Location Type: ${scene.locationType}`);
-    console.log(`  - Time of Day: ${scene.timeOfDay}`);
-    console.log(`  - Weather: ${scene.weather}`);
-    console.log(`  - Characters: ${scene.characters?.join(', ')}`);
-    console.log(`  - Visual Prompt: ${scene.visualPrompt?.substring(0, 50)}...`);
-
-    // Cache the result
-    this.cache.set(cacheKey, scene);
-    return scene;
-  }
+  // Note: extractScene method has been removed in v2
+  // Use extractAllScenesWithContext for batch extraction
 
   /**
    * Stage 4: Generate shots for a scene
