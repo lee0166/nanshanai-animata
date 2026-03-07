@@ -36,6 +36,7 @@ import { ContextInjector, InjectionOptions } from './parsing/ContextInjector';
 import { IterativeRefinementEngine, IterativeRefinementConfig, IterativeRefinementResult } from './parsing/refinement/IterativeRefinementEngine';
 import { DurationBudget, SceneBudget, calculateBudget, validateBudget } from './parsing/BudgetPlanner';
 import { ParseStrategySelector, StrategySelection, ParseStrategy, StrategySelectorConfig } from './parsing/ParseStrategySelector';
+import { PerformanceMonitor, PerformanceReport } from './parsing/PerformanceMonitor';
 
 /**
  * Script Parser Configuration Interface
@@ -869,6 +870,8 @@ export class ScriptParser {
   private strategySelector: ParseStrategySelector | null = null;
   /** Last strategy selection result */
   private lastStrategySelection: StrategySelection | null = null;
+  /** Performance monitor for tracking parsing metrics */
+  private performanceMonitor: PerformanceMonitor | null = null;
 
   /**
    * Creates a new script parser instance
@@ -929,6 +932,10 @@ export class ScriptParser {
       dramaticRulesMinScore: this.parserConfig.dramaRulesMinScore,
     });
     console.log('[ScriptParser] QualityAnalyzer initialized');
+
+    // Initialize performance monitor
+    this.performanceMonitor = new PerformanceMonitor();
+    console.log('[ScriptParser] PerformanceMonitor initialized');
 
     // Initialize global context extractor and context injector
     this.initializeGlobalContextSupport();
@@ -1115,6 +1122,25 @@ export class ScriptParser {
       this.strategySelector.updateConfig(config);
       console.log('[ScriptParser] Strategy config updated:', config);
     }
+  }
+
+  /**
+   * Get performance report from last parsing session
+   */
+  getPerformanceReport(): PerformanceReport | null {
+    return this.performanceMonitor?.generateReport() || null;
+  }
+
+  /**
+   * Get current performance statistics
+   */
+  getCurrentPerformanceStats(): {
+    elapsedTime: number;
+    currentStage: string | null;
+    apiCalls: number;
+    progress: number;
+  } | null {
+    return this.performanceMonitor?.getCurrentStats() || null;
   }
 
   /**
