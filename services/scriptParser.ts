@@ -2294,19 +2294,32 @@ export class ScriptParser {
       }
       state.progress = 75;
 
-      // Step 4: Generate shots for all scenes (limited to 3 per scene for fast path)
+      // Step 4: Generate shots for all scenes in ONE API call (fast path optimization)
       if (state.scenes.length > 0) {
         onProgress?.('shots', 75, '正在批量生成分镜...');
-        const allShots: Shot[] = [];
-        const maxShotsPerScene = 3; // Limit shots for fast path
-        for (const scene of state.scenes) {
-          const shots = await this.generateShotsWithContext(content, scene, state.scenes.indexOf(scene), state.scenes.length);
-          // Limit to max 3 shots per scene for fast path
-          const limitedShots = shots.slice(0, maxShotsPerScene);
-          allShots.push(...limitedShots);
+        try {
+          // V3 Optimization: Use generateAllShotsWithContext for single API call
+          const allShots = await this.generateAllShotsWithContext(content, state.scenes);
+          state.shots = allShots;
+          console.log(`[ScriptParser] Fast path: Generated ${allShots.length} shots in 1 API call`);
+        } catch (e) {
+          console.error('[ScriptParser] Batch shots generation failed:', e);
+          // Fallback: generate placeholder shots
+          const fallbackShots: Shot[] = [];
+          state.scenes.forEach((scene, sceneIndex) => {
+            fallbackShots.push({
+              id: crypto.randomUUID(),
+              sceneName: scene.name,
+              sequence: sceneIndex + 1,
+              shotType: 'medium',
+              cameraMovement: 'static',
+              duration: 3,
+              description: `${scene.name} - ${scene.description?.substring(0, 30) || '场景描述'}...`,
+              visualPrompt: scene.visualPrompt || scene.name
+            });
+          });
+          state.shots = fallbackShots;
         }
-        state.shots = allShots;
-        console.log(`[ScriptParser] Fast path: Generated ${allShots.length} shots (limited to ${maxShotsPerScene} per scene)`);
       } else {
         state.shots = [];
       }
