@@ -1086,6 +1086,29 @@ export class ScriptParser {
   }
 
   /**
+   * V3: Count words in content (Chinese characters + English words)
+   * @param content - Text content
+   * @returns Word count
+   * @private
+   */
+  private countWords(content: string): number {
+    // Remove extra whitespace
+    const trimmed = content.trim();
+    if (!trimmed) return 0;
+
+    // Count Chinese characters
+    const chineseChars = (trimmed.match(/[\u4e00-\u9fa5]/g) || []).length;
+
+    // Count English words (sequences of letters)
+    const englishWords = (trimmed.match(/[a-zA-Z]+/g) || []).length;
+
+    // Count numbers as words
+    const numbers = (trimmed.match(/\d+/g) || []).length;
+
+    return chineseChars + englishWords + numbers;
+  }
+
+  /**
    * Splits long text into chunks while preserving paragraph integrity
    * Ensures paragraphs are not split across chunks
    *
@@ -2230,9 +2253,97 @@ export class ScriptParser {
   }
 
   /**
+   * V3: Short text fast path - parse everything in 1-2 API calls
+   * For texts < 800 words, extract metadata, characters, scenes, and shots in batch
+   */
+  async parseShortScript(
+    content: string,
+    onProgress?: ParseProgressCallback
+  ): Promise<ScriptParseState> {
+    console.log(`[ScriptParser] ========== Short Text Fast Path ==========`);
+    console.log(`[ScriptParser] Content length: ${content.length} characters`);
+
+    const state: ScriptParseState = {
+      stage: 'metadata',
+      progress: 10
+    };
+
+    try {
+      // Step 1: Extract metadata with structured output
+      onProgress?.('metadata', 10, '正在提取元数据...');
+      state.metadata = await this.extractMetadata(content);
+      state.progress = 25;
+
+      // Step 2: Batch extract all characters
+      if (state.metadata.characterNames && state.metadata.characterNames.length > 0) {
+        onProgress?.('characters', 25, `正在批量分析 ${state.metadata.characterNames.length} 个角色...`);
+        state.characters = await this.extractAllCharactersWithContext(content, state.metadata.characterNames);
+        console.log(`[ScriptParser] Fast path: Extracted ${state.characters.length} characters`);
+      } else {
+        state.characters = [];
+      }
+      state.progress = 50;
+
+      // Step 3: Batch extract all scenes
+      if (state.metadata.sceneNames && state.metadata.sceneNames.length > 0) {
+        onProgress?.('scenes', 50, `正在批量分析 ${state.metadata.sceneNames.length} 个场景...`);
+        state.scenes = await this.extractAllScenesWithContext(content, state.metadata.sceneNames);
+        console.log(`[ScriptParser] Fast path: Extracted ${state.scenes.length} scenes`);
+      } else {
+        state.scenes = [];
+      }
+      state.progress = 75;
+
+      // Step 4: Generate shots for all scenes
+      if (state.scenes.length > 0) {
+        onProgress?.('shots', 75, '正在批量生成分镜...');
+        const allShots: Shot[] = [];
+        for (const scene of state.scenes) {
+          const shots = await this.generateShotsWithContext(content, scene, state.scenes.indexOf(scene), state.scenes.length);
+          allShots.push(...shots);
+        }
+        state.shots = allShots;
+        console.log(`[ScriptParser] Fast path: Generated ${allShots.length} shots`);
+      } else {
+        state.shots = [];
+      }
+      state.progress = 95;
+
+      // Step 5: Generate quality report
+      if (this.parserConfig.useDramaRules && this.qualityAnalyzer) {
+        const report = this.qualityAnalyzer.analyze(
+          state.metadata,
+          state.characters,
+          state.scenes,
+          [],
+          state.shots || [],
+          'completed'
+        );
+        this.qualityReport = report;
+        state.qualityReport = report;
+      }
+
+      state.stage = 'completed';
+      state.progress = 100;
+      onProgress?.('completed', 100, '解析完成！');
+
+      console.log(`[ScriptParser] ========== Short Text Parse Completed ==========`);
+      console.log(`[ScriptParser] Characters: ${state.characters?.length}, Scenes: ${state.scenes?.length}, Shots: ${state.shots?.length}`);
+
+    } catch (error: any) {
+      state.stage = 'error';
+      state.error = error.message;
+      throw error;
+    }
+
+    return state;
+  }
+
+  /**
    * Full parsing pipeline with progress tracking and error recovery
    * 
    * V2 优化：添加详细的性能监控日志
+   * V3 优化：添加短文本快速路径
    */
   async parseScript(
     scriptId: string,
@@ -2241,13 +2352,31 @@ export class ScriptParser {
     onProgress?: ParseProgressCallback,
     resumeFromState?: ScriptParseState
   ): Promise<ScriptParseState> {
+    // V3: 策略选择 - 短文本使用快速路径
+    const wordCount = this.countWords(content);
+    console.log(`[ScriptParser] ========== Starting Parse Script ==========`);
+    console.log(`[ScriptParser] Content length: ${content.length} characters, Word count: ${wordCount}`);
+    console.log(`[ScriptParser] Config: concurrency=${CONFIG.concurrency}, callDelay=${CONFIG.callDelay}ms`);
+
+    // 短文本快速路径 (< 800字)
+    if (wordCount < 800 && !resumeFromState) {
+      console.log(`[ScriptParser] Using SHORT TEXT FAST PATH (< 800 words)`);
+      const fastStartTime = Date.now();
+      const result = await this.parseShortScript(content, onProgress);
+      const fastDuration = Date.now() - fastStartTime;
+      console.log(`[ScriptParser] ========== Fast Path Completed ==========`);
+      console.log(`[ScriptParser] Total duration: ${fastDuration}ms (${(fastDuration/1000).toFixed(1)}s)`);
+      console.log(`[ScriptParser] ==========================================`);
+      // Save state for persistence
+      await this.saveState(scriptId, projectId, result);
+      return result;
+    }
+
+    console.log(`[ScriptParser] Using STANDARD PARSE PATH (>= 800 words or resuming)`);
+
     // V2: 性能监控 - 记录总耗时
     const totalStartTime = Date.now();
     const stageTimings: Record<string, number> = {};
-    
-    console.log(`[ScriptParser] ========== Starting Parse Script ==========`);
-    console.log(`[ScriptParser] Content length: ${content.length} characters`);
-    console.log(`[ScriptParser] Config: concurrency=${CONFIG.concurrency}, callDelay=${CONFIG.callDelay}ms`);
 
     // Try to resume from provided state or load from storage
     let state: ScriptParseState = resumeFromState || {
