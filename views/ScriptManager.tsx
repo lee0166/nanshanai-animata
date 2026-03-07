@@ -46,7 +46,7 @@ import {
   Badge,
   Switch
 } from "@heroui/react";
-import { FileText, Upload, Play, RotateCcw, Users, MapPin, Film, CheckCircle2, AlertCircle, Brain, Box, Trash2, Sparkles, AlertTriangle, Info, BookOpen, Layout, Palette, Music } from 'lucide-react';
+import { FileText, Upload, Play, RotateCcw, Users, MapPin, Film, CheckCircle2, AlertCircle, Brain, Box, Trash2, Sparkles, AlertTriangle, Info, BookOpen, Layout, Palette, Music, Clock } from 'lucide-react';
 
 interface ScriptManagerProps {
   projectId?: string;
@@ -618,6 +618,54 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
               </Button>
             </div>
           </div>
+
+          {/* Duration Budget Config Preview */}
+          {!isParsing && parseState.stage !== 'completed' && (
+            <div className="mb-4 p-3 bg-slate-50 dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-800">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4 text-sm">
+                  <span className="text-slate-500">当前配置:</span>
+                  <div className="flex items-center gap-2">
+                    <span className="px-2 py-0.5 bg-primary/10 text-primary text-xs font-medium rounded-full">
+                      {durationBudgetConfig.platform === 'douyin' ? '抖音' :
+                       durationBudgetConfig.platform === 'kuaishou' ? '快手' :
+                       durationBudgetConfig.platform === 'bilibili' ? 'B站' : '精品'}
+                    </span>
+                    <span className="px-2 py-0.5 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 text-xs font-medium rounded-full">
+                      {durationBudgetConfig.pace === 'fast' ? '快节奏' :
+                       durationBudgetConfig.pace === 'normal' ? '中节奏' : '慢节奏'}
+                    </span>
+                    {durationBudgetConfig.useDurationBudget && (
+                      <span className="px-2 py-0.5 bg-success/10 text-success text-xs font-medium rounded-full flex items-center gap-1">
+                        <Clock className="w-3 h-3" />
+                        时长预算
+                      </span>
+                    )}
+                    {durationBudgetConfig.useProductionPrompt && (
+                      <span className="px-2 py-0.5 bg-success/10 text-success text-xs font-medium rounded-full flex items-center gap-1">
+                        <Sparkles className="w-3 h-3" />
+                        生产级Prompt
+                      </span>
+                    )}
+                  </div>
+                </div>
+                <Button
+                  size="sm"
+                  variant="light"
+                  onPress={() => navigate('/settings')}
+                  className="text-xs"
+                >
+                  修改配置
+                </Button>
+              </div>
+              {scriptWordCount >= 3000 && !durationBudgetConfig.useDurationBudget && (
+                <div className="mt-2 flex items-center gap-2 text-xs text-warning">
+                  <AlertTriangle className="w-3 h-3" />
+                  <span>当前文本较长（{scriptWordCount}字），建议开启时长预算规划以获得更好的效果</span>
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Progress Bar - Show when parsing */}
           {isParsing && (
