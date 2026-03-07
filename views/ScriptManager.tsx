@@ -88,6 +88,15 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
   // Parse config confirmation modal
   const [showParseConfirm, setShowParseConfirm] = useState(false);
 
+  // Duration Budget Configuration State
+  const [durationBudgetConfig, setDurationBudgetConfig] = useState({
+    platform: settings.durationBudget?.platform || 'douyin',
+    pace: settings.durationBudget?.pace || 'normal',
+    useDurationBudget: settings.durationBudget?.useDurationBudget ?? false,
+    useProductionPrompt: settings.durationBudget?.useProductionPrompt ?? false,
+    useShotQC: settings.durationBudget?.useShotQC ?? false,
+  });
+
   // Existing assets for mapping
   const [existingCharacters, setExistingCharacters] = useState<CharacterAsset[]>([]);
   const [existingScenes, setExistingScenes] = useState<SceneAsset[]>([]);
@@ -383,14 +392,14 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
           confidenceThreshold: 0.7,
           verboseLogging: true
         },
-        // ✅ 启用时长预算规划（从设置中读取）
-        useDurationBudget: settings.durationBudget?.useDurationBudget ?? false,
-        targetPlatform: settings.durationBudget?.platform || 'douyin',
-        paceType: settings.durationBudget?.pace || 'normal',
-        useDynamicDuration: settings.durationBudget?.useDynamicDuration ?? false,
-        useProductionPrompt: settings.durationBudget?.useProductionPrompt ?? false,
-        useShotQC: settings.durationBudget?.useShotQC ?? false,
-        qcAutoAdjust: settings.durationBudget?.qcAutoAdjust ?? false,
+        // ✅ 启用时长预算规划（从弹窗配置中读取）
+        useDurationBudget: durationBudgetConfig.useDurationBudget,
+        targetPlatform: durationBudgetConfig.platform,
+        paceType: durationBudgetConfig.pace,
+        useDynamicDuration: false,
+        useProductionPrompt: durationBudgetConfig.useProductionPrompt,
+        useShotQC: durationBudgetConfig.useShotQC,
+        qcAutoAdjust: false,
         qcTolerance: 0.15
       };
       const parser = createScriptParser(
@@ -1179,6 +1188,8 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
         wordCount={scriptWordCount || currentScript?.content?.length || 0}
         modelName={getSelectedModel(false)?.name || '深度求索 V3'}
         parseMode="完整解析"
+        durationBudgetConfig={durationBudgetConfig}
+        onConfigChange={setDurationBudgetConfig}
       />
     </div>
   );
