@@ -2294,16 +2294,19 @@ export class ScriptParser {
       }
       state.progress = 75;
 
-      // Step 4: Generate shots for all scenes
+      // Step 4: Generate shots for all scenes (limited to 3 per scene for fast path)
       if (state.scenes.length > 0) {
         onProgress?.('shots', 75, '正在批量生成分镜...');
         const allShots: Shot[] = [];
+        const maxShotsPerScene = 3; // Limit shots for fast path
         for (const scene of state.scenes) {
           const shots = await this.generateShotsWithContext(content, scene, state.scenes.indexOf(scene), state.scenes.length);
-          allShots.push(...shots);
+          // Limit to max 3 shots per scene for fast path
+          const limitedShots = shots.slice(0, maxShotsPerScene);
+          allShots.push(...limitedShots);
         }
         state.shots = allShots;
-        console.log(`[ScriptParser] Fast path: Generated ${allShots.length} shots`);
+        console.log(`[ScriptParser] Fast path: Generated ${allShots.length} shots (limited to ${maxShotsPerScene} per scene)`);
       } else {
         state.shots = [];
       }
