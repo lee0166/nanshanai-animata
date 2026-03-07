@@ -194,10 +194,18 @@ const CONFIG = {
   retryDelay: 2000,
   /** API call timeout in ms (60 seconds) */
   timeout: 60000,
-  /** Maximum concurrent API calls - reduced to 1 to avoid rate limiting */
-  concurrency: 1,
-  /** Delay between API calls in ms */
-  callDelay: 1000,
+  /** 
+   * Maximum concurrent API calls
+   * V2 优化：从 1 增加到 3，提升并行处理能力
+   * 如果遇到限流问题，可以适当降低
+   */
+  concurrency: 3,
+  /** 
+   * Delay between API calls in ms
+   * V2 优化：从 1000ms 降低到 100ms，减少不必要的等待
+   * 如果遇到限流问题，可以适当增加
+   */
+  callDelay: 100,
 };
 
 /**
@@ -2416,6 +2424,8 @@ export class ScriptParser {
 
   /**
    * Full parsing pipeline with progress tracking and error recovery
+   * 
+   * V2 优化：添加详细的性能监控日志
    */
   async parseScript(
     scriptId: string,
@@ -2424,6 +2434,14 @@ export class ScriptParser {
     onProgress?: ParseProgressCallback,
     resumeFromState?: ScriptParseState
   ): Promise<ScriptParseState> {
+    // V2: 性能监控 - 记录总耗时
+    const totalStartTime = Date.now();
+    const stageTimings: Record<string, number> = {};
+    
+    console.log(`[ScriptParser] ========== Starting Parse Script ==========`);
+    console.log(`[ScriptParser] Content length: ${content.length} characters`);
+    console.log(`[ScriptParser] Config: concurrency=${CONFIG.concurrency}, callDelay=${CONFIG.callDelay}ms`);
+
     // Try to resume from provided state or load from storage
     let state: ScriptParseState = resumeFromState || {
       stage: 'idle',
@@ -2446,6 +2464,7 @@ export class ScriptParser {
 
     try {
       // Stage 1: Metadata (skip if already completed)
+      const metadataStartTime = Date.now();
       if (!state.metadata) {
         state.stage = 'metadata';
         state.progress = 10;
@@ -2458,8 +2477,10 @@ export class ScriptParser {
         console.log('[ScriptParser] Skipping metadata extraction (already exists)');
         onProgress?.('metadata', 20, '元数据已存在，跳过...');
       }
+      stageTimings['metadata'] = Date.now() - metadataStartTime;
 
       // Stage 2: Characters (with concurrency control and resume support)
+      const charactersStartTime = Date.now();
       state.stage = 'characters';
       state.progress = 25;
       onProgress?.('characters', 25, '正在分析角色...');
@@ -2510,8 +2531,10 @@ export class ScriptParser {
         console.log('[ScriptParser] All characters already processed, skipping...');
         onProgress?.('characters', 50, '角色已存在，跳过...');
       }
+      stageTimings['characters'] = Date.now() - charactersStartTime;
 
       // Stage 3: Scenes (with concurrency control and resume support)
+      const scenesStartTime = Date.now();
       state.stage = 'scenes';
       state.progress = 50;
       onProgress?.('scenes', 50, '正在分析场景...');
@@ -2562,6 +2585,7 @@ export class ScriptParser {
         console.log('[ScriptParser] All scenes already processed, skipping...');
         onProgress?.('scenes', 70, '场景已存在，跳过...');
       }
+      stageTimings['scenes'] = Date.now() - scenesStartTime;
 
       this.currentScenes = scenes;
       this.currentCharacters = characters;
@@ -2677,6 +2701,7 @@ export class ScriptParser {
       }
 
       // Stage 4: Shots (with concurrency control and resume support)
+      const shotsStartTime = Date.now();
       state.stage = 'shots';
       state.progress = 70;
       onProgress?.('shots', 70, '正在生成分镜...');
@@ -2756,6 +2781,7 @@ export class ScriptParser {
         console.log('[ScriptParser] All shots already generated, skipping...');
         onProgress?.('shots', 95, '分镜已存在，跳过...');
       }
+      stageTimings['shots'] = Date.now() - shotsStartTime;
 
       // Complete
       state.stage = 'completed';
@@ -2803,11 +2829,29 @@ export class ScriptParser {
       onProgress?.('completed', 100, '解析完成！');
       await this.saveState(scriptId, projectId, state);
 
+      // V2: 性能监控 - 输出总耗时报告
+      const totalDuration = Date.now() - totalStartTime;
+      console.log(`[ScriptParser] ========== Parse Completed ==========`);
+      console.log(`[ScriptParser] Total duration: ${totalDuration}ms (${(totalDuration/1000).toFixed(1)}s)`);
+      console.log(`[ScriptParser] Stage timings:`);
+      Object.entries(stageTimings).forEach(([stage, duration]) => {
+        const percentage = ((duration / totalDuration) * 100).toFixed(1);
+        console.log(`[ScriptParser]   - ${stage}: ${duration}ms (${percentage}%)`);
+      });
+      console.log(`[ScriptParser] Content length: ${content.length} chars`);
+      console.log(`[ScriptParser] Characters: ${state.metadata?.characterCount}, Scenes: ${state.metadata?.sceneCount}`);
+      console.log(`[ScriptParser] ==========================================`);
+
     } catch (error: any) {
       state.stage = 'error';
       state.error = error.message;
       onProgress?.('error', state.progress, `解析失败: ${error.message}`);
       await this.saveState(scriptId, projectId, state);
+      
+      // V2: 性能监控 - 即使失败也输出耗时
+      const totalDuration = Date.now() - totalStartTime;
+      console.error(`[ScriptParser] Parse failed after ${totalDuration}ms:`, error.message);
+      
       throw error;
     }
 
