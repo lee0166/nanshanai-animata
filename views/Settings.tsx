@@ -5,6 +5,8 @@ import { useApp } from '../contexts/context';
 import { useToast } from '../contexts/ToastContext';
 import { Save, Plus, Trash2, Monitor, Moon, Sun, FolderOpen, RefreshCcw, CheckCircle, AlertCircle, Globe, Palette, Settings as SettingsIcon, Database, Cpu, Pencil, Clock, Film, Sparkles, Shield, Zap } from 'lucide-react';
 import { storageService } from '../services/storage';
+import { DurationBudgetStatusPanel } from '../components/DurationBudget/DurationBudgetStatusPanel';
+import { DurationBudgetDependencyGraph } from '../components/DurationBudget/DurationBudgetDependencyGraph';
 import { 
   Card, 
   CardHeader, 
@@ -47,10 +49,8 @@ const Settings: React.FC = () => {
     platform: settings.durationBudget?.platform || 'douyin',
     pace: settings.durationBudget?.pace || 'normal',
     useDurationBudget: settings.durationBudget?.useDurationBudget ?? false,
-    useDynamicDuration: settings.durationBudget?.useDynamicDuration ?? false,
     useProductionPrompt: settings.durationBudget?.useProductionPrompt ?? false,
     useShotQC: settings.durationBudget?.useShotQC ?? false,
-    qcAutoAdjust: settings.durationBudget?.qcAutoAdjust ?? false,
   });
 
   // Sync durationBudgetConfig when settings change (e.g., after loading from storage)
@@ -61,10 +61,8 @@ const Settings: React.FC = () => {
         platform: settings.durationBudget.platform || 'douyin',
         pace: settings.durationBudget.pace || 'normal',
         useDurationBudget: settings.durationBudget.useDurationBudget ?? false,
-        useDynamicDuration: settings.durationBudget.useDynamicDuration ?? false,
         useProductionPrompt: settings.durationBudget.useProductionPrompt ?? false,
         useShotQC: settings.durationBudget.useShotQC ?? false,
-        qcAutoAdjust: settings.durationBudget.qcAutoAdjust ?? false,
       });
     }
   }, [settings.durationBudget]);
@@ -412,6 +410,57 @@ const Settings: React.FC = () => {
     setDurationBudgetConfig(prev => ({ ...prev, [key]: value }));
   };
 
+  // Handle duration budget toggle with dependency check
+  const handleDurationBudgetToggle = (val: boolean) => {
+    if (val) {
+      // 开启时长预算时，自动开启生产级Prompt
+      setDurationBudgetConfig(prev => ({
+        ...prev,
+        useDurationBudget: true,
+        useProductionPrompt: true
+      }));
+      showToast(t.settings.durationBudget?.autoEnabledProductionPrompt || '已自动开启生产级Prompt', 'success');
+    } else {
+      setDurationBudgetConfig(prev => ({
+        ...prev,
+        useDurationBudget: false
+      }));
+    }
+  };
+
+  // Handle production prompt toggle with dependency warning
+  const handleProductionPromptToggle = (val: boolean) => {
+    if (!val && durationBudgetConfig.useDurationBudget) {
+      // 关闭生产级Prompt时，如果时长预算已开启，显示警告
+      const confirmClose = window.confirm(
+        t.settings.durationBudget?.closeProductionPromptWarning || 
+        '关闭"生产级Prompt"将导致"时长预算规划"失效，因为时长预算约束需要通过生产级Prompt才能生效。\n\n请选择：\n• 确定 - 同时关闭时长预算（推荐）\n• 取消 - 仅关闭生产级Prompt（时长预算将失效）'
+      );
+      
+      if (confirmClose) {
+        // 同时关闭时长预算
+        setDurationBudgetConfig(prev => ({
+          ...prev,
+          useProductionPrompt: false,
+          useDurationBudget: false
+        }));
+        showToast(t.settings.durationBudget?.bothDisabled || '已同时关闭时长预算和生产级Prompt', 'info');
+      } else {
+        // 仅关闭生产级Prompt
+        setDurationBudgetConfig(prev => ({
+          ...prev,
+          useProductionPrompt: false
+        }));
+        showToast(t.settings.durationBudget?.productionPromptDisabledOnly || '已关闭生产级Prompt，时长预算将失效', 'warning');
+      }
+    } else {
+      setDurationBudgetConfig(prev => ({
+        ...prev,
+        useProductionPrompt: val
+      }));
+    }
+  };
+
   return (
     <div className="h-full overflow-y-auto p-6 md:p-10 max-w-[1600px] mx-auto space-y-12 pb-32">
       <div className="flex flex-col gap-2">
@@ -708,63 +757,92 @@ const Settings: React.FC = () => {
                 </Button>
             </CardHeader>
             <CardBody className="px-8 pb-8 pt-4 space-y-8">
-                {/* Platform Selection */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <Select
-                        label={t.settings.durationBudget?.platformLabel || '目标平台'}
-                        labelPlacement="outside"
-                        placeholder={t.settings.durationBudget?.platformPlaceholder || '选择发布平台'}
-                        selectedKeys={[durationBudgetConfig.platform]}
-                        onSelectionChange={(keys) => {
-                            const val = Array.from(keys)[0] as string;
-                            updateDurationBudget('platform', val);
-                        }}
-                        variant="bordered"
-                        radius="lg"
-                        size="lg"
-                        classNames={{
-                            label: "font-black uppercase tracking-widest text-[15px] mb-2 text-slate-500",
-                            value: "font-medium text-[15px]"
-                        }}
-                        startContent={<Film className="w-4 h-4 text-default-400" />}
-                    >
-                        <SelectItem key="douyin" value="douyin">{t.settings.durationBudget?.platformDouyin || '抖音'}</SelectItem>
-                        <SelectItem key="kuaishou" value="kuaishou">{t.settings.durationBudget?.platformKuaishou || '快手'}</SelectItem>
-                        <SelectItem key="bilibili" value="bilibili">{t.settings.durationBudget?.platformBilibili || 'B站'}</SelectItem>
-                        <SelectItem key="premium" value="premium">{t.settings.durationBudget?.platformPremium || '精品'}</SelectItem>
-                    </Select>
+                {/* Configuration Status Panel */}
+                <DurationBudgetStatusPanel 
+                    config={durationBudgetConfig}
+                    t={t}
+                />
 
-                    <Select
-                        label={t.settings.durationBudget?.paceLabel || '节奏选择'}
-                        labelPlacement="outside"
-                        placeholder={t.settings.durationBudget?.pacePlaceholder || '选择视频节奏'}
-                        selectedKeys={[durationBudgetConfig.pace]}
-                        onSelectionChange={(keys) => {
-                            const val = Array.from(keys)[0] as string;
-                            updateDurationBudget('pace', val);
-                        }}
-                        variant="bordered"
-                        radius="lg"
-                        size="lg"
-                        classNames={{
-                            label: "font-black uppercase tracking-widest text-[15px] mb-2 text-slate-500",
-                            value: "font-medium text-[15px]"
-                        }}
-                        startContent={<Zap className="w-4 h-4 text-default-400" />}
-                    >
-                        <SelectItem key="fast" value="fast">{t.settings.durationBudget?.paceFast || '快'}</SelectItem>
-                        <SelectItem key="normal" value="normal">{t.settings.durationBudget?.paceNormal || '中'}</SelectItem>
-                        <SelectItem key="slow" value="slow">{t.settings.durationBudget?.paceSlow || '慢'}</SelectItem>
-                    </Select>
+                <Divider className="opacity-50" />
+
+                {/* Basic Configuration Group */}
+                <div className="space-y-4">
+                    <div className="flex items-center gap-2">
+                        <div className="w-1 h-5 bg-primary rounded-full" />
+                        <h3 className="text-[15px] font-black uppercase tracking-widest text-slate-900 dark:text-white">
+                            {t.settings.durationBudget?.basicConfig || '基础配置'}
+                            <span className="text-xs text-slate-400 ml-2 font-medium normal-case">{t.settings.durationBudget?.required || '必须'}</span>
+                        </h3>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pl-3">
+                        <Select
+                            label={t.settings.durationBudget?.platformLabel || '目标平台'}
+                            labelPlacement="outside"
+                            placeholder={t.settings.durationBudget?.platformPlaceholder || '选择发布平台'}
+                            selectedKeys={[durationBudgetConfig.platform]}
+                            onSelectionChange={(keys) => {
+                                const val = Array.from(keys)[0] as string;
+                                updateDurationBudget('platform', val);
+                            }}
+                            variant="bordered"
+                            radius="lg"
+                            size="lg"
+                            classNames={{
+                                label: "font-black uppercase tracking-widest text-[15px] mb-2 text-slate-500",
+                                value: "font-medium text-[15px]"
+                            }}
+                            startContent={<Film className="w-4 h-4 text-default-400" />}
+                        >
+                            <SelectItem key="douyin" value="douyin">{t.settings.durationBudget?.platformDouyin || '抖音'}</SelectItem>
+                            <SelectItem key="kuaishou" value="kuaishou">{t.settings.durationBudget?.platformKuaishou || '快手'}</SelectItem>
+                            <SelectItem key="bilibili" value="bilibili">{t.settings.durationBudget?.platformBilibili || 'B站'}</SelectItem>
+                            <SelectItem key="premium" value="premium">{t.settings.durationBudget?.platformPremium || '精品'}</SelectItem>
+                        </Select>
+
+                        <Select
+                            label={t.settings.durationBudget?.paceLabel || '节奏选择'}
+                            labelPlacement="outside"
+                            placeholder={t.settings.durationBudget?.pacePlaceholder || '选择视频节奏'}
+                            selectedKeys={[durationBudgetConfig.pace]}
+                            onSelectionChange={(keys) => {
+                                const val = Array.from(keys)[0] as string;
+                                updateDurationBudget('pace', val);
+                            }}
+                            variant="bordered"
+                            radius="lg"
+                            size="lg"
+                            classNames={{
+                                label: "font-black uppercase tracking-widest text-[15px] mb-2 text-slate-500",
+                                value: "font-medium text-[15px]"
+                            }}
+                            startContent={<Zap className="w-4 h-4 text-default-400" />}
+                        >
+                            <SelectItem key="fast" value="fast">{t.settings.durationBudget?.paceFast || '快'}</SelectItem>
+                            <SelectItem key="normal" value="normal">{t.settings.durationBudget?.paceNormal || '中'}</SelectItem>
+                            <SelectItem key="slow" value="slow">{t.settings.durationBudget?.paceSlow || '慢'}</SelectItem>
+                        </Select>
+                    </div>
                 </div>
 
                 <Divider className="opacity-50" />
 
-                {/* Feature Toggles */}
-                <div className="space-y-6">
-                    <h3 className="text-sm font-black uppercase tracking-widest text-slate-500">{t.settings.durationBudget?.featureToggles || '功能开关'}</h3>
+                {/* Core Features Group */}
+                <div className="space-y-4">
+                    <div className="flex items-center gap-2">
+                        <div className="w-1 h-5 bg-success rounded-full" />
+                        <h3 className="text-[15px] font-black uppercase tracking-widest text-slate-900 dark:text-white">
+                            {t.settings.durationBudget?.coreFeatures || '核心功能'}
+                            <span className="text-xs text-slate-400 ml-2 font-medium normal-case">{t.settings.durationBudget?.linked || '联动'}</span>
+                        </h3>
+                    </div>
                     
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {/* Dependency Relationship Visualization */}
+                    <DurationBudgetDependencyGraph 
+                        config={durationBudgetConfig}
+                        t={t}
+                    />
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pl-3">
                         {/* Use Duration Budget */}
                         <div className="flex items-center justify-between gap-4 p-4 bg-slate-50 dark:bg-slate-950 rounded-xl border border-slate-100 dark:border-slate-900">
                             <div className="flex items-center gap-3">
@@ -782,7 +860,7 @@ const Settings: React.FC = () => {
                             </div>
                             <Switch
                                 isSelected={durationBudgetConfig.useDurationBudget}
-                                onValueChange={(val) => updateDurationBudget('useDurationBudget', val)}
+                                onValueChange={(val) => handleDurationBudgetToggle(val)}
                                 color="primary"
                                 size="lg"
                                 classNames={{
@@ -808,7 +886,7 @@ const Settings: React.FC = () => {
                             </div>
                             <Switch
                                 isSelected={durationBudgetConfig.useProductionPrompt}
-                                onValueChange={(val) => updateDurationBudget('useProductionPrompt', val)}
+                                onValueChange={(val) => handleProductionPromptToggle(val)}
                                 color="success"
                                 size="lg"
                                 classNames={{
@@ -816,7 +894,22 @@ const Settings: React.FC = () => {
                                 }}
                             />
                         </div>
+                    </div>
+                </div>
 
+                <Divider className="opacity-50" />
+
+                {/* Advanced Features Group */}
+                <div className="space-y-4">
+                    <div className="flex items-center gap-2">
+                        <div className="w-1 h-5 bg-warning rounded-full" />
+                        <h3 className="text-[15px] font-black uppercase tracking-widest text-slate-900 dark:text-white">
+                            {t.settings.durationBudget?.advancedFeatures || '高级功能'}
+                            <span className="text-xs text-slate-400 ml-2 font-medium normal-case">{t.settings.durationBudget?.optional || '可选'}</span>
+                        </h3>
+                    </div>
+                    
+                    <div className="pl-3">
                         {/* Use Shot QC */}
                         <div className="flex items-center justify-between gap-4 p-4 bg-slate-50 dark:bg-slate-950 rounded-xl border border-slate-100 dark:border-slate-900">
                             <div className="flex items-center gap-3">
@@ -842,7 +935,6 @@ const Settings: React.FC = () => {
                                 }}
                             />
                         </div>
-
                     </div>
                 </div>
             </CardBody>
