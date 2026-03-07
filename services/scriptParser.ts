@@ -808,6 +808,8 @@ export class ScriptParser {
   private apiUrl: string;
   /** Model name to use for parsing */
   private model: string;
+  /** Provider type for LLM service */
+  private provider: string;
   /** AbortController for cancellation support */
   private abortController: AbortController | null = null;
   /** Concurrency limiter for API calls */
@@ -856,17 +858,20 @@ export class ScriptParser {
    * @param apiKey - API key for LLM service
    * @param apiUrl - Base URL for LLM API (default: OpenAI)
    * @param model - Model name to use (default: gpt-4o-mini)
+   * @param provider - Provider type (default: volcengine)
    * @param config - Optional parser configuration
    */
   constructor(
     apiKey: string,
     apiUrl: string = 'https://api.openai.com/v1',
     model: string = CONFIG.defaultModel,
+    provider: string = 'volcengine',
     config: Partial<ScriptParserConfig> = {}
   ) {
     this.apiKey = apiKey;
     this.apiUrl = apiUrl;
     this.model = model;
+    this.provider = provider;
     this.limiter = new ConcurrencyLimiter(CONFIG.concurrency);
     this.cache = new ParseCache(50, 3600000);
 
@@ -1217,7 +1222,7 @@ export class ScriptParser {
       const config = {
         id: 'temp',
         name: 'Temp',
-        provider: 'llm',
+        provider: this.provider,
         modelId: this.model,
         apiUrl: this.apiUrl,
         apiKey: this.apiKey,
@@ -1331,7 +1336,7 @@ export class ScriptParser {
     const config = {
       id: 'temp',
       name: 'Temp',
-      provider: 'llm',
+      provider: this.provider,
       modelId: this.model,
       apiUrl: this.apiUrl,
       apiKey: this.apiKey,
@@ -1427,7 +1432,7 @@ export class ScriptParser {
     const config = {
       id: 'temp-context',
       name: 'Temp Context Extractor',
-      provider: 'llm',
+      provider: this.provider,
       modelId: this.model,
       apiUrl: this.apiUrl,
       apiKey: this.apiKey,
@@ -3042,9 +3047,10 @@ export function createScriptParser(
   apiKey: string,
   apiUrl?: string,
   model?: string,
+  provider?: string,
   config?: Partial<ScriptParserConfig>
 ): ScriptParser {
-  return new ScriptParser(apiKey, apiUrl, model, config);
+  return new ScriptParser(apiKey, apiUrl, model, provider, config);
 }
 
 // Export helper classes for testing

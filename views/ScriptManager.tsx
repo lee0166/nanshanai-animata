@@ -454,6 +454,7 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
         selectedModel.apiKey,
         selectedModel.apiUrl,
         selectedModel.modelId,
+        selectedModel.provider,
         parserConfig
       );
       parserRef.current = parser;
@@ -552,6 +553,7 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
         selectedModel.apiKey,
         selectedModel.apiUrl,
         selectedModel.modelId,
+        selectedModel.provider,
         parserConfig
       );
       parserRef.current = parser;
