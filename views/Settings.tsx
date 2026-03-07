@@ -7,6 +7,8 @@ import { Save, Plus, Trash2, Monitor, Moon, Sun, FolderOpen, RefreshCcw, CheckCi
 import { storageService } from '../services/storage';
 import { DurationBudgetStatusPanel } from '../components/DurationBudget/DurationBudgetStatusPanel';
 import { DurationBudgetDependencyGraph } from '../components/DurationBudget/DurationBudgetDependencyGraph';
+import { PlatformTemplateSelector, PlatformTemplate } from '../components/DurationBudget/PlatformTemplateSelector';
+import { SmartConfigEngine, SmartRecommendation } from '../components/DurationBudget/SmartConfigEngine';
 import { 
   Card, 
   CardHeader, 
@@ -461,6 +463,21 @@ const Settings: React.FC = () => {
     }
   };
 
+  // Handle platform template selection
+  const handleSelectTemplate = (template: PlatformTemplate) => {
+    setDurationBudgetConfig(template.config);
+    showToast(t.settings.durationBudget?.templateApplied?.replace('{name}', template.name) || `已应用"${template.name}"模板`, 'success');
+  };
+
+  // Handle smart recommendation application
+  const handleApplyRecommendation = (recommendation: SmartRecommendation) => {
+    setDurationBudgetConfig(recommendation.recommendedConfig);
+    showToast(t.settings.durationBudget?.recommendationApplied || '已应用智能推荐配置', 'success');
+  };
+
+  // Mock novel length for demo (in real app, this would come from props or context)
+  const [novelLength] = useState(7000); // Example: 7000 words
+
   return (
     <div className="h-full overflow-y-auto p-6 md:p-10 max-w-[1600px] mx-auto space-y-12 pb-32">
       <div className="flex flex-col gap-2">
@@ -760,6 +777,25 @@ const Settings: React.FC = () => {
                 {/* Configuration Status Panel */}
                 <DurationBudgetStatusPanel 
                     config={durationBudgetConfig}
+                    t={t}
+                />
+
+                <Divider className="opacity-50" />
+
+                {/* Smart Config Recommendation */}
+                <SmartConfigEngine
+                    novelLength={novelLength}
+                    currentConfig={durationBudgetConfig}
+                    onApplyRecommendation={handleApplyRecommendation}
+                    onDismiss={() => {}}
+                    t={t}
+                />
+
+                <Divider className="opacity-50" />
+
+                {/* Platform Template Selector */}
+                <PlatformTemplateSelector
+                    onSelectTemplate={handleSelectTemplate}
                     t={t}
                 />
 
