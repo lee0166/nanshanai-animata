@@ -8,7 +8,7 @@
  */
 
 import React from 'react';
-import { Card, CardBody } from '@nextui-org/react';
+import { Card, CardBody } from '@heroui/react';
 import { CheckCircle, AlertCircle, AlertTriangle, Clock, Film, Sparkles, Shield } from 'lucide-react';
 
 export interface DurationBudgetConfig {
