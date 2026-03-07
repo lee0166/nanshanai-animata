@@ -33,7 +33,6 @@ import {
 import { z } from 'zod';
 import { GlobalContextExtractor, GlobalContext } from './parsing/GlobalContextExtractor';
 import { ContextInjector, InjectionOptions } from './parsing/ContextInjector';
-import { EmbeddingService } from './parsing/EmbeddingService';
 import { IterativeRefinementEngine, IterativeRefinementConfig, IterativeRefinementResult } from './parsing/refinement/IterativeRefinementEngine';
 import { DurationBudget, SceneBudget, calculateBudget, validateBudget } from './parsing/BudgetPlanner';
 
@@ -842,8 +841,6 @@ export class ScriptParser {
   private contextInjector: ContextInjector | null = null;
   /** Extracted global context for all parsing stages */
   private globalContext: GlobalContext | null = null;
-  /** Embedding service for vector generation */
-  private embeddingService: EmbeddingService | null = null;
   /** Whether to use global context injection */
   private useGlobalContext: boolean = true;
   /** Iterative refinement engine for automatic optimization */
@@ -1173,38 +1170,8 @@ export class ScriptParser {
     return chunks;
   }
 
-  /**
-   * Get smart context using vector memory recall
-   * Replaces fixed window slice(-500) with semantic similarity search
-   * @param query - Query text for context recall
-   * @param currentChunkIndex - Current chunk index to exclude from results
-   * @returns Recalled context text
-   * @private
-   */
-  private async getSmartContext(query: string, currentChunkIndex?: number): Promise<string> {
-    if (!this.parserConfig.enableVectorMemory || !this.vectorMemory) {
-      return '';
-    }
-
-    try {
-      const results = await this.vectorMemory.query(query, 3);
-
-      // Filter out current chunk and merge relevant context
-      const relevantTexts = results
-        .filter(r => currentChunkIndex === undefined || r.metadata.chunkIndex !== currentChunkIndex)
-        .map(r => r.text)
-        .join('\n\n');
-
-      console.log(`[ScriptParser] Recalled ${results.length} relevant chunks`);
-      return relevantTexts;
-    } catch (error) {
-      console.warn('[ScriptParser] Failed to recall context:', error);
-      return '';
-    }
-  }
-
   // Note: VectorMemory has been removed in v2
-  // clearVectorMemory() and getVectorMemoryStats() methods removed
+  // getSmartContext() method removed
 
   /**
    * Makes API request to LLM with timeout and automatic retry
@@ -1844,6 +1811,8 @@ export class ScriptParser {
   /**
    * Batch extract all characters with global context injection
    * This method injects story context, visual style, and era constraints into the prompt
+   * 
+   * Phase 2.1.2: Smart batching - split into batches of 5 when character count > 5
    */
   async extractAllCharactersWithContext(content: string, characterNames: string[]): Promise<ScriptCharacter[]> {
     if (characterNames.length === 0) return [];
@@ -1851,8 +1820,48 @@ export class ScriptParser {
       return [await this.extractCharacterWithContext(content, characterNames[0])];
     }
 
-    console.log(`[ScriptParser] ---------- Batch Extracting ${characterNames.length} Characters with Context ----------`);
+    // Phase 2.1.2: Smart batching - if > 5 characters, split into batches
+    const BATCH_SIZE = 5;
+    if (characterNames.length > BATCH_SIZE) {
+      console.log(`[ScriptParser] ---------- Smart Batching ${characterNames.length} Characters (${Math.ceil(characterNames.length / BATCH_SIZE)} batches) ----------`);
+      const allCharacters: ScriptCharacter[] = [];
+      
+      for (let i = 0; i < characterNames.length; i += BATCH_SIZE) {
+        const batch = characterNames.slice(i, i + BATCH_SIZE);
+        console.log(`[ScriptParser] Processing batch ${Math.floor(i / BATCH_SIZE) + 1}/${Math.ceil(characterNames.length / BATCH_SIZE)}: ${batch.length} characters`);
+        
+        try {
+          const batchCharacters = await this.extractCharacterBatchWithContext(content, batch);
+          allCharacters.push(...batchCharacters);
+        } catch (error) {
+          console.error(`[ScriptParser] Batch ${Math.floor(i / BATCH_SIZE) + 1} failed:`, error);
+          // Fallback: extract individually
+          for (const name of batch) {
+            try {
+              const char = await this.extractCharacterWithContext(content, name);
+              allCharacters.push(char);
+            } catch (e) {
+              console.error(`[ScriptParser] Individual extraction failed for ${name}:`, e);
+              allCharacters.push(this.createPlaceholderCharacter(name));
+            }
+          }
+        }
+      }
+      
+      console.log(`[ScriptParser] Smart batching complete: ${allCharacters.length} characters extracted`);
+      return allCharacters;
+    }
 
+    // Original logic for <= 5 characters
+    console.log(`[ScriptParser] ---------- Batch Extracting ${characterNames.length} Characters with Context ----------`);
+    return this.extractCharacterBatchWithContext(content, characterNames);
+  }
+
+  /**
+   * Extract a single batch of characters (max 5) with context
+   * @private
+   */
+  private async extractCharacterBatchWithContext(content: string, characterNames: string[]): Promise<ScriptCharacter[]> {
     // Build base prompt
     let prompt = PROMPTS.charactersBatch
       .replace('{content}', content.substring(0, 4000))
@@ -1861,7 +1870,6 @@ export class ScriptParser {
     // Inject global context if available
     if (this.globalContext && this.contextInjector) {
       console.log('[ScriptParser] Injecting global context into character extraction');
-      // For batch extraction, we inject context for the first character as a representative
       prompt = this.contextInjector.injectForCharacter(prompt, this.globalContext, characterNames[0]);
     }
 
@@ -1875,6 +1883,22 @@ export class ScriptParser {
 
     // Validate and ensure all characters have required fields
     return characters.map((char, index) => this.validateCharacter(char, characterNames[index] || char.name || `角色${index + 1}`));
+  }
+
+  /**
+   * Create a placeholder character when extraction fails
+   * @private
+   */
+  private createPlaceholderCharacter(name: string): ScriptCharacter {
+    return {
+      name,
+      appearance: {},
+      personality: [],
+      signatureItems: [],
+      emotionalArc: [],
+      relationships: [],
+      visualPrompt: name
+    };
   }
 
   /**
@@ -1970,6 +1994,8 @@ export class ScriptParser {
   /**
    * Batch extract all scenes with global context injection
    * This method injects story context, visual style, era constraints, and emotional context into the prompt
+   * 
+   * Phase 2.1.2: Smart batching - split into batches of 5 when scene count > 5
    */
   async extractAllScenesWithContext(content: string, sceneNames: string[]): Promise<ScriptScene[]> {
     if (sceneNames.length === 0) return [];
@@ -1977,8 +2003,48 @@ export class ScriptParser {
       return [await this.extractSceneWithContext(content, sceneNames[0])];
     }
 
-    console.log(`[ScriptParser] ---------- Batch Extracting ${sceneNames.length} Scenes with Context ----------`);
+    // Phase 2.1.2: Smart batching - if > 5 scenes, split into batches
+    const BATCH_SIZE = 5;
+    if (sceneNames.length > BATCH_SIZE) {
+      console.log(`[ScriptParser] ---------- Smart Batching ${sceneNames.length} Scenes (${Math.ceil(sceneNames.length / BATCH_SIZE)} batches) ----------`);
+      const allScenes: ScriptScene[] = [];
+      
+      for (let i = 0; i < sceneNames.length; i += BATCH_SIZE) {
+        const batch = sceneNames.slice(i, i + BATCH_SIZE);
+        console.log(`[ScriptParser] Processing batch ${Math.floor(i / BATCH_SIZE) + 1}/${Math.ceil(sceneNames.length / BATCH_SIZE)}: ${batch.length} scenes`);
+        
+        try {
+          const batchScenes = await this.extractSceneBatchWithContext(content, batch);
+          allScenes.push(...batchScenes);
+        } catch (error) {
+          console.error(`[ScriptParser] Batch ${Math.floor(i / BATCH_SIZE) + 1} failed:`, error);
+          // Fallback: extract individually
+          for (const name of batch) {
+            try {
+              const scene = await this.extractSceneWithContext(content, name);
+              allScenes.push(scene);
+            } catch (e) {
+              console.error(`[ScriptParser] Individual extraction failed for ${name}:`, e);
+              allScenes.push(this.createPlaceholderScene(name));
+            }
+          }
+        }
+      }
+      
+      console.log(`[ScriptParser] Smart batching complete: ${allScenes.length} scenes extracted`);
+      return allScenes;
+    }
 
+    // Original logic for <= 5 scenes
+    console.log(`[ScriptParser] ---------- Batch Extracting ${sceneNames.length} Scenes with Context ----------`);
+    return this.extractSceneBatchWithContext(content, sceneNames);
+  }
+
+  /**
+   * Extract a single batch of scenes (max 5) with context
+   * @private
+   */
+  private async extractSceneBatchWithContext(content: string, sceneNames: string[]): Promise<ScriptScene[]> {
     // Build base prompt
     let prompt = PROMPTS.scenesBatch
       .replace('{content}', content.substring(0, 4000))
@@ -1987,7 +2053,6 @@ export class ScriptParser {
     // Inject global context if available
     if (this.globalContext && this.contextInjector) {
       console.log('[ScriptParser] Injecting global context into scene extraction');
-      // For batch extraction, we inject context for the first scene as a representative
       prompt = this.contextInjector.injectForScene(prompt, this.globalContext, sceneNames[0]);
     }
 
@@ -2001,6 +2066,22 @@ export class ScriptParser {
 
     // Validate and ensure all scenes have required fields
     return scenes.map((scene, index) => this.validateScene(scene, sceneNames[index] || scene.name || `场景${index + 1}`));
+  }
+
+  /**
+   * Create a placeholder scene when extraction fails
+   * @private
+   */
+  private createPlaceholderScene(name: string): ScriptScene {
+    return {
+      name,
+      locationType: 'unknown',
+      description: name,
+      environment: {},
+      sceneFunction: '',
+      visualPrompt: name,
+      characters: []
+    };
   }
 
   /**

@@ -5,7 +5,7 @@
  * 避免无意识的高成本操作
  * 
  * @module components/ParseConfigConfirmModal
- * @version 1.0.0
+ * @version 1.1.0
  */
 
 import React from 'react';
@@ -16,11 +16,10 @@ import {
   ModalBody,
   ModalFooter,
   Button,
-  Switch,
   Badge,
   Tooltip
 } from '@heroui/react';
-import { Brain, FileText, Coins, AlertTriangle, Info } from 'lucide-react';
+import { FileText, Coins, AlertTriangle, Info } from 'lucide-react';
 
 interface ParseConfigConfirmModalProps {
   isOpen: boolean;
@@ -28,8 +27,6 @@ interface ParseConfigConfirmModalProps {
   onConfirm: () => void;
   scriptTitle: string;
   wordCount: number;
-  useVectorMemory: boolean;
-  onVectorMemoryToggle: (enabled: boolean) => void;
   modelName: string;
   parseMode: string;
 }
@@ -40,21 +37,16 @@ export const ParseConfigConfirmModal: React.FC<ParseConfigConfirmModalProps> = (
   onConfirm,
   scriptTitle,
   wordCount,
-  useVectorMemory,
-  onVectorMemoryToggle,
   modelName,
   parseMode
 }) => {
   // 预估 Token 数量
-  const estimateTokenCount = (wordCount: number, useVectorMemory: boolean) => {
+  const estimateTokenCount = (wordCount: number) => {
     // 中文字符约 0.5-1 Token/字
-    const baseTokens = Math.ceil(wordCount * 0.8);
-    // 智能记忆会增加约 20% Token 消耗
-    const multiplier = useVectorMemory ? 1.2 : 1.0;
-    return Math.ceil(baseTokens * multiplier);
+    return Math.ceil(wordCount * 0.8);
   };
 
-  const estimatedTokens = estimateTokenCount(wordCount, useVectorMemory);
+  const estimatedTokens = estimateTokenCount(wordCount);
   const isLongText = wordCount > 50000;
 
   // 获取提示信息
@@ -66,22 +58,6 @@ export const ParseConfigConfirmModal: React.FC<ParseConfigConfirmModalProps> = (
         type: 'warning' as const,
         icon: AlertTriangle,
         message: `检测到长篇小说（${Math.round(wordCount / 10000)}万字），解析将消耗较多 Token`
-      });
-    }
-
-    if (isLongText && !useVectorMemory) {
-      warnings.push({
-        type: 'info' as const,
-        icon: Info,
-        message: '建议开启智能记忆，可提升长文本角色一致性'
-      });
-    }
-
-    if (useVectorMemory) {
-      warnings.push({
-        type: 'info' as const,
-        icon: Brain,
-        message: '智能记忆需要下载 AI 模型（约 80MB），首次使用请耐心等待'
       });
     }
 
@@ -117,7 +93,7 @@ export const ParseConfigConfirmModal: React.FC<ParseConfigConfirmModalProps> = (
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-gray-500">预估 Token：</span>
-                <Tooltip content="基于字数和智能记忆状态估算">
+                <Tooltip content="基于字数估算">
                   <span className="font-medium text-primary">~{estimatedTokens.toLocaleString()}</span>
                 </Tooltip>
               </div>
@@ -129,19 +105,6 @@ export const ParseConfigConfirmModal: React.FC<ParseConfigConfirmModalProps> = (
             <h4 className="font-medium text-sm text-gray-600 dark:text-gray-400">
               ⚙️ 解析配置
             </h4>
-
-            {/* 智能记忆开关 */}
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Brain className="w-4 h-4 text-blue-500" />
-                <span className="text-sm">智能记忆</span>
-              </div>
-              <Switch
-                isSelected={useVectorMemory}
-                onValueChange={onVectorMemoryToggle}
-                size="sm"
-              />
-            </div>
 
             {/* AI 模型 */}
             <div className="flex items-center justify-between text-sm">
@@ -177,11 +140,7 @@ export const ParseConfigConfirmModal: React.FC<ParseConfigConfirmModalProps> = (
 
           {/* 当前模式说明 */}
           <div className="text-xs text-gray-500 text-center">
-            {useVectorMemory ? (
-              <span>智能记忆已启用，将使用向量数据库存储语义信息，提升角色一致性</span>
-            ) : (
-              <span>使用标准解析模式</span>
-            )}
+            <span>使用标准解析模式</span>
           </div>
         </ModalBody>
 

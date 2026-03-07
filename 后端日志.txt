@@ -4,21 +4,20 @@ aiService.ts:68 [AIService] Registered provider: volcengine
 aiService.ts:68 [AIService] Registered provider: vidu
 aiService.ts:68 [AIService] Registered provider: modelscope
 aiService.ts:68 [AIService] Registered provider: llm
+AppContext.tsx:98 [INIT] Redirecting to home from #/project/6a3e9f65-3116-4acc-a7cb-6b0a19f71bc4
 AppContext.tsx:103 [INIT] Starting App Initialization...
 AppContext.tsx:119 [INIT] Attempting auto-connect...
 AppContext.tsx:103 [INIT] Starting App Initialization...
 AppContext.tsx:119 [INIT] Attempting auto-connect...
-AppContext.tsx:121 [INIT] autoConnect returned: false
-AppContext.tsx:121 [INIT] autoConnect returned: false
-AppContext.tsx:24 [STORAGE] Connection check: Connected=false, Responsive=true
+AppContext.tsx:121 [INIT] autoConnect returned: true
+AppContext.tsx:121 [INIT] autoConnect returned: true
+AppContext.tsx:125 [INIT] Starting smoke test...
+AppContext.tsx:24 [STORAGE] Connection check: Connected=true, Responsive=true
+AppContext.tsx:132 [INIT] Smoke test complete.
 client:912 [vite] connected.
-AppContext.tsx:147 [INIT] Initialization complete. FS Responsive: true, Connected: false, Elapsed: 507ms
-storage.ts:495 [STORAGE] Triggering showDirectoryPicker...
-AppContext.tsx:24 [STORAGE] Connection check: Connected=false, Responsive=true
-storage.ts:499 [STORAGE] Directory picker success: ProjectML
-AppContext.tsx:24 [STORAGE] Connection check: Connected=true, Responsive=true
+AppContext.tsx:147 [INIT] Initialization complete. FS Responsive: true, Connected: true, Elapsed: 501ms
 App.tsx:32 [APP] Triggering jobQueue.loadQueue()...
-AppContext.tsx:24 [STORAGE] Connection check: Connected=true, Responsive=true
+App.tsx:32 [APP] Triggering jobQueue.loadQueue()...
 ScriptManager.tsx:145 [ScriptManager] ========== useEffect: currentScript changed ==========
 ScriptManager.tsx:146 [ScriptManager] currentScript exists: false
 ScriptManager.tsx:147 [ScriptManager] parseState exists: false
@@ -45,11 +44,11 @@ scriptParser.ts:979 [ScriptParser] ContextInjector initialized
 scriptParser.ts:982 [ScriptParser] Global context support initialized
 scriptParser.ts:953 [ScriptParser] IterativeRefinementEngine initialized
 scriptParser.ts:936 [ScriptParser] Budget calculation functions ready
-ScriptManager.tsx:440 [ScriptManager] 完整解析模式，ScriptParser配置: {useSemanticChunking: true, useDramaRules: true, dramaRulesMinScore: 60, useCache: true, cacheTTL: 3600000, …}
-scriptParser.ts:2357 [ScriptParser] ========== Starting Parse Script ==========
-scriptParser.ts:2358 [ScriptParser] Content length: 339 characters, Word count: 293
-scriptParser.ts:2359 [ScriptParser] Config: concurrency=3, callDelay=100ms
-scriptParser.ts:2363 [ScriptParser] Using SHORT TEXT FAST PATH (< 800 words)
+ScriptManager.tsx:440 [ScriptManager] 完整解析模式，ScriptParser配置: {useSemanticChunking: true, useDramaRules: true, dramaRulesMinScore: 60, useCache: true, cacheTTL: 3600000, …}cacheTTL: 3600000dramaRulesMinScore: 60enableIterativeRefinement: trueenableVectorMemory: falseiterativeRefinementConfig: {maxIterations: 3, targetQualityScore: 85, minImprovementThreshold: 2, autoApplySafeRefinements: true, confidenceThreshold: 0.7, …}paceType: "slow"qcAutoAdjust: trueqcTolerance: 0.15targetPlatform: "douyin"useCache: trueuseDramaRules: trueuseDurationBudget: trueuseDynamicDuration: trueuseProductionPrompt: trueuseSemanticChunking: trueuseShotQC: truevectorMemoryConfig: undefined[[Prototype]]: Object
+scriptParser.ts:2373 [ScriptParser] ========== Starting Parse Script ==========
+scriptParser.ts:2374 [ScriptParser] Content length: 339 characters, Word count: 293
+scriptParser.ts:2375 [ScriptParser] Config: concurrency=3, callDelay=100ms
+scriptParser.ts:2379 [ScriptParser] Using SHORT TEXT FAST PATH (< 800 words)
 scriptParser.ts:2263 [ScriptParser] ========== Short Text Fast Path ==========
 scriptParser.ts:2264 [ScriptParser] Content length: 339 characters
 scriptParser.ts:1537 [ScriptParser] ========== Stage 1: Extract Metadata (Structured Output) ==========
@@ -69,29 +68,16 @@ LLMProvider.ts:245 [LLMProvider] Sending structured output request...
 BaseProvider.ts:63 [BaseProvider] Requesting: https://ark.cn-beijing.volces.com/api/v3/chat/completions, Mode: DEV, Localhost: true
 BaseProvider.ts:84 [BaseProvider] Using Proxy: /api/universal-proxy -> https://ark.cn-beijing.volces.com/api/v3/chat/completions
 BaseProvider.ts:99 [BaseProvider] Response received: 200 OK
-LLMProvider.ts:258 [LLMProvider] Structured request completed in 36820ms
-LLMProvider.ts:269 [LLMProvider] Response length: 269 characters
-提取 已完成加载:POST "<URL>"。
-提取 已完成加载:POST "<URL>"。
-提取 已完成加载:POST "<URL>"。
-提取 已完成加载:POST "<URL>"。
-提取 已完成加载:POST "<URL>"。
-提取 已完成加载:POST "<URL>"。
-提取 已完成加载:POST "<URL>"。
-提取 已完成加载:POST "<URL>"。
-提取 已完成加载:POST "<URL>"。
-提取 已完成加载:POST "<URL>"。
-提取 已完成加载:POST "<URL>"。
-提取 已完成加载:POST "<URL>"。
-提取 已完成加载:POST "<URL>"。
+LLMProvider.ts:258 [LLMProvider] Structured request completed in 58676ms
+LLMProvider.ts:269 [LLMProvider] Response length: 289 characters
 LLMProvider.ts:296 [LLMProvider] Structured output validated successfully
 scriptParser.ts:1393 [ScriptParser] Structured output received successfully
 scriptParser.ts:1553 [ScriptParser] Metadata extracted successfully (Structured Output):
 scriptParser.ts:1554   - Title: 青衫昭雪
-scriptParser.ts:1555   - Word Count: 350
-scriptParser.ts:1556   - Characters: 5 (沈清辞, 萧景渊, 丞相, 皇上, 吏部尚书)
-scriptParser.ts:1557   - Scenes: 4 (沈家府邸, 民间隐居地, 京城吏部, 皇宫大殿)
-scriptParser.ts:1558   - Genre: 古装复仇
+scriptParser.ts:1555   - Word Count: 440
+scriptParser.ts:1556   - Characters: 7 (沈砚, 沈清辞, 忠仆, 吏部尚书, 丞相, 萧景渊, 皇上)
+scriptParser.ts:1557   - Scenes: 5 (沈家抄斩现场, 民间隐居地, 京城吏部, 萧景渊设局处, 朝会大殿)
+scriptParser.ts:1558   - Genre: 古装
 scriptParser.ts:1559   - Tone: 正剧
 scriptParser.ts:1496 [ScriptParser] ========== Extracting Global Context ==========
 scriptParser.ts:1478 [ScriptParser] GlobalContextExtractor initialized with maxTokens: 5000
@@ -118,18 +104,23 @@ LLMProvider.ts:89 [LLMProvider] Request body: {
 LLMProvider.ts:91 [LLMProvider] Sending request...
 BaseProvider.ts:63 [BaseProvider] Requesting: https://ark.cn-beijing.volces.com/api/v3/chat/completions, Mode: DEV, Localhost: true
 BaseProvider.ts:84 [BaseProvider] Using Proxy: /api/universal-proxy -> https://ark.cn-beijing.volces.com/api/v3/chat/completions
-AppContext.tsx:24 [STORAGE] Connection check: Connected=true, Responsive=true
+提取 已完成加载:POST "<URL>"。
+提取 已完成加载:POST "<URL>"。
+提取 已完成加载:POST "<URL>"。
+提取 已完成加载:POST "<URL>"。
+提取 已完成加载:POST "<URL>"。
+提取 已完成加载:POST "<URL>"。
 BaseProvider.ts:99 [BaseProvider] Response received: 200 OK
-LLMProvider.ts:104 [LLMProvider] Request completed in 48118ms
+LLMProvider.ts:104 [LLMProvider] Request completed in 49049ms
 LLMProvider.ts:118 [LLMProvider] ========== API Response ==========
-LLMProvider.ts:119 [LLMProvider] Response length: 1155 characters
+LLMProvider.ts:119 [LLMProvider] Response length: 1102 characters
 LLMProvider.ts:120 [LLMProvider] Prompt tokens: 798
-LLMProvider.ts:121 [LLMProvider] Completion tokens: 2205
-LLMProvider.ts:122 [LLMProvider] Total tokens: 3003
+LLMProvider.ts:121 [LLMProvider] Completion tokens: 2096
+LLMProvider.ts:122 [LLMProvider] Total tokens: 2894
 LLMProvider.ts:123 [LLMProvider] Response preview: {
   "story": {
-    "synopsis": "大靖王朝御史沈砚遭丞相诬陷满门抄斩，幼子沈清辞被忠仆所救。十年后他化名苏砚入吏部蛰伏，凭断案能力获赏识却遭丞相子萧景渊试探。萧设计陷害尚...
-GlobalContextExtractor.ts:127 [GlobalContextExtractor] Unified extraction completed in 48119ms
+    "synopsis": "大靖王朝御史沈砚因弹劾丞相谋逆被诬陷，满门抄斩，幼子沈清辞被忠仆所救。十年后，他化名苏砚入京城吏部，凭断案能力获赏识，遭丞相之子萧景渊试...
+GlobalContextExtractor.ts:127 [GlobalContextExtractor] Unified extraction completed in 49052ms
 LLMProvider.ts:81 [LLMProvider] ========== API Request ==========
 LLMProvider.ts:82 [LLMProvider] Endpoint: https://ark.cn-beijing.volces.com/api/v3/chat/completions
 LLMProvider.ts:83 [LLMProvider] Model: doubao-seed-1-6-251015
@@ -147,278 +138,33 @@ LLMProvider.ts:89 [LLMProvider] Request body: {
     },
     {
       "role": "user",
-      "content": "\n基于以下故事信息，分析情绪曲线：\n\n【故事梗概】\n大靖王朝御史沈砚遭丞相诬陷满门抄斩，幼子沈清辞被忠仆所救。十年后他化名苏砚入吏部蛰伏，凭断案能力获赏识却遭丞相子萧景渊试探。萧设计陷害尚书嫁祸苏砚，苏提前收集证据，朝会揭发并暴露身份，终昭雪冤案封御史中丞。\n\n【故事结构】\n第一幕：沈家蒙冤，幼子被救，十年后化名苏砚入吏部蛰伏\n第二幕上：萧景渊怀疑苏砚，多次试探刁难被巧妙化解\n第二幕下：萧景渊设计陷害吏部尚书，欲嫁祸苏砚\n第三幕：丞相倒台冤案昭雪，沈清辞封御史中丞担重任\n中点：沈清辞察觉阴谋，暗中收集萧景渊罪证\n高潮：朝会呈萧景渊罪证，沈清辞暴露身份真...
-LLMProvider.ts:91 [LLMProvider] Sending request...
-BaseProvider.ts:63 [BaseProvider] Requesting: https://ark.cn-beijing.volces.com/api/v3/chat/completions, Mode: DEV, Localhost: true
-BaseProvider.ts:84 [BaseProvider] Using Proxy: /api/universal-proxy -> https://ark.cn-beijing.volces.com/api/v3/chat/completions
-AppContext.tsx:24 [STORAGE] Connection check: Connected=true, Responsive=true
-AppContext.tsx:24 [STORAGE] Connection check: Connected=true, Responsive=true
-BaseProvider.ts:99 [BaseProvider] Response received: 200 OK
-LLMProvider.ts:104 [LLMProvider] Request completed in 29832ms
-LLMProvider.ts:118 [LLMProvider] ========== API Response ==========
-LLMProvider.ts:119 [LLMProvider] Response length: 1174 characters
-LLMProvider.ts:120 [LLMProvider] Prompt tokens: 726
-LLMProvider.ts:121 [LLMProvider] Completion tokens: 1271
-LLMProvider.ts:122 [LLMProvider] Total tokens: 1997
-LLMProvider.ts:123 [LLMProvider] Response preview: {
-  "overallMood": "悬疑紧张且励志向上",
-  "arc": [
-    {
-      "plotPoint": "沈家蒙冤，幼子被救",
-      "emotion": "悲...
-GlobalContextExtractor.ts:147  [GlobalContextExtractor] Unified extraction failed, falling back to parallel extraction: TypeError: visualContext.artStyle.toLowerCase is not a function
-    at GlobalContextExtractor.generateConsistencyRules (GlobalContextExtractor.ts:743:44)
-    at GlobalContextExtractor.extract (GlobalContextExtractor.ts:133:26)
-    at async ScriptParser.extractGlobalContext (scriptParser.ts:1507:28)
-    at async ScriptParser.extractMetadata (scriptParser.ts:1562:27)
-    at async ScriptParser.parseShortScript (scriptParser.ts:2274:24)
-    at async ScriptParser.parseScript (scriptParser.ts:2365:22)
-    at async handleParseScript (ScriptManager.tsx:458:26)
-extract @ GlobalContextExtractor.ts:147
-await in extract
-extractGlobalContext @ scriptParser.ts:1507
-extractMetadata @ scriptParser.ts:1562
-await in extractMetadata
-parseShortScript @ scriptParser.ts:2274
-parseScript @ scriptParser.ts:2365
-handleParseScript @ ScriptManager.tsx:458
-onConfirm @ ScriptManager.tsx:1254
-(匿名) @ index.mjs:362
-(匿名) @ usePress.ts:249
-onClick @ usePress.ts:548
-executeDispatch @ react-dom-client.development.js:19116
-runWithFiberInDEV @ react-dom-client.development.js:871
-processDispatchQueue @ react-dom-client.development.js:19166
-(匿名) @ react-dom-client.development.js:19767
-batchedUpdates$1 @ react-dom-client.development.js:3255
-dispatchEventForPluginEventSystem @ react-dom-client.development.js:19320
-dispatchEvent @ react-dom-client.development.js:23585
-dispatchDiscreteEvent @ react-dom-client.development.js:23553
-<button>
-exports.jsxs @ react-jsx-runtime.development.js:349
-HeroUI.Button @ chunk-WBUKVQRU.mjs:27
-react_stack_bottom_frame @ react-dom-client.development.js:25904
-renderWithHooksAgain @ react-dom-client.development.js:7762
-renderWithHooks @ react-dom-client.development.js:7674
-updateForwardRef @ react-dom-client.development.js:9724
-beginWork @ react-dom-client.development.js:12117
-runWithFiberInDEV @ react-dom-client.development.js:871
-performUnitOfWork @ react-dom-client.development.js:17641
-workLoopSync @ react-dom-client.development.js:17469
-renderRootSync @ react-dom-client.development.js:17450
-performWorkOnRoot @ react-dom-client.development.js:16504
-performSyncWorkOnRoot @ react-dom-client.development.js:18972
-flushSyncWorkAcrossRoots_impl @ react-dom-client.development.js:18814
-processRootScheduleInMicrotask @ react-dom-client.development.js:18853
-(匿名) @ react-dom-client.development.js:18991
-<HeroUI.Button>
-exports.jsxDEV @ react-jsx-dev-runtime.development.js:335
-ParseConfigConfirmModal @ ParseConfigConfirmModal.tsx:192
-react_stack_bottom_frame @ react-dom-client.development.js:25904
-renderWithHooksAgain @ react-dom-client.development.js:7762
-renderWithHooks @ react-dom-client.development.js:7674
-updateFunctionComponent @ react-dom-client.development.js:10166
-beginWork @ react-dom-client.development.js:11778
-runWithFiberInDEV @ react-dom-client.development.js:871
-performUnitOfWork @ react-dom-client.development.js:17641
-workLoopSync @ react-dom-client.development.js:17469
-renderRootSync @ react-dom-client.development.js:17450
-performWorkOnRoot @ react-dom-client.development.js:16504
-performSyncWorkOnRoot @ react-dom-client.development.js:18972
-flushSyncWorkAcrossRoots_impl @ react-dom-client.development.js:18814
-processRootScheduleInMicrotask @ react-dom-client.development.js:18853
-(匿名) @ react-dom-client.development.js:18991
-GlobalContextExtractor.ts:301 [GlobalContextExtractor] Falling back to parallel extraction...
-LLMProvider.ts:81 [LLMProvider] ========== API Request ==========
-LLMProvider.ts:82 [LLMProvider] Endpoint: https://ark.cn-beijing.volces.com/api/v3/chat/completions
-LLMProvider.ts:83 [LLMProvider] Model: doubao-seed-1-6-251015
-LLMProvider.ts:84 [LLMProvider] enable_thinking: false
-LLMProvider.ts:85 [LLMProvider] Temperature: 0.3
-LLMProvider.ts:86 [LLMProvider] Max Tokens: 5000
-LLMProvider.ts:87 [LLMProvider] Messages count: 2
-LLMProvider.ts:88 [LLMProvider] First message length: 48 characters
-LLMProvider.ts:89 [LLMProvider] Request body: {
-  "model": "doubao-seed-1-6-251015",
-  "messages": [
-    {
-      "role": "system",
-      "content": "你是一个专业的剧本分析助手，擅长从小说/剧本中提取结构化信息。请严格按照要求的JSON格式输出。"
-    },
-    {
-      "role": "user",
-      "content": "\n请深入分析以下剧本/小说的故事核心：\n\n【剧本内容】\n大靖王朝，御史大夫沈砚因弹劾丞相谋逆，被诬陷下狱，沈家满门抄斩，独留幼子沈清辞被忠仆所救，隐于民间。十年后，沈清辞化名苏砚，以布衣身份入京城，蛰伏于吏部当差，伺机翻案。\n\n他聪慧过人，行事低调，很快凭借精准的断案能力得到吏部尚书赏识，却也引起丞相之子萧景渊的注意。萧景渊多疑狠辣，察觉苏砚身份蹊跷，屡次试探刁难，皆被沈清辞巧妙化解。\n\n一次，萧景渊设计陷害吏部尚书贪腐，欲嫁祸沈清辞。沈清辞早有防备，提前收集萧景渊勾结地方官的证据，借朝会之机，当众呈给皇上。皇上震怒，下令彻查丞相一党。\n\n沈清辞站在大殿之上，褪...
+      "content": "\n基于以下故事信息，分析情绪曲线：\n\n【故事梗概】\n大靖王朝御史沈砚因弹劾丞相谋逆被诬陷，满门抄斩，幼子沈清辞被忠仆所救。十年后，他化名苏砚入京城吏部，凭断案能力获赏识，遭丞相之子萧景渊试探。萧设计陷害尚书嫁祸他，他提前收集证据，朝会揭发，暴露身份，终昭雪冤案，封御史中丞。\n\n【故事结构】\n第一幕：沈家蒙冤，幼子被救，十年后化名苏砚入京城吏部\n第二幕上：萧景渊察觉苏砚蹊跷，多次试探刁难\n第二幕下：萧景渊设计陷害尚书，欲嫁祸苏砚\n第三幕：沈家冤案昭雪，沈清辞被封御史中丞\n中点：沈清辞提前收集萧景渊勾结地方官证据\n高潮：朝会呈证据，沈清辞暴露身份，丞相倒台...
 LLMProvider.ts:91 [LLMProvider] Sending request...
 BaseProvider.ts:63 [BaseProvider] Requesting: https://ark.cn-beijing.volces.com/api/v3/chat/completions, Mode: DEV, Localhost: true
 BaseProvider.ts:84 [BaseProvider] Using Proxy: /api/universal-proxy -> https://ark.cn-beijing.volces.com/api/v3/chat/completions
 BaseProvider.ts:99 [BaseProvider] Response received: 200 OK
-LLMProvider.ts:104 [LLMProvider] Request completed in 25339ms
+LLMProvider.ts:104 [LLMProvider] Request completed in 34790ms
 LLMProvider.ts:118 [LLMProvider] ========== API Response ==========
-LLMProvider.ts:119 [LLMProvider] Response length: 504 characters
-LLMProvider.ts:120 [LLMProvider] Prompt tokens: 595
-LLMProvider.ts:121 [LLMProvider] Completion tokens: 996
-LLMProvider.ts:122 [LLMProvider] Total tokens: 1591
-LLMProvider.ts:123 [LLMProvider] Response preview: {
-  "synopsis": "大靖王朝沈家遭丞相诬陷满门抄斩，幼子沈清辞被救隐于民间。十年后化名苏砚入吏部，凭断案能力获赏识却遭萧景渊试探。萧景渊设计陷害，苏砚收集证据朝堂揭发，暴露身份，终昭雪冤...
-LLMProvider.ts:81 [LLMProvider] ========== API Request ==========
-LLMProvider.ts:82 [LLMProvider] Endpoint: https://ark.cn-beijing.volces.com/api/v3/chat/completions
-LLMProvider.ts:83 [LLMProvider] Model: doubao-seed-1-6-251015
-LLMProvider.ts:84 [LLMProvider] enable_thinking: false
-LLMProvider.ts:85 [LLMProvider] Temperature: 0.3
-LLMProvider.ts:86 [LLMProvider] Max Tokens: 5000
-LLMProvider.ts:87 [LLMProvider] Messages count: 2
-LLMProvider.ts:88 [LLMProvider] First message length: 51 characters
-LLMProvider.ts:89 [LLMProvider] Request body: {
-  "model": "doubao-seed-1-6-251015",
-  "messages": [
-    {
-      "role": "system",
-      "content": "你是一个专业的视觉风格分析助手，擅长从剧本中提取视觉和美术风格信息。请严格按照要求的JSON格式输出。"
-    },
-    {
-      "role": "user",
-      "content": "\n基于以下故事信息，分析视觉风格：\n\n【故事梗概】\n大靖王朝沈家遭丞相诬陷满门抄斩，幼子沈清辞被救隐于民间。十年后化名苏砚入吏部，凭断案能力获赏识却遭萧景渊试探。萧景渊设计陷害，苏砚收集证据朝堂揭发，暴露身份，终昭雪冤案封官。\n\n【核心冲突】\n沈清辞与丞相一党间的复仇反制及身份暴露危机。\n\n【剧本片段】\n大靖王朝，御史大夫沈砚因弹劾丞相谋逆，被诬陷下狱，沈家满门抄斩，独留幼子沈清辞被忠仆所救，隐于民间。十年后，沈清辞化名苏砚，以布衣身份入京城，蛰伏于吏部当差，伺机翻案。\n\n他聪慧过人，行事低调，很快凭借精准的断案能力得到吏部尚书赏识，却也引起丞相之子萧...
-LLMProvider.ts:91 [LLMProvider] Sending request...
-BaseProvider.ts:63 [BaseProvider] Requesting: https://ark.cn-beijing.volces.com/api/v3/chat/completions, Mode: DEV, Localhost: true
-BaseProvider.ts:84 [BaseProvider] Using Proxy: /api/universal-proxy -> https://ark.cn-beijing.volces.com/api/v3/chat/completions
-BaseProvider.ts:99 [BaseProvider] Response received: 200 OK
-LLMProvider.ts:104 [LLMProvider] Request completed in 26467ms
-LLMProvider.ts:118 [LLMProvider] ========== API Response ==========
-LLMProvider.ts:119 [LLMProvider] Response length: 456 characters
-LLMProvider.ts:120 [LLMProvider] Prompt tokens: 683
-LLMProvider.ts:121 [LLMProvider] Completion tokens: 1090
-LLMProvider.ts:122 [LLMProvider] Total tokens: 1773
-LLMProvider.ts:123 [LLMProvider] Response preview: {
-  "artDirection": "古风写实电影感",
-  "artStyle": ["古风写实", "权谋悬疑", "历史正剧"],
-  "artStyleDescription": "以大靖...
-LLMProvider.ts:81 [LLMProvider] ========== API Request ==========
-LLMProvider.ts:82 [LLMProvider] Endpoint: https://ark.cn-beijing.volces.com/api/v3/chat/completions
-LLMProvider.ts:83 [LLMProvider] Model: doubao-seed-1-6-251015
-LLMProvider.ts:84 [LLMProvider] enable_thinking: false
-LLMProvider.ts:85 [LLMProvider] Temperature: 0.3
-LLMProvider.ts:86 [LLMProvider] Max Tokens: 5000
-LLMProvider.ts:87 [LLMProvider] Messages count: 2
-LLMProvider.ts:88 [LLMProvider] First message length: 51 characters
-LLMProvider.ts:89 [LLMProvider] Request body: {
-  "model": "doubao-seed-1-6-251015",
-  "messages": [
-    {
-      "role": "system",
-      "content": "你是一个专业的时代背景分析助手，擅长从剧本中提取时代和地理背景信息。请严格按照要求的JSON格式输出。"
-    },
-    {
-      "role": "user",
-      "content": "\n请分析以下剧本的时代背景：\n\n【剧本内容】\n大靖王朝，御史大夫沈砚因弹劾丞相谋逆，被诬陷下狱，沈家满门抄斩，独留幼子沈清辞被忠仆所救，隐于民间。十年后，沈清辞化名苏砚，以布衣身份入京城，蛰伏于吏部当差，伺机翻案。\n\n他聪慧过人，行事低调，很快凭借精准的断案能力得到吏部尚书赏识，却也引起丞相之子萧景渊的注意。萧景渊多疑狠辣，察觉苏砚身份蹊跷，屡次试探刁难，皆被沈清辞巧妙化解。\n\n一次，萧景渊设计陷害吏部尚书贪腐，欲嫁祸沈清辞。沈清辞早有防备，提前收集萧景渊勾结地方官的证据，借朝会之机，当众呈给皇上。皇上震怒，下令彻查丞相一党。\n\n沈清辞站在大殿之上，褪去布...
-LLMProvider.ts:91 [LLMProvider] Sending request...
-BaseProvider.ts:63 [BaseProvider] Requesting: https://ark.cn-beijing.volces.com/api/v3/chat/completions, Mode: DEV, Localhost: true
-BaseProvider.ts:84 [BaseProvider] Using Proxy: /api/universal-proxy -> https://ark.cn-beijing.volces.com/api/v3/chat/completions
-BaseProvider.ts:99 [BaseProvider] Response received: 200 OK
-LLMProvider.ts:104 [LLMProvider] Request completed in 13725ms
-LLMProvider.ts:118 [LLMProvider] ========== API Response ==========
-LLMProvider.ts:119 [LLMProvider] Response length: 136 characters
-LLMProvider.ts:120 [LLMProvider] Prompt tokens: 499
-LLMProvider.ts:121 [LLMProvider] Completion tokens: 529
-LLMProvider.ts:122 [LLMProvider] Total tokens: 1028
-LLMProvider.ts:123 [LLMProvider] Response preview: {
-  "era": "大靖王朝（虚构古代王朝）",
-  "eraDescription": "封建君主专制社会，朝堂等级森严，存在权力斗争，科技水平为古代冷兵器时代，无现代科技，重视家族荣誉与冤案昭...
-LLMProvider.ts:81 [LLMProvider] ========== API Request ==========
-LLMProvider.ts:82 [LLMProvider] Endpoint: https://ark.cn-beijing.volces.com/api/v3/chat/completions
-LLMProvider.ts:83 [LLMProvider] Model: doubao-seed-1-6-251015
-LLMProvider.ts:84 [LLMProvider] enable_thinking: false
-LLMProvider.ts:85 [LLMProvider] Temperature: 0.3
-LLMProvider.ts:86 [LLMProvider] Max Tokens: 5000
-LLMProvider.ts:87 [LLMProvider] Messages count: 2
-LLMProvider.ts:88 [LLMProvider] First message length: 51 characters
-LLMProvider.ts:89 [LLMProvider] Request body: {
-  "model": "doubao-seed-1-6-251015",
-  "messages": [
-    {
-      "role": "system",
-      "content": "你是一个专业的情绪分析助手，擅长从剧本中提取情绪曲线和情感变化信息。请严格按照要求的JSON格式输出。"
-    },
-    {
-      "role": "user",
-      "content": "\n基于以下故事信息，分析情绪曲线：\n\n【故事梗概】\n大靖王朝沈家遭丞相诬陷满门抄斩，幼子沈清辞被救隐于民间。十年后化名苏砚入吏部，凭断案能力获赏识却遭萧景渊试探。萧景渊设计陷害，苏砚收集证据朝堂揭发，暴露身份，终昭雪冤案封官。\n\n【故事结构】\n第一幕：沈家被冤满门抄斩，沈清辞隐民间十年后化名苏砚入吏部。\n第二幕上：苏砚得吏部尚书赏识，遭萧景渊多次试探刁难均化解。\n第二幕下：萧景渊设计陷害吏部尚书并嫁祸苏砚。\n第三幕：沈家冤案昭雪，沈清辞封御史中丞，守护朝堂清明。\n中点：苏砚提前收集萧景渊勾结地方官的证据。\n高潮：朝会呈证据，沈清辞暴露身份，丞相倒台。\...
-LLMProvider.ts:91 [LLMProvider] Sending request...
-BaseProvider.ts:63 [BaseProvider] Requesting: https://ark.cn-beijing.volces.com/api/v3/chat/completions, Mode: DEV, Localhost: true
-BaseProvider.ts:84 [BaseProvider] Using Proxy: /api/universal-proxy -> https://ark.cn-beijing.volces.com/api/v3/chat/completions
-BaseProvider.ts:99 [BaseProvider] Response received: 200 OK
-LLMProvider.ts:104 [LLMProvider] Request completed in 55303ms
-LLMProvider.ts:118 [LLMProvider] ========== API Response ==========
-LLMProvider.ts:119 [LLMProvider] Response length: 1215 characters
+LLMProvider.ts:119 [LLMProvider] Response length: 1309 characters
 LLMProvider.ts:120 [LLMProvider] Prompt tokens: 723
-LLMProvider.ts:121 [LLMProvider] Completion tokens: 2335
-LLMProvider.ts:122 [LLMProvider] Total tokens: 3058
+LLMProvider.ts:121 [LLMProvider] Completion tokens: 1291
+LLMProvider.ts:122 [LLMProvider] Total tokens: 2014
 LLMProvider.ts:123 [LLMProvider] Response preview: {
   "overallMood": "悬疑紧张且励志向上",
   "arc": [
     {
-      "plotPoint": "开场悲剧（沈家蒙冤满门抄斩）",
-      "emotion...
-scriptParser.ts:1518  [ScriptParser] Failed to extract global context: TypeError: visualContext.artStyle.toLowerCase is not a function
-    at GlobalContextExtractor.generateConsistencyRules (GlobalContextExtractor.ts:743:44)
-    at GlobalContextExtractor.extractParallel (GlobalContextExtractor.ts:316:24)
-    at async ScriptParser.extractGlobalContext (scriptParser.ts:1507:28)
-    at async ScriptParser.extractMetadata (scriptParser.ts:1562:27)
-    at async ScriptParser.parseShortScript (scriptParser.ts:2274:24)
-    at async ScriptParser.parseScript (scriptParser.ts:2365:22)
-    at async handleParseScript (ScriptManager.tsx:458:26)
-extractGlobalContext @ scriptParser.ts:1518
-await in extractGlobalContext
-extractMetadata @ scriptParser.ts:1562
-await in extractMetadata
-parseShortScript @ scriptParser.ts:2274
-parseScript @ scriptParser.ts:2365
-handleParseScript @ ScriptManager.tsx:458
-onConfirm @ ScriptManager.tsx:1254
-(匿名) @ index.mjs:362
-(匿名) @ usePress.ts:249
-onClick @ usePress.ts:548
-executeDispatch @ react-dom-client.development.js:19116
-runWithFiberInDEV @ react-dom-client.development.js:871
-processDispatchQueue @ react-dom-client.development.js:19166
-(匿名) @ react-dom-client.development.js:19767
-batchedUpdates$1 @ react-dom-client.development.js:3255
-dispatchEventForPluginEventSystem @ react-dom-client.development.js:19320
-dispatchEvent @ react-dom-client.development.js:23585
-dispatchDiscreteEvent @ react-dom-client.development.js:23553
-<button>
-exports.jsxs @ react-jsx-runtime.development.js:349
-HeroUI.Button @ chunk-WBUKVQRU.mjs:27
-react_stack_bottom_frame @ react-dom-client.development.js:25904
-renderWithHooksAgain @ react-dom-client.development.js:7762
-renderWithHooks @ react-dom-client.development.js:7674
-updateForwardRef @ react-dom-client.development.js:9724
-beginWork @ react-dom-client.development.js:12117
-runWithFiberInDEV @ react-dom-client.development.js:871
-performUnitOfWork @ react-dom-client.development.js:17641
-workLoopSync @ react-dom-client.development.js:17469
-renderRootSync @ react-dom-client.development.js:17450
-performWorkOnRoot @ react-dom-client.development.js:16504
-performSyncWorkOnRoot @ react-dom-client.development.js:18972
-flushSyncWorkAcrossRoots_impl @ react-dom-client.development.js:18814
-processRootScheduleInMicrotask @ react-dom-client.development.js:18853
-(匿名) @ react-dom-client.development.js:18991
-<HeroUI.Button>
-exports.jsxDEV @ react-jsx-dev-runtime.development.js:335
-ParseConfigConfirmModal @ ParseConfigConfirmModal.tsx:192
-react_stack_bottom_frame @ react-dom-client.development.js:25904
-renderWithHooksAgain @ react-dom-client.development.js:7762
-renderWithHooks @ react-dom-client.development.js:7674
-updateFunctionComponent @ react-dom-client.development.js:10166
-beginWork @ react-dom-client.development.js:11778
-runWithFiberInDEV @ react-dom-client.development.js:871
-performUnitOfWork @ react-dom-client.development.js:17641
-workLoopSync @ react-dom-client.development.js:17469
-renderRootSync @ react-dom-client.development.js:17450
-performWorkOnRoot @ react-dom-client.development.js:16504
-performSyncWorkOnRoot @ react-dom-client.development.js:18972
-flushSyncWorkAcrossRoots_impl @ react-dom-client.development.js:18814
-processRootScheduleInMicrotask @ react-dom-client.development.js:18853
-(匿名) @ react-dom-client.development.js:18991
-scriptParser.ts:1854 [ScriptParser] ---------- Batch Extracting 5 Characters with Context ----------
-scriptParser.ts:1868 [ScriptParser] Context-enhanced prompt length: 1337 characters
+      "plotPoint": "沈家蒙冤满门抄斩",
+      "emotion": "悲伤...
+scriptParser.ts:1509 [ScriptParser] Global context extracted successfully:
+scriptParser.ts:1510   - Story synopsis: 大靖王朝御史沈砚因弹劾丞相谋逆被诬陷，满门抄斩，幼子沈清辞被忠仆所救。十年后，他化名苏砚入京城吏部，...
+scriptParser.ts:1511   - Visual style: 古风写实、典雅庄重
+scriptParser.ts:1512   - Era: 大靖王朝（虚构古代王朝）
+scriptParser.ts:1513   - Emotional arc points: 9
+scriptParser.ts:1514   - Consistency rules: 3 era constraints
+scriptParser.ts:1567 [ScriptParser] Global context merged into metadata
+scriptParser.ts:1854 [ScriptParser] ---------- Batch Extracting 7 Characters with Context ----------
+scriptParser.ts:1863 [ScriptParser] Injecting global context into character extraction
+scriptParser.ts:1868 [ScriptParser] Context-enhanced prompt length: 1912 characters
 scriptParser.ts:1233 [ScriptParser] callLLM called for character, retryCount: 0
 scriptParser.ts:1234 [ScriptParser] API URL: https://ark.cn-beijing.volces.com/api/v3
 scriptParser.ts:1235 [ScriptParser] Model: doubao-seed-1-6-251015
@@ -441,31 +187,31 @@ LLMProvider.ts:89 [LLMProvider] Request body: {
     },
     {
       "role": "user",
-      "content": "\n请基于以下剧本内容，一次性分析所有角色的外貌特征。\n\n【剧本内容】\n大靖王朝，御史大夫沈砚因弹劾丞相谋逆，被诬陷下狱，沈家满门抄斩，独留幼子沈清辞被忠仆所救，隐于民间。十年后，沈清辞化名苏砚，以布衣身份入京城，蛰伏于吏部当差，伺机翻案。\n\n他聪慧过人，行事低调，很快凭借精准的断案能力得到吏部尚书赏识，却也引起丞相之子萧景渊的注意。萧景渊多疑狠辣，察觉苏砚身份蹊跷，屡次试探刁难，皆被沈清辞巧妙化解。\n\n一次，萧景渊设计陷害吏部尚书贪腐，欲嫁祸沈清辞。沈清辞早有防备，提前收集萧景渊勾结地方官的证据，借朝会之机，当众呈给皇上。皇上震怒，下令彻查丞相一党。\n\n沈清辞站...
+      "content": "【故事背景】\n- 一句话简介：沈家遗孤蛰伏十年，揭露丞相阴谋昭雪冤案\n- 故事梗概：大靖王朝御史沈砚因弹劾丞相谋逆被诬陷，满门抄斩，幼子沈清辞被忠仆所救。十年后，他化名苏砚入京城吏部，凭断案能力获赏识，遭丞相之子萧景渊试探。萧设计陷害尚书嫁祸他，他提前收集证据，朝会揭发，暴露身份，终昭雪冤案，封御史中丞。\n- 核心冲突：沈家遗孤与丞相一党的复仇与权谋对抗\n- 主题思想：复仇与昭雪、正义与权谋\n\n\n【视觉风格】\n- 美术指导：水墨国风\n- 艺术风格：古风写实、典雅庄重\n- 主色调：#2C3E50、#E74C3C、#F1C40F\n- 色彩情绪：严肃庄重中带复仇炽热...
 LLMProvider.ts:91 [LLMProvider] Sending request...
 BaseProvider.ts:63 [BaseProvider] Requesting: https://ark.cn-beijing.volces.com/api/v3/chat/completions, Mode: DEV, Localhost: true
 BaseProvider.ts:84 [BaseProvider] Using Proxy: /api/universal-proxy -> https://ark.cn-beijing.volces.com/api/v3/chat/completions
-MultiLevelCache.ts:443 [MultiLevelCache] Cleanup completed
-MultiLevelCache.ts:443 [MultiLevelCache] Cleanup completed
 BaseProvider.ts:99 [BaseProvider] Response received: 200 OK
-LLMProvider.ts:104 [LLMProvider] Request completed in 100710ms
+LLMProvider.ts:104 [LLMProvider] Request completed in 73426ms
 LLMProvider.ts:118 [LLMProvider] ========== API Response ==========
-LLMProvider.ts:119 [LLMProvider] Response length: 3071 characters
-LLMProvider.ts:120 [LLMProvider] Prompt tokens: 808
-LLMProvider.ts:121 [LLMProvider] Completion tokens: 4512
-LLMProvider.ts:122 [LLMProvider] Total tokens: 5320
+LLMProvider.ts:119 [LLMProvider] Response length: 3859 characters
+LLMProvider.ts:120 [LLMProvider] Prompt tokens: 1202
+LLMProvider.ts:121 [LLMProvider] Completion tokens: 2995
+LLMProvider.ts:122 [LLMProvider] Total tokens: 4197
 LLMProvider.ts:123 [LLMProvider] Response preview: [
   {
-    "name": "沈清辞",
+    "name": "沈砚",
     "gender": "male",
-    "age": "18",
-    "identity": "前期为布衣/吏部当差，后期为御史中丞"...
-scriptParser.ts:1289 [ScriptParser] LLM response received, length: 3071
-scriptParser.ts:1871 [ScriptParser] Batch response received, length: 3071 characters
-scriptParser.ts:1874 [ScriptParser] Parsed 5 characters from batch response
-scriptParser.ts:2281 [ScriptParser] Fast path: Extracted 5 characters
-scriptParser.ts:1980 [ScriptParser] ---------- Batch Extracting 4 Scenes with Context ----------
-scriptParser.ts:1994 [ScriptParser] Context-enhanced prompt length: 1680 characters
+    "age": "35",
+    "identity": "御史大夫",
+    "appearan...
+scriptParser.ts:1289 [ScriptParser] LLM response received, length: 3859
+scriptParser.ts:1871 [ScriptParser] Batch response received, length: 3859 characters
+scriptParser.ts:1874 [ScriptParser] Parsed 7 characters from batch response
+scriptParser.ts:2281 [ScriptParser] Fast path: Extracted 7 characters
+scriptParser.ts:1980 [ScriptParser] ---------- Batch Extracting 5 Scenes with Context ----------
+scriptParser.ts:1989 [ScriptParser] Injecting global context into scene extraction
+scriptParser.ts:1994 [ScriptParser] Context-enhanced prompt length: 2142 characters
 scriptParser.ts:1233 [ScriptParser] callLLM called for scene, retryCount: 0
 scriptParser.ts:1234 [ScriptParser] API URL: https://ark.cn-beijing.volces.com/api/v3
 scriptParser.ts:1235 [ScriptParser] Model: doubao-seed-1-6-251015
@@ -488,231 +234,30 @@ LLMProvider.ts:89 [LLMProvider] Request body: {
     },
     {
       "role": "user",
-      "content": "\n请基于以下剧本内容，一次性分析所有场景的环境特征。\n\n【剧本内容】\n大靖王朝，御史大夫沈砚因弹劾丞相谋逆，被诬陷下狱，沈家满门抄斩，独留幼子沈清辞被忠仆所救，隐于民间。十年后，沈清辞化名苏砚，以布衣身份入京城，蛰伏于吏部当差，伺机翻案。\n\n他聪慧过人，行事低调，很快凭借精准的断案能力得到吏部尚书赏识，却也引起丞相之子萧景渊的注意。萧景渊多疑狠辣，察觉苏砚身份蹊跷，屡次试探刁难，皆被沈清辞巧妙化解。\n\n一次，萧景渊设计陷害吏部尚书贪腐，欲嫁祸沈清辞。沈清辞早有防备，提前收集萧景渊勾结地方官的证据，借朝会之机，当众呈给皇上。皇上震怒，下令彻查丞相一党。\n\n沈清辞站...
-LLMProvider.ts:91 [LLMProvider] Sending request...
-BaseProvider.ts:63 [BaseProvider] Requesting: https://ark.cn-beijing.volces.com/api/v3/chat/completions, Mode: DEV, Localhost: true
-BaseProvider.ts:84 [BaseProvider] Using Proxy: /api/universal-proxy -> https://ark.cn-beijing.volces.com/api/v3/chat/completions
-BaseProvider.ts:99 [BaseProvider] Response received: 200 OK
-LLMProvider.ts:104 [LLMProvider] Request completed in 61142ms
-LLMProvider.ts:118 [LLMProvider] ========== API Response ==========
-LLMProvider.ts:119 [LLMProvider] Response length: 1975 characters
-LLMProvider.ts:120 [LLMProvider] Prompt tokens: 1051
-LLMProvider.ts:121 [LLMProvider] Completion tokens: 2605
-LLMProvider.ts:122 [LLMProvider] Total tokens: 3656
-LLMProvider.ts:123 [LLMProvider] Response preview: [
-  {
-    "name": "沈家府邸",
-    "locationType": "unknown",
-    "description": "古代官宦风格的府邸，建筑布局规整，包含庭院、正...
-scriptParser.ts:1289 [ScriptParser] LLM response received, length: 1975
-scriptParser.ts:1997 [ScriptParser] Batch response received, length: 1975 characters
-scriptParser.ts:2000 [ScriptParser] Parsed 4 scenes from batch response
-scriptParser.ts:2291 [ScriptParser] Fast path: Extracted 4 scenes
-scriptParser.ts:2172 [ScriptParser] ---------- Generating Shots with Context for Scene: 沈家府邸 ----------
-scriptParser.ts:2173 [ScriptParser] useProductionPrompt: true
-scriptParser.ts:2188 [ScriptParser] Scene content length: 339 characters
-scriptParser.ts:2224 [ScriptParser] Using standard prompt with context
-scriptParser.ts:2227 [ScriptParser] Context-enhanced prompt length: 917 characters
-scriptParser.ts:2228 [ScriptParser] Characters in scene: 沈砚, 沈清辞, 忠仆
-scriptParser.ts:1233 [ScriptParser] callLLM called for shots, retryCount: 0
-scriptParser.ts:1234 [ScriptParser] API URL: https://ark.cn-beijing.volces.com/api/v3
-scriptParser.ts:1235 [ScriptParser] Model: doubao-seed-1-6-251015
-scriptParser.ts:1236 [ScriptParser] Max Tokens: 12000
-scriptParser.ts:1265 [ScriptParser] Calling LLMProvider.generateText...
-LLMProvider.ts:81 [LLMProvider] ========== API Request ==========
-LLMProvider.ts:82 [LLMProvider] Endpoint: https://ark.cn-beijing.volces.com/api/v3/chat/completions
-LLMProvider.ts:83 [LLMProvider] Model: doubao-seed-1-6-251015
-LLMProvider.ts:84 [LLMProvider] enable_thinking: false
-LLMProvider.ts:85 [LLMProvider] Temperature: 0.3
-LLMProvider.ts:86 [LLMProvider] Max Tokens: 12000
-LLMProvider.ts:87 [LLMProvider] Messages count: 2
-LLMProvider.ts:88 [LLMProvider] First message length: 48 characters
-LLMProvider.ts:89 [LLMProvider] Request body: {
-  "model": "doubao-seed-1-6-251015",
-  "messages": [
-    {
-      "role": "system",
-      "content": "你是一个专业的剧本分析助手，擅长从小说/剧本中提取结构化信息。请严格按照要求的JSON格式输出。"
-    },
-    {
-      "role": "user",
-      "content": "\n请为以下场景生成分镜脚本。\n\n【场景信息】\n场景名称: 沈家府邸\n场景描述: 古代官宦风格的府邸，建筑布局规整，包含庭院、正厅、厢房等结构，朱红大门，飞檐翘角\n涉及角色: 沈砚, 沈清辞, 忠仆\n\n【剧本原文】\n大靖王朝，御史大夫沈砚因弹劾丞相谋逆，被诬陷下狱，沈家满门抄斩，独留幼子沈清辞被忠仆所救，隐于民间。十年后，沈清辞化名苏砚，以布衣身份入京城，蛰伏于吏部当差，伺机翻案。\n\n他聪慧过人，行事低调，很快凭借精准的断案能力得到吏部尚书赏识，却也引起丞相之子萧景渊的注意。萧景渊多疑狠辣，察觉苏砚身份蹊跷，屡次试探刁难，皆被沈清辞巧妙化解。\n\n一次，萧景渊...
-LLMProvider.ts:91 [LLMProvider] Sending request...
-BaseProvider.ts:63 [BaseProvider] Requesting: https://ark.cn-beijing.volces.com/api/v3/chat/completions, Mode: DEV, Localhost: true
-BaseProvider.ts:84 [BaseProvider] Using Proxy: /api/universal-proxy -> https://ark.cn-beijing.volces.com/api/v3/chat/completions
-BaseProvider.ts:99 [BaseProvider] Response received: 200 OK
-LLMProvider.ts:104 [LLMProvider] Request completed in 74040ms
-LLMProvider.ts:118 [LLMProvider] ========== API Response ==========
-LLMProvider.ts:119 [LLMProvider] Response length: 2344 characters
-LLMProvider.ts:120 [LLMProvider] Prompt tokens: 617
-LLMProvider.ts:121 [LLMProvider] Completion tokens: 3207
-LLMProvider.ts:122 [LLMProvider] Total tokens: 3824
-LLMProvider.ts:123 [LLMProvider] Response preview: [
-  {
-    "sequence": 1,
-    "shotType": "extreme_long",
-    "cameraMovement": "static",
-    "descri...
-scriptParser.ts:1289 [ScriptParser] LLM response received, length: 2344
-scriptParser.ts:2231 [ScriptParser] LLM response received, length: 2344 characters
-scriptParser.ts:2234 [ScriptParser] Generated 9 shots
-scriptParser.ts:2237 [ScriptParser] Shot 1:
-scriptParser.ts:2238   - Sequence: 1
-scriptParser.ts:2239   - Type: extreme_long
-scriptParser.ts:2240   - Movement: static
-scriptParser.ts:2241   - Duration: 3s
-scriptParser.ts:2242   - Description: 大靖王朝沈家府邸全貌，朱红大门紧闭，飞檐翘角的建筑布局规整，庭院隐约可见，整体透...
-scriptParser.ts:2237 [ScriptParser] Shot 2:
-scriptParser.ts:2238   - Sequence: 2
-scriptParser.ts:2239   - Type: full
-scriptParser.ts:2240   - Movement: static
-scriptParser.ts:2241   - Duration: 4s
-scriptParser.ts:2242   - Description: 朱红大门被猛地推开，忠仆抱着年幼的沈清辞踉跄跑出，身后传来隐约的喊杀声，忠仆神色...
-scriptParser.ts:2237 [ScriptParser] Shot 3:
-scriptParser.ts:2238   - Sequence: 3
-scriptParser.ts:2239   - Type: medium
-scriptParser.ts:2240   - Movement: static
-scriptParser.ts:2241   - Duration: 5s
-scriptParser.ts:2242   - Description: 忠仆抱着沈清辞躲在府邸假山的阴影下，大口喘气，孩子的小脸挂着泪珠，忠仆低头轻声安...
-scriptParser.ts:2172 [ScriptParser] ---------- Generating Shots with Context for Scene: 民间隐居地 ----------
-scriptParser.ts:2173 [ScriptParser] useProductionPrompt: true
-scriptParser.ts:2188 [ScriptParser] Scene content length: 339 characters
-scriptParser.ts:2224 [ScriptParser] Using standard prompt with context
-scriptParser.ts:2227 [ScriptParser] Context-enhanced prompt length: 907 characters
-scriptParser.ts:2228 [ScriptParser] Characters in scene: 沈清辞, 忠仆
-scriptParser.ts:1233 [ScriptParser] callLLM called for shots, retryCount: 0
-scriptParser.ts:1234 [ScriptParser] API URL: https://ark.cn-beijing.volces.com/api/v3
-scriptParser.ts:1235 [ScriptParser] Model: doubao-seed-1-6-251015
-scriptParser.ts:1236 [ScriptParser] Max Tokens: 12000
-scriptParser.ts:1265 [ScriptParser] Calling LLMProvider.generateText...
-LLMProvider.ts:81 [LLMProvider] ========== API Request ==========
-LLMProvider.ts:82 [LLMProvider] Endpoint: https://ark.cn-beijing.volces.com/api/v3/chat/completions
-LLMProvider.ts:83 [LLMProvider] Model: doubao-seed-1-6-251015
-LLMProvider.ts:84 [LLMProvider] enable_thinking: false
-LLMProvider.ts:85 [LLMProvider] Temperature: 0.3
-LLMProvider.ts:86 [LLMProvider] Max Tokens: 12000
-LLMProvider.ts:87 [LLMProvider] Messages count: 2
-LLMProvider.ts:88 [LLMProvider] First message length: 48 characters
-LLMProvider.ts:89 [LLMProvider] Request body: {
-  "model": "doubao-seed-1-6-251015",
-  "messages": [
-    {
-      "role": "system",
-      "content": "你是一个专业的剧本分析助手，擅长从小说/剧本中提取结构化信息。请严格按照要求的JSON格式输出。"
-    },
-    {
-      "role": "user",
-      "content": "\n请为以下场景生成分镜脚本。\n\n【场景信息】\n场景名称: 民间隐居地\n场景描述: 乡村或山野间的简朴居所，房屋为木质结构，周围有农田或树林，院落简单\n涉及角色: 沈清辞, 忠仆\n\n【剧本原文】\n大靖王朝，御史大夫沈砚因弹劾丞相谋逆，被诬陷下狱，沈家满门抄斩，独留幼子沈清辞被忠仆所救，隐于民间。十年后，沈清辞化名苏砚，以布衣身份入京城，蛰伏于吏部当差，伺机翻案。\n\n他聪慧过人，行事低调，很快凭借精准的断案能力得到吏部尚书赏识，却也引起丞相之子萧景渊的注意。萧景渊多疑狠辣，察觉苏砚身份蹊跷，屡次试探刁难，皆被沈清辞巧妙化解。\n\n一次，萧景渊设计陷害吏部尚书贪腐...
-LLMProvider.ts:91 [LLMProvider] Sending request...
-BaseProvider.ts:63 [BaseProvider] Requesting: https://ark.cn-beijing.volces.com/api/v3/chat/completions, Mode: DEV, Localhost: true
-BaseProvider.ts:84 [BaseProvider] Using Proxy: /api/universal-proxy -> https://ark.cn-beijing.volces.com/api/v3/chat/completions
-BaseProvider.ts:99 [BaseProvider] Response received: 200 OK
-LLMProvider.ts:104 [LLMProvider] Request completed in 39026ms
-LLMProvider.ts:118 [LLMProvider] ========== API Response ==========
-LLMProvider.ts:119 [LLMProvider] Response length: 1733 characters
-LLMProvider.ts:120 [LLMProvider] Prompt tokens: 606
-LLMProvider.ts:121 [LLMProvider] Completion tokens: 1449
-LLMProvider.ts:122 [LLMProvider] Total tokens: 2055
-LLMProvider.ts:123 [LLMProvider] Response preview: [
-  {
-    "sequence": 1,
-    "shotType": "extreme_long",
-    "cameraMovement": "static",
-    "descri...
-scriptParser.ts:1289 [ScriptParser] LLM response received, length: 1733
-scriptParser.ts:2231 [ScriptParser] LLM response received, length: 1733 characters
-scriptParser.ts:2234 [ScriptParser] Generated 7 shots
-scriptParser.ts:2237 [ScriptParser] Shot 1:
-scriptParser.ts:2238   - Sequence: 1
-scriptParser.ts:2239   - Type: extreme_long
-scriptParser.ts:2240   - Movement: static
-scriptParser.ts:2241   - Duration: 4s
-scriptParser.ts:2242   - Description: 山野间云雾缭绕，远处可见几间木质结构的简朴房屋，周围环绕着绿油油的农田和茂密的树...
-scriptParser.ts:2237 [ScriptParser] Shot 2:
-scriptParser.ts:2238   - Sequence: 2
-scriptParser.ts:2239   - Type: full
-scriptParser.ts:2240   - Movement: static
-scriptParser.ts:2241   - Duration: 3s
-scriptParser.ts:2242   - Description: 房屋内，年幼的沈清辞（约5岁）坐在木凳上，额头缠着绷带，忠仆（中年男子，衣着朴素...
-scriptParser.ts:2237 [ScriptParser] Shot 3:
-scriptParser.ts:2238   - Sequence: 3
-scriptParser.ts:2239   - Type: close_up
-scriptParser.ts:2240   - Movement: push
-scriptParser.ts:2241   - Duration: 2s
-scriptParser.ts:2242   - Description: 聚焦沈清辞的眼睛，他握着小拳头，眼神里满是仇恨与坚定...
-scriptParser.ts:2172 [ScriptParser] ---------- Generating Shots with Context for Scene: 京城吏部 ----------
-scriptParser.ts:2173 [ScriptParser] useProductionPrompt: true
-scriptParser.ts:2188 [ScriptParser] Scene content length: 339 characters
-scriptParser.ts:2224 [ScriptParser] Using standard prompt with context
-scriptParser.ts:2227 [ScriptParser] Context-enhanced prompt length: 915 characters
-scriptParser.ts:2228 [ScriptParser] Characters in scene: 沈清辞（苏砚）, 吏部尚书, 萧景渊
-scriptParser.ts:1233 [ScriptParser] callLLM called for shots, retryCount: 0
-scriptParser.ts:1234 [ScriptParser] API URL: https://ark.cn-beijing.volces.com/api/v3
-scriptParser.ts:1235 [ScriptParser] Model: doubao-seed-1-6-251015
-scriptParser.ts:1236 [ScriptParser] Max Tokens: 12000
-scriptParser.ts:1265 [ScriptParser] Calling LLMProvider.generateText...
-LLMProvider.ts:81 [LLMProvider] ========== API Request ==========
-LLMProvider.ts:82 [LLMProvider] Endpoint: https://ark.cn-beijing.volces.com/api/v3/chat/completions
-LLMProvider.ts:83 [LLMProvider] Model: doubao-seed-1-6-251015
-LLMProvider.ts:84 [LLMProvider] enable_thinking: false
-LLMProvider.ts:85 [LLMProvider] Temperature: 0.3
-LLMProvider.ts:86 [LLMProvider] Max Tokens: 12000
-LLMProvider.ts:87 [LLMProvider] Messages count: 2
-LLMProvider.ts:88 [LLMProvider] First message length: 48 characters
-LLMProvider.ts:89 [LLMProvider] Request body: {
-  "model": "doubao-seed-1-6-251015",
-  "messages": [
-    {
-      "role": "system",
-      "content": "你是一个专业的剧本分析助手，擅长从小说/剧本中提取结构化信息。请严格按照要求的JSON格式输出。"
-    },
-    {
-      "role": "user",
-      "content": "\n请为以下场景生成分镜脚本。\n\n【场景信息】\n场景名称: 京城吏部\n场景描述: 古代官府办公场所，厅堂宽敞，木质梁柱，设有办公区域和卷宗存放处\n涉及角色: 沈清辞（苏砚）, 吏部尚书, 萧景渊\n\n【剧本原文】\n大靖王朝，御史大夫沈砚因弹劾丞相谋逆，被诬陷下狱，沈家满门抄斩，独留幼子沈清辞被忠仆所救，隐于民间。十年后，沈清辞化名苏砚，以布衣身份入京城，蛰伏于吏部当差，伺机翻案。\n\n他聪慧过人，行事低调，很快凭借精准的断案能力得到吏部尚书赏识，却也引起丞相之子萧景渊的注意。萧景渊多疑狠辣，察觉苏砚身份蹊跷，屡次试探刁难，皆被沈清辞巧妙化解。\n\n一次，萧景渊设计...
+      "content": "【故事背景】\n- 一句话简介：沈家遗孤蛰伏十年，揭露丞相阴谋昭雪冤案\n- 故事梗概：大靖王朝御史沈砚因弹劾丞相谋逆被诬陷，满门抄斩，幼子沈清辞被忠仆所救。十年后，他化名苏砚入京城吏部，凭断案能力获赏识，遭丞相之子萧景渊试探。萧设计陷害尚书嫁祸他，他提前收集证据，朝会揭发，暴露身份，终昭雪冤案，封御史中丞。\n- 核心冲突：沈家遗孤与丞相一党的复仇与权谋对抗\n- 主题思想：复仇与昭雪、正义与权谋\n\n\n【视觉风格】\n- 美术指导：水墨国风\n- 艺术风格：古风写实、典雅庄重\n- 主色调：#2C3E50、#E74C3C、#F1C40F\n- 色彩情绪：严肃庄重中带复仇炽热...
 LLMProvider.ts:91 [LLMProvider] Sending request...
 BaseProvider.ts:63 [BaseProvider] Requesting: https://ark.cn-beijing.volces.com/api/v3/chat/completions, Mode: DEV, Localhost: true
 BaseProvider.ts:84 [BaseProvider] Using Proxy: /api/universal-proxy -> https://ark.cn-beijing.volces.com/api/v3/chat/completions
 MultiLevelCache.ts:443 [MultiLevelCache] Cleanup completed
 BaseProvider.ts:99 [BaseProvider] Response received: 200 OK
-LLMProvider.ts:104 [LLMProvider] Request completed in 74534ms
+LLMProvider.ts:104 [LLMProvider] Request completed in 80759ms
 LLMProvider.ts:118 [LLMProvider] ========== API Response ==========
-LLMProvider.ts:119 [LLMProvider] Response length: 2676 characters
-LLMProvider.ts:120 [LLMProvider] Prompt tokens: 611
-LLMProvider.ts:121 [LLMProvider] Completion tokens: 2956
-LLMProvider.ts:122 [LLMProvider] Total tokens: 3567
+LLMProvider.ts:119 [LLMProvider] Response length: 2608 characters
+LLMProvider.ts:120 [LLMProvider] Prompt tokens: 1374
+LLMProvider.ts:121 [LLMProvider] Completion tokens: 3196
+LLMProvider.ts:122 [LLMProvider] Total tokens: 4570
 LLMProvider.ts:123 [LLMProvider] Response preview: [
   {
-    "sequence": 1,
-    "shotType": "full",
-    "cameraMovement": "static",
-    "description": ...
-scriptParser.ts:1289 [ScriptParser] LLM response received, length: 2676
-scriptParser.ts:2231 [ScriptParser] LLM response received, length: 2676 characters
-scriptParser.ts:2234 [ScriptParser] Generated 10 shots
-scriptParser.ts:2237 [ScriptParser] Shot 1:
-scriptParser.ts:2238   - Sequence: 1
-scriptParser.ts:2239   - Type: full
-scriptParser.ts:2240   - Movement: static
-scriptParser.ts:2241   - Duration: 3s
-scriptParser.ts:2242   - Description: 京城吏部厅堂全景，木质梁柱古朴厚重，卷宗架整齐排列，沈清辞（苏砚）伏案处理公文，...
-scriptParser.ts:2237 [ScriptParser] Shot 2:
-scriptParser.ts:2238   - Sequence: 2
-scriptParser.ts:2239   - Type: medium
-scriptParser.ts:2240   - Movement: push
-scriptParser.ts:2241   - Duration: 2s
-scriptParser.ts:2242   - Description: 萧景渊身着锦袍走进厅堂，目光扫过苏砚，镜头推至他微眯的双眼，透出多疑与审视...
-scriptParser.ts:2237 [ScriptParser] Shot 3:
-scriptParser.ts:2238   - Sequence: 3
-scriptParser.ts:2239   - Type: close_up
-scriptParser.ts:2240   - Movement: static
-scriptParser.ts:2241   - Duration: 4s
-scriptParser.ts:2242   - Description: 萧景渊手指敲着苏砚桌上的卷宗，语气不善：“苏砚，这份江南税案的卷宗，怎么少了关键...
-scriptParser.ts:2172 [ScriptParser] ---------- Generating Shots with Context for Scene: 皇宫大殿 ----------
-scriptParser.ts:2173 [ScriptParser] useProductionPrompt: true
-scriptParser.ts:2188 [ScriptParser] Scene content length: 339 characters
-scriptParser.ts:2224 [ScriptParser] Using standard prompt with context
-scriptParser.ts:2227 [ScriptParser] Context-enhanced prompt length: 917 characters
-scriptParser.ts:2228 [ScriptParser] Characters in scene: 沈清辞, 皇上, 丞相, 萧景渊, 吏部尚书
+    "name": "沈家抄斩现场",
+    "locationType": "outdoor",
+    "description": "青瓦白墙的古风庭院，地面散落着倾倒的木质家...
+scriptParser.ts:1289 [ScriptParser] LLM response received, length: 2608
+scriptParser.ts:1997 [ScriptParser] Batch response received, length: 2608 characters
+scriptParser.ts:2000 [ScriptParser] Parsed 5 scenes from batch response
+scriptParser.ts:2291 [ScriptParser] Fast path: Extracted 5 scenes
+scriptParser.ts:2126 [ScriptParser] ---------- Batch Generating Shots with Context for 5 Scenes ----------
+scriptParser.ts:2137 [ScriptParser] Injecting global context into shots generation
+scriptParser.ts:2142 [ScriptParser] Context-enhanced prompt length: 1582 characters
 scriptParser.ts:1233 [ScriptParser] callLLM called for shots, retryCount: 0
 scriptParser.ts:1234 [ScriptParser] API URL: https://ark.cn-beijing.volces.com/api/v3
 scriptParser.ts:1235 [ScriptParser] Model: doubao-seed-1-6-251015
@@ -735,57 +280,39 @@ LLMProvider.ts:89 [LLMProvider] Request body: {
     },
     {
       "role": "user",
-      "content": "\n请为以下场景生成分镜脚本。\n\n【场景信息】\n场景名称: 皇宫大殿\n场景描述: 皇宫的高大殿堂，雕梁画栋，设有龙椅、御案，周围有立柱和台阶\n涉及角色: 沈清辞, 皇上, 丞相, 萧景渊, 吏部尚书\n\n【剧本原文】\n大靖王朝，御史大夫沈砚因弹劾丞相谋逆，被诬陷下狱，沈家满门抄斩，独留幼子沈清辞被忠仆所救，隐于民间。十年后，沈清辞化名苏砚，以布衣身份入京城，蛰伏于吏部当差，伺机翻案。\n\n他聪慧过人，行事低调，很快凭借精准的断案能力得到吏部尚书赏识，却也引起丞相之子萧景渊的注意。萧景渊多疑狠辣，察觉苏砚身份蹊跷，屡次试探刁难，皆被沈清辞巧妙化解。\n\n一次，萧景渊...
+      "content": "【视觉指导】\n- 美术风格：古风写实、典雅庄重\n- 色彩方案：#2C3E50、#E74C3C、#F1C40F\n- 摄影风格：对称构图（朝堂）与手持跟拍（市井）结合\n- 光影风格：朝堂硬光显威严，市井柔光显生活气息\n- 参考风格：琅琊榜、孔笙\n\n\n\n\n【时代限制】\n- 禁止出现现代科技产品（手机、电脑、汽车等）\n- 禁止出现现代服装（西装、牛仔裤等）\n- 禁止出现现代建筑（摩天大楼、玻璃幕墙等）\n- 禁止出现：手机、电脑、汽车、飞机、电梯\n\n\n\n请为以下所有场景生成分镜脚本。\n\n【剧本内容】\n大靖王朝，御史大夫沈砚因弹劾丞相谋逆，被诬陷下狱，...
 LLMProvider.ts:91 [LLMProvider] Sending request...
 BaseProvider.ts:63 [BaseProvider] Requesting: https://ark.cn-beijing.volces.com/api/v3/chat/completions, Mode: DEV, Localhost: true
 BaseProvider.ts:84 [BaseProvider] Using Proxy: /api/universal-proxy -> https://ark.cn-beijing.volces.com/api/v3/chat/completions
 MultiLevelCache.ts:443 [MultiLevelCache] Cleanup completed
 BaseProvider.ts:99 [BaseProvider] Response received: 200 OK
-LLMProvider.ts:104 [LLMProvider] Request completed in 63102ms
+LLMProvider.ts:104 [LLMProvider] Request completed in 88296ms
 LLMProvider.ts:118 [LLMProvider] ========== API Response ==========
-LLMProvider.ts:119 [LLMProvider] Response length: 3421 characters
-LLMProvider.ts:120 [LLMProvider] Prompt tokens: 617
-LLMProvider.ts:121 [LLMProvider] Completion tokens: 2701
-LLMProvider.ts:122 [LLMProvider] Total tokens: 3318
+LLMProvider.ts:119 [LLMProvider] Response length: 3047 characters
+LLMProvider.ts:120 [LLMProvider] Prompt tokens: 1068
+LLMProvider.ts:121 [LLMProvider] Completion tokens: 3333
+LLMProvider.ts:122 [LLMProvider] Total tokens: 4401
 LLMProvider.ts:123 [LLMProvider] Response preview: [
   {
+    "sceneName": "沈家抄斩现场",
     "sequence": 1,
-    "shotType": "full",
-    "cameraMovement": "static",
-    "description": ...
-scriptParser.ts:1289 [ScriptParser] LLM response received, length: 3421
-scriptParser.ts:2231 [ScriptParser] LLM response received, length: 3421 characters
-scriptParser.ts:2234 [ScriptParser] Generated 14 shots
-scriptParser.ts:2237 [ScriptParser] Shot 1:
-scriptParser.ts:2238   - Sequence: 1
-scriptParser.ts:2239   - Type: full
-scriptParser.ts:2240   - Movement: static
-scriptParser.ts:2241   - Duration: 3s
-scriptParser.ts:2242   - Description: 皇宫大殿全景，雕梁画栋，龙椅御案威严矗立，两侧大臣按品级站立，气氛肃穆...
-scriptParser.ts:2237 [ScriptParser] Shot 2:
-scriptParser.ts:2238   - Sequence: 2
-scriptParser.ts:2239   - Type: medium
-scriptParser.ts:2240   - Movement: push
-scriptParser.ts:2241   - Duration: 2s
-scriptParser.ts:2242   - Description: 聚焦沈清辞（化名苏砚）站在大臣列末，手持卷轴，眼神坚定，表情沉稳...
-scriptParser.ts:2237 [ScriptParser] Shot 3:
-scriptParser.ts:2238   - Sequence: 3
-scriptParser.ts:2239   - Type: close_up
-scriptParser.ts:2240   - Movement: static
-scriptParser.ts:2241   - Duration: 2s
-scriptParser.ts:2242   - Description: 皇上坐在龙椅上，威严的脸庞，目光扫过大殿...
-scriptParser.ts:2306 [ScriptParser] Fast path: Generated 40 shots
-scriptParser.ts:2330 [ScriptParser] ========== Short Text Parse Completed ==========
-scriptParser.ts:2331 [ScriptParser] Characters: 5, Scenes: 4, Shots: 40
-scriptParser.ts:2367 [ScriptParser] ========== Fast Path Completed ==========
-scriptParser.ts:2368 [ScriptParser] Total duration: 648449ms (648.4s)
-scriptParser.ts:2369 [ScriptParser] ==========================================
+    "shotType": "extreme_long",
+    "cameraMovem...
+scriptParser.ts:1289 [ScriptParser] LLM response received, length: 3047
+scriptParser.ts:2145 [ScriptParser] Batch response received, length: 3047 characters
+scriptParser.ts:2148 [ScriptParser] Parsed 14 shots from batch response
+scriptParser.ts:2304 [ScriptParser] Fast path: Generated 14 shots in 1 API call
+scriptParser.ts:2346 [ScriptParser] ========== Short Text Parse Completed ==========
+scriptParser.ts:2347 [ScriptParser] Characters: 7, Scenes: 5, Shots: 14
+scriptParser.ts:2383 [ScriptParser] ========== Fast Path Completed ==========
+scriptParser.ts:2384 [ScriptParser] Total duration: 385228ms (385.2s)
+scriptParser.ts:2385 [ScriptParser] ==========================================
 ScriptManager.tsx:476 [ScriptManager] ========== Getting Quality Report ==========
-ScriptManager.tsx:478 [ScriptManager] Report from parser: {exists: true, score: 89, type: 'object', hasViolations: true, hasSuggestions: true}
+ScriptManager.tsx:478 [ScriptManager] Report from parser: {exists: true, score: 87, type: 'object', hasViolations: true, hasSuggestions: true}
 ScriptManager.tsx:488 [ScriptManager] ========== Quality Report Set to State ==========
 ScriptManager.tsx:145 [ScriptManager] ========== useEffect: currentScript changed ==========
 ScriptManager.tsx:146 [ScriptManager] currentScript exists: true
 ScriptManager.tsx:147 [ScriptManager] parseState exists: true
 ScriptManager.tsx:148 [ScriptManager] qualityReport exists: true
-ScriptManager.tsx:152 [ScriptManager] Restoring quality report: {score: 89, violationsCount: 15, suggestionsCount: 5, type: 'object'}
+ScriptManager.tsx:152 [ScriptManager] Restoring quality report: {score: 87, violationsCount: 17, suggestionsCount: 5, type: 'object'}
 ScriptManager.tsx:159 [ScriptManager] ========== Quality Report Restored ==========

@@ -14,11 +14,7 @@ import { QualityReport } from '../services/scriptParser';
 import type { RuleViolation } from '../services/parsing/ShortDramaRules';
 import { DetailedQualityReport } from '../services/parsing/QualityAnalyzer';
 import QualityReportCard from '../components/ScriptParser/QualityReportCard';
-import { VectorMemoryToggle } from '../components/VectorMemoryToggle';
-import { vectorMemoryConfig } from '../services/parsing/VectorMemoryConfig';
 import { ParseConfigConfirmModal } from '../components/ParseConfigConfirmModal';
-import { ModelDownloadProgress } from '../components/ModelDownloadProgress';
-import { EmbeddingService } from '../services/parsing/EmbeddingService';
 
 // Professional Analysis Components
 import { SoundDesignTab } from '../src/components/ScriptParser/SoundDesignTab';
@@ -88,22 +84,9 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
   const [scriptTitle, setScriptTitle] = useState('');
   const [scriptContent, setScriptContent] = useState('');
   const [scriptWordCount, setScriptWordCount] = useState(0); // 字数统计
-  const [useVectorMemory, setUseVectorMemory] = useState(() => {
-    // 从配置读取初始状态，尊重用户手动选择
-    return vectorMemoryConfig.getConfig().enabled;
-  }); // 智能记忆开关
 
   // Parse config confirmation modal
   const [showParseConfirm, setShowParseConfirm] = useState(false);
-
-  // Model download modal
-  const [showModelDownloadModal, setShowModelDownloadModal] = useState(false);
-  const [modelDownloadState, setModelDownloadState] = useState({
-    status: 'idle' as 'idle' | 'downloading' | 'success' | 'error',
-    progress: 0,
-    retryCount: 0
-  });
-  const [embeddingService] = useState(() => new EmbeddingService());
 
   // Existing assets for mapping
   const [existingCharacters, setExistingCharacters] = useState<CharacterAsset[]>([]);
@@ -293,19 +276,6 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
       const wordCount = cleanResult.cleanedText.length;
       setScriptWordCount(wordCount);
       
-      // 自动检测是否需要启用智能记忆
-      // 只有用户未手动开启时，才根据字数自动检测
-      const config = vectorMemoryConfig.getConfig();
-      if (!config.enabled) {
-        const shouldEnable = vectorMemoryConfig.shouldEnable(wordCount);
-        setUseVectorMemory(shouldEnable);
-        // 同时更新配置
-        if (shouldEnable) {
-          vectorMemoryConfig.setEnabled(true);
-        }
-      }
-      // 如果用户已手动开启，保持开启状态，不做任何操作
-      
       // 如果有多个章节，显示提示
       if (cleanResult.chapters.length > 1) {
         showToast(`检测到 ${cleanResult.chapters.length} 个章节`, 'info');
@@ -403,12 +373,6 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
         dramaRulesMinScore: 60,
         useCache: true,
         cacheTTL: 3600000,
-        enableVectorMemory: useVectorMemory,
-        vectorMemoryConfig: useVectorMemory ? {
-          autoEnableThreshold: 50000,
-          chromaDbUrl: '/chroma',  // 使用 Vite 代理，避免 CORS
-          collectionName: 'script_memory'
-        } : undefined,
         // ✅ 启用迭代优化引擎
         enableIterativeRefinement: true,
         iterativeRefinementConfig: {
@@ -1135,50 +1099,8 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
                 // 实时更新字数统计
                 const newWordCount = newContent.length;
                 setScriptWordCount(newWordCount);
-                // 重新检测
-                const shouldEnable = vectorMemoryConfig.shouldEnable(newWordCount);
-                setUseVectorMemory(shouldEnable);
               }}
               minRows={10}
-            />
-
-            {/* 智能记忆开关 - 始终显示 */}
-            <VectorMemoryToggle
-              wordCount={scriptWordCount}
-              onToggle={async (enabled) => {
-                if (enabled) {
-                  // 开启智能记忆，显示下载弹窗
-                  setShowModelDownloadModal(true);
-                  
-                  // 订阅下载进度
-                  const unsubscribe = embeddingService.onDownloadProgress((state) => {
-                    setModelDownloadState(state);
-                  });
-
-                  try {
-                    // 尝试初始化（会自动下载模型）
-                    await embeddingService.initialize();
-                    
-                    // 下载成功
-                    setUseVectorMemory(true);
-                    vectorMemoryConfig.setEnabled(true);
-                    
-                    // 延迟关闭弹窗
-                    setTimeout(() => {
-                      setShowModelDownloadModal(false);
-                    }, 1500);
-                  } catch (error) {
-                    console.error('[ScriptManager] Model download failed:', error);
-                  } finally {
-                    unsubscribe();
-                  }
-                } else {
-                  // 关闭智能记忆
-                  setUseVectorMemory(false);
-                  vectorMemoryConfig.setEnabled(false);
-                }
-              }}
-              showAutoDetect={true}
             />
 
             <div className="text-sm text-default-500">
@@ -1255,48 +1177,8 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
         }}
         scriptTitle={currentScript?.title || scriptTitle}
         wordCount={scriptWordCount || currentScript?.content?.length || 0}
-        useVectorMemory={useVectorMemory}
-        onVectorMemoryToggle={(enabled) => {
-          setUseVectorMemory(enabled);
-          vectorMemoryConfig.setEnabled(enabled);
-        }}
         modelName={getSelectedModel(false)?.name || '深度求索 V3'}
         parseMode="完整解析"
-      />
-
-      {/* Model Download Progress Modal */}
-      <ModelDownloadProgress
-        isOpen={showModelDownloadModal}
-        downloadState={modelDownloadState}
-        onRetry={async () => {
-          const unsubscribe = embeddingService.onDownloadProgress((state) => {
-            setModelDownloadState(state);
-          });
-
-          try {
-            await embeddingService.retryDownload();
-            setUseVectorMemory(true);
-            vectorMemoryConfig.setEnabled(true);
-            setTimeout(() => {
-              setShowModelDownloadModal(false);
-            }, 1500);
-          } catch (error) {
-            console.error('[ScriptManager] Model retry failed:', error);
-          } finally {
-            unsubscribe();
-          }
-        }}
-        onCancel={() => {
-          setShowModelDownloadModal(false);
-          setUseVectorMemory(false);
-          vectorMemoryConfig.setEnabled(false);
-        }}
-        onUseStandardMode={() => {
-          setShowModelDownloadModal(false);
-          setUseVectorMemory(false);
-          vectorMemoryConfig.setEnabled(false);
-        }}
-        manualGuide={embeddingService.getManualDownloadGuide()}
       />
     </div>
   );
