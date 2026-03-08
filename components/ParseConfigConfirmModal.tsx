@@ -333,103 +333,87 @@ export const ParseConfigConfirmModal: React.FC<ParseConfigConfirmModalProps> = (
           </div>
         </ModalHeader>
 
-        <ModalBody className="space-y-4 max-h-[70vh] overflow-y-auto">
-          {/* 小说信息 */}
-          <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 space-y-2">
-            <h4 className="font-medium text-sm text-gray-600 dark:text-gray-400">
-              📄 小说信息
-            </h4>
-            <div className="space-y-1 text-sm">
-              <div className="flex justify-between">
-                <span className="text-gray-500">标题：</span>
-                <span className="font-medium truncate max-w-[200px]">{scriptTitle || '未命名'}</span>
+        <ModalBody className="space-y-3 max-h-[92vh] overflow-y-auto">
+          {/* 小说信息 - 更紧凑 */}
+          <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <FileText className="w-4 h-4 text-gray-400" />
+                <span className="font-medium text-sm truncate max-w-[150px]">{scriptTitle || '未命名'}</span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-gray-500">字数：</span>
-                <span className="font-medium">{wordCount.toLocaleString()} 字（约 {(wordCount / 10000).toFixed(1)} 万字）</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-gray-500">预估 Token：</span>
-                <Tooltip content="基于字数估算">
-                  <span className="font-medium text-primary">~{estimatedTokens.toLocaleString()}</span>
-                </Tooltip>
+              <div className="flex items-center gap-3 text-xs text-gray-500">
+                <span>{wordCount.toLocaleString()} 字</span>
+                <span className="text-primary">~{estimatedTokens.toLocaleString()} Tokens</span>
               </div>
             </div>
           </div>
 
-          {/* 智能配置推荐 */}
-          {!isConfigMatchingRecommendation() && (
-            <Card className="border border-primary/30 bg-primary/5 dark:bg-primary/10">
-              <CardBody className="p-4">
-                <div className="flex items-start gap-3">
-                  <div className="p-2 bg-primary rounded-lg">
-                    <Lightbulb className="w-5 h-5 text-white" />
-                  </div>
-                  <div className="flex-1">
-                    <h4 className="text-[15px] font-bold text-slate-900 dark:text-white">
-                      💡 智能配置推荐
+          {/* 智能配置推荐 - 始终显示，优化布局，防止挤压 */}
+          <Card className={`border ${isConfigMatchingRecommendation() ? 'border-success/30 bg-success/5 dark:bg-success/10' : 'border-primary/30 bg-primary/5 dark:bg-primary/10'}`}>
+            <CardBody className="p-3">
+              <div className="flex items-start gap-2">
+                <div className={`p-1.5 rounded-lg flex-shrink-0 ${isConfigMatchingRecommendation() ? 'bg-success' : 'bg-primary'}`}>
+                  {isConfigMatchingRecommendation() ? <CheckCircle className="w-4 h-4 text-white" /> : <Lightbulb className="w-4 h-4 text-white" />}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between gap-2">
+                    <h4 className="text-sm font-bold text-slate-900 dark:text-white">
+                      {isConfigMatchingRecommendation() ? '✅ 当前配置已是最优' : '💡 智能配置推荐'}
                     </h4>
-                    <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
-                      基于您的文本（{wordCount.toLocaleString()}字），系统推荐以下配置：
-                    </p>
-
-                    <div className="mt-3 p-3 bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-800">
-                      <div className="flex items-center gap-2 mb-2">
-                        <span className="px-2 py-0.5 bg-primary/10 text-primary text-xs font-bold rounded-full">
-                          {smartRecommendation.mode === 'lightweight' ? '轻量级模式' : 
-                           smartRecommendation.mode === 'professional' ? '专业模式' : '高级模式'}
-                        </span>
-                      </div>
-                      
-                      <div className="grid grid-cols-2 gap-2 text-sm">
-                        <div className="flex items-center gap-2">
-                          <span className="text-slate-500">平台：</span>
-                          <span className="font-medium">{getPlatformName(smartRecommendation.recommendedConfig.platform)}</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <span className="text-slate-500">节奏：</span>
-                          <span className="font-medium">{getPaceName(smartRecommendation.recommendedConfig.pace)}</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <span className="text-slate-500">时长预算：</span>
-                          <span className="font-medium">
-                            {smartRecommendation.recommendedConfig.useDurationBudget ? '✅ 开启' : '❌ 关闭'}
-                          </span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <span className="text-slate-500">生产级Prompt：</span>
-                          <span className="font-medium">
-                            {smartRecommendation.recommendedConfig.useProductionPrompt ? '✅ 开启' : '❌ 关闭'}
-                          </span>
-                        </div>
-                      </div>
-
-                      <div className="mt-3 pt-3 border-t border-slate-200 dark:border-slate-800">
-                        <div className="flex items-center gap-4 text-xs text-slate-500">
-                          <span>⏱️ 预计时长：{smartRecommendation.estimatedDuration}</span>
-                          <span>🎬 推荐分镜：{smartRecommendation.recommendedShots}</span>
-                        </div>
-                      </div>
+                    <span className="px-2 py-0.5 bg-white dark:bg-slate-900 text-xs font-medium rounded-full border border-slate-200 dark:border-slate-700 flex-shrink-0">
+                      {smartRecommendation.mode === 'lightweight' ? '轻量级' : 
+                       smartRecommendation.mode === 'professional' ? '专业' : '高级'}
+                    </span>
+                  </div>
+                  
+                  {/* 推荐配置详情 - 更紧凑的网格，防止挤压 */}
+                  <div className="mt-2 grid grid-cols-4 gap-2 text-xs min-w-0">
+                    <div className="bg-white dark:bg-slate-900 rounded px-2 py-1.5 border border-slate-200 dark:border-slate-800 min-w-0">
+                      <span className="text-slate-400 block text-[10px] uppercase tracking-wide">平台</span>
+                      <span className="font-medium text-slate-900 dark:text-slate-100 truncate block">{getPlatformName(smartRecommendation.recommendedConfig.platform)}</span>
                     </div>
+                    <div className="bg-white dark:bg-slate-900 rounded px-2 py-1.5 border border-slate-200 dark:border-slate-800 min-w-0">
+                      <span className="text-slate-400 block text-[10px] uppercase tracking-wide">节奏</span>
+                      <span className="font-medium text-slate-900 dark:text-slate-100 truncate block">{getPaceName(smartRecommendation.recommendedConfig.pace)}</span>
+                    </div>
+                    <div className="bg-white dark:bg-slate-900 rounded px-2 py-1.5 border border-slate-200 dark:border-slate-800 min-w-0">
+                      <span className="text-slate-400 block text-[10px] uppercase tracking-wide">时长</span>
+                      <span className="font-medium text-slate-900 dark:text-slate-100 truncate block">{smartRecommendation.estimatedDuration}</span>
+                    </div>
+                    <div className="bg-white dark:bg-slate-900 rounded px-2 py-1.5 border border-slate-200 dark:border-slate-800 min-w-0">
+                      <span className="text-slate-400 block text-[10px] uppercase tracking-wide">分镜</span>
+                      <span className="font-medium text-slate-900 dark:text-slate-100 truncate block">{smartRecommendation.recommendedShots}</span>
+                    </div>
+                  </div>
 
-                    <p className="text-xs text-slate-500 mt-3">
-                      💡 {smartRecommendation.reason}
-                    </p>
+                  {/* 警告信息整合到推荐卡片中 */}
+                  {wordCount >= 3000 && !config.useDurationBudget && (
+                    <div className="mt-2 p-2 bg-amber-50 dark:bg-amber-900/20 rounded text-xs text-amber-700 dark:text-amber-400 flex items-center gap-1.5">
+                      <AlertTriangle className="w-3 h-3 flex-shrink-0" />
+                      <span>当前文本较长，建议开启时长预算规划</span>
+                    </div>
+                  )}
 
+                  {/* 推荐理由 */}
+                  <p className="text-xs text-slate-500 mt-2 leading-relaxed">
+                    {smartRecommendation.reason}
+                  </p>
+
+                  {/* 应用按钮 - 仅在配置不匹配时显示 */}
+                  {!isConfigMatchingRecommendation() && (
                     <Button
                       size="sm"
                       color="primary"
                       onPress={applySmartRecommendation}
-                      startContent={<CheckCircle className="w-4 h-4" />}
-                      className="mt-3"
+                      className="mt-2 w-full"
                     >
                       应用推荐配置
                     </Button>
-                  </div>
+                  )}
                 </div>
-              </CardBody>
-            </Card>
-          )}
+              </div>
+            </CardBody>
+          </Card>
 
           {/* 平台模板快速选择 */}
           <div className="space-y-3">
@@ -530,17 +514,13 @@ export const ParseConfigConfirmModal: React.FC<ParseConfigConfirmModalProps> = (
             </div>
           </div>
 
-          {/* 提示信息 */}
-          {warnings.length > 0 && (
+          {/* 提示信息 - 只显示非重复的警告（长篇小说警告） */}
+          {warnings.filter(w => w.type === 'warning').length > 0 && (
             <div className="space-y-2">
-              {warnings.map((warning, index) => (
+              {warnings.filter(w => w.type === 'warning').map((warning, index) => (
                 <div
                   key={index}
-                  className={`flex items-start gap-2 p-3 rounded-lg text-sm ${
-                    warning.type === 'warning'
-                      ? 'bg-amber-50 text-amber-700 dark:bg-amber-900/20 dark:text-amber-400'
-                      : 'bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400'
-                  }`}
+                  className="flex items-start gap-2 p-3 rounded-lg text-sm bg-amber-50 text-amber-700 dark:bg-amber-900/20 dark:text-amber-400"
                 >
                   <warning.icon className="w-4 h-4 mt-0.5 flex-shrink-0" />
                   <span>{warning.message}</span>

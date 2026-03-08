@@ -5,10 +5,6 @@ import { useApp } from '../contexts/context';
 import { useToast } from '../contexts/ToastContext';
 import { Save, Plus, Trash2, Monitor, Moon, Sun, FolderOpen, RefreshCcw, CheckCircle, AlertCircle, Globe, Palette, Settings as SettingsIcon, Database, Cpu, Pencil, Clock, Film, Sparkles, Shield, Zap } from 'lucide-react';
 import { storageService } from '../services/storage';
-import { DurationBudgetStatusPanel } from '../components/DurationBudget/DurationBudgetStatusPanel';
-import { DurationBudgetDependencyGraph } from '../components/DurationBudget/DurationBudgetDependencyGraph';
-import { PlatformTemplateSelector, PlatformTemplate } from '../components/DurationBudget/PlatformTemplateSelector';
-import { SmartConfigEngine, SmartRecommendation } from '../components/DurationBudget/SmartConfigEngine';
 import { 
   Card, 
   CardHeader, 
@@ -463,21 +459,6 @@ const Settings: React.FC = () => {
     }
   };
 
-  // Handle platform template selection
-  const handleSelectTemplate = (template: PlatformTemplate) => {
-    setDurationBudgetConfig(template.config);
-    showToast(t.settings.durationBudget?.templateApplied?.replace('{name}', template.name) || `已应用"${template.name}"模板`, 'success');
-  };
-
-  // Handle smart recommendation application
-  const handleApplyRecommendation = (recommendation: SmartRecommendation) => {
-    setDurationBudgetConfig(recommendation.recommendedConfig);
-    showToast(t.settings.durationBudget?.recommendationApplied || '已应用智能推荐配置', 'success');
-  };
-
-  // Mock novel length for demo (in real app, this would come from props or context)
-  const [novelLength] = useState(7000); // Example: 7000 words
-
   return (
     <div className="h-full overflow-y-auto p-6 md:p-10 max-w-[1600px] mx-auto space-y-12 pb-32">
       <div className="flex flex-col gap-2">
@@ -774,33 +755,6 @@ const Settings: React.FC = () => {
                 </Button>
             </CardHeader>
             <CardBody className="px-8 pb-8 pt-4 space-y-8">
-                {/* Configuration Status Panel */}
-                <DurationBudgetStatusPanel 
-                    config={durationBudgetConfig}
-                    t={t}
-                />
-
-                <Divider className="opacity-50" />
-
-                {/* Smart Config Recommendation */}
-                <SmartConfigEngine
-                    novelLength={novelLength}
-                    currentConfig={durationBudgetConfig}
-                    onApplyRecommendation={handleApplyRecommendation}
-                    onDismiss={() => {}}
-                    t={t}
-                />
-
-                <Divider className="opacity-50" />
-
-                {/* Platform Template Selector */}
-                <PlatformTemplateSelector
-                    onSelectTemplate={handleSelectTemplate}
-                    t={t}
-                />
-
-                <Divider className="opacity-50" />
-
                 {/* Basic Configuration Group */}
                 <div className="space-y-4">
                     <div className="flex items-center gap-2">
@@ -871,12 +825,6 @@ const Settings: React.FC = () => {
                             <span className="text-xs text-slate-400 ml-2 font-medium normal-case">{t.settings.durationBudget?.linked || '联动'}</span>
                         </h3>
                     </div>
-                    
-                    {/* Dependency Relationship Visualization */}
-                    <DurationBudgetDependencyGraph 
-                        config={durationBudgetConfig}
-                        t={t}
-                    />
                     
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pl-3">
                         {/* Use Duration Budget */}
