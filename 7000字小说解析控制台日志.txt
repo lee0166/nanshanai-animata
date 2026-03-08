@@ -1,0 +1,765 @@
+client:789 [vite] connecting...
+react-dom-client.development.js:28004 Download the React DevTools for a better development experience: https://react.dev/link/react-devtools
+aiService.ts:68 [AIService] Registered provider: volcengine
+aiService.ts:68 [AIService] Registered provider: vidu
+aiService.ts:68 [AIService] Registered provider: modelscope
+aiService.ts:68 [AIService] Registered provider: llm
+AppContext.tsx:98 [INIT] Redirecting to home from #/project/6a3e9f65-3116-4acc-a7cb-6b0a19f71bc4
+AppContext.tsx:103 [INIT] Starting App Initialization...
+AppContext.tsx:119 [INIT] Attempting auto-connect...
+AppContext.tsx:103 [INIT] Starting App Initialization...
+AppContext.tsx:119 [INIT] Attempting auto-connect...
+AppContext.tsx:121 [INIT] autoConnect returned: true
+AppContext.tsx:121 [INIT] autoConnect returned: true
+AppContext.tsx:125 [INIT] Starting smoke test...
+AppContext.tsx:24 [STORAGE] Connection check: Connected=true, Responsive=true
+AppContext.tsx:132 [INIT] Smoke test complete.
+client:912 [vite] connected.
+AppContext.tsx:147 [INIT] Initialization complete. FS Responsive: true, Connected: true, Elapsed: 514ms
+App.tsx:32 [APP] Triggering jobQueue.loadQueue()...
+App.tsx:32 [APP] Triggering jobQueue.loadQueue()...
+AppContext.tsx:24 [STORAGE] Connection check: Connected=true, Responsive=true
+ScriptManager.tsx:137 [ScriptManager] ========== useEffect: currentScript changed ==========
+ScriptManager.tsx:138 [ScriptManager] currentScript exists: false
+ScriptManager.tsx:139 [ScriptManager] parseState exists: false
+ScriptManager.tsx:140 [ScriptManager] qualityReport exists: false
+ScriptManager.tsx:153 [ScriptManager] No quality report in parseState, setting to null
+ScriptManager.tsx:137 [ScriptManager] ========== useEffect: currentScript changed ==========
+ScriptManager.tsx:138 [ScriptManager] currentScript exists: false
+ScriptManager.tsx:139 [ScriptManager] parseState exists: false
+ScriptManager.tsx:140 [ScriptManager] qualityReport exists: false
+ScriptManager.tsx:153 [ScriptManager] No quality report in parseState, setting to null
+storage.ts:695 [STORAGE] Slow FileSystem read: scripts_6a3e9f65-3116-4acc-a7cb-6b0a19f71bc4.json took 109.60ms
+storage.ts:695 [STORAGE] Slow FileSystem read: scripts_6a3e9f65-3116-4acc-a7cb-6b0a19f71bc4.json took 105.60ms
+ScriptManager.tsx:137 [ScriptManager] ========== useEffect: currentScript changed ==========
+ScriptManager.tsx:138 [ScriptManager] currentScript exists: true
+ScriptManager.tsx:139 [ScriptManager] parseState exists: true
+ScriptManager.tsx:140 [ScriptManager] qualityReport exists: true
+ScriptManager.tsx:144 [ScriptManager] Restoring quality report: {score: 83, violationsCount: 22, suggestionsCount: 5, type: 'object'}
+ScriptManager.tsx:151 [ScriptManager] ========== Quality Report Restored ==========
+storage.ts:695 [STORAGE] Slow FileSystem read: assets_6a3e9f65-3116-4acc-a7cb-6b0a19f71bc4.json took 196.10ms
+storage.ts:695 [STORAGE] Slow FileSystem read: assets_6a3e9f65-3116-4acc-a7cb-6b0a19f71bc4.json took 191.20ms
+storage.ts:695 [STORAGE] Slow FileSystem read: scripts_6a3e9f65-3116-4acc-a7cb-6b0a19f71bc4.json took 192.10ms
+ScriptManager.tsx:137 [ScriptManager] ========== useEffect: currentScript changed ==========
+ScriptManager.tsx:138 [ScriptManager] currentScript exists: true
+ScriptManager.tsx:139 [ScriptManager] parseState exists: true
+ScriptManager.tsx:140 [ScriptManager] qualityReport exists: true
+ScriptManager.tsx:144 [ScriptManager] Restoring quality report: {score: 83, violationsCount: 22, suggestionsCount: 5, type: 'object'}
+ScriptManager.tsx:151 [ScriptManager] ========== Quality Report Restored ==========
+scriptParser.ts:988 [ScriptParser] Initialized with config: {useSemanticChunking: true, useDramaRules: true, dramaRulesMinScore: 60, useCache: true, cacheTTL: 3600000, …}
+scriptParser.ts:1001 [ScriptParser] SemanticChunker initialized
+scriptParser.ts:1005 [ScriptParser] ShortDramaRules initialized
+scriptParser.ts:1009 [ScriptParser] MultiLevelCache initialized
+scriptParser.ts:1016 [ScriptParser] QualityAnalyzer initialized
+scriptParser.ts:1020 [ScriptParser] PerformanceMonitor initialized
+scriptParser.ts:1091 [ScriptParser] ContextInjector initialized
+scriptParser.ts:1094 [ScriptParser] Global context support initialized
+scriptParser.ts:1065 [ScriptParser] IterativeRefinementEngine initialized
+scriptParser.ts:1048 [ScriptParser] Budget calculation functions ready
+ScriptManager.tsx:413 [ScriptManager] 完整解析模式，ScriptParser配置: {useSemanticChunking: true, useDramaRules: true, dramaRulesMinScore: 60, useCache: true, cacheTTL: 3600000, …}
+scriptParser.ts:3256 [ScriptParser] ========== Starting Parse Script ==========
+scriptParser.ts:3262 [ScriptParser] Strategy selected: chunked
+scriptParser.ts:3263 [ScriptParser] Reason: 长文本分块路径 (5723 > 5000 字)
+scriptParser.ts:3264 [ScriptParser] Word count: 5723
+scriptParser.ts:3265 [ScriptParser] Estimated time: 360s
+scriptParser.ts:3266 [ScriptParser] Recommended batch size: 3
+scriptParser.ts:3303 [ScriptParser] Using CHUNKED PATH (长文本分块路径 (5723 > 5000 字))
+scriptParser.ts:3020 [ScriptParser] ========== Chunked Text Parse Path ==========
+scriptParser.ts:3021 [ScriptParser] Content length: 7033 characters
+scriptParser.ts:3041 [ScriptParser] Text split into 2 chunks
+scriptParser.ts:1745 [ScriptParser] ========== Stage 1: Extract Metadata (Structured Output) ==========
+scriptParser.ts:1746 [ScriptParser] Content length: 7033 characters
+scriptParser.ts:1747 [ScriptParser] Skip global context: false
+scriptParser.ts:1750 [ScriptParser] Prompt length: 3750 characters
+scriptParser.ts:1751 [ScriptParser] Sending structured output request to LLM...
+scriptParser.ts:1548 [ScriptParser] callStructuredLLM called for metadata
+scriptParser.ts:1549 [ScriptParser] API URL: https://ark.cn-beijing.volces.com/api/v3
+scriptParser.ts:1550 [ScriptParser] Model: doubao-seed-1-6-flash-250828
+scriptParser.ts:1551 [ScriptParser] Max Tokens: 4000
+scriptParser.ts:1577 [ScriptParser] Calling LLMProvider.generateStructured...
+LLMProvider.ts:240 [LLMProvider] ========== Structured Output Request ==========
+LLMProvider.ts:241 [LLMProvider] Endpoint: https://ark.cn-beijing.volces.com/api/v3/chat/completions
+LLMProvider.ts:242 [LLMProvider] Model: doubao-seed-1-6-flash-250828
+LLMProvider.ts:243 [LLMProvider] JSON Mode: true
+LLMProvider.ts:245 [LLMProvider] Sending structured output request...
+BaseProvider.ts:63 [BaseProvider] Requesting: https://ark.cn-beijing.volces.com/api/v3/chat/completions, Mode: DEV, Localhost: true
+BaseProvider.ts:84 [BaseProvider] Using Proxy: /api/universal-proxy -> https://ark.cn-beijing.volces.com/api/v3/chat/completions
+BaseProvider.ts:99 [BaseProvider] Response received: 200 OK
+LLMProvider.ts:258 [LLMProvider] Structured request completed in 49945ms
+LLMProvider.ts:269 [LLMProvider] Response length: 324 characters
+LLMProvider.ts:296 [LLMProvider] Structured output validated successfully
+scriptParser.ts:1590 [ScriptParser] Structured output received successfully
+scriptParser.ts:1762 [ScriptParser] Metadata extracted successfully (Structured Output):
+scriptParser.ts:1763   - Title: 混沌灵根
+scriptParser.ts:1764   - Word Count: 2000
+scriptParser.ts:1765   - Characters: 3 (林清玄, 王虎, 云澜子)
+scriptParser.ts:1766   - Scenes: 12 (青云宗山门, 杂役院, 杂役院青石地, 后山, 黑风崖, 崖顶, 炼丹房, 炼器房, 林清玄住处, 凡尘, 玉佩内部, 青云山脉之巅)
+scriptParser.ts:1767   - Genre: 古装修仙
+scriptParser.ts:1768   - Tone: 爽剧
+scriptParser.ts:1700 [ScriptParser] ========== Extracting Global Context ==========
+scriptParser.ts:1681 [ScriptParser] GlobalContextExtractor initialized with maxTokens: 5000
+scriptParser.ts:1682 [ScriptParser] GlobalContextExtractor config: {extractEmotionalArc: true, textLengthThreshold: 800}
+scriptParser.ts:1685 [ScriptParser] GlobalContextExtractor initialized with model config
+GlobalContextExtractor.ts:179 [GlobalContextExtractor] Starting optimized extraction (single LLM call)...
+LLMProvider.ts:81 [LLMProvider] ========== API Request ==========
+LLMProvider.ts:82 [LLMProvider] Endpoint: https://ark.cn-beijing.volces.com/api/v3/chat/completions
+LLMProvider.ts:83 [LLMProvider] Model: doubao-seed-1-6-flash-250828
+LLMProvider.ts:84 [LLMProvider] enable_thinking: false
+LLMProvider.ts:85 [LLMProvider] Temperature: 0.3
+LLMProvider.ts:86 [LLMProvider] Max Tokens: 5000
+LLMProvider.ts:87 [LLMProvider] Messages count: 2
+LLMProvider.ts:88 [LLMProvider] First message length: 48 characters
+LLMProvider.ts:89 [LLMProvider] Request body: {
+  "model": "doubao-seed-1-6-flash-250828",
+  "messages": [
+    {
+      "role": "system",
+      "content": "你是一个专业的剧本分析助手，擅长从小说/剧本中提取结构化信息。请严格按照要求的JSON格式输出。"
+    },
+    {
+      "role": "user",
+      "content": "\n请深入分析以下剧本/小说，一次性提取故事核心、视觉风格和时代背景信息。\n\n【剧本内容】\n## 第一章 杂役苦\n青云宗，东域三大修仙宗门之一，立宗三千年，山门矗立于青云山脉之巅，云雾缭绕，灵气流淌，仙鹤盘旋，琼楼玉宇隐于云海之间，是无数凡人与低阶修士梦寐以求的修仙圣地。\n\n可这圣地的荣光，从来照不进山脚下的杂役院。\n\n杂役院位于青云宗最外围，没有灵脉滋养，没有丹药供给，连空气中的灵气都稀薄得可怜。这里住着的，都是灵根低劣、无缘正式入宗的少年人，每日做着劈柴、挑水、炼丹房采药、炼器房烧火的粗活，若三年内无法踏入炼气一层，便会被逐出宗门，重回凡尘，终老一生...
+LLMProvider.ts:91 [LLMProvider] Sending request...
+BaseProvider.ts:63 [BaseProvider] Requesting: https://ark.cn-beijing.volces.com/api/v3/chat/completions, Mode: DEV, Localhost: true
+BaseProvider.ts:84 [BaseProvider] Using Proxy: /api/universal-proxy -> https://ark.cn-beijing.volces.com/api/v3/chat/completions
+提取 已完成加载:POST "<URL>"。
+提取 已完成加载:POST "<URL>"。
+提取 已完成加载:POST "<URL>"。
+提取 已完成加载:POST "<URL>"。
+提取 已完成加载:POST "<URL>"。
+提取 已完成加载:POST "<URL>"。
+提取 已完成加载:POST "<URL>"。
+提取 已完成加载:POST "<URL>"。
+提取 已完成加载:POST "<URL>"。
+提取 已完成加载:POST "<URL>"。
+提取 已完成加载:POST "<URL>"。
+提取 已完成加载:POST "<URL>"。
+提取 已完成加载:POST "<URL>"。
+提取 已完成加载:POST "<URL>"。
+提取 已完成加载:POST "<URL>"。
+BaseProvider.ts:99 [BaseProvider] Response received: 200 OK
+LLMProvider.ts:104 [LLMProvider] Request completed in 17881ms
+LLMProvider.ts:118 [LLMProvider] ========== API Response ==========
+LLMProvider.ts:119 [LLMProvider] Response length: 1176 characters
+LLMProvider.ts:120 [LLMProvider] Prompt tokens: 4782
+LLMProvider.ts:121 [LLMProvider] Completion tokens: 1920
+LLMProvider.ts:122 [LLMProvider] Total tokens: 6702
+LLMProvider.ts:123 [LLMProvider] Response preview: {
+  "story": {
+    "synopsis": "青云宗杂役林清玄，伪灵根遭欺凌三年，意外觉醒墨玉佩中的残魂云澜子，得知实为混沌四灵根，获《混沌归元诀》后突破炼气三层。外门考核中，测灵石...
+GlobalContextExtractor.ts:187 [GlobalContextExtractor] Unified extraction completed in 17886ms
+GlobalContextExtractor.ts:195 [GlobalContextExtractor] Extracting emotional arc (content length: 7033 >= threshold: 800)
+LLMProvider.ts:81 [LLMProvider] ========== API Request ==========
+LLMProvider.ts:82 [LLMProvider] Endpoint: https://ark.cn-beijing.volces.com/api/v3/chat/completions
+LLMProvider.ts:83 [LLMProvider] Model: doubao-seed-1-6-flash-250828
+LLMProvider.ts:84 [LLMProvider] enable_thinking: false
+LLMProvider.ts:85 [LLMProvider] Temperature: 0.3
+LLMProvider.ts:86 [LLMProvider] Max Tokens: 5000
+LLMProvider.ts:87 [LLMProvider] Messages count: 2
+LLMProvider.ts:88 [LLMProvider] First message length: 51 characters
+LLMProvider.ts:89 [LLMProvider] Request body: {
+  "model": "doubao-seed-1-6-flash-250828",
+  "messages": [
+    {
+      "role": "system",
+      "content": "你是一个专业的情绪分析助手，擅长从剧本中提取情绪曲线和情感变化信息。请严格按照要求的JSON格式输出。"
+    },
+    {
+      "role": "user",
+      "content": "\n基于以下故事信息，分析情绪曲线：\n\n【故事梗概】\n青云宗杂役林清玄，伪灵根遭欺凌三年，意外觉醒墨玉佩中的残魂云澜子，得知实为混沌四灵根，获《混沌归元诀》后突破炼气三层。外门考核中，测灵石碑墨光冲天，暴露其混沌灵根与炼气三层巅峰修为，被破格提拔为内门弟子，开启逆袭仙途。\n\n【故事结构】\n第一幕：杂役院困境与欺凌，意外获墨玉佩残魂\n第二幕上：觉醒混沌灵根，获功法突破炼气三层\n第二幕下：考核前的冲突与准备\n第三幕：考核一鸣惊人，破格入内门\n中点：获功法突破炼气三层，实力质变\n高潮：考核中测灵石碑墨光冲天，暴露混沌灵根与炼气三层巅峰\n\n【剧本...
+LLMProvider.ts:91 [LLMProvider] Sending request...
+BaseProvider.ts:63 [BaseProvider] Requesting: https://ark.cn-beijing.volces.com/api/v3/chat/completions, Mode: DEV, Localhost: true
+BaseProvider.ts:84 [BaseProvider] Using Proxy: /api/universal-proxy -> https://ark.cn-beijing.volces.com/api/v3/chat/completions
+BaseProvider.ts:99 [BaseProvider] Response received: 200 OK
+LLMProvider.ts:104 [LLMProvider] Request completed in 23201ms
+LLMProvider.ts:118 [LLMProvider] ========== API Response ==========
+LLMProvider.ts:119 [LLMProvider] Response length: 889 characters
+LLMProvider.ts:120 [LLMProvider] Prompt tokens: 3988
+LLMProvider.ts:121 [LLMProvider] Completion tokens: 2735
+LLMProvider.ts:122 [LLMProvider] Total tokens: 6723
+LLMProvider.ts:123 [LLMProvider] Response preview: {
+  "overallMood": "励志向上",
+  "arc": [
+    {
+      "plotPoint": "杂役欺凌与绝望",
+      "emotion": "压抑、屈辱、绝望...
+scriptParser.ts:1713 [ScriptParser] Global context extracted successfully:
+scriptParser.ts:1714   - Story synopsis: 青云宗杂役林清玄，伪灵根遭欺凌三年，意外觉醒墨玉佩中的残魂云澜子，得知实为混沌四灵根，获《混沌归元诀...
+scriptParser.ts:1715   - Visual style: 水墨仙侠，写实与奇幻结合
+scriptParser.ts:1716   - Era: 架空修仙时代
+scriptParser.ts:1717   - Emotional arc points: 6
+scriptParser.ts:1718   - Consistency rules: 0 era constraints
+scriptParser.ts:1777 [ScriptParser] Global context merged into metadata
+scriptParser.ts:3049 [ScriptParser] Metadata extracted from full content: 3 characters, 12 scenes
+scriptParser.ts:3050 [ScriptParser] Character names from metadata: 林清玄, 王虎, 云澜子
+scriptParser.ts:3051 [ScriptParser] Scene names from metadata: 青云宗山门, 杂役院, 杂役院青石地, 后山, 黑风崖, 崖顶, 炼丹房, 炼器房, 林清玄住处, 凡尘, 玉佩内部, 青云山脉之巅
+scriptParser.ts:3066 [ScriptParser] Processing chunk 1/2 (5976 chars)...
+scriptParser.ts:1858 [ScriptParser] Discovering characters in chunk (5976 chars)...
+scriptParser.ts:1430 [ScriptParser] callLLM called for metadata, retryCount: 0
+scriptParser.ts:1431 [ScriptParser] API URL: https://ark.cn-beijing.volces.com/api/v3
+scriptParser.ts:1432 [ScriptParser] Model: doubao-seed-1-6-flash-250828
+scriptParser.ts:1433 [ScriptParser] Max Tokens: 4000
+scriptParser.ts:1905 [ScriptParser] Discovering scenes in chunk (5976 chars)...
+scriptParser.ts:1430 [ScriptParser] callLLM called for metadata, retryCount: 0
+scriptParser.ts:1431 [ScriptParser] API URL: https://ark.cn-beijing.volces.com/api/v3
+scriptParser.ts:1432 [ScriptParser] Model: doubao-seed-1-6-flash-250828
+scriptParser.ts:1433 [ScriptParser] Max Tokens: 4000
+scriptParser.ts:3145 [ScriptParser] Executing 2 extraction tasks in parallel for chunk 1...
+scriptParser.ts:1462 [ScriptParser] Calling LLMProvider.generateText...
+LLMProvider.ts:81 [LLMProvider] ========== API Request ==========
+LLMProvider.ts:82 [LLMProvider] Endpoint: https://ark.cn-beijing.volces.com/api/v3/chat/completions
+LLMProvider.ts:83 [LLMProvider] Model: doubao-seed-1-6-flash-250828
+LLMProvider.ts:84 [LLMProvider] enable_thinking: false
+LLMProvider.ts:85 [LLMProvider] Temperature: 0.3
+LLMProvider.ts:86 [LLMProvider] Max Tokens: 4000
+LLMProvider.ts:87 [LLMProvider] Messages count: 2
+LLMProvider.ts:88 [LLMProvider] First message length: 48 characters
+LLMProvider.ts:89 [LLMProvider] Request body: {
+  "model": "doubao-seed-1-6-flash-250828",
+  "messages": [
+    {
+      "role": "system",
+      "content": "你是一个专业的剧本分析助手，擅长从小说/剧本中提取结构化信息。请严格按照要求的JSON格式输出。"
+    },
+    {
+      "role": "user",
+      "content": "\n请分析以下文本片段，提取其中出现的所有角色/人物名称。\n\n【文本片段】\n## 第一章 杂役苦\n青云宗，东域三大修仙宗门之一，立宗三千年，山门矗立于青云山脉之巅，云雾缭绕，灵气流淌，仙鹤盘旋，琼楼玉宇隐于云海之间，是无数凡人与低阶修士梦寐以求的修仙圣地。\n\n可这圣地的荣光，从来照不进山脚下的杂役院。\n\n杂役院位于青云宗最外围，没有灵脉滋养，没有丹药供给，连空气中的灵气都稀薄得可怜。这里住着的，都是灵根低劣、无缘正式入宗的少年人，每日做着劈柴、挑水、炼丹房采药、炼器房烧火的粗活，若三年内无法踏入炼气一层，便会被逐出宗门，重回凡尘，终老一生。\n\n林清玄...
+LLMProvider.ts:91 [LLMProvider] Sending request...
+BaseProvider.ts:63 [BaseProvider] Requesting: https://ark.cn-beijing.volces.com/api/v3/chat/completions, Mode: DEV, Localhost: true
+BaseProvider.ts:84 [BaseProvider] Using Proxy: /api/universal-proxy -> https://ark.cn-beijing.volces.com/api/v3/chat/completions
+scriptParser.ts:1462 [ScriptParser] Calling LLMProvider.generateText...
+LLMProvider.ts:81 [LLMProvider] ========== API Request ==========
+LLMProvider.ts:82 [LLMProvider] Endpoint: https://ark.cn-beijing.volces.com/api/v3/chat/completions
+LLMProvider.ts:83 [LLMProvider] Model: doubao-seed-1-6-flash-250828
+LLMProvider.ts:84 [LLMProvider] enable_thinking: false
+LLMProvider.ts:85 [LLMProvider] Temperature: 0.3
+LLMProvider.ts:86 [LLMProvider] Max Tokens: 4000
+LLMProvider.ts:87 [LLMProvider] Messages count: 2
+LLMProvider.ts:88 [LLMProvider] First message length: 48 characters
+LLMProvider.ts:89 [LLMProvider] Request body: {
+  "model": "doubao-seed-1-6-flash-250828",
+  "messages": [
+    {
+      "role": "system",
+      "content": "你是一个专业的剧本分析助手，擅长从小说/剧本中提取结构化信息。请严格按照要求的JSON格式输出。"
+    },
+    {
+      "role": "user",
+      "content": "\n请分析以下文本片段，提取其中出现的所有场景/地点名称。\n\n【文本片段】\n## 第一章 杂役苦\n青云宗，东域三大修仙宗门之一，立宗三千年，山门矗立于青云山脉之巅，云雾缭绕，灵气流淌，仙鹤盘旋，琼楼玉宇隐于云海之间，是无数凡人与低阶修士梦寐以求的修仙圣地。\n\n可这圣地的荣光，从来照不进山脚下的杂役院。\n\n杂役院位于青云宗最外围，没有灵脉滋养，没有丹药供给，连空气中的灵气都稀薄得可怜。这里住着的，都是灵根低劣、无缘正式入宗的少年人，每日做着劈柴、挑水、炼丹房采药、炼器房烧火的粗活，若三年内无法踏入炼气一层，便会被逐出宗门，重回凡尘，终老一生。\n\n林清玄...
+LLMProvider.ts:91 [LLMProvider] Sending request...
+BaseProvider.ts:63 [BaseProvider] Requesting: https://ark.cn-beijing.volces.com/api/v3/chat/completions, Mode: DEV, Localhost: true
+BaseProvider.ts:84 [BaseProvider] Using Proxy: /api/universal-proxy -> https://ark.cn-beijing.volces.com/api/v3/chat/completions
+BaseProvider.ts:99 [BaseProvider] Response received: 200 OK
+LLMProvider.ts:104 [LLMProvider] Request completed in 3372ms
+LLMProvider.ts:118 [LLMProvider] ========== API Response ==========
+LLMProvider.ts:119 [LLMProvider] Response length: 44 characters
+LLMProvider.ts:120 [LLMProvider] Prompt tokens: 3059
+LLMProvider.ts:121 [LLMProvider] Completion tokens: 302
+LLMProvider.ts:122 [LLMProvider] Total tokens: 3361
+LLMProvider.ts:123 [LLMProvider] Response preview: {
+  "characterNames": ["林清玄", "王虎", "云澜子"]
+}...
+scriptParser.ts:1486 [ScriptParser] LLM response received, length: 44
+scriptParser.ts:1888 [ScriptParser] Discovered 3 characters: 林清玄, 王虎, 云澜子
+scriptParser.ts:3076 [ScriptParser] Chunk 1: Discovered 3 characters: 林清玄, 王虎, 云澜子
+scriptParser.ts:3087 [ScriptParser] Chunk 1: Extracting 3 new characters: 林清玄, 王虎, 云澜子
+scriptParser.ts:2254 [ScriptParser] ---------- Batch Extracting 3 Characters with Context ----------
+scriptParser.ts:2270 [ScriptParser] Injecting global context into character extraction
+scriptParser.ts:2274 [ScriptParser] Context-enhanced prompt length: 5527 characters
+scriptParser.ts:1430 [ScriptParser] callLLM called for character, retryCount: 0
+scriptParser.ts:1431 [ScriptParser] API URL: https://ark.cn-beijing.volces.com/api/v3
+scriptParser.ts:1432 [ScriptParser] Model: doubao-seed-1-6-flash-250828
+scriptParser.ts:1433 [ScriptParser] Max Tokens: 6000
+scriptParser.ts:1462 [ScriptParser] Calling LLMProvider.generateText...
+LLMProvider.ts:81 [LLMProvider] ========== API Request ==========
+LLMProvider.ts:82 [LLMProvider] Endpoint: https://ark.cn-beijing.volces.com/api/v3/chat/completions
+LLMProvider.ts:83 [LLMProvider] Model: doubao-seed-1-6-flash-250828
+LLMProvider.ts:84 [LLMProvider] enable_thinking: false
+LLMProvider.ts:85 [LLMProvider] Temperature: 0.3
+LLMProvider.ts:86 [LLMProvider] Max Tokens: 6000
+LLMProvider.ts:87 [LLMProvider] Messages count: 2
+LLMProvider.ts:88 [LLMProvider] First message length: 48 characters
+LLMProvider.ts:89 [LLMProvider] Request body: {
+  "model": "doubao-seed-1-6-flash-250828",
+  "messages": [
+    {
+      "role": "system",
+      "content": "你是一个专业的剧本分析助手，擅长从小说/剧本中提取结构化信息。请严格按照要求的JSON格式输出。"
+    },
+    {
+      "role": "user",
+      "content": "【故事背景】\n- 一句话简介：伪灵根少年觉醒混沌灵根，凭奇遇功法逆袭青云宗。\n- 故事梗概：青云宗杂役林清玄，伪灵根遭欺凌三年，意外觉醒墨玉佩中的残魂云澜子，得知实为混沌四灵根，获《混沌归元诀》后突破炼气三层。外门考核中，测灵石碑墨光冲天，暴露其混沌灵根与炼气三层巅峰修为，被破格提拔为内门弟子，开启逆袭仙途。\n- 核心冲突：伪灵根身份与真实天赋的矛盾，底层修士的生存压力与命运抗争。\n- 主题思想：命运抗争、天赋觉醒、逆袭成长\n\n\n【视觉风格】\n- 美术指导：仙侠国风，云雾缭绕的修仙宗门与压抑杂役院对比鲜明\n- 艺术风格：水墨仙侠，写实与奇幻结合\n- ...
+LLMProvider.ts:91 [LLMProvider] Sending request...
+BaseProvider.ts:63 [BaseProvider] Requesting: https://ark.cn-beijing.volces.com/api/v3/chat/completions, Mode: DEV, Localhost: true
+BaseProvider.ts:84 [BaseProvider] Using Proxy: /api/universal-proxy -> https://ark.cn-beijing.volces.com/api/v3/chat/completions
+BaseProvider.ts:99 [BaseProvider] Response received: 200 OK
+LLMProvider.ts:104 [LLMProvider] Request completed in 6128ms
+LLMProvider.ts:118 [LLMProvider] ========== API Response ==========
+LLMProvider.ts:119 [LLMProvider] Response length: 67 characters
+LLMProvider.ts:120 [LLMProvider] Prompt tokens: 3085
+LLMProvider.ts:121 [LLMProvider] Completion tokens: 562
+LLMProvider.ts:122 [LLMProvider] Total tokens: 3647
+LLMProvider.ts:123 [LLMProvider] Response preview: {
+  "sceneNames": ["青云宗", "杂役院", "炼丹房", "炼器房", "后山", "黑风崖", "崖顶"]
+}...
+scriptParser.ts:1486 [ScriptParser] LLM response received, length: 67
+scriptParser.ts:1936 [ScriptParser] Discovered 7 scenes: 青云宗, 杂役院, 炼丹房, 炼器房, 后山, 黑风崖, 崖顶
+scriptParser.ts:3112 [ScriptParser] Chunk 1: Discovered 7 scenes: 青云宗, 杂役院, 炼丹房, 炼器房, 后山, 黑风崖, 崖顶
+scriptParser.ts:3123 [ScriptParser] Chunk 1: Extracting 7 new scenes: 青云宗, 杂役院, 炼丹房, 炼器房, 后山, 黑风崖, 崖顶
+scriptParser.ts:2407 [ScriptParser] ---------- Smart Batching 7 Scenes (2 batches) ----------
+scriptParser.ts:2412 [ScriptParser] Processing batch 1/2: 5 scenes
+scriptParser.ts:2453 [ScriptParser] Injecting global context into scene extraction
+scriptParser.ts:2457 [ScriptParser] Context-enhanced prompt length: 5846 characters
+scriptParser.ts:1430 [ScriptParser] callLLM called for scene, retryCount: 0
+scriptParser.ts:1431 [ScriptParser] API URL: https://ark.cn-beijing.volces.com/api/v3
+scriptParser.ts:1432 [ScriptParser] Model: doubao-seed-1-6-flash-250828
+scriptParser.ts:1433 [ScriptParser] Max Tokens: 6000
+scriptParser.ts:1462 [ScriptParser] Calling LLMProvider.generateText...
+LLMProvider.ts:81 [LLMProvider] ========== API Request ==========
+LLMProvider.ts:82 [LLMProvider] Endpoint: https://ark.cn-beijing.volces.com/api/v3/chat/completions
+LLMProvider.ts:83 [LLMProvider] Model: doubao-seed-1-6-flash-250828
+LLMProvider.ts:84 [LLMProvider] enable_thinking: false
+LLMProvider.ts:85 [LLMProvider] Temperature: 0.3
+LLMProvider.ts:86 [LLMProvider] Max Tokens: 6000
+LLMProvider.ts:87 [LLMProvider] Messages count: 2
+LLMProvider.ts:88 [LLMProvider] First message length: 48 characters
+LLMProvider.ts:89 [LLMProvider] Request body: {
+  "model": "doubao-seed-1-6-flash-250828",
+  "messages": [
+    {
+      "role": "system",
+      "content": "你是一个专业的剧本分析助手，擅长从小说/剧本中提取结构化信息。请严格按照要求的JSON格式输出。"
+    },
+    {
+      "role": "user",
+      "content": "【故事背景】\n- 一句话简介：伪灵根少年觉醒混沌灵根，凭奇遇功法逆袭青云宗。\n- 故事梗概：青云宗杂役林清玄，伪灵根遭欺凌三年，意外觉醒墨玉佩中的残魂云澜子，得知实为混沌四灵根，获《混沌归元诀》后突破炼气三层。外门考核中，测灵石碑墨光冲天，暴露其混沌灵根与炼气三层巅峰修为，被破格提拔为内门弟子，开启逆袭仙途。\n- 核心冲突：伪灵根身份与真实天赋的矛盾，底层修士的生存压力与命运抗争。\n- 主题思想：命运抗争、天赋觉醒、逆袭成长\n\n\n【视觉风格】\n- 美术指导：仙侠国风，云雾缭绕的修仙宗门与压抑杂役院对比鲜明\n- 艺术风格：水墨仙侠，写实与奇幻结合\n- ...
+LLMProvider.ts:91 [LLMProvider] Sending request...
+BaseProvider.ts:63 [BaseProvider] Requesting: https://ark.cn-beijing.volces.com/api/v3/chat/completions, Mode: DEV, Localhost: true
+BaseProvider.ts:84 [BaseProvider] Using Proxy: /api/universal-proxy -> https://ark.cn-beijing.volces.com/api/v3/chat/completions
+BaseProvider.ts:99 [BaseProvider] Response received: 200 OK
+LLMProvider.ts:104 [LLMProvider] Request completed in 29934ms
+LLMProvider.ts:118 [LLMProvider] ========== API Response ==========
+LLMProvider.ts:119 [LLMProvider] Response length: 1701 characters
+LLMProvider.ts:120 [LLMProvider] Prompt tokens: 3783
+LLMProvider.ts:121 [LLMProvider] Completion tokens: 3664
+LLMProvider.ts:122 [LLMProvider] Total tokens: 7447
+LLMProvider.ts:123 [LLMProvider] Response preview: [
+  {
+    "name": "林清玄",
+    "gender": "male",
+    "age": 15,
+    "identity": "青云宗杂役院弟子（伪灵根，后觉醒混沌灵根）...
+scriptParser.ts:1486 [ScriptParser] LLM response received, length: 1701
+scriptParser.ts:2277 [ScriptParser] Batch response received, length: 1701 characters
+scriptParser.ts:2280 [ScriptParser] Parsed 3 characters from batch response
+scriptParser.ts:3098 [ScriptParser] Added character: 林清玄
+scriptParser.ts:3098 [ScriptParser] Added character: 王虎
+scriptParser.ts:3098 [ScriptParser] Added character: 云澜子
+BaseProvider.ts:99 [BaseProvider] Response received: 200 OK
+LLMProvider.ts:104 [LLMProvider] Request completed in 31211ms
+LLMProvider.ts:118 [LLMProvider] ========== API Response ==========
+LLMProvider.ts:119 [LLMProvider] Response length: 2344 characters
+LLMProvider.ts:120 [LLMProvider] Prompt tokens: 4013
+LLMProvider.ts:121 [LLMProvider] Completion tokens: 3773
+LLMProvider.ts:122 [LLMProvider] Total tokens: 7786
+LLMProvider.ts:123 [LLMProvider] Response preview: [
+  {
+    "name": "青云宗",
+    "locationType": "outdoor",
+    "description": "东域三大修仙宗门之一，立宗三千年，山门矗立于青云...
+scriptParser.ts:1486 [ScriptParser] LLM response received, length: 2344
+scriptParser.ts:2460 [ScriptParser] Batch response received, length: 2344 characters
+scriptParser.ts:2463 [ScriptParser] Parsed 5 scenes from batch response
+scriptParser.ts:2412 [ScriptParser] Processing batch 2/2: 2 scenes
+scriptParser.ts:2453 [ScriptParser] Injecting global context into scene extraction
+scriptParser.ts:2457 [ScriptParser] Context-enhanced prompt length: 5834 characters
+scriptParser.ts:1430 [ScriptParser] callLLM called for scene, retryCount: 0
+scriptParser.ts:1431 [ScriptParser] API URL: https://ark.cn-beijing.volces.com/api/v3
+scriptParser.ts:1432 [ScriptParser] Model: doubao-seed-1-6-flash-250828
+scriptParser.ts:1433 [ScriptParser] Max Tokens: 6000
+scriptParser.ts:1462 [ScriptParser] Calling LLMProvider.generateText...
+LLMProvider.ts:81 [LLMProvider] ========== API Request ==========
+LLMProvider.ts:82 [LLMProvider] Endpoint: https://ark.cn-beijing.volces.com/api/v3/chat/completions
+LLMProvider.ts:83 [LLMProvider] Model: doubao-seed-1-6-flash-250828
+LLMProvider.ts:84 [LLMProvider] enable_thinking: false
+LLMProvider.ts:85 [LLMProvider] Temperature: 0.3
+LLMProvider.ts:86 [LLMProvider] Max Tokens: 6000
+LLMProvider.ts:87 [LLMProvider] Messages count: 2
+LLMProvider.ts:88 [LLMProvider] First message length: 48 characters
+LLMProvider.ts:89 [LLMProvider] Request body: {
+  "model": "doubao-seed-1-6-flash-250828",
+  "messages": [
+    {
+      "role": "system",
+      "content": "你是一个专业的剧本分析助手，擅长从小说/剧本中提取结构化信息。请严格按照要求的JSON格式输出。"
+    },
+    {
+      "role": "user",
+      "content": "【故事背景】\n- 一句话简介：伪灵根少年觉醒混沌灵根，凭奇遇功法逆袭青云宗。\n- 故事梗概：青云宗杂役林清玄，伪灵根遭欺凌三年，意外觉醒墨玉佩中的残魂云澜子，得知实为混沌四灵根，获《混沌归元诀》后突破炼气三层。外门考核中，测灵石碑墨光冲天，暴露其混沌灵根与炼气三层巅峰修为，被破格提拔为内门弟子，开启逆袭仙途。\n- 核心冲突：伪灵根身份与真实天赋的矛盾，底层修士的生存压力与命运抗争。\n- 主题思想：命运抗争、天赋觉醒、逆袭成长\n\n\n【视觉风格】\n- 美术指导：仙侠国风，云雾缭绕的修仙宗门与压抑杂役院对比鲜明\n- 艺术风格：水墨仙侠，写实与奇幻结合\n- ...
+LLMProvider.ts:91 [LLMProvider] Sending request...
+BaseProvider.ts:63 [BaseProvider] Requesting: https://ark.cn-beijing.volces.com/api/v3/chat/completions, Mode: DEV, Localhost: true
+BaseProvider.ts:84 [BaseProvider] Using Proxy: /api/universal-proxy -> https://ark.cn-beijing.volces.com/api/v3/chat/completions
+BaseProvider.ts:99 [BaseProvider] Response received: 200 OK
+LLMProvider.ts:104 [LLMProvider] Request completed in 20037ms
+LLMProvider.ts:118 [LLMProvider] ========== API Response ==========
+LLMProvider.ts:119 [LLMProvider] Response length: 1015 characters
+LLMProvider.ts:120 [LLMProvider] Prompt tokens: 4005
+LLMProvider.ts:121 [LLMProvider] Completion tokens: 1768
+LLMProvider.ts:122 [LLMProvider] Total tokens: 5773
+LLMProvider.ts:123 [LLMProvider] Response preview: [
+  {
+    "name": "黑风崖",
+    "locationType": "outdoor",
+    "description": "青云宗外围险地，崖壁陡峭如刀削，石缝中生长着开淡...
+scriptParser.ts:1486 [ScriptParser] LLM response received, length: 1015
+scriptParser.ts:2460 [ScriptParser] Batch response received, length: 1015 characters
+scriptParser.ts:2463 [ScriptParser] Parsed 2 scenes from batch response
+scriptParser.ts:2432 [ScriptParser] Smart batching complete: 7 scenes extracted
+scriptParser.ts:3134 [ScriptParser] Added scene: 青云宗
+scriptParser.ts:3134 [ScriptParser] Added scene: 杂役院
+scriptParser.ts:3134 [ScriptParser] Added scene: 炼丹房
+scriptParser.ts:3134 [ScriptParser] Added scene: 炼器房
+scriptParser.ts:3134 [ScriptParser] Added scene: 后山
+scriptParser.ts:3134 [ScriptParser] Added scene: 黑风崖
+scriptParser.ts:3134 [ScriptParser] Added scene: 崖顶
+scriptParser.ts:3149 [ScriptParser] Chunk 1 complete. Total so far: 3 characters, 7 scenes
+scriptParser.ts:3066 [ScriptParser] Processing chunk 2/2 (1055 chars)...
+scriptParser.ts:1858 [ScriptParser] Discovering characters in chunk (1055 chars)...
+scriptParser.ts:1430 [ScriptParser] callLLM called for metadata, retryCount: 0
+scriptParser.ts:1431 [ScriptParser] API URL: https://ark.cn-beijing.volces.com/api/v3
+scriptParser.ts:1432 [ScriptParser] Model: doubao-seed-1-6-flash-250828
+scriptParser.ts:1433 [ScriptParser] Max Tokens: 4000
+scriptParser.ts:1905 [ScriptParser] Discovering scenes in chunk (1055 chars)...
+scriptParser.ts:1430 [ScriptParser] callLLM called for metadata, retryCount: 0
+scriptParser.ts:1431 [ScriptParser] API URL: https://ark.cn-beijing.volces.com/api/v3
+scriptParser.ts:1432 [ScriptParser] Model: doubao-seed-1-6-flash-250828
+scriptParser.ts:1433 [ScriptParser] Max Tokens: 4000
+scriptParser.ts:3145 [ScriptParser] Executing 2 extraction tasks in parallel for chunk 2...
+scriptParser.ts:1462 [ScriptParser] Calling LLMProvider.generateText...
+LLMProvider.ts:81 [LLMProvider] ========== API Request ==========
+LLMProvider.ts:82 [LLMProvider] Endpoint: https://ark.cn-beijing.volces.com/api/v3/chat/completions
+LLMProvider.ts:83 [LLMProvider] Model: doubao-seed-1-6-flash-250828
+LLMProvider.ts:84 [LLMProvider] enable_thinking: false
+LLMProvider.ts:85 [LLMProvider] Temperature: 0.3
+LLMProvider.ts:86 [LLMProvider] Max Tokens: 4000
+LLMProvider.ts:87 [LLMProvider] Messages count: 2
+LLMProvider.ts:88 [LLMProvider] First message length: 48 characters
+LLMProvider.ts:89 [LLMProvider] Request body: {
+  "model": "doubao-seed-1-6-flash-250828",
+  "messages": [
+    {
+      "role": "system",
+      "content": "你是一个专业的剧本分析助手，擅长从小说/剧本中提取结构化信息。请严格按照要求的JSON格式输出。"
+    },
+    {
+      "role": "user",
+      "content": "\n请分析以下文本片段，提取其中出现的所有角色/人物名称。\n\n【文本片段】\n“张执事，好大的口气，一个杂役弟子，也想直接入内门？”\n\n众人抬头，只见一名身着青色内门服饰的少年，脚踏飞剑，落在广场之上，面容俊朗，却眼神高傲，周身灵气环绕，乃是炼气五层的修为。\n\n内门弟子，赵昊。\n\n赵昊是青云宗宗主的亲传弟子，单火灵根，天赋出众，向来眼高于顶，目中无人。他今日路过外门广场，看到测灵石碑的光芒，便过来查看，见到林清玄只是杂役弟子出身，心中顿时生出嫉妒。\n\n“赵师兄。”张执事脸色微变，拱手行礼。赵昊是宗主亲传，身份尊贵，他不敢得罪。\n\n“赵师兄。”周围...
+LLMProvider.ts:91 [LLMProvider] Sending request...
+BaseProvider.ts:63 [BaseProvider] Requesting: https://ark.cn-beijing.volces.com/api/v3/chat/completions, Mode: DEV, Localhost: true
+BaseProvider.ts:84 [BaseProvider] Using Proxy: /api/universal-proxy -> https://ark.cn-beijing.volces.com/api/v3/chat/completions
+scriptParser.ts:1462 [ScriptParser] Calling LLMProvider.generateText...
+LLMProvider.ts:81 [LLMProvider] ========== API Request ==========
+LLMProvider.ts:82 [LLMProvider] Endpoint: https://ark.cn-beijing.volces.com/api/v3/chat/completions
+LLMProvider.ts:83 [LLMProvider] Model: doubao-seed-1-6-flash-250828
+LLMProvider.ts:84 [LLMProvider] enable_thinking: false
+LLMProvider.ts:85 [LLMProvider] Temperature: 0.3
+LLMProvider.ts:86 [LLMProvider] Max Tokens: 4000
+LLMProvider.ts:87 [LLMProvider] Messages count: 2
+LLMProvider.ts:88 [LLMProvider] First message length: 48 characters
+LLMProvider.ts:89 [LLMProvider] Request body: {
+  "model": "doubao-seed-1-6-flash-250828",
+  "messages": [
+    {
+      "role": "system",
+      "content": "你是一个专业的剧本分析助手，擅长从小说/剧本中提取结构化信息。请严格按照要求的JSON格式输出。"
+    },
+    {
+      "role": "user",
+      "content": "\n请分析以下文本片段，提取其中出现的所有场景/地点名称。\n\n【文本片段】\n“张执事，好大的口气，一个杂役弟子，也想直接入内门？”\n\n众人抬头，只见一名身着青色内门服饰的少年，脚踏飞剑，落在广场之上，面容俊朗，却眼神高傲，周身灵气环绕，乃是炼气五层的修为。\n\n内门弟子，赵昊。\n\n赵昊是青云宗宗主的亲传弟子，单火灵根，天赋出众，向来眼高于顶，目中无人。他今日路过外门广场，看到测灵石碑的光芒，便过来查看，见到林清玄只是杂役弟子出身，心中顿时生出嫉妒。\n\n“赵师兄。”张执事脸色微变，拱手行礼。赵昊是宗主亲传，身份尊贵，他不敢得罪。\n\n“赵师兄。”周围...
+LLMProvider.ts:91 [LLMProvider] Sending request...
+BaseProvider.ts:63 [BaseProvider] Requesting: https://ark.cn-beijing.volces.com/api/v3/chat/completions, Mode: DEV, Localhost: true
+BaseProvider.ts:84 [BaseProvider] Using Proxy: /api/universal-proxy -> https://ark.cn-beijing.volces.com/api/v3/chat/completions
+BaseProvider.ts:99 [BaseProvider] Response received: 200 OK
+LLMProvider.ts:104 [LLMProvider] Request completed in 3208ms
+LLMProvider.ts:118 [LLMProvider] ========== API Response ==========
+LLMProvider.ts:119 [LLMProvider] Response length: 51 characters
+LLMProvider.ts:120 [LLMProvider] Prompt tokens: 968
+LLMProvider.ts:121 [LLMProvider] Completion tokens: 296
+LLMProvider.ts:122 [LLMProvider] Total tokens: 1264
+LLMProvider.ts:123 [LLMProvider] Response preview: {
+  "characterNames": ["张执事", "赵昊", "林清玄", "李长老"]
+}...
+scriptParser.ts:1486 [ScriptParser] LLM response received, length: 51
+scriptParser.ts:1888 [ScriptParser] Discovered 4 characters: 张执事, 赵昊, 林清玄, 李长老
+scriptParser.ts:3076 [ScriptParser] Chunk 2: Discovered 4 characters: 张执事, 赵昊, 林清玄, 李长老
+scriptParser.ts:3087 [ScriptParser] Chunk 2: Extracting 3 new characters: 张执事, 赵昊, 李长老
+scriptParser.ts:2254 [ScriptParser] ---------- Batch Extracting 3 Characters with Context ----------
+scriptParser.ts:2270 [ScriptParser] Injecting global context into character extraction
+scriptParser.ts:2274 [ScriptParser] Context-enhanced prompt length: 2582 characters
+scriptParser.ts:1430 [ScriptParser] callLLM called for character, retryCount: 0
+scriptParser.ts:1431 [ScriptParser] API URL: https://ark.cn-beijing.volces.com/api/v3
+scriptParser.ts:1432 [ScriptParser] Model: doubao-seed-1-6-flash-250828
+scriptParser.ts:1433 [ScriptParser] Max Tokens: 6000
+scriptParser.ts:1462 [ScriptParser] Calling LLMProvider.generateText...
+LLMProvider.ts:81 [LLMProvider] ========== API Request ==========
+LLMProvider.ts:82 [LLMProvider] Endpoint: https://ark.cn-beijing.volces.com/api/v3/chat/completions
+LLMProvider.ts:83 [LLMProvider] Model: doubao-seed-1-6-flash-250828
+LLMProvider.ts:84 [LLMProvider] enable_thinking: false
+LLMProvider.ts:85 [LLMProvider] Temperature: 0.3
+LLMProvider.ts:86 [LLMProvider] Max Tokens: 6000
+LLMProvider.ts:87 [LLMProvider] Messages count: 2
+LLMProvider.ts:88 [LLMProvider] First message length: 48 characters
+LLMProvider.ts:89 [LLMProvider] Request body: {
+  "model": "doubao-seed-1-6-flash-250828",
+  "messages": [
+    {
+      "role": "system",
+      "content": "你是一个专业的剧本分析助手，擅长从小说/剧本中提取结构化信息。请严格按照要求的JSON格式输出。"
+    },
+    {
+      "role": "user",
+      "content": "【故事背景】\n- 一句话简介：伪灵根少年觉醒混沌灵根，凭奇遇功法逆袭青云宗。\n- 故事梗概：青云宗杂役林清玄，伪灵根遭欺凌三年，意外觉醒墨玉佩中的残魂云澜子，得知实为混沌四灵根，获《混沌归元诀》后突破炼气三层。外门考核中，测灵石碑墨光冲天，暴露其混沌灵根与炼气三层巅峰修为，被破格提拔为内门弟子，开启逆袭仙途。\n- 核心冲突：伪灵根身份与真实天赋的矛盾，底层修士的生存压力与命运抗争。\n- 主题思想：命运抗争、天赋觉醒、逆袭成长\n\n\n【视觉风格】\n- 美术指导：仙侠国风，云雾缭绕的修仙宗门与压抑杂役院对比鲜明\n- 艺术风格：水墨仙侠，写实与奇幻结合\n- ...
+LLMProvider.ts:91 [LLMProvider] Sending request...
+BaseProvider.ts:63 [BaseProvider] Requesting: https://ark.cn-beijing.volces.com/api/v3/chat/completions, Mode: DEV, Localhost: true
+BaseProvider.ts:84 [BaseProvider] Using Proxy: /api/universal-proxy -> https://ark.cn-beijing.volces.com/api/v3/chat/completions
+BaseProvider.ts:99 [BaseProvider] Response received: 200 OK
+LLMProvider.ts:104 [LLMProvider] Request completed in 5490ms
+LLMProvider.ts:118 [LLMProvider] ========== API Response ==========
+LLMProvider.ts:119 [LLMProvider] Response length: 42 characters
+LLMProvider.ts:120 [LLMProvider] Prompt tokens: 994
+LLMProvider.ts:121 [LLMProvider] Completion tokens: 501
+LLMProvider.ts:122 [LLMProvider] Total tokens: 1495
+LLMProvider.ts:123 [LLMProvider] Response preview: {
+  "sceneNames": ["外门广场", "杂役院", "清玄殿"]
+}...
+scriptParser.ts:1486 [ScriptParser] LLM response received, length: 42
+scriptParser.ts:1936 [ScriptParser] Discovered 3 scenes: 外门广场, 杂役院, 清玄殿
+scriptParser.ts:3112 [ScriptParser] Chunk 2: Discovered 3 scenes: 外门广场, 杂役院, 清玄殿
+scriptParser.ts:3123 [ScriptParser] Chunk 2: Extracting 2 new scenes: 外门广场, 清玄殿
+scriptParser.ts:2437 [ScriptParser] ---------- Batch Extracting 2 Scenes with Context ----------
+scriptParser.ts:2453 [ScriptParser] Injecting global context into scene extraction
+scriptParser.ts:2457 [ScriptParser] Context-enhanced prompt length: 2891 characters
+scriptParser.ts:1430 [ScriptParser] callLLM called for scene, retryCount: 0
+scriptParser.ts:1431 [ScriptParser] API URL: https://ark.cn-beijing.volces.com/api/v3
+scriptParser.ts:1432 [ScriptParser] Model: doubao-seed-1-6-flash-250828
+scriptParser.ts:1433 [ScriptParser] Max Tokens: 6000
+scriptParser.ts:1462 [ScriptParser] Calling LLMProvider.generateText...
+LLMProvider.ts:81 [LLMProvider] ========== API Request ==========
+LLMProvider.ts:82 [LLMProvider] Endpoint: https://ark.cn-beijing.volces.com/api/v3/chat/completions
+LLMProvider.ts:83 [LLMProvider] Model: doubao-seed-1-6-flash-250828
+LLMProvider.ts:84 [LLMProvider] enable_thinking: false
+LLMProvider.ts:85 [LLMProvider] Temperature: 0.3
+LLMProvider.ts:86 [LLMProvider] Max Tokens: 6000
+LLMProvider.ts:87 [LLMProvider] Messages count: 2
+LLMProvider.ts:88 [LLMProvider] First message length: 48 characters
+LLMProvider.ts:89 [LLMProvider] Request body: {
+  "model": "doubao-seed-1-6-flash-250828",
+  "messages": [
+    {
+      "role": "system",
+      "content": "你是一个专业的剧本分析助手，擅长从小说/剧本中提取结构化信息。请严格按照要求的JSON格式输出。"
+    },
+    {
+      "role": "user",
+      "content": "【故事背景】\n- 一句话简介：伪灵根少年觉醒混沌灵根，凭奇遇功法逆袭青云宗。\n- 故事梗概：青云宗杂役林清玄，伪灵根遭欺凌三年，意外觉醒墨玉佩中的残魂云澜子，得知实为混沌四灵根，获《混沌归元诀》后突破炼气三层。外门考核中，测灵石碑墨光冲天，暴露其混沌灵根与炼气三层巅峰修为，被破格提拔为内门弟子，开启逆袭仙途。\n- 核心冲突：伪灵根身份与真实天赋的矛盾，底层修士的生存压力与命运抗争。\n- 主题思想：命运抗争、天赋觉醒、逆袭成长\n\n\n【视觉风格】\n- 美术指导：仙侠国风，云雾缭绕的修仙宗门与压抑杂役院对比鲜明\n- 艺术风格：水墨仙侠，写实与奇幻结合\n- ...
+LLMProvider.ts:91 [LLMProvider] Sending request...
+BaseProvider.ts:63 [BaseProvider] Requesting: https://ark.cn-beijing.volces.com/api/v3/chat/completions, Mode: DEV, Localhost: true
+BaseProvider.ts:84 [BaseProvider] Using Proxy: /api/universal-proxy -> https://ark.cn-beijing.volces.com/api/v3/chat/completions
+BaseProvider.ts:99 [BaseProvider] Response received: 200 OK
+LLMProvider.ts:104 [LLMProvider] Request completed in 22335ms
+LLMProvider.ts:118 [LLMProvider] ========== API Response ==========
+LLMProvider.ts:119 [LLMProvider] Response length: 1602 characters
+LLMProvider.ts:120 [LLMProvider] Prompt tokens: 1691
+LLMProvider.ts:121 [LLMProvider] Completion tokens: 2845
+LLMProvider.ts:122 [LLMProvider] Total tokens: 4536
+LLMProvider.ts:123 [LLMProvider] Response preview: [
+  {
+    "name": "赵昊",
+    "gender": "male",
+    "age": "18",
+    "identity": "青云宗内门弟子，宗主亲传弟子",
+   ...
+scriptParser.ts:1486 [ScriptParser] LLM response received, length: 1602
+scriptParser.ts:2277 [ScriptParser] Batch response received, length: 1602 characters
+scriptParser.ts:2280 [ScriptParser] Parsed 3 characters from batch response
+scriptParser.ts:3098 [ScriptParser] Added character: 赵昊
+scriptParser.ts:3098 [ScriptParser] Added character: 张执事
+scriptParser.ts:3098 [ScriptParser] Added character: 李长老
+BaseProvider.ts:99 [BaseProvider] Response received: 200 OK
+LLMProvider.ts:104 [LLMProvider] Request completed in 43946ms
+LLMProvider.ts:118 [LLMProvider] ========== API Response ==========
+LLMProvider.ts:119 [LLMProvider] Response length: 1560 characters
+LLMProvider.ts:120 [LLMProvider] Prompt tokens: 1915
+LLMProvider.ts:121 [LLMProvider] Completion tokens: 4447
+LLMProvider.ts:122 [LLMProvider] Total tokens: 6362
+LLMProvider.ts:123 [LLMProvider] Response preview: [
+  {
+    "name": "外门广场",
+    "locationType": "outdoor",
+    "description": "开阔的石质广场，中央矗立着一块刻有符文的测灵石...
+scriptParser.ts:1486 [ScriptParser] LLM response received, length: 1560
+scriptParser.ts:2460 [ScriptParser] Batch response received, length: 1560 characters
+scriptParser.ts:2463 [ScriptParser] Parsed 2 scenes from batch response
+scriptParser.ts:3134 [ScriptParser] Added scene: 外门广场
+scriptParser.ts:3134 [ScriptParser] Added scene: 清玄殿
+scriptParser.ts:3149 [ScriptParser] Chunk 2 complete. Total so far: 6 characters, 9 scenes
+scriptParser.ts:3160 [ScriptParser] Chunked extraction complete: 6 characters, 9 scenes
+scriptParser.ts:3161 [ScriptParser] Final character list: 林清玄, 王虎, 云澜子, 赵昊, 张执事, 李长老
+scriptParser.ts:3162 [ScriptParser] Final scene list: 青云宗, 杂役院, 炼丹房, 炼器房, 后山, 黑风崖, 崖顶, 外门广场, 清玄殿
+scriptParser.ts:2620 [ScriptParser] ---------- Batch Generating Shots with Context for 3 Scenes ----------
+scriptParser.ts:2626 [ScriptParser] Dynamic shot count for text length 7033: 5-8个
+scriptParser.ts:2636 [ScriptParser] Injecting global context into shots generation
+scriptParser.ts:2641 [ScriptParser] Context-enhanced prompt length: 3989 characters
+scriptParser.ts:1430 [ScriptParser] callLLM called for shots, retryCount: 0
+scriptParser.ts:1431 [ScriptParser] API URL: https://ark.cn-beijing.volces.com/api/v3
+scriptParser.ts:1432 [ScriptParser] Model: doubao-seed-1-6-flash-250828
+scriptParser.ts:1433 [ScriptParser] Max Tokens: 12000
+scriptParser.ts:1462 [ScriptParser] Calling LLMProvider.generateText...
+LLMProvider.ts:81 [LLMProvider] ========== API Request ==========
+LLMProvider.ts:82 [LLMProvider] Endpoint: https://ark.cn-beijing.volces.com/api/v3/chat/completions
+LLMProvider.ts:83 [LLMProvider] Model: doubao-seed-1-6-flash-250828
+LLMProvider.ts:84 [LLMProvider] enable_thinking: false
+LLMProvider.ts:85 [LLMProvider] Temperature: 0.3
+LLMProvider.ts:86 [LLMProvider] Max Tokens: 12000
+LLMProvider.ts:87 [LLMProvider] Messages count: 2
+LLMProvider.ts:88 [LLMProvider] First message length: 48 characters
+LLMProvider.ts:89 [LLMProvider] Request body: {
+  "model": "doubao-seed-1-6-flash-250828",
+  "messages": [
+    {
+      "role": "system",
+      "content": "你是一个专业的剧本分析助手，擅长从小说/剧本中提取结构化信息。请严格按照要求的JSON格式输出。"
+    },
+    {
+      "role": "user",
+      "content": "【视觉指导】\n- 美术风格：水墨仙侠，写实与奇幻结合\n- 色彩方案：#E0E0E0、#333333、#000000、#FFFFFF、#404040\n- 摄影风格：全景展现宗门仙气，特写刻画主角眼神与玉佩\n- 光影风格：前期昏暗压抑，觉醒后明亮夺目，墨光冲天\n- 参考风格：诛仙、仙剑奇侠传、张艺谋、徐克\n\n\n\n\n\n\n\n请为以下所有场景生成分镜脚本。\n\n【剧本内容】\n## 第一章 杂役苦\n青云宗，东域三大修仙宗门之一，立宗三千年，山门矗立于青云山脉之巅，云雾缭绕，灵气流淌，仙鹤盘旋，琼楼玉宇隐于云海之间，是无数凡人与低阶修士梦寐以求的修仙圣...
+LLMProvider.ts:91 [LLMProvider] Sending request...
+BaseProvider.ts:63 [BaseProvider] Requesting: https://ark.cn-beijing.volces.com/api/v3/chat/completions, Mode: DEV, Localhost: true
+BaseProvider.ts:84 [BaseProvider] Using Proxy: /api/universal-proxy -> https://ark.cn-beijing.volces.com/api/v3/chat/completions
+BaseProvider.ts:99 [BaseProvider] Response received: 200 OK
+LLMProvider.ts:104 [LLMProvider] Request completed in 37932ms
+LLMProvider.ts:118 [LLMProvider] ========== API Response ==========
+LLMProvider.ts:119 [LLMProvider] Response length: 3416 characters
+LLMProvider.ts:120 [LLMProvider] Prompt tokens: 2796
+LLMProvider.ts:121 [LLMProvider] Completion tokens: 4415
+LLMProvider.ts:122 [LLMProvider] Total tokens: 7211
+LLMProvider.ts:123 [LLMProvider] Response preview: [
+  {
+    "sceneName": "青云宗山门全景",
+    "sequence": 1,
+    "shotType": "extreme_long",
+    "cameraMove...
+scriptParser.ts:1486 [ScriptParser] LLM response received, length: 3416
+scriptParser.ts:2644 [ScriptParser] Batch response received, length: 3416 characters
+scriptParser.ts:2647 [ScriptParser] Parsed 13 shots from batch response
+scriptParser.ts:2658 [ScriptParser] Total duration for 13 shots: 37s
+scriptParser.ts:2620 [ScriptParser] ---------- Batch Generating Shots with Context for 3 Scenes ----------
+scriptParser.ts:2626 [ScriptParser] Dynamic shot count for text length 7033: 5-8个
+scriptParser.ts:2636 [ScriptParser] Injecting global context into shots generation
+scriptParser.ts:2641 [ScriptParser] Context-enhanced prompt length: 3975 characters
+scriptParser.ts:1430 [ScriptParser] callLLM called for shots, retryCount: 0
+scriptParser.ts:1431 [ScriptParser] API URL: https://ark.cn-beijing.volces.com/api/v3
+scriptParser.ts:1432 [ScriptParser] Model: doubao-seed-1-6-flash-250828
+scriptParser.ts:1433 [ScriptParser] Max Tokens: 12000
+scriptParser.ts:1462 [ScriptParser] Calling LLMProvider.generateText...
+LLMProvider.ts:81 [LLMProvider] ========== API Request ==========
+LLMProvider.ts:82 [LLMProvider] Endpoint: https://ark.cn-beijing.volces.com/api/v3/chat/completions
+LLMProvider.ts:83 [LLMProvider] Model: doubao-seed-1-6-flash-250828
+LLMProvider.ts:84 [LLMProvider] enable_thinking: false
+LLMProvider.ts:85 [LLMProvider] Temperature: 0.3
+LLMProvider.ts:86 [LLMProvider] Max Tokens: 12000
+LLMProvider.ts:87 [LLMProvider] Messages count: 2
+LLMProvider.ts:88 [LLMProvider] First message length: 48 characters
+LLMProvider.ts:89 [LLMProvider] Request body: {
+  "model": "doubao-seed-1-6-flash-250828",
+  "messages": [
+    {
+      "role": "system",
+      "content": "你是一个专业的剧本分析助手，擅长从小说/剧本中提取结构化信息。请严格按照要求的JSON格式输出。"
+    },
+    {
+      "role": "user",
+      "content": "【视觉指导】\n- 美术风格：水墨仙侠，写实与奇幻结合\n- 色彩方案：#E0E0E0、#333333、#000000、#FFFFFF、#404040\n- 摄影风格：全景展现宗门仙气，特写刻画主角眼神与玉佩\n- 光影风格：前期昏暗压抑，觉醒后明亮夺目，墨光冲天\n- 参考风格：诛仙、仙剑奇侠传、张艺谋、徐克\n\n\n\n\n\n\n\n请为以下所有场景生成分镜脚本。\n\n【剧本内容】\n## 第一章 杂役苦\n青云宗，东域三大修仙宗门之一，立宗三千年，山门矗立于青云山脉之巅，云雾缭绕，灵气流淌，仙鹤盘旋，琼楼玉宇隐于云海之间，是无数凡人与低阶修士梦寐以求的修仙圣...
+LLMProvider.ts:91 [LLMProvider] Sending request...
+BaseProvider.ts:63 [BaseProvider] Requesting: https://ark.cn-beijing.volces.com/api/v3/chat/completions, Mode: DEV, Localhost: true
+BaseProvider.ts:84 [BaseProvider] Using Proxy: /api/universal-proxy -> https://ark.cn-beijing.volces.com/api/v3/chat/completions
+AppContext.tsx:24 [STORAGE] Connection check: Connected=true, Responsive=true
+BaseProvider.ts:99 [BaseProvider] Response received: 200 OK
+LLMProvider.ts:104 [LLMProvider] Request completed in 20906ms
+LLMProvider.ts:118 [LLMProvider] ========== API Response ==========
+LLMProvider.ts:119 [LLMProvider] Response length: 1779 characters
+LLMProvider.ts:120 [LLMProvider] Prompt tokens: 2794
+LLMProvider.ts:121 [LLMProvider] Completion tokens: 2389
+LLMProvider.ts:122 [LLMProvider] Total tokens: 5183
+LLMProvider.ts:123 [LLMProvider] Response preview: [
+  {
+    "sceneName": "炼器房",
+    "sequence": 1,
+    "shotType": "long",
+    "cameraMovement": "stat...
+scriptParser.ts:1486 [ScriptParser] LLM response received, length: 1779
+scriptParser.ts:2644 [ScriptParser] Batch response received, length: 1779 characters
+scriptParser.ts:2647 [ScriptParser] Parsed 7 shots from batch response
+scriptParser.ts:2658 [ScriptParser] Total duration for 7 shots: 22s
+scriptParser.ts:2620 [ScriptParser] ---------- Batch Generating Shots with Context for 3 Scenes ----------
+scriptParser.ts:2626 [ScriptParser] Dynamic shot count for text length 7033: 5-8个
+scriptParser.ts:2636 [ScriptParser] Injecting global context into shots generation
+scriptParser.ts:2641 [ScriptParser] Context-enhanced prompt length: 3994 characters
+scriptParser.ts:1430 [ScriptParser] callLLM called for shots, retryCount: 0
+scriptParser.ts:1431 [ScriptParser] API URL: https://ark.cn-beijing.volces.com/api/v3
+scriptParser.ts:1432 [ScriptParser] Model: doubao-seed-1-6-flash-250828
+scriptParser.ts:1433 [ScriptParser] Max Tokens: 12000
+scriptParser.ts:1462 [ScriptParser] Calling LLMProvider.generateText...
+LLMProvider.ts:81 [LLMProvider] ========== API Request ==========
+LLMProvider.ts:82 [LLMProvider] Endpoint: https://ark.cn-beijing.volces.com/api/v3/chat/completions
+LLMProvider.ts:83 [LLMProvider] Model: doubao-seed-1-6-flash-250828
+LLMProvider.ts:84 [LLMProvider] enable_thinking: false
+LLMProvider.ts:85 [LLMProvider] Temperature: 0.3
+LLMProvider.ts:86 [LLMProvider] Max Tokens: 12000
+LLMProvider.ts:87 [LLMProvider] Messages count: 2
+LLMProvider.ts:88 [LLMProvider] First message length: 48 characters
+LLMProvider.ts:89 [LLMProvider] Request body: {
+  "model": "doubao-seed-1-6-flash-250828",
+  "messages": [
+    {
+      "role": "system",
+      "content": "你是一个专业的剧本分析助手，擅长从小说/剧本中提取结构化信息。请严格按照要求的JSON格式输出。"
+    },
+    {
+      "role": "user",
+      "content": "【视觉指导】\n- 美术风格：水墨仙侠，写实与奇幻结合\n- 色彩方案：#E0E0E0、#333333、#000000、#FFFFFF、#404040\n- 摄影风格：全景展现宗门仙气，特写刻画主角眼神与玉佩\n- 光影风格：前期昏暗压抑，觉醒后明亮夺目，墨光冲天\n- 参考风格：诛仙、仙剑奇侠传、张艺谋、徐克\n\n\n\n\n\n\n\n请为以下所有场景生成分镜脚本。\n\n【剧本内容】\n## 第一章 杂役苦\n青云宗，东域三大修仙宗门之一，立宗三千年，山门矗立于青云山脉之巅，云雾缭绕，灵气流淌，仙鹤盘旋，琼楼玉宇隐于云海之间，是无数凡人与低阶修士梦寐以求的修仙圣...
+LLMProvider.ts:91 [LLMProvider] Sending request...
+BaseProvider.ts:63 [BaseProvider] Requesting: https://ark.cn-beijing.volces.com/api/v3/chat/completions, Mode: DEV, Localhost: true
+BaseProvider.ts:84 [BaseProvider] Using Proxy: /api/universal-proxy -> https://ark.cn-beijing.volces.com/api/v3/chat/completions
+BaseProvider.ts:99 [BaseProvider] Response received: 200 OK
+LLMProvider.ts:104 [LLMProvider] Request completed in 14974ms
+LLMProvider.ts:118 [LLMProvider] ========== API Response ==========
+LLMProvider.ts:119 [LLMProvider] Response length: 1698 characters
+LLMProvider.ts:120 [LLMProvider] Prompt tokens: 2810
+LLMProvider.ts:121 [LLMProvider] Completion tokens: 1730
+LLMProvider.ts:122 [LLMProvider] Total tokens: 4540
+LLMProvider.ts:123 [LLMProvider] Response preview: [
+  {
+    "sceneName": "崖顶",
+    "sequence": 1,
+    "shotType": "long",
+    "cameraMovement": "stati...
+scriptParser.ts:1486 [ScriptParser] LLM response received, length: 1698
+scriptParser.ts:2644 [ScriptParser] Batch response received, length: 1698 characters
+scriptParser.ts:2647 [ScriptParser] Parsed 7 shots from batch response
+scriptParser.ts:2658 [ScriptParser] Total duration for 7 shots: 24s
+scriptParser.ts:3205 [ScriptParser] Generated 27 shots
+scriptParser.ts:3230 [ScriptParser] ========== Chunked Parse Completed ==========
+scriptParser.ts:3231 [ScriptParser] Characters: 6, Scenes: 9, Shots: 27
+scriptParser.ts:3307 [ScriptParser] ========== Chunked Path Completed ==========
+scriptParser.ts:3308 [ScriptParser] Total duration: 274012ms (274.0s)
+scriptParser.ts:3309 [ScriptParser] ==========================================
+ScriptManager.tsx:449 [ScriptManager] ========== Getting Quality Report ==========
+ScriptManager.tsx:451 [ScriptManager] Report from parser: {exists: true, score: 83, type: 'object', hasViolations: true, hasSuggestions: true}
+ScriptManager.tsx:461 [ScriptManager] ========== Quality Report Set to State ==========
+ScriptManager.tsx:137 [ScriptManager] ========== useEffect: currentScript changed ==========
+ScriptManager.tsx:138 [ScriptManager] currentScript exists: true
+ScriptManager.tsx:139 [ScriptManager] parseState exists: true
+ScriptManager.tsx:140 [ScriptManager] qualityReport exists: true
+ScriptManager.tsx:144 [ScriptManager] Restoring quality report: {score: 83, violationsCount: 20, suggestionsCount: 5, type: 'object'}
+ScriptManager.tsx:151 [ScriptManager] ========== Quality Report Restored ==========

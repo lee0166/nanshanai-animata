@@ -287,6 +287,10 @@ export interface QualityReport {
   score: number;
   violations: RuleViolation[];
   suggestions: string[];
+  /** 是否提取了情绪曲线 */
+  emotionalArcExtracted?: boolean;
+  /** 跳过的功能列表 */
+  skippedFeatures?: string[];
 }
 
 export interface ScriptParseState {
@@ -303,6 +307,25 @@ export interface ScriptParseState {
   qualityReport?: QualityReport;
   refinementResult?: any; // Iterative refinement result
   durationBudget?: any; // Duration budget from BudgetPlanner
+}
+
+/**
+ * Parse options for controlling parsing behavior
+ */
+export interface ParseOptions {
+  skipGlobalContext?: boolean;
+}
+
+/**
+ * Script Parser Configuration
+ * 用于配置剧本解析器的行为
+ */
+export interface ScriptParserConfig {
+  // ... 原有配置
+  /** 是否提取情绪曲线，默认true */
+  extractEmotionalArc?: boolean;
+  /** 文本长度阈值，低于此值跳过情绪曲线提取，默认800 */
+  textLengthThreshold?: number;
 }
 
 /**

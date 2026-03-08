@@ -112,6 +112,14 @@ export class QualityAnalyzer {
 
   /**
    * 执行完整质量分析
+   * @param metadata - 剧本元数据
+   * @param characters - 角色列表
+   * @param scenes - 场景列表
+   * @param items - 道具列表
+   * @param shots - 分镜列表
+   * @param stage - 当前解析阶段
+   * @param emotionalArcExtracted - 是否提取了情绪曲线（可选）
+   * @param skippedFeatures - 跳过的功能列表（可选）
    */
   analyze(
     metadata: ScriptMetadata | undefined,
@@ -119,7 +127,9 @@ export class QualityAnalyzer {
     scenes: ScriptScene[],
     items: ScriptItem[],
     shots: Shot[],
-    stage: 'metadata' | 'characters' | 'scenes' | 'shots' | 'completed'
+    stage: 'metadata' | 'characters' | 'scenes' | 'shots' | 'completed',
+    emotionalArcExtracted?: boolean,
+    skippedFeatures?: string[]
   ): DetailedQualityReport {
     const statistics = this.calculateStatistics(characters, scenes, items, shots);
     
@@ -177,6 +187,8 @@ export class QualityAnalyzer {
       statistics,
       recommendations,
       stage,
+      emotionalArcExtracted,
+      skippedFeatures,
     };
   }
 

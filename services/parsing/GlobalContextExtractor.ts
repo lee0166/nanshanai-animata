@@ -91,17 +91,77 @@ export interface EmotionalContext {
 }
 
 /**
+ * 全局上下文提取器配置
+ */
+export interface GlobalContextExtractorConfig {
+  /** 是否提取情绪曲线，默认true */
+  extractEmotionalArc?: boolean;
+  /** 文本长度阈值，低于此值跳过情绪曲线提取，默认800 */
+  textLengthThreshold?: number;
+}
+
+/**
  * 全局上下文提取器
  */
 export class GlobalContextExtractor {
   private modelConfig: ModelConfig;
+  private config: GlobalContextExtractorConfig;
 
   /**
    * 构造函数
    * @param config - 模型配置
+   * @param extractorConfig - 提取器配置（可选）
    */
-  constructor(config: ModelConfig) {
+  constructor(config: ModelConfig, extractorConfig?: GlobalContextExtractorConfig) {
     this.modelConfig = config;
+    this.config = {
+      extractEmotionalArc: true,
+      textLengthThreshold: 800,
+      ...extractorConfig
+    };
+  }
+
+  /**
+   * 更新提取器配置
+   * @param config - 部分配置更新
+   */
+  updateConfig(config: Partial<GlobalContextExtractorConfig>): void {
+    this.config = { ...this.config, ...config };
+  }
+
+  /**
+   * 获取当前配置
+   * @returns 当前配置
+   */
+  getConfig(): GlobalContextExtractorConfig {
+    return { ...this.config };
+  }
+
+  /**
+   * 安全地获取字符串值
+   * 处理LLM返回的各种类型（字符串、数组、对象）
+   * 
+   * @param value - 任意类型的值
+   * @param defaultValue - 默认值
+   * @returns 字符串值
+   */
+  private safeString(value: unknown, defaultValue: string = ''): string {
+    if (typeof value === 'string') {
+      return value;
+    }
+    if (Array.isArray(value) && value.length > 0) {
+      // 如果是数组，取第一个元素
+      return this.safeString(value[0], defaultValue);
+    }
+    if (typeof value === 'object' && value !== null) {
+      // 如果是对象，尝试获取常见的字符串字段
+      const obj = value as Record<string, unknown>;
+      if (typeof obj.name === 'string') return obj.name;
+      if (typeof obj.value === 'string') return obj.value;
+      if (typeof obj.label === 'string') return obj.label;
+      if (typeof obj.text === 'string') return obj.text;
+    }
+    return defaultValue;
   }
 
   /**
@@ -126,8 +186,21 @@ export class GlobalContextExtractor {
       const duration = Date.now() - startTime;
       console.log(`[GlobalContextExtractor] Unified extraction completed in ${duration}ms`);
 
-      // 构建情绪曲线（仍需要单独调用，依赖 storyContext）
-      const emotionalContext = await this.extractEmotionalArc(content, unifiedContext.story);
+      // 根据配置决定是否提取情绪曲线
+      const shouldExtractEmotional = this.config.extractEmotionalArc !== false 
+        && content.length >= (this.config.textLengthThreshold || 800);
+
+      let emotionalContext: EmotionalContext;
+      if (shouldExtractEmotional) {
+        console.log(`[GlobalContextExtractor] Extracting emotional arc (content length: ${content.length} >= threshold: ${this.config.textLengthThreshold})`);
+        emotionalContext = await this.extractEmotionalArc(content, unifiedContext.story);
+      } else {
+        console.log(`[GlobalContextExtractor] Skipping emotional arc extraction (content length: ${content.length}, threshold: ${this.config.textLengthThreshold}, enabled: ${this.config.extractEmotionalArc})`);
+        emotionalContext = {
+          overallMood: '',
+          arc: []
+        };
+      }
 
       // 生成一致性规则
       const rules = this.generateConsistencyRules(
@@ -266,30 +339,29 @@ ${content.substring(0, 6000)}
 
     return {
       story: {
-        synopsis: parsed.story.synopsis || '',
-        logline: parsed.story.logline || '',
-        coreConflict: parsed.story.coreConflict || '',
-        themes: parsed.story.themes || [],
+        synopsis: this.safeString(parsed.story.synopsis),
+        logline: this.safeString(parsed.story.logline),
+        coreConflict: this.safeString(parsed.story.coreConflict),
+        themes: Array.isArray(parsed.story.themes) ? parsed.story.themes.filter((t): t is string => typeof t === 'string') : [],
         structure: parsed.story.structure || this.getDefaultStoryStructure(),
       },
       visual: {
-        artDirection: parsed.visual.artDirection || '',
-        artStyle: parsed.visual.artStyle || '',
-        artStyleDescription: parsed.visual.artStyleDescription || '',
-        colorPalette: parsed.visual.colorPalette || [],
-        colorMood: parsed.visual.colorMood || '',
-        cinematography: parsed.visual.cinematography || '',
-        lightingStyle: parsed.visual.lightingStyle || '',
+        artDirection: this.safeString(parsed.visual.artDirection),
+        artStyle: this.safeString(parsed.visual.artStyle),
+        colorPalette: Array.isArray(parsed.visual.colorPalette) 
+          ? parsed.visual.colorPalette.filter((c): c is string => typeof c === 'string') 
+          : [],
+        colorMood: this.safeString(parsed.visual.colorMood),
+        cinematography: this.safeString(parsed.visual.cinematography),
+        lightingStyle: this.safeString(parsed.visual.lightingStyle),
         references: [...referenceFilms, ...referenceDirectors],
-        referenceFilms,
-        referenceDirectors,
       },
       era: {
-        era: parsed.era.era || '现代',
-        eraDescription: parsed.era.eraDescription || '',
-        location: parsed.era.location || '',
-        season: parsed.era.season,
-        timeOfDay: parsed.era.timeOfDay,
+        era: this.safeString(parsed.era.era, '现代'),
+        eraDescription: this.safeString(parsed.era.eraDescription),
+        location: this.safeString(parsed.era.location),
+        season: this.safeString(parsed.era.season),
+        timeOfDay: this.safeString(parsed.era.timeOfDay),
       },
     };
   }
@@ -309,8 +381,21 @@ ${content.substring(0, 6000)}
     // 3. 提取时代背景信息
     const eraContext = await this.extractEraContext(content);
 
-    // 4. 构建情绪曲线
-    const emotionalContext = await this.extractEmotionalArc(content, storyContext);
+    // 4. 根据配置决定是否构建情绪曲线
+    const shouldExtractEmotional = this.config.extractEmotionalArc !== false 
+      && content.length >= (this.config.textLengthThreshold || 800);
+    
+    let emotionalContext: EmotionalContext;
+    if (shouldExtractEmotional) {
+      console.log(`[GlobalContextExtractor] Parallel extraction: extracting emotional arc (content length: ${content.length})`);
+      emotionalContext = await this.extractEmotionalArc(content, storyContext);
+    } else {
+      console.log(`[GlobalContextExtractor] Parallel extraction: skipping emotional arc (content length: ${content.length})`);
+      emotionalContext = {
+        overallMood: '',
+        arc: []
+      };
+    }
 
     // 5. 生成一致性规则
     const rules = this.generateConsistencyRules(storyContext, visualContext, eraContext);
@@ -393,10 +478,12 @@ ${content.substring(0, 8000)}
       const parsed = repairResult.data;
       
       return {
-        synopsis: parsed.synopsis || '',
-        logline: parsed.logline || '',
-        coreConflict: parsed.coreConflict || '',
-        themes: parsed.themes || [],
+        synopsis: this.safeString(parsed.synopsis),
+        logline: this.safeString(parsed.logline),
+        coreConflict: this.safeString(parsed.coreConflict),
+        themes: Array.isArray(parsed.themes) 
+          ? parsed.themes.filter((t): t is string => typeof t === 'string') 
+          : [],
         structure: parsed.structure || this.getDefaultStoryStructure(),
       };
     } catch (error) {
@@ -499,16 +586,15 @@ ${content.substring(0, 5000)}
       }
       
       return {
-        artDirection: parsed.artDirection || '',
-        artStyle: parsed.artStyle || '',
-        artStyleDescription: parsed.artStyleDescription || '',
-        colorPalette: parsed.colorPalette || [],
-        colorMood: parsed.colorMood || '',
-        cinematography: parsed.cinematography || '',
-        lightingStyle: parsed.lightingStyle || '',
+        artDirection: this.safeString(parsed.artDirection),
+        artStyle: this.safeString(parsed.artStyle),
+        colorPalette: Array.isArray(parsed.colorPalette) 
+          ? parsed.colorPalette.filter((c): c is string => typeof c === 'string') 
+          : [],
+        colorMood: this.safeString(parsed.colorMood),
+        cinematography: this.safeString(parsed.cinematography),
+        lightingStyle: this.safeString(parsed.lightingStyle),
         references: [...referenceFilms, ...referenceDirectors],
-        referenceFilms,
-        referenceDirectors,
       };
     } catch (error) {
       console.error('Error extracting visual context:', error);
@@ -582,11 +668,11 @@ ${content.substring(0, 5000)}
       const parsed = repairResult.data;
       
       return {
-        era: parsed.era || '现代',
-        eraDescription: parsed.eraDescription || '',
-        location: parsed.location || '',
-        season: parsed.season,
-        timeOfDay: parsed.timeOfDay,
+        era: this.safeString(parsed.era, '现代'),
+        eraDescription: this.safeString(parsed.eraDescription),
+        location: this.safeString(parsed.location),
+        season: this.safeString(parsed.season),
+        timeOfDay: this.safeString(parsed.timeOfDay),
       };
     } catch (error) {
       console.error('Error extracting era context:', error);
@@ -715,9 +801,8 @@ ${content.substring(0, 5000)}
     };
 
     // 根据时代背景生成时代限制
-    if (eraContext.era) {
-      const era = eraContext.era.toLowerCase();
-      
+    const era = this.safeString(eraContext.era).toLowerCase();
+    if (era) {
       // 古代背景限制
       if (era.includes('古代') || era.includes('朝') || era.includes('唐') || era.includes('宋') || era.includes('明') || era.includes('清')) {
         rules.eraConstraints.push('禁止出现现代科技产品（手机、电脑、汽车等）');
@@ -739,9 +824,8 @@ ${content.substring(0, 5000)}
     }
 
     // 根据视觉风格生成风格限制
-    if (visualContext.artStyle) {
-      const style = visualContext.artStyle.toLowerCase();
-      
+    const style = this.safeString(visualContext.artStyle).toLowerCase();
+    if (style) {
       if (style.includes('写实') || style.includes('电影感')) {
         rules.styleConstraints.push('保持写实风格，避免过于夸张的表现手法');
       }
@@ -795,8 +879,8 @@ ${content.substring(0, 5000)}
       
       // 参考层
       references: {
-        films: context.visual.referenceFilms || context.visual.references?.filter(r => !r.includes('导演')) || [],
-        directors: context.visual.referenceDirectors || context.visual.references?.filter(r => r.includes('导演')) || [],
+        films: context.visual.references?.filter(r => !r.includes('导演')) || [],
+        directors: context.visual.references?.filter(r => r.includes('导演')) || [],
         artStyles: [],
       },
     };

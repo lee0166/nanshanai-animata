@@ -15,7 +15,7 @@ describe('ScriptParser', () => {
 
   beforeEach(() => {
     // Disable semantic chunking for tests to avoid mock issues
-    parser = createScriptParser(apiKey, undefined, undefined, {
+    parser = createScriptParser(apiKey, undefined, undefined, undefined, {
       useSemanticChunking: false,
       useDramaRules: false,
       useCache: false

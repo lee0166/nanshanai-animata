@@ -8,6 +8,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import {
   GlobalContextExtractor,
   createGlobalContextExtractor,
+  GlobalContextExtractorConfig,
   GlobalContext,
   StoryContext,
   VisualContext,
@@ -207,43 +208,40 @@ describe('GlobalContextExtractor', () => {
 
   describe('一致性规则生成', () => {
     it('古代背景应该生成相应的时代限制', async () => {
+      // 统一提取只需要一次 LLM 调用
       mockGenerateText
         .mockResolvedValueOnce({
           success: true,
           data: JSON.stringify({
-            synopsis: '古代故事',
-            logline: '简介',
-            coreConflict: '冲突',
-            themes: [],
-            structure: {
-              structureType: 'three_act',
-              act1: '',
-              act2a: '',
-              act2b: '',
-              act3: '',
-              midpoint: '',
-              climax: '',
+            story: {
+              synopsis: '古代故事',
+              logline: '简介',
+              coreConflict: '冲突',
+              themes: [],
+              structure: {
+                structureType: 'three_act',
+                act1: '',
+                act2a: '',
+                act2b: '',
+                act3: '',
+                midpoint: '',
+                climax: '',
+              },
             },
-          }),
-        })
-        .mockResolvedValueOnce({
-          success: true,
-          data: JSON.stringify({
-            artDirection: '',
-            artStyle: '',
-            colorPalette: [],
-            colorMood: '',
-            cinematography: '',
-            lightingStyle: '',
-            references: [],
-          }),
-        })
-        .mockResolvedValueOnce({
-          success: true,
-          data: JSON.stringify({
-            era: '唐代',
-            eraDescription: '古代',
-            location: '长安',
+            visual: {
+              artDirection: '',
+              artStyle: '',
+              colorPalette: [],
+              colorMood: '',
+              cinematography: '',
+              lightingStyle: '',
+              references: [],
+            },
+            era: {
+              era: '唐代',
+              eraDescription: '古代',
+              location: '长安',
+            },
           }),
         })
         .mockResolvedValueOnce({
@@ -263,43 +261,40 @@ describe('GlobalContextExtractor', () => {
     });
 
     it('写实风格应该生成相应的风格限制', async () => {
+      // 统一提取只需要一次 LLM 调用
       mockGenerateText
         .mockResolvedValueOnce({
           success: true,
           data: JSON.stringify({
-            synopsis: '现代故事',
-            logline: '简介',
-            coreConflict: '冲突',
-            themes: [],
-            structure: {
-              structureType: 'three_act',
-              act1: '',
-              act2a: '',
-              act2b: '',
-              act3: '',
-              midpoint: '',
-              climax: '',
+            story: {
+              synopsis: '现代故事',
+              logline: '简介',
+              coreConflict: '冲突',
+              themes: [],
+              structure: {
+                structureType: 'three_act',
+                act1: '',
+                act2a: '',
+                act2b: '',
+                act3: '',
+                midpoint: '',
+                climax: '',
+              },
             },
-          }),
-        })
-        .mockResolvedValueOnce({
-          success: true,
-          data: JSON.stringify({
-            artDirection: '写实电影感',
-            artStyle: '写实风格',
-            colorPalette: [],
-            colorMood: '',
-            cinematography: '',
-            lightingStyle: '',
-            references: [],
-          }),
-        })
-        .mockResolvedValueOnce({
-          success: true,
-          data: JSON.stringify({
-            era: '2024年',
-            eraDescription: '现代',
-            location: '北京',
+            visual: {
+              artDirection: '写实电影感',
+              artStyle: '写实风格',
+              colorPalette: [],
+              colorMood: '',
+              cinematography: '',
+              lightingStyle: '',
+              references: [],
+            },
+            era: {
+              era: '2024年',
+              eraDescription: '现代',
+              location: '北京',
+            },
           }),
         })
         .mockResolvedValueOnce({
@@ -315,6 +310,199 @@ describe('GlobalContextExtractor', () => {
 
       expect(result.rules.styleConstraints.length).toBeGreaterThan(0);
       expect(result.rules.styleConstraints[0]).toContain('写实');
+    });
+  });
+
+  describe('配置功能', () => {
+    it('应该支持通过构造函数传入配置', () => {
+      const config: GlobalContextExtractorConfig = {
+        extractEmotionalArc: false,
+        textLengthThreshold: 1000,
+      };
+      const extractorWithConfig = new GlobalContextExtractor(mockModelConfig, config);
+      
+      expect(extractorWithConfig.getConfig().extractEmotionalArc).toBe(false);
+      expect(extractorWithConfig.getConfig().textLengthThreshold).toBe(1000);
+    });
+
+    it('应该使用默认配置当未提供配置时', () => {
+      const defaultExtractor = new GlobalContextExtractor(mockModelConfig);
+      
+      expect(defaultExtractor.getConfig().extractEmotionalArc).toBe(true);
+      expect(defaultExtractor.getConfig().textLengthThreshold).toBe(800);
+    });
+
+    it('应该支持通过updateConfig更新配置', () => {
+      extractor.updateConfig({ extractEmotionalArc: false });
+      
+      expect(extractor.getConfig().extractEmotionalArc).toBe(false);
+      // 其他配置应保持不变
+      expect(extractor.getConfig().textLengthThreshold).toBe(800);
+    });
+
+    it('当文本长度低于阈值时应该跳过情绪曲线提取', async () => {
+      // 设置阈值为1000，但内容长度小于1000
+      const extractorWithHighThreshold = new GlobalContextExtractor(mockModelConfig, {
+        extractEmotionalArc: true,
+        textLengthThreshold: 1000,
+      });
+
+      // Mock统一提取响应
+      mockGenerateText.mockResolvedValueOnce({
+        success: true,
+        data: JSON.stringify({
+          story: {
+            synopsis: '短文本测试',
+            logline: '简介',
+            coreConflict: '冲突',
+            themes: [],
+            structure: {
+              structureType: 'three_act',
+              act1: '',
+              act2a: '',
+              act2b: '',
+              act3: '',
+              midpoint: '',
+              climax: '',
+            },
+          },
+          visual: {
+            artDirection: '写实',
+            artStyle: '写实',
+            colorPalette: [],
+            colorMood: '',
+            cinematography: '',
+            lightingStyle: '',
+            references: [],
+          },
+          era: {
+            era: '现代',
+            eraDescription: '现代背景',
+            location: '北京',
+          },
+        }),
+      });
+
+      const shortContent = '这是一个短文本'; // 长度小于1000
+      const result = await extractorWithHighThreshold.extract(shortContent);
+
+      // 应该只调用一次（统一提取），不会调用情绪曲线提取
+      expect(mockGenerateText).toHaveBeenCalledTimes(1);
+      expect(result.emotional.arc).toEqual([]);
+      expect(result.emotional.overallMood).toBe('');
+    });
+
+    it('当extractEmotionalArc为false时应该跳过情绪曲线提取', async () => {
+      const extractorDisabled = new GlobalContextExtractor(mockModelConfig, {
+        extractEmotionalArc: false,
+        textLengthThreshold: 800,
+      });
+
+      // Mock统一提取响应
+      mockGenerateText.mockResolvedValueOnce({
+        success: true,
+        data: JSON.stringify({
+          story: {
+            synopsis: '测试故事',
+            logline: '简介',
+            coreConflict: '冲突',
+            themes: [],
+            structure: {
+              structureType: 'three_act',
+              act1: '',
+              act2a: '',
+              act2b: '',
+              act3: '',
+              midpoint: '',
+              climax: '',
+            },
+          },
+          visual: {
+            artDirection: '写实',
+            artStyle: '写实',
+            colorPalette: [],
+            colorMood: '',
+            cinematography: '',
+            lightingStyle: '',
+            references: [],
+          },
+          era: {
+            era: '现代',
+            eraDescription: '现代背景',
+            location: '北京',
+          },
+        }),
+      });
+
+      const content = '这是一个很长的文本内容'.repeat(50); // 长度超过800
+      const result = await extractorDisabled.extract(content);
+
+      // 应该只调用一次（统一提取），不会调用情绪曲线提取
+      expect(mockGenerateText).toHaveBeenCalledTimes(1);
+      expect(result.emotional.arc).toEqual([]);
+    });
+
+    it('当文本长度超过阈值且extractEmotionalArc为true时应该提取情绪曲线', async () => {
+      const extractorEnabled = new GlobalContextExtractor(mockModelConfig, {
+        extractEmotionalArc: true,
+        textLengthThreshold: 100, // 设置较低的阈值以便测试
+      });
+
+      // Mock统一提取响应
+      mockGenerateText.mockResolvedValueOnce({
+        success: true,
+        data: JSON.stringify({
+          story: {
+            synopsis: '测试故事',
+            logline: '简介',
+            coreConflict: '冲突',
+            themes: [],
+            structure: {
+              structureType: 'three_act',
+              act1: '',
+              act2a: '',
+              act2b: '',
+              act3: '',
+              midpoint: '',
+              climax: '',
+            },
+          },
+          visual: {
+            artDirection: '写实',
+            artStyle: '写实',
+            colorPalette: [],
+            colorMood: '',
+            cinematography: '',
+            lightingStyle: '',
+            references: [],
+          },
+          era: {
+            era: '现代',
+            eraDescription: '现代背景',
+            location: '北京',
+          },
+        }),
+      });
+
+      // Mock情绪曲线提取响应
+      mockGenerateText.mockResolvedValueOnce({
+        success: true,
+        data: JSON.stringify({
+          overallMood: '励志向上',
+          arc: [
+            { plotPoint: '开场', emotion: '平静', intensity: 3, colorTone: '明亮', percentage: 0 },
+            { plotPoint: '高潮', emotion: '喜悦', intensity: 8, colorTone: '暖色', percentage: 80 },
+          ],
+        }),
+      });
+
+      const content = '这是一个很长的文本内容，需要超过100字符的阈值才能触发情绪曲线提取。'.repeat(3); // 长度超过100
+      const result = await extractorEnabled.extract(content);
+
+      // 应该调用两次（统一提取 + 情绪曲线提取）
+      expect(mockGenerateText).toHaveBeenCalledTimes(2);
+      expect(result.emotional.arc.length).toBeGreaterThan(0);
+      expect(result.emotional.overallMood).toBe('励志向上');
     });
   });
 });

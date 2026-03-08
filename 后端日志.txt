@@ -1,4 +1,5 @@
 client:789 [vite] connecting...
+client:912 [vite] connected.
 react-dom-client.development.js:28004 Download the React DevTools for a better development experience: https://react.dev/link/react-devtools
 aiService.ts:68 [AIService] Registered provider: volcengine
 aiService.ts:68 [AIService] Registered provider: vidu
@@ -11,8 +12,7 @@ AppContext.tsx:119 [INIT] Attempting auto-connect...
 AppContext.tsx:121 [INIT] autoConnect returned: false
 AppContext.tsx:121 [INIT] autoConnect returned: false
 AppContext.tsx:24 [STORAGE] Connection check: Connected=false, Responsive=true
-client:912 [vite] connected.
-AppContext.tsx:147 [INIT] Initialization complete. FS Responsive: true, Connected: false, Elapsed: 500ms
+AppContext.tsx:147 [INIT] Initialization complete. FS Responsive: true, Connected: false, Elapsed: 508ms
 storage.ts:495 [STORAGE] Triggering showDirectoryPicker...
 AppContext.tsx:24 [STORAGE] Connection check: Connected=false, Responsive=true
 storage.ts:499 [STORAGE] Directory picker success: ProjectML
@@ -20,76 +20,92 @@ AppContext.tsx:24 [STORAGE] Connection check: Connected=true, Responsive=true
 App.tsx:32 [APP] Triggering jobQueue.loadQueue()...
 AppContext.tsx:24 [STORAGE] Connection check: Connected=true, Responsive=true
 AppContext.tsx:24 [STORAGE] Connection check: Connected=true, Responsive=true
-ScriptManager.tsx:128 [ScriptManager] ========== useEffect: currentScript changed ==========
-ScriptManager.tsx:129 [ScriptManager] currentScript exists: false
-ScriptManager.tsx:130 [ScriptManager] parseState exists: false
-ScriptManager.tsx:131 [ScriptManager] qualityReport exists: false
-ScriptManager.tsx:144 [ScriptManager] No quality report in parseState, setting to null
-ScriptManager.tsx:128 [ScriptManager] ========== useEffect: currentScript changed ==========
-ScriptManager.tsx:129 [ScriptManager] currentScript exists: false
-ScriptManager.tsx:130 [ScriptManager] parseState exists: false
-ScriptManager.tsx:131 [ScriptManager] qualityReport exists: false
-ScriptManager.tsx:144 [ScriptManager] No quality report in parseState, setting to null
-storage.ts:695 [STORAGE] Slow FileSystem read: scripts_6a3e9f65-3116-4acc-a7cb-6b0a19f71bc4.json took 102.30ms
-ScriptManager.tsx:128 [ScriptManager] ========== useEffect: currentScript changed ==========
-ScriptManager.tsx:129 [ScriptManager] currentScript exists: true
-ScriptManager.tsx:130 [ScriptManager] parseState exists: true
-ScriptManager.tsx:131 [ScriptManager] qualityReport exists: true
-ScriptManager.tsx:135 [ScriptManager] Restoring quality report: {score: 87, violationsCount: 17, suggestionsCount: 5, type: 'object'}
-ScriptManager.tsx:142 [ScriptManager] ========== Quality Report Restored ==========
-storage.ts:695 [STORAGE] Slow FileSystem read: scripts_6a3e9f65-3116-4acc-a7cb-6b0a19f71bc4.json took 246.10ms
-ScriptManager.tsx:128 [ScriptManager] ========== useEffect: currentScript changed ==========
-ScriptManager.tsx:129 [ScriptManager] currentScript exists: true
-ScriptManager.tsx:130 [ScriptManager] parseState exists: true
-ScriptManager.tsx:131 [ScriptManager] qualityReport exists: true
-ScriptManager.tsx:135 [ScriptManager] Restoring quality report: {score: 87, violationsCount: 17, suggestionsCount: 5, type: 'object'}
-ScriptManager.tsx:142 [ScriptManager] ========== Quality Report Restored ==========
-AppContext.tsx:24 [STORAGE] Connection check: Connected=true, Responsive=true
-ScriptManager.tsx:261 [ScriptManager] Detected encoding issues: ['混合使用多种换行符']
-ScriptManager.tsx:266 [ScriptManager] Text cleaned: {originalLength: 7370, cleanedLength: 7033, removedChars: 337, chapterCount: 1}
-[Violation]Forced reflow while executing JavaScript took 69ms
-AppContext.tsx:24 [STORAGE] Connection check: Connected=true, Responsive=true
-storage.ts:1119 [Storage] ========== Saving Script ==========
-storage.ts:1120 [Storage] Script ID: script_1772890527233_czdu3outa
-storage.ts:1121 [Storage] Has parseState: true
-storage.ts:1122 [Storage] Has qualityReport: false
-storage.ts:1138 [Storage] New script added
-storage.ts:1142 [Storage] ========== Script Saved ==========
-ScriptManager.tsx:128 [ScriptManager] ========== useEffect: currentScript changed ==========
-ScriptManager.tsx:129 [ScriptManager] currentScript exists: true
-ScriptManager.tsx:130 [ScriptManager] parseState exists: true
-ScriptManager.tsx:131 [ScriptManager] qualityReport exists: false
-ScriptManager.tsx:144 [ScriptManager] No quality report in parseState, setting to null
-scriptParser.ts:906 [ScriptParser] Initialized with config: {useSemanticChunking: true, useDramaRules: true, dramaRulesMinScore: 60, useCache: true, cacheTTL: 3600000, …}
-scriptParser.ts:919 [ScriptParser] SemanticChunker initialized
-scriptParser.ts:923 [ScriptParser] ShortDramaRules initialized
-scriptParser.ts:927 [ScriptParser] MultiLevelCache initialized
-scriptParser.ts:934 [ScriptParser] QualityAnalyzer initialized
-scriptParser.ts:938 [ScriptParser] PerformanceMonitor initialized
-scriptParser.ts:1009 [ScriptParser] ContextInjector initialized
-scriptParser.ts:1012 [ScriptParser] Global context support initialized
-scriptParser.ts:983 [ScriptParser] IterativeRefinementEngine initialized
-scriptParser.ts:966 [ScriptParser] Budget calculation functions ready
-ScriptManager.tsx:404 [ScriptManager] 完整解析模式，ScriptParser配置: {useSemanticChunking: true, useDramaRules: true, dramaRulesMinScore: 60, useCache: true, cacheTTL: 3600000, …}
-scriptParser.ts:2710 [ScriptParser] ========== Starting Parse Script ==========
-scriptParser.ts:2716 [ScriptParser] Strategy selected: chunked
-scriptParser.ts:2717 [ScriptParser] Reason: 长文本分块路径 (5723 > 5000 字)
-scriptParser.ts:2718 [ScriptParser] Word count: 5723
-scriptParser.ts:2719 [ScriptParser] Estimated time: 360s
-scriptParser.ts:2720 [ScriptParser] Recommended batch size: 3
-scriptParser.ts:2748 [ScriptParser] Using CHUNKED PATH (长文本分块路径 (5723 > 5000 字))
-scriptParser.ts:2537 [ScriptParser] ========== Chunked Text Parse Path ==========
-scriptParser.ts:2538 [ScriptParser] Content length: 7033 characters
-scriptParser.ts:2558 [ScriptParser] Text split into 2 chunks
-scriptParser.ts:1593 [ScriptParser] ========== Stage 1: Extract Metadata (Structured Output) ==========
-scriptParser.ts:1594 [ScriptParser] Content length: 5976 characters
-scriptParser.ts:1597 [ScriptParser] Prompt length: 3446 characters
-scriptParser.ts:1598 [ScriptParser] Sending structured output request to LLM...
-scriptParser.ts:1407 [ScriptParser] callStructuredLLM called for metadata
-scriptParser.ts:1408 [ScriptParser] API URL: https://ark.cn-beijing.volces.com/api/v3
-scriptParser.ts:1409 [ScriptParser] Model: doubao-seed-1-6-251015
-scriptParser.ts:1410 [ScriptParser] Max Tokens: 4000
-scriptParser.ts:1436 [ScriptParser] Calling LLMProvider.generateStructured...
+ScriptManager.tsx:137 [ScriptManager] ========== useEffect: currentScript changed ==========
+ScriptManager.tsx:138 [ScriptManager] currentScript exists: false
+ScriptManager.tsx:139 [ScriptManager] parseState exists: false
+ScriptManager.tsx:140 [ScriptManager] qualityReport exists: false
+ScriptManager.tsx:153 [ScriptManager] No quality report in parseState, setting to null
+ScriptManager.tsx:137 [ScriptManager] ========== useEffect: currentScript changed ==========
+ScriptManager.tsx:138 [ScriptManager] currentScript exists: false
+ScriptManager.tsx:139 [ScriptManager] parseState exists: false
+ScriptManager.tsx:140 [ScriptManager] qualityReport exists: false
+ScriptManager.tsx:153 [ScriptManager] No quality report in parseState, setting to null
+storage.ts:695 [STORAGE] Slow FileSystem read: scripts_6a3e9f65-3116-4acc-a7cb-6b0a19f71bc4.json took 142.70ms
+storage.ts:695 [STORAGE] Slow FileSystem read: projects.json took 142.20ms
+storage.ts:695 [STORAGE] Slow FileSystem read: scripts_6a3e9f65-3116-4acc-a7cb-6b0a19f71bc4.json took 142.40ms
+storage.ts:695 [STORAGE] Slow FileSystem read: scripts_6a3e9f65-3116-4acc-a7cb-6b0a19f71bc4.json took 143.70ms
+ScriptManager.tsx:137 [ScriptManager] ========== useEffect: currentScript changed ==========
+ScriptManager.tsx:138 [ScriptManager] currentScript exists: true
+ScriptManager.tsx:139 [ScriptManager] parseState exists: true
+ScriptManager.tsx:140 [ScriptManager] qualityReport exists: true
+ScriptManager.tsx:144 [ScriptManager] Restoring quality report: {score: 94, violationsCount: 9, suggestionsCount: 4, type: 'object'}
+ScriptManager.tsx:151 [ScriptManager] ========== Quality Report Restored ==========
+storage.ts:695 [STORAGE] Slow FileSystem read: assets_6a3e9f65-3116-4acc-a7cb-6b0a19f71bc4.json took 297.40ms
+storage.ts:695 [STORAGE] Slow FileSystem read: scripts_6a3e9f65-3116-4acc-a7cb-6b0a19f71bc4.json took 296.20ms
+storage.ts:695 [STORAGE] Slow FileSystem read: assets_6a3e9f65-3116-4acc-a7cb-6b0a19f71bc4.json took 296.10ms
+ScriptManager.tsx:137 [ScriptManager] ========== useEffect: currentScript changed ==========
+ScriptManager.tsx:138 [ScriptManager] currentScript exists: true
+ScriptManager.tsx:139 [ScriptManager] parseState exists: true
+ScriptManager.tsx:140 [ScriptManager] qualityReport exists: true
+ScriptManager.tsx:144 [ScriptManager] Restoring quality report: {score: 94, violationsCount: 9, suggestionsCount: 4, type: 'object'}score: 94suggestionsCount: 4type: "object"violationsCount: 9[[Prototype]]: Object
+ScriptManager.tsx:151 [ScriptManager] ========== Quality Report Restored ==========
+scriptParser.ts:982 [ScriptParser] Initialized with config: {useSemanticChunking: true, useDramaRules: true, dramaRulesMinScore: 60, useCache: true, cacheTTL: 3600000, …}
+scriptParser.ts:995 [ScriptParser] SemanticChunker initialized
+scriptParser.ts:999 [ScriptParser] ShortDramaRules initialized
+scriptParser.ts:1003 [ScriptParser] MultiLevelCache initialized
+scriptParser.ts:1010 [ScriptParser] QualityAnalyzer initialized
+scriptParser.ts:1014 [ScriptParser] PerformanceMonitor initialized
+scriptParser.ts:1085 [ScriptParser] ContextInjector initialized
+scriptParser.ts:1088 [ScriptParser] Global context support initialized
+scriptParser.ts:1059 [ScriptParser] IterativeRefinementEngine initialized
+scriptParser.ts:1037 [ScriptParser] Budget planner disabled
+ScriptManager.tsx:413 [ScriptManager] 完整解析模式，ScriptParser配置: {useSemanticChunking: true, useDramaRules: true, dramaRulesMinScore: 60, useCache: true, cacheTTL: 3600000, …}
+scriptParser.ts:3031 [ScriptParser] ========== Starting Parse Script ==========
+scriptParser.ts:3037 [ScriptParser] Strategy selected: fast
+scriptParser.ts:3038 [ScriptParser] Reason: 短文本快速路径 (400 < 800 字)
+scriptParser.ts:3039 [ScriptParser] Word count: 400
+scriptParser.ts:3040 [ScriptParser] Estimated time: 60s
+scriptParser.ts:3041 [ScriptParser] Recommended batch size: 10
+scriptParser.ts:3057 [ScriptParser] Using FAST PATH (短文本快速路径 (400 < 800 字))
+scriptParser.ts:3058 [ScriptParser] useParallelExtraction: true
+scriptParser.ts:2689 [ScriptParser] ========== Short Text Fast Path (Optimized) ==========
+scriptParser.ts:2690 [ScriptParser] Content length: 469 characters
+scriptParser.ts:1727 [ScriptParser] ========== Stage 1: Extract Metadata (Structured Output) ==========
+scriptParser.ts:1728 [ScriptParser] Content length: 469 characters
+scriptParser.ts:1729 [ScriptParser] Skip global context: true
+scriptParser.ts:1732 [ScriptParser] Prompt length: 915 characters
+scriptParser.ts:1733 [ScriptParser] Sending structured output request to LLM...
+scriptParser.ts:1530 [ScriptParser] callStructuredLLM called for metadata
+scriptParser.ts:1531 [ScriptParser] API URL: https://ark.cn-beijing.volces.com/api/v3
+scriptParser.ts:1532 [ScriptParser] Model: doubao-seed-1-6-251015
+scriptParser.ts:1533 [ScriptParser] Max Tokens: 4000
+scriptParser.ts:1682 [ScriptParser] ========== Extracting Global Context ==========
+scriptParser.ts:1663 [ScriptParser] GlobalContextExtractor initialized with maxTokens: 5000
+scriptParser.ts:1664 [ScriptParser] GlobalContextExtractor config: {extractEmotionalArc: true, textLengthThreshold: 800}
+scriptParser.ts:1667 [ScriptParser] GlobalContextExtractor initialized with model config
+GlobalContextExtractor.ts:152 [GlobalContextExtractor] Starting optimized extraction (single LLM call)...
+LLMProvider.ts:81 [LLMProvider] ========== API Request ==========
+LLMProvider.ts:82 [LLMProvider] Endpoint: https://ark.cn-beijing.volces.com/api/v3/chat/completions
+LLMProvider.ts:83 [LLMProvider] Model: doubao-seed-1-6-251015
+LLMProvider.ts:84 [LLMProvider] enable_thinking: false
+LLMProvider.ts:85 [LLMProvider] Temperature: 0.3
+LLMProvider.ts:86 [LLMProvider] Max Tokens: 5000
+LLMProvider.ts:87 [LLMProvider] Messages count: 2
+LLMProvider.ts:88 [LLMProvider] First message length: 48 characters
+LLMProvider.ts:89 [LLMProvider] Request body: {
+  "model": "doubao-seed-1-6-251015",
+  "messages": [
+    {
+      "role": "system",
+      "content": "你是一个专业的剧本分析助手，擅长从小说/剧本中提取结构化信息。请严格按照要求的JSON格式输出。"
+    },
+    {
+      "role": "user",
+      "content": "\n请深入分析以下剧本/小说，一次性提取故事核心、视觉风格和时代背景信息。\n\n【剧本内容】\n林晚第一次见它，是在深秋的楼道口。小奶猫缩在纸箱里，毛粘成一缕缕，琥珀色的眼睛却亮得很，怯生生蹭她的鞋尖。\n她把它抱回家，取名暖团。从此，冷清的小出租屋，多了点软乎乎的动静。\n\n她下班晚归，钥匙刚插进锁孔，就听见“喵呜”一声。暖团踩着小碎步扑过来，蹭她沾着寒气的裤腿，把脑袋埋进她掌心，呼噜声像揉碎的星光。\n\n她煮面时，暖团就蹲在灶台边，不吵不闹，只盯着她搅动面条的手，偶尔用尾巴扫扫她的脚踝。面煮好，她挑出几根凉透，放在小小的瓷碟里，暖团小口小口舔着，尾巴轻轻搭在她的脚背。\n...
+LLMProvider.ts:91 [LLMProvider] Sending request...
+BaseProvider.ts:63 [BaseProvider] Requesting: https://ark.cn-beijing.volces.com/api/v3/chat/completions, Mode: DEV, Localhost: true
+BaseProvider.ts:84 [BaseProvider] Using Proxy: /api/universal-proxy -> https://ark.cn-beijing.volces.com/api/v3/chat/completions
+scriptParser.ts:1559 [ScriptParser] Calling LLMProvider.generateStructured...
 LLMProvider.ts:240 [LLMProvider] ========== Structured Output Request ==========
 LLMProvider.ts:241 [LLMProvider] Endpoint: https://ark.cn-beijing.volces.com/api/v3/chat/completions
 LLMProvider.ts:242 [LLMProvider] Model: doubao-seed-1-6-251015
@@ -98,108 +114,59 @@ LLMProvider.ts:245 [LLMProvider] Sending structured output request...
 BaseProvider.ts:63 [BaseProvider] Requesting: https://ark.cn-beijing.volces.com/api/v3/chat/completions, Mode: DEV, Localhost: true
 BaseProvider.ts:84 [BaseProvider] Using Proxy: /api/universal-proxy -> https://ark.cn-beijing.volces.com/api/v3/chat/completions
 BaseProvider.ts:99 [BaseProvider] Response received: 200 OK
-LLMProvider.ts:258 [LLMProvider] Structured request completed in 35540ms
-LLMProvider.ts:269 [LLMProvider] Response length: 253 characters
+LLMProvider.ts:258 [LLMProvider] Structured request completed in 33388ms
+LLMProvider.ts:269 [LLMProvider] Response length: 235 characters
 LLMProvider.ts:296 [LLMProvider] Structured output validated successfully
-scriptParser.ts:1449 [ScriptParser] Structured output received successfully
-scriptParser.ts:1609 [ScriptParser] Metadata extracted successfully (Structured Output):
-scriptParser.ts:1610   - Title: 墨玉仙途
-scriptParser.ts:1611   - Word Count: 1800
-scriptParser.ts:1612   - Characters: 3 (林清玄, 王虎, 云澜子)
-scriptParser.ts:1613   - Scenes: 3 (青云宗山门, 杂役院, 黑风崖)
-scriptParser.ts:1614   - Genre: 古装修仙
-scriptParser.ts:1615   - Tone: 正剧
-scriptParser.ts:1552 [ScriptParser] ========== Extracting Global Context ==========
-scriptParser.ts:1534 [ScriptParser] GlobalContextExtractor initialized with maxTokens: 5000
-scriptParser.ts:1537 [ScriptParser] GlobalContextExtractor initialized with model config
-GlobalContextExtractor.ts:119 [GlobalContextExtractor] Starting optimized extraction (single LLM call)...
-LLMProvider.ts:81 [LLMProvider] ========== API Request ==========
-LLMProvider.ts:82 [LLMProvider] Endpoint: https://ark.cn-beijing.volces.com/api/v3/chat/completions
-LLMProvider.ts:83 [LLMProvider] Model: doubao-seed-1-6-251015
-LLMProvider.ts:84 [LLMProvider] enable_thinking: false
-LLMProvider.ts:85 [LLMProvider] Temperature: 0.3
-LLMProvider.ts:86 [LLMProvider] Max Tokens: 5000
-LLMProvider.ts:87 [LLMProvider] Messages count: 2
-LLMProvider.ts:88 [LLMProvider] First message length: 48 characters
-LLMProvider.ts:89 [LLMProvider] Request body: {
-  "model": "doubao-seed-1-6-251015",
-  "messages": [
-    {
-      "role": "system",
-      "content": "你是一个专业的剧本分析助手，擅长从小说/剧本中提取结构化信息。请严格按照要求的JSON格式输出。"
-    },
-    {
-      "role": "user",
-      "content": "\n请深入分析以下剧本/小说，一次性提取故事核心、视觉风格和时代背景信息。\n\n【剧本内容】\n## 第一章 杂役苦\n青云宗，东域三大修仙宗门之一，立宗三千年，山门矗立于青云山脉之巅，云雾缭绕，灵气流淌，仙鹤盘旋，琼楼玉宇隐于云海之间，是无数凡人与低阶修士梦寐以求的修仙圣地。\n\n可这圣地的荣光，从来照不进山脚下的杂役院。\n\n杂役院位于青云宗最外围，没有灵脉滋养，没有丹药供给，连空气中的灵气都稀薄得可怜。这里住着的，都是灵根低劣、无缘正式入宗的少年人，每日做着劈柴、挑水、炼丹房采药、炼器房烧火的粗活，若三年内无法踏入炼气一层，便会被逐出宗门，重回凡尘，终老一生。\n\n林...
-LLMProvider.ts:91 [LLMProvider] Sending request...
-BaseProvider.ts:63 [BaseProvider] Requesting: https://ark.cn-beijing.volces.com/api/v3/chat/completions, Mode: DEV, Localhost: true
-BaseProvider.ts:84 [BaseProvider] Using Proxy: /api/universal-proxy -> https://ark.cn-beijing.volces.com/api/v3/chat/completions
-提取 已完成加载:POST "<URL>"。
+scriptParser.ts:1572 [ScriptParser] Structured output received successfully
+scriptParser.ts:1744 [ScriptParser] Metadata extracted successfully (Structured Output):
+scriptParser.ts:1745   - Title: 暖团的陪伴
+scriptParser.ts:1746   - Word Count: 350
+scriptParser.ts:1747   - Characters: 2 (林晚, 暖团)
+scriptParser.ts:1748   - Scenes: 2 (楼道口, 小出租屋)
+scriptParser.ts:1749   - Genre: 现代
+scriptParser.ts:1750   - Tone: 正剧
+scriptParser.ts:1762 [ScriptParser] Global context extraction skipped (options.skipGlobalContext=true)
 提取 已完成加载:POST "<URL>"。
 提取 已完成加载:POST "<URL>"。
 提取 已完成加载:POST "<URL>"。
 提取 已完成加载:POST "<URL>"。
 提取 已完成加载:POST "<URL>"。
 BaseProvider.ts:99 [BaseProvider] Response received: 200 OK
-LLMProvider.ts:104 [LLMProvider] Request completed in 59356ms
+LLMProvider.ts:104 [LLMProvider] Request completed in 40308ms
 LLMProvider.ts:118 [LLMProvider] ========== API Response ==========
-LLMProvider.ts:119 [LLMProvider] Response length: 1096 characters
-LLMProvider.ts:120 [LLMProvider] Prompt tokens: 4714
-LLMProvider.ts:121 [LLMProvider] Completion tokens: 2391
-LLMProvider.ts:122 [LLMProvider] Total tokens: 7105
+LLMProvider.ts:119 [LLMProvider] Response length: 973 characters
+LLMProvider.ts:120 [LLMProvider] Prompt tokens: 915
+LLMProvider.ts:121 [LLMProvider] Completion tokens: 1658
+LLMProvider.ts:122 [LLMProvider] Total tokens: 2573
 LLMProvider.ts:123 [LLMProvider] Response preview: {
   "story": {
-    "synopsis": "青云宗杂役林清玄因伪灵根受欺凌，意外坠崖激活父母遗留的墨玉佩，获残魂云澜子指点，得知是混沌四灵根，修炼《混沌归元诀》突破至炼气三层。在外...
-GlobalContextExtractor.ts:127 [GlobalContextExtractor] Unified extraction completed in 59359ms
-LLMProvider.ts:81 [LLMProvider] ========== API Request ==========
-LLMProvider.ts:82 [LLMProvider] Endpoint: https://ark.cn-beijing.volces.com/api/v3/chat/completions
-LLMProvider.ts:83 [LLMProvider] Model: doubao-seed-1-6-251015
-LLMProvider.ts:84 [LLMProvider] enable_thinking: false
-LLMProvider.ts:85 [LLMProvider] Temperature: 0.3
-LLMProvider.ts:86 [LLMProvider] Max Tokens: 5000
-LLMProvider.ts:87 [LLMProvider] Messages count: 2
-LLMProvider.ts:88 [LLMProvider] First message length: 51 characters
-LLMProvider.ts:89 [LLMProvider] Request body: {
-  "model": "doubao-seed-1-6-251015",
-  "messages": [
-    {
-      "role": "system",
-      "content": "你是一个专业的情绪分析助手，擅长从剧本中提取情绪曲线和情感变化信息。请严格按照要求的JSON格式输出。"
-    },
-    {
-      "role": "user",
-      "content": "\n基于以下故事信息，分析情绪曲线：\n\n【故事梗概】\n青云宗杂役林清玄因伪灵根受欺凌，意外坠崖激活父母遗留的墨玉佩，获残魂云澜子指点，得知是混沌四灵根，修炼《混沌归元诀》突破至炼气三层。在外门考核中，他的实力震惊众人，被破格提拔为内门弟子，开启新仙途。\n\n【故事结构】\n第一幕：林清玄杂役院受欺，伪灵根困境。\n第二幕上：坠崖激活玉佩获混沌灵根传承。\n第二幕下：修炼突破至炼气三层巅峰。\n第三幕：外门考核震惊众人，破格入内门。\n中点：坠崖激活玉佩，得知混沌灵根真相。\n高潮：外门考核展示实力，被破格提拔为内门弟子。\n\n【剧本片段】\n## 第一章 杂役苦\n...
-LLMProvider.ts:91 [LLMProvider] Sending request...
-BaseProvider.ts:63 [BaseProvider] Requesting: https://ark.cn-beijing.volces.com/api/v3/chat/completions, Mode: DEV, Localhost: true
-BaseProvider.ts:84 [BaseProvider] Using Proxy: /api/universal-proxy -> https://ark.cn-beijing.volces.com/api/v3/chat/completions
-BaseProvider.ts:99 [BaseProvider] Response received: 200 OK
-LLMProvider.ts:104 [LLMProvider] Request completed in 26811ms
-LLMProvider.ts:118 [LLMProvider] ========== API Response ==========
-LLMProvider.ts:119 [LLMProvider] Response length: 1176 characters
-LLMProvider.ts:120 [LLMProvider] Prompt tokens: 3935
-LLMProvider.ts:121 [LLMProvider] Completion tokens: 1025
-LLMProvider.ts:122 [LLMProvider] Total tokens: 4960
-LLMProvider.ts:123 [LLMProvider] Response preview: {
-  "overallMood": "励志向上",
-  "arc": [
-    {
-      "plotPoint": "杂役院受欺（开场）",
-      "emotion": "压抑隐忍",...
-scriptParser.ts:1565 [ScriptParser] Global context extracted successfully:
-scriptParser.ts:1566   - Story synopsis: 青云宗杂役林清玄因伪灵根受欺凌，意外坠崖激活父母遗留的墨玉佩，获残魂云澜子指点，得知是混沌四灵根，修...
-scriptParser.ts:1567   - Visual style: 仙侠水墨、东方奇幻
-scriptParser.ts:1568   - Era: 修仙纪元
-scriptParser.ts:1569   - Emotional arc points: 8
-scriptParser.ts:1570   - Consistency rules: 0 era constraints
-scriptParser.ts:1623 [ScriptParser] Global context merged into metadata
-scriptParser.ts:1945 [ScriptParser] ---------- Batch Extracting 3 Characters with Context ----------
-scriptParser.ts:1961 [ScriptParser] Injecting global context into character extraction
-scriptParser.ts:1965 [ScriptParser] Context-enhanced prompt length: 5440 characters
-scriptParser.ts:1289 [ScriptParser] callLLM called for character, retryCount: 0
-scriptParser.ts:1290 [ScriptParser] API URL: https://ark.cn-beijing.volces.com/api/v3
-scriptParser.ts:1291 [ScriptParser] Model: doubao-seed-1-6-251015
-scriptParser.ts:1292 [ScriptParser] Max Tokens: 6000
-scriptParser.ts:1321 [ScriptParser] Calling LLMProvider.generateText...
+    "synopsis": "深秋，独居女孩林晚在楼道口捡到小奶猫暖团，带回冷清出租屋。暖团在她晚归时迎接，煮面时陪伴，赶方案时暖手，感冒时守在枕边。最终林晚领悟，猫...
+GlobalContextExtractor.ts:160 [GlobalContextExtractor] Unified extraction completed in 40310ms
+GlobalContextExtractor.ts:171 [GlobalContextExtractor] Skipping emotional arc extraction (content length: 469, threshold: 800, enabled: true)
+scriptParser.ts:1695 [ScriptParser] Global context extracted successfully:
+scriptParser.ts:1696   - Story synopsis: 深秋，独居女孩林晚在楼道口捡到小奶猫暖团，带回冷清出租屋。暖团在她晚归时迎接，煮面时陪伴，赶方案时暖...
+scriptParser.ts:1697   - Visual style: 温馨写实
+scriptParser.ts:1698   - Era: 现代都市
+scriptParser.ts:1699   - Emotional arc points: 0
+scriptParser.ts:1700   - Consistency rules: 0 era constraints
+scriptParser.ts:2709 [ScriptParser] Parallel extraction complete:
+scriptParser.ts:2710   - Metadata: 暖团的陪伴, 2 characters, 2 scenes
+scriptParser.ts:2711   - Global Context: extracted
+scriptParser.ts:2084 [ScriptParser] ---------- Batch Extracting 2 Characters with Context ----------
+scriptParser.ts:2100 [ScriptParser] Injecting global context into character extraction
+scriptParser.ts:2104 [ScriptParser] Context-enhanced prompt length: 1861 characters
+scriptParser.ts:1412 [ScriptParser] callLLM called for character, retryCount: 0
+scriptParser.ts:1413 [ScriptParser] API URL: https://ark.cn-beijing.volces.com/api/v3
+scriptParser.ts:1414 [ScriptParser] Model: doubao-seed-1-6-251015
+scriptParser.ts:1415 [ScriptParser] Max Tokens: 6000
+scriptParser.ts:2267 [ScriptParser] ---------- Batch Extracting 2 Scenes with Context ----------
+scriptParser.ts:2283 [ScriptParser] Injecting global context into scene extraction
+scriptParser.ts:2287 [ScriptParser] Context-enhanced prompt length: 2166 characters
+scriptParser.ts:1412 [ScriptParser] callLLM called for scene, retryCount: 0
+scriptParser.ts:1413 [ScriptParser] API URL: https://ark.cn-beijing.volces.com/api/v3
+scriptParser.ts:1414 [ScriptParser] Model: doubao-seed-1-6-251015
+scriptParser.ts:1415 [ScriptParser] Max Tokens: 6000
+scriptParser.ts:1444 [ScriptParser] Calling LLMProvider.generateText...
 LLMProvider.ts:81 [LLMProvider] ========== API Request ==========
 LLMProvider.ts:82 [LLMProvider] Endpoint: https://ark.cn-beijing.volces.com/api/v3/chat/completions
 LLMProvider.ts:83 [LLMProvider] Model: doubao-seed-1-6-251015
@@ -217,35 +184,11 @@ LLMProvider.ts:89 [LLMProvider] Request body: {
     },
     {
       "role": "user",
-      "content": "【故事背景】\n- 一句话简介：伪灵根杂役激活玉佩获传承，逆袭成青云宗天才。\n- 故事梗概：青云宗杂役林清玄因伪灵根受欺凌，意外坠崖激活父母遗留的墨玉佩，获残魂云澜子指点，得知是混沌四灵根，修炼《混沌归元诀》突破至炼气三层。在外门考核中，他的实力震惊众人，被破格提拔为内门弟子，开启新仙途。\n- 核心冲突：林清玄的伪灵根身份与修仙梦想的矛盾及与欺凌者的冲突。\n- 主题思想：命运抗争、天赋觉醒、成长逆袭\n\n\n【视觉风格】\n- 美术指导：水墨国风\n- 艺术风格：仙侠水墨、东方奇幻\n- 主色调：#336699、#000000、#ffffff\n- 色彩情绪：神秘大气，充满...
+      "content": "【故事背景】\n- 一句话简介：独居女孩与捡来的猫，用陪伴治愈孤独日常\n- 故事梗概：深秋，独居女孩林晚在楼道口捡到小奶猫暖团，带回冷清出租屋。暖团在她晚归时迎接，煮面时陪伴，赶方案时暖手，感冒时守在枕边。最终林晚领悟，猫的陪伴让孤独日子变得温柔。\n- 核心冲突：孤独生活与温暖陪伴的对立\n- 主题思想：陪伴的温暖、孤独的治愈\n\n\n【视觉风格】\n- 美术指导：写实电影感\n- 艺术风格：温馨写实\n- 主色调：#F9D776、#A67C52、#F5F5DC\n- 色彩情绪：温暖治愈\n\n\n【时代背景】\n- 年代：现代都市\n- 时代特征：现代都市独居青年日常，贴近...
 LLMProvider.ts:91 [LLMProvider] Sending request...
 BaseProvider.ts:63 [BaseProvider] Requesting: https://ark.cn-beijing.volces.com/api/v3/chat/completions, Mode: DEV, Localhost: true
 BaseProvider.ts:84 [BaseProvider] Using Proxy: /api/universal-proxy -> https://ark.cn-beijing.volces.com/api/v3/chat/completions
-BaseProvider.ts:99 [BaseProvider] Response received: 200 OK
-LLMProvider.ts:104 [LLMProvider] Request completed in 58773ms
-LLMProvider.ts:118 [LLMProvider] ========== API Response ==========
-LLMProvider.ts:119 [LLMProvider] Response length: 1661 characters
-LLMProvider.ts:120 [LLMProvider] Prompt tokens: 3675
-LLMProvider.ts:121 [LLMProvider] Completion tokens: 2712
-LLMProvider.ts:122 [LLMProvider] Total tokens: 6387
-LLMProvider.ts:123 [LLMProvider] Response preview: [
-  {
-    "name": "林清玄",
-    "gender": "male",
-    "age": "15",
-    "identity": "青云宗杂役院弟子",
-    "app...
-scriptParser.ts:1345 [ScriptParser] LLM response received, length: 1661
-scriptParser.ts:1968 [ScriptParser] Batch response received, length: 1661 characters
-scriptParser.ts:1971 [ScriptParser] Parsed 3 characters from batch response
-scriptParser.ts:2128 [ScriptParser] ---------- Batch Extracting 3 Scenes with Context ----------
-scriptParser.ts:2144 [ScriptParser] Injecting global context into scene extraction
-scriptParser.ts:2148 [ScriptParser] Context-enhanced prompt length: 5783 characters
-scriptParser.ts:1289 [ScriptParser] callLLM called for scene, retryCount: 0
-scriptParser.ts:1290 [ScriptParser] API URL: https://ark.cn-beijing.volces.com/api/v3
-scriptParser.ts:1291 [ScriptParser] Model: doubao-seed-1-6-251015
-scriptParser.ts:1292 [ScriptParser] Max Tokens: 6000
-scriptParser.ts:1321 [ScriptParser] Calling LLMProvider.generateText...
+scriptParser.ts:1444 [ScriptParser] Calling LLMProvider.generateText...
 LLMProvider.ts:81 [LLMProvider] ========== API Request ==========
 LLMProvider.ts:82 [LLMProvider] Endpoint: https://ark.cn-beijing.volces.com/api/v3/chat/completions
 LLMProvider.ts:83 [LLMProvider] Model: doubao-seed-1-6-251015
@@ -263,34 +206,54 @@ LLMProvider.ts:89 [LLMProvider] Request body: {
     },
     {
       "role": "user",
-      "content": "【故事背景】\n- 一句话简介：伪灵根杂役激活玉佩获传承，逆袭成青云宗天才。\n- 故事梗概：青云宗杂役林清玄因伪灵根受欺凌，意外坠崖激活父母遗留的墨玉佩，获残魂云澜子指点，得知是混沌四灵根，修炼《混沌归元诀》突破至炼气三层。在外门考核中，他的实力震惊众人，被破格提拔为内门弟子，开启新仙途。\n- 核心冲突：林清玄的伪灵根身份与修仙梦想的矛盾及与欺凌者的冲突。\n- 主题思想：命运抗争、天赋觉醒、成长逆袭\n\n\n【视觉风格】\n- 美术指导：水墨国风\n- 艺术风格：仙侠水墨、东方奇幻\n- 主色调：#336699、#000000、#ffffff\n- 色彩情绪：神秘大气，充满...
+      "content": "【故事背景】\n- 一句话简介：独居女孩与捡来的猫，用陪伴治愈孤独日常\n- 故事梗概：深秋，独居女孩林晚在楼道口捡到小奶猫暖团，带回冷清出租屋。暖团在她晚归时迎接，煮面时陪伴，赶方案时暖手，感冒时守在枕边。最终林晚领悟，猫的陪伴让孤独日子变得温柔。\n- 核心冲突：孤独生活与温暖陪伴的对立\n- 主题思想：陪伴的温暖、孤独的治愈\n\n\n【视觉风格】\n- 美术指导：写实电影感\n- 艺术风格：温馨写实\n- 主色调：#F9D776、#A67C52、#F5F5DC\n- 色彩情绪：温暖治愈\n\n\n【时代背景】\n- 年代：现代都市\n- 时代特征：现代都市独居青年日常，贴近...
 LLMProvider.ts:91 [LLMProvider] Sending request...
 BaseProvider.ts:63 [BaseProvider] Requesting: https://ark.cn-beijing.volces.com/api/v3/chat/completions, Mode: DEV, Localhost: true
 BaseProvider.ts:84 [BaseProvider] Using Proxy: /api/universal-proxy -> https://ark.cn-beijing.volces.com/api/v3/chat/completions
 BaseProvider.ts:99 [BaseProvider] Response received: 200 OK
-LLMProvider.ts:104 [LLMProvider] Request completed in 55513ms
+LLMProvider.ts:104 [LLMProvider] Request completed in 32247ms
 LLMProvider.ts:118 [LLMProvider] ========== API Response ==========
-LLMProvider.ts:119 [LLMProvider] Response length: 1497 characters
-LLMProvider.ts:120 [LLMProvider] Prompt tokens: 3920
-LLMProvider.ts:121 [LLMProvider] Completion tokens: 2282
-LLMProvider.ts:122 [LLMProvider] Total tokens: 6202
+LLMProvider.ts:119 [LLMProvider] Response length: 1161 characters
+LLMProvider.ts:120 [LLMProvider] Prompt tokens: 1193
+LLMProvider.ts:121 [LLMProvider] Completion tokens: 1306
+LLMProvider.ts:122 [LLMProvider] Total tokens: 2499
 LLMProvider.ts:123 [LLMProvider] Response preview: [
   {
-    "name": "青云宗山门",
+    "name": "林晚",
+    "gender": "female",
+    "age": "25",
+    "identity": "都市白领",
+    "appear...
+scriptParser.ts:1468 [ScriptParser] LLM response received, length: 1161
+scriptParser.ts:2107 [ScriptParser] Batch response received, length: 1161 characters
+scriptParser.ts:2110 [ScriptParser] Parsed 2 characters from batch response
+BaseProvider.ts:99 [BaseProvider] Response received: 200 OK
+LLMProvider.ts:104 [LLMProvider] Request completed in 42638ms
+LLMProvider.ts:118 [LLMProvider] ========== API Response ==========
+LLMProvider.ts:119 [LLMProvider] Response length: 903 characters
+LLMProvider.ts:120 [LLMProvider] Prompt tokens: 1413
+LLMProvider.ts:121 [LLMProvider] Completion tokens: 1615
+LLMProvider.ts:122 [LLMProvider] Total tokens: 3028
+LLMProvider.ts:123 [LLMProvider] Response preview: [
+  {
+    "name": "楼道口",
     "locationType": "outdoor",
-    "description": "青云山脉之巅的宗门山门区域，云雾缭绕，灵气流...
-scriptParser.ts:1345 [ScriptParser] LLM response received, length: 1497
-scriptParser.ts:2151 [ScriptParser] Batch response received, length: 1497 characters
-scriptParser.ts:2154 [ScriptParser] Parsed 3 scenes from batch response
-scriptParser.ts:2616 [ScriptParser] Chunked extraction complete: 3 characters, 3 scenes
-scriptParser.ts:2296 [ScriptParser] ---------- Batch Generating Shots with Context for 3 Scenes ----------
-scriptParser.ts:2307 [ScriptParser] Injecting global context into shots generation
-scriptParser.ts:2312 [ScriptParser] Context-enhanced prompt length: 3941 characters
-scriptParser.ts:1289 [ScriptParser] callLLM called for shots, retryCount: 0
-scriptParser.ts:1290 [ScriptParser] API URL: https://ark.cn-beijing.volces.com/api/v3
-scriptParser.ts:1291 [ScriptParser] Model: doubao-seed-1-6-251015
-scriptParser.ts:1292 [ScriptParser] Max Tokens: 12000
-scriptParser.ts:1321 [ScriptParser] Calling LLMProvider.generateText...
+    "description": "现代都市居民楼的楼道入口处，地面铺有普通地砖，墙...
+scriptParser.ts:1468 [ScriptParser] LLM response received, length: 903
+scriptParser.ts:2290 [ScriptParser] Batch response received, length: 903 characters
+scriptParser.ts:2293 [ScriptParser] Parsed 2 scenes from batch response
+scriptParser.ts:2734 [ScriptParser] Parallel character/scene extraction complete:
+scriptParser.ts:2735   - Characters: 2
+scriptParser.ts:2736   - Scenes: 2
+scriptParser.ts:2435 [ScriptParser] ---------- Batch Generating Shots with Context for 2 Scenes ----------
+scriptParser.ts:2441 [ScriptParser] Dynamic shot count for text length 469: 1-2个
+scriptParser.ts:2451 [ScriptParser] Injecting global context into shots generation
+scriptParser.ts:2456 [ScriptParser] Context-enhanced prompt length: 1284 characters
+scriptParser.ts:1412 [ScriptParser] callLLM called for shots, retryCount: 0
+scriptParser.ts:1413 [ScriptParser] API URL: https://ark.cn-beijing.volces.com/api/v3
+scriptParser.ts:1414 [ScriptParser] Model: doubao-seed-1-6-251015
+scriptParser.ts:1415 [ScriptParser] Max Tokens: 12000
+scriptParser.ts:1444 [ScriptParser] Calling LLMProvider.generateText...
 LLMProvider.ts:81 [LLMProvider] ========== API Request ==========
 LLMProvider.ts:82 [LLMProvider] Endpoint: https://ark.cn-beijing.volces.com/api/v3/chat/completions
 LLMProvider.ts:83 [LLMProvider] Model: doubao-seed-1-6-251015
@@ -308,39 +271,46 @@ LLMProvider.ts:89 [LLMProvider] Request body: {
     },
     {
       "role": "user",
-      "content": "【视觉指导】\n- 美术风格：仙侠水墨、东方奇幻\n- 色彩方案：#336699、#000000、#ffffff\n- 摄影风格：宏大远景与细腻近景结合，动态打斗镜头。\n- 光影风格：云雾柔光，夜晚冷光，玉佩激活暖光。\n- 参考风格：《诛仙I》、程小东\n\n\n\n\n\n\n\n请为以下所有场景生成分镜脚本。\n\n【剧本内容】\n## 第一章 杂役苦\n青云宗，东域三大修仙宗门之一，立宗三千年，山门矗立于青云山脉之巅，云雾缭绕，灵气流淌，仙鹤盘旋，琼楼玉宇隐于云海之间，是无数凡人与低阶修士梦寐以求的修仙圣地。\n\n可这圣地的荣光，从来照不进山脚下的杂役院。\n\n杂役院...
+      "content": "【视觉指导】\n- 美术风格：温馨写实\n- 色彩方案：#F9D776、#A67C52、#F5F5DC\n- 摄影风格：近距离特写，柔和运镜\n- 光影风格：暖光柔和，自然温馨\n- 参考风格：海街日记、是枝裕和\n\n\n\n\n\n\n\n请为以下所有场景生成分镜脚本。\n\n【剧本内容】\n林晚第一次见它，是在深秋的楼道口。小奶猫缩在纸箱里，毛粘成一缕缕，琥珀色的眼睛却亮得很，怯生生蹭她的鞋尖。\n她把它抱回家，取名暖团。从此，冷清的小出租屋，多了点软乎乎的动静。\n\n她下班晚归，钥匙刚插进锁孔，就听见“喵呜”一声。暖团踩着小碎步扑过来，蹭她沾着寒气的裤腿，把脑袋埋进她掌心...
 LLMProvider.ts:91 [LLMProvider] Sending request...
 BaseProvider.ts:63 [BaseProvider] Requesting: https://ark.cn-beijing.volces.com/api/v3/chat/completions, Mode: DEV, Localhost: true
 BaseProvider.ts:84 [BaseProvider] Using Proxy: /api/universal-proxy -> https://ark.cn-beijing.volces.com/api/v3/chat/completions
-MultiLevelCache.ts:443 [MultiLevelCache] Cleanup completed
+AppContext.tsx:24 [STORAGE] Connection check: Connected=true, Responsive=true
 BaseProvider.ts:99 [BaseProvider] Response received: 200 OK
-LLMProvider.ts:104 [LLMProvider] Request completed in 48891ms
+LLMProvider.ts:104 [LLMProvider] Request completed in 43093ms
 LLMProvider.ts:118 [LLMProvider] ========== API Response ==========
-LLMProvider.ts:119 [LLMProvider] Response length: 2638 characters
-LLMProvider.ts:120 [LLMProvider] Prompt tokens: 2715
-LLMProvider.ts:121 [LLMProvider] Completion tokens: 2204
-LLMProvider.ts:122 [LLMProvider] Total tokens: 4919
+LLMProvider.ts:119 [LLMProvider] Response length: 961 characters
+LLMProvider.ts:120 [LLMProvider] Prompt tokens: 873
+LLMProvider.ts:121 [LLMProvider] Completion tokens: 1784
+LLMProvider.ts:122 [LLMProvider] Total tokens: 2657
 LLMProvider.ts:123 [LLMProvider] Response preview: [
   {
-    "sceneName": "青云宗山门",
+    "sceneName": "楼道口",
     "sequence": 1,
-    "shotType": "extreme_long",
-    "cameraMoveme...
-scriptParser.ts:1345 [ScriptParser] LLM response received, length: 2638
-scriptParser.ts:2315 [ScriptParser] Batch response received, length: 2638 characters
-scriptParser.ts:2318 [ScriptParser] Parsed 12 shots from batch response
-scriptParser.ts:2659 [ScriptParser] Generated 12 shots
-scriptParser.ts:2684 [ScriptParser] ========== Chunked Parse Completed ==========
-scriptParser.ts:2685 [ScriptParser] Characters: 3, Scenes: 3, Shots: 12
-scriptParser.ts:2752 [ScriptParser] ========== Chunked Path Completed ==========
-scriptParser.ts:2753 [ScriptParser] Total duration: 285555ms (285.6s)
-scriptParser.ts:2754 [ScriptParser] ==========================================
-ScriptManager.tsx:440 [ScriptManager] ========== Getting Quality Report ==========
-ScriptManager.tsx:442 [ScriptManager] Report from parser: {exists: true, score: 90, type: 'object', hasViolations: true, hasSuggestions: true}
-ScriptManager.tsx:452 [ScriptManager] ========== Quality Report Set to State ==========
-ScriptManager.tsx:128 [ScriptManager] ========== useEffect: currentScript changed ==========
-ScriptManager.tsx:129 [ScriptManager] currentScript exists: true
-ScriptManager.tsx:130 [ScriptManager] parseState exists: true
-ScriptManager.tsx:131 [ScriptManager] qualityReport exists: true
-ScriptManager.tsx:135 [ScriptManager] Restoring quality report: {score: 90, violationsCount: 14, suggestionsCount: 5, type: 'object'}
-ScriptManager.tsx:142 [ScriptManager] ========== Quality Report Restored ==========
+    "shotType": "extreme_close_up",
+    "cameraMove...
+scriptParser.ts:1468 [ScriptParser] LLM response received, length: 961
+scriptParser.ts:2459 [ScriptParser] Batch response received, length: 961 characters
+scriptParser.ts:2462 [ScriptParser] Parsed 4 shots from batch response
+scriptParser.ts:2750 [ScriptParser] Fast path optimized: Generated 4 shots in 1 API call
+scriptParser.ts:2804 [ScriptParser] ========== Short Text Parse (Optimized) Completed ==========
+scriptParser.ts:2805 [ScriptParser] Characters: 2, Scenes: 2, Shots: 4
+scriptParser.ts:3068 [ScriptParser] ========== Fast Path Completed ==========
+scriptParser.ts:3069 [ScriptParser] Total duration: 126162ms (126.2s)
+scriptParser.ts:3070 [ScriptParser] Mode: Parallel (Optimized)
+scriptParser.ts:3071 [ScriptParser] ==========================================
+ScriptManager.tsx:449 [ScriptManager] ========== Getting Quality Report ==========
+ScriptManager.tsx:451 [ScriptManager] Report from parser: {exists: true, score: 95, type: 'object', hasViolations: true, hasSuggestions: true}
+ScriptManager.tsx:461 [ScriptManager] ========== Quality Report Set to State ==========
+ScriptManager.tsx:137 [ScriptManager] ========== useEffect: currentScript changed ==========
+ScriptManager.tsx:138 [ScriptManager] currentScript exists: true
+ScriptManager.tsx:139 [ScriptManager] parseState exists: true
+ScriptManager.tsx:140 [ScriptManager] qualityReport exists: true
+ScriptManager.tsx:144 [ScriptManager] Restoring quality report: {score: 95, violationsCount: 6, suggestionsCount: 5, type: 'object'}
+ScriptManager.tsx:151 [ScriptManager] ========== Quality Report Restored ==========
+AppContext.tsx:24 [STORAGE] Connection check: Connected=true, Responsive=true
+[Violation]Forced reflow while executing JavaScript took 44ms
+[Violation]Forced reflow while executing JavaScript took 42ms
+ShotList.tsx:117 [ShotList] 加载资产: {scriptId: 'script_1772948376936_hu1nbefnq', totalAssets: 0, filteredAssets: 0, scenes: Array(0)}
+ShotList.tsx:117 [ShotList] 加载资产: {scriptId: 'script_1772948376936_hu1nbefnq', totalAssets: 0, filteredAssets: 0, scenes: Array(0)}
+AppContext.tsx:24 [STORAGE] Connection check: Connected=true, Responsive=true

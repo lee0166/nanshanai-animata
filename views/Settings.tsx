@@ -3,7 +3,7 @@ import { ModelConfig, ModelCapabilities } from '../types';
 import { DEFAULT_MODELS, COMMON_VOLC_VIDEO_PARAMS, COMMON_IMAGE_PARAMS } from '../config/models';
 import { useApp } from '../contexts/context';
 import { useToast } from '../contexts/ToastContext';
-import { Save, Plus, Trash2, Monitor, Moon, Sun, FolderOpen, RefreshCcw, CheckCircle, AlertCircle, Globe, Palette, Settings as SettingsIcon, Database, Cpu, Pencil, Clock, Film, Sparkles, Shield, Zap } from 'lucide-react';
+import { Save, Plus, Trash2, Monitor, Moon, Sun, FolderOpen, RefreshCcw, CheckCircle, AlertCircle, Globe, Palette, Settings as SettingsIcon, Database, Cpu, Pencil, Clock, Film, Sparkles, Shield, Zap, Search, Eye, EyeOff, X } from 'lucide-react';
 import { storageService } from '../services/storage';
 import { 
   Card, 
@@ -41,6 +41,13 @@ const Settings: React.FC = () => {
   const [opfsSupported, setOpfsSupported] = useState(false);
   const { isOpen: isConfirmOpen, onOpen: onConfirmOpen, onClose: onConfirmClose } = useDisclosure();
   const [modelToDelete, setModelToDelete] = useState<string | null>(null);
+  
+  // Search and Filter State
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
+  const [selectedProviders, setSelectedProviders] = useState<string[]>([]);
+  const [sortBy, setSortBy] = useState<'name' | 'type' | 'recent'>('name');
+  const [visibleApiKeys, setVisibleApiKeys] = useState<Record<string, boolean>>({});
 
   // Duration Budget Configuration State
   const [durationBudgetConfig, setDurationBudgetConfig] = useState({
@@ -161,6 +168,58 @@ const Settings: React.FC = () => {
       !addedTemplateIds.has(m.id)
     );
   }, [selectedProvider, selectedType, settings.models]);
+
+  // Filter and sort models
+  const filteredModels = React.useMemo(() => {
+    let models = [...settings.models];
+    
+    // Search filter
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      models = models.filter(m => 
+        m.name.toLowerCase().includes(query) || 
+        m.modelId.toLowerCase().includes(query)
+      );
+    }
+    
+    // Type filter
+    if (selectedTypes.length > 0) {
+      models = models.filter(m => selectedTypes.includes(m.type));
+    }
+    
+    // Provider filter
+    if (selectedProviders.length > 0) {
+      models = models.filter(m => selectedProviders.includes(m.provider));
+    }
+    
+    // Sort
+    switch (sortBy) {
+      case 'name':
+        models.sort((a, b) => a.name.localeCompare(b.name));
+        break;
+      case 'type':
+        models.sort((a, b) => a.type.localeCompare(b.type));
+        break;
+      case 'recent':
+        break;
+    }
+    
+    return models;
+  }, [settings.models, searchQuery, selectedTypes, selectedProviders, sortBy]);
+
+  // Get unique providers from existing models
+  const existingProviders = React.useMemo(() => {
+    const providers = new Set(settings.models.map(m => m.provider));
+    return Array.from(providers);
+  }, [settings.models]);
+
+  // Toggle API Key visibility
+  const toggleApiKeyVisibility = (modelId: string) => {
+    setVisibleApiKeys(prev => ({
+      ...prev,
+      [modelId]: !prev[modelId]
+    }));
+  };
 
   const handleAddModel = () => {
     if (!newModelName || !selectedBaseModelId) return;
@@ -944,12 +1003,114 @@ const Settings: React.FC = () => {
                     {t.settings.addModel}
                 </Button>
             </CardHeader>
-            <CardBody className="px-8 pb-8 pt-4 space-y-8">
+            <CardBody className="px-6 pb-6 pt-4 space-y-6">
+                {/* Search and Filter Bar */}
+                {settings.models.length > 0 && (
+                    <div className="p-4 bg-slate-50 dark:bg-slate-900/30 rounded-xl border border-slate-200 dark:border-slate-800">
+                        <div className="flex flex-col md:flex-row gap-3">
+                            <div className="flex-1 relative">
+                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                                <Input
+                                    placeholder="搜索模型名称或 Model ID..."
+                                    value={searchQuery}
+                                    onValueChange={setSearchQuery}
+                                    size="sm"
+                                    variant="bordered"
+                                    radius="lg"
+                                    classNames={{
+                                        input: "pl-10 text-sm",
+                                        label: "text-sm font-medium text-slate-700 dark:text-slate-300"
+                                    }}
+                                />
+                            </div>
+                            <Select
+                                placeholder="类型筛选"
+                                selectedKeys={selectedTypes}
+                                onSelectionChange={(keys) => setSelectedTypes(Array.from(keys) as string[])}
+                                size="sm"
+                                variant="bordered"
+                                radius="lg"
+                                className="w-full md:w-40"
+                                selectionMode="multiple"
+                                classNames={{
+                                    label: "text-sm font-medium text-slate-700 dark:text-slate-300"
+                                }}
+                            >
+                                <SelectItem key="image" value="image">图像生成</SelectItem>
+                                <SelectItem key="video" value="video">视频生成</SelectItem>
+                                <SelectItem key="llm" value="llm">文本解析</SelectItem>
+                            </Select>
+                            {existingProviders.length > 0 && (
+                                <Select
+                                    placeholder="提供商筛选"
+                                    selectedKeys={selectedProviders}
+                                    onSelectionChange={(keys) => setSelectedProviders(Array.from(keys) as string[])}
+                                    size="sm"
+                                    variant="bordered"
+                                    radius="lg"
+                                    className="w-full md:w-40"
+                                    selectionMode="multiple"
+                                    classNames={{
+                                        label: "text-sm font-medium text-slate-700 dark:text-slate-300"
+                                    }}
+                                >
+                                    {existingProviders.map(provider => (
+                                        <SelectItem key={provider} value={provider}>
+                                            {provider === 'volcengine' ? '火山引擎' : 
+                                            provider === 'vidu' ? 'Vidu' : 
+                                            provider === 'openai' ? 'OpenAI' :
+                                            provider === 'aliyun' ? '阿里云' :
+                                            provider === 'modelscope' ? '魔搭社区' : provider}
+                                        </SelectItem>
+                                    ))}
+                                </Select>
+                            )}
+                            <Select
+                                placeholder="排序方式"
+                                selectedKeys={[sortBy]}
+                                onSelectionChange={(keys) => setSortBy(Array.from(keys)[0] as 'name' | 'type' | 'recent')}
+                                size="sm"
+                                variant="bordered"
+                                radius="lg"
+                                className="w-full md:w-36"
+                                classNames={{
+                                    label: "text-sm font-medium text-slate-700 dark:text-slate-300"
+                                }}
+                            >
+                                <SelectItem key="name" value="name">按名称</SelectItem>
+                                <SelectItem key="type" value="type">按类型</SelectItem>
+                                <SelectItem key="recent" value="recent">最近添加</SelectItem>
+                            </Select>
+                            {(searchQuery || selectedTypes.length > 0 || selectedProviders.length > 0) && (
+                                <Button
+                                    variant="light"
+                                    size="sm"
+                                    onPress={() => {
+                                        setSearchQuery('');
+                                        setSelectedTypes([]);
+                                        setSelectedProviders([]);
+                                    }}
+                                    startContent={<X className="w-4 h-4" />}
+                                    className="text-slate-500"
+                                >
+                                    清除
+                                </Button>
+                            )}
+                        </div>
+                        <div className="mt-3 text-xs text-slate-500 dark:text-slate-400">
+                            显示 <span className="font-medium text-slate-700 dark:text-slate-300">{filteredModels.length}</span> 个模型
+                            {filteredModels.length !== settings.models.length && (
+                                <span>（共 {settings.models.length} 个）</span>
+                            )}
+                        </div>
+                    </div>
+                )}
+                
                 {/* Add Model Form */}
                 {showAdd && (
-                    <Card className="bg-primary/10 dark:bg-primary/20 border border-primary/20 dark:border-primary/30" shadow="none" radius="lg">
-                        <CardBody className="p-8 space-y-8">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <Card className="bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800" shadow="none" radius="lg">
+                        <CardBody className="p-6 space-y-6">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <Input 
                                     label={t.settings.modelName}
                                     labelPlacement="outside"
@@ -960,8 +1121,8 @@ const Settings: React.FC = () => {
                                     radius="lg"
                                     size="lg"
                                     classNames={{
-                                      label: "font-black uppercase tracking-widest text-[15px] mb-2 text-slate-500",
-                                      input: "font-medium text-[15px]"
+                                      label: "text-sm font-medium text-slate-700 dark:text-slate-300 mb-2",
+                                      input: "text-[15px]"
                                     }}
                                 />
                                 <Select 
@@ -979,8 +1140,8 @@ const Settings: React.FC = () => {
                                     radius="lg"
                                     size="lg"
                                     classNames={{
-                                      label: "font-black uppercase tracking-widest text-[15px] mb-2 text-slate-500",
-                                      value: "font-medium text-[15px]"
+                                      label: "text-sm font-medium text-slate-700 dark:text-slate-300 mb-2",
+                                      value: "text-[15px]"
                                     }}
                                 >
                                     <SelectItem key="image" value="image">{t.settings.modelTypeImage}</SelectItem>
@@ -990,23 +1151,23 @@ const Settings: React.FC = () => {
                             </div>
                             
                             {/* Custom Model Toggle */}
-                            <div className="flex items-center gap-4 pt-4 pb-2">
+                            <div className="flex items-center gap-4 pt-2 pb-2">
                                 <Switch
                                     isSelected={isCustomModel}
                                     onValueChange={setIsCustomModel}
-                                    size="lg"
-                                    color="secondary"
+                                    size="md"
+                                    color="primary"
                                 />
                                 <div className="flex flex-col">
-                                    <span className="font-black uppercase tracking-widest text-[15px] text-slate-500">自定义模型</span>
-                                    <span className="text-xs text-slate-400">添加任意模型，不受预设列表限制</span>
+                                    <span className="text-sm font-medium text-slate-700 dark:text-slate-300">自定义模型</span>
+                                    <span className="text-xs text-slate-500 dark:text-slate-400">添加任意模型，不受预设列表限制</span>
                                 </div>
                             </div>
                             
                             {/* Custom Model Form */}
                             {isCustomModel && (
                                 <div className="space-y-6">
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6 bg-primary/10 dark:bg-primary/20 rounded-xl">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800">
                                         <Input 
                                             label="Provider"
                                             labelPlacement="outside"
@@ -1017,8 +1178,8 @@ const Settings: React.FC = () => {
                                             radius="lg"
                                             size="lg"
                                             classNames={{
-                                              label: "font-black uppercase tracking-widest text-[15px] mb-2 text-slate-500",
-                                              input: "font-medium text-[15px]"
+                                              label: "text-sm font-medium text-slate-700 dark:text-slate-300 mb-2",
+                                              input: "text-[15px]"
                                             }}
                                         />
                                         <Input 
@@ -1201,7 +1362,7 @@ const Settings: React.FC = () => {
                             
                             {/* Provider Selection (hidden when custom) */}
                             {!isCustomModel && (
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <Select 
                                     label={t.settings.provider}
                                     labelPlacement="outside"
@@ -1217,8 +1378,8 @@ const Settings: React.FC = () => {
                                     radius="lg"
                                     size="lg"
                                     classNames={{
-                                      label: "font-black uppercase tracking-widest text-[15px] mb-2 text-slate-500",
-                                      value: "font-medium text-[15px]"
+                                      label: "text-sm font-medium text-slate-700 dark:text-slate-300 mb-2",
+                                      value: "text-[15px]"
                                     }}
                                 >
                                     {availableProviders.map((p) => (
@@ -1319,8 +1480,8 @@ const Settings: React.FC = () => {
                         <TableColumn>API Key</TableColumn>
                         <TableColumn align="end">{t.settings.actions}</TableColumn>
                     </TableHeader>
-                    <TableBody emptyContent="No models configured.">
-                        {settings.models.map(model => (
+                    <TableBody emptyContent={filteredModels.length === 0 && settings.models.length > 0 ? "没有找到匹配的模型" : "No models configured."}>
+                        {filteredModels.map(model => (
                             <TableRow key={model.id}>
                                 <TableCell>
                                     <div className="flex items-center gap-3">
@@ -1404,22 +1565,34 @@ const Settings: React.FC = () => {
                                     />
                                 </TableCell>
                                 <TableCell>
-                                    <Input
-                                        size="md"
-                                        variant="bordered"
-                                        type="password"
-                                        value={model.apiKey}
-                                        onValueChange={(val) => {
-                                            const updatedModels = settings.models.map(m => 
-                                                m.id === model.id ? { ...m, apiKey: val } : m
-                                            );
-                                            updateSettings({ ...settings, models: updatedModels });
-                                        }}
-                                        className="max-w-[300px]"
-                                        classNames={{
-                                            input: "text-[14px]",
-                                        }}
-                                    />
+                                    <div className="flex items-center gap-2 max-w-[320px]">
+                                        <Input
+                                            size="md"
+                                            variant="bordered"
+                                            type={visibleApiKeys[model.id] ? "text" : "password"}
+                                            value={model.apiKey}
+                                            onValueChange={(val) => {
+                                                const updatedModels = settings.models.map(m => 
+                                                    m.id === model.id ? { ...m, apiKey: val } : m
+                                                );
+                                                updateSettings({ ...settings, models: updatedModels });
+                                            }}
+                                            className="flex-1"
+                                            classNames={{
+                                                input: "text-[14px]",
+                                            }}
+                                        />
+                                        <Button
+                                            isIconOnly
+                                            variant="light"
+                                            size="sm"
+                                            onPress={() => toggleApiKeyVisibility(model.id)}
+                                            className="text-slate-400 hover:text-slate-600"
+                                            aria-label={visibleApiKeys[model.id] ? "隐藏 API Key" : "显示 API Key"}
+                                        >
+                                            {visibleApiKeys[model.id] ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                                        </Button>
+                                    </div>
                                 </TableCell>
                                 <TableCell>
                                     <div className="flex items-center gap-1">

@@ -55,6 +55,7 @@ vi.mock('lucide-react', () => ({
   TrendingDown: () => <span>TrendingDown</span>,
   Flag: () => <span>Flag</span>,
   HelpCircle: () => <span>HelpCircle</span>,
+  Heart: () => <span>Heart</span>,
 }));
 
 describe('StoryOverviewCard', () => {
