@@ -43,9 +43,9 @@ export interface RefinementAction {
   /** 操作描述 */
   description: string;
   /** 当前值 */
-  currentValue?: string;
+  currentValue?: string | object;
   /** 建议值 */
-  proposedValue: string;
+  proposedValue: string | object;
   /** 置信度 0-1 */
   confidence: number;
   /** 自动应用是否安全 */
@@ -81,9 +81,9 @@ export interface RefinementChange {
   /** 目标 */
   target: string;
   /** 变更前 */
-  before: string;
+  before: string | object;
   /** 变更后 */
-  after: string;
+  after: string | object;
 }
 
 /**
@@ -238,7 +238,10 @@ export class RefinementEngine {
         }
 
         // 如果角色缺少外观，建议添加
-        if (!character.appearance || character.appearance.length < 5) {
+        const hasAppearance = character.appearance && 
+          (character.appearance.height || character.appearance.build || 
+           character.appearance.face || character.appearance.hair || character.appearance.clothing);
+        if (!hasAppearance) {
           actions.push({
             id: `refine-char-appearance-${charId}`,
             type: 'add_description',
@@ -274,14 +277,14 @@ export class RefinementEngine {
         if (!scene) continue;
 
         // 如果场景缺少时间，建议添加
-        if (!scene.time || scene.time.length < 2) {
+        if (!scene.timeOfDay) {
           actions.push({
             id: `refine-scene-time-${sceneId}`,
             type: 'add_time',
             targetType: 'scene',
             targetId: sceneId,
             description: `为场景 "${scene.name}" 添加时间信息`,
-            currentValue: scene.time,
+            currentValue: scene.timeOfDay,
             proposedValue: this.inferSceneTime(scene, context),
             confidence: 0.6,
             autoSafe: false,
@@ -289,15 +292,15 @@ export class RefinementEngine {
           });
         }
 
-        // 如果场景缺少地点，建议添加
-        if (!scene.location || scene.location.length < 2) {
+        // 如果场景缺少地点描述，建议添加
+        if (!scene.description || scene.description.length < 2) {
           actions.push({
             id: `refine-scene-location-${sceneId}`,
             type: 'add_location',
             targetType: 'scene',
             targetId: sceneId,
             description: `为场景 "${scene.name}" 添加地点信息`,
-            currentValue: scene.location,
+            currentValue: scene.description,
             proposedValue: this.inferSceneLocation(scene, context),
             confidence: 0.65,
             autoSafe: false,
@@ -459,7 +462,10 @@ export class RefinementEngine {
 
     // 检查角色可用性
     for (const character of context.characters) {
-      if (!character.appearance || character.appearance.length < 10) {
+      const hasDetailedAppearance = character.appearance && 
+        (character.appearance.height && character.appearance.build && 
+         character.appearance.face && character.appearance.hair);
+      if (!hasDetailedAppearance) {
         actions.push({
           id: `refine-char-usability-${character.id}`,
           type: 'add_description',
@@ -581,7 +587,7 @@ export class RefinementEngine {
   private generateCharacterDescription(character: ScriptCharacter, context: RefinementContext): string {
     const parts: string[] = [];
     if (character.name) parts.push(character.name);
-    if (character.background) parts.push(`，${character.background}`);
+    if (character.description) parts.push(`，${character.description}`);
     parts.push('。需要补充详细描述。');
     return parts.join('');
   }
@@ -608,8 +614,8 @@ export class RefinementEngine {
   // 辅助方法：生成场景描述
   private generateSceneDescription(scene: ScriptScene, context: RefinementContext): string {
     const parts: string[] = [];
-    if (scene.location) parts.push(`在${scene.location}`);
-    if (scene.time) parts.push(`${scene.time}`);
+    if (scene.description) parts.push(`在${scene.description}`);
+    if (scene.timeOfDay) parts.push(`${scene.timeOfDay}`);
     parts.push('发生的事件。需要补充详细描述。');
     return parts.join('');
   }
