@@ -328,6 +328,11 @@ const TASK_CONFIG = {
     maxTokens: 12000,  // 分镜需要更多Token
     timeout: 120000,
     description: '分镜生成'
+  },
+  'plot-analysis': {
+    maxTokens: 4000,
+    timeout: 60000,
+    description: '剧情分析'
   }
 } as const;
 
