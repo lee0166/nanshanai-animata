@@ -10,6 +10,7 @@ import LoadingView from './components/LoadingView';
 import Tasks from './views/Tasks';
 import ScriptManager from './views/ScriptManager';
 import ShotManager from './views/ShotManager';
+import TimelineEditor from './views/TimelineEditor';
 import { storageService } from './services/storage';
 import { jobQueue } from './services/queue';
 import { useApp } from './contexts/context';
@@ -89,6 +90,10 @@ const App: React.FC = () => {
             <Route 
               path="/project/:projectId/shots" 
               element={<ShotManager setActiveTab={setActiveTab} />} 
+            />
+            <Route 
+              path="/project/:projectId/script/:scriptId/timeline" 
+              element={<TimelineEditor />} 
             />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>

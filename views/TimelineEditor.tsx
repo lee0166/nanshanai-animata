@@ -39,12 +39,13 @@ import {
   Grid3X3,
   List
 } from 'lucide-react';
-import { useApp } from '../contexts';
+import { useApp } from '../contexts/context';
 import { storageService } from '../services/storage';
 import { timelineService } from '../services/editing';
 import { videoGenerationService } from '../services/video';
 import { Timeline, TimelineClip, Shot, ExportConfig } from '../types';
-import { useToast } from '../contexts';
+import { useToast } from '../contexts/ToastContext';
+import { ButtonGroup } from '@heroui/react';
 
 // View modes
  type ViewMode = 'timeline' | 'grid' | 'list';
@@ -91,7 +92,7 @@ export const TimelineEditor: React.FC = () => {
     setIsLoading(true);
     try {
       // Load script
-      const script = await storageService.getScript(scriptId);
+      const script = await storageService.getScript(scriptId, projectId);
       if (script?.parseState?.shots) {
         setShots(script.parseState.shots);
 
@@ -438,8 +439,7 @@ export const TimelineEditor: React.FC = () => {
                               size="sm"
                               variant="light"
                               color="danger"
-                              onPress={(e) => {
-                                e.stopPropagation();
+                              onPress={() => {
                                 handleDeleteClip(clip.id);
                               }}
                             >
