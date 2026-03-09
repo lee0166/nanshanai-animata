@@ -154,6 +154,14 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
 
   const loadScripts = async () => {
     if (!projectId) return;
+    
+    // 2.0: 检查存储连接状态
+    const connected = await checkConnection();
+    if (!connected) {
+      console.log('[ScriptManager] Not connected, skipping loadScripts');
+      return;
+    }
+    
     try {
       const loadedScripts = await storageService.getScripts(projectId);
       if (isMountedRef.current) {
@@ -170,6 +178,14 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
 
   const loadExistingAssets = async () => {
     if (!projectId) return;
+    
+    // 2.0: 检查存储连接状态
+    const connected = await checkConnection();
+    if (!connected) {
+      console.log('[ScriptManager] Not connected, skipping loadExistingAssets');
+      return;
+    }
+    
     try {
       const assets = await storageService.getAssets(projectId);
       if (isMountedRef.current) {
@@ -191,6 +207,13 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
 
     if (!projectId) {
       showToast('No project selected', 'error');
+      return;
+    }
+
+    // 2.0: 检查存储连接状态
+    const connected = await checkConnection();
+    if (!connected) {
+      showToast('Please connect to a workspace first', 'error');
       return;
     }
 
