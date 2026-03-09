@@ -299,11 +299,13 @@ export interface ScriptItem {
 
 /**
  * Rule violation severity
+ * @deprecated Use RuleViolation from './parsing/ShortDramaRules' instead
  */
 export type RuleSeverity = 'critical' | 'warning' | 'info';
 
 /**
- * Rule violation interface
+ * Rule violation interface (simplified version for types.ts)
+ * For full version with ruleId and ruleName, use RuleViolation from './parsing/ShortDramaRules'
  */
 export interface RuleViolation {
   rule: string;

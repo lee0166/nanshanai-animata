@@ -8,8 +8,8 @@
  * @version 1.0.0
  */
 
-import { ScriptMetadata, ScriptCharacter, ScriptScene, ScriptItem, Shot, QualityReport, RuleViolation } from '../../types';
-import { ShortDramaRules, RuleContext } from './ShortDramaRules';
+import { ScriptMetadata, ScriptCharacter, ScriptScene, ScriptItem, Shot, QualityReport } from '../../types';
+import { ShortDramaRules, RuleContext, RuleViolation } from './ShortDramaRules';
 
 /**
  * 质量维度枚举
