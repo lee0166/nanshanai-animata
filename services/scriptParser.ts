@@ -4061,13 +4061,8 @@ ${chunkContent.substring(0, 4000)}
     return null;
   }
 
-  /**
-   * Parse only metadata (lightweight)
-   */
-  async parseMetadataOnly(content: string): Promise<ScriptMetadata> {
-    return this.extractMetadata(content);
-  }
-
+  // Note: parseMetadataOnly method has been removed in v2
+  // Use parseScript with appropriate strategy instead
   // Note: parseStage method has been removed in v2
   // All parsing now goes through parseScript with automatic strategy selection
 }
