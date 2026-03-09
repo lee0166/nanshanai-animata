@@ -129,6 +129,12 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
     }
   }, [projectId]);
 
+  // Track scripts state changes
+  useEffect(() => {
+    console.log('[ScriptManager] scripts state changed:', scripts.length, 'scripts');
+    console.log('[ScriptManager] scripts array:', scripts.map(s => ({ id: s.id, title: s.title })));
+  }, [scripts]);
+
   // Update quality report when script changes
   useEffect(() => {
     if (currentScript?.parseState?.stage === 'completed') {
@@ -174,11 +180,16 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
       console.log('[ScriptManager] Calling storageService.getScripts...');
       const loadedScripts = await storageService.getScripts(projectId);
       console.log('[ScriptManager] Loaded scripts:', loadedScripts.length);
+      console.log('[ScriptManager] isMountedRef.current:', isMountedRef.current);
       if (isMountedRef.current) {
+        console.log('[ScriptManager] Calling setScripts with', loadedScripts.length, 'scripts');
         setScripts(loadedScripts);
         if (loadedScripts.length > 0 && !currentScript) {
+          console.log('[ScriptManager] Setting currentScript to first script:', loadedScripts[0].id);
           setCurrentScript(loadedScripts[0]);
         }
+      } else {
+        console.log('[ScriptManager] Component unmounted, skipping setScripts');
       }
     } catch (error) {
       console.error('[ScriptManager] Failed to load scripts:', error);
