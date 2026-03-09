@@ -803,7 +803,11 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
             <Button variant="light" onPress={() => setIsUploadModalOpen(false)}>
               Cancel
             </Button>
-            <Button color="primary" onPress={handleUploadScript}>
+            <Button 
+              color="primary" 
+              onPress={handleUploadScript}
+              isDisabled={!scriptTitle.trim() || !scriptContent.trim()}
+            >
               Upload
             </Button>
           </ModalFooter>
