@@ -3240,10 +3240,8 @@ ${content}
 
       // 单次API调用获取所有信息
       const startTime = Date.now();
-      const response = await this.callLLM(prompt, {
-        maxTokens: 3000,
-        temperature: 0.7
-      });
+      // 使用'metadata'任务类型，它配置了合适的maxTokens和timeout
+      const response = await this.callLLM(prompt, 'metadata');
       const duration = Date.now() - startTime;
 
       console.log(`[ScriptParser] Single-pass LLM call completed in ${duration}ms`);
