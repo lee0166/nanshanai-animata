@@ -60,11 +60,27 @@ export interface GeneratedImage {
   duration?: number; // in seconds (for video)
 }
 
+// 角色视角类型（用于三视图）
+export type CharacterViewAngle = 'front' | 'side' | 'back' | 'three-quarter';
+
+// 角色三视图
+export interface CharacterViews {
+  front?: GeneratedImage;      // 正面
+  side?: GeneratedImage;       // 侧面
+  back?: GeneratedImage;       // 背面
+  threeQuarter?: GeneratedImage; // 四分之三侧面
+}
+
 export interface CharacterAsset extends Asset {
   gender?: 'male' | 'female' | 'unlimited';
   ageGroup?: 'childhood' | 'youth' | 'middle_aged' | 'elderly' | 'unknown';
   generatedImages?: GeneratedImage[];
   currentImageId?: string;
+  // 三视图支持
+  views?: CharacterViews;
+  currentViewAngle?: CharacterViewAngle;
+  // 一致性参考图（用于保持角色一致性）
+  referenceImage?: GeneratedImage;
 }
 
 export enum ItemType {
@@ -106,10 +122,26 @@ export interface ItemAsset extends Asset {
   currentImageId?: string;
 }
 
+// 场景视角类型
+export type SceneViewType = 'panorama' | 'wide' | 'detail' | 'aerial';
+
+// 场景多视角
+export interface SceneViews {
+  panorama?: GeneratedImage;   // 全景图
+  wide?: GeneratedImage;       // 广角图
+  detail?: GeneratedImage[];   // 细节图数组
+  aerial?: GeneratedImage;     // 鸟瞰图
+}
+
 export interface SceneAsset extends Asset {
   scriptId?: string;  // 关联剧本ID
   generatedImages?: GeneratedImage[];
   currentImageId?: string;
+  // 多视角支持
+  views?: SceneViews;
+  currentViewType?: SceneViewType;
+  // 场景关键元素（用于生成分镜时参考）
+  keyElements?: string[];
 }
 
 export interface VideoSegment extends Asset {
