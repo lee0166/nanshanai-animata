@@ -388,23 +388,9 @@ export class IterativeRefinementEngine {
    * @private
    */
   private applySceneChange(metadata: ScriptMetadata, change: any): void {
-    if (!metadata.scenes) return;
-
-    const scene = metadata.scenes.find((s: any) => s.id === change.targetId);
-    if (scene) {
-      switch (change.type) {
-        case 'add_description':
-        case 'update_description':
-          scene.description = change.after;
-          break;
-        case 'add_location':
-          scene.location = change.after;
-          break;
-        case 'add_time':
-          scene.time = change.after;
-          break;
-      }
-    }
+    // Note: ScriptMetadata does not have scenes property
+    // This method is kept for future extension
+    console.log(`[IterativeRefinementEngine] Scene change not applied: ${change.type}`);
   }
 
   /**
@@ -417,11 +403,11 @@ export class IterativeRefinementEngine {
         metadata.title = change.after;
         break;
       case 'genre':
-        if (!metadata.genre) metadata.genre = [];
-        metadata.genre.push(change.after);
+        // genre is a string, not an array
+        metadata.genre = change.after;
         break;
-      case 'description':
-        metadata.description = change.after;
+      case 'synopsis':
+        metadata.synopsis = change.after;
         break;
     }
   }
