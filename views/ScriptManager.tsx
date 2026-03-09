@@ -407,13 +407,16 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
           error: '解析错误'
         };
         
-        // 检测解析是否超时
+        // 2.0: 添加解析耗时提示
         const elapsed = Date.now() - parseStartTime;
-        if (elapsed > TIMEOUT_WARNING && !timeoutWarningShown && stage !== 'completed' && stage !== 'error') {
-          timeoutWarningShown = true;
-          setParseStage(`${message || stageNames[stage] || stage} (已耗时${Math.floor(elapsed/1000)}秒，可能遇到API速率限制，请耐心等待...)`);
+        const elapsedSec = Math.floor(elapsed / 1000);
+        const baseMessage = message || stageNames[stage] || stage;
+        
+        // 如果耗时超过30秒，显示耗时信息
+        if (elapsed > 30000 && stage !== 'completed' && stage !== 'error') {
+          setParseStage(`${baseMessage} (已耗时${elapsedSec}秒，模型响应较慢，请耐心等待...)`);
         } else {
-          setParseStage(message || stageNames[stage] || stage);
+          setParseStage(baseMessage);
         }
       };
 
