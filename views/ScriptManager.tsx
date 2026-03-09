@@ -68,6 +68,9 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
   const [parseStage, setParseStage] = useState<string>('');
   const [activeParseButton, setActiveParseButton] = useState<string | null>(null);
 
+  // 2.0: 模型选择状态
+  const [selectedModelId, setSelectedModelId] = useState<string>('');
+
   // Quality report state
   const [qualityReport, setQualityReport] = useState<QualityReport | null>(null);
 
@@ -491,14 +494,25 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
     setIsDeleteModalOpen(true);
   };
 
-  const getSelectedModel = (needApiKey: boolean = true): ModelConfig | null => {
-    const llmModels = settings.models.filter(m => m.type === 'llm');
+  // 2.0: 获取可用的LLM模型列表
+  const getAvailableModels = useCallback((): ModelConfig[] => {
+    return settings.models.filter(m => m.type === 'llm' && m.apiKey);
+  }, [settings.models]);
+
+  // 2.0: 获取选中的模型（支持用户选择）
+  const getSelectedModel = useCallback((needApiKey: boolean = true): ModelConfig | null => {
+    const llmModels = getAvailableModels();
     if (llmModels.length === 0) return null;
 
-    const model = llmModels[0];
-    if (needApiKey && !model.apiKey) return null;
-    return model;
-  };
+    // 如果用户选择了特定模型，使用它
+    if (selectedModelId) {
+      const selected = llmModels.find(m => m.id === selectedModelId);
+      if (selected) return selected;
+    }
+
+    // 否则使用第一个可用的模型
+    return llmModels[0];
+  }, [getAvailableModels, selectedModelId]);
 
   // Update word count when content changes
   useEffect(() => {
@@ -603,6 +617,23 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
                   </p>
                 </div>
                 <div className="flex items-center gap-2">
+                  {/* 2.0: 模型选择下拉框 */}
+                  {getAvailableModels().length > 0 && (
+                    <Select
+                      size="sm"
+                      placeholder="选择模型"
+                      selectedKeys={selectedModelId ? [selectedModelId] : []}
+                      onChange={(e) => setSelectedModelId(e.target.value)}
+                      className="w-48"
+                      isDisabled={isParsing}
+                    >
+                      {getAvailableModels().map((model) => (
+                        <SelectItem key={model.id} value={model.id}>
+                          {model.name}
+                        </SelectItem>
+                      ))}
+                    </Select>
+                  )}
                   {currentScript.parseState?.stage !== 'completed' && (
                     <Button
                       color="primary"
