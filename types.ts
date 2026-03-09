@@ -648,10 +648,14 @@ export interface Shot {
   status: 'pending' | 'generating' | 'completed' | 'failed';
 }
 
+// 关键帧类型（用于视频生成）
+export type FrameType = 'start' | 'middle' | 'end';
+
 // 关键帧
 export interface Keyframe {
   id: string;
   sequence: number; // 在分镜内的序号（1,2,3,4）
+  frameType: FrameType; // 关键帧类型：首帧/中间帧/尾帧
   description: string; // 静态画面描述
   prompt: string; // 图生图提示词
   duration: number; // 该关键帧时长（秒）
@@ -668,5 +672,7 @@ export interface Keyframe {
   generatedImage?: GeneratedImage; // 生成的关键帧图片（兼容旧数据）
   generatedImages?: GeneratedImage[]; // 生成的关键帧图片历史记录
   currentImageId?: string; // 当前选中的图片ID
+  videoUrl?: string; // 生成的视频URL
+  videoStatus?: 'pending' | 'generating' | 'completed' | 'failed'; // 视频生成状态
   status: 'pending' | 'generating' | 'completed' | 'failed';
 }

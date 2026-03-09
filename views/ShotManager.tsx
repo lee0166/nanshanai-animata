@@ -6,8 +6,9 @@ import { useApp } from '../contexts/context';
 import { useToast } from '../contexts/ToastContext';
 import { usePreview } from '../components/PreviewProvider';
 import { Card, CardBody, Button, Chip, Badge, Progress, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Select, SelectItem } from "@heroui/react";
-import { Camera, Film, Clock, Users, MapPin, Scissors, AlertCircle, Eye, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Camera, Film, Clock, Users, MapPin, Scissors, AlertCircle, Eye, ChevronLeft, ChevronRight, Video, Play, Film as FilmIcon } from 'lucide-react';
 import { keyframeService } from '../services/keyframe';
+import { videoGenerationService } from '../services/video';
 import { jobQueue } from '../services/queue';
 import { aiService } from '../services/aiService';
 import { DEFAULT_MODELS } from '../config/models';
@@ -198,6 +199,11 @@ export const ShotManager: React.FC<ShotManagerProps> = ({ projectId: propProject
     character?: string;
     scene?: string;
   }>({});
+
+  // 视频生成相关状态
+  const [selectedVideoModel, setSelectedVideoModel] = useState<string>('');
+  const [isGeneratingVideo, setIsGeneratingVideo] = useState(false);
+  const [videoUrl, setVideoUrl] = useState<string | null>(null);
 
   // 获取当前选择的模型配置
   const selectedModelConfig = useMemo(() => {
@@ -525,6 +531,10 @@ export const ShotManager: React.FC<ShotManagerProps> = ({ projectId: propProject
     return settings.models.filter(m => m.type === 'image');
   }, [settings.models]);
 
+  const availableVideoModels = useMemo(() => {
+    return settings.models.filter(m => m.type === 'video');
+  }, [settings.models]);
+
   // 获取模型能力的辅助函数
   const getModelCapabilities = useMemo(() => {
     return (model: ModelConfig) => {
@@ -823,13 +833,13 @@ export const ShotManager: React.FC<ShotManagerProps> = ({ projectId: propProject
   // 更新提示词
   const handleUpdatePrompt = (keyframeIndex: number, newPrompt: string) => {
     if (!selectedShot || !currentScript || !projectId) return;
-    
+
     const updatedKeyframes = [...(selectedShot.keyframes || [])];
     updatedKeyframes[keyframeIndex] = {
       ...updatedKeyframes[keyframeIndex],
       prompt: newPrompt
     };
-    
+
     const updatedShot = { ...selectedShot, keyframes: updatedKeyframes };
     const updatedShots = allShots.map(s => s.id === selectedShot.id ? updatedShot : s);
     const updatedScript = {
@@ -839,9 +849,93 @@ export const ShotManager: React.FC<ShotManagerProps> = ({ projectId: propProject
         shots: updatedShots
       }
     };
-    
+
     storageService.saveScript(updatedScript);
     setScripts(scripts.map(s => s.id === updatedScript.id ? updatedScript : s));
+  };
+
+  // 生成视频
+  const handleGenerateVideo = async () => {
+    if (!projectId || !selectedShot || !currentScript) return;
+
+    if (availableVideoModels.length === 0) {
+      showToast('请先在设置中配置视频生成模型', 'error');
+      return;
+    }
+
+    if (!selectedVideoModel) {
+      showToast('请先选择视频生成模型', 'error');
+      return;
+    }
+
+    const keyframes = selectedShot.keyframes;
+    if (!keyframes || keyframes.length === 0) {
+      showToast('请先生成关键帧图片', 'error');
+      return;
+    }
+
+    // 检查是否所有关键帧都有图片
+    const hasAllImages = keyframes.every(kf =>
+      kf.generatedImages && kf.generatedImages.length > 0
+    );
+    if (!hasAllImages) {
+      showToast('请为所有关键帧生成图片后再生成视频', 'error');
+      return;
+    }
+
+    setIsGeneratingVideo(true);
+    showToast('开始生成视频，请稍候...', 'info');
+
+    try {
+      // 构建视频生成提示词（使用分镜描述）
+      const videoPrompt = selectedShot.description;
+
+      const result = await videoGenerationService.generateVideo({
+        keyframes,
+        prompt: videoPrompt,
+        modelConfigId: selectedVideoModel,
+        projectId,
+        duration: videoGenerationService.getRecommendedDuration(selectedShot.contentType)
+      });
+
+      if (result.success && result.localPath) {
+        // 更新shot的videoUrl
+        const updatedShot = { ...selectedShot, generatedVideo: result.localPath };
+        const updatedShots = allShots.map(s => s.id === selectedShot.id ? updatedShot : s);
+        const updatedScript = {
+          ...currentScript,
+          parseState: {
+            ...currentScript.parseState,
+            shots: updatedShots
+          }
+        };
+        await storageService.saveScript(updatedScript);
+        setScripts(scripts.map(s => s.id === updatedScript.id ? updatedScript : s));
+        setVideoUrl(result.localPath);
+        showToast('视频生成成功', 'success');
+      } else {
+        showToast(`视频生成失败: ${result.error || '未知错误'}`, 'error');
+      }
+    } catch (error: any) {
+      console.error('[ShotManager] 视频生成失败:', error);
+      showToast(`视频生成失败: ${error.message || '未知错误'}`, 'error');
+    } finally {
+      setIsGeneratingVideo(false);
+    }
+  };
+
+  // 获取分镜类型标签
+  const getShotTypeLabel = (contentType: string) => {
+    switch (contentType) {
+      case 'static':
+        return { label: '静态', color: 'default' as const, icon: Camera };
+      case 'dynamic-simple':
+        return { label: '简单动态', color: 'primary' as const, icon: Play };
+      case 'dynamic-complex':
+        return { label: '复杂动态', color: 'secondary' as const, icon: FilmIcon };
+      default:
+        return { label: '未知', color: 'default' as const, icon: Camera };
+    }
   };
 
   if (isLoading) {
@@ -1001,7 +1095,7 @@ export const ShotManager: React.FC<ShotManagerProps> = ({ projectId: propProject
                       </Button>
                     )}
                   </div>
-                  <div className="flex gap-4 text-xs text-slate-500">
+                  <div className="flex gap-4 text-xs text-slate-500 flex-wrap">
                     <span className="flex items-center gap-1">
                       <Camera size={14} />
                       {SHOT_TYPE_LABELS[selectedShot.shotType] || selectedShot.shotType}
@@ -1014,6 +1108,20 @@ export const ShotManager: React.FC<ShotManagerProps> = ({ projectId: propProject
                       <MapPin size={14} />
                       {selectedShot.sceneName}
                     </span>
+                    {selectedShot.contentType && (
+                      <Chip size="sm" variant="flat" color={getShotTypeLabel(selectedShot.contentType).color}>
+                        {(() => {
+                          const typeInfo = getShotTypeLabel(selectedShot.contentType);
+                          const Icon = typeInfo.icon;
+                          return (
+                            <span className="flex items-center gap-1">
+                              <Icon size={12} />
+                              {typeInfo.label}
+                            </span>
+                          );
+                        })()}
+                      </Chip>
+                    )}
                   </div>
                 </CardBody>
               </Card>
@@ -1420,6 +1528,86 @@ export const ShotManager: React.FC<ShotManagerProps> = ({ projectId: propProject
                             </div>
                           </div>
                         </div>
+
+                        {/* 视频生成区域 */}
+                        {selectedShot.keyframes && selectedShot.keyframes.length > 0 && (
+                          <div className="mt-6 pt-6 border-t border-slate-200 dark:border-slate-700">
+                            <div className="flex items-center justify-between mb-4">
+                              <div className="flex items-center gap-2">
+                                <Video size={20} className="text-primary" />
+                                <span className="font-medium text-slate-900 dark:text-white">视频生成</span>
+                              </div>
+                              {selectedShot.generatedVideo && (
+                                <Chip color="success" variant="flat" size="sm">
+                                  已生成
+                                </Chip>
+                              )}
+                            </div>
+
+                            {/* 视频预览 */}
+                            {selectedShot.generatedVideo && (
+                              <div className="mb-4">
+                                <video
+                                  src={videoUrl || selectedShot.generatedVideo}
+                                  controls
+                                  className="w-full rounded-lg"
+                                  style={{ maxHeight: '300px' }}
+                                />
+                              </div>
+                            )}
+
+                            {/* 视频生成控制 */}
+                            <div className="bg-slate-50 dark:bg-slate-800/50 rounded-lg p-4">
+                              <div className="mb-3">
+                                <label className="text-xs text-slate-500 mb-1 block">选择视频模型</label>
+                                <Select
+                                  aria-label="选择视频模型"
+                                  placeholder={availableVideoModels.length > 0 ? "选择用于生成视频的模型" : "请先在设置中配置视频模型"}
+                                  selectedKeys={selectedVideoModel ? [selectedVideoModel] : []}
+                                  onChange={(e) => setSelectedVideoModel(e.target.value)}
+                                  isDisabled={availableVideoModels.length === 0}
+                                  size="sm"
+                                  className="w-full"
+                                >
+                                  {availableVideoModels.map(model => (
+                                    <SelectItem key={model.id} value={model.id}>
+                                      {model.name}
+                                    </SelectItem>
+                                  ))}
+                                </Select>
+                                {availableVideoModels.length === 0 && (
+                                  <p className="text-xs text-danger mt-1">
+                                    未配置视频生成模型，请先在设置中添加
+                                  </p>
+                                )}
+                              </div>
+
+                              <div className="text-xs text-slate-500 mb-3">
+                                <div className="flex items-center gap-2">
+                                  <span>关键帧数量: {selectedShot.keyframes.length}个</span>
+                                  <span className="text-slate-300">|</span>
+                                  <span>推荐时长: {videoGenerationService.getRecommendedDuration(selectedShot.contentType)}秒</span>
+                                </div>
+                                <p className="mt-1 text-slate-400">
+                                  {selectedShot.contentType === 'static' && '静态分镜：使用首帧生成视频'}
+                                  {selectedShot.contentType === 'dynamic-simple' && '简单动态：使用首尾帧生成视频'}
+                                  {selectedShot.contentType === 'dynamic-complex' && '复杂动态：使用首尾帧生成视频（中间帧用于参考）'}
+                                </p>
+                              </div>
+
+                              <Button
+                                color="secondary"
+                                className="w-full"
+                                isDisabled={availableVideoModels.length === 0 || !selectedVideoModel || isGeneratingVideo}
+                                isLoading={isGeneratingVideo}
+                                onPress={handleGenerateVideo}
+                              >
+                                <FilmIcon size={16} className="mr-2" />
+                                {selectedShot.generatedVideo ? '重新生成视频' : '生成视频'}
+                              </Button>
+                            </div>
+                          </div>
+                        )}
                       </CardBody>
                     </Card>
                   )}
