@@ -680,6 +680,61 @@ export interface Shot {
   status: 'pending' | 'generating' | 'completed' | 'failed';
 }
 
+// 时间轴轨道类型
+export type TrackType = 'video' | 'audio' | 'subtitle';
+
+// 时间轴轨道
+export interface TimelineTrack {
+  id: string;
+  type: TrackType;
+  name: string;
+  clips: TimelineClip[];
+  isLocked?: boolean;
+  isMuted?: boolean;
+  isHidden?: boolean;
+}
+
+// 时间轴片段
+export interface TimelineClip {
+  id: string;
+  shotId: string;
+  name: string;
+  startTime: number;      // 在时间轴上的开始时间（秒）
+  endTime: number;        // 在时间轴上的结束时间（秒）
+  duration: number;       // 片段时长（秒）
+  sourcePath: string;     // 源文件路径
+  thumbnailPath?: string; // 缩略图路径
+  transition?: {
+    type: 'cut' | 'dissolve' | 'fade' | 'wipe';
+    duration: number;
+  };
+}
+
+// 时间轴项目
+export interface Timeline {
+  id: string;
+  projectId: string;
+  scriptId: string;
+  name: string;
+  tracks: TimelineTrack[];
+  totalDuration: number;
+  resolution: string;
+  frameRate: number;
+  createdAt: number;
+  updatedAt: number;
+}
+
+// 导出配置
+export interface ExportConfig {
+  format: 'mp4' | 'mov' | 'prores' | 'xml' | 'fcpxml';
+  resolution: '720p' | '1080p' | '2k' | '4k';
+  frameRate: 24 | 25 | 30 | 60;
+  codec?: string;
+  quality?: 'low' | 'medium' | 'high' | 'lossless';
+  includeAudio: boolean;
+  includeSubtitles?: boolean;
+}
+
 // 关键帧类型（用于视频生成）
 export type FrameType = 'start' | 'middle' | 'end';
 
