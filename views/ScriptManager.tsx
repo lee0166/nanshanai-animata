@@ -207,11 +207,8 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
     // 支持的文件扩展名
     const supportedExtensions = [
       '.txt', '.md', '.markdown',
-      '.doc', '.docx',
-      '.pdf',
-      '.rtf',
-      '.epub',
       '.html', '.htm',
+      '.rtf',
       '.csv', '.json'
     ];
     const fileExtension = file.name.substring(file.name.lastIndexOf('.')).toLowerCase();
@@ -230,32 +227,8 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
     try {
       let content = '';
       
-      if (fileExtension === '.docx') {
-        // Word文档使用mammoth.js解析（需要安装依赖）
-        try {
-          // 动态导入mammoth，如果未安装会抛出错误
-          const mammothModule = await import('mammoth');
-          const mammoth = mammothModule.default || mammothModule;
-          const arrayBuffer = await file.arrayBuffer();
-          const result = await mammoth.extractRawText({ arrayBuffer });
-          content = result.value;
-        } catch (importError) {
-          showToast('Word文档解析需要安装mammoth库，请先转换为txt格式', 'warning');
-          console.error('[ScriptManager] mammoth.js not installed:', importError);
-          return;
-        }
-      } else if (fileExtension === '.pdf') {
-        // PDF需要专门的PDF解析库
-        showToast('PDF文档解析功能开发中，请先转换为txt格式', 'warning');
-        return;
-      } else if (fileExtension === '.epub') {
-        // EPUB需要专门的解析库
-        showToast('EPUB文档解析功能开发中，请先转换为txt格式', 'warning');
-        return;
-      } else {
-        // 文本文件直接读取
-        content = await file.text();
-      }
+      // 文本文件直接读取
+      content = await file.text();
 
       // 自动设置标题（使用文件名，去掉扩展名）
       const fileName = file.name.substring(0, file.name.lastIndexOf('.'));
@@ -859,11 +832,14 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
                   点击或拖拽文件到此处上传
                 </p>
                 <p className="text-xs text-slate-500">
-                  支持 .txt, .md, .docx, .pdf, .epub, .html, .rtf 等格式（最大50MB）
+                  支持 .txt, .md, .html, .rtf, .csv, .json 等格式（最大50MB）
+                </p>
+                <p className="text-xs text-slate-400 mt-1">
+                  Word(.docx)和PDF请先转换为txt格式
                 </p>
                 <input
                   type="file"
-                  accept=".txt,.md,.markdown,.docx,.pdf,.epub,.html,.htm,.rtf,.csv,.json"
+                  accept=".txt,.md,.markdown,.html,.htm,.rtf,.csv,.json"
                   onChange={handleFileUpload}
                   className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                 />
