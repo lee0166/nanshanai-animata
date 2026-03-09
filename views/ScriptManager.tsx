@@ -373,6 +373,11 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
       parserRef.current = parser;
       console.log('[ScriptManager] v2.0 Parser config:', parserConfig);
 
+      // 2.0: 添加解析超时检测
+      const parseStartTime = Date.now();
+      const TIMEOUT_WARNING = 60000; // 60秒后显示警告
+      let timeoutWarningShown = false;
+
       const onProgress: ParseProgressCallback = (stage, progress, message) => {
         if (!isMountedRef.current) return;
         setParseProgress(progress);
@@ -384,7 +389,15 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
           completed: '解析完成',
           error: '解析错误'
         };
-        setParseStage(message || stageNames[stage] || stage);
+        
+        // 检测解析是否超时
+        const elapsed = Date.now() - parseStartTime;
+        if (elapsed > TIMEOUT_WARNING && !timeoutWarningShown && stage !== 'completed' && stage !== 'error') {
+          timeoutWarningShown = true;
+          setParseStage(`${message || stageNames[stage] || stage} (已耗时${Math.floor(elapsed/1000)}秒，可能遇到API速率限制，请耐心等待...)`);
+        } else {
+          setParseStage(message || stageNames[stage] || stage);
+        }
       };
 
       const parseState = await parser.parseScript(
@@ -424,10 +437,15 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
     } catch (error: any) {
       if (!isMountedRef.current) return;
 
-      if (error.name === 'AbortError') {
+      console.error('[ScriptManager] Parse error:', error);
+
+      // 处理API速率限制错误
+      if (error.message?.includes('429') || error.message?.includes('Too Many Requests') || error.message?.includes('速率限制')) {
+        showToast('API请求过于频繁，请稍后再试（建议等待30秒）', 'error');
+      } else if (error.name === 'AbortError') {
         showToast('解析已取消', 'info');
       } else {
-        showToast(`解析失败: ${error.message}`, 'error');
+        showToast(`解析失败: ${error.message || '未知错误'}`, 'error');
       }
     } finally {
       if (isMountedRef.current) {

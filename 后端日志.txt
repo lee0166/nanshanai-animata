@@ -14,103 +14,366 @@ AppContext.tsx:125 [INIT] Starting smoke test...
 AppContext.tsx:24 [STORAGE] Connection check: Connected=true, Responsive=true
 AppContext.tsx:132 [INIT] Smoke test complete.
 client:912 [vite] connected.
-AppContext.tsx:147 [INIT] Initialization complete. FS Responsive: true, Connected: true, Elapsed: 504ms
+AppContext.tsx:147 [INIT] Initialization complete. FS Responsive: true, Connected: true, Elapsed: 546ms
 App.tsx:33 [APP] Triggering jobQueue.loadQueue()...
 App.tsx:33 [APP] Triggering jobQueue.loadQueue()...
-AppContext.tsx:24 [STORAGE] Connection check: Connected=true, Responsive=true
-ScriptManager.tsx:137 [ScriptManager] ========== useEffect: currentScript changed ==========
-ScriptManager.tsx:138 [ScriptManager] currentScript exists: false
-ScriptManager.tsx:139 [ScriptManager] parseState exists: false
-ScriptManager.tsx:140 [ScriptManager] qualityReport exists: false
-ScriptManager.tsx:153 [ScriptManager] No quality report in parseState, setting to null
-ScriptManager.tsx:137 [ScriptManager] ========== useEffect: currentScript changed ==========
-ScriptManager.tsx:138 [ScriptManager] currentScript exists: false
-ScriptManager.tsx:139 [ScriptManager] parseState exists: false
-ScriptManager.tsx:140 [ScriptManager] qualityReport exists: false
-ScriptManager.tsx:153 [ScriptManager] No quality report in parseState, setting to null
-storage.ts:695 [STORAGE] Slow FileSystem read: scripts_6a3e9f65-3116-4acc-a7cb-6b0a19f71bc4.json took 125.80ms
-ScriptManager.tsx:137 [ScriptManager] ========== useEffect: currentScript changed ==========
-ScriptManager.tsx:138 [ScriptManager] currentScript exists: true
-ScriptManager.tsx:139 [ScriptManager] parseState exists: true
-ScriptManager.tsx:140 [ScriptManager] qualityReport exists: false
-ScriptManager.tsx:153 [ScriptManager] No quality report in parseState, setting to null
-storage.ts:695 [STORAGE] Slow FileSystem read: assets_6a3e9f65-3116-4acc-a7cb-6b0a19f71bc4.json took 176.60ms
-storage.ts:695 [STORAGE] Slow FileSystem read: scripts_6a3e9f65-3116-4acc-a7cb-6b0a19f71bc4.json took 175.20ms
-storage.ts:695 [STORAGE] Slow FileSystem read: assets_6a3e9f65-3116-4acc-a7cb-6b0a19f71bc4.json took 175.10ms
-ScriptManager.tsx:137 [ScriptManager] ========== useEffect: currentScript changed ==========
-ScriptManager.tsx:138 [ScriptManager] currentScript exists: true
-ScriptManager.tsx:139 [ScriptManager] parseState exists: true
-ScriptManager.tsx:140 [ScriptManager] qualityReport exists: false
-ScriptManager.tsx:153 [ScriptManager] No quality report in parseState, setting to null
+client:883 [vite] hot updated: /views/ScriptManager.tsx
+client:883 [vite] hot updated: /index.css
+client:883 [vite] hot updated: /views/ScriptManager.tsx
+client:883 [vite] hot updated: /index.css
+client:883 [vite] hot updated: /views/ScriptManager.tsx
+client:883 [vite] hot updated: /index.css
 AppContext.tsx:24 [STORAGE] Connection check: Connected=true, Responsive=true
 AppContext.tsx:24 [STORAGE] Connection check: Connected=true, Responsive=true
 AppContext.tsx:24 [STORAGE] Connection check: Connected=true, Responsive=true
 AppContext.tsx:24 [STORAGE] Connection check: Connected=true, Responsive=true
-scriptParser.ts:1104 [ScriptParser] Initialized with config: {useSemanticChunking: true, useDramaRules: true, dramaRulesMinScore: 60, useCache: true, cacheTTL: 3600000, …}
-scriptParser.ts:1117 [ScriptParser] SemanticChunker initialized
-scriptParser.ts:1121 [ScriptParser] ShortDramaRules initialized
-scriptParser.ts:1125 [ScriptParser] MultiLevelCache initialized
-scriptParser.ts:1132 [ScriptParser] QualityAnalyzer initialized
-scriptParser.ts:1136 [ScriptParser] PerformanceMonitor initialized
-scriptParser.ts:1207 [ScriptParser] ContextInjector initialized
-scriptParser.ts:1210 [ScriptParser] Global context support initialized
-scriptParser.ts:1181 [ScriptParser] IterativeRefinementEngine initialized
-scriptParser.ts:1164 [ScriptParser] Budget calculation functions ready
-ScriptManager.tsx:413 [ScriptManager] 完整解析模式，ScriptParser配置: {useSemanticChunking: true, useDramaRules: true, dramaRulesMinScore: 60, useCache: true, cacheTTL: 3600000, …}
-scriptParser.ts:3557 [ScriptParser] ========== Starting Parse Script ==========
-scriptParser.ts:3563 [ScriptParser] Strategy selected: chunked
-scriptParser.ts:3564 [ScriptParser] Reason: 长文本分块路径 (5723 > 5000 字)
-scriptParser.ts:3565 [ScriptParser] Word count: 5723
-scriptParser.ts:3566 [ScriptParser] Estimated time: 360s
-scriptParser.ts:3567 [ScriptParser] Recommended batch size: 3
-scriptParser.ts:3604 [ScriptParser] Using CHUNKED PATH (长文本分块路径 (5723 > 5000 字))
-scriptParser.ts:3317 [ScriptParser] ========== Chunked Text Parse Path ==========
-scriptParser.ts:3318 [ScriptParser] Content length: 7033 characters
-scriptParser.ts:3338 [ScriptParser] Text split into 2 chunks
-scriptParser.ts:1866 [ScriptParser] ========== Stage 1: Extract Metadata (Structured Output) ==========
-scriptParser.ts:1867 [ScriptParser] Content length: 7033 characters
-scriptParser.ts:1868 [ScriptParser] Skip global context: false
-scriptParser.ts:1871 [ScriptParser] Prompt length: 3750 characters
-scriptParser.ts:1872 [ScriptParser] Sending structured output request to LLM...
-scriptParser.ts:1669 [ScriptParser] callStructuredLLM called for metadata
-scriptParser.ts:1670 [ScriptParser] API URL: https://ark.cn-beijing.volces.com/api/v3
-scriptParser.ts:1671 [ScriptParser] Model: doubao-seed-1-6-flash-250828
-scriptParser.ts:1672 [ScriptParser] Max Tokens: 4000
-scriptParser.ts:1698 [ScriptParser] Calling LLMProvider.generateStructured...
-LLMProvider.ts:240 [LLMProvider] ========== Structured Output Request ==========
-LLMProvider.ts:241 [LLMProvider] Endpoint: https://ark.cn-beijing.volces.com/api/v3/chat/completions
-LLMProvider.ts:242 [LLMProvider] Model: doubao-seed-1-6-flash-250828
-LLMProvider.ts:243 [LLMProvider] JSON Mode: true
-LLMProvider.ts:245 [LLMProvider] Sending structured output request...
-BaseProvider.ts:63 [BaseProvider] Requesting: https://ark.cn-beijing.volces.com/api/v3/chat/completions, Mode: DEV, Localhost: true
-BaseProvider.ts:84 [BaseProvider] Using Proxy: /api/universal-proxy -> https://ark.cn-beijing.volces.com/api/v3/chat/completions
-BaseProvider.ts:99 [BaseProvider] Response received: 200 OK
-LLMProvider.ts:258 [LLMProvider] Structured request completed in 72509ms
-LLMProvider.ts:269 [LLMProvider] Response length: 319 characters
-LLMProvider.ts:296 [LLMProvider] Structured output validated successfully
-scriptParser.ts:1711 [ScriptParser] Structured output received successfully
-scriptParser.ts:1883 [ScriptParser] Metadata extracted successfully (Structured Output):
-scriptParser.ts:1884   - Title: 混沌灵根：林清玄修仙记
-scriptParser.ts:1885   - Word Count: 15000
-scriptParser.ts:1886   - Characters: 3 (林清玄, 王虎, 云澜子)
-scriptParser.ts:1887   - Scenes: 10 (青云宗山门, 杂役院, 后山, 黑风崖, 炼丹房, 炼器房, 墨玉佩内部, 崖顶, 凡尘（林清玄家）, 青云宗外门)
-scriptParser.ts:1888   - Genre: 古装修仙
-scriptParser.ts:1889   - Tone: 爽剧
-scriptParser.ts:1821 [ScriptParser] ========== Extracting Global Context ==========
-scriptParser.ts:1802 [ScriptParser] GlobalContextExtractor initialized with maxTokens: 5000
-scriptParser.ts:1803 [ScriptParser] GlobalContextExtractor config: {extractEmotionalArc: true, textLengthThreshold: 800}
-scriptParser.ts:1806 [ScriptParser] GlobalContextExtractor initialized with model config
+AppContext.tsx:24 [STORAGE] Connection check: Connected=true, Responsive=true
+AppContext.tsx:24 [STORAGE] Connection check: Connected=true, Responsive=true
+AppContext.tsx:24 [STORAGE] Connection check: Connected=true, Responsive=true
+storage.ts:1119 [Storage] ========== Saving Script ==========
+storage.ts:1120 [Storage] Script ID: script_1773033955370
+storage.ts:1121 [Storage] Has parseState: true
+storage.ts:1122 [Storage] Has qualityReport: false
+storage.ts:1138 [Storage] New script added
+storage.ts:1142 [Storage] ========== Script Saved ==========
+useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+AppContext.tsx:24 [STORAGE] Connection check: Connected=true, Responsive=true
+scriptParser.ts:1108 [ScriptParser] Initialized with config: {useSemanticChunking: true, useDramaRules: true, dramaRulesMinScore: 60, useCache: true, cacheTTL: 3600000, …}
+scriptParser.ts:1121 [ScriptParser] SemanticChunker initialized
+scriptParser.ts:1125 [ScriptParser] ShortDramaRules initialized
+scriptParser.ts:1129 [ScriptParser] MultiLevelCache initialized
+scriptParser.ts:1136 [ScriptParser] QualityAnalyzer initialized
+scriptParser.ts:1140 [ScriptParser] PerformanceMonitor initialized
+scriptParser.ts:1211 [ScriptParser] ContextInjector initialized
+scriptParser.ts:1214 [ScriptParser] Global context support initialized
+scriptParser.ts:1185 [ScriptParser] IterativeRefinementEngine initialized
+scriptParser.ts:1163 [ScriptParser] Budget planner disabled
+ScriptManager.tsx:374 [ScriptManager] v2.0 Parser config: {useSemanticChunking: true, useDramaRules: true, dramaRulesMinScore: 60, useCache: true, cacheTTL: 3600000, …}
+scriptParser.ts:3561 [ScriptParser] ========== Starting Parse Script ==========
+scriptParser.ts:3567 [ScriptParser] Strategy selected: fast
+scriptParser.ts:3568 [ScriptParser] Reason: 短文本快速路径 (293 < 800 字)
+scriptParser.ts:3569 [ScriptParser] Word count: 293
+scriptParser.ts:3570 [ScriptParser] Estimated time: 60s
+scriptParser.ts:3571 [ScriptParser] Recommended batch size: 10
+scriptParser.ts:3587 [ScriptParser] Using FAST PATH (短文本快速路径 (293 < 800 字))
+scriptParser.ts:3588 [ScriptParser] useParallelExtraction: true
+scriptParser.ts:3181 [ScriptParser] ========== Short Text Fast Path (Optimized) ==========
+scriptParser.ts:3182 [ScriptParser] Content length: 345 characters
+scriptParser.ts:1870 [ScriptParser] ========== Stage 1: Extract Metadata (Structured Output) ==========
+scriptParser.ts:1871 [ScriptParser] Content length: 345 characters
+scriptParser.ts:1872 [ScriptParser] Skip global context: true
+scriptParser.ts:1875 [ScriptParser] Prompt length: 1095 characters
+scriptParser.ts:1876 [ScriptParser] Sending structured output request to LLM...
+scriptParser.ts:1673 [ScriptParser] callStructuredLLM called for metadata
+scriptParser.ts:1674 [ScriptParser] API URL: https://api-inference.modelscope.cn/v1
+scriptParser.ts:1675 [ScriptParser] Model: ZhipuAI/GLM-4.7-Flash
+scriptParser.ts:1676 [ScriptParser] Max Tokens: 4000
+scriptParser.ts:1825 [ScriptParser] ========== Extracting Global Context ==========
+scriptParser.ts:1806 [ScriptParser] GlobalContextExtractor initialized with maxTokens: 5000
+scriptParser.ts:1807 [ScriptParser] GlobalContextExtractor config: {extractEmotionalArc: true, textLengthThreshold: 800}
+scriptParser.ts:1810 [ScriptParser] GlobalContextExtractor initialized with model config
 GlobalContextExtractor.ts:179 [GlobalContextExtractor] Starting optimized extraction (single LLM call)...
 LLMProvider.ts:81 [LLMProvider] ========== API Request ==========
-LLMProvider.ts:82 [LLMProvider] Endpoint: https://ark.cn-beijing.volces.com/api/v3/chat/completions
-LLMProvider.ts:83 [LLMProvider] Model: doubao-seed-1-6-flash-250828
+LLMProvider.ts:82 [LLMProvider] Endpoint: https://api-inference.modelscope.cn/v1/chat/completions
+LLMProvider.ts:83 [LLMProvider] Model: ZhipuAI/GLM-4.7-Flash
 LLMProvider.ts:84 [LLMProvider] enable_thinking: false
 LLMProvider.ts:85 [LLMProvider] Temperature: 0.3
 LLMProvider.ts:86 [LLMProvider] Max Tokens: 5000
 LLMProvider.ts:87 [LLMProvider] Messages count: 2
 LLMProvider.ts:88 [LLMProvider] First message length: 48 characters
 LLMProvider.ts:89 [LLMProvider] Request body: {
-  "model": "doubao-seed-1-6-flash-250828",
+  "model": "ZhipuAI/GLM-4.7-Flash",
   "messages": [
     {
       "role": "system",
@@ -118,729 +381,570 @@ LLMProvider.ts:89 [LLMProvider] Request body: {
     },
     {
       "role": "user",
-      "content": "\n请深入分析以下剧本/小说，一次性提取故事核心、视觉风格和时代背景信息。\n\n【剧本内容】\n## 第一章 杂役苦\n青云宗，东域三大修仙宗门之一，立宗三千年，山门矗立于青云山脉之巅，云雾缭绕，灵气流淌，仙鹤盘旋，琼楼玉宇隐于云海之间，是无数凡人与低阶修士梦寐以求的修仙圣地。\n\n可这圣地的荣光，从来照不进山脚下的杂役院。\n\n杂役院位于青云宗最外围，没有灵脉滋养，没有丹药供给，连空气中的灵气都稀薄得可怜。这里住着的，都是灵根低劣、无缘正式入宗的少年人，每日做着劈柴、挑水、炼丹房采药、炼器房烧火的粗活，若三年内无法踏入炼气一层，便会被逐出宗门，重回凡尘，终老一生...
+      "content": "\n请深入分析以下剧本/小说，一次性提取故事核心、视觉风格和时代背景信息。\n\n【剧本内容】\n大靖王朝，御史大夫沈砚因弹劾丞相谋逆，被诬陷下狱，沈家满门抄斩，独留幼子沈清辞被忠仆所救，隐于民间。十年后，沈清辞化名苏砚，以布衣身份入京城，蛰伏于吏部当差，伺机翻案。\r\n\r\n他聪慧过人，行事低调，很快凭借精准的断案能力得到吏部尚书赏识，却也引起丞相之子萧景渊的注意。萧景渊多疑狠辣，察觉苏砚身份蹊跷，屡次试探刁难，皆被沈清辞巧妙化解。\r\n\r\n一次，萧景渊设计陷害吏部尚书贪腐，欲嫁祸沈清辞。沈清辞早有防备，提前收集萧景渊勾结地方官的证据，借朝会之机，当众呈给皇上。皇上震怒，...
 LLMProvider.ts:91 [LLMProvider] Sending request...
-BaseProvider.ts:63 [BaseProvider] Requesting: https://ark.cn-beijing.volces.com/api/v3/chat/completions, Mode: DEV, Localhost: true
-BaseProvider.ts:84 [BaseProvider] Using Proxy: /api/universal-proxy -> https://ark.cn-beijing.volces.com/api/v3/chat/completions
-提取 已完成加载:POST "<URL>"。
-提取 已完成加载:POST "<URL>"。
-提取 已完成加载:POST "<URL>"。
-提取 已完成加载:POST "<URL>"。
-提取 已完成加载:POST "<URL>"。
-提取 已完成加载:POST "<URL>"。
-提取 已完成加载:POST "<URL>"。
-提取 已完成加载:POST "<URL>"。
-提取 已完成加载:POST "<URL>"。
-提取 已完成加载:POST "<URL>"。
-提取 已完成加载:POST "<URL>"。
-提取 已完成加载:POST "<URL>"。
-提取 已完成加载:POST "<URL>"。
-提取 已完成加载:POST "<URL>"。
-提取 已完成加载:POST "<URL>"。
-提取 已完成加载:POST "<URL>"。
-BaseProvider.ts:99 [BaseProvider] Response received: 200 OK
-LLMProvider.ts:104 [LLMProvider] Request completed in 17994ms
-LLMProvider.ts:118 [LLMProvider] ========== API Response ==========
-LLMProvider.ts:119 [LLMProvider] Response length: 1299 characters
-LLMProvider.ts:120 [LLMProvider] Prompt tokens: 4782
-LLMProvider.ts:121 [LLMProvider] Completion tokens: 1813
-LLMProvider.ts:122 [LLMProvider] Total tokens: 6595
-LLMProvider.ts:123 [LLMProvider] Response preview: {
-  "story": {
-    "synopsis": "青云宗杂役林清玄因四属性伪灵根被视为废柴，受尽欺凌。意外滴血唤醒墨玉佩中残魂云澜子，得知实为混沌四灵根，获《混沌归元诀》。修炼后实力暴涨...
-GlobalContextExtractor.ts:187 [GlobalContextExtractor] Unified extraction completed in 17996ms
-GlobalContextExtractor.ts:195 [GlobalContextExtractor] Extracting emotional arc (content length: 7033 >= threshold: 800)
+BaseProvider.ts:63 [BaseProvider] Requesting: https://api-inference.modelscope.cn/v1/chat/completions, Mode: DEV, Localhost: true
+BaseProvider.ts:84 [BaseProvider] Using Proxy: /api/universal-proxy -> https://api-inference.modelscope.cn/v1/chat/completions
+ScriptManager.tsx:618  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+$204d9ebcedfb8806$export$ed5abd763a836edc @ useProgressBar.ts:44
+useProgress @ chunk-MXO63OUV.mjs:41
+HeroUI.Progress @ chunk-VFIJPDYX.mjs:19
+react_stack_bottom_frame @ react-dom-client.development.js:25904
+renderWithHooks @ react-dom-client.development.js:7662
+updateForwardRef @ react-dom-client.development.js:9724
+beginWork @ react-dom-client.development.js:12117
+runWithFiberInDEV @ react-dom-client.development.js:871
+performUnitOfWork @ react-dom-client.development.js:17641
+workLoopSync @ react-dom-client.development.js:17469
+renderRootSync @ react-dom-client.development.js:17450
+performWorkOnRoot @ react-dom-client.development.js:16504
+performSyncWorkOnRoot @ react-dom-client.development.js:18972
+flushSyncWorkAcrossRoots_impl @ react-dom-client.development.js:18814
+processRootScheduleInMicrotask @ react-dom-client.development.js:18853
+(匿名) @ react-dom-client.development.js:18991
+<HeroUI.Progress>
+exports.jsxDEV @ react-jsx-dev-runtime.development.js:335
+ScriptManager @ ScriptManager.tsx:618
+react_stack_bottom_frame @ react-dom-client.development.js:25904
+renderWithHooksAgain @ react-dom-client.development.js:7762
+renderWithHooks @ react-dom-client.development.js:7674
+updateFunctionComponent @ react-dom-client.development.js:10166
+beginWork @ react-dom-client.development.js:11778
+runWithFiberInDEV @ react-dom-client.development.js:871
+performUnitOfWork @ react-dom-client.development.js:17641
+workLoopSync @ react-dom-client.development.js:17469
+renderRootSync @ react-dom-client.development.js:17450
+performWorkOnRoot @ react-dom-client.development.js:16504
+performSyncWorkOnRoot @ react-dom-client.development.js:18972
+flushSyncWorkAcrossRoots_impl @ react-dom-client.development.js:18814
+processRootScheduleInMicrotask @ react-dom-client.development.js:18853
+(匿名) @ react-dom-client.development.js:18991
+ScriptManager.tsx:618  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+$204d9ebcedfb8806$export$ed5abd763a836edc @ useProgressBar.ts:44
+useProgress @ chunk-MXO63OUV.mjs:41
+HeroUI.Progress @ chunk-VFIJPDYX.mjs:19
+react_stack_bottom_frame @ react-dom-client.development.js:25904
+renderWithHooksAgain @ react-dom-client.development.js:7762
+renderWithHooks @ react-dom-client.development.js:7674
+updateForwardRef @ react-dom-client.development.js:9724
+beginWork @ react-dom-client.development.js:12117
+runWithFiberInDEV @ react-dom-client.development.js:871
+performUnitOfWork @ react-dom-client.development.js:17641
+workLoopSync @ react-dom-client.development.js:17469
+renderRootSync @ react-dom-client.development.js:17450
+performWorkOnRoot @ react-dom-client.development.js:16504
+performSyncWorkOnRoot @ react-dom-client.development.js:18972
+flushSyncWorkAcrossRoots_impl @ react-dom-client.development.js:18814
+processRootScheduleInMicrotask @ react-dom-client.development.js:18853
+(匿名) @ react-dom-client.development.js:18991
+<HeroUI.Progress>
+exports.jsxDEV @ react-jsx-dev-runtime.development.js:335
+ScriptManager @ ScriptManager.tsx:618
+react_stack_bottom_frame @ react-dom-client.development.js:25904
+renderWithHooksAgain @ react-dom-client.development.js:7762
+renderWithHooks @ react-dom-client.development.js:7674
+updateFunctionComponent @ react-dom-client.development.js:10166
+beginWork @ react-dom-client.development.js:11778
+runWithFiberInDEV @ react-dom-client.development.js:871
+performUnitOfWork @ react-dom-client.development.js:17641
+workLoopSync @ react-dom-client.development.js:17469
+renderRootSync @ react-dom-client.development.js:17450
+performWorkOnRoot @ react-dom-client.development.js:16504
+performSyncWorkOnRoot @ react-dom-client.development.js:18972
+flushSyncWorkAcrossRoots_impl @ react-dom-client.development.js:18814
+processRootScheduleInMicrotask @ react-dom-client.development.js:18853
+(匿名) @ react-dom-client.development.js:18991
+scriptParser.ts:1702 [ScriptParser] Calling LLMProvider.generateStructured...
+LLMProvider.ts:240 [LLMProvider] ========== Structured Output Request ==========
+LLMProvider.ts:241 [LLMProvider] Endpoint: https://api-inference.modelscope.cn/v1/chat/completions
+LLMProvider.ts:242 [LLMProvider] Model: ZhipuAI/GLM-4.7-Flash
+LLMProvider.ts:243 [LLMProvider] JSON Mode: true
+LLMProvider.ts:245 [LLMProvider] Sending structured output request...
+BaseProvider.ts:63 [BaseProvider] Requesting: https://api-inference.modelscope.cn/v1/chat/completions, Mode: DEV, Localhost: true
+BaseProvider.ts:84 [BaseProvider] Using Proxy: /api/universal-proxy -> https://api-inference.modelscope.cn/v1/chat/completions
+ScriptManager.tsx:618  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+$204d9ebcedfb8806$export$ed5abd763a836edc @ useProgressBar.ts:44
+useProgress @ chunk-MXO63OUV.mjs:41
+HeroUI.Progress @ chunk-VFIJPDYX.mjs:19
+react_stack_bottom_frame @ react-dom-client.development.js:25904
+renderWithHooks @ react-dom-client.development.js:7662
+updateForwardRef @ react-dom-client.development.js:9724
+beginWork @ react-dom-client.development.js:12117
+runWithFiberInDEV @ react-dom-client.development.js:871
+performUnitOfWork @ react-dom-client.development.js:17641
+workLoopSync @ react-dom-client.development.js:17469
+renderRootSync @ react-dom-client.development.js:17450
+performWorkOnRoot @ react-dom-client.development.js:16504
+performWorkOnRootViaSchedulerTask @ react-dom-client.development.js:18957
+performWorkUntilDeadline @ scheduler.development.js:45
+<HeroUI.Progress>
+exports.jsxDEV @ react-jsx-dev-runtime.development.js:335
+ScriptManager @ ScriptManager.tsx:618
+react_stack_bottom_frame @ react-dom-client.development.js:25904
+renderWithHooksAgain @ react-dom-client.development.js:7762
+renderWithHooks @ react-dom-client.development.js:7674
+updateFunctionComponent @ react-dom-client.development.js:10166
+beginWork @ react-dom-client.development.js:11778
+runWithFiberInDEV @ react-dom-client.development.js:871
+performUnitOfWork @ react-dom-client.development.js:17641
+workLoopSync @ react-dom-client.development.js:17469
+renderRootSync @ react-dom-client.development.js:17450
+performWorkOnRoot @ react-dom-client.development.js:16504
+performSyncWorkOnRoot @ react-dom-client.development.js:18972
+flushSyncWorkAcrossRoots_impl @ react-dom-client.development.js:18814
+processRootScheduleInMicrotask @ react-dom-client.development.js:18853
+(匿名) @ react-dom-client.development.js:18991
+ScriptManager.tsx:618  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+$204d9ebcedfb8806$export$ed5abd763a836edc @ useProgressBar.ts:44
+useProgress @ chunk-MXO63OUV.mjs:41
+HeroUI.Progress @ chunk-VFIJPDYX.mjs:19
+react_stack_bottom_frame @ react-dom-client.development.js:25904
+renderWithHooksAgain @ react-dom-client.development.js:7762
+renderWithHooks @ react-dom-client.development.js:7674
+updateForwardRef @ react-dom-client.development.js:9724
+beginWork @ react-dom-client.development.js:12117
+runWithFiberInDEV @ react-dom-client.development.js:871
+performUnitOfWork @ react-dom-client.development.js:17641
+workLoopSync @ react-dom-client.development.js:17469
+renderRootSync @ react-dom-client.development.js:17450
+performWorkOnRoot @ react-dom-client.development.js:16504
+performWorkOnRootViaSchedulerTask @ react-dom-client.development.js:18957
+performWorkUntilDeadline @ scheduler.development.js:45
+<HeroUI.Progress>
+exports.jsxDEV @ react-jsx-dev-runtime.development.js:335
+ScriptManager @ ScriptManager.tsx:618
+react_stack_bottom_frame @ react-dom-client.development.js:25904
+renderWithHooksAgain @ react-dom-client.development.js:7762
+renderWithHooks @ react-dom-client.development.js:7674
+updateFunctionComponent @ react-dom-client.development.js:10166
+beginWork @ react-dom-client.development.js:11778
+runWithFiberInDEV @ react-dom-client.development.js:871
+performUnitOfWork @ react-dom-client.development.js:17641
+workLoopSync @ react-dom-client.development.js:17469
+renderRootSync @ react-dom-client.development.js:17450
+performWorkOnRoot @ react-dom-client.development.js:16504
+performSyncWorkOnRoot @ react-dom-client.development.js:18972
+flushSyncWorkAcrossRoots_impl @ react-dom-client.development.js:18814
+processRootScheduleInMicrotask @ react-dom-client.development.js:18853
+(匿名) @ react-dom-client.development.js:18991
+BaseProvider.ts:85   POST http://localhost:3000/api/universal-proxy 429 (Too Many Requests)
+makeRequest @ BaseProvider.ts:85
+generateStructured @ LLMProvider.ts:248
+callStructuredLLM @ scriptParser.ts:1703
+await in callStructuredLLM
+extractMetadata @ scriptParser.ts:1879
+parseShortScriptOptimized @ scriptParser.ts:3194
+parseScript @ scriptParser.ts:3594
+handleParseScript @ ScriptManager.tsx:390
+handleParseWithIntent @ ScriptManager.tsx:312
+(匿名) @ index.mjs:362
+(匿名) @ usePress.ts:249
+onClick @ usePress.ts:548
+executeDispatch @ react-dom-client.development.js:19116
+runWithFiberInDEV @ react-dom-client.development.js:871
+processDispatchQueue @ react-dom-client.development.js:19166
+(匿名) @ react-dom-client.development.js:19767
+batchedUpdates$1 @ react-dom-client.development.js:3255
+dispatchEventForPluginEventSystem @ react-dom-client.development.js:19320
+dispatchEvent @ react-dom-client.development.js:23585
+dispatchDiscreteEvent @ react-dom-client.development.js:23553
+BaseProvider.ts:99 [BaseProvider] Response received: 429 Too Many Requests
+LLMProvider.ts:258 [LLMProvider] Structured request completed in 1319ms
+LLMProvider.ts:262  [LLMProvider] API Error: 429 - {"error":{"code":"1302","message":"您的账户已达到速率限制，请您控制请求频率"},"request_id":"08ce533c-be63-4e0c-b659-142cd7e4e80d"}
+generateStructured @ LLMProvider.ts:262
+await in generateStructured
+callStructuredLLM @ scriptParser.ts:1703
+await in callStructuredLLM
+extractMetadata @ scriptParser.ts:1879
+parseShortScriptOptimized @ scriptParser.ts:3194
+parseScript @ scriptParser.ts:3594
+handleParseScript @ ScriptManager.tsx:390
+handleParseWithIntent @ ScriptManager.tsx:312
+(匿名) @ index.mjs:362
+(匿名) @ usePress.ts:249
+onClick @ usePress.ts:548
+executeDispatch @ react-dom-client.development.js:19116
+runWithFiberInDEV @ react-dom-client.development.js:871
+processDispatchQueue @ react-dom-client.development.js:19166
+(匿名) @ react-dom-client.development.js:19767
+batchedUpdates$1 @ react-dom-client.development.js:3255
+dispatchEventForPluginEventSystem @ react-dom-client.development.js:19320
+dispatchEvent @ react-dom-client.development.js:23585
+dispatchDiscreteEvent @ react-dom-client.development.js:23553
+BaseProvider.ts:85   POST http://localhost:3000/api/universal-proxy 429 (Too Many Requests)
+makeRequest @ BaseProvider.ts:85
+generateText @ LLMProvider.ts:94
+extractUnifiedContext @ GlobalContextExtractor.ts:285
+extract @ GlobalContextExtractor.ts:184
+extractGlobalContext @ scriptParser.ts:1836
+parseShortScriptOptimized @ scriptParser.ts:3195
+parseScript @ scriptParser.ts:3594
+handleParseScript @ ScriptManager.tsx:390
+handleParseWithIntent @ ScriptManager.tsx:312
+(匿名) @ index.mjs:362
+(匿名) @ usePress.ts:249
+onClick @ usePress.ts:548
+executeDispatch @ react-dom-client.development.js:19116
+runWithFiberInDEV @ react-dom-client.development.js:871
+processDispatchQueue @ react-dom-client.development.js:19166
+(匿名) @ react-dom-client.development.js:19767
+batchedUpdates$1 @ react-dom-client.development.js:3255
+dispatchEventForPluginEventSystem @ react-dom-client.development.js:19320
+dispatchEvent @ react-dom-client.development.js:23585
+dispatchDiscreteEvent @ react-dom-client.development.js:23553
+BaseProvider.ts:99 [BaseProvider] Response received: 429 Too Many Requests
+LLMProvider.ts:104 [LLMProvider] Request completed in 1363ms
+LLMProvider.ts:108  [LLMProvider] API Error: 429 - {"error":{"code":"1302","message":"您的账户已达到速率限制，请您控制请求频率"},"request_id":"39093adf-05b2-4657-a78c-80a8e17ad3ac"}
+generateText @ LLMProvider.ts:108
+await in generateText
+extractUnifiedContext @ GlobalContextExtractor.ts:285
+extract @ GlobalContextExtractor.ts:184
+extractGlobalContext @ scriptParser.ts:1836
+parseShortScriptOptimized @ scriptParser.ts:3195
+parseScript @ scriptParser.ts:3594
+handleParseScript @ ScriptManager.tsx:390
+handleParseWithIntent @ ScriptManager.tsx:312
+(匿名) @ index.mjs:362
+(匿名) @ usePress.ts:249
+onClick @ usePress.ts:548
+executeDispatch @ react-dom-client.development.js:19116
+runWithFiberInDEV @ react-dom-client.development.js:871
+processDispatchQueue @ react-dom-client.development.js:19166
+(匿名) @ react-dom-client.development.js:19767
+batchedUpdates$1 @ react-dom-client.development.js:3255
+dispatchEventForPluginEventSystem @ react-dom-client.development.js:19320
+dispatchEvent @ react-dom-client.development.js:23585
+dispatchDiscreteEvent @ react-dom-client.development.js:23553
+GlobalContextExtractor.ts:220  [GlobalContextExtractor] Unified extraction failed, falling back to parallel extraction: Error: Failed to extract unified context: API Error: 429 - {"error":{"code":"1302","message":"您的账户已达到速率限制，请您控制请求频率"},"request_id":"39093adf-05b2-4657-a78c-80a8e17ad3ac"}
+    at GlobalContextExtractor.extractUnifiedContext (GlobalContextExtractor.ts:292:13)
+    at async GlobalContextExtractor.extract (GlobalContextExtractor.ts:184:30)
+    at async ScriptParser.extractGlobalContext (scriptParser.ts:1836:28)
+    at async Promise.all (:3000/index 1)
+extract @ GlobalContextExtractor.ts:220
+await in extract
+extractGlobalContext @ scriptParser.ts:1836
+parseShortScriptOptimized @ scriptParser.ts:3195
+parseScript @ scriptParser.ts:3594
+handleParseScript @ ScriptManager.tsx:390
+handleParseWithIntent @ ScriptManager.tsx:312
+(匿名) @ index.mjs:362
+(匿名) @ usePress.ts:249
+onClick @ usePress.ts:548
+executeDispatch @ react-dom-client.development.js:19116
+runWithFiberInDEV @ react-dom-client.development.js:871
+processDispatchQueue @ react-dom-client.development.js:19166
+(匿名) @ react-dom-client.development.js:19767
+batchedUpdates$1 @ react-dom-client.development.js:3255
+dispatchEventForPluginEventSystem @ react-dom-client.development.js:19320
+dispatchEvent @ react-dom-client.development.js:23585
+dispatchDiscreteEvent @ react-dom-client.development.js:23553
+GlobalContextExtractor.ts:373 [GlobalContextExtractor] Falling back to parallel extraction...
 LLMProvider.ts:81 [LLMProvider] ========== API Request ==========
-LLMProvider.ts:82 [LLMProvider] Endpoint: https://ark.cn-beijing.volces.com/api/v3/chat/completions
-LLMProvider.ts:83 [LLMProvider] Model: doubao-seed-1-6-flash-250828
+LLMProvider.ts:82 [LLMProvider] Endpoint: https://api-inference.modelscope.cn/v1/chat/completions
+LLMProvider.ts:83 [LLMProvider] Model: ZhipuAI/GLM-4.7-Flash
+LLMProvider.ts:84 [LLMProvider] enable_thinking: false
+LLMProvider.ts:85 [LLMProvider] Temperature: 0.3
+LLMProvider.ts:86 [LLMProvider] Max Tokens: 5000
+LLMProvider.ts:87 [LLMProvider] Messages count: 2
+LLMProvider.ts:88 [LLMProvider] First message length: 48 characters
+LLMProvider.ts:89 [LLMProvider] Request body: {
+  "model": "ZhipuAI/GLM-4.7-Flash",
+  "messages": [
+    {
+      "role": "system",
+      "content": "你是一个专业的剧本分析助手，擅长从小说/剧本中提取结构化信息。请严格按照要求的JSON格式输出。"
+    },
+    {
+      "role": "user",
+      "content": "\n请深入分析以下剧本/小说的故事核心：\n\n【剧本内容】\n大靖王朝，御史大夫沈砚因弹劾丞相谋逆，被诬陷下狱，沈家满门抄斩，独留幼子沈清辞被忠仆所救，隐于民间。十年后，沈清辞化名苏砚，以布衣身份入京城，蛰伏于吏部当差，伺机翻案。\r\n\r\n他聪慧过人，行事低调，很快凭借精准的断案能力得到吏部尚书赏识，却也引起丞相之子萧景渊的注意。萧景渊多疑狠辣，察觉苏砚身份蹊跷，屡次试探刁难，皆被沈清辞巧妙化解。\r\n\r\n一次，萧景渊设计陷害吏部尚书贪腐，欲嫁祸沈清辞。沈清辞早有防备，提前收集萧景渊勾结地方官的证据，借朝会之机，当众呈给皇上。皇上震怒，下令彻查丞相一党。\r\n\r\n...
+LLMProvider.ts:91 [LLMProvider] Sending request...
+BaseProvider.ts:63 [BaseProvider] Requesting: https://api-inference.modelscope.cn/v1/chat/completions, Mode: DEV, Localhost: true
+BaseProvider.ts:84 [BaseProvider] Using Proxy: /api/universal-proxy -> https://api-inference.modelscope.cn/v1/chat/completions
+提取 加载失败:POST "<URL>".
+提取 加载失败:POST "<URL>".
+提取 加载失败:POST "<URL>".
+提取 加载失败:POST "<URL>".
+提取 加载失败:POST "<URL>".
+BaseProvider.ts:85   POST http://localhost:3000/api/universal-proxy 429 (Too Many Requests)
+makeRequest @ BaseProvider.ts:85
+generateText @ LLMProvider.ts:94
+extractStoryContext @ GlobalContextExtractor.ts:454
+extractParallel @ GlobalContextExtractor.ts:376
+extract @ GlobalContextExtractor.ts:223
+await in extract
+extractGlobalContext @ scriptParser.ts:1836
+parseShortScriptOptimized @ scriptParser.ts:3195
+parseScript @ scriptParser.ts:3594
+handleParseScript @ ScriptManager.tsx:390
+handleParseWithIntent @ ScriptManager.tsx:312
+(匿名) @ index.mjs:362
+(匿名) @ usePress.ts:249
+onClick @ usePress.ts:548
+executeDispatch @ react-dom-client.development.js:19116
+runWithFiberInDEV @ react-dom-client.development.js:871
+processDispatchQueue @ react-dom-client.development.js:19166
+(匿名) @ react-dom-client.development.js:19767
+batchedUpdates$1 @ react-dom-client.development.js:3255
+dispatchEventForPluginEventSystem @ react-dom-client.development.js:19320
+dispatchEvent @ react-dom-client.development.js:23585
+dispatchDiscreteEvent @ react-dom-client.development.js:23553
+BaseProvider.ts:99 [BaseProvider] Response received: 429 Too Many Requests
+LLMProvider.ts:104 [LLMProvider] Request completed in 85ms
+LLMProvider.ts:108  [LLMProvider] API Error: 429 - {"errors":{"message":"We have to rate limit you for model ZhipuAI/GLM-4.7-Flash. If you need higher limits, please consider other (commercial) API providers.","request_id":"8a54aa1f-b0d7-46b1-95bc-5f0bc16e808c"}}
+generateText @ LLMProvider.ts:108
+await in generateText
+extractStoryContext @ GlobalContextExtractor.ts:454
+extractParallel @ GlobalContextExtractor.ts:376
+extract @ GlobalContextExtractor.ts:223
+await in extract
+extractGlobalContext @ scriptParser.ts:1836
+parseShortScriptOptimized @ scriptParser.ts:3195
+parseScript @ scriptParser.ts:3594
+handleParseScript @ ScriptManager.tsx:390
+handleParseWithIntent @ ScriptManager.tsx:312
+(匿名) @ index.mjs:362
+(匿名) @ usePress.ts:249
+onClick @ usePress.ts:548
+executeDispatch @ react-dom-client.development.js:19116
+runWithFiberInDEV @ react-dom-client.development.js:871
+processDispatchQueue @ react-dom-client.development.js:19166
+(匿名) @ react-dom-client.development.js:19767
+batchedUpdates$1 @ react-dom-client.development.js:3255
+dispatchEventForPluginEventSystem @ react-dom-client.development.js:19320
+dispatchEvent @ react-dom-client.development.js:23585
+dispatchDiscreteEvent @ react-dom-client.development.js:23553
+GlobalContextExtractor.ts:490  Error extracting story context: Error: Failed to extract story context: API Error: 429 - {"errors":{"message":"We have to rate limit you for model ZhipuAI/GLM-4.7-Flash. If you need higher limits, please consider other (commercial) API providers.","request_id":"8a54aa1f-b0d7-46b1-95bc-5f0bc16e808c"}}
+    at GlobalContextExtractor.extractStoryContext (GlobalContextExtractor.ts:461:15)
+    at async GlobalContextExtractor.extractParallel (GlobalContextExtractor.ts:376:26)
+    at async ScriptParser.extractGlobalContext (scriptParser.ts:1836:28)
+    at async Promise.all (:3000/index 1)
+extractStoryContext @ GlobalContextExtractor.ts:490
+await in extractStoryContext
+extractParallel @ GlobalContextExtractor.ts:376
+extract @ GlobalContextExtractor.ts:223
+await in extract
+extractGlobalContext @ scriptParser.ts:1836
+parseShortScriptOptimized @ scriptParser.ts:3195
+parseScript @ scriptParser.ts:3594
+handleParseScript @ ScriptManager.tsx:390
+handleParseWithIntent @ ScriptManager.tsx:312
+(匿名) @ index.mjs:362
+(匿名) @ usePress.ts:249
+onClick @ usePress.ts:548
+executeDispatch @ react-dom-client.development.js:19116
+runWithFiberInDEV @ react-dom-client.development.js:871
+processDispatchQueue @ react-dom-client.development.js:19166
+(匿名) @ react-dom-client.development.js:19767
+batchedUpdates$1 @ react-dom-client.development.js:3255
+dispatchEventForPluginEventSystem @ react-dom-client.development.js:19320
+dispatchEvent @ react-dom-client.development.js:23585
+dispatchDiscreteEvent @ react-dom-client.development.js:23553
+LLMProvider.ts:81 [LLMProvider] ========== API Request ==========
+LLMProvider.ts:82 [LLMProvider] Endpoint: https://api-inference.modelscope.cn/v1/chat/completions
+LLMProvider.ts:83 [LLMProvider] Model: ZhipuAI/GLM-4.7-Flash
 LLMProvider.ts:84 [LLMProvider] enable_thinking: false
 LLMProvider.ts:85 [LLMProvider] Temperature: 0.3
 LLMProvider.ts:86 [LLMProvider] Max Tokens: 5000
 LLMProvider.ts:87 [LLMProvider] Messages count: 2
 LLMProvider.ts:88 [LLMProvider] First message length: 51 characters
 LLMProvider.ts:89 [LLMProvider] Request body: {
-  "model": "doubao-seed-1-6-flash-250828",
+  "model": "ZhipuAI/GLM-4.7-Flash",
   "messages": [
     {
       "role": "system",
-      "content": "你是一个专业的情绪分析助手，擅长从剧本中提取情绪曲线和情感变化信息。请严格按照要求的JSON格式输出。"
+      "content": "你是一个专业的视觉风格分析助手，擅长从剧本中提取视觉和美术风格信息。请严格按照要求的JSON格式输出。"
     },
     {
       "role": "user",
-      "content": "\n基于以下故事信息，分析情绪曲线：\n\n【故事梗概】\n青云宗杂役林清玄因四属性伪灵根被视为废柴，受尽欺凌。意外滴血唤醒墨玉佩中残魂云澜子，得知实为混沌四灵根，获《混沌归元诀》。修炼后实力暴涨，外门考核中突破至炼气三层巅峰，灵根与修为震惊众人，被破格提拔为内门弟子，开启逆袭仙途。\n\n【故事结构】\n第一幕：杂役林清玄伪灵根受欺凌，获墨玉佩残魂。\n第二幕上：修炼《混沌归元诀》，实力大增，反击王虎。\n第二幕下：外门考核前夕，主角准备迎接挑战。\n第三幕：被破格提拔为内门弟子，开启新征程。\n中点：墨玉佩觉醒，主角得知真相并获得功法。\n高潮：外门考核中测试...
+      "content": "\n基于以下故事信息，分析视觉风格：\n\n【故事梗概】\n\n\n【核心冲突】\n\n\n【剧本片段】\n大靖王朝，御史大夫沈砚因弹劾丞相谋逆，被诬陷下狱，沈家满门抄斩，独留幼子沈清辞被忠仆所救，隐于民间。十年后，沈清辞化名苏砚，以布衣身份入京城，蛰伏于吏部当差，伺机翻案。\r\n\r\n他聪慧过人，行事低调，很快凭借精准的断案能力得到吏部尚书赏识，却也引起丞相之子萧景渊的注意。萧景渊多疑狠辣，察觉苏砚身份蹊跷，屡次试探刁难，皆被沈清辞巧妙化解。\r\n\r\n一次，萧景渊设计陷害吏部尚书贪腐，欲嫁祸沈清辞。沈清辞早有防备，提前收集萧景渊勾结地方官的证据，借朝会之机，当众呈给...
 LLMProvider.ts:91 [LLMProvider] Sending request...
-BaseProvider.ts:63 [BaseProvider] Requesting: https://ark.cn-beijing.volces.com/api/v3/chat/completions, Mode: DEV, Localhost: true
-BaseProvider.ts:84 [BaseProvider] Using Proxy: /api/universal-proxy -> https://ark.cn-beijing.volces.com/api/v3/chat/completions
-BaseProvider.ts:99 [BaseProvider] Response received: 200 OK
-LLMProvider.ts:104 [LLMProvider] Request completed in 20027ms
-LLMProvider.ts:118 [LLMProvider] ========== API Response ==========
-LLMProvider.ts:119 [LLMProvider] Response length: 1348 characters
-LLMProvider.ts:120 [LLMProvider] Prompt tokens: 4005
-LLMProvider.ts:121 [LLMProvider] Completion tokens: 2187
-LLMProvider.ts:122 [LLMProvider] Total tokens: 6192
-LLMProvider.ts:123 [LLMProvider] Response preview: {
-  "overallMood": "励志向上",
-  "arc": [
-    {
-      "plotPoint": "杂役院压抑处境",
-      "emotion": "压抑、屈辱、绝望...
-scriptParser.ts:1834 [ScriptParser] Global context extracted successfully:
-scriptParser.ts:1835   - Story synopsis: 青云宗杂役林清玄因四属性伪灵根被视为废柴，受尽欺凌。意外滴血唤醒墨玉佩中残魂云澜子，得知实为混沌四灵...
-scriptParser.ts:1836   - Visual style: 以青、白、墨色为主色调，灵玉广场、云雾仙山营造仙侠氛围，人物服饰粗布与灵韵服饰形成反差。
-scriptParser.ts:1837   - Era: 架空古代修仙世界
-scriptParser.ts:1838   - Emotional arc points: 9
-scriptParser.ts:1839   - Consistency rules: 3 era constraints
-scriptParser.ts:1898 [ScriptParser] Global context merged into metadata
-scriptParser.ts:3346 [ScriptParser] Metadata extracted from full content: 3 characters, 10 scenes
-scriptParser.ts:3347 [ScriptParser] Character names from metadata: 林清玄, 王虎, 云澜子
-scriptParser.ts:3348 [ScriptParser] Scene names from metadata: 青云宗山门, 杂役院, 后山, 黑风崖, 炼丹房, 炼器房, 墨玉佩内部, 崖顶, 凡尘（林清玄家）, 青云宗外门
-scriptParser.ts:3363 [ScriptParser] Processing chunk 1/2 (5976 chars)...
-scriptParser.ts:1979 [ScriptParser] Discovering characters in chunk (5976 chars)...
-scriptParser.ts:1551 [ScriptParser] callLLM called for metadata, retryCount: 0
-scriptParser.ts:1552 [ScriptParser] API URL: https://ark.cn-beijing.volces.com/api/v3
-scriptParser.ts:1553 [ScriptParser] Model: doubao-seed-1-6-flash-250828
-scriptParser.ts:1554 [ScriptParser] Max Tokens: 4000
-scriptParser.ts:2026 [ScriptParser] Discovering scenes in chunk (5976 chars)...
-scriptParser.ts:1551 [ScriptParser] callLLM called for metadata, retryCount: 0
-scriptParser.ts:1552 [ScriptParser] API URL: https://ark.cn-beijing.volces.com/api/v3
-scriptParser.ts:1553 [ScriptParser] Model: doubao-seed-1-6-flash-250828
-scriptParser.ts:1554 [ScriptParser] Max Tokens: 4000
-scriptParser.ts:3442 [ScriptParser] Executing 2 extraction tasks in parallel for chunk 1...
-scriptParser.ts:1583 [ScriptParser] Calling LLMProvider.generateText...
+BaseProvider.ts:63 [BaseProvider] Requesting: https://api-inference.modelscope.cn/v1/chat/completions, Mode: DEV, Localhost: true
+BaseProvider.ts:84 [BaseProvider] Using Proxy: /api/universal-proxy -> https://api-inference.modelscope.cn/v1/chat/completions
+BaseProvider.ts:85   POST http://localhost:3000/api/universal-proxy 429 (Too Many Requests)
+makeRequest @ BaseProvider.ts:85
+generateText @ LLMProvider.ts:94
+extractVisualContext @ GlobalContextExtractor.ts:548
+extractParallel @ GlobalContextExtractor.ts:379
+await in extractParallel
+extract @ GlobalContextExtractor.ts:223
+await in extract
+extractGlobalContext @ scriptParser.ts:1836
+parseShortScriptOptimized @ scriptParser.ts:3195
+parseScript @ scriptParser.ts:3594
+handleParseScript @ ScriptManager.tsx:390
+handleParseWithIntent @ ScriptManager.tsx:312
+(匿名) @ index.mjs:362
+(匿名) @ usePress.ts:249
+onClick @ usePress.ts:548
+executeDispatch @ react-dom-client.development.js:19116
+runWithFiberInDEV @ react-dom-client.development.js:871
+processDispatchQueue @ react-dom-client.development.js:19166
+(匿名) @ react-dom-client.development.js:19767
+batchedUpdates$1 @ react-dom-client.development.js:3255
+dispatchEventForPluginEventSystem @ react-dom-client.development.js:19320
+dispatchEvent @ react-dom-client.development.js:23585
+dispatchDiscreteEvent @ react-dom-client.development.js:23553
+BaseProvider.ts:99 [BaseProvider] Response received: 429 Too Many Requests
+LLMProvider.ts:104 [LLMProvider] Request completed in 57ms
+LLMProvider.ts:108  [LLMProvider] API Error: 429 - {"errors":{"message":"We have to rate limit you for model ZhipuAI/GLM-4.7-Flash. If you need higher limits, please consider other (commercial) API providers.","request_id":"86461b8d-de88-420a-a04e-85fed7b56e51"}}
+generateText @ LLMProvider.ts:108
+await in generateText
+extractVisualContext @ GlobalContextExtractor.ts:548
+extractParallel @ GlobalContextExtractor.ts:379
+await in extractParallel
+extract @ GlobalContextExtractor.ts:223
+await in extract
+extractGlobalContext @ scriptParser.ts:1836
+parseShortScriptOptimized @ scriptParser.ts:3195
+parseScript @ scriptParser.ts:3594
+handleParseScript @ ScriptManager.tsx:390
+handleParseWithIntent @ ScriptManager.tsx:312
+(匿名) @ index.mjs:362
+(匿名) @ usePress.ts:249
+onClick @ usePress.ts:548
+executeDispatch @ react-dom-client.development.js:19116
+runWithFiberInDEV @ react-dom-client.development.js:871
+processDispatchQueue @ react-dom-client.development.js:19166
+(匿名) @ react-dom-client.development.js:19767
+batchedUpdates$1 @ react-dom-client.development.js:3255
+dispatchEventForPluginEventSystem @ react-dom-client.development.js:19320
+dispatchEvent @ react-dom-client.development.js:23585
+dispatchDiscreteEvent @ react-dom-client.development.js:23553
+GlobalContextExtractor.ts:600  Error extracting visual context: Error: Failed to extract visual context: API Error: 429 - {"errors":{"message":"We have to rate limit you for model ZhipuAI/GLM-4.7-Flash. If you need higher limits, please consider other (commercial) API providers.","request_id":"86461b8d-de88-420a-a04e-85fed7b56e51"}}
+    at GlobalContextExtractor.extractVisualContext (GlobalContextExtractor.ts:555:15)
+    at async GlobalContextExtractor.extractParallel (GlobalContextExtractor.ts:379:27)
+    at async ScriptParser.extractGlobalContext (scriptParser.ts:1836:28)
+    at async Promise.all (:3000/index 1)
+extractVisualContext @ GlobalContextExtractor.ts:600
+await in extractVisualContext
+extractParallel @ GlobalContextExtractor.ts:379
+await in extractParallel
+extract @ GlobalContextExtractor.ts:223
+await in extract
+extractGlobalContext @ scriptParser.ts:1836
+parseShortScriptOptimized @ scriptParser.ts:3195
+parseScript @ scriptParser.ts:3594
+handleParseScript @ ScriptManager.tsx:390
+handleParseWithIntent @ ScriptManager.tsx:312
+(匿名) @ index.mjs:362
+(匿名) @ usePress.ts:249
+onClick @ usePress.ts:548
+executeDispatch @ react-dom-client.development.js:19116
+runWithFiberInDEV @ react-dom-client.development.js:871
+processDispatchQueue @ react-dom-client.development.js:19166
+(匿名) @ react-dom-client.development.js:19767
+batchedUpdates$1 @ react-dom-client.development.js:3255
+dispatchEventForPluginEventSystem @ react-dom-client.development.js:19320
+dispatchEvent @ react-dom-client.development.js:23585
+dispatchDiscreteEvent @ react-dom-client.development.js:23553
 LLMProvider.ts:81 [LLMProvider] ========== API Request ==========
-LLMProvider.ts:82 [LLMProvider] Endpoint: https://ark.cn-beijing.volces.com/api/v3/chat/completions
-LLMProvider.ts:83 [LLMProvider] Model: doubao-seed-1-6-flash-250828
+LLMProvider.ts:82 [LLMProvider] Endpoint: https://api-inference.modelscope.cn/v1/chat/completions
+LLMProvider.ts:83 [LLMProvider] Model: ZhipuAI/GLM-4.7-Flash
 LLMProvider.ts:84 [LLMProvider] enable_thinking: false
 LLMProvider.ts:85 [LLMProvider] Temperature: 0.3
-LLMProvider.ts:86 [LLMProvider] Max Tokens: 4000
+LLMProvider.ts:86 [LLMProvider] Max Tokens: 5000
 LLMProvider.ts:87 [LLMProvider] Messages count: 2
-LLMProvider.ts:88 [LLMProvider] First message length: 48 characters
+LLMProvider.ts:88 [LLMProvider] First message length: 51 characters
 LLMProvider.ts:89 [LLMProvider] Request body: {
-  "model": "doubao-seed-1-6-flash-250828",
+  "model": "ZhipuAI/GLM-4.7-Flash",
   "messages": [
     {
       "role": "system",
-      "content": "你是一个专业的剧本分析助手，擅长从小说/剧本中提取结构化信息。请严格按照要求的JSON格式输出。"
+      "content": "你是一个专业的时代背景分析助手，擅长从剧本中提取时代和地理背景信息。请严格按照要求的JSON格式输出。"
     },
     {
       "role": "user",
-      "content": "\n请分析以下文本片段，提取其中出现的所有角色/人物名称。\n\n【文本片段】\n## 第一章 杂役苦\n青云宗，东域三大修仙宗门之一，立宗三千年，山门矗立于青云山脉之巅，云雾缭绕，灵气流淌，仙鹤盘旋，琼楼玉宇隐于云海之间，是无数凡人与低阶修士梦寐以求的修仙圣地。\n\n可这圣地的荣光，从来照不进山脚下的杂役院。\n\n杂役院位于青云宗最外围，没有灵脉滋养，没有丹药供给，连空气中的灵气都稀薄得可怜。这里住着的，都是灵根低劣、无缘正式入宗的少年人，每日做着劈柴、挑水、炼丹房采药、炼器房烧火的粗活，若三年内无法踏入炼气一层，便会被逐出宗门，重回凡尘，终老一生。\n\n林清玄...
+      "content": "\n请分析以下剧本的时代背景：\n\n【剧本内容】\n大靖王朝，御史大夫沈砚因弹劾丞相谋逆，被诬陷下狱，沈家满门抄斩，独留幼子沈清辞被忠仆所救，隐于民间。十年后，沈清辞化名苏砚，以布衣身份入京城，蛰伏于吏部当差，伺机翻案。\r\n\r\n他聪慧过人，行事低调，很快凭借精准的断案能力得到吏部尚书赏识，却也引起丞相之子萧景渊的注意。萧景渊多疑狠辣，察觉苏砚身份蹊跷，屡次试探刁难，皆被沈清辞巧妙化解。\r\n\r\n一次，萧景渊设计陷害吏部尚书贪腐，欲嫁祸沈清辞。沈清辞早有防备，提前收集萧景渊勾结地方官的证据，借朝会之机，当众呈给皇上。皇上震怒，下令彻查丞相一党。\r\n\r\n沈清...
 LLMProvider.ts:91 [LLMProvider] Sending request...
-BaseProvider.ts:63 [BaseProvider] Requesting: https://ark.cn-beijing.volces.com/api/v3/chat/completions, Mode: DEV, Localhost: true
-BaseProvider.ts:84 [BaseProvider] Using Proxy: /api/universal-proxy -> https://ark.cn-beijing.volces.com/api/v3/chat/completions
-scriptParser.ts:1583 [ScriptParser] Calling LLMProvider.generateText...
-LLMProvider.ts:81 [LLMProvider] ========== API Request ==========
-LLMProvider.ts:82 [LLMProvider] Endpoint: https://ark.cn-beijing.volces.com/api/v3/chat/completions
-LLMProvider.ts:83 [LLMProvider] Model: doubao-seed-1-6-flash-250828
-LLMProvider.ts:84 [LLMProvider] enable_thinking: false
-LLMProvider.ts:85 [LLMProvider] Temperature: 0.3
-LLMProvider.ts:86 [LLMProvider] Max Tokens: 4000
-LLMProvider.ts:87 [LLMProvider] Messages count: 2
-LLMProvider.ts:88 [LLMProvider] First message length: 48 characters
-LLMProvider.ts:89 [LLMProvider] Request body: {
-  "model": "doubao-seed-1-6-flash-250828",
-  "messages": [
-    {
-      "role": "system",
-      "content": "你是一个专业的剧本分析助手，擅长从小说/剧本中提取结构化信息。请严格按照要求的JSON格式输出。"
-    },
-    {
-      "role": "user",
-      "content": "\n请分析以下文本片段，提取其中出现的所有场景/地点名称。\n\n【文本片段】\n## 第一章 杂役苦\n青云宗，东域三大修仙宗门之一，立宗三千年，山门矗立于青云山脉之巅，云雾缭绕，灵气流淌，仙鹤盘旋，琼楼玉宇隐于云海之间，是无数凡人与低阶修士梦寐以求的修仙圣地。\n\n可这圣地的荣光，从来照不进山脚下的杂役院。\n\n杂役院位于青云宗最外围，没有灵脉滋养，没有丹药供给，连空气中的灵气都稀薄得可怜。这里住着的，都是灵根低劣、无缘正式入宗的少年人，每日做着劈柴、挑水、炼丹房采药、炼器房烧火的粗活，若三年内无法踏入炼气一层，便会被逐出宗门，重回凡尘，终老一生。\n\n林清玄...
-LLMProvider.ts:91 [LLMProvider] Sending request...
-BaseProvider.ts:63 [BaseProvider] Requesting: https://ark.cn-beijing.volces.com/api/v3/chat/completions, Mode: DEV, Localhost: true
-BaseProvider.ts:84 [BaseProvider] Using Proxy: /api/universal-proxy -> https://ark.cn-beijing.volces.com/api/v3/chat/completions
-BaseProvider.ts:99 [BaseProvider] Response received: 200 OK
-LLMProvider.ts:104 [LLMProvider] Request completed in 3848ms
-LLMProvider.ts:118 [LLMProvider] ========== API Response ==========
-LLMProvider.ts:119 [LLMProvider] Response length: 44 characters
-LLMProvider.ts:120 [LLMProvider] Prompt tokens: 3059
-LLMProvider.ts:121 [LLMProvider] Completion tokens: 358
-LLMProvider.ts:122 [LLMProvider] Total tokens: 3417
-LLMProvider.ts:123 [LLMProvider] Response preview: {
-  "characterNames": ["林清玄", "王虎", "云澜子"]
-}...
-scriptParser.ts:1607 [ScriptParser] LLM response received, length: 44
-scriptParser.ts:2009 [ScriptParser] Discovered 3 characters: 林清玄, 王虎, 云澜子
-scriptParser.ts:3373 [ScriptParser] Chunk 1: Discovered 3 characters: 林清玄, 王虎, 云澜子
-scriptParser.ts:3384 [ScriptParser] Chunk 1: Extracting 3 new characters: 林清玄, 王虎, 云澜子
-scriptParser.ts:2375 [ScriptParser] ---------- Batch Extracting 3 Characters with Context ----------
-scriptParser.ts:2391 [ScriptParser] Injecting global context into character extraction
-scriptParser.ts:2395 [ScriptParser] Context-enhanced prompt length: 5678 characters
-scriptParser.ts:1551 [ScriptParser] callLLM called for character, retryCount: 0
-scriptParser.ts:1552 [ScriptParser] API URL: https://ark.cn-beijing.volces.com/api/v3
-scriptParser.ts:1553 [ScriptParser] Model: doubao-seed-1-6-flash-250828
-scriptParser.ts:1554 [ScriptParser] Max Tokens: 6000
-scriptParser.ts:1583 [ScriptParser] Calling LLMProvider.generateText...
-LLMProvider.ts:81 [LLMProvider] ========== API Request ==========
-LLMProvider.ts:82 [LLMProvider] Endpoint: https://ark.cn-beijing.volces.com/api/v3/chat/completions
-LLMProvider.ts:83 [LLMProvider] Model: doubao-seed-1-6-flash-250828
-LLMProvider.ts:84 [LLMProvider] enable_thinking: false
-LLMProvider.ts:85 [LLMProvider] Temperature: 0.3
-LLMProvider.ts:86 [LLMProvider] Max Tokens: 6000
-LLMProvider.ts:87 [LLMProvider] Messages count: 2
-LLMProvider.ts:88 [LLMProvider] First message length: 48 characters
-LLMProvider.ts:89 [LLMProvider] Request body: {
-  "model": "doubao-seed-1-6-flash-250828",
-  "messages": [
-    {
-      "role": "system",
-      "content": "你是一个专业的剧本分析助手，擅长从小说/剧本中提取结构化信息。请严格按照要求的JSON格式输出。"
-    },
-    {
-      "role": "user",
-      "content": "【故事背景】\n- 一句话简介：伪灵根少年觉醒混沌灵根，获功法逆袭，外门考核一鸣惊人。\n- 故事梗概：青云宗杂役林清玄因四属性伪灵根被视为废柴，受尽欺凌。意外滴血唤醒墨玉佩中残魂云澜子，得知实为混沌四灵根，获《混沌归元诀》。修炼后实力暴涨，外门考核中突破至炼气三层巅峰，灵根与修为震惊众人，被破格提拔为内门弟子，开启逆袭仙途。\n- 核心冲突：主角林清玄在杂役院受身份歧视与欺凌，觉醒混沌灵根后，需突破自身与外界的双重桎梏，证明实力并改变命运。\n- 主题思想：命运抗争、自我突破、奇遇成长\n\n\n【视觉风格】\n- 美术指导：水墨国风，仙侠电影感，融合青云山脉的缥缈与...
-LLMProvider.ts:91 [LLMProvider] Sending request...
-BaseProvider.ts:63 [BaseProvider] Requesting: https://ark.cn-beijing.volces.com/api/v3/chat/completions, Mode: DEV, Localhost: true
-BaseProvider.ts:84 [BaseProvider] Using Proxy: /api/universal-proxy -> https://ark.cn-beijing.volces.com/api/v3/chat/completions
-BaseProvider.ts:99 [BaseProvider] Response received: 200 OK
-LLMProvider.ts:104 [LLMProvider] Request completed in 6208ms
-LLMProvider.ts:118 [LLMProvider] ========== API Response ==========
-LLMProvider.ts:119 [LLMProvider] Response length: 67 characters
-LLMProvider.ts:120 [LLMProvider] Prompt tokens: 3085
-LLMProvider.ts:121 [LLMProvider] Completion tokens: 615
-LLMProvider.ts:122 [LLMProvider] Total tokens: 3700
-LLMProvider.ts:123 [LLMProvider] Response preview: {
-  "sceneNames": ["青云宗", "杂役院", "炼丹房", "炼器房", "后山", "黑风崖", "崖顶"]
-}...
-scriptParser.ts:1607 [ScriptParser] LLM response received, length: 67
-scriptParser.ts:2057 [ScriptParser] Discovered 7 scenes: 青云宗, 杂役院, 炼丹房, 炼器房, 后山, 黑风崖, 崖顶
-scriptParser.ts:3409 [ScriptParser] Chunk 1: Discovered 7 scenes: 青云宗, 杂役院, 炼丹房, 炼器房, 后山, 黑风崖, 崖顶
-scriptParser.ts:3420 [ScriptParser] Chunk 1: Extracting 7 new scenes: 青云宗, 杂役院, 炼丹房, 炼器房, 后山, 黑风崖, 崖顶
-scriptParser.ts:2528 [ScriptParser] ---------- Smart Batching 7 Scenes (2 batches) ----------
-scriptParser.ts:2533 [ScriptParser] Processing batch 1/2: 5 scenes
-scriptParser.ts:2574 [ScriptParser] Injecting global context into scene extraction
-scriptParser.ts:2578 [ScriptParser] Context-enhanced prompt length: 5967 characters
-scriptParser.ts:1551 [ScriptParser] callLLM called for scene, retryCount: 0
-scriptParser.ts:1552 [ScriptParser] API URL: https://ark.cn-beijing.volces.com/api/v3
-scriptParser.ts:1553 [ScriptParser] Model: doubao-seed-1-6-flash-250828
-scriptParser.ts:1554 [ScriptParser] Max Tokens: 6000
-scriptParser.ts:1583 [ScriptParser] Calling LLMProvider.generateText...
-LLMProvider.ts:81 [LLMProvider] ========== API Request ==========
-LLMProvider.ts:82 [LLMProvider] Endpoint: https://ark.cn-beijing.volces.com/api/v3/chat/completions
-LLMProvider.ts:83 [LLMProvider] Model: doubao-seed-1-6-flash-250828
-LLMProvider.ts:84 [LLMProvider] enable_thinking: false
-LLMProvider.ts:85 [LLMProvider] Temperature: 0.3
-LLMProvider.ts:86 [LLMProvider] Max Tokens: 6000
-LLMProvider.ts:87 [LLMProvider] Messages count: 2
-LLMProvider.ts:88 [LLMProvider] First message length: 48 characters
-LLMProvider.ts:89 [LLMProvider] Request body: {
-  "model": "doubao-seed-1-6-flash-250828",
-  "messages": [
-    {
-      "role": "system",
-      "content": "你是一个专业的剧本分析助手，擅长从小说/剧本中提取结构化信息。请严格按照要求的JSON格式输出。"
-    },
-    {
-      "role": "user",
-      "content": "【故事背景】\n- 一句话简介：伪灵根少年觉醒混沌灵根，获功法逆袭，外门考核一鸣惊人。\n- 故事梗概：青云宗杂役林清玄因四属性伪灵根被视为废柴，受尽欺凌。意外滴血唤醒墨玉佩中残魂云澜子，得知实为混沌四灵根，获《混沌归元诀》。修炼后实力暴涨，外门考核中突破至炼气三层巅峰，灵根与修为震惊众人，被破格提拔为内门弟子，开启逆袭仙途。\n- 核心冲突：主角林清玄在杂役院受身份歧视与欺凌，觉醒混沌灵根后，需突破自身与外界的双重桎梏，证明实力并改变命运。\n- 主题思想：命运抗争、自我突破、奇遇成长\n\n\n【视觉风格】\n- 美术指导：水墨国风，仙侠电影感，融合青云山脉的缥缈与...
-LLMProvider.ts:91 [LLMProvider] Sending request...
-BaseProvider.ts:63 [BaseProvider] Requesting: https://ark.cn-beijing.volces.com/api/v3/chat/completions, Mode: DEV, Localhost: true
-BaseProvider.ts:84 [BaseProvider] Using Proxy: /api/universal-proxy -> https://ark.cn-beijing.volces.com/api/v3/chat/completions
-BaseProvider.ts:99 [BaseProvider] Response received: 200 OK
-LLMProvider.ts:104 [LLMProvider] Request completed in 25626ms
-LLMProvider.ts:118 [LLMProvider] ========== API Response ==========
-LLMProvider.ts:119 [LLMProvider] Response length: 1499 characters
-LLMProvider.ts:120 [LLMProvider] Prompt tokens: 3888
-LLMProvider.ts:121 [LLMProvider] Completion tokens: 2580
-LLMProvider.ts:122 [LLMProvider] Total tokens: 6468
-LLMProvider.ts:123 [LLMProvider] Response preview: [
-  {
-    "name": "林清玄",
-    "gender": "male",
-    "age": "15",
-    "identity": "青云宗杂役弟子",
-    "appe...
-scriptParser.ts:1607 [ScriptParser] LLM response received, length: 1499
-scriptParser.ts:2398 [ScriptParser] Batch response received, length: 1499 characters
-scriptParser.ts:2401 [ScriptParser] Parsed 3 characters from batch response
-scriptParser.ts:3395 [ScriptParser] Added character: 林清玄
-scriptParser.ts:3395 [ScriptParser] Added character: 王虎
-scriptParser.ts:3395 [ScriptParser] Added character: 云澜子
-BaseProvider.ts:99 [BaseProvider] Response received: 200 OK
-LLMProvider.ts:104 [LLMProvider] Request completed in 45362ms
-LLMProvider.ts:118 [LLMProvider] ========== API Response ==========
-LLMProvider.ts:119 [LLMProvider] Response length: 2535 characters
-LLMProvider.ts:120 [LLMProvider] Prompt tokens: 4102
-LLMProvider.ts:121 [LLMProvider] Completion tokens: 4910
-LLMProvider.ts:122 [LLMProvider] Total tokens: 9012
-LLMProvider.ts:123 [LLMProvider] Response preview: [
-  {
-    "name": "青云宗",
-    "locationType": "outdoor",
-    "description": "立宗三千年，山门矗立于青云山脉之巅，云雾缭绕，灵...
-scriptParser.ts:1607 [ScriptParser] LLM response received, length: 2535
-scriptParser.ts:2581 [ScriptParser] Batch response received, length: 2535 characters
-scriptParser.ts:2584 [ScriptParser] Parsed 5 scenes from batch response
-scriptParser.ts:2533 [ScriptParser] Processing batch 2/2: 2 scenes
-scriptParser.ts:2574 [ScriptParser] Injecting global context into scene extraction
-scriptParser.ts:2578 [ScriptParser] Context-enhanced prompt length: 5996 characters
-scriptParser.ts:1551 [ScriptParser] callLLM called for scene, retryCount: 0
-scriptParser.ts:1552 [ScriptParser] API URL: https://ark.cn-beijing.volces.com/api/v3
-scriptParser.ts:1553 [ScriptParser] Model: doubao-seed-1-6-flash-250828
-scriptParser.ts:1554 [ScriptParser] Max Tokens: 6000
-scriptParser.ts:1583 [ScriptParser] Calling LLMProvider.generateText...
-LLMProvider.ts:81 [LLMProvider] ========== API Request ==========
-LLMProvider.ts:82 [LLMProvider] Endpoint: https://ark.cn-beijing.volces.com/api/v3/chat/completions
-LLMProvider.ts:83 [LLMProvider] Model: doubao-seed-1-6-flash-250828
-LLMProvider.ts:84 [LLMProvider] enable_thinking: false
-LLMProvider.ts:85 [LLMProvider] Temperature: 0.3
-LLMProvider.ts:86 [LLMProvider] Max Tokens: 6000
-LLMProvider.ts:87 [LLMProvider] Messages count: 2
-LLMProvider.ts:88 [LLMProvider] First message length: 48 characters
-LLMProvider.ts:89 [LLMProvider] Request body: {
-  "model": "doubao-seed-1-6-flash-250828",
-  "messages": [
-    {
-      "role": "system",
-      "content": "你是一个专业的剧本分析助手，擅长从小说/剧本中提取结构化信息。请严格按照要求的JSON格式输出。"
-    },
-    {
-      "role": "user",
-      "content": "【故事背景】\n- 一句话简介：伪灵根少年觉醒混沌灵根，获功法逆袭，外门考核一鸣惊人。\n- 故事梗概：青云宗杂役林清玄因四属性伪灵根被视为废柴，受尽欺凌。意外滴血唤醒墨玉佩中残魂云澜子，得知实为混沌四灵根，获《混沌归元诀》。修炼后实力暴涨，外门考核中突破至炼气三层巅峰，灵根与修为震惊众人，被破格提拔为内门弟子，开启逆袭仙途。\n- 核心冲突：主角林清玄在杂役院受身份歧视与欺凌，觉醒混沌灵根后，需突破自身与外界的双重桎梏，证明实力并改变命运。\n- 主题思想：命运抗争、自我突破、奇遇成长\n\n\n【视觉风格】\n- 美术指导：水墨国风，仙侠电影感，融合青云山脉的缥缈与...
-LLMProvider.ts:91 [LLMProvider] Sending request...
-BaseProvider.ts:63 [BaseProvider] Requesting: https://ark.cn-beijing.volces.com/api/v3/chat/completions, Mode: DEV, Localhost: true
-BaseProvider.ts:84 [BaseProvider] Using Proxy: /api/universal-proxy -> https://ark.cn-beijing.volces.com/api/v3/chat/completions
-MultiLevelCache.ts:443 [MultiLevelCache] Cleanup completed
-BaseProvider.ts:99 [BaseProvider] Response received: 200 OK
-LLMProvider.ts:104 [LLMProvider] Request completed in 27832ms
-LLMProvider.ts:118 [LLMProvider] ========== API Response ==========
-LLMProvider.ts:119 [LLMProvider] Response length: 1065 characters
-LLMProvider.ts:120 [LLMProvider] Prompt tokens: 4125
-LLMProvider.ts:121 [LLMProvider] Completion tokens: 2479
-LLMProvider.ts:122 [LLMProvider] Total tokens: 6604
-LLMProvider.ts:123 [LLMProvider] Response preview: [
-  {
-    "name": "黑风崖",
-    "locationType": "outdoor",
-    "description": "青云宗外围自然险地，崖壁陡峭如刀削，崖边石缝中生...
-scriptParser.ts:1607 [ScriptParser] LLM response received, length: 1065
-scriptParser.ts:2581 [ScriptParser] Batch response received, length: 1065 characters
-scriptParser.ts:2584 [ScriptParser] Parsed 2 scenes from batch response
-scriptParser.ts:2553 [ScriptParser] Smart batching complete: 7 scenes extracted
-scriptParser.ts:3431 [ScriptParser] Added scene: 青云宗
-scriptParser.ts:3431 [ScriptParser] Added scene: 杂役院
-scriptParser.ts:3431 [ScriptParser] Added scene: 炼丹房
-scriptParser.ts:3431 [ScriptParser] Added scene: 炼器房
-scriptParser.ts:3431 [ScriptParser] Added scene: 后山
-scriptParser.ts:3431 [ScriptParser] Added scene: 黑风崖
-scriptParser.ts:3431 [ScriptParser] Added scene: 崖顶
-scriptParser.ts:3446 [ScriptParser] Chunk 1 complete. Total so far: 3 characters, 7 scenes
-scriptParser.ts:3363 [ScriptParser] Processing chunk 2/2 (1055 chars)...
-scriptParser.ts:1979 [ScriptParser] Discovering characters in chunk (1055 chars)...
-scriptParser.ts:1551 [ScriptParser] callLLM called for metadata, retryCount: 0
-scriptParser.ts:1552 [ScriptParser] API URL: https://ark.cn-beijing.volces.com/api/v3
-scriptParser.ts:1553 [ScriptParser] Model: doubao-seed-1-6-flash-250828
-scriptParser.ts:1554 [ScriptParser] Max Tokens: 4000
-scriptParser.ts:2026 [ScriptParser] Discovering scenes in chunk (1055 chars)...
-scriptParser.ts:1551 [ScriptParser] callLLM called for metadata, retryCount: 0
-scriptParser.ts:1552 [ScriptParser] API URL: https://ark.cn-beijing.volces.com/api/v3
-scriptParser.ts:1553 [ScriptParser] Model: doubao-seed-1-6-flash-250828
-scriptParser.ts:1554 [ScriptParser] Max Tokens: 4000
-scriptParser.ts:3442 [ScriptParser] Executing 2 extraction tasks in parallel for chunk 2...
-scriptParser.ts:1583 [ScriptParser] Calling LLMProvider.generateText...
-LLMProvider.ts:81 [LLMProvider] ========== API Request ==========
-LLMProvider.ts:82 [LLMProvider] Endpoint: https://ark.cn-beijing.volces.com/api/v3/chat/completions
-LLMProvider.ts:83 [LLMProvider] Model: doubao-seed-1-6-flash-250828
-LLMProvider.ts:84 [LLMProvider] enable_thinking: false
-LLMProvider.ts:85 [LLMProvider] Temperature: 0.3
-LLMProvider.ts:86 [LLMProvider] Max Tokens: 4000
-LLMProvider.ts:87 [LLMProvider] Messages count: 2
-LLMProvider.ts:88 [LLMProvider] First message length: 48 characters
-LLMProvider.ts:89 [LLMProvider] Request body: {
-  "model": "doubao-seed-1-6-flash-250828",
-  "messages": [
-    {
-      "role": "system",
-      "content": "你是一个专业的剧本分析助手，擅长从小说/剧本中提取结构化信息。请严格按照要求的JSON格式输出。"
-    },
-    {
-      "role": "user",
-      "content": "\n请分析以下文本片段，提取其中出现的所有角色/人物名称。\n\n【文本片段】\n“张执事，好大的口气，一个杂役弟子，也想直接入内门？”\n\n众人抬头，只见一名身着青色内门服饰的少年，脚踏飞剑，落在广场之上，面容俊朗，却眼神高傲，周身灵气环绕，乃是炼气五层的修为。\n\n内门弟子，赵昊。\n\n赵昊是青云宗宗主的亲传弟子，单火灵根，天赋出众，向来眼高于顶，目中无人。他今日路过外门广场，看到测灵石碑的光芒，便过来查看，见到林清玄只是杂役弟子出身，心中顿时生出嫉妒。\n\n“赵师兄。”张执事脸色微变，拱手行礼。赵昊是宗主亲传，身份尊贵，他不敢得罪。\n\n“赵师兄。”周围...
-LLMProvider.ts:91 [LLMProvider] Sending request...
-BaseProvider.ts:63 [BaseProvider] Requesting: https://ark.cn-beijing.volces.com/api/v3/chat/completions, Mode: DEV, Localhost: true
-BaseProvider.ts:84 [BaseProvider] Using Proxy: /api/universal-proxy -> https://ark.cn-beijing.volces.com/api/v3/chat/completions
-scriptParser.ts:1583 [ScriptParser] Calling LLMProvider.generateText...
-LLMProvider.ts:81 [LLMProvider] ========== API Request ==========
-LLMProvider.ts:82 [LLMProvider] Endpoint: https://ark.cn-beijing.volces.com/api/v3/chat/completions
-LLMProvider.ts:83 [LLMProvider] Model: doubao-seed-1-6-flash-250828
-LLMProvider.ts:84 [LLMProvider] enable_thinking: false
-LLMProvider.ts:85 [LLMProvider] Temperature: 0.3
-LLMProvider.ts:86 [LLMProvider] Max Tokens: 4000
-LLMProvider.ts:87 [LLMProvider] Messages count: 2
-LLMProvider.ts:88 [LLMProvider] First message length: 48 characters
-LLMProvider.ts:89 [LLMProvider] Request body: {
-  "model": "doubao-seed-1-6-flash-250828",
-  "messages": [
-    {
-      "role": "system",
-      "content": "你是一个专业的剧本分析助手，擅长从小说/剧本中提取结构化信息。请严格按照要求的JSON格式输出。"
-    },
-    {
-      "role": "user",
-      "content": "\n请分析以下文本片段，提取其中出现的所有场景/地点名称。\n\n【文本片段】\n“张执事，好大的口气，一个杂役弟子，也想直接入内门？”\n\n众人抬头，只见一名身着青色内门服饰的少年，脚踏飞剑，落在广场之上，面容俊朗，却眼神高傲，周身灵气环绕，乃是炼气五层的修为。\n\n内门弟子，赵昊。\n\n赵昊是青云宗宗主的亲传弟子，单火灵根，天赋出众，向来眼高于顶，目中无人。他今日路过外门广场，看到测灵石碑的光芒，便过来查看，见到林清玄只是杂役弟子出身，心中顿时生出嫉妒。\n\n“赵师兄。”张执事脸色微变，拱手行礼。赵昊是宗主亲传，身份尊贵，他不敢得罪。\n\n“赵师兄。”周围...
-LLMProvider.ts:91 [LLMProvider] Sending request...
-BaseProvider.ts:63 [BaseProvider] Requesting: https://ark.cn-beijing.volces.com/api/v3/chat/completions, Mode: DEV, Localhost: true
-BaseProvider.ts:84 [BaseProvider] Using Proxy: /api/universal-proxy -> https://ark.cn-beijing.volces.com/api/v3/chat/completions
-BaseProvider.ts:99 [BaseProvider] Response received: 200 OK
-LLMProvider.ts:104 [LLMProvider] Request completed in 10525ms
-LLMProvider.ts:118 [LLMProvider] ========== API Response ==========
-LLMProvider.ts:119 [LLMProvider] Response length: 51 characters
-LLMProvider.ts:120 [LLMProvider] Prompt tokens: 968
-LLMProvider.ts:121 [LLMProvider] Completion tokens: 1025
-LLMProvider.ts:122 [LLMProvider] Total tokens: 1993
-LLMProvider.ts:123 [LLMProvider] Response preview: {
-  "characterNames": ["张执事", "赵昊", "林清玄", "李长老"]
-}...
-scriptParser.ts:1607 [ScriptParser] LLM response received, length: 51
-scriptParser.ts:2009 [ScriptParser] Discovered 4 characters: 张执事, 赵昊, 林清玄, 李长老
-scriptParser.ts:3373 [ScriptParser] Chunk 2: Discovered 4 characters: 张执事, 赵昊, 林清玄, 李长老
-scriptParser.ts:3384 [ScriptParser] Chunk 2: Extracting 3 new characters: 张执事, 赵昊, 李长老
-scriptParser.ts:2375 [ScriptParser] ---------- Batch Extracting 3 Characters with Context ----------
-scriptParser.ts:2391 [ScriptParser] Injecting global context into character extraction
-scriptParser.ts:2395 [ScriptParser] Context-enhanced prompt length: 2733 characters
-scriptParser.ts:1551 [ScriptParser] callLLM called for character, retryCount: 0
-scriptParser.ts:1552 [ScriptParser] API URL: https://ark.cn-beijing.volces.com/api/v3
-scriptParser.ts:1553 [ScriptParser] Model: doubao-seed-1-6-flash-250828
-scriptParser.ts:1554 [ScriptParser] Max Tokens: 6000
-scriptParser.ts:1583 [ScriptParser] Calling LLMProvider.generateText...
-LLMProvider.ts:81 [LLMProvider] ========== API Request ==========
-LLMProvider.ts:82 [LLMProvider] Endpoint: https://ark.cn-beijing.volces.com/api/v3/chat/completions
-LLMProvider.ts:83 [LLMProvider] Model: doubao-seed-1-6-flash-250828
-LLMProvider.ts:84 [LLMProvider] enable_thinking: false
-LLMProvider.ts:85 [LLMProvider] Temperature: 0.3
-LLMProvider.ts:86 [LLMProvider] Max Tokens: 6000
-LLMProvider.ts:87 [LLMProvider] Messages count: 2
-LLMProvider.ts:88 [LLMProvider] First message length: 48 characters
-LLMProvider.ts:89 [LLMProvider] Request body: {
-  "model": "doubao-seed-1-6-flash-250828",
-  "messages": [
-    {
-      "role": "system",
-      "content": "你是一个专业的剧本分析助手，擅长从小说/剧本中提取结构化信息。请严格按照要求的JSON格式输出。"
-    },
-    {
-      "role": "user",
-      "content": "【故事背景】\n- 一句话简介：伪灵根少年觉醒混沌灵根，获功法逆袭，外门考核一鸣惊人。\n- 故事梗概：青云宗杂役林清玄因四属性伪灵根被视为废柴，受尽欺凌。意外滴血唤醒墨玉佩中残魂云澜子，得知实为混沌四灵根，获《混沌归元诀》。修炼后实力暴涨，外门考核中突破至炼气三层巅峰，灵根与修为震惊众人，被破格提拔为内门弟子，开启逆袭仙途。\n- 核心冲突：主角林清玄在杂役院受身份歧视与欺凌，觉醒混沌灵根后，需突破自身与外界的双重桎梏，证明实力并改变命运。\n- 主题思想：命运抗争、自我突破、奇遇成长\n\n\n【视觉风格】\n- 美术指导：水墨国风，仙侠电影感，融合青云山脉的缥缈与...
-LLMProvider.ts:91 [LLMProvider] Sending request...
-BaseProvider.ts:63 [BaseProvider] Requesting: https://ark.cn-beijing.volces.com/api/v3/chat/completions, Mode: DEV, Localhost: true
-BaseProvider.ts:84 [BaseProvider] Using Proxy: /api/universal-proxy -> https://ark.cn-beijing.volces.com/api/v3/chat/completions
-BaseProvider.ts:99 [BaseProvider] Response received: 200 OK
-LLMProvider.ts:104 [LLMProvider] Request completed in 16204ms
-LLMProvider.ts:118 [LLMProvider] ========== API Response ==========
-LLMProvider.ts:119 [LLMProvider] Response length: 50 characters
-LLMProvider.ts:120 [LLMProvider] Prompt tokens: 994
-LLMProvider.ts:121 [LLMProvider] Completion tokens: 1456
-LLMProvider.ts:122 [LLMProvider] Total tokens: 2450
-LLMProvider.ts:123 [LLMProvider] Response preview: {
-  "sceneNames": ["外门广场", "测灵石碑", "杂役院", "清玄殿"]
-}...
-scriptParser.ts:1607 [ScriptParser] LLM response received, length: 50
-scriptParser.ts:2057 [ScriptParser] Discovered 4 scenes: 外门广场, 测灵石碑, 杂役院, 清玄殿
-scriptParser.ts:3409 [ScriptParser] Chunk 2: Discovered 4 scenes: 外门广场, 测灵石碑, 杂役院, 清玄殿
-scriptParser.ts:3420 [ScriptParser] Chunk 2: Extracting 3 new scenes: 外门广场, 测灵石碑, 清玄殿
-scriptParser.ts:2558 [ScriptParser] ---------- Batch Extracting 3 Scenes with Context ----------
-scriptParser.ts:2574 [ScriptParser] Injecting global context into scene extraction
-scriptParser.ts:2578 [ScriptParser] Context-enhanced prompt length: 3017 characters
-scriptParser.ts:1551 [ScriptParser] callLLM called for scene, retryCount: 0
-scriptParser.ts:1552 [ScriptParser] API URL: https://ark.cn-beijing.volces.com/api/v3
-scriptParser.ts:1553 [ScriptParser] Model: doubao-seed-1-6-flash-250828
-scriptParser.ts:1554 [ScriptParser] Max Tokens: 6000
-scriptParser.ts:1583 [ScriptParser] Calling LLMProvider.generateText...
-LLMProvider.ts:81 [LLMProvider] ========== API Request ==========
-LLMProvider.ts:82 [LLMProvider] Endpoint: https://ark.cn-beijing.volces.com/api/v3/chat/completions
-LLMProvider.ts:83 [LLMProvider] Model: doubao-seed-1-6-flash-250828
-LLMProvider.ts:84 [LLMProvider] enable_thinking: false
-LLMProvider.ts:85 [LLMProvider] Temperature: 0.3
-LLMProvider.ts:86 [LLMProvider] Max Tokens: 6000
-LLMProvider.ts:87 [LLMProvider] Messages count: 2
-LLMProvider.ts:88 [LLMProvider] First message length: 48 characters
-LLMProvider.ts:89 [LLMProvider] Request body: {
-  "model": "doubao-seed-1-6-flash-250828",
-  "messages": [
-    {
-      "role": "system",
-      "content": "你是一个专业的剧本分析助手，擅长从小说/剧本中提取结构化信息。请严格按照要求的JSON格式输出。"
-    },
-    {
-      "role": "user",
-      "content": "【故事背景】\n- 一句话简介：伪灵根少年觉醒混沌灵根，获功法逆袭，外门考核一鸣惊人。\n- 故事梗概：青云宗杂役林清玄因四属性伪灵根被视为废柴，受尽欺凌。意外滴血唤醒墨玉佩中残魂云澜子，得知实为混沌四灵根，获《混沌归元诀》。修炼后实力暴涨，外门考核中突破至炼气三层巅峰，灵根与修为震惊众人，被破格提拔为内门弟子，开启逆袭仙途。\n- 核心冲突：主角林清玄在杂役院受身份歧视与欺凌，觉醒混沌灵根后，需突破自身与外界的双重桎梏，证明实力并改变命运。\n- 主题思想：命运抗争、自我突破、奇遇成长\n\n\n【视觉风格】\n- 美术指导：水墨国风，仙侠电影感，融合青云山脉的缥缈与...
-LLMProvider.ts:91 [LLMProvider] Sending request...
-BaseProvider.ts:63 [BaseProvider] Requesting: https://ark.cn-beijing.volces.com/api/v3/chat/completions, Mode: DEV, Localhost: true
-BaseProvider.ts:84 [BaseProvider] Using Proxy: /api/universal-proxy -> https://ark.cn-beijing.volces.com/api/v3/chat/completions
-BaseProvider.ts:99 [BaseProvider] Response received: 200 OK
-LLMProvider.ts:104 [LLMProvider] Request completed in 27301ms
-LLMProvider.ts:118 [LLMProvider] ========== API Response ==========
-LLMProvider.ts:119 [LLMProvider] Response length: 1127 characters
-LLMProvider.ts:120 [LLMProvider] Prompt tokens: 1796
-LLMProvider.ts:121 [LLMProvider] Completion tokens: 2835
-LLMProvider.ts:122 [LLMProvider] Total tokens: 4631
-LLMProvider.ts:123 [LLMProvider] Response preview: [
-  {
-    "name": "张执事",
-    "gender": "male",
-    "age": "30",
-    "identity": "青云宗外门执事",
-    "appe...
-scriptParser.ts:1607 [ScriptParser] LLM response received, length: 1127
-scriptParser.ts:2398 [ScriptParser] Batch response received, length: 1127 characters
-scriptParser.ts:2401 [ScriptParser] Parsed 3 characters from batch response
-scriptParser.ts:3395 [ScriptParser] Added character: 张执事
-scriptParser.ts:3395 [ScriptParser] Added character: 赵昊
-scriptParser.ts:3395 [ScriptParser] Added character: 李长老
-BaseProvider.ts:99 [BaseProvider] Response received: 200 OK
-LLMProvider.ts:104 [LLMProvider] Request completed in 45150ms
-LLMProvider.ts:118 [LLMProvider] ========== API Response ==========
-LLMProvider.ts:119 [LLMProvider] Response length: 1616 characters
-LLMProvider.ts:120 [LLMProvider] Prompt tokens: 2008
-LLMProvider.ts:121 [LLMProvider] Completion tokens: 4759
-LLMProvider.ts:122 [LLMProvider] Total tokens: 6767
-LLMProvider.ts:123 [LLMProvider] Response preview: [
-  {
-    "name": "外门广场",
-    "locationType": "outdoor",
-    "description": "修仙宗门外门的开阔广场，青石铺就，中央矗立着测...
-scriptParser.ts:1607 [ScriptParser] LLM response received, length: 1616
-scriptParser.ts:2581 [ScriptParser] Batch response received, length: 1616 characters
-scriptParser.ts:2584 [ScriptParser] Parsed 3 scenes from batch response
-scriptParser.ts:3431 [ScriptParser] Added scene: 外门广场
-scriptParser.ts:3431 [ScriptParser] Added scene: 测灵石碑
-scriptParser.ts:3431 [ScriptParser] Added scene: 清玄殿
-scriptParser.ts:3446 [ScriptParser] Chunk 2 complete. Total so far: 6 characters, 10 scenes
-scriptParser.ts:3457 [ScriptParser] Chunked extraction complete: 6 characters, 10 scenes
-scriptParser.ts:3458 [ScriptParser] Final character list: 林清玄, 王虎, 云澜子, 张执事, 赵昊, 李长老
-scriptParser.ts:3459 [ScriptParser] Final scene list: 青云宗, 杂役院, 炼丹房, 炼器房, 后山, 黑风崖, 崖顶, 外门广场, 测灵石碑, 清玄殿
-scriptParser.ts:2902 [ScriptParser] ---------- Batch Generating Shots with Context for 3 Scenes ----------
-scriptParser.ts:1425 [ScriptParser] Shot calculation: 7033 chars → 36min → 144 shots (key: 101, optional: 43, density: 4)
-scriptParser.ts:2908 [ScriptParser] Target: 144 shots (101 key + 43 optional)
-scriptParser.ts:2917 [ScriptParser] Injecting global context into shots generation
-scriptParser.ts:2922 [ScriptParser] Context-enhanced prompt length: 7347 characters
-scriptParser.ts:1551 [ScriptParser] callLLM called for shots, retryCount: 0
-scriptParser.ts:1552 [ScriptParser] API URL: https://ark.cn-beijing.volces.com/api/v3
-scriptParser.ts:1553 [ScriptParser] Model: doubao-seed-1-6-flash-250828
-scriptParser.ts:1554 [ScriptParser] Max Tokens: 12000
-scriptParser.ts:1583 [ScriptParser] Calling LLMProvider.generateText...
-LLMProvider.ts:81 [LLMProvider] ========== API Request ==========
-LLMProvider.ts:82 [LLMProvider] Endpoint: https://ark.cn-beijing.volces.com/api/v3/chat/completions
-LLMProvider.ts:83 [LLMProvider] Model: doubao-seed-1-6-flash-250828
-LLMProvider.ts:84 [LLMProvider] enable_thinking: false
-LLMProvider.ts:85 [LLMProvider] Temperature: 0.3
-LLMProvider.ts:86 [LLMProvider] Max Tokens: 12000
-LLMProvider.ts:87 [LLMProvider] Messages count: 2
-LLMProvider.ts:88 [LLMProvider] First message length: 48 characters
-LLMProvider.ts:89 [LLMProvider] Request body: {
-  "model": "doubao-seed-1-6-flash-250828",
-  "messages": [
-    {
-      "role": "system",
-      "content": "你是一个专业的剧本分析助手，擅长从小说/剧本中提取结构化信息。请严格按照要求的JSON格式输出。"
-    },
-    {
-      "role": "user",
-      "content": "【视觉指导】\n- 美术风格：以青、白、墨色为主色调，灵玉广场、云雾仙山营造仙侠氛围，人物服饰粗布与灵韵服饰形成反差。\n- 色彩方案：#446688、#FFFFFF、#000000、#FFD700\n- 摄影风格：远景云雾仙山，中景人物动作特写，考核时测灵石碑光芒特效。\n- 光影风格：前期昏暗（杂役院），觉醒后明亮（墨光、考核石碑光）。\n- 参考风格：《仙剑奇侠传》、《诛仙》、徐克、张艺谋\n\n\n\n\n【时代限制】\n- 禁止出现现代科技产品（手机、电脑、汽车等）\n- 禁止出现现代服装（西装、牛仔裤等）\n- 禁止出现现代建筑（摩天大楼、玻璃幕墙等）\n-...
-LLMProvider.ts:91 [LLMProvider] Sending request...
-BaseProvider.ts:63 [BaseProvider] Requesting: https://ark.cn-beijing.volces.com/api/v3/chat/completions, Mode: DEV, Localhost: true
-BaseProvider.ts:84 [BaseProvider] Using Proxy: /api/universal-proxy -> https://ark.cn-beijing.volces.com/api/v3/chat/completions
-BaseProvider.ts:99 [BaseProvider] Response received: 200 OK
-LLMProvider.ts:104 [LLMProvider] Request completed in 41672ms
-LLMProvider.ts:118 [LLMProvider] ========== API Response ==========
-LLMProvider.ts:119 [LLMProvider] Response length: 7524 characters
-LLMProvider.ts:120 [LLMProvider] Prompt tokens: 4869
-LLMProvider.ts:121 [LLMProvider] Completion tokens: 5045
-LLMProvider.ts:122 [LLMProvider] Total tokens: 9914
-LLMProvider.ts:123 [LLMProvider] Response preview: [
-{
-  "sceneName": "青云宗远景",
-  "shotNumber": "SC01-01",
-  "sequence": 1,
-  "shotType": "extreme_long"...
-scriptParser.ts:1607 [ScriptParser] LLM response received, length: 7524
-scriptParser.ts:2925 [ScriptParser] Batch response received, length: 7524 characters
-scriptParser.ts:2928 [ScriptParser] Parsed 9 shots from batch response
-scriptParser.ts:2947 [ScriptParser] Generated 9 shots: 6 key + 3 optional
-scriptParser.ts:2902 [ScriptParser] ---------- Batch Generating Shots with Context for 3 Scenes ----------
-scriptParser.ts:1425 [ScriptParser] Shot calculation: 7033 chars → 36min → 144 shots (key: 101, optional: 43, density: 4)
-scriptParser.ts:2908 [ScriptParser] Target: 144 shots (101 key + 43 optional)
-scriptParser.ts:2917 [ScriptParser] Injecting global context into shots generation
-scriptParser.ts:2922 [ScriptParser] Context-enhanced prompt length: 7358 characters
-scriptParser.ts:1551 [ScriptParser] callLLM called for shots, retryCount: 0
-scriptParser.ts:1552 [ScriptParser] API URL: https://ark.cn-beijing.volces.com/api/v3
-scriptParser.ts:1553 [ScriptParser] Model: doubao-seed-1-6-flash-250828
-scriptParser.ts:1554 [ScriptParser] Max Tokens: 12000
-scriptParser.ts:1583 [ScriptParser] Calling LLMProvider.generateText...
-LLMProvider.ts:81 [LLMProvider] ========== API Request ==========
-LLMProvider.ts:82 [LLMProvider] Endpoint: https://ark.cn-beijing.volces.com/api/v3/chat/completions
-LLMProvider.ts:83 [LLMProvider] Model: doubao-seed-1-6-flash-250828
-LLMProvider.ts:84 [LLMProvider] enable_thinking: false
-LLMProvider.ts:85 [LLMProvider] Temperature: 0.3
-LLMProvider.ts:86 [LLMProvider] Max Tokens: 12000
-LLMProvider.ts:87 [LLMProvider] Messages count: 2
-LLMProvider.ts:88 [LLMProvider] First message length: 48 characters
-LLMProvider.ts:89 [LLMProvider] Request body: {
-  "model": "doubao-seed-1-6-flash-250828",
-  "messages": [
-    {
-      "role": "system",
-      "content": "你是一个专业的剧本分析助手，擅长从小说/剧本中提取结构化信息。请严格按照要求的JSON格式输出。"
-    },
-    {
-      "role": "user",
-      "content": "【视觉指导】\n- 美术风格：以青、白、墨色为主色调，灵玉广场、云雾仙山营造仙侠氛围，人物服饰粗布与灵韵服饰形成反差。\n- 色彩方案：#446688、#FFFFFF、#000000、#FFD700\n- 摄影风格：远景云雾仙山，中景人物动作特写，考核时测灵石碑光芒特效。\n- 光影风格：前期昏暗（杂役院），觉醒后明亮（墨光、考核石碑光）。\n- 参考风格：《仙剑奇侠传》、《诛仙》、徐克、张艺谋\n\n\n\n\n【时代限制】\n- 禁止出现现代科技产品（手机、电脑、汽车等）\n- 禁止出现现代服装（西装、牛仔裤等）\n- 禁止出现现代建筑（摩天大楼、玻璃幕墙等）\n-...
-LLMProvider.ts:91 [LLMProvider] Sending request...
-BaseProvider.ts:63 [BaseProvider] Requesting: https://ark.cn-beijing.volces.com/api/v3/chat/completions, Mode: DEV, Localhost: true
-BaseProvider.ts:84 [BaseProvider] Using Proxy: /api/universal-proxy -> https://ark.cn-beijing.volces.com/api/v3/chat/completions
-MultiLevelCache.ts:443 [MultiLevelCache] Cleanup completed
-BaseProvider.ts:99 [BaseProvider] Response received: 200 OK
-LLMProvider.ts:104 [LLMProvider] Request completed in 33862ms
-LLMProvider.ts:118 [LLMProvider] ========== API Response ==========
-LLMProvider.ts:119 [LLMProvider] Response length: 4235 characters
-LLMProvider.ts:120 [LLMProvider] Prompt tokens: 4883
-LLMProvider.ts:121 [LLMProvider] Completion tokens: 3625
-LLMProvider.ts:122 [LLMProvider] Total tokens: 8508
-LLMProvider.ts:123 [LLMProvider] Response preview: [
-{
-  "sceneName": "杂役院清晨集合",
-  "shotNumber": "SC03-01",
-  "sequence": 1,
-  "shotType": "long",
-  "c...
-scriptParser.ts:1607 [ScriptParser] LLM response received, length: 4235
-scriptParser.ts:2925 [ScriptParser] Batch response received, length: 4235 characters
-scriptParser.ts:2928 [ScriptParser] Parsed 5 shots from batch response
-scriptParser.ts:2947 [ScriptParser] Generated 5 shots: 3 key + 2 optional
-scriptParser.ts:2902 [ScriptParser] ---------- Batch Generating Shots with Context for 3 Scenes ----------
-scriptParser.ts:1425 [ScriptParser] Shot calculation: 7033 chars → 36min → 144 shots (key: 101, optional: 43, density: 4)
-scriptParser.ts:2908 [ScriptParser] Target: 144 shots (101 key + 43 optional)
-scriptParser.ts:2917 [ScriptParser] Injecting global context into shots generation
-scriptParser.ts:2922 [ScriptParser] Context-enhanced prompt length: 7404 characters
-scriptParser.ts:1551 [ScriptParser] callLLM called for shots, retryCount: 0
-scriptParser.ts:1552 [ScriptParser] API URL: https://ark.cn-beijing.volces.com/api/v3
-scriptParser.ts:1553 [ScriptParser] Model: doubao-seed-1-6-flash-250828
-scriptParser.ts:1554 [ScriptParser] Max Tokens: 12000
-scriptParser.ts:1583 [ScriptParser] Calling LLMProvider.generateText...
-LLMProvider.ts:81 [LLMProvider] ========== API Request ==========
-LLMProvider.ts:82 [LLMProvider] Endpoint: https://ark.cn-beijing.volces.com/api/v3/chat/completions
-LLMProvider.ts:83 [LLMProvider] Model: doubao-seed-1-6-flash-250828
-LLMProvider.ts:84 [LLMProvider] enable_thinking: false
-LLMProvider.ts:85 [LLMProvider] Temperature: 0.3
-LLMProvider.ts:86 [LLMProvider] Max Tokens: 12000
-LLMProvider.ts:87 [LLMProvider] Messages count: 2
-LLMProvider.ts:88 [LLMProvider] First message length: 48 characters
-LLMProvider.ts:89 [LLMProvider] Request body: {
-  "model": "doubao-seed-1-6-flash-250828",
-  "messages": [
-    {
-      "role": "system",
-      "content": "你是一个专业的剧本分析助手，擅长从小说/剧本中提取结构化信息。请严格按照要求的JSON格式输出。"
-    },
-    {
-      "role": "user",
-      "content": "【视觉指导】\n- 美术风格：以青、白、墨色为主色调，灵玉广场、云雾仙山营造仙侠氛围，人物服饰粗布与灵韵服饰形成反差。\n- 色彩方案：#446688、#FFFFFF、#000000、#FFD700\n- 摄影风格：远景云雾仙山，中景人物动作特写，考核时测灵石碑光芒特效。\n- 光影风格：前期昏暗（杂役院），觉醒后明亮（墨光、考核石碑光）。\n- 参考风格：《仙剑奇侠传》、《诛仙》、徐克、张艺谋\n\n\n\n\n【时代限制】\n- 禁止出现现代科技产品（手机、电脑、汽车等）\n- 禁止出现现代服装（西装、牛仔裤等）\n- 禁止出现现代建筑（摩天大楼、玻璃幕墙等）\n-...
-LLMProvider.ts:91 [LLMProvider] Sending request...
-BaseProvider.ts:63 [BaseProvider] Requesting: https://ark.cn-beijing.volces.com/api/v3/chat/completions, Mode: DEV, Localhost: true
-BaseProvider.ts:84 [BaseProvider] Using Proxy: /api/universal-proxy -> https://ark.cn-beijing.volces.com/api/v3/chat/completions
-AppContext.tsx:24 [STORAGE] Connection check: Connected=true, Responsive=true
-BaseProvider.ts:99 [BaseProvider] Response received: 200 OK
-LLMProvider.ts:104 [LLMProvider] Request completed in 66710ms
-LLMProvider.ts:118 [LLMProvider] ========== API Response ==========
-LLMProvider.ts:119 [LLMProvider] Response length: 6448 characters
-LLMProvider.ts:120 [LLMProvider] Prompt tokens: 4915
-LLMProvider.ts:121 [LLMProvider] Completion tokens: 7601
-LLMProvider.ts:122 [LLMProvider] Total tokens: 12516
-LLMProvider.ts:123 [LLMProvider] Response preview: [
-{
-  "sceneName": "黑风崖（崖顶区域）",
-  "shotNumber": "SC01-02-01",
-  "sequence": 1,
-  "shotType": "medium...
-scriptParser.ts:1607 [ScriptParser] LLM response received, length: 6448
-scriptParser.ts:2925 [ScriptParser] Batch response received, length: 6448 characters
-scriptParser.ts:2928 [ScriptParser] Parsed 8 shots from batch response
-scriptParser.ts:2947 [ScriptParser] Generated 8 shots: 5 key + 3 optional
-scriptParser.ts:2965 [ScriptParser] ---------- Generating Shots with Context for Scene: 清玄殿 ----------
-scriptParser.ts:2966 [ScriptParser] useProductionPrompt: true
-scriptParser.ts:2981 [ScriptParser] Scene content length: 184 characters
-scriptParser.ts:3014 [ScriptParser] Injecting global context into shots generation
-scriptParser.ts:3017 [ScriptParser] Using standard prompt with context
-scriptParser.ts:3020 [ScriptParser] Context-enhanced prompt length: 1187 characters
-scriptParser.ts:3021 [ScriptParser] Characters in scene: 林清玄, 李长老
-scriptParser.ts:1551 [ScriptParser] callLLM called for shots, retryCount: 0
-scriptParser.ts:1552 [ScriptParser] API URL: https://ark.cn-beijing.volces.com/api/v3
-scriptParser.ts:1553 [ScriptParser] Model: doubao-seed-1-6-flash-250828
-scriptParser.ts:1554 [ScriptParser] Max Tokens: 12000
-scriptParser.ts:1583 [ScriptParser] Calling LLMProvider.generateText...
-LLMProvider.ts:81 [LLMProvider] ========== API Request ==========
-LLMProvider.ts:82 [LLMProvider] Endpoint: https://ark.cn-beijing.volces.com/api/v3/chat/completions
-LLMProvider.ts:83 [LLMProvider] Model: doubao-seed-1-6-flash-250828
-LLMProvider.ts:84 [LLMProvider] enable_thinking: false
-LLMProvider.ts:85 [LLMProvider] Temperature: 0.3
-LLMProvider.ts:86 [LLMProvider] Max Tokens: 12000
-LLMProvider.ts:87 [LLMProvider] Messages count: 2
-LLMProvider.ts:88 [LLMProvider] First message length: 48 characters
-LLMProvider.ts:89 [LLMProvider] Request body: {
-  "model": "doubao-seed-1-6-flash-250828",
-  "messages": [
-    {
-      "role": "system",
-      "content": "你是一个专业的剧本分析助手，擅长从小说/剧本中提取结构化信息。请严格按照要求的JSON格式输出。"
-    },
-    {
-      "role": "user",
-      "content": "【视觉指导】\n- 美术风格：以青、白、墨色为主色调，灵玉广场、云雾仙山营造仙侠氛围，人物服饰粗布与灵韵服饰形成反差。\n- 色彩方案：#446688、#FFFFFF、#000000、#FFD700\n- 摄影风格：远景云雾仙山，中景人物动作特写，考核时测灵石碑光芒特效。\n- 光影风格：前期昏暗（杂役院），觉醒后明亮（墨光、考核石碑光）。\n- 参考风格：《仙剑奇侠传》、《诛仙》、徐克、张艺谋\n\n\n\n\n【时代限制】\n- 禁止出现现代科技产品（手机、电脑、汽车等）\n- 禁止出现现代服装（西装、牛仔裤等）\n- 禁止出现现代建筑（摩天大楼、玻璃幕墙等）\n-...
-LLMProvider.ts:91 [LLMProvider] Sending request...
-BaseProvider.ts:63 [BaseProvider] Requesting: https://ark.cn-beijing.volces.com/api/v3/chat/completions, Mode: DEV, Localhost: true
-BaseProvider.ts:84 [BaseProvider] Using Proxy: /api/universal-proxy -> https://ark.cn-beijing.volces.com/api/v3/chat/completions
-BaseProvider.ts:99 [BaseProvider] Response received: 200 OK
-LLMProvider.ts:104 [LLMProvider] Request completed in 49197ms
-LLMProvider.ts:118 [LLMProvider] ========== API Response ==========
-LLMProvider.ts:119 [LLMProvider] Response length: 3900 characters
-LLMProvider.ts:120 [LLMProvider] Prompt tokens: 843
-LLMProvider.ts:121 [LLMProvider] Completion tokens: 5382
-LLMProvider.ts:122 [LLMProvider] Total tokens: 6225
-LLMProvider.ts:123 [LLMProvider] Response preview: [
-  {
-    "sequence": 1,
-    "shotType": "extreme_long",
-    "cameraMovement": "static",
-    "descri...
-scriptParser.ts:1607 [ScriptParser] LLM response received, length: 3900
-scriptParser.ts:3024 [ScriptParser] LLM response received, length: 3900 characters
-scriptParser.ts:3027 [ScriptParser] Generated 14 shots
-scriptParser.ts:3030 [ScriptParser] Shot 1:
-scriptParser.ts:3031   - Sequence: 1
-scriptParser.ts:3032   - Type: extreme_long
-scriptParser.ts:3033   - Movement: static
-scriptParser.ts:3034   - Duration: 3s
-scriptParser.ts:3035   - Description: 极远景：青云宗主峰在云雾中若隐若现，青灰色山峦间飞檐斗拱的清玄殿如仙宫般矗立，殿...
-scriptParser.ts:3030 [ScriptParser] Shot 2:
-scriptParser.ts:3031   - Sequence: 2
-scriptParser.ts:3032   - Type: long
-scriptParser.ts:3033   - Movement: push
-scriptParser.ts:3034   - Duration: 4s
-scriptParser.ts:3035   - Description: 远景，推镜头：镜头从极远景缓缓推近，清玄殿全貌清晰展现，玉石台阶从山脚蜿蜒至殿门...
-scriptParser.ts:3030 [ScriptParser] Shot 3:
-scriptParser.ts:3031   - Sequence: 3
-scriptParser.ts:3032   - Type: medium
-scriptParser.ts:3033   - Movement: static
-scriptParser.ts:3034   - Duration: 3s
-scriptParser.ts:3035   - Description: 中景，固定：李长老身着青蓝色灵韵长袍（领口绣有银线云纹），立于清玄殿门前广场，手...
-scriptParser.ts:3048 [ScriptParser] Total duration for 14 shots: 51s
-scriptParser.ts:2898 [ScriptParser] Total duration for 14 shots: 51s
-scriptParser.ts:3506 [ScriptParser] Generated 36 shots
-scriptParser.ts:3531 [ScriptParser] ========== Chunked Parse Completed ==========
-scriptParser.ts:3532 [ScriptParser] Characters: 6, Scenes: 10, Shots: 36
-scriptParser.ts:3608 [ScriptParser] ========== Chunked Path Completed ==========
-scriptParser.ts:3609 [ScriptParser] Total duration: 444547ms (444.5s)
-scriptParser.ts:3610 [ScriptParser] ==========================================
-ScriptManager.tsx:449 [ScriptManager] ========== Getting Quality Report ==========
-ScriptManager.tsx:451 [ScriptManager] Report from parser: {exists: true, score: 86, type: 'object', hasViolations: true, hasSuggestions: true}
-ScriptManager.tsx:461 [ScriptManager] ========== Quality Report Set to State ==========
-ScriptManager.tsx:137 [ScriptManager] ========== useEffect: currentScript changed ==========
-ScriptManager.tsx:138 [ScriptManager] currentScript exists: true
-ScriptManager.tsx:139 [ScriptManager] parseState exists: true
-ScriptManager.tsx:140 [ScriptManager] qualityReport exists: true
-ScriptManager.tsx:144 [ScriptManager] Restoring quality report: {score: 86, violationsCount: 16, suggestionsCount: 5, type: 'object'}
-ScriptManager.tsx:151 [ScriptManager] ========== Quality Report Restored ==========
-AppContext.tsx:24 [STORAGE] Connection check: Connected=true, Responsive=true
-AppContext.tsx:24 [STORAGE] Connection check: Connected=true, Responsive=true
+BaseProvider.ts:63 [BaseProvider] Requesting: https://api-inference.modelscope.cn/v1/chat/completions, Mode: DEV, Localhost: true
+BaseProvider.ts:84 [BaseProvider] Using Proxy: /api/universal-proxy -> https://api-inference.modelscope.cn/v1/chat/completions
+BaseProvider.ts:85   POST http://localhost:3000/api/universal-proxy 429 (Too Many Requests)
+makeRequest @ BaseProvider.ts:85
+generateText @ LLMProvider.ts:94
+extractEraContext @ GlobalContextExtractor.ts:644
+extractParallel @ GlobalContextExtractor.ts:382
+await in extractParallel
+extract @ GlobalContextExtractor.ts:223
+await in extract
+extractGlobalContext @ scriptParser.ts:1836
+parseShortScriptOptimized @ scriptParser.ts:3195
+parseScript @ scriptParser.ts:3594
+handleParseScript @ ScriptManager.tsx:390
+handleParseWithIntent @ ScriptManager.tsx:312
+(匿名) @ index.mjs:362
+(匿名) @ usePress.ts:249
+onClick @ usePress.ts:548
+executeDispatch @ react-dom-client.development.js:19116
+runWithFiberInDEV @ react-dom-client.development.js:871
+processDispatchQueue @ react-dom-client.development.js:19166
+(匿名) @ react-dom-client.development.js:19767
+batchedUpdates$1 @ react-dom-client.development.js:3255
+dispatchEventForPluginEventSystem @ react-dom-client.development.js:19320
+dispatchEvent @ react-dom-client.development.js:23585
+dispatchDiscreteEvent @ react-dom-client.development.js:23553
+BaseProvider.ts:99 [BaseProvider] Response received: 429 Too Many Requests
+LLMProvider.ts:104 [LLMProvider] Request completed in 67ms
+LLMProvider.ts:108  [LLMProvider] API Error: 429 - {"errors":{"message":"We have to rate limit you for model ZhipuAI/GLM-4.7-Flash. If you need higher limits, please consider other (commercial) API providers.","request_id":"09f111be-74d6-4164-82a4-792df056347d"}}
+generateText @ LLMProvider.ts:108
+await in generateText
+extractEraContext @ GlobalContextExtractor.ts:644
+extractParallel @ GlobalContextExtractor.ts:382
+await in extractParallel
+extract @ GlobalContextExtractor.ts:223
+await in extract
+extractGlobalContext @ scriptParser.ts:1836
+parseShortScriptOptimized @ scriptParser.ts:3195
+parseScript @ scriptParser.ts:3594
+handleParseScript @ ScriptManager.tsx:390
+handleParseWithIntent @ ScriptManager.tsx:312
+(匿名) @ index.mjs:362
+(匿名) @ usePress.ts:249
+onClick @ usePress.ts:548
+executeDispatch @ react-dom-client.development.js:19116
+runWithFiberInDEV @ react-dom-client.development.js:871
+processDispatchQueue @ react-dom-client.development.js:19166
+(匿名) @ react-dom-client.development.js:19767
+batchedUpdates$1 @ react-dom-client.development.js:3255
+dispatchEventForPluginEventSystem @ react-dom-client.development.js:19320
+dispatchEvent @ react-dom-client.development.js:23585
+dispatchDiscreteEvent @ react-dom-client.development.js:23553
+GlobalContextExtractor.ts:678  Error extracting era context: Error: Failed to extract era context: API Error: 429 - {"errors":{"message":"We have to rate limit you for model ZhipuAI/GLM-4.7-Flash. If you need higher limits, please consider other (commercial) API providers.","request_id":"09f111be-74d6-4164-82a4-792df056347d"}}
+    at GlobalContextExtractor.extractEraContext (GlobalContextExtractor.ts:651:15)
+    at async GlobalContextExtractor.extractParallel (GlobalContextExtractor.ts:382:24)
+    at async ScriptParser.extractGlobalContext (scriptParser.ts:1836:28)
+    at async Promise.all (:3000/index 1)
+extractEraContext @ GlobalContextExtractor.ts:678
+await in extractEraContext
+extractParallel @ GlobalContextExtractor.ts:382
+await in extractParallel
+extract @ GlobalContextExtractor.ts:223
+await in extract
+extractGlobalContext @ scriptParser.ts:1836
+parseShortScriptOptimized @ scriptParser.ts:3195
+parseScript @ scriptParser.ts:3594
+handleParseScript @ ScriptManager.tsx:390
+handleParseWithIntent @ ScriptManager.tsx:312
+(匿名) @ index.mjs:362
+(匿名) @ usePress.ts:249
+onClick @ usePress.ts:548
+executeDispatch @ react-dom-client.development.js:19116
+runWithFiberInDEV @ react-dom-client.development.js:871
+processDispatchQueue @ react-dom-client.development.js:19166
+(匿名) @ react-dom-client.development.js:19767
+batchedUpdates$1 @ react-dom-client.development.js:3255
+dispatchEventForPluginEventSystem @ react-dom-client.development.js:19320
+dispatchEvent @ react-dom-client.development.js:23585
+dispatchDiscreteEvent @ react-dom-client.development.js:23553
+GlobalContextExtractor.ts:393 [GlobalContextExtractor] Parallel extraction: skipping emotional arc (content length: 345)
+GlobalContextExtractor.ts:404 [GlobalContextExtractor] Parallel extraction completed in 1576ms
+scriptParser.ts:1838 [ScriptParser] Global context extracted successfully:
+scriptParser.ts:1839   - Story synopsis: ...
+scriptParser.ts:1840   - Visual style: 
+scriptParser.ts:1841   - Era: 现代
+scriptParser.ts:1842   - Emotional arc points: 0
+scriptParser.ts:1843   - Consistency rules: 0 era constraints
 MultiLevelCache.ts:443 [MultiLevelCache] Cleanup completed
