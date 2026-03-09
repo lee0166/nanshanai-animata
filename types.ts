@@ -536,24 +536,116 @@ export interface ScriptScene {
   mappedAssetId?: string; // Link to existing SceneAsset
 }
 
-export type ShotType = 'extreme_long' | 'long' | 'full' | 'medium' | 'close_up' | 'extreme_close_up';
-export type CameraMovement = 'static' | 'push' | 'pull' | 'pan' | 'tilt' | 'track' | 'crane';
+// 影视级景别标准
+export type ShotType = 
+  | 'extreme_long'    // 大远景
+  | 'long'            // 远景
+  | 'full'            // 全景
+  | 'medium'          // 中景
+  | 'close_up'        // 近景
+  | 'extreme_close_up'; // 特写
 
+// 影视级运镜技巧
+export type CameraMovement = 
+  | 'static'          // 静止
+  | 'push'            // 推
+  | 'pull'            // 拉
+  | 'pan'             // 摇
+  | 'tilt'            // 升降
+  | 'track'           // 跟
+  | 'crane'           //  crane
+  | 'zoom_in'         // 变焦推
+  | 'zoom_out'        // 变焦拉
+  | 'dolly_in'        // 移近
+  | 'dolly_out';      // 移远
+
+// 机位角度
+export type CameraAngle = 
+  | 'eye_level'       // 平视
+  | 'high_angle'      // 俯拍
+  | 'low_angle'       // 仰拍
+  | 'dutch_angle'     // 倾斜
+  | 'overhead'        // 顶拍
+  | 'bird_eye';       // 鸟瞰
+
+// 分镜类型（用于区分静态/动态）
+export type ShotContentType = 
+  | 'static'          // 静态（对话/环境）→ 生成图片
+  | 'dynamic-simple'  // 简单动态（走路/转身）→ 生成视频（2关键帧）
+  | 'dynamic-complex'; // 复杂动态（打斗/特效）→ 生成视频（3关键帧）
+
+// 分镜层级
+export type ShotLayer = 
+  | 'key'             // 关键分镜（必须生成）
+  | 'optional';       // 可选分镜（按需生成）
+
+// 影视风格（影响分镜密度和表现方式）
+export type FilmStyle = 
+  | 'short-drama'     // 短剧风格：快节奏、高密度
+  | 'film'            // 电影风格：慢节奏、重意境
+  | 'custom';         // 自定义：用户指定密度
+
+// 影视级分镜定义
 export interface Shot {
+  // 基础信息
   id: string;
   sequence: number;
   sceneName: string;
   sceneId?: string;
+  
+  // 影视级镜号（如：SC01-01A）
+  shotNumber?: string;
+  
+  // 景别与运镜（影视标准）
   shotType: ShotType;
   cameraMovement: CameraMovement;
+  cameraAngle?: CameraAngle;
+  
+  // 视觉描述（影视级）
   description: string;
-  type?: ShotType;
+  visualDescription?: {
+    composition?: string;     // 构图
+    lighting?: string;        // 光影
+    colorPalette?: string;    // 色调
+    characterPositions?: {    // 角色位置
+      characterId: string;
+      position: string;
+      action: string;
+      expression: string;
+    }[];
+  };
+  
+  // 音频
   dialogue?: string;
   sound?: string;
+  music?: string;
+  
+  // 时长（参考值，后期可调）
   duration: number;
+  
+  // 角色列表（名称）
   characters: string[];
-  mappedFragmentId?: string; // Link to existing FragmentAsset
-  keyframes?: Keyframe[]; // 关键帧列表
+  
+  // 资产关联（关键！）
+  assets: {
+    characterIds: string[];   // 关联角色资产ID
+    sceneId: string;          // 关联场景资产ID
+    propIds?: string[];       // 关联道具资产ID
+  };
+  
+  // 分镜类型与层级
+  contentType: ShotContentType;
+  layer: ShotLayer;
+  
+  // 影视风格（该分镜采用的风格）
+  style?: FilmStyle;
+  
+  // 生成状态
+  mappedFragmentId?: string;    // 关联视频片段
+  keyframes?: Keyframe[];       // 关键帧列表
+  generatedImages?: string[];   // 已生成图片ID
+  generatedVideo?: string;      // 已生成视频ID
+  status: 'pending' | 'generating' | 'completed' | 'failed';
 }
 
 // 关键帧

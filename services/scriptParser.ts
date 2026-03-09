@@ -14,7 +14,7 @@
  * @version 1.0.0
  */
 
-import { Script, ScriptParseState, ScriptMetadata, ScriptCharacter, ScriptScene, ScriptItem, Shot, ParseStage } from '../types';
+import { Script, ScriptParseState, ScriptMetadata, ScriptCharacter, ScriptScene, ScriptItem, Shot, ShotContentType, ShotLayer, ParseStage } from '../types';
 import { storageService } from './storage';
 import { JSONRepair } from './parsing/JSONRepair';
 import { SemanticChunker, SemanticChunk } from './parsing/SemanticChunker';
@@ -554,8 +554,66 @@ description字段必须满足以下条件：
 3. 必须返回JSON数组
 `,
 
+  plotAnalysis: `
+【角色】专业剧本分析师
+【任务】深度分析小说情节结构，识别所有情节点
+
+【剧本内容】
+{content}
+
+【分析要求】
+1. 识别所有情节点（plot points），包括：
+   - 开端：故事起点、背景介绍
+   - 发展：情节推进、冲突升级
+   - 转折：重大转折、意外事件
+   - 高潮：情感高潮、动作高潮
+   - 结局：问题解决、收尾
+
+2. 每个情节点标注：
+   - type: 类型（opening/development/twist/climax/ending）
+   - importance: 重要性（major/minor）
+   - description: 情节描述（30字以内）
+   - characters: 涉及角色
+   - emotionalTone: 情感基调（喜悦/悲伤/紧张/愤怒等）
+
+3. 统计信息：
+   - totalPlotPoints: 总情节点数
+   - majorPoints: 重要情节点数
+   - estimatedShots: 预估分镜数（major×2 + minor×1）
+
+【输出格式】
+{
+  "plotPoints": [
+    {
+      "type": "opening|development|twist|climax|ending",
+      "importance": "major|minor",
+      "description": "情节描述",
+      "characters": ["角色名"],
+      "emotionalTone": "情感基调",
+      "sceneContext": "所属场景"
+    }
+  ],
+  "statistics": {
+    "totalPlotPoints": 20,
+    "majorPoints": 8,
+    "minorPoints": 12,
+    "estimatedShots": {
+      "shortDrama": 28,  // major×1.2 + minor×1
+      "film": 40         // major×2 + minor×1.5
+    }
+  }
+}
+
+【重要提示】
+1. 不要遗漏任何情节点，即使是很小的转折
+2. 情感变化也是情节点（如从悲伤到喜悦）
+3. 环境变化也是情节点（如从白天到黑夜）
+4. 7000字小说通常有15-25个情节点
+`,
+
   shotsBatch: `
-请为以下所有场景生成分镜脚本。
+【角色】专业影视分镜师
+【任务】根据小说文本和情节分析生成影视级分镜脚本
 
 【剧本内容】
 {content}
@@ -563,28 +621,86 @@ description字段必须满足以下条件：
 【场景信息】
 {scenesInfo}
 
-请为每个场景生成{{shotCount}}关键分镜，严格按JSON数组格式输出：
-[
-  {
-    "sceneName": "场景名称",
-    "sequence": 1,
-    "shotType": "full",
-    "cameraMovement": "static",
-    "description": "画面描述，30字以内",
-    "dialogue": "台词（可选）",
-    "sound": "音效（可选）",
-    "duration": 3,
-    "characters": ["角色名"]
+【影视风格】
+{filmStyle}
+
+【输出要求】
+1. 基于情节分析，为每个情节点生成适当数量的分镜：
+   - 重要情节点（major）：2-3个分镜
+   - 次要情节点（minor）：1-2个分镜
+   - 情感变化点：增加特写分镜
+   - 动作场景：增加多角度分镜
+
+2. 根据影视风格调整密度：
+   - short-drama（短剧）：快节奏，每个情节点1-2个分镜
+   - film（电影）：慢节奏，每个情节点2-4个分镜，重意境
+   - custom（自定义）：按用户指定密度
+
+3. 自动分层标记：
+   - key: 关键分镜（情节点、转折点、高潮）
+   - optional: 可选分镜（过渡、环境展示）
+
+4. 自动标记分镜类型：
+   - static: 静态（对话/环境）→ 生成图片
+   - dynamic-simple: 简单动态（走路/转身）→ 生成视频（2关键帧）
+   - dynamic-complex: 复杂动态（打斗/特效）→ 生成视频（3关键帧）
+
+5. 每个分镜必须标注style字段（short-drama/film/custom）
+
+【影视级分镜字段】
+{
+  "sceneName": "场景名称",
+  "shotNumber": "镜号（如SC01-01A）",
+  "sequence": 1,
+  "shotType": "景别",
+  "cameraMovement": "运镜",
+  "cameraAngle": "机位角度",
+  "description": "画面描述（50字以内）",
+  "dialogue": "台词",
+  "sound": "音效",
+  "music": "配乐提示",
+  "duration": 3,
+  "characters": ["角色名"],
+  "assets": {
+    "characterIds": ["角色资产ID"],
+    "sceneId": "场景资产ID",
+    "propIds": ["道具资产ID"]
+  },
+  "contentType": "static|dynamic-simple|dynamic-complex",
+  "layer": "key|optional",
+  "visualDescription": {
+    "composition": "构图",
+    "lighting": "光影",
+    "colorPalette": "色调",
+    "characterPositions": [
+      {
+        "characterId": "角色ID",
+        "position": "位置",
+        "action": "动作",
+        "expression": "表情"
+      }
+    ]
   }
-]
+}
 
-景别选项：extreme_long, long, full, medium, close_up, extreme_close_up
-运镜选项：static, push, pull, pan, tilt, track, crane
+【景别选项】
+extreme_long(大远景), long(远景), full(全景), medium(中景), close_up(近景), extreme_close_up(特写)
 
-重要提示：
-1. 每个场景生成{{shotCount}}关键分镜
-2. description控制在30字以内，节省token
-3. 必须包含sceneName字段用于区分场景
+【运镜选项】
+static(静止), push(推), pull(拉), pan(摇), tilt(升降), track(跟), crane(crane), zoom_in(变焦推), zoom_out(变焦拉), dolly_in(移近), dolly_out(移远)
+
+【机位角度】
+eye_level(平视), high_angle(俯拍), low_angle(仰拍), dutch_angle(倾斜), overhead(顶拍), bird_eye(鸟瞰)
+
+【质量标准】
+1. 分镜必须可拍摄，避免"泛、乱、不可拍"
+2. 角色形象与角色库保持一致
+3. 场景风格与场景库保持一致
+4. 情节连贯，无遗漏
+5. 镜号格式：SC{场景序号}-{分镜序号}{子序号}
+
+【输出格式】
+严格按JSON数组格式输出，包含所有字段。
 `,
 
   scene: `
@@ -1274,42 +1390,47 @@ export class ScriptParser {
   }
 
   /**
-   * 根据文本长度动态获取分镜数量要求
-   * 支持通过配置覆盖默认值
+   * 根据文本长度估算叙事时长和分镜数量
+   * 行业标准：200字/分钟，8-12个分镜/分钟（短剧标准）
    * @param textLength - 文本长度（字符数）
-   * @returns 分镜数量要求字符串，如: '1-2个', '2-3个', '3-5个'
+   * @returns 分镜生成配置
    * @private
    */
-  private getShotCountByTextLength(textLength: number): string {
-    // 如果禁用动态分镜数量，返回默认值
-    if (this.parserConfig.useDynamicShotCount === false) {
-      return '3-5个';
-    }
-
-    const overrides = this.parserConfig.shotCountOverrides;
-
-    if (textLength < 500) {
-      return overrides?.shortText || '1-2个';
-    }
-    if (textLength < 1500) {
-      return overrides?.mediumText || '2-3个';
-    }
-    if (textLength < 3000) {
-      return overrides?.longText || '3-5个';
-    }
-    if (textLength < 6000) {
-      return '4-6个';
-    }
-    if (textLength < 10000) {
-      return '5-8个';
-    }
-    if (textLength < 15000) {
-      return '6-10个';
-    }
-    if (textLength < 25000) {
-      return '8-12个';
-    }
-    return '10-15个';
+  private calculateShotGeneration(textLength: number): {
+    estimatedMinutes: number;
+    targetShots: number;
+    keyShots: number;
+    optionalShots: number;
+    density: number;
+  } {
+    // 叙事语速：200字/分钟（行业标准）
+    const estimatedMinutes = Math.ceil(textLength / 200);
+    
+    // 分镜密度：3-5个/分钟（修正为更合理的值）
+    // 短剧标准8-12个/分钟，但AI生成成本考虑，取保守值3-5个
+    let density = 3;
+    if (textLength < 3000) density = 5;      // 短篇：更密集
+    else if (textLength < 10000) density = 4; // 中篇：适中
+    else density = 3;                         // 长篇：稀疏
+    
+    // 目标分镜数（设置上限避免过多）
+    let targetShots = Math.ceil(estimatedMinutes * density);
+    const maxShots = textLength < 10000 ? 150 : 500; // 中短篇上限150，长篇上限500
+    targetShots = Math.min(targetShots, maxShots);
+    
+    // 分层：关键分镜70%，可选分镜30%
+    const keyShots = Math.ceil(targetShots * 0.7);
+    const optionalShots = targetShots - keyShots;
+    
+    console.log(`[ScriptParser] Shot calculation: ${textLength} chars → ${estimatedMinutes}min → ${targetShots} shots (key: ${keyShots}, optional: ${optionalShots}, density: ${density})`);
+    
+    return {
+      estimatedMinutes,
+      targetShots,
+      keyShots,
+      optionalShots,
+      density,
+    };
   }
 
   /**
@@ -2597,6 +2718,167 @@ ${chunkContent.substring(0, 4000)}
   }
 
   /**
+   * 基于情节分析生成分镜（新方案）
+   * 1. 先进行情节分析，识别所有情节点
+   * 2. 根据影视风格生成对应密度的分镜
+   * 3. 不限制数量，由LLM根据情节决定
+   */
+  async generateShotsByPlotAnalysis(
+    content: string,
+    scenes: ScriptScene[],
+    filmStyle: 'short-drama' | 'film' | 'custom' = 'short-drama',
+    customDensity?: number
+  ): Promise<Shot[]> {
+    console.log(`[ScriptParser] ---------- Generating Shots by Plot Analysis ----------`);
+    console.log(`[ScriptParser] Film Style: ${filmStyle}`);
+
+    if (scenes.length === 0) return [];
+
+    // Step 1: 情节分析
+    console.log(`[ScriptParser] Step 1: Analyzing plot structure...`);
+    const plotAnalysis = await this.analyzePlot(content);
+    console.log(`[ScriptParser] Plot analysis complete: ${plotAnalysis.statistics.totalPlotPoints} plot points`);
+    console.log(`[ScriptParser] Estimated shots: ${plotAnalysis.statistics.estimatedShots.shortDrama} (short-drama) / ${plotAnalysis.statistics.estimatedShots.film} (film)`);
+
+    // Step 2: 根据风格确定密度系数
+    const densityMap = {
+      'short-drama': 1.2,  // 短剧：快节奏
+      'film': 2.0,         // 电影：慢节奏
+      'custom': customDensity || 1.5
+    };
+    const density = densityMap[filmStyle];
+
+    // Step 3: 生成分镜
+    console.log(`[ScriptParser] Step 2: Generating shots with density: ${density}`);
+    const scenesInfo = scenes.map(s => 
+      `- ${s.name}: ${s.description?.substring(0, 50) || '无描述'}... (角色: ${s.characters?.join(', ') || '无'})`
+    ).join('\n');
+
+    const styleDescription = {
+      'short-drama': '短剧风格：快节奏，每个情节点1-2个分镜，注重情节推进',
+      'film': '电影风格：慢节奏，每个情节点2-4个分镜，注重意境和情感表达',
+      'custom': `自定义风格：密度系数${density}，按需生成`
+    }[filmStyle];
+
+    const prompt = PROMPTS.shotsBatch
+      .replace('{content}', content.substring(0, 8000))  // 增加内容长度
+      .replace('{scenesInfo}', scenesInfo)
+      .replace('{filmStyle}', `${filmStyle}\n${styleDescription}`);
+
+    console.log(`[ScriptParser] Prompt length: ${prompt.length} characters`);
+
+    const response = await this.callLLM(prompt, 'shots');
+    console.log(`[ScriptParser] Response received, length: ${response.length} characters`);
+
+    const shots = this.extractJSON<Shot[]>(response);
+    console.log(`[ScriptParser] Parsed ${shots.length} shots`);
+
+    // Step 4: 后处理，确保字段完整
+    const result = shots.map((shot, index) => ({
+      ...shot,
+      id: shot.id || crypto.randomUUID(),
+      sequence: shot.sequence || index + 1,
+      duration: shot.duration ?? 3,
+      shotNumber: shot.shotNumber || `SC${index + 1}`,
+      cameraAngle: shot.cameraAngle || 'eye_level',
+      assets: shot.assets || { characterIds: [], sceneId: '' },
+      contentType: shot.contentType || 'static',
+      layer: shot.layer || 'key',
+      style: shot.style || filmStyle,
+      status: shot.status || 'pending',
+    }));
+
+    // 统计信息
+    const keyShots = result.filter(s => s.layer === 'key').length;
+    const optionalShots = result.filter(s => s.layer === 'optional').length;
+    const staticShots = result.filter(s => s.contentType === 'static').length;
+    const dynamicShots = result.filter(s => s.contentType !== 'static').length;
+
+    console.log(`[ScriptParser] Generation complete:`);
+    console.log(`  - Total shots: ${result.length}`);
+    console.log(`  - Key shots: ${keyShots}`);
+    console.log(`  - Optional shots: ${optionalShots}`);
+    console.log(`  - Static shots: ${staticShots}`);
+    console.log(`  - Dynamic shots: ${dynamicShots}`);
+
+    return result;
+  }
+
+  /**
+   * 情节分析：识别所有情节点
+   */
+  private async analyzePlot(content: string): Promise<{
+    plotPoints: Array<{
+      type: 'opening' | 'development' | 'twist' | 'climax' | 'ending';
+      importance: 'major' | 'minor';
+      description: string;
+      characters: string[];
+      emotionalTone: string;
+      sceneContext: string;
+    }>;
+    statistics: {
+      totalPlotPoints: number;
+      majorPoints: number;
+      minorPoints: number;
+      estimatedShots: {
+        shortDrama: number;
+        film: number;
+      };
+    };
+  }> {
+    const prompt = PROMPTS.plotAnalysis.replace('{content}', content.substring(0, 8000));
+
+    console.log(`[ScriptParser] Analyzing plot structure...`);
+    const response = await this.callLLM(prompt, 'plot-analysis');
+
+    try {
+      const analysis = this.extractJSON<{
+        plotPoints: Array<{
+          type: 'opening' | 'development' | 'twist' | 'climax' | 'ending';
+          importance: 'major' | 'minor';
+          description: string;
+          characters: string[];
+          emotionalTone: string;
+          sceneContext: string;
+        }>;
+        statistics: {
+          totalPlotPoints: number;
+          majorPoints: number;
+          minorPoints: number;
+          estimatedShots: {
+            shortDrama: number;
+            film: number;
+          };
+        };
+      }>(response);
+
+      return analysis;
+    } catch (error) {
+      console.error(`[ScriptParser] Plot analysis failed: ${error}`);
+      // 返回默认分析结果
+      return {
+        plotPoints: [{
+          type: 'opening',
+          importance: 'major',
+          description: '故事开端',
+          characters: [],
+          emotionalTone: 'neutral',
+          sceneContext: 'default'
+        }],
+        statistics: {
+          totalPlotPoints: 1,
+          majorPoints: 1,
+          minorPoints: 0,
+          estimatedShots: {
+            shortDrama: 10,
+            film: 20
+          }
+        }
+      };
+    }
+  }
+
+  /**
    * Batch generate all shots with global context injection
    * This method injects visual guidance, emotional context, and era constraints into the prompt
    */
@@ -2621,14 +2903,13 @@ ${chunkContent.substring(0, 4000)}
 
     const scenesInfo = scenes.map(s => `- ${s.name}: ${s.description?.substring(0, 50) || '无描述'}... (角色: ${s.characters?.join(', ') || '无'})`).join('\n');
 
-    // 获取动态分镜数量
-    const shotCount = this.getShotCountByTextLength(content.length);
-    console.log(`[ScriptParser] Dynamic shot count for text length ${content.length}: ${shotCount}`);
+    // 计算分镜生成参数（基于行业标准）
+    const shotGen = this.calculateShotGeneration(content.length);
+    console.log(`[ScriptParser] Target: ${shotGen.targetShots} shots (${shotGen.keyShots} key + ${shotGen.optionalShots} optional)`);
 
-    // Build base prompt with dynamic shot count
+    // Build base prompt
     let prompt = PROMPTS.shotsBatch
-      .replace(/\{\{shotCount\}\}/g, shotCount)
-      .replace('{content}', content.substring(0, 3000))
+      .replace('{content}', content.substring(0, 5000))  // 增加内容长度，确保覆盖全部情节
       .replace('{scenesInfo}', scenesInfo);
 
     // Inject global context if available
@@ -2651,11 +2932,19 @@ ${chunkContent.substring(0, 4000)}
       id: shot.id || crypto.randomUUID(),
       sequence: shot.sequence || index + 1,
       duration: shot.duration ?? 3, // 确保每个分镜都有默认时长3秒
+      // 确保新字段有默认值
+      shotNumber: shot.shotNumber || `SC${index + 1}`,
+      cameraAngle: shot.cameraAngle || 'eye_level',
+      assets: shot.assets || { characterIds: [], sceneId: '' },
+      contentType: shot.contentType || 'static',
+      layer: shot.layer || 'key',
+      status: shot.status || 'pending',
     }));
 
-    // 计算并输出总时长
-    const totalDuration = result.reduce((sum, shot) => sum + (shot.duration ?? 3), 0);
-    console.log(`[ScriptParser] Total duration for ${result.length} shots: ${totalDuration}s`);
+    // 统计关键分镜和可选分镜数量
+    const keyShots = result.filter(s => s.layer === 'key').length;
+    const optionalShots = result.filter(s => s.layer === 'optional').length;
+    console.log(`[ScriptParser] Generated ${result.length} shots: ${keyShots} key + ${optionalShots} optional`);
 
     return result;
   }
@@ -2827,7 +3116,11 @@ ${chunkContent.substring(0, 4000)}
               cameraMovement: 'static',
               duration: 3,
               description: `${scene.name} - ${scene.description?.substring(0, 30) || '场景描述'}...`,
-              characters: scene.characters || []
+              characters: scene.characters || [],
+              assets: { characterIds: scene.characters || [], sceneId: scene.id || '' },
+              contentType: 'static',
+              layer: 'key',
+              status: 'pending'
             });
           });
           state.shots = fallbackShots;
@@ -2956,7 +3249,11 @@ ${chunkContent.substring(0, 4000)}
               cameraMovement: 'static',
               duration: 3,
               description: `${scene.name} - ${scene.description?.substring(0, 30) || '场景描述'}...`,
-              characters: scene.characters || []
+              characters: scene.characters || [],
+              assets: { characterIds: scene.characters || [], sceneId: scene.id || '' },
+              contentType: 'static',
+              layer: 'key',
+              status: 'pending'
             });
           });
           state.shots = fallbackShots;
@@ -3190,7 +3487,11 @@ ${chunkContent.substring(0, 4000)}
                 cameraMovement: 'static',
                 duration: 3,
                 description: `${scene.name} - ${scene.description?.substring(0, 30) || '场景描述'}...`,
-                characters: scene.characters || []
+                characters: scene.characters || [],
+                assets: { characterIds: scene.characters || [], sceneId: scene.id || '' },
+                contentType: 'static',
+                layer: 'key',
+                status: 'pending'
               });
             }
           }
@@ -3517,6 +3818,10 @@ ${chunkContent.substring(0, 4000)}
                   sound: '',
                   duration: 3,
                   characters: scene.characters || [],
+                  assets: { characterIds: scene.characters || [], sceneId: scene.id || '' },
+                  contentType: 'static',
+                  layer: 'key',
+                  status: 'pending'
                 });
               }
             });
