@@ -71,26 +71,26 @@ export const CreativeIntentModal: React.FC<CreativeIntentModalProps> = ({
   };
 
   const filmStyles = [
-    { id: 'short-drama', label: 'Short Drama', description: 'Fast-paced, suitable for short video platforms', icon: <Sparkles className="w-5 h-5" /> },
-    { id: 'film', label: 'Cinematic', description: 'Slow-paced, emphasis on mood and atmosphere', icon: <Film className="w-5 h-5" /> },
-    { id: 'documentary', label: 'Documentary', description: 'Realistic narrative, focus on authenticity', icon: <BookOpen className="w-5 h-5" /> },
-    { id: 'custom', label: 'Custom', description: 'Define your own style', icon: <Clapperboard className="w-5 h-5" /> }
+    { id: 'short-drama', label: '短剧风格', description: '快节奏，适合短视频平台', icon: <Sparkles className="w-5 h-5" /> },
+    { id: 'film', label: '电影风格', description: '慢节奏，注重意境和氛围', icon: <Film className="w-5 h-5" /> },
+    { id: 'documentary', label: '纪录片风格', description: '写实叙事，注重真实性', icon: <BookOpen className="w-5 h-5" /> },
+    { id: 'custom', label: '自定义', description: '定义您自己的风格', icon: <Clapperboard className="w-5 h-5" /> }
   ];
 
   const emotionalTones = [
-    { id: 'inspiring', label: 'Inspiring', color: 'success' },
-    { id: 'melancholic', label: 'Melancholic', color: 'default' },
-    { id: 'thrilling', label: 'Thrilling', color: 'danger' },
-    { id: 'romantic', label: 'Romantic', color: 'secondary' },
-    { id: 'mysterious', label: 'Mysterious', color: 'primary' }
+    { id: 'inspiring', label: '励志', color: 'success' },
+    { id: 'melancholic', label: '忧郁', color: 'default' },
+    { id: 'thrilling', label: '惊悚', color: 'danger' },
+    { id: 'romantic', label: '浪漫', color: 'secondary' },
+    { id: 'mysterious', label: '神秘', color: 'primary' }
   ] as const;
 
   const narrativeFocusOptions = [
-    { key: 'protagonistArc', label: 'Protagonist Arc', description: 'Character growth and transformation', icon: <Target className="w-4 h-4" /> },
-    { key: 'emotionalCore', label: 'Emotional Core', description: 'Emotional relationships and conflicts', icon: <Heart className="w-4 h-4" /> },
-    { key: 'worldBuilding', label: 'World Building', description: 'Setting and atmosphere construction', icon: <Globe className="w-4 h-4" /> },
-    { key: 'visualSpectacle', label: 'Visual Spectacle', description: 'Visual impact and aesthetics', icon: <Eye className="w-4 h-4" /> },
-    { key: 'thematicDepth', label: 'Thematic Depth', description: 'Themes and philosophical exploration', icon: <BookOpen className="w-4 h-4" /> }
+    { key: 'protagonistArc', label: '主角成长', description: '角色的成长和转变', icon: <Target className="w-4 h-4" /> },
+    { key: 'emotionalCore', label: '情感核心', description: '情感关系和冲突', icon: <Heart className="w-4 h-4" /> },
+    { key: 'worldBuilding', label: '世界观构建', description: '场景和氛围营造', icon: <Globe className="w-4 h-4" /> },
+    { key: 'visualSpectacle', label: '视觉奇观', description: '视觉冲击和美学', icon: <Eye className="w-4 h-4" /> },
+    { key: 'thematicDepth', label: '主题深度', description: '主题和哲学探索', icon: <BookOpen className="w-4 h-4" /> }
   ];
 
   return (
@@ -99,7 +99,7 @@ export const CreativeIntentModal: React.FC<CreativeIntentModalProps> = ({
         <ModalHeader className="flex flex-col gap-1">
           <div className="flex items-center gap-2">
             <Clapperboard className="w-6 h-6 text-primary" />
-            <span>Creative Intent</span>
+            <span>创作意图</span>
           </div>
           <p className="text-sm font-normal text-default-500">
             {scriptTitle}
@@ -111,8 +111,8 @@ export const CreativeIntentModal: React.FC<CreativeIntentModalProps> = ({
           <div>
             <div className="flex items-center gap-2 mb-3">
               <Film className="w-4 h-4 text-primary" />
-              <span className="font-medium">Film Style</span>
-              <Tooltip content="Choose the overall cinematic style for your project">
+              <span className="font-medium">影视风格</span>
+              <Tooltip content="选择项目的整体影像风格">
                 <Info className="w-4 h-4 text-default-400 cursor-help" />
               </Tooltip>
             </div>
@@ -152,8 +152,8 @@ export const CreativeIntentModal: React.FC<CreativeIntentModalProps> = ({
           <div>
             <div className="flex items-center gap-2 mb-3">
               <Target className="w-4 h-4 text-secondary" />
-              <span className="font-medium">Narrative Focus</span>
-              <span className="text-xs text-default-400">(Select multiple)</span>
+              <span className="font-medium">叙事重点</span>
+              <span className="text-xs text-default-400">（可多选）</span>
             </div>
             <div className="flex flex-wrap gap-2">
               {narrativeFocusOptions.map((option) => {
@@ -180,7 +180,7 @@ export const CreativeIntentModal: React.FC<CreativeIntentModalProps> = ({
           <div>
             <div className="flex items-center gap-2 mb-3">
               <Heart className="w-4 h-4 text-danger" />
-              <span className="font-medium">Emotional Tone</span>
+              <span className="font-medium">情感基调</span>
             </div>
             <div className="flex flex-wrap gap-2 mb-4">
               {emotionalTones.map((tone) => (
@@ -199,7 +199,7 @@ export const CreativeIntentModal: React.FC<CreativeIntentModalProps> = ({
             </div>
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <span className="text-sm text-default-500">Intensity</span>
+                <span className="text-sm text-default-500">情感强度</span>
                 <span className="text-sm font-medium">{creativeIntent.emotionalTone.intensity}/10</span>
               </div>
               <Slider
@@ -222,11 +222,11 @@ export const CreativeIntentModal: React.FC<CreativeIntentModalProps> = ({
           <div>
             <div className="flex items-center gap-2 mb-3">
               <Eye className="w-4 h-4 text-warning" />
-              <span className="font-medium">Visual References</span>
-              <span className="text-xs text-default-400">(Optional)</span>
+              <span className="font-medium">视觉参考</span>
+              <span className="text-xs text-default-400">（可选）</span>
             </div>
             <Textarea
-              placeholder="Enter reference films, directors, or visual styles (e.g., 'Makoto Shinkai', 'Wong Kar-wai', 'Film Noir')..."
+              placeholder="输入参考影片、导演或视觉风格（如：新海诚、王家卫、黑色电影）..."
               value={creativeIntent.visualReferences?.join(', ') || ''}
               onChange={(e) => updateIntent({
                 visualReferences: e.target.value.split(',').map(s => s.trim()).filter(Boolean)
@@ -239,11 +239,11 @@ export const CreativeIntentModal: React.FC<CreativeIntentModalProps> = ({
           <div>
             <div className="flex items-center gap-2 mb-3">
               <Sparkles className="w-4 h-4 text-success" />
-              <span className="font-medium">Creative Notes</span>
-              <span className="text-xs text-default-400">(Optional)</span>
+              <span className="font-medium">创作备注</span>
+              <span className="text-xs text-default-400">（可选）</span>
             </div>
             <Textarea
-              placeholder="Any special creative requirements or notes for the AI director..."
+              placeholder="任何特殊的创作要求或对AI导演的备注..."
               value={creativeIntent.creativeNotes || ''}
               onChange={(e) => updateIntent({ creativeNotes: e.target.value })}
               minRows={3}
@@ -255,22 +255,22 @@ export const CreativeIntentModal: React.FC<CreativeIntentModalProps> = ({
             <CardBody className="space-y-2">
               <div className="flex items-center gap-2 text-primary">
                 <CheckCircle2 className="w-5 h-5" />
-                <span className="font-medium">AI Director Understanding</span>
+                <span className="font-medium">AI导演理解</span>
               </div>
               <p className="text-sm text-default-600">
-                You want to create a <strong>{filmStyles.find(s => s.id === creativeIntent.filmStyle)?.label}</strong> style project 
-                with <strong>{emotionalTones.find(t => t.id === creativeIntent.emotionalTone.primary)?.label}</strong> emotional tone 
-                at intensity level <strong>{creativeIntent.emotionalTone.intensity}/10</strong>.
-                The narrative will focus on: <strong>
+                您希望创作一个<strong>{filmStyles.find(s => s.id === creativeIntent.filmStyle)?.label}</strong>风格的作品，
+                情感基调为<strong>{emotionalTones.find(t => t.id === creativeIntent.emotionalTone.primary)?.label}</strong>，
+                强度等级<strong>{creativeIntent.emotionalTone.intensity}/10</strong>。
+                叙事重点：<strong>
                   {Object.entries(creativeIntent.narrativeFocus)
                     .filter(([, v]) => v)
                     .map(([k]) => narrativeFocusOptions.find(o => o.key === k)?.label)
                     .filter(Boolean)
-                    .join(', ') || 'Comprehensive storytelling'}
-                </strong>.
+                    .join('、') || '全面叙事'}
+                </strong>。
               </p>
               <p className="text-xs text-default-500">
-                The AI will analyze your script and generate shots based on these creative intentions, not limited by word count or platform constraints.
+                AI将根据这些创作意图分析剧本并生成分镜，不受字数或平台限制。
               </p>
             </CardBody>
           </Card>
@@ -278,14 +278,14 @@ export const CreativeIntentModal: React.FC<CreativeIntentModalProps> = ({
 
         <ModalFooter>
           <Button variant="light" onPress={onClose}>
-            Cancel
+            取消
           </Button>
           <Button 
             color="primary" 
             onPress={onConfirm}
             startContent={<Clapperboard className="w-4 h-4" />}
           >
-            Start Analysis
+            开始分析
           </Button>
         </ModalFooter>
       </ModalContent>
