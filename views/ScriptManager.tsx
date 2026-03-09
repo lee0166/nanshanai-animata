@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Script, ScriptParseState, ScriptCharacter, ScriptScene, ScriptItem, Shot, CharacterAsset, SceneAsset, FragmentAsset, ItemAsset, AssetType, ModelConfig, CreativeIntent } from '../types';
 import { storageService } from '../services/storage';
@@ -199,6 +199,53 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
     }
   };
 
+  // 2.0: 文件上传处理
+  const handleFileUpload = useCallback(async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // 检查文件类型
+    const allowedTypes = ['text/plain', 'text/markdown', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+    const allowedExtensions = ['.txt', '.md', '.doc', '.docx'];
+    const fileExtension = file.name.substring(file.name.lastIndexOf('.')).toLowerCase();
+    
+    if (!allowedTypes.includes(file.type) && !allowedExtensions.includes(fileExtension)) {
+      showToast('不支持的文件格式，请上传 .txt, .md, .doc, .docx 文件', 'error');
+      return;
+    }
+
+    // 检查文件大小（最大10MB）
+    if (file.size > 10 * 1024 * 1024) {
+      showToast('文件大小超过10MB限制', 'error');
+      return;
+    }
+
+    try {
+      let content = '';
+      
+      if (fileExtension === '.docx' || fileExtension === '.doc') {
+        // Word文档需要特殊处理，这里简化处理，提示用户
+        showToast('Word文档解析功能开发中，请先转换为txt格式', 'warning');
+        return;
+      } else {
+        // 文本文件直接读取
+        content = await file.text();
+      }
+
+      // 自动设置标题（使用文件名，去掉扩展名）
+      const fileName = file.name.substring(0, file.name.lastIndexOf('.'));
+      setScriptTitle(fileName);
+      setScriptContent(content);
+      showToast(`文件 "${file.name}" 读取成功`, 'success');
+    } catch (error) {
+      console.error('[ScriptManager] Failed to read file:', error);
+      showToast('文件读取失败', 'error');
+    }
+
+    // 清空input，允许重复选择同一文件
+    event.target.value = '';
+  }, [showToast]);
+
   const handleUploadScript = async () => {
     if (!scriptTitle.trim() || !scriptContent.trim()) {
       showToast('请输入标题和内容', 'error');
@@ -237,7 +284,7 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
       setIsUploadModalOpen(false);
       setScriptTitle('');
       setScriptContent('');
-      showToast('Script uploaded successfully', 'success');
+      showToast('剧本上传成功', 'success');
     } catch (error) {
       console.error('[ScriptManager] Failed to upload script:', error);
       showToast('上传剧本失败', 'error');
@@ -779,6 +826,27 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
         <ModalContent>
           <ModalHeader>上传剧本</ModalHeader>
           <ModalBody className="space-y-4">
+            {/* 2.0: 文件上传区域 */}
+            <Card className="border-2 border-dashed border-slate-300 dark:border-slate-600">
+              <CardBody className="text-center py-6">
+                <Upload className="w-8 h-8 mx-auto mb-2 text-slate-400" />
+                <p className="text-sm text-slate-600 dark:text-slate-400 mb-2">
+                  点击或拖拽文件到此处上传
+                </p>
+                <p className="text-xs text-slate-500">
+                  支持 .txt, .md 格式（Word文档请先转换为txt）
+                </p>
+                <input
+                  type="file"
+                  accept=".txt,.md,.doc,.docx"
+                  onChange={handleFileUpload}
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                />
+              </CardBody>
+            </Card>
+
+            <Divider />
+
             <Input
               label="剧本标题"
               placeholder="请输入剧本标题"
@@ -787,7 +855,7 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
             />
             <Textarea
               label="剧本内容"
-              placeholder="请粘贴小说或剧本内容..."
+              placeholder="请粘贴小说或剧本内容，或通过上方上传文件..."
               value={scriptContent}
               onChange={(e) => setScriptContent(e.target.value)}
               minRows={10}
