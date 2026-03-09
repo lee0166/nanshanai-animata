@@ -172,7 +172,7 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
       }
     } catch (error) {
       console.error('[ScriptManager] Failed to load scripts:', error);
-      showToast('Failed to load scripts', 'error');
+      showToast('加载剧本失败', 'error');
     }
   };
 
@@ -201,19 +201,19 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
 
   const handleUploadScript = async () => {
     if (!scriptTitle.trim() || !scriptContent.trim()) {
-      showToast('Please enter both title and content', 'error');
+      showToast('请输入标题和内容', 'error');
       return;
     }
 
     if (!projectId) {
-      showToast('No project selected', 'error');
+      showToast('未选择项目', 'error');
       return;
     }
 
     // 2.0: 检查存储连接状态
     const connected = await checkConnection();
     if (!connected) {
-      showToast('Please connect to a workspace first', 'error');
+      showToast('请先连接工作区', 'error');
       return;
     }
 
@@ -240,20 +240,20 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
       showToast('Script uploaded successfully', 'success');
     } catch (error) {
       console.error('[ScriptManager] Failed to upload script:', error);
-      showToast('Failed to upload script', 'error');
+      showToast('上传剧本失败', 'error');
     }
   };
 
   // 2.0版本：打开创作意图确认弹窗
   const handleStartParse = () => {
     if (!currentScript) {
-      showToast('Please select a script first', 'error');
+      showToast('请先选择剧本', 'error');
       return;
     }
 
     const selectedModel = getSelectedModel();
     if (!selectedModel) {
-      showToast('Please configure LLM model in settings', 'error');
+      showToast('请在设置中配置LLM模型', 'error');
       return;
     }
 
@@ -281,13 +281,13 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
 
     // Check if model has API key
     if (!selectedModel.apiKey) {
-      showToast('Selected model is missing API key. Please configure in settings.', 'error');
+      showToast('所选模型缺少API密钥，请在设置中配置', 'error');
       return;
     }
 
     setIsParsing(true);
     setParseProgress(0);
-    setParseStage('Initializing...');
+    setParseStage('正在初始化...');
     setActiveParseButton('full');
 
     try {
@@ -332,12 +332,12 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
         if (!isMountedRef.current) return;
         setParseProgress(progress);
         const stageNames: Record<string, string> = {
-          metadata: 'Analyzing creative intent...',
-          characters: 'Designing characters...',
-          scenes: 'Planning scenes...',
-          shots: 'Creating shot list...',
-          completed: 'Parse completed',
-          error: 'Parse error'
+          metadata: '正在分析创作意图...',
+          characters: '正在设计角色...',
+          scenes: '正在规划场景...',
+          shots: '正在创建分镜列表...',
+          completed: '解析完成',
+          error: '解析错误'
         };
         setParseStage(message || stageNames[stage] || stage);
       };
@@ -355,7 +355,7 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
       setCurrentScript(updatedScript);
 
       if (parseState.stage === 'completed') {
-        showToast('Script analysis completed', 'success');
+        showToast('剧本分析完成', 'success');
 
         console.log('[ScriptManager] ========== Getting Quality Report ==========');
         const report = parser.getQualityReport();
@@ -374,15 +374,15 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
           console.warn('[ScriptManager] No quality report received from parser!');
         }
       } else if (parseState.stage === 'error') {
-        showToast(`Parse failed: ${parseState.error}`, 'error');
+        showToast(`解析失败: ${parseState.error}`, 'error');
       }
     } catch (error: any) {
       if (!isMountedRef.current) return;
 
       if (error.name === 'AbortError') {
-        showToast('Parse cancelled', 'info');
+        showToast('解析已取消', 'info');
       } else {
-        showToast(`Parse failed: ${error.message}`, 'error');
+        showToast(`解析失败: ${error.message}`, 'error');
       }
     } finally {
       if (isMountedRef.current) {
@@ -410,7 +410,7 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
       showToast('Script deleted successfully', 'success');
     } catch (error) {
       console.error('[ScriptManager] Failed to delete script:', error);
-      showToast('Failed to delete script', 'error');
+      showToast('删除剧本失败', 'error');
     } finally {
       setIsDeleting(false);
     }
@@ -456,10 +456,10 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
         <div className="flex items-center gap-4">
           <h2 className="text-xl font-bold flex items-center gap-2">
             <FileText className="w-5 h-5" />
-            Script Management
+            剧本管理
           </h2>
           {scripts.length > 0 && (
-            <Chip size="sm" variant="flat">{scripts.length} scripts</Chip>
+            <Chip size="sm" variant="flat">{scripts.length} 个剧本</Chip>
           )}
         </div>
         <div className="flex items-center gap-2">
@@ -468,7 +468,7 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
             startContent={<Upload className="w-4 h-4" />}
             onPress={() => setIsUploadModalOpen(true)}
           >
-            Upload Script
+            上传剧本
           </Button>
         </div>
       </div>
@@ -479,8 +479,8 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
         <div className="w-64 border-r border-slate-200 dark:border-slate-800 overflow-y-auto">
           {scripts.length === 0 ? (
             <div className="p-4 text-center text-slate-500">
-              <p>No scripts yet</p>
-              <p className="text-sm">Upload a script to get started</p>
+              <p>暂无剧本</p>
+              <p className="text-sm">上传剧本开始使用</p>
             </div>
           ) : (
             <div className="divide-y divide-slate-200 dark:divide-slate-800">
@@ -501,7 +501,7 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
                       {script.parseState?.stage === 'completed' && (
                         <Chip size="sm" color="success" variant="flat" className="mt-1">
                           <CheckCircle2 className="w-3 h-3 mr-1" />
-                          Parsed
+                          已解析
                         </Chip>
                       )}
                     </div>
@@ -526,8 +526,8 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
           {!currentScript ? (
             <div className="flex flex-col items-center justify-center h-full text-slate-500">
               <FileText className="w-16 h-16 mb-4 opacity-50" />
-              <p className="text-lg">Select a script to view details</p>
-              <p className="text-sm">or upload a new script</p>
+              <p className="text-lg">选择剧本查看详情</p>
+              <p className="text-sm">或上传新剧本</p>
             </div>
           ) : (
             <div className="space-y-6">
@@ -536,7 +536,7 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
                 <div>
                   <h3 className="text-2xl font-bold">{currentScript.title}</h3>
                   <p className="text-slate-500 mt-1">
-                    {currentScript.content.length.toLocaleString()} characters
+                    {currentScript.content.length.toLocaleString()} 字符
                   </p>
                 </div>
                 <div className="flex items-center gap-2">
@@ -547,7 +547,7 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
                       isLoading={isParsing && activeParseButton === 'full'}
                       onPress={handleStartParse}
                     >
-                      {isParsing ? 'Parsing...' : 'Start Analysis'}
+                      {isParsing ? '解析中...' : '开始分析'}
                     </Button>
                   )}
                   {currentScript.parseState?.stage === 'completed' && (
@@ -556,7 +556,7 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
                       startContent={<RotateCcw className="w-4 h-4" />}
                       onPress={handleStartParse}
                     >
-                      Re-analyze
+                      重新分析
                     </Button>
                   )}
                 </div>
@@ -584,7 +584,7 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
                     title={
                       <div className="flex items-center gap-2">
                         <Clapperboard size={16} />
-                        <span>Director's Workbench</span>
+                        <span>导演工作台</span>
                       </div>
                     }
                   >
@@ -597,7 +597,7 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
                               <p className="text-2xl font-bold text-primary">
                                 {currentScript.parseState.plotAnalysis?.plotPoints?.length || currentScript.parseState.shots?.length || 0}
                               </p>
-                              <p className="text-sm text-slate-500">Plot Points</p>
+                              <p className="text-sm text-slate-500">情节点</p>
                             </CardBody>
                           </Card>
                           <Card className="bg-secondary/5">
@@ -605,7 +605,7 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
                               <p className="text-2xl font-bold text-secondary">
                                 {currentScript.parseState.shots?.length || 0}
                               </p>
-                              <p className="text-sm text-slate-500">Shots Generated</p>
+                              <p className="text-sm text-slate-500">生成分镜</p>
                             </CardBody>
                           </Card>
                           <Card className="bg-success/5">
@@ -613,7 +613,7 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
                               <p className="text-2xl font-bold text-success">
                                 {currentScript.parseState.characters?.length || 0}
                               </p>
-                              <p className="text-sm text-slate-500">Characters</p>
+                              <p className="text-sm text-slate-500">角色</p>
                             </CardBody>
                           </Card>
                           <Card className="bg-warning/5">
@@ -621,7 +621,7 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
                               <p className="text-2xl font-bold text-warning">
                                 {currentScript.parseState.scenes?.length || 0}
                               </p>
-                              <p className="text-sm text-slate-500">Scenes</p>
+                              <p className="text-sm text-slate-500">场景</p>
                             </CardBody>
                           </Card>
                         </div>
@@ -661,7 +661,7 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
                     title={
                       <div className="flex items-center gap-2">
                         <Users size={16} />
-                        <span>Characters</span>
+                        <span>角色</span>
                         {currentScript.parseState.characters && (
                           <Chip size="sm">{currentScript.parseState.characters.length}</Chip>
                         )}
@@ -682,7 +682,7 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
                     title={
                       <div className="flex items-center gap-2">
                         <MapPin size={16} />
-                        <span>Scenes</span>
+                        <span>场景</span>
                         {currentScript.parseState.scenes && (
                           <Chip size="sm">{currentScript.parseState.scenes.length}</Chip>
                         )}
@@ -703,7 +703,7 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
                     title={
                       <div className="flex items-center gap-2">
                         <Box size={16} />
-                        <span>Items</span>
+                        <span>物品</span>
                         {currentScript.parseState.items && (
                           <Chip size="sm">{currentScript.parseState.items.length}</Chip>
                         )}
@@ -724,7 +724,7 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
                     title={
                       <div className="flex items-center gap-2">
                         <Film size={16} />
-                        <span>Shots</span>
+                        <span>分镜</span>
                         {currentScript.parseState.shots && (
                           <Chip size="sm">{currentScript.parseState.shots.length}</Chip>
                         )}
@@ -745,7 +745,7 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
                       title={
                         <div className="flex items-center gap-2">
                           <AlertCircle size={16} />
-                          <span>Quality</span>
+                          <span>质量</span>
                           <Chip size="sm" color={qualityReport.score >= 80 ? 'success' : qualityReport.score >= 60 ? 'warning' : 'danger'}>
                             {qualityReport.score}
                           </Chip>
@@ -758,11 +758,11 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
                 </Tabs>
               )}
 
-              {/* Raw Content */}
+              {/* 原始内容 */}
               {!isParsing && currentScript.parseState?.stage !== 'completed' && (
                 <Card>
                   <CardBody>
-                    <h4 className="font-medium mb-3">Script Content</h4>
+                    <h4 className="font-medium mb-3">剧本内容</h4>
                     <div className="bg-slate-100 dark:bg-slate-900 p-4 rounded-lg max-h-96 overflow-y-auto">
                       <pre className="whitespace-pre-wrap text-sm">{currentScript.content}</pre>
                     </div>
@@ -777,17 +777,17 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
       {/* Upload Modal */}
       <Modal isOpen={isUploadModalOpen} onClose={() => setIsUploadModalOpen(false)} size="2xl">
         <ModalContent>
-          <ModalHeader>Upload Script</ModalHeader>
+          <ModalHeader>上传剧本</ModalHeader>
           <ModalBody className="space-y-4">
             <Input
-              label="Script Title"
-              placeholder="Enter script title"
+              label="剧本标题"
+              placeholder="请输入剧本标题"
               value={scriptTitle}
               onChange={(e) => setScriptTitle(e.target.value)}
             />
             <Textarea
-              label="Script Content"
-              placeholder="Paste your script content here..."
+              label="剧本内容"
+              placeholder="请粘贴小说或剧本内容..."
               value={scriptContent}
               onChange={(e) => setScriptContent(e.target.value)}
               minRows={10}
@@ -795,20 +795,20 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
             />
             {scriptWordCount > 0 && (
               <p className="text-sm text-slate-500">
-                {scriptWordCount.toLocaleString()} characters
+                {scriptWordCount.toLocaleString()} 字符
               </p>
             )}
           </ModalBody>
           <ModalFooter>
             <Button variant="light" onPress={() => setIsUploadModalOpen(false)}>
-              Cancel
+              取消
             </Button>
             <Button 
               color="primary" 
               onPress={handleUploadScript}
               isDisabled={!scriptTitle.trim() || !scriptContent.trim()}
             >
-              Upload
+              上传
             </Button>
           </ModalFooter>
         </ModalContent>
@@ -817,23 +817,23 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
       {/* Delete Confirmation Modal */}
       <Modal isOpen={isDeleteModalOpen} onClose={() => setIsDeleteModalOpen(false)}>
         <ModalContent>
-          <ModalHeader>Confirm Delete</ModalHeader>
+          <ModalHeader>确认删除</ModalHeader>
           <ModalBody>
-            <p>Are you sure you want to delete &quot;{scriptToDelete?.title}&quot;?</p>
+            <p>确定要删除 &quot;{scriptToDelete?.title}&quot; 吗？</p>
             {deleteStats && (
               <div className="mt-4 p-4 bg-slate-100 dark:bg-slate-800 rounded-lg">
                 <p className="text-sm text-slate-600 dark:text-slate-400">
-                  This will also delete {deleteStats.characters} characters, {deleteStats.scenes} scenes, {deleteStats.items} items, and {deleteStats.shots} shots.
+                  这将同时删除 {deleteStats.characters} 个角色、{deleteStats.scenes} 个场景、{deleteStats.items} 个物品和 {deleteStats.shots} 个分镜。
                 </p>
               </div>
             )}
           </ModalBody>
           <ModalFooter>
             <Button variant="light" onPress={() => setIsDeleteModalOpen(false)}>
-              Cancel
+              取消
             </Button>
             <Button color="danger" onPress={handleDeleteScript} isLoading={isDeleting}>
-              Delete
+              删除
             </Button>
           </ModalFooter>
         </ModalContent>
