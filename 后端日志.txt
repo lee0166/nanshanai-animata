@@ -8,21 +8,17 @@ AppContext.tsx:103 [INIT] Starting App Initialization...
 AppContext.tsx:119 [INIT] Attempting auto-connect...
 AppContext.tsx:103 [INIT] Starting App Initialization...
 AppContext.tsx:119 [INIT] Attempting auto-connect...
-AppContext.tsx:121 [INIT] autoConnect returned: true
-AppContext.tsx:121 [INIT] autoConnect returned: true
-AppContext.tsx:125 [INIT] Starting smoke test...
-AppContext.tsx:24 [STORAGE] Connection check: Connected=true, Responsive=true
-AppContext.tsx:132 [INIT] Smoke test complete.
 client:912 [vite] connected.
-AppContext.tsx:147 [INIT] Initialization complete. FS Responsive: true, Connected: true, Elapsed: 546ms
+AppContext.tsx:121 [INIT] autoConnect returned: false
+AppContext.tsx:121 [INIT] autoConnect returned: false
+AppContext.tsx:24 [STORAGE] Connection check: Connected=false, Responsive=true
+AppContext.tsx:147 [INIT] Initialization complete. FS Responsive: true, Connected: false, Elapsed: 502ms
+AppContext.tsx:24 [STORAGE] Connection check: Connected=false, Responsive=true
+storage.ts:495 [STORAGE] Triggering showDirectoryPicker...
+AppContext.tsx:24 [STORAGE] Connection check: Connected=false, Responsive=true
+storage.ts:499 [STORAGE] Directory picker success: ProjectML
+AppContext.tsx:24 [STORAGE] Connection check: Connected=true, Responsive=true
 App.tsx:33 [APP] Triggering jobQueue.loadQueue()...
-App.tsx:33 [APP] Triggering jobQueue.loadQueue()...
-client:883 [vite] hot updated: /views/ScriptManager.tsx
-client:883 [vite] hot updated: /index.css
-client:883 [vite] hot updated: /views/ScriptManager.tsx
-client:883 [vite] hot updated: /index.css
-client:883 [vite] hot updated: /views/ScriptManager.tsx
-client:883 [vite] hot updated: /index.css
 AppContext.tsx:24 [STORAGE] Connection check: Connected=true, Responsive=true
 AppContext.tsx:24 [STORAGE] Connection check: Connected=true, Responsive=true
 AppContext.tsx:24 [STORAGE] Connection check: Connected=true, Responsive=true
@@ -31,920 +27,365 @@ AppContext.tsx:24 [STORAGE] Connection check: Connected=true, Responsive=true
 AppContext.tsx:24 [STORAGE] Connection check: Connected=true, Responsive=true
 AppContext.tsx:24 [STORAGE] Connection check: Connected=true, Responsive=true
 storage.ts:1119 [Storage] ========== Saving Script ==========
-storage.ts:1120 [Storage] Script ID: script_1773033955370
+storage.ts:1120 [Storage] Script ID: script_1773035528887
 storage.ts:1121 [Storage] Has parseState: true
 storage.ts:1122 [Storage] Has qualityReport: false
 storage.ts:1138 [Storage] New script added
 storage.ts:1142 [Storage] ========== Script Saved ==========
-useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-useLabel.ts:56  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+ScriptManager.tsx:622  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+$2baaea4c71418dea$export$294aa081a6c6f55d @ useField.ts:33
+useMultiSelect @ chunk-RLX3CPDX.mjs:54
+useSelect @ chunk-ZO7XS5CB.mjs:149
+Select2 @ chunk-C3QHEOC2.mjs:59
+react_stack_bottom_frame @ react-dom-client.development.js:25904
+renderWithHooks @ react-dom-client.development.js:7662
+updateForwardRef @ react-dom-client.development.js:9724
+beginWork @ react-dom-client.development.js:12117
+runWithFiberInDEV @ react-dom-client.development.js:871
+performUnitOfWork @ react-dom-client.development.js:17641
+workLoopSync @ react-dom-client.development.js:17469
+renderRootSync @ react-dom-client.development.js:17450
+performWorkOnRoot @ react-dom-client.development.js:16504
+performWorkOnRootViaSchedulerTask @ react-dom-client.development.js:18957
+performWorkUntilDeadline @ scheduler.development.js:45
+<ForwardRef(Select2)>
+exports.jsxDEV @ react-jsx-dev-runtime.development.js:335
+ScriptManager @ ScriptManager.tsx:622
+react_stack_bottom_frame @ react-dom-client.development.js:25904
+renderWithHooksAgain @ react-dom-client.development.js:7762
+renderWithHooks @ react-dom-client.development.js:7674
+updateFunctionComponent @ react-dom-client.development.js:10166
+beginWork @ react-dom-client.development.js:11778
+runWithFiberInDEV @ react-dom-client.development.js:871
+performUnitOfWork @ react-dom-client.development.js:17641
+workLoopSync @ react-dom-client.development.js:17469
+renderRootSync @ react-dom-client.development.js:17450
+performWorkOnRoot @ react-dom-client.development.js:16504
+performWorkOnRootViaSchedulerTask @ react-dom-client.development.js:18957
+performWorkUntilDeadline @ scheduler.development.js:45
+<ScriptManager>
+exports.jsxDEV @ react-jsx-dev-runtime.development.js:335
+ProjectDetail @ ProjectDetail.tsx:464
+react_stack_bottom_frame @ react-dom-client.development.js:25904
+renderWithHooksAgain @ react-dom-client.development.js:7762
+renderWithHooks @ react-dom-client.development.js:7674
+updateFunctionComponent @ react-dom-client.development.js:10166
+beginWork @ react-dom-client.development.js:11778
+runWithFiberInDEV @ react-dom-client.development.js:871
+performUnitOfWork @ react-dom-client.development.js:17641
+workLoopSync @ react-dom-client.development.js:17469
+renderRootSync @ react-dom-client.development.js:17450
+performWorkOnRoot @ react-dom-client.development.js:16504
+performWorkOnRootViaSchedulerTask @ react-dom-client.development.js:18957
+performWorkUntilDeadline @ scheduler.development.js:45
+ScriptManager.tsx:622  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+$2baaea4c71418dea$export$294aa081a6c6f55d @ useField.ts:33
+useMultiSelect @ chunk-RLX3CPDX.mjs:54
+useSelect @ chunk-ZO7XS5CB.mjs:149
+Select2 @ chunk-C3QHEOC2.mjs:59
+react_stack_bottom_frame @ react-dom-client.development.js:25904
+renderWithHooksAgain @ react-dom-client.development.js:7762
+renderWithHooks @ react-dom-client.development.js:7674
+updateForwardRef @ react-dom-client.development.js:9724
+beginWork @ react-dom-client.development.js:12117
+runWithFiberInDEV @ react-dom-client.development.js:871
+performUnitOfWork @ react-dom-client.development.js:17641
+workLoopSync @ react-dom-client.development.js:17469
+renderRootSync @ react-dom-client.development.js:17450
+performWorkOnRoot @ react-dom-client.development.js:16504
+performWorkOnRootViaSchedulerTask @ react-dom-client.development.js:18957
+performWorkUntilDeadline @ scheduler.development.js:45
+<ForwardRef(Select2)>
+exports.jsxDEV @ react-jsx-dev-runtime.development.js:335
+ScriptManager @ ScriptManager.tsx:622
+react_stack_bottom_frame @ react-dom-client.development.js:25904
+renderWithHooksAgain @ react-dom-client.development.js:7762
+renderWithHooks @ react-dom-client.development.js:7674
+updateFunctionComponent @ react-dom-client.development.js:10166
+beginWork @ react-dom-client.development.js:11778
+runWithFiberInDEV @ react-dom-client.development.js:871
+performUnitOfWork @ react-dom-client.development.js:17641
+workLoopSync @ react-dom-client.development.js:17469
+renderRootSync @ react-dom-client.development.js:17450
+performWorkOnRoot @ react-dom-client.development.js:16504
+performWorkOnRootViaSchedulerTask @ react-dom-client.development.js:18957
+performWorkUntilDeadline @ scheduler.development.js:45
+<ScriptManager>
+exports.jsxDEV @ react-jsx-dev-runtime.development.js:335
+ProjectDetail @ ProjectDetail.tsx:464
+react_stack_bottom_frame @ react-dom-client.development.js:25904
+renderWithHooksAgain @ react-dom-client.development.js:7762
+renderWithHooks @ react-dom-client.development.js:7674
+updateFunctionComponent @ react-dom-client.development.js:10166
+beginWork @ react-dom-client.development.js:11778
+runWithFiberInDEV @ react-dom-client.development.js:871
+performUnitOfWork @ react-dom-client.development.js:17641
+workLoopSync @ react-dom-client.development.js:17469
+renderRootSync @ react-dom-client.development.js:17450
+performWorkOnRoot @ react-dom-client.development.js:16504
+performWorkOnRootViaSchedulerTask @ react-dom-client.development.js:18957
+performWorkUntilDeadline @ scheduler.development.js:45
+ScriptManager.tsx:622  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+$2baaea4c71418dea$export$294aa081a6c6f55d @ useField.ts:33
+useMultiSelect @ chunk-RLX3CPDX.mjs:54
+useSelect @ chunk-ZO7XS5CB.mjs:149
+Select2 @ chunk-C3QHEOC2.mjs:59
+react_stack_bottom_frame @ react-dom-client.development.js:25904
+renderWithHooks @ react-dom-client.development.js:7662
+updateForwardRef @ react-dom-client.development.js:9724
+beginWork @ react-dom-client.development.js:12117
+runWithFiberInDEV @ react-dom-client.development.js:871
+performUnitOfWork @ react-dom-client.development.js:17641
+workLoopSync @ react-dom-client.development.js:17469
+renderRootSync @ react-dom-client.development.js:17450
+performWorkOnRoot @ react-dom-client.development.js:16504
+performSyncWorkOnRoot @ react-dom-client.development.js:18972
+flushSyncWorkAcrossRoots_impl @ react-dom-client.development.js:18814
+flushSpawnedWork @ react-dom-client.development.js:18334
+commitRoot @ react-dom-client.development.js:17955
+commitRootWhenReady @ react-dom-client.development.js:16824
+performWorkOnRoot @ react-dom-client.development.js:16722
+performWorkOnRootViaSchedulerTask @ react-dom-client.development.js:18957
+performWorkUntilDeadline @ scheduler.development.js:45
+<ForwardRef(Select2)>
+exports.jsxDEV @ react-jsx-dev-runtime.development.js:335
+ScriptManager @ ScriptManager.tsx:622
+react_stack_bottom_frame @ react-dom-client.development.js:25904
+renderWithHooksAgain @ react-dom-client.development.js:7762
+renderWithHooks @ react-dom-client.development.js:7674
+updateFunctionComponent @ react-dom-client.development.js:10166
+beginWork @ react-dom-client.development.js:11778
+runWithFiberInDEV @ react-dom-client.development.js:871
+performUnitOfWork @ react-dom-client.development.js:17641
+workLoopSync @ react-dom-client.development.js:17469
+renderRootSync @ react-dom-client.development.js:17450
+performWorkOnRoot @ react-dom-client.development.js:16504
+performWorkOnRootViaSchedulerTask @ react-dom-client.development.js:18957
+performWorkUntilDeadline @ scheduler.development.js:45
+<ScriptManager>
+exports.jsxDEV @ react-jsx-dev-runtime.development.js:335
+ProjectDetail @ ProjectDetail.tsx:464
+react_stack_bottom_frame @ react-dom-client.development.js:25904
+renderWithHooksAgain @ react-dom-client.development.js:7762
+renderWithHooks @ react-dom-client.development.js:7674
+updateFunctionComponent @ react-dom-client.development.js:10166
+beginWork @ react-dom-client.development.js:11778
+runWithFiberInDEV @ react-dom-client.development.js:871
+performUnitOfWork @ react-dom-client.development.js:17641
+workLoopSync @ react-dom-client.development.js:17469
+renderRootSync @ react-dom-client.development.js:17450
+performWorkOnRoot @ react-dom-client.development.js:16504
+performWorkOnRootViaSchedulerTask @ react-dom-client.development.js:18957
+performWorkUntilDeadline @ scheduler.development.js:45
+ScriptManager.tsx:622  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+$2baaea4c71418dea$export$294aa081a6c6f55d @ useField.ts:33
+useMultiSelect @ chunk-RLX3CPDX.mjs:54
+useSelect @ chunk-ZO7XS5CB.mjs:149
+Select2 @ chunk-C3QHEOC2.mjs:59
+react_stack_bottom_frame @ react-dom-client.development.js:25904
+renderWithHooksAgain @ react-dom-client.development.js:7762
+renderWithHooks @ react-dom-client.development.js:7674
+updateForwardRef @ react-dom-client.development.js:9724
+beginWork @ react-dom-client.development.js:12117
+runWithFiberInDEV @ react-dom-client.development.js:871
+performUnitOfWork @ react-dom-client.development.js:17641
+workLoopSync @ react-dom-client.development.js:17469
+renderRootSync @ react-dom-client.development.js:17450
+performWorkOnRoot @ react-dom-client.development.js:16504
+performSyncWorkOnRoot @ react-dom-client.development.js:18972
+flushSyncWorkAcrossRoots_impl @ react-dom-client.development.js:18814
+flushSpawnedWork @ react-dom-client.development.js:18334
+commitRoot @ react-dom-client.development.js:17955
+commitRootWhenReady @ react-dom-client.development.js:16824
+performWorkOnRoot @ react-dom-client.development.js:16722
+performWorkOnRootViaSchedulerTask @ react-dom-client.development.js:18957
+performWorkUntilDeadline @ scheduler.development.js:45
+<ForwardRef(Select2)>
+exports.jsxDEV @ react-jsx-dev-runtime.development.js:335
+ScriptManager @ ScriptManager.tsx:622
+react_stack_bottom_frame @ react-dom-client.development.js:25904
+renderWithHooksAgain @ react-dom-client.development.js:7762
+renderWithHooks @ react-dom-client.development.js:7674
+updateFunctionComponent @ react-dom-client.development.js:10166
+beginWork @ react-dom-client.development.js:11778
+runWithFiberInDEV @ react-dom-client.development.js:871
+performUnitOfWork @ react-dom-client.development.js:17641
+workLoopSync @ react-dom-client.development.js:17469
+renderRootSync @ react-dom-client.development.js:17450
+performWorkOnRoot @ react-dom-client.development.js:16504
+performWorkOnRootViaSchedulerTask @ react-dom-client.development.js:18957
+performWorkUntilDeadline @ scheduler.development.js:45
+<ScriptManager>
+exports.jsxDEV @ react-jsx-dev-runtime.development.js:335
+ProjectDetail @ ProjectDetail.tsx:464
+react_stack_bottom_frame @ react-dom-client.development.js:25904
+renderWithHooksAgain @ react-dom-client.development.js:7762
+renderWithHooks @ react-dom-client.development.js:7674
+updateFunctionComponent @ react-dom-client.development.js:10166
+beginWork @ react-dom-client.development.js:11778
+runWithFiberInDEV @ react-dom-client.development.js:871
+performUnitOfWork @ react-dom-client.development.js:17641
+workLoopSync @ react-dom-client.development.js:17469
+renderRootSync @ react-dom-client.development.js:17450
+performWorkOnRoot @ react-dom-client.development.js:16504
+performWorkOnRootViaSchedulerTask @ react-dom-client.development.js:18957
+performWorkUntilDeadline @ scheduler.development.js:45
+ScriptManager.tsx:622  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+$2baaea4c71418dea$export$294aa081a6c6f55d @ useField.ts:33
+useMultiSelect @ chunk-RLX3CPDX.mjs:54
+useSelect @ chunk-ZO7XS5CB.mjs:149
+Select2 @ chunk-C3QHEOC2.mjs:59
+react_stack_bottom_frame @ react-dom-client.development.js:25904
+renderWithHooks @ react-dom-client.development.js:7662
+updateForwardRef @ react-dom-client.development.js:9724
+beginWork @ react-dom-client.development.js:12117
+runWithFiberInDEV @ react-dom-client.development.js:871
+performUnitOfWork @ react-dom-client.development.js:17641
+workLoopSync @ react-dom-client.development.js:17469
+renderRootSync @ react-dom-client.development.js:17450
+performWorkOnRoot @ react-dom-client.development.js:16504
+performWorkOnRootViaSchedulerTask @ react-dom-client.development.js:18957
+performWorkUntilDeadline @ scheduler.development.js:45
+<ForwardRef(Select2)>
+exports.jsxDEV @ react-jsx-dev-runtime.development.js:335
+ScriptManager @ ScriptManager.tsx:622
+react_stack_bottom_frame @ react-dom-client.development.js:25904
+renderWithHooksAgain @ react-dom-client.development.js:7762
+renderWithHooks @ react-dom-client.development.js:7674
+updateFunctionComponent @ react-dom-client.development.js:10166
+beginWork @ react-dom-client.development.js:11778
+runWithFiberInDEV @ react-dom-client.development.js:871
+performUnitOfWork @ react-dom-client.development.js:17641
+workLoopSync @ react-dom-client.development.js:17469
+renderRootSync @ react-dom-client.development.js:17450
+performWorkOnRoot @ react-dom-client.development.js:16504
+performWorkOnRootViaSchedulerTask @ react-dom-client.development.js:18957
+performWorkUntilDeadline @ scheduler.development.js:45
+ScriptManager.tsx:622  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+$2baaea4c71418dea$export$294aa081a6c6f55d @ useField.ts:33
+useMultiSelect @ chunk-RLX3CPDX.mjs:54
+useSelect @ chunk-ZO7XS5CB.mjs:149
+Select2 @ chunk-C3QHEOC2.mjs:59
+react_stack_bottom_frame @ react-dom-client.development.js:25904
+renderWithHooksAgain @ react-dom-client.development.js:7762
+renderWithHooks @ react-dom-client.development.js:7674
+updateForwardRef @ react-dom-client.development.js:9724
+beginWork @ react-dom-client.development.js:12117
+runWithFiberInDEV @ react-dom-client.development.js:871
+performUnitOfWork @ react-dom-client.development.js:17641
+workLoopSync @ react-dom-client.development.js:17469
+renderRootSync @ react-dom-client.development.js:17450
+performWorkOnRoot @ react-dom-client.development.js:16504
+performWorkOnRootViaSchedulerTask @ react-dom-client.development.js:18957
+performWorkUntilDeadline @ scheduler.development.js:45
+<ForwardRef(Select2)>
+exports.jsxDEV @ react-jsx-dev-runtime.development.js:335
+ScriptManager @ ScriptManager.tsx:622
+react_stack_bottom_frame @ react-dom-client.development.js:25904
+renderWithHooksAgain @ react-dom-client.development.js:7762
+renderWithHooks @ react-dom-client.development.js:7674
+updateFunctionComponent @ react-dom-client.development.js:10166
+beginWork @ react-dom-client.development.js:11778
+runWithFiberInDEV @ react-dom-client.development.js:871
+performUnitOfWork @ react-dom-client.development.js:17641
+workLoopSync @ react-dom-client.development.js:17469
+renderRootSync @ react-dom-client.development.js:17450
+performWorkOnRoot @ react-dom-client.development.js:16504
+performWorkOnRootViaSchedulerTask @ react-dom-client.development.js:18957
+performWorkUntilDeadline @ scheduler.development.js:45
+ScriptManager.tsx:622  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+$2baaea4c71418dea$export$294aa081a6c6f55d @ useField.ts:33
+useMultiSelect @ chunk-RLX3CPDX.mjs:54
+useSelect @ chunk-ZO7XS5CB.mjs:149
+Select2 @ chunk-C3QHEOC2.mjs:59
+react_stack_bottom_frame @ react-dom-client.development.js:25904
+renderWithHooks @ react-dom-client.development.js:7662
+updateForwardRef @ react-dom-client.development.js:9724
+beginWork @ react-dom-client.development.js:12117
+runWithFiberInDEV @ react-dom-client.development.js:871
+performUnitOfWork @ react-dom-client.development.js:17641
+workLoopSync @ react-dom-client.development.js:17469
+renderRootSync @ react-dom-client.development.js:17450
+performWorkOnRoot @ react-dom-client.development.js:16504
+performWorkOnRootViaSchedulerTask @ react-dom-client.development.js:18957
+performWorkUntilDeadline @ scheduler.development.js:45
+<ForwardRef(Select2)>
+exports.jsxDEV @ react-jsx-dev-runtime.development.js:335
+ScriptManager @ ScriptManager.tsx:622
+react_stack_bottom_frame @ react-dom-client.development.js:25904
+renderWithHooksAgain @ react-dom-client.development.js:7762
+renderWithHooks @ react-dom-client.development.js:7674
+updateFunctionComponent @ react-dom-client.development.js:10166
+beginWork @ react-dom-client.development.js:11778
+runWithFiberInDEV @ react-dom-client.development.js:871
+performUnitOfWork @ react-dom-client.development.js:17641
+workLoopSync @ react-dom-client.development.js:17469
+renderRootSync @ react-dom-client.development.js:17450
+performWorkOnRoot @ react-dom-client.development.js:16504
+performWorkOnRootViaSchedulerTask @ react-dom-client.development.js:18957
+performWorkUntilDeadline @ scheduler.development.js:45
+ScriptManager.tsx:622  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+$2baaea4c71418dea$export$294aa081a6c6f55d @ useField.ts:33
+useMultiSelect @ chunk-RLX3CPDX.mjs:54
+useSelect @ chunk-ZO7XS5CB.mjs:149
+Select2 @ chunk-C3QHEOC2.mjs:59
+react_stack_bottom_frame @ react-dom-client.development.js:25904
+renderWithHooksAgain @ react-dom-client.development.js:7762
+renderWithHooks @ react-dom-client.development.js:7674
+updateForwardRef @ react-dom-client.development.js:9724
+beginWork @ react-dom-client.development.js:12117
+runWithFiberInDEV @ react-dom-client.development.js:871
+performUnitOfWork @ react-dom-client.development.js:17641
+workLoopSync @ react-dom-client.development.js:17469
+renderRootSync @ react-dom-client.development.js:17450
+performWorkOnRoot @ react-dom-client.development.js:16504
+performWorkOnRootViaSchedulerTask @ react-dom-client.development.js:18957
+performWorkUntilDeadline @ scheduler.development.js:45
+<ForwardRef(Select2)>
+exports.jsxDEV @ react-jsx-dev-runtime.development.js:335
+ScriptManager @ ScriptManager.tsx:622
+react_stack_bottom_frame @ react-dom-client.development.js:25904
+renderWithHooksAgain @ react-dom-client.development.js:7762
+renderWithHooks @ react-dom-client.development.js:7674
+updateFunctionComponent @ react-dom-client.development.js:10166
+beginWork @ react-dom-client.development.js:11778
+runWithFiberInDEV @ react-dom-client.development.js:871
+performUnitOfWork @ react-dom-client.development.js:17641
+workLoopSync @ react-dom-client.development.js:17469
+renderRootSync @ react-dom-client.development.js:17450
+performWorkOnRoot @ react-dom-client.development.js:16504
+performWorkOnRootViaSchedulerTask @ react-dom-client.development.js:18957
+performWorkUntilDeadline @ scheduler.development.js:45
+已导航到http://localhost:3000/
+client:789 [vite] connecting...
+react-dom-client.development.js:28004 Download the React DevTools for a better development experience: https://react.dev/link/react-devtools
+aiService.ts:68 [AIService] Registered provider: volcengine
+aiService.ts:68 [AIService] Registered provider: vidu
+aiService.ts:68 [AIService] Registered provider: modelscope
+aiService.ts:68 [AIService] Registered provider: llm
+AppContext.tsx:98 [INIT] Redirecting to home from #/project/aeb754ac-15ac-403b-8d78-c790c3424c50
+AppContext.tsx:103 [INIT] Starting App Initialization...
+AppContext.tsx:119 [INIT] Attempting auto-connect...
+AppContext.tsx:103 [INIT] Starting App Initialization...
+AppContext.tsx:119 [INIT] Attempting auto-connect...
+client:912 [vite] connected.
+AppContext.tsx:121 [INIT] autoConnect returned: true
+AppContext.tsx:121 [INIT] autoConnect returned: true
+AppContext.tsx:125 [INIT] Starting smoke test...
 AppContext.tsx:24 [STORAGE] Connection check: Connected=true, Responsive=true
-scriptParser.ts:1108 [ScriptParser] Initialized with config: {useSemanticChunking: true, useDramaRules: true, dramaRulesMinScore: 60, useCache: true, cacheTTL: 3600000, …}
-scriptParser.ts:1121 [ScriptParser] SemanticChunker initialized
-scriptParser.ts:1125 [ScriptParser] ShortDramaRules initialized
-scriptParser.ts:1129 [ScriptParser] MultiLevelCache initialized
-scriptParser.ts:1136 [ScriptParser] QualityAnalyzer initialized
-scriptParser.ts:1140 [ScriptParser] PerformanceMonitor initialized
-scriptParser.ts:1211 [ScriptParser] ContextInjector initialized
-scriptParser.ts:1214 [ScriptParser] Global context support initialized
-scriptParser.ts:1185 [ScriptParser] IterativeRefinementEngine initialized
-scriptParser.ts:1163 [ScriptParser] Budget planner disabled
-ScriptManager.tsx:374 [ScriptManager] v2.0 Parser config: {useSemanticChunking: true, useDramaRules: true, dramaRulesMinScore: 60, useCache: true, cacheTTL: 3600000, …}
-scriptParser.ts:3561 [ScriptParser] ========== Starting Parse Script ==========
-scriptParser.ts:3567 [ScriptParser] Strategy selected: fast
-scriptParser.ts:3568 [ScriptParser] Reason: 短文本快速路径 (293 < 800 字)
-scriptParser.ts:3569 [ScriptParser] Word count: 293
-scriptParser.ts:3570 [ScriptParser] Estimated time: 60s
-scriptParser.ts:3571 [ScriptParser] Recommended batch size: 10
-scriptParser.ts:3587 [ScriptParser] Using FAST PATH (短文本快速路径 (293 < 800 字))
-scriptParser.ts:3588 [ScriptParser] useParallelExtraction: true
-scriptParser.ts:3181 [ScriptParser] ========== Short Text Fast Path (Optimized) ==========
-scriptParser.ts:3182 [ScriptParser] Content length: 345 characters
-scriptParser.ts:1870 [ScriptParser] ========== Stage 1: Extract Metadata (Structured Output) ==========
-scriptParser.ts:1871 [ScriptParser] Content length: 345 characters
-scriptParser.ts:1872 [ScriptParser] Skip global context: true
-scriptParser.ts:1875 [ScriptParser] Prompt length: 1095 characters
-scriptParser.ts:1876 [ScriptParser] Sending structured output request to LLM...
-scriptParser.ts:1673 [ScriptParser] callStructuredLLM called for metadata
-scriptParser.ts:1674 [ScriptParser] API URL: https://api-inference.modelscope.cn/v1
-scriptParser.ts:1675 [ScriptParser] Model: ZhipuAI/GLM-4.7-Flash
-scriptParser.ts:1676 [ScriptParser] Max Tokens: 4000
-scriptParser.ts:1825 [ScriptParser] ========== Extracting Global Context ==========
-scriptParser.ts:1806 [ScriptParser] GlobalContextExtractor initialized with maxTokens: 5000
-scriptParser.ts:1807 [ScriptParser] GlobalContextExtractor config: {extractEmotionalArc: true, textLengthThreshold: 800}
-scriptParser.ts:1810 [ScriptParser] GlobalContextExtractor initialized with model config
-GlobalContextExtractor.ts:179 [GlobalContextExtractor] Starting optimized extraction (single LLM call)...
-LLMProvider.ts:81 [LLMProvider] ========== API Request ==========
-LLMProvider.ts:82 [LLMProvider] Endpoint: https://api-inference.modelscope.cn/v1/chat/completions
-LLMProvider.ts:83 [LLMProvider] Model: ZhipuAI/GLM-4.7-Flash
-LLMProvider.ts:84 [LLMProvider] enable_thinking: false
-LLMProvider.ts:85 [LLMProvider] Temperature: 0.3
-LLMProvider.ts:86 [LLMProvider] Max Tokens: 5000
-LLMProvider.ts:87 [LLMProvider] Messages count: 2
-LLMProvider.ts:88 [LLMProvider] First message length: 48 characters
-LLMProvider.ts:89 [LLMProvider] Request body: {
-  "model": "ZhipuAI/GLM-4.7-Flash",
-  "messages": [
-    {
-      "role": "system",
-      "content": "你是一个专业的剧本分析助手，擅长从小说/剧本中提取结构化信息。请严格按照要求的JSON格式输出。"
-    },
-    {
-      "role": "user",
-      "content": "\n请深入分析以下剧本/小说，一次性提取故事核心、视觉风格和时代背景信息。\n\n【剧本内容】\n大靖王朝，御史大夫沈砚因弹劾丞相谋逆，被诬陷下狱，沈家满门抄斩，独留幼子沈清辞被忠仆所救，隐于民间。十年后，沈清辞化名苏砚，以布衣身份入京城，蛰伏于吏部当差，伺机翻案。\r\n\r\n他聪慧过人，行事低调，很快凭借精准的断案能力得到吏部尚书赏识，却也引起丞相之子萧景渊的注意。萧景渊多疑狠辣，察觉苏砚身份蹊跷，屡次试探刁难，皆被沈清辞巧妙化解。\r\n\r\n一次，萧景渊设计陷害吏部尚书贪腐，欲嫁祸沈清辞。沈清辞早有防备，提前收集萧景渊勾结地方官的证据，借朝会之机，当众呈给皇上。皇上震怒，...
-LLMProvider.ts:91 [LLMProvider] Sending request...
-BaseProvider.ts:63 [BaseProvider] Requesting: https://api-inference.modelscope.cn/v1/chat/completions, Mode: DEV, Localhost: true
-BaseProvider.ts:84 [BaseProvider] Using Proxy: /api/universal-proxy -> https://api-inference.modelscope.cn/v1/chat/completions
-ScriptManager.tsx:618  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-$204d9ebcedfb8806$export$ed5abd763a836edc @ useProgressBar.ts:44
-useProgress @ chunk-MXO63OUV.mjs:41
-HeroUI.Progress @ chunk-VFIJPDYX.mjs:19
-react_stack_bottom_frame @ react-dom-client.development.js:25904
-renderWithHooks @ react-dom-client.development.js:7662
-updateForwardRef @ react-dom-client.development.js:9724
-beginWork @ react-dom-client.development.js:12117
-runWithFiberInDEV @ react-dom-client.development.js:871
-performUnitOfWork @ react-dom-client.development.js:17641
-workLoopSync @ react-dom-client.development.js:17469
-renderRootSync @ react-dom-client.development.js:17450
-performWorkOnRoot @ react-dom-client.development.js:16504
-performSyncWorkOnRoot @ react-dom-client.development.js:18972
-flushSyncWorkAcrossRoots_impl @ react-dom-client.development.js:18814
-processRootScheduleInMicrotask @ react-dom-client.development.js:18853
-(匿名) @ react-dom-client.development.js:18991
-<HeroUI.Progress>
-exports.jsxDEV @ react-jsx-dev-runtime.development.js:335
-ScriptManager @ ScriptManager.tsx:618
-react_stack_bottom_frame @ react-dom-client.development.js:25904
-renderWithHooksAgain @ react-dom-client.development.js:7762
-renderWithHooks @ react-dom-client.development.js:7674
-updateFunctionComponent @ react-dom-client.development.js:10166
-beginWork @ react-dom-client.development.js:11778
-runWithFiberInDEV @ react-dom-client.development.js:871
-performUnitOfWork @ react-dom-client.development.js:17641
-workLoopSync @ react-dom-client.development.js:17469
-renderRootSync @ react-dom-client.development.js:17450
-performWorkOnRoot @ react-dom-client.development.js:16504
-performSyncWorkOnRoot @ react-dom-client.development.js:18972
-flushSyncWorkAcrossRoots_impl @ react-dom-client.development.js:18814
-processRootScheduleInMicrotask @ react-dom-client.development.js:18853
-(匿名) @ react-dom-client.development.js:18991
-ScriptManager.tsx:618  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-$204d9ebcedfb8806$export$ed5abd763a836edc @ useProgressBar.ts:44
-useProgress @ chunk-MXO63OUV.mjs:41
-HeroUI.Progress @ chunk-VFIJPDYX.mjs:19
-react_stack_bottom_frame @ react-dom-client.development.js:25904
-renderWithHooksAgain @ react-dom-client.development.js:7762
-renderWithHooks @ react-dom-client.development.js:7674
-updateForwardRef @ react-dom-client.development.js:9724
-beginWork @ react-dom-client.development.js:12117
-runWithFiberInDEV @ react-dom-client.development.js:871
-performUnitOfWork @ react-dom-client.development.js:17641
-workLoopSync @ react-dom-client.development.js:17469
-renderRootSync @ react-dom-client.development.js:17450
-performWorkOnRoot @ react-dom-client.development.js:16504
-performSyncWorkOnRoot @ react-dom-client.development.js:18972
-flushSyncWorkAcrossRoots_impl @ react-dom-client.development.js:18814
-processRootScheduleInMicrotask @ react-dom-client.development.js:18853
-(匿名) @ react-dom-client.development.js:18991
-<HeroUI.Progress>
-exports.jsxDEV @ react-jsx-dev-runtime.development.js:335
-ScriptManager @ ScriptManager.tsx:618
-react_stack_bottom_frame @ react-dom-client.development.js:25904
-renderWithHooksAgain @ react-dom-client.development.js:7762
-renderWithHooks @ react-dom-client.development.js:7674
-updateFunctionComponent @ react-dom-client.development.js:10166
-beginWork @ react-dom-client.development.js:11778
-runWithFiberInDEV @ react-dom-client.development.js:871
-performUnitOfWork @ react-dom-client.development.js:17641
-workLoopSync @ react-dom-client.development.js:17469
-renderRootSync @ react-dom-client.development.js:17450
-performWorkOnRoot @ react-dom-client.development.js:16504
-performSyncWorkOnRoot @ react-dom-client.development.js:18972
-flushSyncWorkAcrossRoots_impl @ react-dom-client.development.js:18814
-processRootScheduleInMicrotask @ react-dom-client.development.js:18853
-(匿名) @ react-dom-client.development.js:18991
-scriptParser.ts:1702 [ScriptParser] Calling LLMProvider.generateStructured...
-LLMProvider.ts:240 [LLMProvider] ========== Structured Output Request ==========
-LLMProvider.ts:241 [LLMProvider] Endpoint: https://api-inference.modelscope.cn/v1/chat/completions
-LLMProvider.ts:242 [LLMProvider] Model: ZhipuAI/GLM-4.7-Flash
-LLMProvider.ts:243 [LLMProvider] JSON Mode: true
-LLMProvider.ts:245 [LLMProvider] Sending structured output request...
-BaseProvider.ts:63 [BaseProvider] Requesting: https://api-inference.modelscope.cn/v1/chat/completions, Mode: DEV, Localhost: true
-BaseProvider.ts:84 [BaseProvider] Using Proxy: /api/universal-proxy -> https://api-inference.modelscope.cn/v1/chat/completions
-ScriptManager.tsx:618  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-$204d9ebcedfb8806$export$ed5abd763a836edc @ useProgressBar.ts:44
-useProgress @ chunk-MXO63OUV.mjs:41
-HeroUI.Progress @ chunk-VFIJPDYX.mjs:19
-react_stack_bottom_frame @ react-dom-client.development.js:25904
-renderWithHooks @ react-dom-client.development.js:7662
-updateForwardRef @ react-dom-client.development.js:9724
-beginWork @ react-dom-client.development.js:12117
-runWithFiberInDEV @ react-dom-client.development.js:871
-performUnitOfWork @ react-dom-client.development.js:17641
-workLoopSync @ react-dom-client.development.js:17469
-renderRootSync @ react-dom-client.development.js:17450
-performWorkOnRoot @ react-dom-client.development.js:16504
-performWorkOnRootViaSchedulerTask @ react-dom-client.development.js:18957
-performWorkUntilDeadline @ scheduler.development.js:45
-<HeroUI.Progress>
-exports.jsxDEV @ react-jsx-dev-runtime.development.js:335
-ScriptManager @ ScriptManager.tsx:618
-react_stack_bottom_frame @ react-dom-client.development.js:25904
-renderWithHooksAgain @ react-dom-client.development.js:7762
-renderWithHooks @ react-dom-client.development.js:7674
-updateFunctionComponent @ react-dom-client.development.js:10166
-beginWork @ react-dom-client.development.js:11778
-runWithFiberInDEV @ react-dom-client.development.js:871
-performUnitOfWork @ react-dom-client.development.js:17641
-workLoopSync @ react-dom-client.development.js:17469
-renderRootSync @ react-dom-client.development.js:17450
-performWorkOnRoot @ react-dom-client.development.js:16504
-performSyncWorkOnRoot @ react-dom-client.development.js:18972
-flushSyncWorkAcrossRoots_impl @ react-dom-client.development.js:18814
-processRootScheduleInMicrotask @ react-dom-client.development.js:18853
-(匿名) @ react-dom-client.development.js:18991
-ScriptManager.tsx:618  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
-$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
-$204d9ebcedfb8806$export$ed5abd763a836edc @ useProgressBar.ts:44
-useProgress @ chunk-MXO63OUV.mjs:41
-HeroUI.Progress @ chunk-VFIJPDYX.mjs:19
-react_stack_bottom_frame @ react-dom-client.development.js:25904
-renderWithHooksAgain @ react-dom-client.development.js:7762
-renderWithHooks @ react-dom-client.development.js:7674
-updateForwardRef @ react-dom-client.development.js:9724
-beginWork @ react-dom-client.development.js:12117
-runWithFiberInDEV @ react-dom-client.development.js:871
-performUnitOfWork @ react-dom-client.development.js:17641
-workLoopSync @ react-dom-client.development.js:17469
-renderRootSync @ react-dom-client.development.js:17450
-performWorkOnRoot @ react-dom-client.development.js:16504
-performWorkOnRootViaSchedulerTask @ react-dom-client.development.js:18957
-performWorkUntilDeadline @ scheduler.development.js:45
-<HeroUI.Progress>
-exports.jsxDEV @ react-jsx-dev-runtime.development.js:335
-ScriptManager @ ScriptManager.tsx:618
-react_stack_bottom_frame @ react-dom-client.development.js:25904
-renderWithHooksAgain @ react-dom-client.development.js:7762
-renderWithHooks @ react-dom-client.development.js:7674
-updateFunctionComponent @ react-dom-client.development.js:10166
-beginWork @ react-dom-client.development.js:11778
-runWithFiberInDEV @ react-dom-client.development.js:871
-performUnitOfWork @ react-dom-client.development.js:17641
-workLoopSync @ react-dom-client.development.js:17469
-renderRootSync @ react-dom-client.development.js:17450
-performWorkOnRoot @ react-dom-client.development.js:16504
-performSyncWorkOnRoot @ react-dom-client.development.js:18972
-flushSyncWorkAcrossRoots_impl @ react-dom-client.development.js:18814
-processRootScheduleInMicrotask @ react-dom-client.development.js:18853
-(匿名) @ react-dom-client.development.js:18991
-BaseProvider.ts:85   POST http://localhost:3000/api/universal-proxy 429 (Too Many Requests)
-makeRequest @ BaseProvider.ts:85
-generateStructured @ LLMProvider.ts:248
-callStructuredLLM @ scriptParser.ts:1703
-await in callStructuredLLM
-extractMetadata @ scriptParser.ts:1879
-parseShortScriptOptimized @ scriptParser.ts:3194
-parseScript @ scriptParser.ts:3594
-handleParseScript @ ScriptManager.tsx:390
-handleParseWithIntent @ ScriptManager.tsx:312
-(匿名) @ index.mjs:362
-(匿名) @ usePress.ts:249
-onClick @ usePress.ts:548
-executeDispatch @ react-dom-client.development.js:19116
-runWithFiberInDEV @ react-dom-client.development.js:871
-processDispatchQueue @ react-dom-client.development.js:19166
-(匿名) @ react-dom-client.development.js:19767
-batchedUpdates$1 @ react-dom-client.development.js:3255
-dispatchEventForPluginEventSystem @ react-dom-client.development.js:19320
-dispatchEvent @ react-dom-client.development.js:23585
-dispatchDiscreteEvent @ react-dom-client.development.js:23553
-BaseProvider.ts:99 [BaseProvider] Response received: 429 Too Many Requests
-LLMProvider.ts:258 [LLMProvider] Structured request completed in 1319ms
-LLMProvider.ts:262  [LLMProvider] API Error: 429 - {"error":{"code":"1302","message":"您的账户已达到速率限制，请您控制请求频率"},"request_id":"08ce533c-be63-4e0c-b659-142cd7e4e80d"}
-generateStructured @ LLMProvider.ts:262
-await in generateStructured
-callStructuredLLM @ scriptParser.ts:1703
-await in callStructuredLLM
-extractMetadata @ scriptParser.ts:1879
-parseShortScriptOptimized @ scriptParser.ts:3194
-parseScript @ scriptParser.ts:3594
-handleParseScript @ ScriptManager.tsx:390
-handleParseWithIntent @ ScriptManager.tsx:312
-(匿名) @ index.mjs:362
-(匿名) @ usePress.ts:249
-onClick @ usePress.ts:548
-executeDispatch @ react-dom-client.development.js:19116
-runWithFiberInDEV @ react-dom-client.development.js:871
-processDispatchQueue @ react-dom-client.development.js:19166
-(匿名) @ react-dom-client.development.js:19767
-batchedUpdates$1 @ react-dom-client.development.js:3255
-dispatchEventForPluginEventSystem @ react-dom-client.development.js:19320
-dispatchEvent @ react-dom-client.development.js:23585
-dispatchDiscreteEvent @ react-dom-client.development.js:23553
-BaseProvider.ts:85   POST http://localhost:3000/api/universal-proxy 429 (Too Many Requests)
-makeRequest @ BaseProvider.ts:85
-generateText @ LLMProvider.ts:94
-extractUnifiedContext @ GlobalContextExtractor.ts:285
-extract @ GlobalContextExtractor.ts:184
-extractGlobalContext @ scriptParser.ts:1836
-parseShortScriptOptimized @ scriptParser.ts:3195
-parseScript @ scriptParser.ts:3594
-handleParseScript @ ScriptManager.tsx:390
-handleParseWithIntent @ ScriptManager.tsx:312
-(匿名) @ index.mjs:362
-(匿名) @ usePress.ts:249
-onClick @ usePress.ts:548
-executeDispatch @ react-dom-client.development.js:19116
-runWithFiberInDEV @ react-dom-client.development.js:871
-processDispatchQueue @ react-dom-client.development.js:19166
-(匿名) @ react-dom-client.development.js:19767
-batchedUpdates$1 @ react-dom-client.development.js:3255
-dispatchEventForPluginEventSystem @ react-dom-client.development.js:19320
-dispatchEvent @ react-dom-client.development.js:23585
-dispatchDiscreteEvent @ react-dom-client.development.js:23553
-BaseProvider.ts:99 [BaseProvider] Response received: 429 Too Many Requests
-LLMProvider.ts:104 [LLMProvider] Request completed in 1363ms
-LLMProvider.ts:108  [LLMProvider] API Error: 429 - {"error":{"code":"1302","message":"您的账户已达到速率限制，请您控制请求频率"},"request_id":"39093adf-05b2-4657-a78c-80a8e17ad3ac"}
-generateText @ LLMProvider.ts:108
-await in generateText
-extractUnifiedContext @ GlobalContextExtractor.ts:285
-extract @ GlobalContextExtractor.ts:184
-extractGlobalContext @ scriptParser.ts:1836
-parseShortScriptOptimized @ scriptParser.ts:3195
-parseScript @ scriptParser.ts:3594
-handleParseScript @ ScriptManager.tsx:390
-handleParseWithIntent @ ScriptManager.tsx:312
-(匿名) @ index.mjs:362
-(匿名) @ usePress.ts:249
-onClick @ usePress.ts:548
-executeDispatch @ react-dom-client.development.js:19116
-runWithFiberInDEV @ react-dom-client.development.js:871
-processDispatchQueue @ react-dom-client.development.js:19166
-(匿名) @ react-dom-client.development.js:19767
-batchedUpdates$1 @ react-dom-client.development.js:3255
-dispatchEventForPluginEventSystem @ react-dom-client.development.js:19320
-dispatchEvent @ react-dom-client.development.js:23585
-dispatchDiscreteEvent @ react-dom-client.development.js:23553
-GlobalContextExtractor.ts:220  [GlobalContextExtractor] Unified extraction failed, falling back to parallel extraction: Error: Failed to extract unified context: API Error: 429 - {"error":{"code":"1302","message":"您的账户已达到速率限制，请您控制请求频率"},"request_id":"39093adf-05b2-4657-a78c-80a8e17ad3ac"}
-    at GlobalContextExtractor.extractUnifiedContext (GlobalContextExtractor.ts:292:13)
-    at async GlobalContextExtractor.extract (GlobalContextExtractor.ts:184:30)
-    at async ScriptParser.extractGlobalContext (scriptParser.ts:1836:28)
-    at async Promise.all (:3000/index 1)
-extract @ GlobalContextExtractor.ts:220
-await in extract
-extractGlobalContext @ scriptParser.ts:1836
-parseShortScriptOptimized @ scriptParser.ts:3195
-parseScript @ scriptParser.ts:3594
-handleParseScript @ ScriptManager.tsx:390
-handleParseWithIntent @ ScriptManager.tsx:312
-(匿名) @ index.mjs:362
-(匿名) @ usePress.ts:249
-onClick @ usePress.ts:548
-executeDispatch @ react-dom-client.development.js:19116
-runWithFiberInDEV @ react-dom-client.development.js:871
-processDispatchQueue @ react-dom-client.development.js:19166
-(匿名) @ react-dom-client.development.js:19767
-batchedUpdates$1 @ react-dom-client.development.js:3255
-dispatchEventForPluginEventSystem @ react-dom-client.development.js:19320
-dispatchEvent @ react-dom-client.development.js:23585
-dispatchDiscreteEvent @ react-dom-client.development.js:23553
-GlobalContextExtractor.ts:373 [GlobalContextExtractor] Falling back to parallel extraction...
-LLMProvider.ts:81 [LLMProvider] ========== API Request ==========
-LLMProvider.ts:82 [LLMProvider] Endpoint: https://api-inference.modelscope.cn/v1/chat/completions
-LLMProvider.ts:83 [LLMProvider] Model: ZhipuAI/GLM-4.7-Flash
-LLMProvider.ts:84 [LLMProvider] enable_thinking: false
-LLMProvider.ts:85 [LLMProvider] Temperature: 0.3
-LLMProvider.ts:86 [LLMProvider] Max Tokens: 5000
-LLMProvider.ts:87 [LLMProvider] Messages count: 2
-LLMProvider.ts:88 [LLMProvider] First message length: 48 characters
-LLMProvider.ts:89 [LLMProvider] Request body: {
-  "model": "ZhipuAI/GLM-4.7-Flash",
-  "messages": [
-    {
-      "role": "system",
-      "content": "你是一个专业的剧本分析助手，擅长从小说/剧本中提取结构化信息。请严格按照要求的JSON格式输出。"
-    },
-    {
-      "role": "user",
-      "content": "\n请深入分析以下剧本/小说的故事核心：\n\n【剧本内容】\n大靖王朝，御史大夫沈砚因弹劾丞相谋逆，被诬陷下狱，沈家满门抄斩，独留幼子沈清辞被忠仆所救，隐于民间。十年后，沈清辞化名苏砚，以布衣身份入京城，蛰伏于吏部当差，伺机翻案。\r\n\r\n他聪慧过人，行事低调，很快凭借精准的断案能力得到吏部尚书赏识，却也引起丞相之子萧景渊的注意。萧景渊多疑狠辣，察觉苏砚身份蹊跷，屡次试探刁难，皆被沈清辞巧妙化解。\r\n\r\n一次，萧景渊设计陷害吏部尚书贪腐，欲嫁祸沈清辞。沈清辞早有防备，提前收集萧景渊勾结地方官的证据，借朝会之机，当众呈给皇上。皇上震怒，下令彻查丞相一党。\r\n\r\n...
-LLMProvider.ts:91 [LLMProvider] Sending request...
-BaseProvider.ts:63 [BaseProvider] Requesting: https://api-inference.modelscope.cn/v1/chat/completions, Mode: DEV, Localhost: true
-BaseProvider.ts:84 [BaseProvider] Using Proxy: /api/universal-proxy -> https://api-inference.modelscope.cn/v1/chat/completions
-提取 加载失败:POST "<URL>".
-提取 加载失败:POST "<URL>".
-提取 加载失败:POST "<URL>".
-提取 加载失败:POST "<URL>".
-提取 加载失败:POST "<URL>".
-BaseProvider.ts:85   POST http://localhost:3000/api/universal-proxy 429 (Too Many Requests)
-makeRequest @ BaseProvider.ts:85
-generateText @ LLMProvider.ts:94
-extractStoryContext @ GlobalContextExtractor.ts:454
-extractParallel @ GlobalContextExtractor.ts:376
-extract @ GlobalContextExtractor.ts:223
-await in extract
-extractGlobalContext @ scriptParser.ts:1836
-parseShortScriptOptimized @ scriptParser.ts:3195
-parseScript @ scriptParser.ts:3594
-handleParseScript @ ScriptManager.tsx:390
-handleParseWithIntent @ ScriptManager.tsx:312
-(匿名) @ index.mjs:362
-(匿名) @ usePress.ts:249
-onClick @ usePress.ts:548
-executeDispatch @ react-dom-client.development.js:19116
-runWithFiberInDEV @ react-dom-client.development.js:871
-processDispatchQueue @ react-dom-client.development.js:19166
-(匿名) @ react-dom-client.development.js:19767
-batchedUpdates$1 @ react-dom-client.development.js:3255
-dispatchEventForPluginEventSystem @ react-dom-client.development.js:19320
-dispatchEvent @ react-dom-client.development.js:23585
-dispatchDiscreteEvent @ react-dom-client.development.js:23553
-BaseProvider.ts:99 [BaseProvider] Response received: 429 Too Many Requests
-LLMProvider.ts:104 [LLMProvider] Request completed in 85ms
-LLMProvider.ts:108  [LLMProvider] API Error: 429 - {"errors":{"message":"We have to rate limit you for model ZhipuAI/GLM-4.7-Flash. If you need higher limits, please consider other (commercial) API providers.","request_id":"8a54aa1f-b0d7-46b1-95bc-5f0bc16e808c"}}
-generateText @ LLMProvider.ts:108
-await in generateText
-extractStoryContext @ GlobalContextExtractor.ts:454
-extractParallel @ GlobalContextExtractor.ts:376
-extract @ GlobalContextExtractor.ts:223
-await in extract
-extractGlobalContext @ scriptParser.ts:1836
-parseShortScriptOptimized @ scriptParser.ts:3195
-parseScript @ scriptParser.ts:3594
-handleParseScript @ ScriptManager.tsx:390
-handleParseWithIntent @ ScriptManager.tsx:312
-(匿名) @ index.mjs:362
-(匿名) @ usePress.ts:249
-onClick @ usePress.ts:548
-executeDispatch @ react-dom-client.development.js:19116
-runWithFiberInDEV @ react-dom-client.development.js:871
-processDispatchQueue @ react-dom-client.development.js:19166
-(匿名) @ react-dom-client.development.js:19767
-batchedUpdates$1 @ react-dom-client.development.js:3255
-dispatchEventForPluginEventSystem @ react-dom-client.development.js:19320
-dispatchEvent @ react-dom-client.development.js:23585
-dispatchDiscreteEvent @ react-dom-client.development.js:23553
-GlobalContextExtractor.ts:490  Error extracting story context: Error: Failed to extract story context: API Error: 429 - {"errors":{"message":"We have to rate limit you for model ZhipuAI/GLM-4.7-Flash. If you need higher limits, please consider other (commercial) API providers.","request_id":"8a54aa1f-b0d7-46b1-95bc-5f0bc16e808c"}}
-    at GlobalContextExtractor.extractStoryContext (GlobalContextExtractor.ts:461:15)
-    at async GlobalContextExtractor.extractParallel (GlobalContextExtractor.ts:376:26)
-    at async ScriptParser.extractGlobalContext (scriptParser.ts:1836:28)
-    at async Promise.all (:3000/index 1)
-extractStoryContext @ GlobalContextExtractor.ts:490
-await in extractStoryContext
-extractParallel @ GlobalContextExtractor.ts:376
-extract @ GlobalContextExtractor.ts:223
-await in extract
-extractGlobalContext @ scriptParser.ts:1836
-parseShortScriptOptimized @ scriptParser.ts:3195
-parseScript @ scriptParser.ts:3594
-handleParseScript @ ScriptManager.tsx:390
-handleParseWithIntent @ ScriptManager.tsx:312
-(匿名) @ index.mjs:362
-(匿名) @ usePress.ts:249
-onClick @ usePress.ts:548
-executeDispatch @ react-dom-client.development.js:19116
-runWithFiberInDEV @ react-dom-client.development.js:871
-processDispatchQueue @ react-dom-client.development.js:19166
-(匿名) @ react-dom-client.development.js:19767
-batchedUpdates$1 @ react-dom-client.development.js:3255
-dispatchEventForPluginEventSystem @ react-dom-client.development.js:19320
-dispatchEvent @ react-dom-client.development.js:23585
-dispatchDiscreteEvent @ react-dom-client.development.js:23553
-LLMProvider.ts:81 [LLMProvider] ========== API Request ==========
-LLMProvider.ts:82 [LLMProvider] Endpoint: https://api-inference.modelscope.cn/v1/chat/completions
-LLMProvider.ts:83 [LLMProvider] Model: ZhipuAI/GLM-4.7-Flash
-LLMProvider.ts:84 [LLMProvider] enable_thinking: false
-LLMProvider.ts:85 [LLMProvider] Temperature: 0.3
-LLMProvider.ts:86 [LLMProvider] Max Tokens: 5000
-LLMProvider.ts:87 [LLMProvider] Messages count: 2
-LLMProvider.ts:88 [LLMProvider] First message length: 51 characters
-LLMProvider.ts:89 [LLMProvider] Request body: {
-  "model": "ZhipuAI/GLM-4.7-Flash",
-  "messages": [
-    {
-      "role": "system",
-      "content": "你是一个专业的视觉风格分析助手，擅长从剧本中提取视觉和美术风格信息。请严格按照要求的JSON格式输出。"
-    },
-    {
-      "role": "user",
-      "content": "\n基于以下故事信息，分析视觉风格：\n\n【故事梗概】\n\n\n【核心冲突】\n\n\n【剧本片段】\n大靖王朝，御史大夫沈砚因弹劾丞相谋逆，被诬陷下狱，沈家满门抄斩，独留幼子沈清辞被忠仆所救，隐于民间。十年后，沈清辞化名苏砚，以布衣身份入京城，蛰伏于吏部当差，伺机翻案。\r\n\r\n他聪慧过人，行事低调，很快凭借精准的断案能力得到吏部尚书赏识，却也引起丞相之子萧景渊的注意。萧景渊多疑狠辣，察觉苏砚身份蹊跷，屡次试探刁难，皆被沈清辞巧妙化解。\r\n\r\n一次，萧景渊设计陷害吏部尚书贪腐，欲嫁祸沈清辞。沈清辞早有防备，提前收集萧景渊勾结地方官的证据，借朝会之机，当众呈给...
-LLMProvider.ts:91 [LLMProvider] Sending request...
-BaseProvider.ts:63 [BaseProvider] Requesting: https://api-inference.modelscope.cn/v1/chat/completions, Mode: DEV, Localhost: true
-BaseProvider.ts:84 [BaseProvider] Using Proxy: /api/universal-proxy -> https://api-inference.modelscope.cn/v1/chat/completions
-BaseProvider.ts:85   POST http://localhost:3000/api/universal-proxy 429 (Too Many Requests)
-makeRequest @ BaseProvider.ts:85
-generateText @ LLMProvider.ts:94
-extractVisualContext @ GlobalContextExtractor.ts:548
-extractParallel @ GlobalContextExtractor.ts:379
-await in extractParallel
-extract @ GlobalContextExtractor.ts:223
-await in extract
-extractGlobalContext @ scriptParser.ts:1836
-parseShortScriptOptimized @ scriptParser.ts:3195
-parseScript @ scriptParser.ts:3594
-handleParseScript @ ScriptManager.tsx:390
-handleParseWithIntent @ ScriptManager.tsx:312
-(匿名) @ index.mjs:362
-(匿名) @ usePress.ts:249
-onClick @ usePress.ts:548
-executeDispatch @ react-dom-client.development.js:19116
-runWithFiberInDEV @ react-dom-client.development.js:871
-processDispatchQueue @ react-dom-client.development.js:19166
-(匿名) @ react-dom-client.development.js:19767
-batchedUpdates$1 @ react-dom-client.development.js:3255
-dispatchEventForPluginEventSystem @ react-dom-client.development.js:19320
-dispatchEvent @ react-dom-client.development.js:23585
-dispatchDiscreteEvent @ react-dom-client.development.js:23553
-BaseProvider.ts:99 [BaseProvider] Response received: 429 Too Many Requests
-LLMProvider.ts:104 [LLMProvider] Request completed in 57ms
-LLMProvider.ts:108  [LLMProvider] API Error: 429 - {"errors":{"message":"We have to rate limit you for model ZhipuAI/GLM-4.7-Flash. If you need higher limits, please consider other (commercial) API providers.","request_id":"86461b8d-de88-420a-a04e-85fed7b56e51"}}
-generateText @ LLMProvider.ts:108
-await in generateText
-extractVisualContext @ GlobalContextExtractor.ts:548
-extractParallel @ GlobalContextExtractor.ts:379
-await in extractParallel
-extract @ GlobalContextExtractor.ts:223
-await in extract
-extractGlobalContext @ scriptParser.ts:1836
-parseShortScriptOptimized @ scriptParser.ts:3195
-parseScript @ scriptParser.ts:3594
-handleParseScript @ ScriptManager.tsx:390
-handleParseWithIntent @ ScriptManager.tsx:312
-(匿名) @ index.mjs:362
-(匿名) @ usePress.ts:249
-onClick @ usePress.ts:548
-executeDispatch @ react-dom-client.development.js:19116
-runWithFiberInDEV @ react-dom-client.development.js:871
-processDispatchQueue @ react-dom-client.development.js:19166
-(匿名) @ react-dom-client.development.js:19767
-batchedUpdates$1 @ react-dom-client.development.js:3255
-dispatchEventForPluginEventSystem @ react-dom-client.development.js:19320
-dispatchEvent @ react-dom-client.development.js:23585
-dispatchDiscreteEvent @ react-dom-client.development.js:23553
-GlobalContextExtractor.ts:600  Error extracting visual context: Error: Failed to extract visual context: API Error: 429 - {"errors":{"message":"We have to rate limit you for model ZhipuAI/GLM-4.7-Flash. If you need higher limits, please consider other (commercial) API providers.","request_id":"86461b8d-de88-420a-a04e-85fed7b56e51"}}
-    at GlobalContextExtractor.extractVisualContext (GlobalContextExtractor.ts:555:15)
-    at async GlobalContextExtractor.extractParallel (GlobalContextExtractor.ts:379:27)
-    at async ScriptParser.extractGlobalContext (scriptParser.ts:1836:28)
-    at async Promise.all (:3000/index 1)
-extractVisualContext @ GlobalContextExtractor.ts:600
-await in extractVisualContext
-extractParallel @ GlobalContextExtractor.ts:379
-await in extractParallel
-extract @ GlobalContextExtractor.ts:223
-await in extract
-extractGlobalContext @ scriptParser.ts:1836
-parseShortScriptOptimized @ scriptParser.ts:3195
-parseScript @ scriptParser.ts:3594
-handleParseScript @ ScriptManager.tsx:390
-handleParseWithIntent @ ScriptManager.tsx:312
-(匿名) @ index.mjs:362
-(匿名) @ usePress.ts:249
-onClick @ usePress.ts:548
-executeDispatch @ react-dom-client.development.js:19116
-runWithFiberInDEV @ react-dom-client.development.js:871
-processDispatchQueue @ react-dom-client.development.js:19166
-(匿名) @ react-dom-client.development.js:19767
-batchedUpdates$1 @ react-dom-client.development.js:3255
-dispatchEventForPluginEventSystem @ react-dom-client.development.js:19320
-dispatchEvent @ react-dom-client.development.js:23585
-dispatchDiscreteEvent @ react-dom-client.development.js:23553
-LLMProvider.ts:81 [LLMProvider] ========== API Request ==========
-LLMProvider.ts:82 [LLMProvider] Endpoint: https://api-inference.modelscope.cn/v1/chat/completions
-LLMProvider.ts:83 [LLMProvider] Model: ZhipuAI/GLM-4.7-Flash
-LLMProvider.ts:84 [LLMProvider] enable_thinking: false
-LLMProvider.ts:85 [LLMProvider] Temperature: 0.3
-LLMProvider.ts:86 [LLMProvider] Max Tokens: 5000
-LLMProvider.ts:87 [LLMProvider] Messages count: 2
-LLMProvider.ts:88 [LLMProvider] First message length: 51 characters
-LLMProvider.ts:89 [LLMProvider] Request body: {
-  "model": "ZhipuAI/GLM-4.7-Flash",
-  "messages": [
-    {
-      "role": "system",
-      "content": "你是一个专业的时代背景分析助手，擅长从剧本中提取时代和地理背景信息。请严格按照要求的JSON格式输出。"
-    },
-    {
-      "role": "user",
-      "content": "\n请分析以下剧本的时代背景：\n\n【剧本内容】\n大靖王朝，御史大夫沈砚因弹劾丞相谋逆，被诬陷下狱，沈家满门抄斩，独留幼子沈清辞被忠仆所救，隐于民间。十年后，沈清辞化名苏砚，以布衣身份入京城，蛰伏于吏部当差，伺机翻案。\r\n\r\n他聪慧过人，行事低调，很快凭借精准的断案能力得到吏部尚书赏识，却也引起丞相之子萧景渊的注意。萧景渊多疑狠辣，察觉苏砚身份蹊跷，屡次试探刁难，皆被沈清辞巧妙化解。\r\n\r\n一次，萧景渊设计陷害吏部尚书贪腐，欲嫁祸沈清辞。沈清辞早有防备，提前收集萧景渊勾结地方官的证据，借朝会之机，当众呈给皇上。皇上震怒，下令彻查丞相一党。\r\n\r\n沈清...
-LLMProvider.ts:91 [LLMProvider] Sending request...
-BaseProvider.ts:63 [BaseProvider] Requesting: https://api-inference.modelscope.cn/v1/chat/completions, Mode: DEV, Localhost: true
-BaseProvider.ts:84 [BaseProvider] Using Proxy: /api/universal-proxy -> https://api-inference.modelscope.cn/v1/chat/completions
-BaseProvider.ts:85   POST http://localhost:3000/api/universal-proxy 429 (Too Many Requests)
-makeRequest @ BaseProvider.ts:85
-generateText @ LLMProvider.ts:94
-extractEraContext @ GlobalContextExtractor.ts:644
-extractParallel @ GlobalContextExtractor.ts:382
-await in extractParallel
-extract @ GlobalContextExtractor.ts:223
-await in extract
-extractGlobalContext @ scriptParser.ts:1836
-parseShortScriptOptimized @ scriptParser.ts:3195
-parseScript @ scriptParser.ts:3594
-handleParseScript @ ScriptManager.tsx:390
-handleParseWithIntent @ ScriptManager.tsx:312
-(匿名) @ index.mjs:362
-(匿名) @ usePress.ts:249
-onClick @ usePress.ts:548
-executeDispatch @ react-dom-client.development.js:19116
-runWithFiberInDEV @ react-dom-client.development.js:871
-processDispatchQueue @ react-dom-client.development.js:19166
-(匿名) @ react-dom-client.development.js:19767
-batchedUpdates$1 @ react-dom-client.development.js:3255
-dispatchEventForPluginEventSystem @ react-dom-client.development.js:19320
-dispatchEvent @ react-dom-client.development.js:23585
-dispatchDiscreteEvent @ react-dom-client.development.js:23553
-BaseProvider.ts:99 [BaseProvider] Response received: 429 Too Many Requests
-LLMProvider.ts:104 [LLMProvider] Request completed in 67ms
-LLMProvider.ts:108  [LLMProvider] API Error: 429 - {"errors":{"message":"We have to rate limit you for model ZhipuAI/GLM-4.7-Flash. If you need higher limits, please consider other (commercial) API providers.","request_id":"09f111be-74d6-4164-82a4-792df056347d"}}
-generateText @ LLMProvider.ts:108
-await in generateText
-extractEraContext @ GlobalContextExtractor.ts:644
-extractParallel @ GlobalContextExtractor.ts:382
-await in extractParallel
-extract @ GlobalContextExtractor.ts:223
-await in extract
-extractGlobalContext @ scriptParser.ts:1836
-parseShortScriptOptimized @ scriptParser.ts:3195
-parseScript @ scriptParser.ts:3594
-handleParseScript @ ScriptManager.tsx:390
-handleParseWithIntent @ ScriptManager.tsx:312
-(匿名) @ index.mjs:362
-(匿名) @ usePress.ts:249
-onClick @ usePress.ts:548
-executeDispatch @ react-dom-client.development.js:19116
-runWithFiberInDEV @ react-dom-client.development.js:871
-processDispatchQueue @ react-dom-client.development.js:19166
-(匿名) @ react-dom-client.development.js:19767
-batchedUpdates$1 @ react-dom-client.development.js:3255
-dispatchEventForPluginEventSystem @ react-dom-client.development.js:19320
-dispatchEvent @ react-dom-client.development.js:23585
-dispatchDiscreteEvent @ react-dom-client.development.js:23553
-GlobalContextExtractor.ts:678  Error extracting era context: Error: Failed to extract era context: API Error: 429 - {"errors":{"message":"We have to rate limit you for model ZhipuAI/GLM-4.7-Flash. If you need higher limits, please consider other (commercial) API providers.","request_id":"09f111be-74d6-4164-82a4-792df056347d"}}
-    at GlobalContextExtractor.extractEraContext (GlobalContextExtractor.ts:651:15)
-    at async GlobalContextExtractor.extractParallel (GlobalContextExtractor.ts:382:24)
-    at async ScriptParser.extractGlobalContext (scriptParser.ts:1836:28)
-    at async Promise.all (:3000/index 1)
-extractEraContext @ GlobalContextExtractor.ts:678
-await in extractEraContext
-extractParallel @ GlobalContextExtractor.ts:382
-await in extractParallel
-extract @ GlobalContextExtractor.ts:223
-await in extract
-extractGlobalContext @ scriptParser.ts:1836
-parseShortScriptOptimized @ scriptParser.ts:3195
-parseScript @ scriptParser.ts:3594
-handleParseScript @ ScriptManager.tsx:390
-handleParseWithIntent @ ScriptManager.tsx:312
-(匿名) @ index.mjs:362
-(匿名) @ usePress.ts:249
-onClick @ usePress.ts:548
-executeDispatch @ react-dom-client.development.js:19116
-runWithFiberInDEV @ react-dom-client.development.js:871
-processDispatchQueue @ react-dom-client.development.js:19166
-(匿名) @ react-dom-client.development.js:19767
-batchedUpdates$1 @ react-dom-client.development.js:3255
-dispatchEventForPluginEventSystem @ react-dom-client.development.js:19320
-dispatchEvent @ react-dom-client.development.js:23585
-dispatchDiscreteEvent @ react-dom-client.development.js:23553
-GlobalContextExtractor.ts:393 [GlobalContextExtractor] Parallel extraction: skipping emotional arc (content length: 345)
-GlobalContextExtractor.ts:404 [GlobalContextExtractor] Parallel extraction completed in 1576ms
-scriptParser.ts:1838 [ScriptParser] Global context extracted successfully:
-scriptParser.ts:1839   - Story synopsis: ...
-scriptParser.ts:1840   - Visual style: 
-scriptParser.ts:1841   - Era: 现代
-scriptParser.ts:1842   - Emotional arc points: 0
-scriptParser.ts:1843   - Consistency rules: 0 era constraints
-MultiLevelCache.ts:443 [MultiLevelCache] Cleanup completed
+AppContext.tsx:132 [INIT] Smoke test complete.
+AppContext.tsx:147 [INIT] Initialization complete. FS Responsive: true, Connected: true, Elapsed: 503ms
+App.tsx:33 [APP] Triggering jobQueue.loadQueue()...
+App.tsx:33 [APP] Triggering jobQueue.loadQueue()...
+AppContext.tsx:24 [STORAGE] Connection check: Connected=true, Responsive=true
+AppContext.tsx:24 [STORAGE] Connection check: Connected=true, Responsive=true
+AppContext.tsx:24 [STORAGE] Connection check: Connected=true, Responsive=true
+AppContext.tsx:24 [STORAGE] Connection check: Connected=true, Responsive=true

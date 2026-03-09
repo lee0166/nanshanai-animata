@@ -670,8 +670,10 @@ export class StorageService {
 
   private async readJson<T>(filename: string): Promise<T | null> {
     const start = performance.now();
+    console.log(`[STORAGE] readJson called: ${filename}`);
 
     if (!this.directoryHandle || !this.isFsResponsive) {
+      console.log(`[STORAGE] Cannot read ${filename}: directoryHandle=${!!this.directoryHandle}, isFsResponsive=${this.isFsResponsive}`);
       return null;
     }
 
@@ -684,6 +686,7 @@ export class StorageService {
 
       try {
         const handle = await this.getFileHandle(filename);
+        console.log(`[STORAGE] getFileHandle result for ${filename}:`, handle ? 'found' : 'not found');
         if (handle) {
           const file = await handle.getFile();
           const text = await file.text();
@@ -691,16 +694,16 @@ export class StorageService {
           
           clearTimeout(timeout);
           const duration = performance.now() - start;
-          if (duration > 100) {
-              console.log(`[STORAGE] Slow FileSystem read: ${filename} took ${duration.toFixed(2)}ms`);
-          }
+          console.log(`[STORAGE] Successfully read ${filename}: ${text.length} chars, ${duration.toFixed(2)}ms`);
           resolve(data);
         } else {
           clearTimeout(timeout);
+          console.log(`[STORAGE] File not found: ${filename}`);
           resolve(null);
         }
       } catch (e) {
         clearTimeout(timeout);
+        console.error(`[STORAGE] Error reading ${filename}:`, e);
         resolve(null);
       }
     });
@@ -1080,7 +1083,11 @@ export class StorageService {
   // --- Script Management ---
 
   async getScripts(projectId: string): Promise<Script[]> {
-    const data = await this.readJson<Script[]>(`scripts_${projectId}.json`);
+    const filename = `scripts_${projectId}.json`;
+    console.log('[Storage] getScripts called, projectId:', projectId);
+    console.log('[Storage] Reading file:', filename);
+    const data = await this.readJson<Script[]>(filename);
+    console.log('[Storage] Read result:', data ? `Found ${data.length} scripts` : 'No data');
     return data || [];
   }
 

@@ -156,17 +156,24 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
   }, [currentScript]);
 
   const loadScripts = async () => {
-    if (!projectId) return;
+    console.log('[ScriptManager] loadScripts called, projectId:', projectId);
+    if (!projectId) {
+      console.log('[ScriptManager] No projectId, skipping');
+      return;
+    }
     
     // 2.0: 检查存储连接状态
     const connected = await checkConnection();
+    console.log('[ScriptManager] Connection check:', connected);
     if (!connected) {
       console.log('[ScriptManager] Not connected, skipping loadScripts');
       return;
     }
     
     try {
+      console.log('[ScriptManager] Calling storageService.getScripts...');
       const loadedScripts = await storageService.getScripts(projectId);
+      console.log('[ScriptManager] Loaded scripts:', loadedScripts.length);
       if (isMountedRef.current) {
         setScripts(loadedScripts);
         if (loadedScripts.length > 0 && !currentScript) {
