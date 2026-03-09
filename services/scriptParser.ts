@@ -3240,8 +3240,20 @@ ${content}
 
       // 单次API调用获取所有信息
       const startTime = Date.now();
+      
+      // 启动进度更新定时器，让用户知道API调用正在进行
+      let progress = 10;
+      const progressInterval = setInterval(() => {
+        progress += 2;
+        if (progress < 35) {
+          onProgress?.('metadata', progress, '正在等待AI分析结果...');
+        }
+      }, 2000); // 每2秒更新一次进度
+      
       // 使用'metadata'任务类型，它配置了合适的maxTokens和timeout
       const response = await this.callLLM(prompt, 'metadata');
+      
+      clearInterval(progressInterval);
       const duration = Date.now() - startTime;
 
       console.log(`[ScriptParser] Single-pass LLM call completed in ${duration}ms`);
