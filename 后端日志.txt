@@ -1,5 +1,4 @@
 client:789 [vite] connecting...
-client:912 [vite] connected.
 react-dom-client.development.js:28004 Download the React DevTools for a better development experience: https://react.dev/link/react-devtools
 aiService.ts:68 [AIService] Registered provider: volcengine
 aiService.ts:68 [AIService] Registered provider: vidu
@@ -9,6 +8,592 @@ AppContext.tsx:103 [INIT] Starting App Initialization...
 AppContext.tsx:119 [INIT] Attempting auto-connect...
 AppContext.tsx:103 [INIT] Starting App Initialization...
 AppContext.tsx:119 [INIT] Attempting auto-connect...
+AppContext.tsx:121 [INIT] autoConnect returned: false
+AppContext.tsx:121 [INIT] autoConnect returned: false
+AppContext.tsx:24 [STORAGE] Connection check: Connected=false, Responsive=true
+client:912 [vite] connected.
+AppContext.tsx:147 [INIT] Initialization complete. FS Responsive: true, Connected: false, Elapsed: 502ms
+AppContext.tsx:24 [STORAGE] Connection check: Connected=false, Responsive=true
+storage.ts:495 [STORAGE] Triggering showDirectoryPicker...
+AppContext.tsx:24 [STORAGE] Connection check: Connected=false, Responsive=true
+storage.ts:499 [STORAGE] Directory picker success: ProjectML
+AppContext.tsx:24 [STORAGE] Connection check: Connected=true, Responsive=true
+storage.ts:673 [STORAGE] readJson called: projects.json
+storage.ts:673 [STORAGE] readJson called: jobs_queue.json
+App.tsx:33 [APP] Triggering jobQueue.loadQueue()...
+storage.ts:673 [STORAGE] readJson called: settings.json
+storage.ts:673 [STORAGE] readJson called: projects.json
+storage.ts:673 [STORAGE] readJson called: jobs_queue.json
+storage.ts:689 [STORAGE] getFileHandle result for projects.json: found
+storage.ts:689 [STORAGE] getFileHandle result for jobs_queue.json: not found
+storage.ts:701 [STORAGE] File not found: jobs_queue.json
+storage.ts:689 [STORAGE] getFileHandle result for settings.json: found
+storage.ts:689 [STORAGE] getFileHandle result for jobs_queue.json: not found
+storage.ts:701 [STORAGE] File not found: jobs_queue.json
+storage.ts:689 [STORAGE] getFileHandle result for projects.json: found
+storage.ts:697 [STORAGE] Successfully read projects.json: 168 chars, 9.70ms
+storage.ts:697 [STORAGE] Successfully read settings.json: 5037 chars, 7.40ms
+storage.ts:673 [STORAGE] readJson called: jobs_queue.json
+storage.ts:697 [STORAGE] Successfully read projects.json: 168 chars, 6.00ms
+AppContext.tsx:24 [STORAGE] Connection check: Connected=true, Responsive=true
+storage.ts:673 [STORAGE] readJson called: settings.json
+storage.ts:689 [STORAGE] getFileHandle result for jobs_queue.json: not found
+storage.ts:701 [STORAGE] File not found: jobs_queue.json
+storage.ts:673 [STORAGE] readJson called: jobs_queue.json
+storage.ts:689 [STORAGE] getFileHandle result for settings.json: found
+storage.ts:689 [STORAGE] getFileHandle result for jobs_queue.json: not found
+storage.ts:701 [STORAGE] File not found: jobs_queue.json
+storage.ts:697 [STORAGE] Successfully read settings.json: 5037 chars, 23.30ms
+storage.ts:673 [STORAGE] readJson called: settings.json
+storage.ts:689 [STORAGE] getFileHandle result for settings.json: found
+storage.ts:697 [STORAGE] Successfully read settings.json: 5037 chars, 18.50ms
+storage.ts:673 [STORAGE] readJson called: jobs_queue.json
+storage.ts:689 [STORAGE] getFileHandle result for jobs_queue.json: not found
+storage.ts:701 [STORAGE] File not found: jobs_queue.json
+storage.ts:673 [STORAGE] readJson called: jobs_queue.json
+storage.ts:689 [STORAGE] getFileHandle result for jobs_queue.json: not found
+storage.ts:701 [STORAGE] File not found: jobs_queue.json
+storage.ts:673 [STORAGE] readJson called: projects.json
+storage.ts:1087 [Storage] getScripts called, projectId: aeb754ac-15ac-403b-8d78-c790c3424c50
+storage.ts:1088 [Storage] Reading file: scripts_aeb754ac-15ac-403b-8d78-c790c3424c50.json
+storage.ts:673 [STORAGE] readJson called: scripts_aeb754ac-15ac-403b-8d78-c790c3424c50.json
+storage.ts:673 [STORAGE] readJson called: projects.json
+storage.ts:1087 [Storage] getScripts called, projectId: aeb754ac-15ac-403b-8d78-c790c3424c50
+storage.ts:1088 [Storage] Reading file: scripts_aeb754ac-15ac-403b-8d78-c790c3424c50.json
+storage.ts:673 [STORAGE] readJson called: scripts_aeb754ac-15ac-403b-8d78-c790c3424c50.json
+storage.ts:689 [STORAGE] getFileHandle result for projects.json: found
+storage.ts:689 [STORAGE] getFileHandle result for scripts_aeb754ac-15ac-403b-8d78-c790c3424c50.json: found
+storage.ts:689 [STORAGE] getFileHandle result for projects.json: found
+storage.ts:689 [STORAGE] getFileHandle result for scripts_aeb754ac-15ac-403b-8d78-c790c3424c50.json: found
+storage.ts:697 [STORAGE] Successfully read projects.json: 168 chars, 8.60ms
+storage.ts:697 [STORAGE] Successfully read scripts_aeb754ac-15ac-403b-8d78-c790c3424c50.json: 633 chars, 7.60ms
+storage.ts:1090 [Storage] Read result: Found 1 scripts
+storage.ts:697 [STORAGE] Successfully read projects.json: 168 chars, 7.20ms
+storage.ts:697 [STORAGE] Successfully read scripts_aeb754ac-15ac-403b-8d78-c790c3424c50.json: 633 chars, 6.80ms
+storage.ts:1090 [Storage] Read result: Found 1 scripts
+ScriptManager.tsx:165 [ScriptManager] loadScripts called, projectId: aeb754ac-15ac-403b-8d78-c790c3424c50
+ScriptManager.tsx:134 [ScriptManager] scripts state changed: 0 scripts
+ScriptManager.tsx:135 [ScriptManager] scripts array: []
+ScriptManager.tsx:165 [ScriptManager] loadScripts called, projectId: aeb754ac-15ac-403b-8d78-c790c3424c50
+ScriptManager.tsx:134 [ScriptManager] scripts state changed: 0 scripts
+ScriptManager.tsx:135 [ScriptManager] scripts array: []
+AppContext.tsx:24 [STORAGE] Connection check: Connected=true, Responsive=true
+ScriptManager.tsx:173 [ScriptManager] Connection check: true
+ScriptManager.tsx:180 [ScriptManager] Calling storageService.getScripts...
+storage.ts:1087 [Storage] getScripts called, projectId: aeb754ac-15ac-403b-8d78-c790c3424c50
+storage.ts:1088 [Storage] Reading file: scripts_aeb754ac-15ac-403b-8d78-c790c3424c50.json
+storage.ts:673 [STORAGE] readJson called: scripts_aeb754ac-15ac-403b-8d78-c790c3424c50.json
+AppContext.tsx:24 [STORAGE] Connection check: Connected=true, Responsive=true
+storage.ts:673 [STORAGE] readJson called: assets_aeb754ac-15ac-403b-8d78-c790c3424c50.json
+AppContext.tsx:24 [STORAGE] Connection check: Connected=true, Responsive=true
+ScriptManager.tsx:173 [ScriptManager] Connection check: true
+ScriptManager.tsx:180 [ScriptManager] Calling storageService.getScripts...
+storage.ts:1087 [Storage] getScripts called, projectId: aeb754ac-15ac-403b-8d78-c790c3424c50
+storage.ts:1088 [Storage] Reading file: scripts_aeb754ac-15ac-403b-8d78-c790c3424c50.json
+storage.ts:673 [STORAGE] readJson called: scripts_aeb754ac-15ac-403b-8d78-c790c3424c50.json
+AppContext.tsx:24 [STORAGE] Connection check: Connected=true, Responsive=true
+storage.ts:673 [STORAGE] readJson called: assets_aeb754ac-15ac-403b-8d78-c790c3424c50.json
+storage.ts:689 [STORAGE] getFileHandle result for scripts_aeb754ac-15ac-403b-8d78-c790c3424c50.json: found
+storage.ts:689 [STORAGE] getFileHandle result for assets_aeb754ac-15ac-403b-8d78-c790c3424c50.json: not found
+storage.ts:701 [STORAGE] File not found: assets_aeb754ac-15ac-403b-8d78-c790c3424c50.json
+storage.ts:689 [STORAGE] getFileHandle result for scripts_aeb754ac-15ac-403b-8d78-c790c3424c50.json: found
+storage.ts:689 [STORAGE] getFileHandle result for assets_aeb754ac-15ac-403b-8d78-c790c3424c50.json: not found
+storage.ts:701 [STORAGE] File not found: assets_aeb754ac-15ac-403b-8d78-c790c3424c50.json
+storage.ts:697 [STORAGE] Successfully read scripts_aeb754ac-15ac-403b-8d78-c790c3424c50.json: 633 chars, 52.90ms
+storage.ts:1090 [Storage] Read result: Found 1 scripts
+ScriptManager.tsx:182 [ScriptManager] Loaded scripts: 1
+ScriptManager.tsx:183 [ScriptManager] isMountedRef.current: false
+ScriptManager.tsx:192 [ScriptManager] Component unmounted, skipping setScripts
+storage.ts:697 [STORAGE] Successfully read scripts_aeb754ac-15ac-403b-8d78-c790c3424c50.json: 633 chars, 14.70ms
+storage.ts:1090 [Storage] Read result: Found 1 scripts
+ScriptManager.tsx:182 [ScriptManager] Loaded scripts: 1
+ScriptManager.tsx:183 [ScriptManager] isMountedRef.current: false
+ScriptManager.tsx:192 [ScriptManager] Component unmounted, skipping setScripts
+storage.ts:673 [STORAGE] readJson called: jobs_queue.json
+storage.ts:689 [STORAGE] getFileHandle result for jobs_queue.json: not found
+storage.ts:701 [STORAGE] File not found: jobs_queue.json
+storage.ts:673 [STORAGE] readJson called: settings.json
+storage.ts:689 [STORAGE] getFileHandle result for settings.json: found
+storage.ts:697 [STORAGE] Successfully read settings.json: 5037 chars, 2.10ms
+storage.ts:673 [STORAGE] readJson called: jobs_queue.json
+storage.ts:689 [STORAGE] getFileHandle result for jobs_queue.json: not found
+storage.ts:701 [STORAGE] File not found: jobs_queue.json
+storage.ts:673 [STORAGE] readJson called: jobs_queue.json
+storage.ts:689 [STORAGE] getFileHandle result for jobs_queue.json: not found
+storage.ts:701 [STORAGE] File not found: jobs_queue.json
+storage.ts:673 [STORAGE] readJson called: settings.json
+storage.ts:689 [STORAGE] getFileHandle result for settings.json: found
+storage.ts:697 [STORAGE] Successfully read settings.json: 5037 chars, 2.50ms
+storage.ts:673 [STORAGE] readJson called: jobs_queue.json
+storage.ts:689 [STORAGE] getFileHandle result for jobs_queue.json: not found
+storage.ts:701 [STORAGE] File not found: jobs_queue.json
+storage.ts:673 [STORAGE] readJson called: jobs_queue.json
+storage.ts:689 [STORAGE] getFileHandle result for jobs_queue.json: not found
+storage.ts:701 [STORAGE] File not found: jobs_queue.json
+AppContext.tsx:24 [STORAGE] Connection check: Connected=true, Responsive=true
+[Violation]Forced reflow while executing JavaScript took 35ms
+storage.ts:673 [STORAGE] readJson called: jobs_queue.json
+storage.ts:689 [STORAGE] getFileHandle result for jobs_queue.json: not found
+storage.ts:701 [STORAGE] File not found: jobs_queue.json
+storage.ts:673 [STORAGE] readJson called: settings.json
+storage.ts:689 [STORAGE] getFileHandle result for settings.json: found
+storage.ts:697 [STORAGE] Successfully read settings.json: 5037 chars, 1.90ms
+storage.ts:673 [STORAGE] readJson called: jobs_queue.json
+storage.ts:689 [STORAGE] getFileHandle result for jobs_queue.json: not found
+storage.ts:701 [STORAGE] File not found: jobs_queue.json
+storage.ts:673 [STORAGE] readJson called: jobs_queue.json
+storage.ts:689 [STORAGE] getFileHandle result for jobs_queue.json: not found
+storage.ts:701 [STORAGE] File not found: jobs_queue.json
+storage.ts:673 [STORAGE] readJson called: settings.json
+storage.ts:689 [STORAGE] getFileHandle result for settings.json: found
+storage.ts:697 [STORAGE] Successfully read settings.json: 5037 chars, 1.70ms
+storage.ts:673 [STORAGE] readJson called: jobs_queue.json
+storage.ts:689 [STORAGE] getFileHandle result for jobs_queue.json: not found
+storage.ts:701 [STORAGE] File not found: jobs_queue.json
+storage.ts:673 [STORAGE] readJson called: jobs_queue.json
+storage.ts:689 [STORAGE] getFileHandle result for jobs_queue.json: not found
+storage.ts:701 [STORAGE] File not found: jobs_queue.json
+AppContext.tsx:24 [STORAGE] Connection check: Connected=true, Responsive=true
+storage.ts:1126 [Storage] ========== Saving Script ==========
+storage.ts:1127 [Storage] Script ID: script_1773035908885
+storage.ts:1128 [Storage] Has parseState: true
+storage.ts:1129 [Storage] Has qualityReport: false
+storage.ts:1087 [Storage] getScripts called, projectId: aeb754ac-15ac-403b-8d78-c790c3424c50
+storage.ts:1088 [Storage] Reading file: scripts_aeb754ac-15ac-403b-8d78-c790c3424c50.json
+storage.ts:673 [STORAGE] readJson called: scripts_aeb754ac-15ac-403b-8d78-c790c3424c50.json
+storage.ts:689 [STORAGE] getFileHandle result for scripts_aeb754ac-15ac-403b-8d78-c790c3424c50.json: found
+storage.ts:697 [STORAGE] Successfully read scripts_aeb754ac-15ac-403b-8d78-c790c3424c50.json: 633 chars, 2.70ms
+storage.ts:1090 [Storage] Read result: Found 1 scripts
+storage.ts:1145 [Storage] New script added
+storage.ts:1149 [Storage] ========== Script Saved ==========
+ScriptManager.tsx:640  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+$2baaea4c71418dea$export$294aa081a6c6f55d @ useField.ts:33
+useMultiSelect @ chunk-RLX3CPDX.mjs:54
+useSelect @ chunk-ZO7XS5CB.mjs:149
+Select2 @ chunk-C3QHEOC2.mjs:59
+react_stack_bottom_frame @ react-dom-client.development.js:25904
+renderWithHooks @ react-dom-client.development.js:7662
+updateForwardRef @ react-dom-client.development.js:9724
+beginWork @ react-dom-client.development.js:12117
+runWithFiberInDEV @ react-dom-client.development.js:871
+performUnitOfWork @ react-dom-client.development.js:17641
+workLoopSync @ react-dom-client.development.js:17469
+renderRootSync @ react-dom-client.development.js:17450
+performWorkOnRoot @ react-dom-client.development.js:16504
+performWorkOnRootViaSchedulerTask @ react-dom-client.development.js:18957
+performWorkUntilDeadline @ scheduler.development.js:45
+<ForwardRef(Select2)>
+exports.jsxDEV @ react-jsx-dev-runtime.development.js:335
+ScriptManager @ ScriptManager.tsx:640
+react_stack_bottom_frame @ react-dom-client.development.js:25904
+renderWithHooksAgain @ react-dom-client.development.js:7762
+renderWithHooks @ react-dom-client.development.js:7674
+updateFunctionComponent @ react-dom-client.development.js:10166
+beginWork @ react-dom-client.development.js:11778
+runWithFiberInDEV @ react-dom-client.development.js:871
+performUnitOfWork @ react-dom-client.development.js:17641
+workLoopSync @ react-dom-client.development.js:17469
+renderRootSync @ react-dom-client.development.js:17450
+performWorkOnRoot @ react-dom-client.development.js:16504
+performWorkOnRootViaSchedulerTask @ react-dom-client.development.js:18957
+performWorkUntilDeadline @ scheduler.development.js:45
+<ScriptManager>
+exports.jsxDEV @ react-jsx-dev-runtime.development.js:335
+ProjectDetail @ ProjectDetail.tsx:464
+react_stack_bottom_frame @ react-dom-client.development.js:25904
+renderWithHooksAgain @ react-dom-client.development.js:7762
+renderWithHooks @ react-dom-client.development.js:7674
+updateFunctionComponent @ react-dom-client.development.js:10166
+beginWork @ react-dom-client.development.js:11778
+runWithFiberInDEV @ react-dom-client.development.js:871
+performUnitOfWork @ react-dom-client.development.js:17641
+workLoopSync @ react-dom-client.development.js:17469
+renderRootSync @ react-dom-client.development.js:17450
+performWorkOnRoot @ react-dom-client.development.js:16504
+performWorkOnRootViaSchedulerTask @ react-dom-client.development.js:18957
+performWorkUntilDeadline @ scheduler.development.js:45
+<ProjectDetail>
+exports.jsxDEV @ react-jsx-dev-runtime.development.js:335
+App @ App.tsx:79
+react_stack_bottom_frame @ react-dom-client.development.js:25904
+renderWithHooksAgain @ react-dom-client.development.js:7762
+renderWithHooks @ react-dom-client.development.js:7674
+updateFunctionComponent @ react-dom-client.development.js:10166
+beginWork @ react-dom-client.development.js:11778
+runWithFiberInDEV @ react-dom-client.development.js:871
+performUnitOfWork @ react-dom-client.development.js:17641
+workLoopSync @ react-dom-client.development.js:17469
+renderRootSync @ react-dom-client.development.js:17450
+performWorkOnRoot @ react-dom-client.development.js:16504
+performWorkOnRootViaSchedulerTask @ react-dom-client.development.js:18957
+performWorkUntilDeadline @ scheduler.development.js:45
+ScriptManager.tsx:640  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+$2baaea4c71418dea$export$294aa081a6c6f55d @ useField.ts:33
+useMultiSelect @ chunk-RLX3CPDX.mjs:54
+useSelect @ chunk-ZO7XS5CB.mjs:149
+Select2 @ chunk-C3QHEOC2.mjs:59
+react_stack_bottom_frame @ react-dom-client.development.js:25904
+renderWithHooksAgain @ react-dom-client.development.js:7762
+renderWithHooks @ react-dom-client.development.js:7674
+updateForwardRef @ react-dom-client.development.js:9724
+beginWork @ react-dom-client.development.js:12117
+runWithFiberInDEV @ react-dom-client.development.js:871
+performUnitOfWork @ react-dom-client.development.js:17641
+workLoopSync @ react-dom-client.development.js:17469
+renderRootSync @ react-dom-client.development.js:17450
+performWorkOnRoot @ react-dom-client.development.js:16504
+performWorkOnRootViaSchedulerTask @ react-dom-client.development.js:18957
+performWorkUntilDeadline @ scheduler.development.js:45
+<ForwardRef(Select2)>
+exports.jsxDEV @ react-jsx-dev-runtime.development.js:335
+ScriptManager @ ScriptManager.tsx:640
+react_stack_bottom_frame @ react-dom-client.development.js:25904
+renderWithHooksAgain @ react-dom-client.development.js:7762
+renderWithHooks @ react-dom-client.development.js:7674
+updateFunctionComponent @ react-dom-client.development.js:10166
+beginWork @ react-dom-client.development.js:11778
+runWithFiberInDEV @ react-dom-client.development.js:871
+performUnitOfWork @ react-dom-client.development.js:17641
+workLoopSync @ react-dom-client.development.js:17469
+renderRootSync @ react-dom-client.development.js:17450
+performWorkOnRoot @ react-dom-client.development.js:16504
+performWorkOnRootViaSchedulerTask @ react-dom-client.development.js:18957
+performWorkUntilDeadline @ scheduler.development.js:45
+<ScriptManager>
+exports.jsxDEV @ react-jsx-dev-runtime.development.js:335
+ProjectDetail @ ProjectDetail.tsx:464
+react_stack_bottom_frame @ react-dom-client.development.js:25904
+renderWithHooksAgain @ react-dom-client.development.js:7762
+renderWithHooks @ react-dom-client.development.js:7674
+updateFunctionComponent @ react-dom-client.development.js:10166
+beginWork @ react-dom-client.development.js:11778
+runWithFiberInDEV @ react-dom-client.development.js:871
+performUnitOfWork @ react-dom-client.development.js:17641
+workLoopSync @ react-dom-client.development.js:17469
+renderRootSync @ react-dom-client.development.js:17450
+performWorkOnRoot @ react-dom-client.development.js:16504
+performWorkOnRootViaSchedulerTask @ react-dom-client.development.js:18957
+performWorkUntilDeadline @ scheduler.development.js:45
+<ProjectDetail>
+exports.jsxDEV @ react-jsx-dev-runtime.development.js:335
+App @ App.tsx:79
+react_stack_bottom_frame @ react-dom-client.development.js:25904
+renderWithHooksAgain @ react-dom-client.development.js:7762
+renderWithHooks @ react-dom-client.development.js:7674
+updateFunctionComponent @ react-dom-client.development.js:10166
+beginWork @ react-dom-client.development.js:11778
+runWithFiberInDEV @ react-dom-client.development.js:871
+performUnitOfWork @ react-dom-client.development.js:17641
+workLoopSync @ react-dom-client.development.js:17469
+renderRootSync @ react-dom-client.development.js:17450
+performWorkOnRoot @ react-dom-client.development.js:16504
+performWorkOnRootViaSchedulerTask @ react-dom-client.development.js:18957
+performWorkUntilDeadline @ scheduler.development.js:45
+ScriptManager.tsx:134 [ScriptManager] scripts state changed: 1 scripts
+ScriptManager.tsx:135 [ScriptManager] scripts array: [{…}]
+ScriptManager.tsx:640  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+$2baaea4c71418dea$export$294aa081a6c6f55d @ useField.ts:33
+useMultiSelect @ chunk-RLX3CPDX.mjs:54
+useSelect @ chunk-ZO7XS5CB.mjs:149
+Select2 @ chunk-C3QHEOC2.mjs:59
+react_stack_bottom_frame @ react-dom-client.development.js:25904
+renderWithHooks @ react-dom-client.development.js:7662
+updateForwardRef @ react-dom-client.development.js:9724
+beginWork @ react-dom-client.development.js:12117
+runWithFiberInDEV @ react-dom-client.development.js:871
+performUnitOfWork @ react-dom-client.development.js:17641
+workLoopSync @ react-dom-client.development.js:17469
+renderRootSync @ react-dom-client.development.js:17450
+performWorkOnRoot @ react-dom-client.development.js:16504
+performSyncWorkOnRoot @ react-dom-client.development.js:18972
+flushSyncWorkAcrossRoots_impl @ react-dom-client.development.js:18814
+flushSpawnedWork @ react-dom-client.development.js:18334
+commitRoot @ react-dom-client.development.js:17955
+commitRootWhenReady @ react-dom-client.development.js:16824
+performWorkOnRoot @ react-dom-client.development.js:16722
+performWorkOnRootViaSchedulerTask @ react-dom-client.development.js:18957
+performWorkUntilDeadline @ scheduler.development.js:45
+<ForwardRef(Select2)>
+exports.jsxDEV @ react-jsx-dev-runtime.development.js:335
+ScriptManager @ ScriptManager.tsx:640
+react_stack_bottom_frame @ react-dom-client.development.js:25904
+renderWithHooksAgain @ react-dom-client.development.js:7762
+renderWithHooks @ react-dom-client.development.js:7674
+updateFunctionComponent @ react-dom-client.development.js:10166
+beginWork @ react-dom-client.development.js:11778
+runWithFiberInDEV @ react-dom-client.development.js:871
+performUnitOfWork @ react-dom-client.development.js:17641
+workLoopSync @ react-dom-client.development.js:17469
+renderRootSync @ react-dom-client.development.js:17450
+performWorkOnRoot @ react-dom-client.development.js:16504
+performWorkOnRootViaSchedulerTask @ react-dom-client.development.js:18957
+performWorkUntilDeadline @ scheduler.development.js:45
+<ScriptManager>
+exports.jsxDEV @ react-jsx-dev-runtime.development.js:335
+ProjectDetail @ ProjectDetail.tsx:464
+react_stack_bottom_frame @ react-dom-client.development.js:25904
+renderWithHooksAgain @ react-dom-client.development.js:7762
+renderWithHooks @ react-dom-client.development.js:7674
+updateFunctionComponent @ react-dom-client.development.js:10166
+beginWork @ react-dom-client.development.js:11778
+runWithFiberInDEV @ react-dom-client.development.js:871
+performUnitOfWork @ react-dom-client.development.js:17641
+workLoopSync @ react-dom-client.development.js:17469
+renderRootSync @ react-dom-client.development.js:17450
+performWorkOnRoot @ react-dom-client.development.js:16504
+performWorkOnRootViaSchedulerTask @ react-dom-client.development.js:18957
+performWorkUntilDeadline @ scheduler.development.js:45
+<ProjectDetail>
+exports.jsxDEV @ react-jsx-dev-runtime.development.js:335
+App @ App.tsx:79
+react_stack_bottom_frame @ react-dom-client.development.js:25904
+renderWithHooksAgain @ react-dom-client.development.js:7762
+renderWithHooks @ react-dom-client.development.js:7674
+updateFunctionComponent @ react-dom-client.development.js:10166
+beginWork @ react-dom-client.development.js:11778
+runWithFiberInDEV @ react-dom-client.development.js:871
+performUnitOfWork @ react-dom-client.development.js:17641
+workLoopSync @ react-dom-client.development.js:17469
+renderRootSync @ react-dom-client.development.js:17450
+performWorkOnRoot @ react-dom-client.development.js:16504
+performWorkOnRootViaSchedulerTask @ react-dom-client.development.js:18957
+performWorkUntilDeadline @ scheduler.development.js:45
+ScriptManager.tsx:640  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+$2baaea4c71418dea$export$294aa081a6c6f55d @ useField.ts:33
+useMultiSelect @ chunk-RLX3CPDX.mjs:54
+useSelect @ chunk-ZO7XS5CB.mjs:149
+Select2 @ chunk-C3QHEOC2.mjs:59
+react_stack_bottom_frame @ react-dom-client.development.js:25904
+renderWithHooksAgain @ react-dom-client.development.js:7762
+renderWithHooks @ react-dom-client.development.js:7674
+updateForwardRef @ react-dom-client.development.js:9724
+beginWork @ react-dom-client.development.js:12117
+runWithFiberInDEV @ react-dom-client.development.js:871
+performUnitOfWork @ react-dom-client.development.js:17641
+workLoopSync @ react-dom-client.development.js:17469
+renderRootSync @ react-dom-client.development.js:17450
+performWorkOnRoot @ react-dom-client.development.js:16504
+performSyncWorkOnRoot @ react-dom-client.development.js:18972
+flushSyncWorkAcrossRoots_impl @ react-dom-client.development.js:18814
+flushSpawnedWork @ react-dom-client.development.js:18334
+commitRoot @ react-dom-client.development.js:17955
+commitRootWhenReady @ react-dom-client.development.js:16824
+performWorkOnRoot @ react-dom-client.development.js:16722
+performWorkOnRootViaSchedulerTask @ react-dom-client.development.js:18957
+performWorkUntilDeadline @ scheduler.development.js:45
+<ForwardRef(Select2)>
+exports.jsxDEV @ react-jsx-dev-runtime.development.js:335
+ScriptManager @ ScriptManager.tsx:640
+react_stack_bottom_frame @ react-dom-client.development.js:25904
+renderWithHooksAgain @ react-dom-client.development.js:7762
+renderWithHooks @ react-dom-client.development.js:7674
+updateFunctionComponent @ react-dom-client.development.js:10166
+beginWork @ react-dom-client.development.js:11778
+runWithFiberInDEV @ react-dom-client.development.js:871
+performUnitOfWork @ react-dom-client.development.js:17641
+workLoopSync @ react-dom-client.development.js:17469
+renderRootSync @ react-dom-client.development.js:17450
+performWorkOnRoot @ react-dom-client.development.js:16504
+performWorkOnRootViaSchedulerTask @ react-dom-client.development.js:18957
+performWorkUntilDeadline @ scheduler.development.js:45
+<ScriptManager>
+exports.jsxDEV @ react-jsx-dev-runtime.development.js:335
+ProjectDetail @ ProjectDetail.tsx:464
+react_stack_bottom_frame @ react-dom-client.development.js:25904
+renderWithHooksAgain @ react-dom-client.development.js:7762
+renderWithHooks @ react-dom-client.development.js:7674
+updateFunctionComponent @ react-dom-client.development.js:10166
+beginWork @ react-dom-client.development.js:11778
+runWithFiberInDEV @ react-dom-client.development.js:871
+performUnitOfWork @ react-dom-client.development.js:17641
+workLoopSync @ react-dom-client.development.js:17469
+renderRootSync @ react-dom-client.development.js:17450
+performWorkOnRoot @ react-dom-client.development.js:16504
+performWorkOnRootViaSchedulerTask @ react-dom-client.development.js:18957
+performWorkUntilDeadline @ scheduler.development.js:45
+<ProjectDetail>
+exports.jsxDEV @ react-jsx-dev-runtime.development.js:335
+App @ App.tsx:79
+react_stack_bottom_frame @ react-dom-client.development.js:25904
+renderWithHooksAgain @ react-dom-client.development.js:7762
+renderWithHooks @ react-dom-client.development.js:7674
+updateFunctionComponent @ react-dom-client.development.js:10166
+beginWork @ react-dom-client.development.js:11778
+runWithFiberInDEV @ react-dom-client.development.js:871
+performUnitOfWork @ react-dom-client.development.js:17641
+workLoopSync @ react-dom-client.development.js:17469
+renderRootSync @ react-dom-client.development.js:17450
+performWorkOnRoot @ react-dom-client.development.js:16504
+performWorkOnRootViaSchedulerTask @ react-dom-client.development.js:18957
+performWorkUntilDeadline @ scheduler.development.js:45
+ScriptManager.tsx:640  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+$2baaea4c71418dea$export$294aa081a6c6f55d @ useField.ts:33
+useMultiSelect @ chunk-RLX3CPDX.mjs:54
+useSelect @ chunk-ZO7XS5CB.mjs:149
+Select2 @ chunk-C3QHEOC2.mjs:59
+react_stack_bottom_frame @ react-dom-client.development.js:25904
+renderWithHooks @ react-dom-client.development.js:7662
+updateForwardRef @ react-dom-client.development.js:9724
+beginWork @ react-dom-client.development.js:12117
+runWithFiberInDEV @ react-dom-client.development.js:871
+performUnitOfWork @ react-dom-client.development.js:17641
+workLoopSync @ react-dom-client.development.js:17469
+renderRootSync @ react-dom-client.development.js:17450
+performWorkOnRoot @ react-dom-client.development.js:16504
+performWorkOnRootViaSchedulerTask @ react-dom-client.development.js:18957
+performWorkUntilDeadline @ scheduler.development.js:45
+<ForwardRef(Select2)>
+exports.jsxDEV @ react-jsx-dev-runtime.development.js:335
+ScriptManager @ ScriptManager.tsx:640
+react_stack_bottom_frame @ react-dom-client.development.js:25904
+renderWithHooksAgain @ react-dom-client.development.js:7762
+renderWithHooks @ react-dom-client.development.js:7674
+updateFunctionComponent @ react-dom-client.development.js:10166
+beginWork @ react-dom-client.development.js:11778
+runWithFiberInDEV @ react-dom-client.development.js:871
+performUnitOfWork @ react-dom-client.development.js:17641
+workLoopSync @ react-dom-client.development.js:17469
+renderRootSync @ react-dom-client.development.js:17450
+performWorkOnRoot @ react-dom-client.development.js:16504
+performWorkOnRootViaSchedulerTask @ react-dom-client.development.js:18957
+performWorkUntilDeadline @ scheduler.development.js:45
+ScriptManager.tsx:640  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+$2baaea4c71418dea$export$294aa081a6c6f55d @ useField.ts:33
+useMultiSelect @ chunk-RLX3CPDX.mjs:54
+useSelect @ chunk-ZO7XS5CB.mjs:149
+Select2 @ chunk-C3QHEOC2.mjs:59
+react_stack_bottom_frame @ react-dom-client.development.js:25904
+renderWithHooksAgain @ react-dom-client.development.js:7762
+renderWithHooks @ react-dom-client.development.js:7674
+updateForwardRef @ react-dom-client.development.js:9724
+beginWork @ react-dom-client.development.js:12117
+runWithFiberInDEV @ react-dom-client.development.js:871
+performUnitOfWork @ react-dom-client.development.js:17641
+workLoopSync @ react-dom-client.development.js:17469
+renderRootSync @ react-dom-client.development.js:17450
+performWorkOnRoot @ react-dom-client.development.js:16504
+performWorkOnRootViaSchedulerTask @ react-dom-client.development.js:18957
+performWorkUntilDeadline @ scheduler.development.js:45
+<ForwardRef(Select2)>
+exports.jsxDEV @ react-jsx-dev-runtime.development.js:335
+ScriptManager @ ScriptManager.tsx:640
+react_stack_bottom_frame @ react-dom-client.development.js:25904
+renderWithHooksAgain @ react-dom-client.development.js:7762
+renderWithHooks @ react-dom-client.development.js:7674
+updateFunctionComponent @ react-dom-client.development.js:10166
+beginWork @ react-dom-client.development.js:11778
+runWithFiberInDEV @ react-dom-client.development.js:871
+performUnitOfWork @ react-dom-client.development.js:17641
+workLoopSync @ react-dom-client.development.js:17469
+renderRootSync @ react-dom-client.development.js:17450
+performWorkOnRoot @ react-dom-client.development.js:16504
+performWorkOnRootViaSchedulerTask @ react-dom-client.development.js:18957
+performWorkUntilDeadline @ scheduler.development.js:45
+storage.ts:673 [STORAGE] readJson called: jobs_queue.json
+storage.ts:689 [STORAGE] getFileHandle result for jobs_queue.json: not found
+storage.ts:701 [STORAGE] File not found: jobs_queue.json
+storage.ts:673 [STORAGE] readJson called: settings.json
+storage.ts:689 [STORAGE] getFileHandle result for settings.json: found
+storage.ts:697 [STORAGE] Successfully read settings.json: 5037 chars, 1.90ms
+storage.ts:673 [STORAGE] readJson called: jobs_queue.json
+storage.ts:689 [STORAGE] getFileHandle result for jobs_queue.json: not found
+storage.ts:701 [STORAGE] File not found: jobs_queue.json
+storage.ts:673 [STORAGE] readJson called: jobs_queue.json
+storage.ts:689 [STORAGE] getFileHandle result for jobs_queue.json: not found
+storage.ts:701 [STORAGE] File not found: jobs_queue.json
+storage.ts:673 [STORAGE] readJson called: settings.json
+storage.ts:689 [STORAGE] getFileHandle result for settings.json: found
+storage.ts:697 [STORAGE] Successfully read settings.json: 5037 chars, 2.70ms
+storage.ts:673 [STORAGE] readJson called: jobs_queue.json
+storage.ts:689 [STORAGE] getFileHandle result for jobs_queue.json: not found
+storage.ts:701 [STORAGE] File not found: jobs_queue.json
+storage.ts:673 [STORAGE] readJson called: jobs_queue.json
+storage.ts:689 [STORAGE] getFileHandle result for jobs_queue.json: not found
+storage.ts:701 [STORAGE] File not found: jobs_queue.json
+ScriptManager.tsx:640  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+$2baaea4c71418dea$export$294aa081a6c6f55d @ useField.ts:33
+useMultiSelect @ chunk-RLX3CPDX.mjs:54
+useSelect @ chunk-ZO7XS5CB.mjs:149
+Select2 @ chunk-C3QHEOC2.mjs:59
+react_stack_bottom_frame @ react-dom-client.development.js:25904
+renderWithHooks @ react-dom-client.development.js:7662
+updateForwardRef @ react-dom-client.development.js:9724
+beginWork @ react-dom-client.development.js:12117
+runWithFiberInDEV @ react-dom-client.development.js:871
+performUnitOfWork @ react-dom-client.development.js:17641
+workLoopSync @ react-dom-client.development.js:17469
+renderRootSync @ react-dom-client.development.js:17450
+performWorkOnRoot @ react-dom-client.development.js:16504
+performWorkOnRootViaSchedulerTask @ react-dom-client.development.js:18957
+performWorkUntilDeadline @ scheduler.development.js:45
+<ForwardRef(Select2)>
+exports.jsxDEV @ react-jsx-dev-runtime.development.js:335
+ScriptManager @ ScriptManager.tsx:640
+react_stack_bottom_frame @ react-dom-client.development.js:25904
+renderWithHooksAgain @ react-dom-client.development.js:7762
+renderWithHooks @ react-dom-client.development.js:7674
+updateFunctionComponent @ react-dom-client.development.js:10166
+beginWork @ react-dom-client.development.js:11778
+runWithFiberInDEV @ react-dom-client.development.js:871
+performUnitOfWork @ react-dom-client.development.js:17641
+workLoopSync @ react-dom-client.development.js:17469
+renderRootSync @ react-dom-client.development.js:17450
+performWorkOnRoot @ react-dom-client.development.js:16504
+performWorkOnRootViaSchedulerTask @ react-dom-client.development.js:18957
+performWorkUntilDeadline @ scheduler.development.js:45
+ScriptManager.tsx:640  If you do not provide a visible label, you must specify an aria-label or aria-labelledby attribute for accessibility
+$d191a55c9702f145$export$8467354a121f1b9f @ useLabel.ts:56
+$2baaea4c71418dea$export$294aa081a6c6f55d @ useField.ts:33
+useMultiSelect @ chunk-RLX3CPDX.mjs:54
+useSelect @ chunk-ZO7XS5CB.mjs:149
+Select2 @ chunk-C3QHEOC2.mjs:59
+react_stack_bottom_frame @ react-dom-client.development.js:25904
+renderWithHooksAgain @ react-dom-client.development.js:7762
+renderWithHooks @ react-dom-client.development.js:7674
+updateForwardRef @ react-dom-client.development.js:9724
+beginWork @ react-dom-client.development.js:12117
+runWithFiberInDEV @ react-dom-client.development.js:871
+performUnitOfWork @ react-dom-client.development.js:17641
+workLoopSync @ react-dom-client.development.js:17469
+renderRootSync @ react-dom-client.development.js:17450
+performWorkOnRoot @ react-dom-client.development.js:16504
+performWorkOnRootViaSchedulerTask @ react-dom-client.development.js:18957
+performWorkUntilDeadline @ scheduler.development.js:45
+<ForwardRef(Select2)>
+exports.jsxDEV @ react-jsx-dev-runtime.development.js:335
+ScriptManager @ ScriptManager.tsx:640
+react_stack_bottom_frame @ react-dom-client.development.js:25904
+renderWithHooksAgain @ react-dom-client.development.js:7762
+renderWithHooks @ react-dom-client.development.js:7674
+updateFunctionComponent @ react-dom-client.development.js:10166
+beginWork @ react-dom-client.development.js:11778
+runWithFiberInDEV @ react-dom-client.development.js:871
+performUnitOfWork @ react-dom-client.development.js:17641
+workLoopSync @ react-dom-client.development.js:17469
+renderRootSync @ react-dom-client.development.js:17450
+performWorkOnRoot @ react-dom-client.development.js:16504
+performWorkOnRootViaSchedulerTask @ react-dom-client.development.js:18957
+performWorkUntilDeadline @ scheduler.development.js:45
+client:789 [vite] connecting...
+已导航到http://localhost:3000/
+react-dom-client.development.js:28004 Download the React DevTools for a better development experience: https://react.dev/link/react-devtools
+aiService.ts:68 [AIService] Registered provider: volcengine
+aiService.ts:68 [AIService] Registered provider: vidu
+aiService.ts:68 [AIService] Registered provider: modelscope
+aiService.ts:68 [AIService] Registered provider: llm
+AppContext.tsx:98 [INIT] Redirecting to home from #/project/aeb754ac-15ac-403b-8d78-c790c3424c50
+AppContext.tsx:103 [INIT] Starting App Initialization...
+AppContext.tsx:119 [INIT] Attempting auto-connect...
+AppContext.tsx:103 [INIT] Starting App Initialization...
+AppContext.tsx:119 [INIT] Attempting auto-connect...
+client:912 [vite] connected.
 AppContext.tsx:121 [INIT] autoConnect returned: true
 AppContext.tsx:121 [INIT] autoConnect returned: true
 AppContext.tsx:125 [INIT] Starting smoke test...
@@ -17,10 +602,10 @@ AppContext.tsx:24 [STORAGE] Connection check: Connected=true, Responsive=true
 storage.ts:673 [STORAGE] readJson called: settings.json
 storage.ts:689 [STORAGE] getFileHandle result for projects.json: found
 storage.ts:689 [STORAGE] getFileHandle result for settings.json: found
-storage.ts:697 [STORAGE] Successfully read projects.json: 168 chars, 6.40ms
-storage.ts:697 [STORAGE] Successfully read settings.json: 5037 chars, 5.70ms
+storage.ts:697 [STORAGE] Successfully read projects.json: 168 chars, 3.20ms
+storage.ts:697 [STORAGE] Successfully read settings.json: 5037 chars, 3.00ms
 AppContext.tsx:132 [INIT] Smoke test complete.
-AppContext.tsx:147 [INIT] Initialization complete. FS Responsive: true, Connected: true, Elapsed: 501ms
+AppContext.tsx:147 [INIT] Initialization complete. FS Responsive: true, Connected: true, Elapsed: 507ms
 storage.ts:673 [STORAGE] readJson called: projects.json
 storage.ts:673 [STORAGE] readJson called: jobs_queue.json
 App.tsx:33 [APP] Triggering jobQueue.loadQueue()...
@@ -37,23 +622,22 @@ storage.ts:689 [STORAGE] getFileHandle result for projects.json: found
 storage.ts:689 [STORAGE] getFileHandle result for jobs_queue.json: not found
 storage.ts:701 [STORAGE] File not found: jobs_queue.json
 storage.ts:689 [STORAGE] getFileHandle result for settings.json: found
-storage.ts:697 [STORAGE] Successfully read projects.json: 168 chars, 15.10ms
-storage.ts:697 [STORAGE] Successfully read settings.json: 5037 chars, 28.80ms
+storage.ts:697 [STORAGE] Successfully read projects.json: 168 chars, 8.80ms
+storage.ts:697 [STORAGE] Successfully read settings.json: 5037 chars, 29.40ms
 storage.ts:673 [STORAGE] readJson called: jobs_queue.json
-storage.ts:697 [STORAGE] Successfully read projects.json: 168 chars, 27.30ms
-storage.ts:697 [STORAGE] Successfully read settings.json: 5037 chars, 26.90ms
-storage.ts:673 [STORAGE] readJson called: jobs_queue.json
-storage.ts:689 [STORAGE] getFileHandle result for jobs_queue.json: not found
-storage.ts:701 [STORAGE] File not found: jobs_queue.json
+storage.ts:697 [STORAGE] Successfully read projects.json: 168 chars, 27.90ms
+storage.ts:697 [STORAGE] Successfully read settings.json: 5037 chars, 27.30ms
 storage.ts:673 [STORAGE] readJson called: jobs_queue.json
 storage.ts:689 [STORAGE] getFileHandle result for jobs_queue.json: not found
 storage.ts:701 [STORAGE] File not found: jobs_queue.json
 storage.ts:673 [STORAGE] readJson called: jobs_queue.json
 storage.ts:689 [STORAGE] getFileHandle result for jobs_queue.json: not found
 storage.ts:701 [STORAGE] File not found: jobs_queue.json
+storage.ts:673 [STORAGE] readJson called: jobs_queue.json
 storage.ts:689 [STORAGE] getFileHandle result for jobs_queue.json: not found
 storage.ts:701 [STORAGE] File not found: jobs_queue.json
-AppContext.tsx:24 [STORAGE] Connection check: Connected=true, Responsive=true
+storage.ts:689 [STORAGE] getFileHandle result for jobs_queue.json: not found
+storage.ts:701 [STORAGE] File not found: jobs_queue.json
 storage.ts:673 [STORAGE] readJson called: projects.json
 storage.ts:1087 [Storage] getScripts called, projectId: aeb754ac-15ac-403b-8d78-c790c3424c50
 storage.ts:1088 [Storage] Reading file: scripts_aeb754ac-15ac-403b-8d78-c790c3424c50.json
@@ -66,25 +650,29 @@ storage.ts:689 [STORAGE] getFileHandle result for projects.json: found
 storage.ts:689 [STORAGE] getFileHandle result for scripts_aeb754ac-15ac-403b-8d78-c790c3424c50.json: found
 storage.ts:689 [STORAGE] getFileHandle result for projects.json: found
 storage.ts:689 [STORAGE] getFileHandle result for scripts_aeb754ac-15ac-403b-8d78-c790c3424c50.json: found
-storage.ts:697 [STORAGE] Successfully read projects.json: 168 chars, 9.30ms
-storage.ts:697 [STORAGE] Successfully read scripts_aeb754ac-15ac-403b-8d78-c790c3424c50.json: 633 chars, 8.40ms
-storage.ts:1090 [Storage] Read result: Found 1 scripts
 storage.ts:697 [STORAGE] Successfully read projects.json: 168 chars, 7.70ms
-storage.ts:697 [STORAGE] Successfully read scripts_aeb754ac-15ac-403b-8d78-c790c3424c50.json: 633 chars, 7.00ms
-storage.ts:1090 [Storage] Read result: Found 1 scripts
-ScriptManager.tsx:159 [ScriptManager] loadScripts called, projectId: aeb754ac-15ac-403b-8d78-c790c3424c50
-ScriptManager.tsx:159 [ScriptManager] loadScripts called, projectId: aeb754ac-15ac-403b-8d78-c790c3424c50
+storage.ts:697 [STORAGE] Successfully read scripts_aeb754ac-15ac-403b-8d78-c790c3424c50.json: 2569 chars, 6.60ms
+storage.ts:1090 [Storage] Read result: Found 2 scripts
+storage.ts:697 [STORAGE] Successfully read projects.json: 168 chars, 5.80ms
+storage.ts:697 [STORAGE] Successfully read scripts_aeb754ac-15ac-403b-8d78-c790c3424c50.json: 2569 chars, 5.40ms
+storage.ts:1090 [Storage] Read result: Found 2 scripts
+ScriptManager.tsx:165 [ScriptManager] loadScripts called, projectId: aeb754ac-15ac-403b-8d78-c790c3424c50
+ScriptManager.tsx:134 [ScriptManager] scripts state changed: 0 scripts
+ScriptManager.tsx:135 [ScriptManager] scripts array: []
+ScriptManager.tsx:165 [ScriptManager] loadScripts called, projectId: aeb754ac-15ac-403b-8d78-c790c3424c50
+ScriptManager.tsx:134 [ScriptManager] scripts state changed: 0 scripts
+ScriptManager.tsx:135 [ScriptManager] scripts array: []
 AppContext.tsx:24 [STORAGE] Connection check: Connected=true, Responsive=true
-ScriptManager.tsx:167 [ScriptManager] Connection check: true
-ScriptManager.tsx:174 [ScriptManager] Calling storageService.getScripts...
+ScriptManager.tsx:173 [ScriptManager] Connection check: true
+ScriptManager.tsx:180 [ScriptManager] Calling storageService.getScripts...
 storage.ts:1087 [Storage] getScripts called, projectId: aeb754ac-15ac-403b-8d78-c790c3424c50
 storage.ts:1088 [Storage] Reading file: scripts_aeb754ac-15ac-403b-8d78-c790c3424c50.json
 storage.ts:673 [STORAGE] readJson called: scripts_aeb754ac-15ac-403b-8d78-c790c3424c50.json
 AppContext.tsx:24 [STORAGE] Connection check: Connected=true, Responsive=true
 storage.ts:673 [STORAGE] readJson called: assets_aeb754ac-15ac-403b-8d78-c790c3424c50.json
 AppContext.tsx:24 [STORAGE] Connection check: Connected=true, Responsive=true
-ScriptManager.tsx:167 [ScriptManager] Connection check: true
-ScriptManager.tsx:174 [ScriptManager] Calling storageService.getScripts...
+ScriptManager.tsx:173 [ScriptManager] Connection check: true
+ScriptManager.tsx:180 [ScriptManager] Calling storageService.getScripts...
 storage.ts:1087 [Storage] getScripts called, projectId: aeb754ac-15ac-403b-8d78-c790c3424c50
 storage.ts:1088 [Storage] Reading file: scripts_aeb754ac-15ac-403b-8d78-c790c3424c50.json
 storage.ts:673 [STORAGE] readJson called: scripts_aeb754ac-15ac-403b-8d78-c790c3424c50.json
@@ -96,12 +684,16 @@ storage.ts:701 [STORAGE] File not found: assets_aeb754ac-15ac-403b-8d78-c790c342
 storage.ts:689 [STORAGE] getFileHandle result for assets_aeb754ac-15ac-403b-8d78-c790c3424c50.json: not found
 storage.ts:701 [STORAGE] File not found: assets_aeb754ac-15ac-403b-8d78-c790c3424c50.json
 storage.ts:689 [STORAGE] getFileHandle result for scripts_aeb754ac-15ac-403b-8d78-c790c3424c50.json: found
-storage.ts:697 [STORAGE] Successfully read scripts_aeb754ac-15ac-403b-8d78-c790c3424c50.json: 633 chars, 51.80ms
-storage.ts:1090 [Storage] Read result: Found 1 scripts
-ScriptManager.tsx:176 [ScriptManager] Loaded scripts: 1
-storage.ts:697 [STORAGE] Successfully read scripts_aeb754ac-15ac-403b-8d78-c790c3424c50.json: 633 chars, 9.50ms
-storage.ts:1090 [Storage] Read result: Found 1 scripts
-ScriptManager.tsx:176 [ScriptManager] Loaded scripts: 1
+storage.ts:697 [STORAGE] Successfully read scripts_aeb754ac-15ac-403b-8d78-c790c3424c50.json: 2569 chars, 58.00ms
+storage.ts:1090 [Storage] Read result: Found 2 scripts
+ScriptManager.tsx:182 [ScriptManager] Loaded scripts: 2
+ScriptManager.tsx:183 [ScriptManager] isMountedRef.current: false
+ScriptManager.tsx:192 [ScriptManager] Component unmounted, skipping setScripts
+storage.ts:697 [STORAGE] Successfully read scripts_aeb754ac-15ac-403b-8d78-c790c3424c50.json: 2569 chars, 9.30ms
+storage.ts:1090 [Storage] Read result: Found 2 scripts
+ScriptManager.tsx:182 [ScriptManager] Loaded scripts: 2
+ScriptManager.tsx:183 [ScriptManager] isMountedRef.current: false
+ScriptManager.tsx:192 [ScriptManager] Component unmounted, skipping setScripts
 storage.ts:673 [STORAGE] readJson called: jobs_queue.json
 storage.ts:689 [STORAGE] getFileHandle result for jobs_queue.json: not found
 storage.ts:701 [STORAGE] File not found: jobs_queue.json
@@ -109,9 +701,9 @@ storage.ts:673 [STORAGE] readJson called: settings.json
 storage.ts:673 [STORAGE] readJson called: settings.json
 storage.ts:689 [STORAGE] getFileHandle result for settings.json: found
 storage.ts:689 [STORAGE] getFileHandle result for settings.json: found
-storage.ts:697 [STORAGE] Successfully read settings.json: 5037 chars, 1.60ms
+storage.ts:697 [STORAGE] Successfully read settings.json: 5037 chars, 2.60ms
 storage.ts:673 [STORAGE] readJson called: jobs_queue.json
-storage.ts:697 [STORAGE] Successfully read settings.json: 5037 chars, 2.00ms
+storage.ts:697 [STORAGE] Successfully read settings.json: 5037 chars, 2.70ms
 storage.ts:673 [STORAGE] readJson called: jobs_queue.json
 storage.ts:689 [STORAGE] getFileHandle result for jobs_queue.json: not found
 storage.ts:701 [STORAGE] File not found: jobs_queue.json
