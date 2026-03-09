@@ -40,6 +40,11 @@ import { PerformanceMonitor, PerformanceReport } from './parsing/PerformanceMoni
 
 /**
  * Script Parser Configuration Interface
+ * 
+ * 2.0版本重大变更：
+ * - 移除所有基于字数的配置（durationBudgetConfig等）
+ * - 新增creativeIntent创作意图配置
+ * - 移除平台模板相关配置
  */
 export interface ScriptParserConfig {
   useSemanticChunking: boolean;
@@ -52,85 +57,84 @@ export interface ScriptParserConfig {
   enableIterativeRefinement?: boolean; // 启用迭代优化
   iterativeRefinementConfig?: Partial<IterativeRefinementConfig>; // 迭代优化配置
 
-  // ========== 时长预算与平台配置 ==========
+  // ========== 2.0版本：创作意图配置 ==========
+  
+  /**
+   * 创作意图
+   * 用户的创作方向和风格偏好，替代旧的平台模板配置
+   * @default undefined
+   */
+  creativeIntent?: {
+    filmStyle: 'short-drama' | 'film' | 'documentary' | 'custom';
+    narrativeFocus: {
+      protagonistArc: boolean;
+      emotionalCore: boolean;
+      worldBuilding: boolean;
+      visualSpectacle: boolean;
+      thematicDepth: boolean;
+    };
+    emotionalTone: {
+      primary: 'inspiring' | 'melancholic' | 'thrilling' | 'romantic' | 'mysterious';
+      intensity: number;
+    };
+    visualReferences?: string[];
+    creativeNotes?: string;
+    targetPlatforms?: ('douyin' | 'kuaishou' | 'bilibili' | 'theatrical')[];
+  };
+
+  // ========== 2.0版本：已移除的配置（保留字段用于兼容）==========
 
   /**
-   * 启用时长预算规划
-   * 开启后，解析器将根据目标平台和节奏类型为每个分镜分配预估时长
-   * @default false
+   * @deprecated 2.0移除：基于字数的时长预算规划
+   * 请使用creativeIntent替代
    */
   useDurationBudget?: boolean;
 
   /**
-   * 目标平台
-   * - douyin: 抖音（竖屏，快节奏，15-60秒）
-   * - kuaishou: 快手（竖屏，生活化，15-90秒）
-   * - bilibili: B站（横屏，多样化，1-30分钟）
-   * - premium: 精品短剧（横屏，高质量，3-15分钟）
-   * @default 'douyin'
+   * @deprecated 2.0移除：目标平台选择
+   * 请使用creativeIntent.filmStyle替代
    */
   targetPlatform?: 'douyin' | 'kuaishou' | 'bilibili' | 'premium';
 
   /**
-   * 节奏类型
-   * - fast: 快节奏（信息密度高，镜头切换快）
-   * - normal: 标准节奏（平衡叙事与节奏）
-   * - slow: 慢节奏（注重氛围渲染，镜头停留长）
-   * @default 'normal'
+   * @deprecated 2.0移除：节奏类型
+   * 请使用creativeIntent.filmStyle替代
    */
   paceType?: 'fast' | 'normal' | 'slow';
 
   /**
-   * 启用动态时长
-   * 开启后，解析器将根据场景情绪、动作复杂度等因素动态调整分镜时长
-   * @default false
+   * @deprecated 2.0移除：动态时长
    */
   useDynamicDuration?: boolean;
 
-  // ========== 分镜质检配置 ==========
-
   /**
-   * 启用分镜质检
-   * 开启后，解析器将对生成的分镜进行质量检查，包括时长预算符合度、内容完整性等
-   * @default false
+   * @deprecated 2.0移除：基于字数的分镜质检
    */
   useShotQC?: boolean;
 
   /**
-   * 自动调整不符合预算的分镜
-   * 开启后，当分镜超出或低于预算时长时，自动进行合并、拆分或时长调整
-   * @default false
+   * @deprecated 2.0移除：质检自动调整
    */
   qcAutoAdjust?: boolean;
 
   /**
-   * 预算偏差容忍度
-   * 定义分镜时长与预算偏差的可接受范围，超出此范围将触发调整或警告
-   * 取值范围：0-1，表示百分比（如0.15表示15%）
-   * @default 0.15
+   * @deprecated 2.0移除：质检容错率
    */
   qcTolerance?: number;
 
-  // ========== 生产级Prompt配置 ==========
-
   /**
-   * 使用生产级Prompt模板
-   * 开启后，生成分镜时将使用包含完整预算约束、时长分配策略和硬性约束规则的生产级Prompt
-   * @default false
+   * @deprecated 2.0移除：生产级Prompt开关
+   * 现在默认启用专业Prompt
    */
   useProductionPrompt?: boolean;
 
   /**
-   * 生产级Prompt配置
+   * @deprecated 2.0移除：生产级Prompt配置
    */
   productionPromptConfig?: {
-    /** 单镜最小时长（秒） */
     minShotDuration?: number;
-    /** 单镜最大时长（秒） */
     maxShotDuration?: number;
-    /** 场景预算偏差容忍度（百分比，如0.15表示±15%） */
     sceneBudgetTolerance?: number;
-    /** 高潮场景最小长镜头时长（秒） */
     climaxMinLongShotDuration?: number;
   };
 

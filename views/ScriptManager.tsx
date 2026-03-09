@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Script, ScriptParseState, ScriptCharacter, ScriptScene, ScriptItem, Shot, CharacterAsset, SceneAsset, FragmentAsset, ItemAsset, AssetType, ModelConfig } from '../types';
+import { Script, ScriptParseState, ScriptCharacter, ScriptScene, ScriptItem, Shot, CharacterAsset, SceneAsset, FragmentAsset, ItemAsset, AssetType, ModelConfig, CreativeIntent } from '../types';
 import { storageService } from '../services/storage';
 import { createScriptParser, ParseProgressCallback, ScriptParserConfig } from '../services/scriptParser';
 import { TextCleaner } from '../services/textCleaner';
@@ -14,7 +14,7 @@ import { QualityReport } from '../services/scriptParser';
 import type { RuleViolation } from '../services/parsing/ShortDramaRules';
 import { DetailedQualityReport } from '../services/parsing/QualityAnalyzer';
 import QualityReportCard from '../components/ScriptParser/QualityReportCard';
-import { ParseConfigConfirmModal } from '../components/ParseConfigConfirmModal';
+import { CreativeIntentModal } from '../components/CreativeIntentModal';
 
 // Professional Analysis Components
 import { SoundDesignTab } from '../src/components/ScriptParser/SoundDesignTab';
@@ -46,7 +46,7 @@ import {
   Badge,
   Switch
 } from "@heroui/react";
-import { FileText, Upload, Play, RotateCcw, Users, MapPin, Film, CheckCircle2, AlertCircle, Brain, Box, Trash2, Sparkles, AlertTriangle, Info, BookOpen, Layout, Palette, Music, Clock } from 'lucide-react';
+import { FileText, Upload, Play, RotateCcw, Users, MapPin, Film, CheckCircle2, AlertCircle, Brain, Box, Trash2, Sparkles, AlertTriangle, Info, BookOpen, Layout, Palette, Music, Clock, Clapperboard } from 'lucide-react';
 
 interface ScriptManagerProps {
   projectId?: string;
@@ -66,7 +66,7 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
   const [isParsing, setIsParsing] = useState(false);
   const [parseProgress, setParseProgress] = useState(0);
   const [parseStage, setParseStage] = useState<string>('');
-  const [activeParseButton, setActiveParseButton] = useState<string | null>(null); // Track which button is loading
+  const [activeParseButton, setActiveParseButton] = useState<string | null>(null);
 
   // Quality report state
   const [qualityReport, setQualityReport] = useState<QualityReport | null>(null);
@@ -77,24 +77,29 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
   const [deleteStats, setDeleteStats] = useState<{ characters: number; scenes: number; items: number; shots: number } | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  // Note: Step-by-step parsing has been removed in v2
-  // All parsing now goes through handleParseScript with automatic strategy selection
-
   // Script content for upload
   const [scriptTitle, setScriptTitle] = useState('');
   const [scriptContent, setScriptContent] = useState('');
-  const [scriptWordCount, setScriptWordCount] = useState(0); // 字数统计
+  const [scriptWordCount, setScriptWordCount] = useState(0);
 
-  // Parse config confirmation modal
-  const [showParseConfirm, setShowParseConfirm] = useState(false);
-
-  // Duration Budget Configuration State
-  const [durationBudgetConfig, setDurationBudgetConfig] = useState({
-    platform: settings.durationBudget?.platform || 'douyin',
-    pace: settings.durationBudget?.pace || 'normal',
-    useDurationBudget: settings.durationBudget?.useDurationBudget ?? false,
-    useProductionPrompt: settings.durationBudget?.useProductionPrompt ?? false,
-    useShotQC: settings.durationBudget?.useShotQC ?? false,
+  // Creative Intent Modal - 新的创作意图确认
+  const [showCreativeIntent, setShowCreativeIntent] = useState(false);
+  const [creativeIntent, setCreativeIntent] = useState<CreativeIntent>({
+    filmStyle: 'film',
+    narrativeFocus: {
+      protagonistArc: true,
+      emotionalCore: true,
+      worldBuilding: false,
+      visualSpectacle: true,
+      thematicDepth: false
+    },
+    emotionalTone: {
+      primary: 'inspiring',
+      intensity: 7
+    },
+    visualReferences: [],
+    creativeNotes: '',
+    targetPlatforms: []
   });
 
   // Existing assets for mapping
@@ -103,286 +108,173 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
   const [existingItems, setExistingItems] = useState<ItemAsset[]>([]);
   const [existingFragments, setExistingFragments] = useState<FragmentAsset[]>([]);
 
-  // LLM Model selection
-  const [llmModels, setLlmModels] = useState<ModelConfig[]>([]);
-  const [selectedLlmModelId, setSelectedLlmModelId] = useState<string>('');
-
-  // Refs for cleanup
-  const parserRef = useRef<ReturnType<typeof createScriptParser> | null>(null);
+  // Refs
+  const parserRef = useRef<any>(null);
   const isMountedRef = useRef(true);
 
-  // Check if in standalone mode (no projectId)
-  const isStandaloneMode = !projectId;
-
-  // Load scripts and assets
   useEffect(() => {
-    isMountedRef.current = true;
-
-    loadScripts();
-    loadExistingAssets();
-    loadLlmModels();
-
     return () => {
       isMountedRef.current = false;
-      // Cancel ongoing parsing
-      if (parserRef.current) {
-        parserRef.current.cancel();
-        parserRef.current = null;
-      }
     };
+  }, []);
+
+  // Load scripts on mount
+  useEffect(() => {
+    if (projectId) {
+      loadScripts();
+      loadExistingAssets();
+    }
   }, [projectId]);
 
-  // Restore quality report from parseState when currentScript changes
+  // Update quality report when script changes
   useEffect(() => {
-    console.log('[ScriptManager] ========== useEffect: currentScript changed ==========');
-    console.log('[ScriptManager] currentScript exists:', !!currentScript);
-    console.log('[ScriptManager] parseState exists:', !!currentScript?.parseState);
-    console.log('[ScriptManager] qualityReport exists:', !!currentScript?.parseState?.qualityReport);
+    if (currentScript?.parseState?.stage === 'completed') {
+      console.log('[ScriptManager] ========== useEffect: currentScript changed ==========');
+      console.log('[ScriptManager] currentScript exists:', !!currentScript);
+      console.log('[ScriptManager] parseState exists:', !!currentScript?.parseState);
+      console.log('[ScriptManager] qualityReport exists:', !!currentScript?.parseState?.qualityReport);
 
-    if (currentScript?.parseState?.qualityReport) {
-      const report = currentScript.parseState.qualityReport;
-      console.log('[ScriptManager] Restoring quality report:', {
-        score: report.score,
-        violationsCount: report.violations?.length,
-        suggestionsCount: report.suggestions?.length,
-        type: typeof report
-      });
-      setQualityReport(report);
-      console.log('[ScriptManager] ========== Quality Report Restored ==========');
+      if (currentScript.parseState.qualityReport) {
+        setQualityReport(currentScript.parseState.qualityReport);
+        console.log('[ScriptManager] Restoring quality report:', {
+          score: currentScript.parseState.qualityReport.score,
+          violationsCount: currentScript.parseState.qualityReport.violations?.length,
+          suggestionsCount: currentScript.parseState.qualityReport.suggestions?.length,
+          type: typeof currentScript.parseState.qualityReport
+        });
+        console.log('[ScriptManager] ========== Quality Report Restored ==========');
+      } else {
+        setQualityReport(null);
+        console.log('[ScriptManager] No quality report in parseState, setting to null');
+      }
     } else {
-      console.log('[ScriptManager] No quality report in parseState, setting to null');
       setQualityReport(null);
     }
   }, [currentScript]);
 
-  // Load LLM models from settings (same mechanism as image/video models)
-  const loadLlmModels = () => {
-    const models = settings.models.filter(m => m.type === 'llm');
-    setLlmModels(models);
-    // Set default model if available and none selected
-    if (models.length > 0 && !selectedLlmModelId) {
-      const defaultModel = models.find(m => m.isDefault) || models[0];
-      setSelectedLlmModelId(defaultModel.id);
-    }
-  };
-
   const loadScripts = async () => {
+    if (!projectId) return;
     try {
-      let data: Script[];
-      if (projectId) {
-        data = await storageService.getScripts(projectId);
-      } else {
-        // Standalone mode: load all scripts
-        data = await storageService.getAllScripts();
-      }
-      setScripts(data);
-      if (data.length > 0 && !currentScript) {
-        setCurrentScript(data[0]);
+      const loadedScripts = await storageService.getScripts(projectId);
+      if (isMountedRef.current) {
+        setScripts(loadedScripts);
+        if (loadedScripts.length > 0 && !currentScript) {
+          setCurrentScript(loadedScripts[0]);
+        }
       }
     } catch (error) {
-      console.error('Failed to load scripts:', error);
-      setScripts([]);
+      console.error('[ScriptManager] Failed to load scripts:', error);
+      showToast('Failed to load scripts', 'error');
     }
   };
 
   const loadExistingAssets = async () => {
-    if (!projectId) {
-      // Standalone mode: no project assets
-      setExistingCharacters([]);
-      setExistingScenes([]);
-      setExistingItems([]);
-      setExistingFragments([]);
-      return;
-    }
+    if (!projectId) return;
     try {
       const assets = await storageService.getAssets(projectId);
-      setExistingCharacters(assets.filter(a => a.type === AssetType.CHARACTER) as CharacterAsset[]);
-      setExistingScenes(assets.filter(a => a.type === AssetType.SCENE) as SceneAsset[]);
-      setExistingItems(assets.filter(a => a.type === AssetType.ITEM) as ItemAsset[]);
-      setExistingFragments(assets.filter(a => a.type === AssetType.VIDEO_SEGMENT) as FragmentAsset[]);
+      if (isMountedRef.current) {
+        setExistingCharacters(assets.filter(a => a.type === AssetType.CHARACTER) as CharacterAsset[]);
+        setExistingScenes(assets.filter(a => a.type === AssetType.SCENE) as SceneAsset[]);
+        setExistingItems(assets.filter(a => a.type === AssetType.ITEM) as ItemAsset[]);
+        setExistingFragments(assets.filter(a => a.type === AssetType.VIDEO_SEGMENT) as FragmentAsset[]);
+      }
     } catch (error) {
-      console.error('Failed to load assets:', error);
-      setExistingCharacters([]);
-      setExistingScenes([]);
-      setExistingItems([]);
-      setExistingFragments([]);
+      console.error('[ScriptManager] Failed to load existing assets:', error);
     }
   };
 
-  // Handle delete script
-  const handleDeleteScript = async () => {
-    if (!scriptToDelete || !projectId) return;
-
-    setIsDeleting(true);
-    try {
-      const stats = await storageService.deleteScript(scriptToDelete.id, projectId);
-      // Remove from list
-      const updatedScripts = scripts.filter(s => s.id !== scriptToDelete.id);
-      setScripts(updatedScripts);
-      // If deleted current script, select another or null
-      if (currentScript?.id === scriptToDelete.id) {
-        setCurrentScript(updatedScripts.length > 0 ? updatedScripts[0] : null);
-      }
-      showToast(`剧本删除成功，同时删除了 ${stats.characters} 个角色、${stats.scenes} 个场景、${stats.items} 个物品`, 'success');
-    } catch (error: any) {
-      showToast(`删除失败: ${error.message}`, 'error');
-    } finally {
-      setIsDeleting(false);
-      setIsDeleteModalOpen(false);
-      setScriptToDelete(null);
-      setDeleteStats(null);
-    }
-  };
-
-  // Open delete confirmation modal
-  const openDeleteModal = async (script: Script) => {
-    setScriptToDelete(script);
-    setIsDeleteModalOpen(true);
-    // 获取关联资源统计
-    try {
-      const assets = await storageService.getAssets(projectId!);
-      const relatedAssets = assets.filter(a => a.scriptId === script.id);
-      // 计算分镜数量（从剧本的 parseState 中读取）
-      const shotCount = script.parseState?.shots?.length || 0;
-      setDeleteStats({
-        characters: relatedAssets.filter(a => a.type === AssetType.CHARACTER).length,
-        scenes: relatedAssets.filter(a => a.type === AssetType.SCENE).length,
-        items: relatedAssets.filter(a => a.type === AssetType.ITEM).length,
-        shots: shotCount
-      });
-    } catch (error) {
-      console.error('Failed to get delete stats:', error);
-      setDeleteStats({ characters: 0, scenes: 0, items: 0, shots: 0 });
-    }
-  };
-
-  // Handle file upload
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    try {
-      const rawText = await file.text();
-      
-      // 检测文本编码问题
-      const issues = TextCleaner.detectEncodingIssues(rawText);
-      if (issues.length > 0) {
-        console.log('[ScriptManager] Detected encoding issues:', issues);
-      }
-      
-      // 清洗文本
-      const cleanResult = TextCleaner.process(rawText);
-      console.log('[ScriptManager] Text cleaned:', {
-        originalLength: cleanResult.stats.originalLength,
-        cleanedLength: cleanResult.stats.cleanedLength,
-        removedChars: cleanResult.stats.removedChars,
-        chapterCount: cleanResult.stats.chapterCount
-      });
-      
-      setScriptContent(cleanResult.cleanedText);
-      
-      // 统计字数
-      const wordCount = cleanResult.cleanedText.length;
-      setScriptWordCount(wordCount);
-      
-      // 如果有多个章节，显示提示
-      if (cleanResult.chapters.length > 1) {
-        showToast(`检测到 ${cleanResult.chapters.length} 个章节`, 'info');
-      }
-      
-      // Try to extract title from filename
-      const title = file.name.replace(/\.[^/.]+$/, '');
-      setScriptTitle(title);
-    } catch (error: any) {
-      showToast(`读取文件失败: ${error.message}`, 'error');
-    }
-  };
-
-  // Create new script
-  const handleCreateScript = async () => {
-    if (!scriptTitle || !scriptContent) {
-      showToast('请填写标题和内容', 'warning');
+  const handleUploadScript = async () => {
+    if (!scriptTitle.trim() || !scriptContent.trim()) {
+      showToast('Please enter both title and content', 'error');
       return;
     }
 
-    // Check file system connection
-    const connected = await checkConnection();
-    if (!connected) {
-      showToast('文件系统未连接，请先选择工作目录', 'error');
+    if (!projectId) {
+      showToast('No project selected', 'error');
       return;
     }
 
-    // In standalone mode, use a default project ID
-    const effectiveProjectId = projectId || 'standalone';
-
-    const newScript: Script = {
-      id: `script_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-      projectId: effectiveProjectId,
-      title: scriptTitle,
-      content: scriptContent,
-      parseState: {
-        stage: 'idle',
-        progress: 0
-      },
-      createdAt: Date.now(),
-      updatedAt: Date.now()
-    };
-
     try {
+      const newScript: Script = {
+        id: `script_${Date.now()}`,
+        projectId,
+        title: scriptTitle.trim(),
+        content: scriptContent.trim(),
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        parseState: {
+          stage: 'idle',
+          progress: 0
+        }
+      };
+
       await storageService.saveScript(newScript);
       setScripts([...scripts, newScript]);
       setCurrentScript(newScript);
       setIsUploadModalOpen(false);
       setScriptTitle('');
       setScriptContent('');
-      showToast('剧本导入成功', 'success');
-    } catch (error: any) {
-      showToast(`保存失败: ${error.message}`, 'error');
+      showToast('Script uploaded successfully', 'success');
+    } catch (error) {
+      console.error('[ScriptManager] Failed to upload script:', error);
+      showToast('Failed to upload script', 'error');
     }
   };
 
-  // Get selected LLM model config
-  const getSelectedModel = (showError: boolean = true) => {
-    const selectedModel = llmModels.find(m => m.id === selectedLlmModelId);
-    if (!selectedModel) {
-      if (showError) {
-        showToast('请先在设置中配置并选择LLM模型', 'error');
-      }
-      return null;
+  // 2.0版本：打开创作意图确认弹窗
+  const handleStartParse = () => {
+    if (!currentScript) {
+      showToast('Please select a script first', 'error');
+      return;
     }
-    if (!selectedModel.apiKey) {
-      if (showError) {
-        showToast('所选LLM模型未配置API密钥', 'error');
-      }
-      return null;
-    }
-    return selectedModel;
-  };
-
-  // Note: handleParseStage has been removed in v2
-  // All parsing now goes through handleParseScript with automatic strategy selection
-
-  // Parse script (full auto-parsing)
-  const handleParseScript = async () => {
-    if (!currentScript || !projectId) return;
 
     const selectedModel = getSelectedModel();
-    if (!selectedModel) return;
+    if (!selectedModel) {
+      showToast('Please configure LLM model in settings', 'error');
+      return;
+    }
 
-    setActiveParseButton('full');
+    // 打开创作意图确认弹窗，替代旧的ParseConfigConfirmModal
+    setShowCreativeIntent(true);
+  };
+
+  // 2.0版本：用户确认创作意图后开始解析
+  const handleParseWithIntent = async () => {
+    setShowCreativeIntent(false);
+    await handleParseScript();
+  };
+
+  const handleParseScript = async () => {
+    if (!currentScript || !projectId) {
+      showToast('Please select a script first', 'error');
+      return;
+    }
+
+    const selectedModel = getSelectedModel();
+    if (!selectedModel) {
+      showToast('Please configure LLM model in settings', 'error');
+      return;
+    }
+
+    // Check if model has API key
+    if (!selectedModel.apiKey) {
+      showToast('Selected model is missing API key. Please configure in settings.', 'error');
+      return;
+    }
+
     setIsParsing(true);
     setParseProgress(0);
-    setParseStage('准备解析...');
+    setParseStage('Initializing...');
+    setActiveParseButton('full');
 
     try {
-      // Create parser with model config and store ref for cleanup
-      const parserConfig: Partial<ScriptParserConfig> = {
+      // Create parser with v2.0 config - 移除所有基于字数的旧配置
+      const parserConfig: ScriptParserConfig = {
         useSemanticChunking: true,
         useDramaRules: true,
         dramaRulesMinScore: 60,
         useCache: true,
         cacheTTL: 3600000,
-        // ✅ 启用迭代优化引擎
         enableIterativeRefinement: true,
         iterativeRefinementConfig: {
           maxIterations: 3,
@@ -392,16 +284,17 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
           confidenceThreshold: 0.7,
           verboseLogging: true
         },
-        // ✅ 启用时长预算规划（从弹窗配置中读取）
-        useDurationBudget: durationBudgetConfig.useDurationBudget,
-        targetPlatform: durationBudgetConfig.platform,
-        paceType: durationBudgetConfig.pace,
+        // 2.0: 使用创作意图替代旧的durationBudgetConfig
+        creativeIntent: creativeIntent,
+        // 2.0: 移除所有基于字数的配置
+        useDurationBudget: false,
         useDynamicDuration: false,
-        useProductionPrompt: durationBudgetConfig.useProductionPrompt,
-        useShotQC: durationBudgetConfig.useShotQC,
+        useProductionPrompt: true, // 默认启用专业Prompt
+        useShotQC: false, // 2.0: 移除基于字数的质检
         qcAutoAdjust: false,
         qcTolerance: 0.15
       };
+
       const parser = createScriptParser(
         selectedModel.apiKey,
         selectedModel.apiUrl,
@@ -410,20 +303,18 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
         parserConfig
       );
       parserRef.current = parser;
-      console.log('[ScriptManager] 完整解析模式，ScriptParser配置:', parserConfig);
+      console.log('[ScriptManager] v2.0 Parser config:', parserConfig);
 
       const onProgress: ParseProgressCallback = (stage, progress, message) => {
-        // Check if component is still mounted before updating state
         if (!isMountedRef.current) return;
-
         setParseProgress(progress);
         const stageNames: Record<string, string> = {
-          metadata: '提取元数据',
-          characters: '分析角色',
-          scenes: '分析场景',
-          shots: '生成分镜',
-          completed: '解析完成',
-          error: '解析出错'
+          metadata: 'Analyzing creative intent...',
+          characters: 'Designing characters...',
+          scenes: 'Planning scenes...',
+          shots: 'Creating shot list...',
+          completed: 'Parse completed',
+          error: 'Parse error'
         };
         setParseStage(message || stageNames[stage] || stage);
       };
@@ -435,17 +326,14 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
         onProgress
       );
 
-      // Check if component is still mounted before updating state
       if (!isMountedRef.current) return;
 
-      // Update current script with parse state
       const updatedScript = { ...currentScript, parseState };
       setCurrentScript(updatedScript);
 
       if (parseState.stage === 'completed') {
-        showToast('剧本解析完成', 'success');
+        showToast('Script analysis completed', 'success');
 
-        // Get quality report from parser
         console.log('[ScriptManager] ========== Getting Quality Report ==========');
         const report = parser.getQualityReport();
         console.log('[ScriptManager] Report from parser:', {
@@ -463,722 +351,437 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
           console.warn('[ScriptManager] No quality report received from parser!');
         }
       } else if (parseState.stage === 'error') {
-        showToast(`解析失败: ${parseState.error}`, 'error');
+        showToast(`Parse failed: ${parseState.error}`, 'error');
       }
     } catch (error: any) {
-      // Check if component is still mounted before updating state
       if (!isMountedRef.current) return;
 
-      // Don't show error if parsing was cancelled
       if (error.name === 'AbortError') {
-        showToast('解析已取消', 'info');
+        showToast('Parse cancelled', 'info');
       } else {
-        showToast(`解析失败: ${error.message}`, 'error');
+        showToast(`Parse failed: ${error.message}`, 'error');
       }
     } finally {
-      // Check if component is still mounted before updating state
       if (isMountedRef.current) {
         setIsParsing(false);
         setActiveParseButton(null);
       }
-      parserRef.current = null;
     }
   };
 
-  // Update parse state
-  const handleUpdateParseState = async (updates: Partial<ScriptParseState>) => {
-    if (!currentScript || !projectId) return;
+  const handleDeleteScript = async () => {
+    if (!scriptToDelete || !projectId) return;
 
-    const updatedState = { ...currentScript.parseState, ...updates };
-    await storageService.updateScriptParseState(
-      currentScript.id,
-      projectId,
-      () => updatedState
-    );
+    setIsDeleting(true);
+    try {
+      await storageService.deleteScript(scriptToDelete.id, projectId);
+      const updatedScripts = scripts.filter(s => s.id !== scriptToDelete.id);
+      setScripts(updatedScripts);
 
-    setCurrentScript({ ...currentScript, parseState: updatedState });
-  };
-
-  // Get parse status color
-  const getParseStatusColor = (stage: string) => {
-    switch (stage) {
-      case 'completed': return 'success';
-      case 'error': return 'danger';
-      case 'idle': return 'default';
-      default: return 'primary';
-    }
-  };
-
-  // Render parse state info
-  const renderParseState = () => {
-    if (!currentScript) return null;
-    const { parseState } = currentScript;
-
-    // Determine which steps are available based on current stage
-    const canParseMetadata = parseState.stage === 'idle' || parseState.stage === 'completed' || parseState.stage === 'error';
-    const canParseCharacters = parseState.stage === 'idle' || parseState.stage === 'metadata' || parseState.stage === 'completed' || parseState.stage === 'error' || (parseState.stage === 'characters' && parseState.metadata);
-    const canParseScenes = parseState.stage === 'idle' || parseState.stage === 'metadata' || parseState.stage === 'characters' || parseState.stage === 'completed' || parseState.stage === 'error' || (parseState.stage === 'scenes' && parseState.characters);
-    const canParseShots = parseState.stage === 'idle' || parseState.stage === 'metadata' || parseState.stage === 'characters' || parseState.stage === 'scenes' || parseState.stage === 'completed' || parseState.stage === 'error';
-
-    // Calculate step-by-step progress
-    const getStepProgress = () => {
-      const steps = [
-        { key: 'metadata', label: '元数据', hasData: !!parseState.metadata },
-        { key: 'characters', label: '角色', hasData: !!parseState.characters },
-        { key: 'scenes', label: '场景', hasData: !!parseState.scenes },
-        { key: 'shots', label: '分镜', hasData: !!parseState.shots }
-      ];
-      
-      const completedCount = steps.filter(s => s.hasData).length;
-      const nextStep = steps.find(s => !s.hasData);
-      
-      return {
-        steps,
-        completedCount,
-        totalSteps: steps.length,
-        nextStep,
-        isComplete: completedCount === steps.length
-      };
-    };
-
-    const stepProgress = getStepProgress();
-
-    // Get main button text and icon based on stage
-    const getMainButtonConfig = () => {
-      switch (parseState.stage) {
-        case 'idle':
-          return { text: '一键解析', icon: <Play size={16} />, color: 'primary' as const };
-        case 'completed':
-        case 'error':
-          return { text: '重新解析', icon: <RotateCcw size={16} />, variant: 'flat' as const };
-        default:
-          return { text: '继续解析', icon: <Play size={16} />, color: 'primary' as const };
+      if (currentScript?.id === scriptToDelete.id) {
+        setCurrentScript(updatedScripts.length > 0 ? updatedScripts[0] : null);
       }
-    };
 
-    const mainButton = getMainButtonConfig();
-
-    return (
-      <Card className="mb-4">
-        <CardBody>
-          {/* Header: Status + Model Selection + Main Action */}
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-2">
-              <h3 className="font-bold">解析状态</h3>
-              <Chip color={getParseStatusColor(parseState.stage) as any} size="sm">
-                {parseState.stage === 'idle' && '未开始'}
-                {parseState.stage === 'metadata' && '提取元数据'}
-                {parseState.stage === 'characters' && '分析角色'}
-                {parseState.stage === 'scenes' && '分析场景'}
-                {parseState.stage === 'shots' && '生成分镜'}
-                {parseState.stage === 'completed' && '已完成'}
-                {parseState.stage === 'error' && '出错'}
-              </Chip>
-            </div>
-            <div className="flex items-center gap-2">
-              {/* Model Selection - Always visible */}
-              {llmModels.length > 0 ? (
-                <Select
-                  label=""
-                  aria-label="选择解析模型"
-                  placeholder="选择模型"
-                  selectedKeys={selectedLlmModelId ? new Set([selectedLlmModelId]) : new Set()}
-                  onChange={(e) => setSelectedLlmModelId(e.target.value)}
-                  size="sm"
-                  className="w-36"
-                  isDisabled={isParsing}
-                >
-                  {llmModels.map(model => (
-                    <SelectItem key={model.id} value={model.id}>
-                      {model.name}
-                    </SelectItem>
-                  ))}
-                </Select>
-              ) : (
-                <Button
-                  size="sm"
-                  color="primary"
-                  variant="flat"
-                  onPress={() => navigate('/settings')}
-                >
-                  配置模型
-                </Button>
-              )}
-
-              {/* Main Action Button */}
-              <Button
-                size="sm"
-                {...('color' in mainButton ? { color: mainButton.color } : { variant: mainButton.variant })}
-                startContent={mainButton.icon}
-                onPress={() => setShowParseConfirm(true)}
-                isLoading={activeParseButton === 'full'}
-                isDisabled={isParsing || llmModels.length === 0}
-              >
-                {mainButton.text}
-              </Button>
-            </div>
-          </div>
-
-          {/* Duration Budget Config Preview */}
-          {!isParsing && parseState.stage !== 'completed' && (
-            <div className="mb-4 p-3 bg-slate-50 dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-800">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4 text-sm">
-                  <span className="text-slate-500">当前配置:</span>
-                  <div className="flex items-center gap-2">
-                    <span className="px-2 py-0.5 bg-primary/10 text-primary text-xs font-medium rounded-full">
-                      {durationBudgetConfig.platform === 'douyin' ? '抖音' :
-                       durationBudgetConfig.platform === 'kuaishou' ? '快手' :
-                       durationBudgetConfig.platform === 'bilibili' ? 'B站' : '精品'}
-                    </span>
-                    <span className="px-2 py-0.5 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 text-xs font-medium rounded-full">
-                      {durationBudgetConfig.pace === 'fast' ? '快节奏' :
-                       durationBudgetConfig.pace === 'normal' ? '中节奏' : '慢节奏'}
-                    </span>
-                    {durationBudgetConfig.useDurationBudget && (
-                      <span className="px-2 py-0.5 bg-success/10 text-success text-xs font-medium rounded-full flex items-center gap-1">
-                        <Clock className="w-3 h-3" />
-                        时长预算
-                      </span>
-                    )}
-                    {durationBudgetConfig.useProductionPrompt && (
-                      <span className="px-2 py-0.5 bg-success/10 text-success text-xs font-medium rounded-full flex items-center gap-1">
-                        <Sparkles className="w-3 h-3" />
-                        生产级Prompt
-                      </span>
-                    )}
-                  </div>
-                </div>
-                <Button
-                  size="sm"
-                  variant="light"
-                  onPress={() => navigate('/settings')}
-                  className="text-xs"
-                >
-                  修改配置
-                </Button>
-              </div>
-              {scriptWordCount >= 3000 && !durationBudgetConfig.useDurationBudget && (
-                <div className="mt-2 flex items-center gap-2 text-xs text-warning">
-                  <AlertTriangle className="w-3 h-3" />
-                  <span>当前文本较长（{scriptWordCount}字），建议开启时长预算规划以获得更好的效果</span>
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* Progress Bar - Show when parsing */}
-          {isParsing && (
-            <div className="space-y-2 mb-4">
-              <div className="flex items-center gap-3">
-                <Progress value={parseProgress} className="flex-1" aria-label="解析进度" />
-                <span className="text-sm font-medium min-w-[3rem] text-right">{parseProgress.toFixed(2)}%</span>
-              </div>
-              <p className="text-sm text-center text-default-500">{parseStage}</p>
-            </div>
-          )}
-
-          {/* Note: Step-by-step parsing UI has been removed in v2 */}
-
-          {/* Completion Stats */}
-          {parseState.stage === 'completed' && (
-            <div className="grid grid-cols-4 gap-4 mt-4 pt-4 border-t border-default-200">
-              <div className="text-center">
-                <p className="text-2xl font-bold">{parseState.metadata?.characterCount || 0}</p>
-                <p className="text-sm text-default-500">角色</p>
-              </div>
-              <div className="text-center">
-                <p className="text-2xl font-bold">{parseState.metadata?.sceneCount || 0}</p>
-                <p className="text-sm text-default-500">场景</p>
-              </div>
-              <div className="text-center">
-                <p className="text-2xl font-bold">{parseState.shots?.length || 0}</p>
-                <p className="text-sm text-default-500">分镜</p>
-              </div>
-              <div className="text-center">
-                <p className="text-2xl font-bold">
-                  {Math.floor((parseState.shots?.reduce((sum, s) => sum + (s.duration || 0), 0) || 0) / 60)}分
-                  {(parseState.shots?.reduce((sum, s) => sum + (s.duration || 0), 0) || 0) % 60}秒
-                </p>
-                <p className="text-sm text-default-500">总时长</p>
-              </div>
-            </div>
-          )}
-        </CardBody>
-      </Card>
-    );
+      setIsDeleteModalOpen(false);
+      setScriptToDelete(null);
+      showToast('Script deleted successfully', 'success');
+    } catch (error) {
+      console.error('[ScriptManager] Failed to delete script:', error);
+      showToast('Failed to delete script', 'error');
+    } finally {
+      setIsDeleting(false);
+    }
   };
 
-  return (
-    <div className="container mx-auto p-6 space-y-6">
-      {/* File System Connection Warning */}
-      {!isConnected && (
-        <Card className="bg-warning-50 border-warning-200">
-          <CardBody className="flex flex-row items-center gap-4">
-            <AlertCircle className="text-warning-500" size={24} />
-            <div className="flex-1">
-              <p className="font-medium text-warning-700">文件系统未连接</p>
-              <p className="text-sm text-warning-600">请先返回项目页面选择工作目录，才能使用剧本管理功能</p>
-            </div>
-            <Button
-              color="warning"
-              variant="flat"
-              onPress={() => navigate(`/project/${projectId}`)}
-            >
-              返回项目
-            </Button>
-          </CardBody>
-        </Card>
-      )}
+  const confirmDeleteScript = (script: Script) => {
+    setScriptToDelete(script);
+    const stats = {
+      characters: script.parseState?.characters?.length || 0,
+      scenes: script.parseState?.scenes?.length || 0,
+      items: script.parseState?.items?.length || 0,
+      shots: script.parseState?.shots?.length || 0
+    };
+    setDeleteStats(stats);
+    setIsDeleteModalOpen(true);
+  };
 
+  const getSelectedModel = (needApiKey: boolean = true): ModelConfig | null => {
+    const llmModels = settings.models.filter(m => m.type === 'llm');
+    if (llmModels.length === 0) return null;
+
+    const model = llmModels[0];
+    if (needApiKey && !model.apiKey) return null;
+    return model;
+  };
+
+  // Update word count when content changes
+  useEffect(() => {
+    if (scriptContent) {
+      // 2.0: 简单的字数统计，不再依赖TextCleaner.getTextStats
+      const charCount = scriptContent.length;
+      setScriptWordCount(charCount);
+    } else {
+      setScriptWordCount(0);
+    }
+  }, [scriptContent]);
+
+  // Render
+  return (
+    <div className="flex flex-col h-full">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">剧本管理</h1>
-          <p className="text-default-500">导入剧本，自动解析角色、场景和分镜</p>
-        </div>
-        <div className="flex gap-2">
-          <Select
-            aria-label="选择剧本"
-            placeholder="选择剧本"
-            selectedKeys={currentScript ? new Set([currentScript.id]) : new Set()}
-            onChange={(e) => {
-              const script = scripts.find(s => s.id === e.target.value);
-              setCurrentScript(script || null);
-            }}
-            className="w-64"
-            isDisabled={!isConnected}
-          >
-            {scripts.map(script => (
-              <SelectItem key={script.id} value={script.id}>
-                {script.title}
-              </SelectItem>
-            ))}
-          </Select>
-          {currentScript && (
-            <Button
-              color="danger"
-              variant="flat"
-              startContent={<Trash2 size={18} />}
-              onPress={() => openDeleteModal(currentScript)}
-              isDisabled={!isConnected}
-            >
-              删除
-            </Button>
+      <div className="flex items-center justify-between p-4 border-b border-slate-200 dark:border-slate-800">
+        <div className="flex items-center gap-4">
+          <h2 className="text-xl font-bold flex items-center gap-2">
+            <FileText className="w-5 h-5" />
+            Script Management
+          </h2>
+          {scripts.length > 0 && (
+            <Chip size="sm" variant="flat">{scripts.length} scripts</Chip>
           )}
+        </div>
+        <div className="flex items-center gap-2">
           <Button
             color="primary"
-            startContent={<Upload size={18} />}
+            startContent={<Upload className="w-4 h-4" />}
             onPress={() => setIsUploadModalOpen(true)}
-            isDisabled={!isConnected}
           >
-            导入剧本
+            Upload Script
           </Button>
         </div>
       </div>
 
-      {currentScript ? (
-        <>
-          {/* Parse State */}
-          {renderParseState()}
-
-          {/* Shot Manager View - 独立分镜管理视图 */}
-          {initialTab === 'shots' && currentScript.parseState.stage === 'completed' ? (
-            <div className="h-[calc(100vh-280px)] flex gap-4">
-              {/* 左侧：分镜列表 */}
-              <div className="w-80 flex-shrink-0">
-                <ShotList
-                  shots={currentScript.parseState.shots || []}
-                  scenes={currentScript.parseState.scenes || []}
-                  onShotsUpdate={(shots) => handleUpdateParseState({ shots })}
-                  projectId={projectId || ''}
-                  scriptId={currentScript.id}  // 传递当前剧本ID
-                  viewMode="manager"
-                />
-              </div>
-              {/* 右侧：关键帧详情 - 由ShotList内部管理 */}
+      {/* Main Content */}
+      <div className="flex flex-1 overflow-hidden">
+        {/* Script List Sidebar */}
+        <div className="w-64 border-r border-slate-200 dark:border-slate-800 overflow-y-auto">
+          {scripts.length === 0 ? (
+            <div className="p-4 text-center text-slate-500">
+              <p>No scripts yet</p>
+              <p className="text-sm">Upload a script to get started</p>
             </div>
           ) : (
-            /* Tabs - 剧本解析视图 */
-            <Tabs aria-label="剧本解析结果">
-              <Tab
-                key="source"
-                title={
-                  <div className="flex items-center gap-2">
-                    <FileText size={16} />
-                    <span>原文</span>
+            <div className="divide-y divide-slate-200 dark:divide-slate-800">
+              {scripts.map(script => (
+                <div
+                  key={script.id}
+                  className={`p-4 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors ${
+                    currentScript?.id === script.id ? 'bg-slate-100 dark:bg-slate-800' : ''
+                  }`}
+                  onClick={() => setCurrentScript(script)}
+                >
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium truncate">{script.title}</p>
+                      <p className="text-xs text-slate-500">
+                        {new Date(script.createdAt).toLocaleDateString()}
+                      </p>
+                      {script.parseState?.stage === 'completed' && (
+                        <Chip size="sm" color="success" variant="flat" className="mt-1">
+                          <CheckCircle2 className="w-3 h-3 mr-1" />
+                          Parsed
+                        </Chip>
+                      )}
+                    </div>
+                    <Button
+                      isIconOnly
+                      size="sm"
+                      variant="light"
+                      color="danger"
+                      onPress={() => confirmDeleteScript(script)}
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
                   </div>
-                }
-              >
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Script Detail */}
+        <div className="flex-1 overflow-y-auto p-6">
+          {!currentScript ? (
+            <div className="flex flex-col items-center justify-center h-full text-slate-500">
+              <FileText className="w-16 h-16 mb-4 opacity-50" />
+              <p className="text-lg">Select a script to view details</p>
+              <p className="text-sm">or upload a new script</p>
+            </div>
+          ) : (
+            <div className="space-y-6">
+              {/* Script Header */}
+              <div className="flex items-start justify-between">
+                <div>
+                  <h3 className="text-2xl font-bold">{currentScript.title}</h3>
+                  <p className="text-slate-500 mt-1">
+                    {currentScript.content.length.toLocaleString()} characters
+                  </p>
+                </div>
+                <div className="flex items-center gap-2">
+                  {currentScript.parseState?.stage !== 'completed' && (
+                    <Button
+                      color="primary"
+                      startContent={isParsing ? undefined : <Play className="w-4 h-4" />}
+                      isLoading={isParsing && activeParseButton === 'full'}
+                      onPress={handleStartParse}
+                    >
+                      {isParsing ? 'Parsing...' : 'Start Analysis'}
+                    </Button>
+                  )}
+                  {currentScript.parseState?.stage === 'completed' && (
+                    <Button
+                      variant="flat"
+                      startContent={<RotateCcw className="w-4 h-4" />}
+                      onPress={handleStartParse}
+                    >
+                      Re-analyze
+                    </Button>
+                  )}
+                </div>
+              </div>
+
+              {/* Parse Progress */}
+              {isParsing && (
                 <Card>
-                  <CardBody className="h-[420px] overflow-y-auto">
-                    {currentScript.parseState.stage !== 'completed' && (
-                      <div className="mb-4 p-3 bg-primary-50 border border-primary-200 rounded-lg">
-                        <div className="flex items-center gap-2">
-                          <span className="text-lg">💡</span>
-                          <span className="text-sm font-medium text-primary-700">
-                            提示：解析完成后可查看角色、场景等分析结果
-                          </span>
-                        </div>
-                      </div>
-                    )}
-                    <pre className="whitespace-pre-wrap font-mono text-sm text-default-700">
-                      {currentScript.content}
-                    </pre>
+                  <CardBody className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="font-medium">{parseStage}</span>
+                      <span className="text-sm text-slate-500">{parseProgress}%</span>
+                    </div>
+                    <Progress value={parseProgress} className="w-full" />
                   </CardBody>
                 </Card>
-              </Tab>
+              )}
 
-              {/* Overview Tab - 剧本概览 */}
-              {currentScript.parseState.stage === 'completed' && currentScript.parseState.metadata && (
-                <Tab
-                  key="overview"
-                  title={
-                    <div className="flex items-center gap-2">
-                      <BookOpen size={16} />
-                      <span>概览</span>
-                    </div>
-                  }
-                >
-                  <Card>
-                    <CardBody className="h-[420px] overflow-y-auto">
-                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                        {/* Story Overview */}
-                        <StoryOverviewCard
-                          metadata={currentScript.parseState.metadata}
-                          t={{}}
-                        />
-                        
-                        {/* Visual Style */}
-                        <VisualStyleCard
-                          metadata={currentScript.parseState.metadata}
-                          t={{}}
-                        />
-                        
-                        {/* Emotional Arc - Full Width */}
-                        <div className="lg:col-span-2">
-                          <EmotionalArcChart
-                            emotionalArc={currentScript.parseState.metadata.emotionalArc}
-                            overallMood={currentScript.parseState.metadata.overallMood}
+              {/* Parse Results Tabs */}
+              {currentScript.parseState?.stage === 'completed' && (
+                <Tabs aria-label="Parse Results">
+                  {/* Overview Tab - 2.0: 导演工作台概览 */}
+                  <Tab
+                    key="overview"
+                    title={
+                      <div className="flex items-center gap-2">
+                        <Clapperboard size={16} />
+                        <span>Director's Workbench</span>
+                      </div>
+                    }
+                  >
+                    <Card>
+                      <CardBody className="space-y-6">
+                        {/* 2.0: 项目概览 - 移除分镜数量预估，显示实际解析结果 */}
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                          <Card className="bg-primary/5">
+                            <CardBody className="text-center">
+                              <p className="text-2xl font-bold text-primary">
+                                {currentScript.parseState.plotAnalysis?.plotPoints?.length || currentScript.parseState.shots?.length || 0}
+                              </p>
+                              <p className="text-sm text-slate-500">Plot Points</p>
+                            </CardBody>
+                          </Card>
+                          <Card className="bg-secondary/5">
+                            <CardBody className="text-center">
+                              <p className="text-2xl font-bold text-secondary">
+                                {currentScript.parseState.shots?.length || 0}
+                              </p>
+                              <p className="text-sm text-slate-500">Shots Generated</p>
+                            </CardBody>
+                          </Card>
+                          <Card className="bg-success/5">
+                            <CardBody className="text-center">
+                              <p className="text-2xl font-bold text-success">
+                                {currentScript.parseState.characters?.length || 0}
+                              </p>
+                              <p className="text-sm text-slate-500">Characters</p>
+                            </CardBody>
+                          </Card>
+                          <Card className="bg-warning/5">
+                            <CardBody className="text-center">
+                              <p className="text-2xl font-bold text-warning">
+                                {currentScript.parseState.scenes?.length || 0}
+                              </p>
+                              <p className="text-sm text-slate-500">Scenes</p>
+                            </CardBody>
+                          </Card>
+                        </div>
+
+                        {/* Story Overview & Visual Style */}
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                          <StoryOverviewCard
+                            metadata={currentScript.parseState.metadata}
+                            t={{}}
+                          />
+                          <VisualStyleCard
+                            metadata={currentScript.parseState.metadata}
                             t={{}}
                           />
                         </div>
-                      </div>
-                    </CardBody>
-                  </Card>
-                </Tab>
-              )}
 
-              {/* Structure Tab - 故事结构 */}
-              {currentScript.parseState.stage === 'completed' && currentScript.parseState.metadata?.storyStructure && (
-                <Tab
-                  key="structure"
-                  title={
-                    <div className="flex items-center gap-2">
-                      <Layout size={16} />
-                      <span>结构</span>
-                    </div>
-                  }
-                >
-                  <Card>
-                    <CardBody className="h-[420px] overflow-y-auto">
-                      <StoryStructureDiagram
-                        storyStructure={currentScript.parseState.metadata.storyStructure}
-                        t={{}}
-                      />
-                    </CardBody>
-                  </Card>
-                </Tab>
-              )}
+                        {/* Emotional Arc */}
+                        {currentScript.parseState.metadata?.emotionalArc && (
+                          <EmotionalArcChart
+                            emotionalArc={currentScript.parseState.metadata.emotionalArc}
+                          />
+                        )}
 
-              {/* Visual Tab - 视觉风格详情 */}
-              {currentScript.parseState.stage === 'completed' && currentScript.parseState.metadata?.visualStyle && (
-                <Tab
-                  key="visual"
-                  title={
-                    <div className="flex items-center gap-2">
-                      <Palette size={16} />
-                      <span>视觉</span>
-                    </div>
-                  }
-                >
-                  <Card>
-                    <CardBody className="h-[420px] overflow-y-auto">
-                      <VisualStyleCard
-                        metadata={currentScript.parseState.metadata}
-                        t={{}}
-                      />
-                    </CardBody>
-                  </Card>
-                </Tab>
-              )}
+                        {/* Story Structure */}
+                        {currentScript.parseState.metadata?.storyStructure && (
+                          <StoryStructureDiagram
+                            structure={currentScript.parseState.metadata.storyStructure}
+                          />
+                        )}
+                      </CardBody>
+                    </Card>
+                  </Tab>
 
-              {/* Sound Design Tab - 声音设计分析 */}
-              {currentScript.parseState.stage === 'completed' && currentScript.parseState.metadata?.emotionalArc && (
-                <Tab
-                  key="sound"
-                  title={
-                    <div className="flex items-center gap-2">
-                      <Music size={16} />
-                      <span>声音</span>
-                    </div>
-                  }
-                >
-                  <Card>
-                    <CardBody className="h-[420px] overflow-y-auto">
-                      <SoundDesignTab
-                        metadata={currentScript.parseState.metadata}
-                        shots={currentScript.parseState.shots || []}
-                      />
-                    </CardBody>
-                  </Card>
-                </Tab>
-              )}
-
-              {/* Structure Detail Tab - 剧本结构详细分析 */}
-              {currentScript.parseState.stage === 'completed' && currentScript.parseState.metadata?.storyStructure && (
-                <Tab
-                  key="structure-detail"
-                  title={
-                    <div className="flex items-center gap-2">
-                      <Layout size={16} />
-                      <span>结构分析</span>
-                    </div>
-                  }
-                >
-                  <Card>
-                    <CardBody className="h-[420px] overflow-y-auto">
-                      <StructureDetailTab
-                        metadata={currentScript.parseState.metadata}
-                      />
-                    </CardBody>
-                  </Card>
-                </Tab>
-              )}
-
-              {currentScript.parseState.stage === 'completed' && (
-                <>
+                  {/* Characters Tab */}
                   <Tab
                     key="characters"
                     title={
                       <div className="flex items-center gap-2">
                         <Users size={16} />
-                        <span>角色 ({currentScript.parseState.characters?.length || 0})</span>
+                        <span>Characters</span>
+                        {currentScript.parseState.characters && (
+                          <Chip size="sm">{currentScript.parseState.characters.length}</Chip>
+                        )}
                       </div>
                     }
                   >
-                    <Card>
-                      <CardBody className="h-[420px] overflow-y-auto">
-                        <CharacterMapping
-                          projectId={projectId!}
-                          scriptId={currentScript.id}
-                          scriptCharacters={currentScript.parseState.characters || []}
-                          existingCharacters={existingCharacters}
-                          onCharactersUpdate={(characters) => handleUpdateParseState({ characters })}
-                          onCharacterCreated={loadExistingAssets}
-                        />
-                      </CardBody>
-                    </Card>
+                    <CharacterMapping
+                      characters={currentScript.parseState.characters || []}
+                      existingCharacters={existingCharacters}
+                      projectId={projectId!}
+                      onAssetsChanged={loadExistingAssets}
+                    />
                   </Tab>
 
+                  {/* Scenes Tab */}
                   <Tab
                     key="scenes"
                     title={
                       <div className="flex items-center gap-2">
                         <MapPin size={16} />
-                        <span>场景 ({currentScript.parseState.scenes?.length || 0})</span>
+                        <span>Scenes</span>
+                        {currentScript.parseState.scenes && (
+                          <Chip size="sm">{currentScript.parseState.scenes.length}</Chip>
+                        )}
                       </div>
                     }
                   >
-                    <Card>
-                      <CardBody className="h-[420px] overflow-y-auto">
-                        <SceneMapping
-                          projectId={projectId!}
-                          scriptId={currentScript.id}
-                          scriptScenes={currentScript.parseState.scenes || []}
-                          existingScenes={existingScenes}
-                          onScenesUpdate={(scenes) => handleUpdateParseState({ scenes })}
-                          onSceneCreated={loadExistingAssets}
-                        />
-                      </CardBody>
-                    </Card>
+                    <SceneMapping
+                      scenes={currentScript.parseState.scenes || []}
+                      existingScenes={existingScenes}
+                      projectId={projectId!}
+                      onAssetsChanged={loadExistingAssets}
+                    />
                   </Tab>
 
+                  {/* Items Tab */}
                   <Tab
                     key="items"
                     title={
                       <div className="flex items-center gap-2">
                         <Box size={16} />
-                        <span>道具 ({currentScript.parseState.items?.length || 0})</span>
+                        <span>Items</span>
+                        {currentScript.parseState.items && (
+                          <Chip size="sm">{currentScript.parseState.items.length}</Chip>
+                        )}
                       </div>
                     }
                   >
-                    <Card>
-                      <CardBody className="h-[420px] overflow-y-auto">
-                        <ItemMapping
-                          projectId={projectId!}
-                          scriptId={currentScript.id}
-                          scriptItems={currentScript.parseState.items || []}
-                          existingItems={existingItems}
-                          onItemsUpdate={(items) => handleUpdateParseState({ items })}
-                          onItemCreated={loadExistingAssets}
-                        />
-                      </CardBody>
-                    </Card>
+                    <ItemMapping
+                      items={currentScript.parseState.items || []}
+                      existingItems={existingItems}
+                      projectId={projectId!}
+                      onAssetsChanged={loadExistingAssets}
+                    />
                   </Tab>
 
+                  {/* Shots Tab */}
                   <Tab
                     key="shots"
                     title={
                       <div className="flex items-center gap-2">
                         <Film size={16} />
-                        <span>分镜 ({currentScript.parseState.shots?.length || 0})</span>
+                        <span>Shots</span>
+                        {currentScript.parseState.shots && (
+                          <Chip size="sm">{currentScript.parseState.shots.length}</Chip>
+                        )}
                       </div>
                     }
                   >
-                    <Card>
-                      <CardBody className="h-[420px] overflow-y-auto">
-                        <ShotList
-                          shots={currentScript.parseState.shots || []}
-                          scenes={currentScript.parseState.scenes || []}
-                          onShotsUpdate={(shots) => handleUpdateParseState({ shots })}
-                          projectId={projectId || ''}
-                          scriptId={currentScript.id}  // 传递当前剧本ID
-                          viewMode="list"
-                          headerAction={
-                            <Button
-                              color="primary"
-                              variant="flat"
-                              size="sm"
-                              startContent={<Film size={16} />}
-                              onPress={() => navigate(`/project/${projectId}/shots`)}
-                            >
-                              打开分镜管理
-                            </Button>
-                          }
-                        />
-                      </CardBody>
-                    </Card>
+                    <ShotList
+                      shots={currentScript.parseState.shots || []}
+                      scriptId={currentScript.id}
+                      projectId={projectId!}
+                    />
                   </Tab>
 
-                  {/* Quality Assessment Tab */}
-                  <Tab
-                    key="quality"
-                    title={
-                      <div className="flex items-center gap-2">
-                        <Sparkles size={16} />
-                        <span>质量评估</span>
-                        {qualityReport && (
-                          <Chip
-                            size="sm"
-                            color={qualityReport.score >= 80 ? 'success' : qualityReport.score >= 60 ? 'primary' : qualityReport.score >= 40 ? 'warning' : 'danger'}
-                            variant="flat"
-                          >
-                            {qualityReport.score}分
+                  {/* Quality Report Tab */}
+                  {qualityReport && (
+                    <Tab
+                      key="quality"
+                      title={
+                        <div className="flex items-center gap-2">
+                          <AlertCircle size={16} />
+                          <span>Quality</span>
+                          <Chip size="sm" color={qualityReport.score >= 80 ? 'success' : qualityReport.score >= 60 ? 'warning' : 'danger'}>
+                            {qualityReport.score}
                           </Chip>
-                        )}
-                      </div>
-                    }
-                  >
-                    <Card>
-                      <CardBody className="h-[420px] overflow-y-auto">
-                        {qualityReport ? (
-                          <QualityReportCard
-                            report={qualityReport as unknown as DetailedQualityReport}
-                            t={t}
-                          />
-                        ) : (
-                          <div className="h-full flex flex-col items-center justify-center text-center">
-                            <Sparkles size={48} className="text-default-300 mb-4" />
-                            <p className="text-default-500 mb-2">暂无质量评估数据</p>
-                            <p className="text-default-400 text-sm">请先完成剧本解析以查看质量评估</p>
-                          </div>
-                        )}
-                      </CardBody>
-                    </Card>
-                  </Tab>
-                </>
+                        </div>
+                      }
+                    >
+                      <QualityReportCard report={qualityReport} />
+                    </Tab>
+                  )}
+                </Tabs>
               )}
-            </Tabs>
+
+              {/* Raw Content */}
+              {!isParsing && currentScript.parseState?.stage !== 'completed' && (
+                <Card>
+                  <CardBody>
+                    <h4 className="font-medium mb-3">Script Content</h4>
+                    <div className="bg-slate-100 dark:bg-slate-900 p-4 rounded-lg max-h-96 overflow-y-auto">
+                      <pre className="whitespace-pre-wrap text-sm">{currentScript.content}</pre>
+                    </div>
+                  </CardBody>
+                </Card>
+              )}
+            </div>
           )}
-        </>
-      ) : (
-        <Card>
-          <CardBody className="py-12 text-center">
-            <FileText size={48} className="mx-auto text-default-300 mb-4" />
-            <p className="text-default-500">暂无剧本，请先导入</p>
-            <Button
-              color="primary"
-              className="mt-4"
-              startContent={<Upload size={18} />}
-              onPress={() => setIsUploadModalOpen(true)}
-            >
-              导入剧本
-            </Button>
-          </CardBody>
-        </Card>
-      )}
+        </div>
+      </div>
 
       {/* Upload Modal */}
       <Modal isOpen={isUploadModalOpen} onClose={() => setIsUploadModalOpen(false)} size="2xl">
         <ModalContent>
-          <ModalHeader>导入剧本</ModalHeader>
+          <ModalHeader>Upload Script</ModalHeader>
           <ModalBody className="space-y-4">
             <Input
-              label="剧本标题"
-              placeholder="输入剧本标题"
+              label="Script Title"
+              placeholder="Enter script title"
               value={scriptTitle}
               onChange={(e) => setScriptTitle(e.target.value)}
             />
-
-            <div>
-              <label className="block text-sm font-medium mb-2">上传文件（可选）</label>
-              <input
-                type="file"
-                accept=".txt,.md,.docx"
-                onChange={handleFileUpload}
-                className="block w-full text-sm text-default-500
-                  file:mr-4 file:py-2 file:px-4
-                  file:rounded-full file:border-0
-                  file:text-sm file:font-semibold
-                  file:bg-primary-50 file:text-primary-700
-                  hover:file:bg-primary-100"
-              />
-            </div>
-
             <Textarea
-              label="剧本内容"
-              placeholder="粘贴剧本内容或上传文件..."
+              label="Script Content"
+              placeholder="Paste your script content here..."
               value={scriptContent}
-              onChange={(e) => {
-                const newContent = e.target.value;
-                setScriptContent(newContent);
-                // 实时更新字数统计
-                const newWordCount = newContent.length;
-                setScriptWordCount(newWordCount);
-              }}
+              onChange={(e) => setScriptContent(e.target.value)}
               minRows={10}
+              maxRows={20}
             />
-
-            <div className="text-sm text-default-500">
-              <p>支持格式：</p>
-              <ul className="list-disc list-inside">
-                <li>纯文本 (.txt)</li>
-                <li>Markdown (.md)</li>
-                <li>Word文档 (.docx)</li>
-              </ul>
-            </div>
+            {scriptWordCount > 0 && (
+              <p className="text-sm text-slate-500">
+                {scriptWordCount.toLocaleString()} characters
+              </p>
+            )}
           </ModalBody>
           <ModalFooter>
-            <Button variant="flat" onPress={() => setIsUploadModalOpen(false)}>
-              取消
+            <Button variant="light" onPress={() => setIsUploadModalOpen(false)}>
+              Cancel
             </Button>
-            <Button
-              color="primary"
-              onPress={handleCreateScript}
-              isDisabled={!scriptTitle || !scriptContent}
-            >
-              导入
+            <Button color="primary" onPress={handleUploadScript}>
+              Upload
             </Button>
           </ModalFooter>
         </ModalContent>
@@ -1187,57 +790,36 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
       {/* Delete Confirmation Modal */}
       <Modal isOpen={isDeleteModalOpen} onClose={() => setIsDeleteModalOpen(false)}>
         <ModalContent>
-          <ModalHeader className="text-danger">确认删除剧本</ModalHeader>
+          <ModalHeader>Confirm Delete</ModalHeader>
           <ModalBody>
-            <div className="space-y-4">
-              <p className="text-default-600">
-                确定要删除剧本《<span className="font-semibold">{scriptToDelete?.title}</span>》吗？
-              </p>
-
-              <div className="bg-danger-50 border border-danger-200 rounded-lg p-4">
-                <p className="text-danger-700 font-medium mb-2">⚠️ 警告：此操作将同时删除以下关联资源</p>
-                {deleteStats ? (
-                  <ul className="text-danger-600 space-y-1">
-                    <li>• {deleteStats.characters} 个角色</li>
-                    <li>• {deleteStats.scenes} 个场景</li>
-                    <li>• {deleteStats.items} 个物品</li>
-                    <li>• {deleteStats.shots} 个分镜</li>
-                  </ul>
-                ) : (
-                  <p className="text-danger-600">正在统计关联资源...</p>
-                )}
+            <p>Are you sure you want to delete &quot;{scriptToDelete?.title}&quot;?</p>
+            {deleteStats && (
+              <div className="mt-4 p-4 bg-slate-100 dark:bg-slate-800 rounded-lg">
+                <p className="text-sm text-slate-600 dark:text-slate-400">
+                  This will also delete {deleteStats.characters} characters, {deleteStats.scenes} scenes, {deleteStats.items} items, and {deleteStats.shots} shots.
+                </p>
               </div>
-
-              <p className="text-sm text-default-500">
-                此操作不可恢复，删除后的资源将无法找回。
-              </p>
-            </div>
+            )}
           </ModalBody>
           <ModalFooter>
-            <Button variant="flat" onPress={() => setIsDeleteModalOpen(false)} isDisabled={isDeleting}>
-              取消
+            <Button variant="light" onPress={() => setIsDeleteModalOpen(false)}>
+              Cancel
             </Button>
             <Button color="danger" onPress={handleDeleteScript} isLoading={isDeleting}>
-              确认删除
+              Delete
             </Button>
           </ModalFooter>
         </ModalContent>
       </Modal>
 
-      {/* Parse Config Confirmation Modal */}
-      <ParseConfigConfirmModal
-        isOpen={showParseConfirm}
-        onClose={() => setShowParseConfirm(false)}
-        onConfirm={() => {
-          setShowParseConfirm(false);
-          handleParseScript();
-        }}
-        scriptTitle={currentScript?.title || scriptTitle}
-        wordCount={scriptWordCount || currentScript?.content?.length || 0}
-        modelName={getSelectedModel(false)?.name || '深度求索 V3'}
-        parseMode="完整解析"
-        durationBudgetConfig={durationBudgetConfig}
-        onConfigChange={setDurationBudgetConfig}
+      {/* 2.0: Creative Intent Modal - 替代旧的ParseConfigConfirmModal */}
+      <CreativeIntentModal
+        isOpen={showCreativeIntent}
+        onClose={() => setShowCreativeIntent(false)}
+        onConfirm={handleParseWithIntent}
+        scriptTitle={currentScript?.title || ''}
+        creativeIntent={creativeIntent}
+        onIntentChange={setCreativeIntent}
       />
     </div>
   );

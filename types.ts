@@ -349,8 +349,47 @@ export interface ParseOptions {
 }
 
 /**
+ * 创作意图
+ * Kmeng AI Animata 2.0 核心类型
+ * 替代旧的平台模板配置，实现从"平台选择"到"创作意图"的转变
+ */
+export interface CreativeIntent {
+  /** 影视风格：短剧/电影/纪录片/自定义 */
+  filmStyle: 'short-drama' | 'film' | 'documentary' | 'custom';
+  
+  /** 叙事重点：用户希望表现的核心内容 */
+  narrativeFocus: {
+    protagonistArc: boolean;      // 主角成长弧线
+    emotionalCore: boolean;       // 情感核心
+    worldBuilding: boolean;       // 世界观构建
+    visualSpectacle: boolean;     // 视觉奇观
+    thematicDepth: boolean;       // 主题深度
+  };
+  
+  /** 情感基调 */
+  emotionalTone: {
+    primary: 'inspiring' | 'melancholic' | 'thrilling' | 'romantic' | 'mysterious';
+    intensity: number;  // 1-10
+  };
+  
+  /** 视觉参考：参考影片、导演、视觉风格 */
+  visualReferences?: string[];
+  
+  /** 创作备注：用户的特殊要求 */
+  creativeNotes?: string;
+  
+  /** 目标平台（制作完成后适配，不是制作前限制） */
+  targetPlatforms?: ('douyin' | 'kuaishou' | 'bilibili' | 'theatrical')[];
+}
+
+/**
  * Script Parser Configuration
  * 用于配置剧本解析器的行为
+ * 
+ * 2.0版本重大变更：
+ * - 移除所有基于字数的配置（durationBudgetConfig等）
+ * - 新增creativeIntent创作意图配置
+ * - 移除平台模板相关配置
  */
 export interface ScriptParserConfig {
   // ... 原有配置
@@ -358,6 +397,35 @@ export interface ScriptParserConfig {
   extractEmotionalArc?: boolean;
   /** 文本长度阈值，低于此值跳过情绪曲线提取，默认800 */
   textLengthThreshold?: number;
+  
+  // ==================== 2.0版本新增 ====================
+  
+  /** 
+   * 创作意图 - 替代旧的平台模板配置
+   * 用户的创作方向和风格偏好
+   */
+  creativeIntent?: CreativeIntent;
+  
+  // ==================== 2.0版本移除 ====================
+  // 以下配置基于字数计算，与情节分析架构冲突，已移除
+  
+  /** @deprecated 2.0移除：基于字数的时长预算规划 */
+  useDurationBudget?: boolean;
+  
+  /** @deprecated 2.0移除：动态时长调整 */
+  useDynamicDuration?: boolean;
+  
+  /** @deprecated 2.0移除：生产级Prompt开关（现在默认启用） */
+  useProductionPrompt?: boolean;
+  
+  /** @deprecated 2.0移除：基于字数的分镜质检 */
+  useShotQC?: boolean;
+  
+  /** @deprecated 2.0移除：质检自动调整 */
+  qcAutoAdjust?: boolean;
+  
+  /** @deprecated 2.0移除：质检容错率 */
+  qcTolerance?: number;
 }
 
 /**
