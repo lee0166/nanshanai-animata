@@ -305,6 +305,18 @@ export class LLMProvider extends BaseProvider implements IAIProvider {
         parsedData = repairResult.data;
       }
 
+      // 步骤1: 结构规范化（处理array→object, wrapper解包等）
+      const { JSONRepair } = await import('../../parsing/JSONRepair');
+      const originalStructure = Array.isArray(parsedData) ? 'array' : typeof parsedData;
+      parsedData = JSONRepair.normalizeStructure(parsedData);
+      const normalizedStructure = Array.isArray(parsedData) ? 'array' : typeof parsedData;
+
+      if (originalStructure !== normalizedStructure) {
+        console.log(
+          `[LLMProvider] Structure normalized: ${originalStructure} → ${normalizedStructure}`
+        );
+      }
+
       // 使用Zod进行类型校验和补全默认值
       let validationResult = schema.safeParse(parsedData);
 

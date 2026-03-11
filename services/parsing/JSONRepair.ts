@@ -382,4 +382,144 @@ export class JSONRepair {
     consistencyRules: 'object',
     references: 'object',
   };
+
+  /**
+   * 规范化JSON结构
+   * 处理各种模型返回的格式变体，统一转换为标准对象格式
+   *
+   * 支持的转换：
+   * 1. Array → Object: 如果是数组，取第一个元素
+   * 2. Wrapper unwrap: 解包 {data: {...}}, {result: {...}} 等包装器格式
+   * 3. Nested array flatten: 处理嵌套数组 [[{...}]] → {...}
+   *
+   * @param data 原始解析后的数据
+   * @returns 规范化后的数据对象
+   */
+  static normalizeStructure(data: unknown): unknown {
+    // 如果为null或undefined，返回空对象
+    if (data === null || data === undefined) {
+      console.warn('[JSONRepair] Input is null/undefined, returning empty object');
+      return {};
+    }
+
+    let normalized = data;
+    const transformations: string[] = [];
+
+    // 转换1: 处理嵌套数组（如 [[{...}]] → {...}）
+    while (Array.isArray(normalized) && normalized.length === 1 && Array.isArray(normalized[0])) {
+      normalized = normalized[0];
+      transformations.push('flatten_nested_array');
+    }
+
+    // 转换2: 数组 → 对象（取第一个元素）
+    if (Array.isArray(normalized)) {
+      if (normalized.length === 0) {
+        console.warn('[JSONRepair] Empty array, returning empty object');
+        return {};
+      }
+      if (normalized.length === 1) {
+        normalized = normalized[0];
+        transformations.push('array_to_object(1 element)');
+      } else {
+        // 多个元素的情况：尝试合并为一个对象
+        const merged: Record<string, unknown> = {};
+        let hasValidObject = false;
+        for (const item of normalized) {
+          if (item && typeof item === 'object' && !Array.isArray(item)) {
+            Object.assign(merged, item);
+            hasValidObject = true;
+          }
+        }
+        if (hasValidObject) {
+          normalized = merged;
+          const mergedKeysCount = Object.keys(merged).length;
+          transformations.push(`array_to_object(merged ${mergedKeysCount} fields)`);
+        } else {
+          // 无法合并，取第一个元素
+          normalized = normalized[0];
+          transformations.push('array_to_object(first element)');
+        }
+      }
+    }
+
+    // 转换3: 解包包装器格式
+    if (normalized && typeof normalized === 'object') {
+      const obj = normalized as Record<string, unknown>;
+      const wrapperKeys = ['data', 'result', 'response', 'output', 'content', 'metadata'];
+
+      for (const key of wrapperKeys) {
+        if (key in obj && Object.keys(obj).length === 1) {
+          const wrappedValue = obj[key];
+          // 确保包装的内容是对象
+          if (wrappedValue && typeof wrappedValue === 'object') {
+            normalized = wrappedValue;
+            transformations.push(`unwrap_${key}`);
+            break;
+          }
+        }
+      }
+    }
+
+    // 转换4: 处理字符串类型的JSON（双重编码）
+    if (typeof normalized === 'string') {
+      try {
+        const parsed = JSON.parse(normalized);
+        if (parsed && typeof parsed === 'object') {
+          normalized = parsed;
+          transformations.push('parse_json_string');
+        }
+      } catch {
+        // 不是JSON字符串，保持原样
+      }
+    }
+
+    if (transformations.length > 0) {
+      console.log('[JSONRepair] Structure normalizations:', transformations.join(' → '));
+    }
+
+    return normalized;
+  }
+
+  /**
+   * 完整的JSON修复流程
+   * 结合语法修复、结构规范化和字段级修复
+   *
+   * @param response 原始响应字符串
+   * @param fieldTypes 字段类型映射（可选）
+   * @returns 修复结果
+   */
+  static async comprehensiveRepair<T>(
+    response: string,
+    fieldTypes?: Record<string, 'array' | 'object' | 'string' | 'number' | 'boolean'>
+  ): Promise<JSONRepairResult<T>> {
+    const repairAttempts: string[] = [];
+
+    // 步骤1: 语法级修复
+    const syntaxResult = this.repairAndParse<T>(response);
+    if (!syntaxResult.success || !syntaxResult.data) {
+      return {
+        success: false,
+        error: `Syntax repair failed: ${syntaxResult.error}`,
+        repairAttempts: syntaxResult.repairAttempts,
+      };
+    }
+    repairAttempts.push(...syntaxResult.repairAttempts);
+
+    // 步骤2: 结构规范化
+    let data = syntaxResult.data as unknown;
+    data = this.normalizeStructure(data);
+    repairAttempts.push('normalize_structure');
+
+    // 步骤3: 字段级修复（如果提供了fieldTypes）
+    if (fieldTypes && data && typeof data === 'object' && !Array.isArray(data)) {
+      data = this.repairBySchema(data as Record<string, unknown>, fieldTypes);
+      repairAttempts.push('repair_by_schema');
+    }
+
+    return {
+      success: true,
+      data: data as T,
+      repairAttempts,
+    };
+  }
 }
