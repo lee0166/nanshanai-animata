@@ -385,59 +385,90 @@ export class JSONRepair {
 
   /**
    * 规范化JSON结构
-   * 处理各种模型返回的格式变体，统一转换为标准对象格式
+   * 处理各种模型返回的格式变体，统一转换为标准格式
    *
    * 支持的转换：
-   * 1. Array → Object: 如果是数组，取第一个元素
-   * 2. Wrapper unwrap: 解包 {data: {...}}, {result: {...}} 等包装器格式
-   * 3. Nested array flatten: 处理嵌套数组 [[{...}]] → {...}
+   * 1. Array → Object: 如果是数组，取第一个元素（当 expectArray=false 时）
+   * 2. Wrapper unwrap: 解包 {data: [...]}, {result: {...}} 等包装器格式
+   * 3. Nested array flatten: 处理嵌套数组 [[{...}]] → [{...}]
+   * 4. Object with single array field → Array: 解包 {characters: [...]} → [...]
    *
    * @param data 原始解析后的数据
-   * @returns 规范化后的数据对象
+   * @param expectArray 是否期望返回数组（默认为false，用于元数据提取）
+   * @returns 规范化后的数据
    */
-  static normalizeStructure(data: unknown): unknown {
-    // 如果为null或undefined，返回空对象
+  static normalizeStructure(data: unknown, expectArray = false): unknown {
+    // 如果为null或undefined，返回空对象或空数组
     if (data === null || data === undefined) {
-      console.warn('[JSONRepair] Input is null/undefined, returning empty object');
-      return {};
+      console.warn(
+        '[JSONRepair] Input is null/undefined, returning empty',
+        expectArray ? 'array' : 'object'
+      );
+      return expectArray ? [] : {};
     }
 
     let normalized = data;
     const transformations: string[] = [];
 
-    // 转换1: 处理嵌套数组（如 [[{...}]] → {...}）
+    // 转换1: 处理嵌套数组（如 [[{...}]] → [{...}]）
     while (Array.isArray(normalized) && normalized.length === 1 && Array.isArray(normalized[0])) {
       normalized = normalized[0];
       transformations.push('flatten_nested_array');
     }
 
-    // 转换2: 数组 → 对象（取第一个元素）
-    if (Array.isArray(normalized)) {
-      if (normalized.length === 0) {
-        console.warn('[JSONRepair] Empty array, returning empty object');
-        return {};
-      }
-      if (normalized.length === 1) {
-        normalized = normalized[0];
-        transformations.push('array_to_object(1 element)');
-      } else {
-        // 多个元素的情况：尝试合并为一个对象
-        const merged: Record<string, unknown> = {};
-        let hasValidObject = false;
-        for (const item of normalized) {
-          if (item && typeof item === 'object' && !Array.isArray(item)) {
-            Object.assign(merged, item);
-            hasValidObject = true;
+    // 转换2: 根据期望类型处理
+    if (expectArray) {
+      // 期望数组的情况
+      if (!Array.isArray(normalized)) {
+        // 如果是对象，尝试提取其中的数组字段
+        if (typeof normalized === 'object' && normalized !== null) {
+          const obj = normalized as Record<string, unknown>;
+          // 常见的数组字段名
+          const arrayFields = ['characters', 'scenes', 'shots', 'items', 'data', 'results'];
+          for (const field of arrayFields) {
+            if (field in obj && Array.isArray(obj[field])) {
+              normalized = obj[field];
+              transformations.push(`extract_array_from_${field}`);
+              break;
+            }
           }
         }
-        if (hasValidObject) {
-          normalized = merged;
-          const mergedKeysCount = Object.keys(merged).length;
-          transformations.push(`array_to_object(merged ${mergedKeysCount} fields)`);
-        } else {
-          // 无法合并，取第一个元素
+        // 如果还是不是数组，包装为数组
+        if (!Array.isArray(normalized)) {
+          normalized = [normalized];
+          transformations.push('wrap_in_array');
+        }
+      }
+    } else {
+      // 期望对象的情况（元数据提取）
+      // 转换2a: 数组 → 对象（取第一个元素或合并）
+      if (Array.isArray(normalized)) {
+        if (normalized.length === 0) {
+          console.warn('[JSONRepair] Empty array, returning empty object');
+          return {};
+        }
+        if (normalized.length === 1) {
           normalized = normalized[0];
-          transformations.push('array_to_object(first element)');
+          transformations.push('array_to_object(1 element)');
+        } else {
+          // 多个元素的情况：尝试合并为一个对象
+          const merged: Record<string, unknown> = {};
+          let hasValidObject = false;
+          for (const item of normalized) {
+            if (item && typeof item === 'object' && !Array.isArray(item)) {
+              Object.assign(merged, item);
+              hasValidObject = true;
+            }
+          }
+          if (hasValidObject) {
+            normalized = merged;
+            const mergedKeysCount = Object.keys(merged).length;
+            transformations.push(`array_to_object(merged ${mergedKeysCount} fields)`);
+          } else {
+            // 无法合并，取第一个元素
+            normalized = normalized[0];
+            transformations.push('array_to_object(first element)');
+          }
         }
       }
     }

@@ -1869,12 +1869,13 @@ export class ScriptParser {
    * Uses JSONRepair utility for robust parsing with multiple fallback strategies
    *
    * @param response - Raw LLM response text
+   * @param expectArray - Whether to expect an array result (default: false)
    * @returns Parsed JSON object
    * @throws Error if JSON cannot be parsed after all repair attempts
    * @template T - Expected return type
    * @private
    */
-  private extractJSON<T>(response: string): T {
+  private extractJSON<T>(response: string, expectArray = false): T {
     const result = JSONRepair.repairAndParse<T>(response);
 
     if (result.success && result.data) {
@@ -1883,7 +1884,7 @@ export class ScriptParser {
       }
 
       // 应用结构规范化（处理 array→object, wrapper解包等）
-      const normalizedData = JSONRepair.normalizeStructure(result.data);
+      const normalizedData = JSONRepair.normalizeStructure(result.data, expectArray);
       if (normalizedData !== result.data) {
         console.log('[ScriptParser] JSON structure normalized');
       }
@@ -2633,7 +2634,7 @@ ${chunkContent.substring(0, 4000)}
     const response = await this.callLLM(prompt, 'shots');
     console.log(`[ScriptParser] LLM response received, length: ${response.length} characters`);
 
-    const shots = this.extractJSON<Shot[]>(response);
+    const shots = this.extractJSON<Shot[]>(response, true);
     console.log(`[ScriptParser] Generated ${shots.length} shots`);
 
     shots.slice(0, 3).forEach((shot, i) => {
@@ -2851,7 +2852,7 @@ ${chunkContent.substring(0, 4000)}
     const response = await this.callLLM(prompt, 'character');
     console.log(`[ScriptParser] Batch response received, length: ${response.length} characters`);
 
-    const characters = this.extractJSON<ScriptCharacter[]>(response);
+    const characters = this.extractJSON<ScriptCharacter[]>(response, true);
     console.log(`[ScriptParser] Parsed ${characters.length} characters from batch response`);
 
     // Validate and ensure all characters have required fields
@@ -3063,7 +3064,7 @@ ${chunkContent.substring(0, 4000)}
     const response = await this.callLLM(prompt, 'scene');
     console.log(`[ScriptParser] Batch response received, length: ${response.length} characters`);
 
-    const scenes = this.extractJSON<ScriptScene[]>(response);
+    const scenes = this.extractJSON<ScriptScene[]>(response, true);
     console.log(`[ScriptParser] Parsed ${scenes.length} scenes from batch response`);
 
     // Validate and ensure all scenes have required fields
@@ -3282,7 +3283,10 @@ ${chunkContent.substring(0, 4000)}
     console.log(`[ScriptParser] Batch response received, length: ${response.length} characters`);
 
     // Parse JSON response (may be array or object with shots field)
-    const parsedData = this.extractJSON<Shot[] | { project_info?: any; shots: Shot[] }>(response);
+    const parsedData = this.extractJSON<Shot[] | { project_info?: any; shots: Shot[] }>(
+      response,
+      true
+    );
 
     // Handle both array format and object format
     let shots: Shot[];
@@ -3379,7 +3383,7 @@ ${chunkContent.substring(0, 4000)}
     const response = await this.callLLM(prompt, 'shots');
     console.log(`[ScriptParser] Response received, length: ${response.length} characters`);
 
-    const shots = this.extractJSON<Shot[]>(response);
+    const shots = this.extractJSON<Shot[]>(response, true);
     console.log(`[ScriptParser] Parsed ${shots.length} shots`);
 
     // Step 4: 后处理，确保字段完整
