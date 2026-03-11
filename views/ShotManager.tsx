@@ -1,12 +1,50 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useParams } from 'react-router-dom';
-import { Script, Shot, ScriptScene, CharacterAsset, Asset, AssetType, ModelConfig, GeneratedImage, Job, JobStatus } from '../types';
+import {
+  Script,
+  Shot,
+  ScriptScene,
+  CharacterAsset,
+  Asset,
+  AssetType,
+  ModelConfig,
+  GeneratedImage,
+  Job,
+  JobStatus,
+} from '../types';
 import { storageService } from '../services/storage';
 import { useApp } from '../contexts/context';
 import { useToast } from '../contexts/ToastContext';
 import { usePreview } from '../components/PreviewProvider';
-import { Card, CardBody, Button, Chip, Badge, Progress, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Select, SelectItem } from "@heroui/react";
-import { Camera, Film, Clock, Users, MapPin, Scissors, AlertCircle, Eye, ChevronLeft, ChevronRight, Video, Play, Film as FilmIcon } from 'lucide-react';
+import {
+  Card,
+  CardBody,
+  Button,
+  Chip,
+  Badge,
+  Progress,
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+  Select,
+  SelectItem,
+} from '@heroui/react';
+import {
+  Camera,
+  Film,
+  Clock,
+  Users,
+  MapPin,
+  Scissors,
+  AlertCircle,
+  ChevronLeft,
+  ChevronRight,
+  Video,
+  Play,
+  Film as FilmIcon,
+} from 'lucide-react';
 import { keyframeService } from '../services/keyframe';
 import { videoGenerationService } from '../services/video';
 import { jobQueue } from '../services/queue';
@@ -23,12 +61,16 @@ interface ThumbnailScrollerProps {
 }
 
 const ThumbnailScroller: React.FC<ThumbnailScrollerProps> = ({
-  images, currentImageId, imageUrls, onSelect, onDelete
+  images,
+  currentImageId,
+  imageUrls,
+  onSelect,
+  onDelete,
 }) => {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
-  
+
   const checkScroll = () => {
     const container = scrollContainerRef.current;
     if (container) {
@@ -36,7 +78,7 @@ const ThumbnailScroller: React.FC<ThumbnailScrollerProps> = ({
       setCanScrollRight(container.scrollLeft < container.scrollWidth - container.clientWidth - 10);
     }
   };
-  
+
   useEffect(() => {
     checkScroll();
     const container = scrollContainerRef.current;
@@ -45,7 +87,7 @@ const ThumbnailScroller: React.FC<ThumbnailScrollerProps> = ({
       return () => container.removeEventListener('scroll', checkScroll);
     }
   }, [images.length]);
-  
+
   const scroll = (direction: 'left' | 'right') => {
     const container = scrollContainerRef.current;
     if (container) {
@@ -53,9 +95,9 @@ const ThumbnailScroller: React.FC<ThumbnailScrollerProps> = ({
       container.scrollBy({ left: scrollAmount, behavior: 'smooth' });
     }
   };
-  
+
   if (!images || images.length === 0) return null;
-  
+
   return (
     <div className="bg-slate-50 dark:bg-slate-800/50 rounded-lg p-3">
       <div className="flex items-center justify-between mb-2">
@@ -71,8 +113,8 @@ const ThumbnailScroller: React.FC<ThumbnailScrollerProps> = ({
             <ChevronLeft size={14} />
           </button>
         )}
-        
-        <div 
+
+        <div
           ref={scrollContainerRef}
           className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide flex-1 mx-7"
           style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
@@ -81,8 +123,8 @@ const ThumbnailScroller: React.FC<ThumbnailScrollerProps> = ({
             const isSelected = img.id === currentImageId;
             const imgUrl = imageUrls[img.id] || img.path;
             return (
-              <div 
-                key={img.id} 
+              <div
+                key={img.id}
                 className={`relative flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden cursor-pointer border-2 group ${
                   isSelected ? 'border-primary' : 'border-transparent hover:border-slate-300'
                 }`}
@@ -96,7 +138,7 @@ const ThumbnailScroller: React.FC<ThumbnailScrollerProps> = ({
                 {/* 删除按钮 */}
                 <button
                   className="absolute top-0.5 right-0.5 w-4 h-4 rounded-full bg-red-500 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity text-xs"
-                  onClick={(e) => {
+                  onClick={e => {
                     e.stopPropagation();
                     onDelete(img.id);
                   }}
@@ -107,7 +149,7 @@ const ThumbnailScroller: React.FC<ThumbnailScrollerProps> = ({
             );
           })}
         </div>
-        
+
         {/* 右滑动按钮 */}
         {canScrollRight && (
           <button
@@ -150,7 +192,10 @@ interface ShotManagerProps {
   setActiveTab?: (tab: AssetType) => void;
 }
 
-export const ShotManager: React.FC<ShotManagerProps> = ({ projectId: propProjectId, setActiveTab }) => {
+export const ShotManager: React.FC<ShotManagerProps> = ({
+  projectId: propProjectId,
+  setActiveTab,
+}) => {
   const { projectId: urlProjectId } = useParams<{ projectId: string }>();
   const projectId = propProjectId || urlProjectId;
   const { settings } = useApp();
@@ -181,13 +226,15 @@ export const ShotManager: React.FC<ShotManagerProps> = ({ projectId: propProject
   const [selectedImageModel, setSelectedImageModel] = useState<string>('');
   const [selectedResolution, setSelectedResolution] = useState<string>('1K');
   const [selectedAspectRatio, setSelectedAspectRatio] = useState<string>('16:9');
-  
+
   // 生图模式状态：'text-to-image' | 'reference-to-image'
-  const [generationMode, setGenerationMode] = useState<'text-to-image' | 'reference-to-image'>('reference-to-image');
-  
+  const [generationMode, setGenerationMode] = useState<'text-to-image' | 'reference-to-image'>(
+    'reference-to-image'
+  );
+
   // 存储图片URL的缓存
   const [imageUrls, setImageUrls] = useState<Record<string, string>>({});
-  
+
   // 当前关键帧的参考图覆盖（用于删除参考图功能）
   const [referenceImageOverride, setReferenceImageOverride] = useState<{
     character?: boolean;
@@ -209,7 +256,9 @@ export const ShotManager: React.FC<ShotManagerProps> = ({ projectId: propProject
   const selectedModelConfig = useMemo(() => {
     if (!selectedImageModel) return undefined;
     const runtimeModel = settings.models.find(m => m.id === selectedImageModel);
-    const staticModel = DEFAULT_MODELS.find(m => m.id === selectedImageModel || m.modelId === runtimeModel?.modelId);
+    const staticModel = DEFAULT_MODELS.find(
+      m => m.id === selectedImageModel || m.modelId === runtimeModel?.modelId
+    );
     // 合并 runtimeModel 和 staticModel，确保 provider 字段正确
     if (runtimeModel && staticModel) {
       return { ...staticModel, ...runtimeModel, provider: staticModel.provider };
@@ -228,10 +277,15 @@ export const ShotManager: React.FC<ShotManagerProps> = ({ projectId: propProject
   // 当模型变化时，自动校正尺寸选择
   useEffect(() => {
     if (selectedModelConfig && selectedResolution) {
-      const supported = selectedModelConfig.capabilities?.supportedResolutions || ['1K', '2K', '4K'];
+      const supported = selectedModelConfig.capabilities?.supportedResolutions || [
+        '1K',
+        '2K',
+        '4K',
+      ];
       if (!supported.includes(selectedResolution)) {
         // 如果当前尺寸不被支持，切换到默认尺寸
-        const defaultRes = selectedModelConfig.capabilities?.defaultResolution || supported[0] || '1K';
+        const defaultRes =
+          selectedModelConfig.capabilities?.defaultResolution || supported[0] || '1K';
         setSelectedResolution(defaultRes);
       }
     }
@@ -246,7 +300,7 @@ export const ShotManager: React.FC<ShotManagerProps> = ({ projectId: propProject
   const handleGenerationModeChange = (mode: 'text-to-image' | 'reference-to-image') => {
     setGenerationMode(mode);
     setReferenceImageOverride({}); // 重置参考图覆盖
-    
+
     // 切换模式后，自动选择第一个可用模型
     const imageModels = settings.models.filter(m => m.type === 'image');
     const filtered = imageModels.filter(model => {
@@ -254,7 +308,7 @@ export const ShotManager: React.FC<ShotManagerProps> = ({ projectId: propProject
       const supportsRef = model.capabilities?.supportsReferenceImage ?? true;
       return mode === 'reference-to-image' ? supportsRef : !supportsRef;
     });
-    
+
     if (filtered.length > 0) {
       setSelectedImageModel(filtered[0].id);
     } else {
@@ -266,7 +320,7 @@ export const ShotManager: React.FC<ShotManagerProps> = ({ projectId: propProject
   const handleRemoveReferenceImage = (type: 'character' | 'scene') => {
     setReferenceImageOverride(prev => ({
       ...prev,
-      [type]: true // 标记为已删除
+      [type]: true, // 标记为已删除
     }));
   };
 
@@ -274,7 +328,7 @@ export const ShotManager: React.FC<ShotManagerProps> = ({ projectId: propProject
   const handleRestoreReferenceImage = (type: 'character' | 'scene') => {
     setReferenceImageOverride(prev => ({
       ...prev,
-      [type]: false // 取消删除标记
+      [type]: false, // 取消删除标记
     }));
   };
 
@@ -292,7 +346,7 @@ export const ShotManager: React.FC<ShotManagerProps> = ({ projectId: propProject
           '9:16': '720x1280',
           '3:2': '832x1248',
           '2:3': '1248x832',
-          '21:9': '1512x648'
+          '21:9': '1512x648',
         },
         '2K': {
           '1:1': '2048x2048',
@@ -302,7 +356,7 @@ export const ShotManager: React.FC<ShotManagerProps> = ({ projectId: propProject
           '9:16': '1440x2560',
           '3:2': '2496x1664',
           '2:3': '1664x2496',
-          '21:9': '3024x1296'
+          '21:9': '3024x1296',
         },
         '4K': {
           '1:1': '4096x4096',
@@ -312,8 +366,8 @@ export const ShotManager: React.FC<ShotManagerProps> = ({ projectId: propProject
           '9:16': '3040x5504',
           '2:3': '3328x4992',
           '3:2': '4992x3328',
-          '21:9': '6240x2656'
-        }
+          '21:9': '6240x2656',
+        },
       };
       const resolutionMap = volcengineSizeMap[selectedResolution] || volcengineSizeMap['1K'];
       return resolutionMap[selectedAspectRatio] || resolutionMap['16:9'] || '1280x720';
@@ -327,7 +381,7 @@ export const ShotManager: React.FC<ShotManagerProps> = ({ projectId: propProject
         '9:16': '720x1280',
         '3:2': '1248x832',
         '2:3': '832x1248',
-        '21:9': '1512x648'
+        '21:9': '1512x648',
       };
       return modelscopeSizeMap[selectedAspectRatio] || '1280x720';
     }
@@ -487,7 +541,9 @@ export const ShotManager: React.FC<ShotManagerProps> = ({ projectId: propProject
       if (refs?.character?.id) {
         try {
           const assets = await storageService.getAssets(projectId);
-          const charAsset = assets.find(a => a.type === AssetType.CHARACTER && a.id === refs.character!.id);
+          const charAsset = assets.find(
+            a => a.type === AssetType.CHARACTER && a.id === refs.character!.id
+          );
           if (charAsset?.filePath) {
             urls.character = await storageService.getAssetUrl(charAsset.filePath);
           }
@@ -500,7 +556,9 @@ export const ShotManager: React.FC<ShotManagerProps> = ({ projectId: propProject
       if (refs?.scene?.id) {
         try {
           const assets = await storageService.getAssets(projectId);
-          const sceneAsset = assets.find(a => a.type === AssetType.SCENE && a.id === refs.scene!.id);
+          const sceneAsset = assets.find(
+            a => a.type === AssetType.SCENE && a.id === refs.scene!.id
+          );
           if (sceneAsset?.filePath) {
             urls.scene = await storageService.getAssetUrl(sceneAsset.filePath);
           }
@@ -542,25 +600,25 @@ export const ShotManager: React.FC<ShotManagerProps> = ({ projectId: propProject
       if (model.capabilities && typeof model.capabilities.supportsReferenceImage === 'boolean') {
         return {
           supportsReferenceImage: model.capabilities.supportsReferenceImage,
-          maxReferenceImages: model.capabilities.maxReferenceImages ?? 5
+          maxReferenceImages: model.capabilities.maxReferenceImages ?? 5,
         };
       }
-      
+
       // 如果模型没有配置 capabilities，尝试从 DEFAULT_MODELS 查找
       let defaultModel = DEFAULT_MODELS.find(m => m.modelId === model.modelId);
       if (!defaultModel) {
         defaultModel = DEFAULT_MODELS.find(m => m.id === model.id);
       }
       if (!defaultModel) {
-        defaultModel = DEFAULT_MODELS.find(m => 
-          m.provider === model.provider && m.type === model.type
+        defaultModel = DEFAULT_MODELS.find(
+          m => m.provider === model.provider && m.type === model.type
         );
       }
-      
+
       // 返回能力配置，如果找不到则默认支持参考图（为了兼容性）
       return {
         supportsReferenceImage: defaultModel?.capabilities?.supportsReferenceImage ?? true,
-        maxReferenceImages: defaultModel?.capabilities?.maxReferenceImages ?? 5
+        maxReferenceImages: defaultModel?.capabilities?.maxReferenceImages ?? 5,
       };
     };
   }, []);
@@ -570,7 +628,7 @@ export const ShotManager: React.FC<ShotManagerProps> = ({ projectId: propProject
     return availableImageModels.filter(model => {
       const capabilities = getModelCapabilities(model);
       const supportsRef = capabilities.supportsReferenceImage ?? true;
-      
+
       if (generationMode === 'reference-to-image') {
         return supportsRef; // 参考图模式：只显示支持参考图的模型
       } else {
@@ -582,7 +640,7 @@ export const ShotManager: React.FC<ShotManagerProps> = ({ projectId: propProject
   // 打开拆分关键帧弹窗
   const handleOpenSplitModal = (shot: Shot) => {
     if (!projectId || !currentScript) return;
-    
+
     if (availableLLMModels.length === 0) {
       showToast('请先在设置中配置LLM模型', 'error');
       return;
@@ -603,7 +661,12 @@ export const ShotManager: React.FC<ShotManagerProps> = ({ projectId: propProject
     console.log('[ShotManager] selectedLLMModel:', selectedLLMModel);
 
     if (!projectId || !currentScript || !selectedShotForSplit || !selectedLLMModel) {
-      console.error('[ShotManager] 缺少必要参数:', { projectId, currentScript: !!currentScript, selectedShotForSplit: !!selectedShotForSplit, selectedLLMModel });
+      console.error('[ShotManager] 缺少必要参数:', {
+        projectId,
+        currentScript: !!currentScript,
+        selectedShotForSplit: !!selectedShotForSplit,
+        selectedLLMModel,
+      });
       showToast('缺少必要参数，请检查选择', 'error');
       return;
     }
@@ -629,36 +692,49 @@ export const ShotManager: React.FC<ShotManagerProps> = ({ projectId: propProject
 
     setIsSplitModalOpen(false);
     setSplittingShotId(selectedShotForSplit.id);
-    
+
     try {
       console.log('[ShotManager] 调用 keyframeService.splitKeyframes...');
-      
+
       // 获取角色和场景资产用于关键帧拆分（按当前剧本过滤）
       const assets = await storageService.getAssets(projectId);
       // 严格按scriptId过滤：只使用当前剧本的资产
       const currentScriptId = currentScript.id;
       const filteredAssets = assets.filter(a => a.scriptId === currentScriptId);
-      console.log('[ShotManager] 资产过滤:', { 
-        totalAssets: assets.length, 
+      console.log('[ShotManager] 资产过滤:', {
+        totalAssets: assets.length,
         filteredAssets: filteredAssets.length,
-        currentScriptId 
+        currentScriptId,
       });
-      
-      const characterAssets = selectedShotForSplit.characters
-        ?.map(charName => filteredAssets.find(a => a.type === AssetType.CHARACTER && a.name === charName))
-        .filter((a): a is CharacterAsset => !!a) || [];
-      const sceneAsset = filteredAssets.find(a => a.type === AssetType.SCENE && a.name === selectedShotForSplit.sceneName);
-      
-      console.log('[ShotManager] 拆分关键帧时找到的角色资产:', characterAssets.map(c => ({ id: c.id, name: c.name })));
-      console.log('[ShotManager] 拆分关键帧时找到的场景资产:', sceneAsset ? { id: sceneAsset.id, name: sceneAsset.name, scriptId: sceneAsset.scriptId } : null);
-      
+
+      const characterAssets =
+        selectedShotForSplit.characters
+          ?.map(charName =>
+            filteredAssets.find(a => a.type === AssetType.CHARACTER && a.name === charName)
+          )
+          .filter((a): a is CharacterAsset => !!a) || [];
+      const sceneAsset = filteredAssets.find(
+        a => a.type === AssetType.SCENE && a.name === selectedShotForSplit.sceneName
+      );
+
+      console.log(
+        '[ShotManager] 拆分关键帧时找到的角色资产:',
+        characterAssets.map(c => ({ id: c.id, name: c.name }))
+      );
+      console.log(
+        '[ShotManager] 拆分关键帧时找到的场景资产:',
+        sceneAsset
+          ? { id: sceneAsset.id, name: sceneAsset.name, scriptId: sceneAsset.scriptId }
+          : null
+      );
+
       const keyframes = await keyframeService.splitKeyframes({
         shot: selectedShotForSplit,
         keyframeCount: keyframeCount,
         projectId,
         modelConfigId: selectedLLMModel,
         characterAssets: characterAssets.length > 0 ? characterAssets : undefined,
-        sceneAsset: sceneAsset
+        sceneAsset: sceneAsset,
       });
       console.log('[ShotManager] 拆分成功，关键帧数量:', keyframes.length);
 
@@ -666,17 +742,17 @@ export const ShotManager: React.FC<ShotManagerProps> = ({ projectId: propProject
       const updatedShot = { ...selectedShotForSplit, keyframes };
 
       // 更新剧本数据
-      const updatedShots = allShots.map(s => s.id === selectedShotForSplit.id ? updatedShot : s);
+      const updatedShots = allShots.map(s => (s.id === selectedShotForSplit.id ? updatedShot : s));
       const updatedScript = {
         ...currentScript,
         parseState: {
           ...currentScript.parseState,
-          shots: updatedShots
-        }
+          shots: updatedShots,
+        },
       };
-      
+
       await storageService.saveScript(updatedScript);
-      setScripts(scripts.map(s => s.id === updatedScript.id ? updatedScript : s));
+      setScripts(scripts.map(s => (s.id === updatedScript.id ? updatedScript : s)));
       showToast('关键帧拆分成功', 'success');
     } catch (error: any) {
       console.error('[ShotManager] 拆分关键帧失败:', error);
@@ -709,48 +785,70 @@ export const ShotManager: React.FC<ShotManagerProps> = ({ projectId: propProject
     const updatedKeyframes = [...(selectedShot.keyframes || [])];
     updatedKeyframes[keyframeIndex] = { ...kf, status: 'generating' };
     const updatedShot = { ...selectedShot, keyframes: updatedKeyframes };
-    const updatedShots = allShots.map(s => s.id === selectedShot.id ? updatedShot : s);
+    const updatedShots = allShots.map(s => (s.id === selectedShot.id ? updatedShot : s));
     const updatedScript = {
       ...currentScript,
       parseState: {
         ...currentScript.parseState,
-        shots: updatedShots
-      }
+        shots: updatedShots,
+      },
     };
     await storageService.saveScript(updatedScript);
-    setScripts(scripts.map(s => s.id === updatedScript.id ? updatedScript : s));
+    setScripts(scripts.map(s => (s.id === updatedScript.id ? updatedScript : s)));
 
     // 获取参考图（按当前剧本过滤）
     const assets = await storageService.getAssets(projectId);
     // 严格按scriptId过滤：只使用当前剧本的资产
     const currentScriptId = currentScript.id;
     const filteredAssets = assets.filter(a => a.scriptId === currentScriptId);
-    
+
     // 诊断日志：打印 references 信息
     console.log('[ShotManager] kf.references:', JSON.stringify(kf.references, null, 2));
-    console.log('[ShotManager] 资产过滤:', { totalAssets: assets.length, filteredAssets: filteredAssets.length, currentScriptId });
-    console.log('[ShotManager] 当前剧本角色资产:', filteredAssets.filter(a => a.type === AssetType.CHARACTER).map(a => ({ id: a.id, name: a.name, scriptId: a.scriptId })));
-    console.log('[ShotManager] 当前剧本场景资产:', filteredAssets.filter(a => a.type === AssetType.SCENE).map(a => ({ id: a.id, name: a.name, scriptId: a.scriptId })));
-    
+    console.log('[ShotManager] 资产过滤:', {
+      totalAssets: assets.length,
+      filteredAssets: filteredAssets.length,
+      currentScriptId,
+    });
+    console.log(
+      '[ShotManager] 当前剧本角色资产:',
+      filteredAssets
+        .filter(a => a.type === AssetType.CHARACTER)
+        .map(a => ({ id: a.id, name: a.name, scriptId: a.scriptId }))
+    );
+    console.log(
+      '[ShotManager] 当前剧本场景资产:',
+      filteredAssets
+        .filter(a => a.type === AssetType.SCENE)
+        .map(a => ({ id: a.id, name: a.name, scriptId: a.scriptId }))
+    );
+
     // 首先尝试用 name 查找，如果失败则尝试用 id 查找（都在过滤后的资产中查找）
     let characterAsset: CharacterAsset | undefined;
     if (kf.references?.character) {
       // 先用 name 查找
-      characterAsset = filteredAssets.find(a => a.type === AssetType.CHARACTER && a.name === kf.references.character.name) as CharacterAsset;
+      characterAsset = filteredAssets.find(
+        a => a.type === AssetType.CHARACTER && a.name === kf.references.character.name
+      ) as CharacterAsset;
       // 如果失败，用 id 查找
       if (!characterAsset && kf.references.character.id) {
-        characterAsset = filteredAssets.find(a => a.type === AssetType.CHARACTER && a.id === kf.references.character.id) as CharacterAsset;
+        characterAsset = filteredAssets.find(
+          a => a.type === AssetType.CHARACTER && a.id === kf.references.character.id
+        ) as CharacterAsset;
         console.log('[ShotManager] 用 id 查找角色资产:', !!characterAsset);
       }
     }
-    
+
     let sceneAsset: Asset | undefined;
     if (kf.references?.scene) {
       // 先用 name 查找
-      sceneAsset = filteredAssets.find(a => a.type === AssetType.SCENE && a.name === kf.references.scene.name);
+      sceneAsset = filteredAssets.find(
+        a => a.type === AssetType.SCENE && a.name === kf.references.scene.name
+      );
       // 如果失败，用 id 查找
       if (!sceneAsset && kf.references.scene.id) {
-        sceneAsset = filteredAssets.find(a => a.type === AssetType.SCENE && a.id === kf.references.scene.id);
+        sceneAsset = filteredAssets.find(
+          a => a.type === AssetType.SCENE && a.id === kf.references.scene.id
+        );
         console.log('[ShotManager] 用 id 查找场景资产:', !!sceneAsset);
       }
     }
@@ -776,11 +874,19 @@ export const ShotManager: React.FC<ShotManagerProps> = ({ projectId: propProject
     };
 
     // 根据生图模式和用户覆盖设置决定是否使用参考图
-    const useCharacterRef = generationMode === 'reference-to-image' && !referenceImageOverride.character && characterAsset?.currentImageId;
-    const useSceneRef = generationMode === 'reference-to-image' && !referenceImageOverride.scene && sceneAsset?.filePath;
+    const useCharacterRef =
+      generationMode === 'reference-to-image' &&
+      !referenceImageOverride.character &&
+      characterAsset?.currentImageId;
+    const useSceneRef =
+      generationMode === 'reference-to-image' &&
+      !referenceImageOverride.scene &&
+      sceneAsset?.filePath;
 
     if (useCharacterRef) {
-      const charImage = characterAsset.generatedImages?.find(img => img.id === characterAsset.currentImageId);
+      const charImage = characterAsset.generatedImages?.find(
+        img => img.id === characterAsset.currentImageId
+      );
       if (charImage?.path) {
         try {
           const base64 = await imageToBase64(charImage.path);
@@ -801,7 +907,7 @@ export const ShotManager: React.FC<ShotManagerProps> = ({ projectId: propProject
         console.error('读取场景图失败:', e);
       }
     }
-    
+
     console.log('[ShotManager] 生图模式:', generationMode);
     console.log('[ShotManager] 参考图覆盖设置:', referenceImageOverride);
 
@@ -823,7 +929,7 @@ export const ShotManager: React.FC<ShotManagerProps> = ({ projectId: propProject
       modelConfigId: selectedImageModel,
       referenceImages,
       resolution: calculateSize,
-      aspectRatio: selectedAspectRatio
+      aspectRatio: selectedAspectRatio,
     });
 
     await jobQueue.addJob(job);
@@ -837,21 +943,21 @@ export const ShotManager: React.FC<ShotManagerProps> = ({ projectId: propProject
     const updatedKeyframes = [...(selectedShot.keyframes || [])];
     updatedKeyframes[keyframeIndex] = {
       ...updatedKeyframes[keyframeIndex],
-      prompt: newPrompt
+      prompt: newPrompt,
     };
 
     const updatedShot = { ...selectedShot, keyframes: updatedKeyframes };
-    const updatedShots = allShots.map(s => s.id === selectedShot.id ? updatedShot : s);
+    const updatedShots = allShots.map(s => (s.id === selectedShot.id ? updatedShot : s));
     const updatedScript = {
       ...currentScript,
       parseState: {
         ...currentScript.parseState,
-        shots: updatedShots
-      }
+        shots: updatedShots,
+      },
     };
 
     storageService.saveScript(updatedScript);
-    setScripts(scripts.map(s => s.id === updatedScript.id ? updatedScript : s));
+    setScripts(scripts.map(s => (s.id === updatedScript.id ? updatedScript : s)));
   };
 
   // 生成视频
@@ -875,9 +981,7 @@ export const ShotManager: React.FC<ShotManagerProps> = ({ projectId: propProject
     }
 
     // 检查是否所有关键帧都有图片
-    const hasAllImages = keyframes.every(kf =>
-      kf.generatedImages && kf.generatedImages.length > 0
-    );
+    const hasAllImages = keyframes.every(kf => kf.generatedImages && kf.generatedImages.length > 0);
     if (!hasAllImages) {
       showToast('请为所有关键帧生成图片后再生成视频', 'error');
       return;
@@ -895,22 +999,22 @@ export const ShotManager: React.FC<ShotManagerProps> = ({ projectId: propProject
         prompt: videoPrompt,
         modelConfigId: selectedVideoModel,
         projectId,
-        duration: videoGenerationService.getRecommendedDuration(selectedShot.contentType)
+        duration: videoGenerationService.getRecommendedDuration(selectedShot.contentType),
       });
 
       if (result.success && result.localPath) {
         // 更新shot的videoUrl
         const updatedShot = { ...selectedShot, generatedVideo: result.localPath };
-        const updatedShots = allShots.map(s => s.id === selectedShot.id ? updatedShot : s);
+        const updatedShots = allShots.map(s => (s.id === selectedShot.id ? updatedShot : s));
         const updatedScript = {
           ...currentScript,
           parseState: {
             ...currentScript.parseState,
-            shots: updatedShots
-          }
+            shots: updatedShots,
+          },
         };
         await storageService.saveScript(updatedScript);
-        setScripts(scripts.map(s => s.id === updatedScript.id ? updatedScript : s));
+        setScripts(scripts.map(s => (s.id === updatedScript.id ? updatedScript : s)));
         setVideoUrl(result.localPath);
         showToast('视频生成成功', 'success');
       } else {
@@ -966,9 +1070,7 @@ export const ShotManager: React.FC<ShotManagerProps> = ({ projectId: propProject
       <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-xl font-bold text-slate-900 dark:text-white">
-              分镜管理
-            </h1>
+            <h1 className="text-xl font-bold text-slate-900 dark:text-white">分镜管理</h1>
             <p className="text-sm text-slate-500 mt-1">
               {currentScript.title} · 共 {allShots.length} 个分镜
             </p>
@@ -976,11 +1078,13 @@ export const ShotManager: React.FC<ShotManagerProps> = ({ projectId: propProject
           {scripts.length > 1 && (
             <select
               value={selectedScriptId}
-              onChange={(e) => setSelectedScriptId(e.target.value)}
+              onChange={e => setSelectedScriptId(e.target.value)}
               className="px-3 py-2 bg-slate-100 dark:bg-slate-800 rounded-lg text-sm"
             >
               {scripts.map(script => (
-                <option key={script.id} value={script.id}>{script.title}</option>
+                <option key={script.id} value={script.id}>
+                  {script.title}
+                </option>
               ))}
             </select>
           )}
@@ -1003,7 +1107,7 @@ export const ShotManager: React.FC<ShotManagerProps> = ({ projectId: propProject
             </div>
           </div>
           <div className="flex-1 overflow-y-auto p-3 space-y-2">
-            {allShots.map((shot) => (
+            {allShots.map(shot => (
               <div
                 key={shot.id}
                 onClick={() => {
@@ -1109,7 +1213,11 @@ export const ShotManager: React.FC<ShotManagerProps> = ({ projectId: propProject
                       {selectedShot.sceneName}
                     </span>
                     {selectedShot.contentType && (
-                      <Chip size="sm" variant="flat" color={getShotTypeLabel(selectedShot.contentType).color}>
+                      <Chip
+                        size="sm"
+                        variant="flat"
+                        color={getShotTypeLabel(selectedShot.contentType).color}
+                      >
                         {(() => {
                           const typeInfo = getShotTypeLabel(selectedShot.contentType);
                           const Icon = typeInfo.icon;
@@ -1158,21 +1266,30 @@ export const ShotManager: React.FC<ShotManagerProps> = ({ projectId: propProject
                             {/* 图片预览区 - 显示当前选中的图片 */}
                             {(() => {
                               const kf = selectedShot.keyframes[selectedKeyframeIndex];
-                              const currentImage = kf.generatedImages?.find(img => img.id === kf.currentImageId) || 
-                                                   kf.generatedImage;
+                              const currentImage =
+                                kf.generatedImages?.find(img => img.id === kf.currentImageId) ||
+                                kf.generatedImage;
                               // 获取图片URL（优先使用缓存的URL）
-                              const imageUrl = currentImage ? (imageUrls[currentImage.id] || currentImage.path) : null;
-                              
+                              const imageUrl = currentImage
+                                ? imageUrls[currentImage.id] || currentImage.path
+                                : null;
+
                               return (
-                                <div 
+                                <div
                                   className="aspect-video bg-slate-100 dark:bg-slate-800 rounded-lg flex items-center justify-center relative overflow-hidden cursor-pointer group"
                                   onClick={() => {
                                     if (kf.generatedImages && kf.generatedImages.length > 0) {
-                                      const slides = kf.generatedImages.map(img => ({ src: imageUrls[img.id] || img.path }));
-                                      const currentIdx = kf.generatedImages.findIndex(img => img.id === kf.currentImageId);
+                                      const slides = kf.generatedImages.map(img => ({
+                                        src: imageUrls[img.id] || img.path,
+                                      }));
+                                      const currentIdx = kf.generatedImages.findIndex(
+                                        img => img.id === kf.currentImageId
+                                      );
                                       openPreview(slides, currentIdx >= 0 ? currentIdx : 0);
                                     } else if (currentImage) {
-                                      openPreview([{ src: imageUrls[currentImage.id] || currentImage.path }]);
+                                      openPreview([
+                                        { src: imageUrls[currentImage.id] || currentImage.path },
+                                      ]);
                                     }
                                   }}
                                 >
@@ -1186,7 +1303,9 @@ export const ShotManager: React.FC<ShotManagerProps> = ({ projectId: propProject
                                     <div className="text-center">
                                       <Camera size={48} className="mx-auto mb-2 text-slate-400" />
                                       <p className="text-sm text-slate-500">关键帧预览图</p>
-                                      <p className="text-xs text-slate-400 mt-1">（通过提示词生成）</p>
+                                      <p className="text-xs text-slate-400 mt-1">
+                                        （通过提示词生成）
+                                      </p>
                                     </div>
                                   )}
                                   <div className="absolute top-2 right-2 bg-black/50 text-white px-2 py-1 rounded text-xs">
@@ -1200,56 +1319,78 @@ export const ShotManager: React.FC<ShotManagerProps> = ({ projectId: propProject
                             {(() => {
                               const kf = selectedShot.keyframes[selectedKeyframeIndex];
                               const hasImages = kf.generatedImages && kf.generatedImages.length > 0;
-                              
+
                               if (!hasImages) return null;
-                              
+
                               const handleDeleteImage = (imgId: string) => {
                                 if (!confirm('确定要删除这张图片吗？')) return;
-                                
-                                const updatedImages = kf.generatedImages!.filter(img => img.id !== imgId);
-                                const newCurrentId = updatedImages.length > 0 
-                                  ? (kf.currentImageId === imgId ? updatedImages[0].id : kf.currentImageId)
-                                  : undefined;
-                                
+
+                                const updatedImages = kf.generatedImages!.filter(
+                                  img => img.id !== imgId
+                                );
+                                const newCurrentId =
+                                  updatedImages.length > 0
+                                    ? kf.currentImageId === imgId
+                                      ? updatedImages[0].id
+                                      : kf.currentImageId
+                                    : undefined;
+
                                 const updatedKeyframes = [...selectedShot.keyframes!];
                                 updatedKeyframes[selectedKeyframeIndex] = {
                                   ...kf,
                                   generatedImages: updatedImages,
                                   currentImageId: newCurrentId,
-                                  generatedImage: updatedImages.length > 0 ? updatedImages[updatedImages.length - 1] : undefined
+                                  generatedImage:
+                                    updatedImages.length > 0
+                                      ? updatedImages[updatedImages.length - 1]
+                                      : undefined,
                                 };
-                                const updatedShot = { ...selectedShot, keyframes: updatedKeyframes };
-                                const updatedShots = allShots.map(s => s.id === selectedShot.id ? updatedShot : s);
+                                const updatedShot = {
+                                  ...selectedShot,
+                                  keyframes: updatedKeyframes,
+                                };
+                                const updatedShots = allShots.map(s =>
+                                  s.id === selectedShot.id ? updatedShot : s
+                                );
                                 const updatedScript = {
                                   ...currentScript!,
                                   parseState: {
                                     ...currentScript!.parseState,
-                                    shots: updatedShots
-                                  }
+                                    shots: updatedShots,
+                                  },
                                 };
                                 storageService.saveScript(updatedScript);
-                                setScripts(scripts.map(s => s.id === updatedScript.id ? updatedScript : s));
+                                setScripts(
+                                  scripts.map(s => (s.id === updatedScript.id ? updatedScript : s))
+                                );
                               };
-                              
+
                               const handleSelectImage = (imgId: string) => {
                                 const updatedKeyframes = [...selectedShot.keyframes!];
                                 updatedKeyframes[selectedKeyframeIndex] = {
                                   ...kf,
-                                  currentImageId: imgId
+                                  currentImageId: imgId,
                                 };
-                                const updatedShot = { ...selectedShot, keyframes: updatedKeyframes };
-                                const updatedShots = allShots.map(s => s.id === selectedShot.id ? updatedShot : s);
+                                const updatedShot = {
+                                  ...selectedShot,
+                                  keyframes: updatedKeyframes,
+                                };
+                                const updatedShots = allShots.map(s =>
+                                  s.id === selectedShot.id ? updatedShot : s
+                                );
                                 const updatedScript = {
                                   ...currentScript!,
                                   parseState: {
                                     ...currentScript!.parseState,
-                                    shots: updatedShots
-                                  }
+                                    shots: updatedShots,
+                                  },
                                 };
                                 storageService.saveScript(updatedScript);
-                                setScripts(scripts.map(s => s.id === updatedScript.id ? updatedScript : s));
+                                setScripts(
+                                  scripts.map(s => (s.id === updatedScript.id ? updatedScript : s))
+                                );
                               };
-                              
+
                               return (
                                 <ThumbnailScroller
                                   images={kf.generatedImages!}
@@ -1279,12 +1420,16 @@ export const ShotManager: React.FC<ShotManagerProps> = ({ projectId: propProject
                                 {selectedShot.characters?.map((char, i) => (
                                   <div key={i} className="flex items-center gap-2 text-sm">
                                     <Users size={16} className="text-primary" />
-                                    <span className="text-slate-700 dark:text-slate-300">{char}</span>
+                                    <span className="text-slate-700 dark:text-slate-300">
+                                      {char}
+                                    </span>
                                   </div>
                                 ))}
                                 <div className="flex items-center gap-2 text-sm">
                                   <MapPin size={16} className="text-green-500" />
-                                  <span className="text-slate-700 dark:text-slate-300">{selectedShot.sceneName}</span>
+                                  <span className="text-slate-700 dark:text-slate-300">
+                                    {selectedShot.sceneName}
+                                  </span>
                                 </div>
                               </div>
                             </div>
@@ -1308,7 +1453,9 @@ export const ShotManager: React.FC<ShotManagerProps> = ({ projectId: propProject
                               </div>
                               <textarea
                                 value={selectedShot.keyframes[selectedKeyframeIndex].prompt}
-                                onChange={(e) => handleUpdatePrompt(selectedKeyframeIndex, e.target.value)}
+                                onChange={e =>
+                                  handleUpdatePrompt(selectedKeyframeIndex, e.target.value)
+                                }
                                 className="w-full h-32 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-700 dark:text-slate-300 resize-none focus:outline-none focus:border-primary"
                               />
 
@@ -1339,100 +1486,121 @@ export const ShotManager: React.FC<ShotManagerProps> = ({ projectId: propProject
                               </div>
 
                               {/* 参考图管理区域（仅在参考图生图模式显示） */}
-                              {generationMode === 'reference-to-image' && selectedShot.keyframes[selectedKeyframeIndex].references && (
-                                <div className="mt-3 p-3 bg-slate-50 dark:bg-slate-800/50 rounded-lg">
-                                  <div className="text-xs text-slate-500 mb-2">参考图</div>
-                                  <div className="flex gap-3">
-                                    {/* 角色参考图 */}
-                                    {selectedShot.keyframes[selectedKeyframeIndex].references.character && !referenceImageOverride.character && (
-                                      <div className="relative group">
-                                        <div className="w-16 h-16 rounded-lg bg-slate-200 dark:bg-slate-700 flex items-center justify-center overflow-hidden">
-                                          {referenceImageUrls.character ? (
-                                            <img 
-                                              src={referenceImageUrls.character} 
-                                              alt={selectedShot.keyframes[selectedKeyframeIndex].references.character.name}
-                                              className="w-full h-full object-cover"
-                                            />
-                                          ) : (
-                                            <span className="text-xs text-slate-500">角色</span>
-                                          )}
+                              {generationMode === 'reference-to-image' &&
+                                selectedShot.keyframes[selectedKeyframeIndex].references && (
+                                  <div className="mt-3 p-3 bg-slate-50 dark:bg-slate-800/50 rounded-lg">
+                                    <div className="text-xs text-slate-500 mb-2">参考图</div>
+                                    <div className="flex gap-3">
+                                      {/* 角色参考图 */}
+                                      {selectedShot.keyframes[selectedKeyframeIndex].references
+                                        .character &&
+                                        !referenceImageOverride.character && (
+                                          <div className="relative group">
+                                            <div className="w-16 h-16 rounded-lg bg-slate-200 dark:bg-slate-700 flex items-center justify-center overflow-hidden">
+                                              {referenceImageUrls.character ? (
+                                                <img
+                                                  src={referenceImageUrls.character}
+                                                  alt={
+                                                    selectedShot.keyframes[selectedKeyframeIndex]
+                                                      .references.character.name
+                                                  }
+                                                  className="w-full h-full object-cover"
+                                                />
+                                              ) : (
+                                                <span className="text-xs text-slate-500">角色</span>
+                                              )}
+                                            </div>
+                                            <button
+                                              className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-red-500 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                                              onClick={() =>
+                                                handleRemoveReferenceImage('character')
+                                              }
+                                              title="删除角色参考图"
+                                            >
+                                              ×
+                                            </button>
+                                            <div className="text-xs text-slate-500 mt-1 text-center truncate w-16">
+                                              {
+                                                selectedShot.keyframes[selectedKeyframeIndex]
+                                                  .references.character.name
+                                              }
+                                            </div>
+                                          </div>
+                                        )}
+                                      {referenceImageOverride.character && (
+                                        <div className="relative">
+                                          <div className="w-16 h-16 rounded-lg bg-slate-100 dark:bg-slate-800 border-2 border-dashed border-slate-300 dark:border-slate-600 flex items-center justify-center">
+                                            <span className="text-xs text-slate-400">已删除</span>
+                                          </div>
+                                          <button
+                                            className="mt-1 text-xs text-primary hover:text-primary-700"
+                                            onClick={() => handleRestoreReferenceImage('character')}
+                                          >
+                                            恢复
+                                          </button>
                                         </div>
-                                        <button
-                                          className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-red-500 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-                                          onClick={() => handleRemoveReferenceImage('character')}
-                                          title="删除角色参考图"
-                                        >
-                                          ×
-                                        </button>
-                                        <div className="text-xs text-slate-500 mt-1 text-center truncate w-16">
-                                          {selectedShot.keyframes[selectedKeyframeIndex].references.character.name}
-                                        </div>
-                                      </div>
-                                    )}
-                                    {referenceImageOverride.character && (
-                                      <div className="relative">
-                                        <div className="w-16 h-16 rounded-lg bg-slate-100 dark:bg-slate-800 border-2 border-dashed border-slate-300 dark:border-slate-600 flex items-center justify-center">
-                                          <span className="text-xs text-slate-400">已删除</span>
-                                        </div>
-                                        <button
-                                          className="mt-1 text-xs text-primary hover:text-primary-700"
-                                          onClick={() => handleRestoreReferenceImage('character')}
-                                        >
-                                          恢复
-                                        </button>
-                                      </div>
-                                    )}
+                                      )}
 
-                                    {/* 场景参考图 */}
-                                    {selectedShot.keyframes[selectedKeyframeIndex].references.scene && !referenceImageOverride.scene && (
-                                      <div className="relative group">
-                                        <div className="w-16 h-16 rounded-lg bg-slate-200 dark:bg-slate-700 flex items-center justify-center overflow-hidden">
-                                          {referenceImageUrls.scene ? (
-                                            <img 
-                                              src={referenceImageUrls.scene} 
-                                              alt={selectedShot.keyframes[selectedKeyframeIndex].references.scene.name}
-                                              className="w-full h-full object-cover"
-                                            />
-                                          ) : (
-                                            <span className="text-xs text-slate-500">场景</span>
-                                          )}
+                                      {/* 场景参考图 */}
+                                      {selectedShot.keyframes[selectedKeyframeIndex].references
+                                        .scene &&
+                                        !referenceImageOverride.scene && (
+                                          <div className="relative group">
+                                            <div className="w-16 h-16 rounded-lg bg-slate-200 dark:bg-slate-700 flex items-center justify-center overflow-hidden">
+                                              {referenceImageUrls.scene ? (
+                                                <img
+                                                  src={referenceImageUrls.scene}
+                                                  alt={
+                                                    selectedShot.keyframes[selectedKeyframeIndex]
+                                                      .references.scene.name
+                                                  }
+                                                  className="w-full h-full object-cover"
+                                                />
+                                              ) : (
+                                                <span className="text-xs text-slate-500">场景</span>
+                                              )}
+                                            </div>
+                                            <button
+                                              className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-red-500 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                                              onClick={() => handleRemoveReferenceImage('scene')}
+                                              title="删除场景参考图"
+                                            >
+                                              ×
+                                            </button>
+                                            <div className="text-xs text-slate-500 mt-1 text-center truncate w-16">
+                                              {
+                                                selectedShot.keyframes[selectedKeyframeIndex]
+                                                  .references.scene.name
+                                              }
+                                            </div>
+                                          </div>
+                                        )}
+                                      {referenceImageOverride.scene && (
+                                        <div className="relative">
+                                          <div className="w-16 h-16 rounded-lg bg-slate-100 dark:bg-slate-800 border-2 border-dashed border-slate-300 dark:border-slate-600 flex items-center justify-center">
+                                            <span className="text-xs text-slate-400">已删除</span>
+                                          </div>
+                                          <button
+                                            className="mt-1 text-xs text-primary hover:text-primary-700"
+                                            onClick={() => handleRestoreReferenceImage('scene')}
+                                          >
+                                            恢复
+                                          </button>
                                         </div>
-                                        <button
-                                          className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-red-500 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-                                          onClick={() => handleRemoveReferenceImage('scene')}
-                                          title="删除场景参考图"
-                                        >
-                                          ×
-                                        </button>
-                                        <div className="text-xs text-slate-500 mt-1 text-center truncate w-16">
-                                          {selectedShot.keyframes[selectedKeyframeIndex].references.scene.name}
-                                        </div>
-                                      </div>
-                                    )}
-                                    {referenceImageOverride.scene && (
-                                      <div className="relative">
-                                        <div className="w-16 h-16 rounded-lg bg-slate-100 dark:bg-slate-800 border-2 border-dashed border-slate-300 dark:border-slate-600 flex items-center justify-center">
-                                          <span className="text-xs text-slate-400">已删除</span>
-                                        </div>
-                                        <button
-                                          className="mt-1 text-xs text-primary hover:text-primary-700"
-                                          onClick={() => handleRestoreReferenceImage('scene')}
-                                        >
-                                          恢复
-                                        </button>
-                                      </div>
-                                    )}
+                                      )}
 
-                                    {/* 无参考图提示 */}
-                                    {!selectedShot.keyframes[selectedKeyframeIndex].references.character &&
-                                     !selectedShot.keyframes[selectedKeyframeIndex].references.scene && (
-                                      <div className="text-xs text-slate-400 py-2">
-                                        该关键帧未关联角色或场景
-                                      </div>
-                                    )}
+                                      {/* 无参考图提示 */}
+                                      {!selectedShot.keyframes[selectedKeyframeIndex].references
+                                        .character &&
+                                        !selectedShot.keyframes[selectedKeyframeIndex].references
+                                          .scene && (
+                                          <div className="text-xs text-slate-400 py-2">
+                                            该关键帧未关联角色或场景
+                                          </div>
+                                        )}
+                                    </div>
                                   </div>
-                                </div>
-                              )}
+                                )}
 
                               {/* 选择生图模型 */}
                               <div className="mt-3">
@@ -1447,9 +1615,13 @@ export const ShotManager: React.FC<ShotManagerProps> = ({ projectId: propProject
                                 </label>
                                 <Select
                                   aria-label="选择生图模型"
-                                  placeholder={filteredImageModels.length > 0 ? "选择用于生成图片的模型" : "请先在设置中配置生图模型"}
+                                  placeholder={
+                                    filteredImageModels.length > 0
+                                      ? '选择用于生成图片的模型'
+                                      : '请先在设置中配置生图模型'
+                                  }
                                   selectedKeys={selectedImageModel ? [selectedImageModel] : []}
-                                  onChange={(e) => setSelectedImageModel(e.target.value)}
+                                  onChange={e => setSelectedImageModel(e.target.value)}
                                   isDisabled={filteredImageModels.length === 0}
                                   size="sm"
                                   className="w-full"
@@ -1472,18 +1644,26 @@ export const ShotManager: React.FC<ShotManagerProps> = ({ projectId: propProject
                               {/* 火山模型：分辨率选择 */}
                               {isVolcengineModel && (
                                 <div className="mt-3">
-                                  <label className="text-xs text-slate-500 mb-1 block">分辨率</label>
+                                  <label className="text-xs text-slate-500 mb-1 block">
+                                    分辨率
+                                  </label>
                                   <Select
                                     aria-label="选择分辨率"
                                     placeholder="选择分辨率"
                                     selectedKeys={[selectedResolution]}
-                                    onChange={(e) => setSelectedResolution(e.target.value)}
+                                    onChange={e => setSelectedResolution(e.target.value)}
                                     size="sm"
                                     className="w-full"
                                   >
-                                    <SelectItem key="1K" value="1K">1K</SelectItem>
-                                    <SelectItem key="2K" value="2K">2K</SelectItem>
-                                    <SelectItem key="4K" value="4K">4K</SelectItem>
+                                    <SelectItem key="1K" value="1K">
+                                      1K
+                                    </SelectItem>
+                                    <SelectItem key="2K" value="2K">
+                                      2K
+                                    </SelectItem>
+                                    <SelectItem key="4K" value="4K">
+                                      4K
+                                    </SelectItem>
                                   </Select>
                                 </div>
                               )}
@@ -1495,18 +1675,34 @@ export const ShotManager: React.FC<ShotManagerProps> = ({ projectId: propProject
                                   aria-label="选择宽高比"
                                   placeholder="选择宽高比"
                                   selectedKeys={[selectedAspectRatio]}
-                                  onChange={(e) => setSelectedAspectRatio(e.target.value)}
+                                  onChange={e => setSelectedAspectRatio(e.target.value)}
                                   size="sm"
                                   className="w-full"
                                 >
-                                  <SelectItem key="1:1" value="1:1">1:1</SelectItem>
-                                  <SelectItem key="4:3" value="4:3">4:3</SelectItem>
-                                  <SelectItem key="3:4" value="3:4">3:4</SelectItem>
-                                  <SelectItem key="16:9" value="16:9">16:9</SelectItem>
-                                  <SelectItem key="9:16" value="9:16">9:16</SelectItem>
-                                  <SelectItem key="3:2" value="3:2">3:2</SelectItem>
-                                  <SelectItem key="2:3" value="2:3">2:3</SelectItem>
-                                  <SelectItem key="21:9" value="21:9">21:9</SelectItem>
+                                  <SelectItem key="1:1" value="1:1">
+                                    1:1
+                                  </SelectItem>
+                                  <SelectItem key="4:3" value="4:3">
+                                    4:3
+                                  </SelectItem>
+                                  <SelectItem key="3:4" value="3:4">
+                                    3:4
+                                  </SelectItem>
+                                  <SelectItem key="16:9" value="16:9">
+                                    16:9
+                                  </SelectItem>
+                                  <SelectItem key="9:16" value="9:16">
+                                    9:16
+                                  </SelectItem>
+                                  <SelectItem key="3:2" value="3:2">
+                                    3:2
+                                  </SelectItem>
+                                  <SelectItem key="2:3" value="2:3">
+                                    2:3
+                                  </SelectItem>
+                                  <SelectItem key="21:9" value="21:9">
+                                    21:9
+                                  </SelectItem>
                                 </Select>
                                 <p className="text-xs text-slate-400 mt-1">
                                   输出尺寸: {calculateSize}
@@ -1517,12 +1713,19 @@ export const ShotManager: React.FC<ShotManagerProps> = ({ projectId: propProject
                                 <Button
                                   color="primary"
                                   className="flex-1"
-                                  isDisabled={filteredImageModels.length === 0 || !selectedImageModel}
-                                  isLoading={selectedShot.keyframes[selectedKeyframeIndex].status === 'generating'}
+                                  isDisabled={
+                                    filteredImageModels.length === 0 || !selectedImageModel
+                                  }
+                                  isLoading={
+                                    selectedShot.keyframes[selectedKeyframeIndex].status ===
+                                    'generating'
+                                  }
                                   onPress={() => handleGenerateImage(selectedKeyframeIndex)}
                                 >
                                   <Camera size={16} className="mr-2" />
-                                  {generationMode === 'reference-to-image' ? '参考图生图' : '文生图'}
+                                  {generationMode === 'reference-to-image'
+                                    ? '参考图生图'
+                                    : '文生图'}
                                 </Button>
                               </div>
                             </div>
@@ -1535,7 +1738,9 @@ export const ShotManager: React.FC<ShotManagerProps> = ({ projectId: propProject
                             <div className="flex items-center justify-between mb-4">
                               <div className="flex items-center gap-2">
                                 <Video size={20} className="text-primary" />
-                                <span className="font-medium text-slate-900 dark:text-white">视频生成</span>
+                                <span className="font-medium text-slate-900 dark:text-white">
+                                  视频生成
+                                </span>
                               </div>
                               {selectedShot.generatedVideo && (
                                 <Chip color="success" variant="flat" size="sm">
@@ -1559,12 +1764,18 @@ export const ShotManager: React.FC<ShotManagerProps> = ({ projectId: propProject
                             {/* 视频生成控制 */}
                             <div className="bg-slate-50 dark:bg-slate-800/50 rounded-lg p-4">
                               <div className="mb-3">
-                                <label className="text-xs text-slate-500 mb-1 block">选择视频模型</label>
+                                <label className="text-xs text-slate-500 mb-1 block">
+                                  选择视频模型
+                                </label>
                                 <Select
                                   aria-label="选择视频模型"
-                                  placeholder={availableVideoModels.length > 0 ? "选择用于生成视频的模型" : "请先在设置中配置视频模型"}
+                                  placeholder={
+                                    availableVideoModels.length > 0
+                                      ? '选择用于生成视频的模型'
+                                      : '请先在设置中配置视频模型'
+                                  }
                                   selectedKeys={selectedVideoModel ? [selectedVideoModel] : []}
-                                  onChange={(e) => setSelectedVideoModel(e.target.value)}
+                                  onChange={e => setSelectedVideoModel(e.target.value)}
                                   isDisabled={availableVideoModels.length === 0}
                                   size="sm"
                                   className="w-full"
@@ -1586,19 +1797,32 @@ export const ShotManager: React.FC<ShotManagerProps> = ({ projectId: propProject
                                 <div className="flex items-center gap-2">
                                   <span>关键帧数量: {selectedShot.keyframes.length}个</span>
                                   <span className="text-slate-300">|</span>
-                                  <span>推荐时长: {videoGenerationService.getRecommendedDuration(selectedShot.contentType)}秒</span>
+                                  <span>
+                                    推荐时长:{' '}
+                                    {videoGenerationService.getRecommendedDuration(
+                                      selectedShot.contentType
+                                    )}
+                                    秒
+                                  </span>
                                 </div>
                                 <p className="mt-1 text-slate-400">
-                                  {selectedShot.contentType === 'static' && '静态分镜：使用首帧生成视频'}
-                                  {selectedShot.contentType === 'dynamic-simple' && '简单动态：使用首尾帧生成视频'}
-                                  {selectedShot.contentType === 'dynamic-complex' && '复杂动态：使用首尾帧生成视频（中间帧用于参考）'}
+                                  {selectedShot.contentType === 'static' &&
+                                    '静态分镜：使用首帧生成视频'}
+                                  {selectedShot.contentType === 'dynamic-simple' &&
+                                    '简单动态：使用首尾帧生成视频'}
+                                  {selectedShot.contentType === 'dynamic-complex' &&
+                                    '复杂动态：使用首尾帧生成视频（中间帧用于参考）'}
                                 </p>
                               </div>
 
                               <Button
                                 color="secondary"
                                 className="w-full"
-                                isDisabled={availableVideoModels.length === 0 || !selectedVideoModel || isGeneratingVideo}
+                                isDisabled={
+                                  availableVideoModels.length === 0 ||
+                                  !selectedVideoModel ||
+                                  isGeneratingVideo
+                                }
                                 isLoading={isGeneratingVideo}
                                 onPress={handleGenerateVideo}
                               >
@@ -1627,9 +1851,13 @@ export const ShotManager: React.FC<ShotManagerProps> = ({ projectId: propProject
                     </p>
                     <div className="bg-slate-50 dark:bg-slate-800/50 rounded-lg p-4 mb-6 text-left max-w-lg mx-auto">
                       <div className="text-xs text-slate-500 mb-1">分镜描述</div>
-                      <div className="text-sm text-slate-700 dark:text-slate-300">{selectedShot.description}</div>
+                      <div className="text-sm text-slate-700 dark:text-slate-300">
+                        {selectedShot.description}
+                      </div>
                       <div className="mt-3 flex gap-4 text-xs">
-                        <span className="text-slate-500">角色：{selectedShot.characters?.join(', ') || '无'}</span>
+                        <span className="text-slate-500">
+                          角色：{selectedShot.characters?.join(', ') || '无'}
+                        </span>
                         <span className="text-slate-500">场景：{selectedShot.sceneName}</span>
                       </div>
                     </div>
@@ -1679,9 +1907,13 @@ export const ShotManager: React.FC<ShotManagerProps> = ({ projectId: propProject
                   <Select
                     aria-label="选择LLM模型"
                     label="LLM模型"
-                    placeholder={availableLLMModels.length > 0 ? "选择用于拆分关键帧的模型" : "请先在设置中配置LLM模型"}
+                    placeholder={
+                      availableLLMModels.length > 0
+                        ? '选择用于拆分关键帧的模型'
+                        : '请先在设置中配置LLM模型'
+                    }
                     selectedKeys={selectedLLMModel ? [selectedLLMModel] : []}
-                    onChange={(e) => setSelectedLLMModel(e.target.value)}
+                    onChange={e => setSelectedLLMModel(e.target.value)}
                     isDisabled={availableLLMModels.length === 0}
                   >
                     {availableLLMModels.map(model => (
@@ -1691,9 +1923,7 @@ export const ShotManager: React.FC<ShotManagerProps> = ({ projectId: propProject
                     ))}
                   </Select>
                   {availableLLMModels.length === 0 ? (
-                    <p className="text-xs text-danger mt-1">
-                      未配置LLM模型，请先在设置中添加模型
-                    </p>
+                    <p className="text-xs text-danger mt-1">未配置LLM模型，请先在设置中添加模型</p>
                   ) : (
                     <p className="text-xs text-default-500 mt-1">
                       选择不同的模型会影响拆分质量和速度
@@ -1707,12 +1937,20 @@ export const ShotManager: React.FC<ShotManagerProps> = ({ projectId: propProject
                   <Select
                     label="数量"
                     selectedKeys={[keyframeCount.toString()]}
-                    onChange={(e) => setKeyframeCount(parseInt(e.target.value))}
+                    onChange={e => setKeyframeCount(parseInt(e.target.value))}
                   >
-                    <SelectItem key="2" value="2">2个关键帧</SelectItem>
-                    <SelectItem key="3" value="3">3个关键帧（推荐）</SelectItem>
-                    <SelectItem key="4" value="4">4个关键帧</SelectItem>
-                    <SelectItem key="5" value="5">5个关键帧</SelectItem>
+                    <SelectItem key="2" value="2">
+                      2个关键帧
+                    </SelectItem>
+                    <SelectItem key="3" value="3">
+                      3个关键帧（推荐）
+                    </SelectItem>
+                    <SelectItem key="4" value="4">
+                      4个关键帧
+                    </SelectItem>
+                    <SelectItem key="5" value="5">
+                      5个关键帧
+                    </SelectItem>
                   </Select>
                 </div>
               </>
@@ -1722,11 +1960,7 @@ export const ShotManager: React.FC<ShotManagerProps> = ({ projectId: propProject
             <Button variant="flat" onPress={() => setIsSplitModalOpen(false)}>
               取消
             </Button>
-            <Button
-              color="primary"
-              isDisabled={!selectedLLMModel}
-              onPress={confirmSplitKeyframes}
-            >
+            <Button color="primary" isDisabled={!selectedLLMModel} onPress={confirmSplitKeyframes}>
               开始拆分
             </Button>
           </ModalFooter>

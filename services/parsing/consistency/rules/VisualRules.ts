@@ -15,7 +15,7 @@ import {
   ConsistencyRule,
   CheckContext,
   ConsistencyViolation,
-  ViolationType
+  ViolationType,
 } from '../ConsistencyChecker';
 import { ScriptScene, ScriptCharacter, ScriptMetadata } from '../../../../types';
 
@@ -40,58 +40,77 @@ const DEFAULT_CONFIG: VisualRulesConfig = {
   checkColorConsistency: true,
   checkLighting: true,
   checkEraConsistency: true,
-  minColorSamples: 3
+  minColorSamples: 3,
 };
 
 /**
  * 预定义的视觉风格
  */
 const VISUAL_STYLES = [
-  '写实', '写实主义', 'realistic',
-  '暗黑', '黑暗', 'dark',
-  '明亮', '明亮风格', 'bright',
-  '赛博朋克', 'cyberpunk',
-  '复古', 'vintage', 'retro',
-  '未来', '科幻', 'futuristic', 'sci-fi',
-  '梦幻', 'dreamy',
-  '哥特', 'gothic',
-  '极简', '简约', 'minimalist',
-  '华丽', '华丽风格', '华丽装饰', 'ornate'
+  '写实',
+  '写实主义',
+  'realistic',
+  '暗黑',
+  '黑暗',
+  'dark',
+  '明亮',
+  '明亮风格',
+  'bright',
+  '赛博朋克',
+  'cyberpunk',
+  '复古',
+  'vintage',
+  'retro',
+  '未来',
+  '科幻',
+  'futuristic',
+  'sci-fi',
+  '梦幻',
+  'dreamy',
+  '哥特',
+  'gothic',
+  '极简',
+  '简约',
+  'minimalist',
+  '华丽',
+  '华丽风格',
+  '华丽装饰',
+  'ornate',
 ];
 
 /**
  * 预定义的色彩关键词
  */
 const COLOR_KEYWORDS: Record<string, string[]> = {
-  '红色': ['红', '赤', '绯', '朱', 'red', 'crimson', 'scarlet'],
-  '蓝色': ['蓝', '青', '碧', 'blue', 'azure', 'cyan'],
-  '绿色': ['绿', '翠', '碧', 'green', 'emerald', 'lime'],
-  '黄色': ['黄', '金', '橙', 'yellow', 'gold', 'orange', 'amber'],
-  '紫色': ['紫', '紫罗兰', 'purple', 'violet', 'magenta'],
-  '黑色': ['黑', '墨', '玄', 'black', 'dark', 'shadow'],
-  '白色': ['白', '雪', '银', 'white', 'snow', 'silver'],
-  '灰色': ['灰', '灰白', 'grey', 'gray', 'silver']
+  红色: ['红', '赤', '绯', '朱', 'red', 'crimson', 'scarlet'],
+  蓝色: ['蓝', '青', '碧', 'blue', 'azure', 'cyan'],
+  绿色: ['绿', '翠', '碧', 'green', 'emerald', 'lime'],
+  黄色: ['黄', '金', '橙', 'yellow', 'gold', 'orange', 'amber'],
+  紫色: ['紫', '紫罗兰', 'purple', 'violet', 'magenta'],
+  黑色: ['黑', '墨', '玄', 'black', 'dark', 'shadow'],
+  白色: ['白', '雪', '银', 'white', 'snow', 'silver'],
+  灰色: ['灰', '灰白', 'grey', 'gray', 'silver'],
 };
 
 /**
  * 时代特征关键词
  */
 const ERA_KEYWORDS: Record<string, string[]> = {
-  '古代': ['古代', '古代中国', '古代风格', 'ancient', 'historical', 'medieval'],
-  '近代': ['近代', '民国', '清末', 'early modern', 'republican era'],
-  '现代': ['现代', '当代', 'modern', 'contemporary', 'present day'],
-  '未来': ['未来', '科幻', 'futuristic', 'sci-fi', 'future']
+  古代: ['古代', '古代中国', '古代风格', 'ancient', 'historical', 'medieval'],
+  近代: ['近代', '民国', '清末', 'early modern', 'republican era'],
+  现代: ['现代', '当代', 'modern', 'contemporary', 'present day'],
+  未来: ['未来', '科幻', 'futuristic', 'sci-fi', 'future'],
 };
 
 /**
  * 光影关键词
  */
 const LIGHTING_KEYWORDS = {
-  '自然光': ['自然光', '日光', '阳光', 'natural light', 'sunlight', 'daylight'],
-  '人造光': ['人造光', '灯光', 'lamp', 'artificial light', 'electric light'],
-  '暗光': ['暗光', '昏暗', '阴影', 'dark', 'dim', 'shadow', 'low light'],
-  '强光': ['强光', '明亮', 'bright', 'harsh light', 'intense light'],
-  '柔光': ['柔光', '柔和', 'soft light', 'diffused light']
+  自然光: ['自然光', '日光', '阳光', 'natural light', 'sunlight', 'daylight'],
+  人造光: ['人造光', '灯光', 'lamp', 'artificial light', 'electric light'],
+  暗光: ['暗光', '昏暗', '阴影', 'dark', 'dim', 'shadow', 'low light'],
+  强光: ['强光', '明亮', 'bright', 'harsh light', 'intense light'],
+  柔光: ['柔光', '柔和', 'soft light', 'diffused light'],
 };
 
 /**
@@ -233,7 +252,12 @@ export class VisualRules implements ConsistencyRule {
 
     // 4. 检查时代背景一致性
     if (this.config.checkEraConsistency) {
-      const eraViolations = this.checkEraConsistency(scenes, characters, metadata, globalContext?.eraContext);
+      const eraViolations = this.checkEraConsistency(
+        scenes,
+        characters,
+        metadata,
+        globalContext?.eraContext
+      );
       violations.push(...eraViolations);
     }
 
@@ -280,7 +304,7 @@ export class VisualRules implements ConsistencyRule {
             sceneIds: [sceneId],
             suggestion: `建议统一剧本的视觉风格，或在场景描述中明确说明风格变化的原因`,
             autoFixable: false,
-            confidence: 0.6
+            confidence: 0.6,
           });
         }
       }
@@ -289,9 +313,10 @@ export class VisualRules implements ConsistencyRule {
     // 检查场景风格是否与全局风格冲突
     if (globalVisualStyle) {
       for (const [sceneId, styles] of sceneStyles.entries()) {
-        const hasMatchingStyle = styles.some(s =>
-          globalVisualStyle.toLowerCase().includes(s.toLowerCase()) ||
-          s.toLowerCase().includes(globalVisualStyle.toLowerCase())
+        const hasMatchingStyle = styles.some(
+          s =>
+            globalVisualStyle.toLowerCase().includes(s.toLowerCase()) ||
+            s.toLowerCase().includes(globalVisualStyle.toLowerCase())
         );
 
         if (!hasMatchingStyle && styles.length > 0) {
@@ -305,7 +330,7 @@ export class VisualRules implements ConsistencyRule {
             sceneIds: [sceneId],
             suggestion: `建议调整场景描述以符合全局视觉风格 "${globalVisualStyle}"，或重新评估全局风格设置`,
             autoFixable: false,
-            confidence: 0.7
+            confidence: 0.7,
           });
         }
       }
@@ -360,7 +385,7 @@ export class VisualRules implements ConsistencyRule {
             sceneIds: [sceneId],
             suggestion: `剧本主要使用 ${dominantColors.join(', ')} 色调，建议场景描述中体现这些色彩以保持视觉统一`,
             autoFixable: false,
-            confidence: 0.5
+            confidence: 0.5,
           });
         }
       }
@@ -383,8 +408,11 @@ export class VisualRules implements ConsistencyRule {
       // 检查光影是否与时间匹配
       if (timeOfDay && lighting.length > 0) {
         // 白天场景不应该有暗光描述
-        if ((timeOfDay === 'morning' || timeOfDay === 'afternoon') &&
-            lighting.includes('暗光') && !lighting.includes('室内')) {
+        if (
+          (timeOfDay === 'morning' || timeOfDay === 'afternoon') &&
+          lighting.includes('暗光') &&
+          !lighting.includes('室内')
+        ) {
           violations.push({
             id: `lighting-time-mismatch-${scene.id}`,
             type: 'logic_error' as ViolationType,
@@ -393,7 +421,7 @@ export class VisualRules implements ConsistencyRule {
             sceneIds: [scene.id],
             suggestion: `${scene.time} 通常是明亮的光线，如果场景确实昏暗，请明确说明原因（如室内、阴天等）`,
             autoFixable: false,
-            confidence: 0.5
+            confidence: 0.5,
           });
         }
 
@@ -407,7 +435,7 @@ export class VisualRules implements ConsistencyRule {
             sceneIds: [scene.id],
             suggestion: `夜晚场景的强光通常来自人造光源（如灯光、车灯等），建议在描述中明确光源`,
             autoFixable: false,
-            confidence: 0.5
+            confidence: 0.5,
           });
         }
       }
@@ -464,10 +492,13 @@ export class VisualRules implements ConsistencyRule {
     const violations: ConsistencyViolation[] = [];
 
     // 收集所有文本中的时代特征
+    const genreText = Array.isArray(metadata.genre)
+      ? metadata.genre.join(' ')
+      : metadata.genre || '';
     const allTexts: string[] = [
-      metadata.genre?.join(' ') || '',
+      genreText,
       ...scenes.map(s => s.description || ''),
-      ...characters.map(c => c.background || '')
+      ...characters.map(c => c.background || ''),
     ];
 
     const detectedEras = new Set<string>();
@@ -485,15 +516,16 @@ export class VisualRules implements ConsistencyRule {
         message: `剧本中检测到多个时代背景: ${Array.from(detectedEras).join(', ')}`,
         suggestion: `建议明确剧本的时代背景，避免不同时代的元素混合造成混乱`,
         autoFixable: false,
-        confidence: 0.7
+        confidence: 0.7,
       });
     }
 
     // 检查是否与全局时代背景冲突
     if (globalEraContext && detectedEras.size > 0) {
-      const hasMatchingEra = Array.from(detectedEras).some(era =>
-        globalEraContext.toLowerCase().includes(era.toLowerCase()) ||
-        era.toLowerCase().includes(globalEraContext.toLowerCase())
+      const hasMatchingEra = Array.from(detectedEras).some(
+        era =>
+          globalEraContext.toLowerCase().includes(era.toLowerCase()) ||
+          era.toLowerCase().includes(globalEraContext.toLowerCase())
       );
 
       if (!hasMatchingEra) {
@@ -504,7 +536,7 @@ export class VisualRules implements ConsistencyRule {
           message: `剧本内容的时代背景 (${Array.from(detectedEras).join(', ')}) 与设定 (${globalEraContext}) 不匹配`,
           suggestion: `请检查剧本内容，确保符合 ${globalEraContext} 的时代特征，或调整时代背景设定`,
           autoFixable: false,
-          confidence: 0.8
+          confidence: 0.8,
         });
       }
     }

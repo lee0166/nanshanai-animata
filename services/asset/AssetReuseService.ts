@@ -1,4 +1,12 @@
-import { CharacterAsset, CharacterViewAngle, CharacterViews, SceneAsset, SceneViewType, SceneViews, GeneratedImage } from '../../types';
+import {
+  CharacterAsset,
+  CharacterViewAngle,
+  CharacterViews,
+  SceneAsset,
+  SceneViewType,
+  SceneViews,
+  GeneratedImage,
+} from '../../types';
 import { aiService } from '../aiService';
 import { storageService } from '../storage';
 
@@ -34,13 +42,14 @@ export class AssetReuseService {
   async generateCharacterView(params: GenerateCharacterViewParams): Promise<AssetReuseResult> {
     try {
       const { character, viewAngle, modelConfigId, projectId } = params;
-      
+
       console.log(`[AssetReuseService] Generating character view: ${viewAngle}`);
-      
+
       // 获取参考图（优先使用正面图）
-      const referenceImage = character.views?.front || 
-                            character.generatedImages?.find(img => img.id === character.currentImageId);
-      
+      const referenceImage =
+        character.views?.front ||
+        character.generatedImages?.find(img => img.id === character.currentImageId);
+
       if (!referenceImage) {
         return { success: false, error: '没有可用的参考图，请先生成角色正面图' };
       }
@@ -50,15 +59,15 @@ export class AssetReuseService {
         front: 'front view, facing camera directly',
         side: 'side view, profile view, facing left',
         back: 'back view, from behind, facing away from camera',
-        'three-quarter': 'three-quarter view, 45 degree angle'
+        'three-quarter': 'three-quarter view, 45 degree angle',
       };
 
       // 构建生成提示词
       const prompt = `${character.prompt}, ${viewPrompts[viewAngle]}, same character, consistent appearance, maintaining all facial features, hairstyle, and clothing details`;
-      
+
       // 读取参考图base64
       const referenceBase64 = await this.imageToBase64(referenceImage.path);
-      
+
       // 调用生图API
       const result = await aiService.generateImage(
         prompt,
@@ -74,8 +83,13 @@ export class AssetReuseService {
 
       // 处理返回的图片数据
       const imageData = Array.isArray(result.data) ? result.data[0] : result.data;
-      const generatedImage = await this.saveGeneratedImage(imageData, projectId, prompt, modelConfigId);
-      
+      const generatedImage = await this.saveGeneratedImage(
+        imageData,
+        projectId,
+        prompt,
+        modelConfigId
+      );
+
       return { success: true, image: generatedImage };
     } catch (error) {
       console.error('[AssetReuseService] Generate character view failed:', error);
@@ -90,7 +104,7 @@ export class AssetReuseService {
   async generateSceneView(params: GenerateSceneViewParams): Promise<AssetReuseResult> {
     try {
       const { scene, viewType, modelConfigId, projectId } = params;
-      
+
       console.log(`[AssetReuseService] Generating scene view: ${viewType}`);
 
       // 构建视角提示词
@@ -98,17 +112,17 @@ export class AssetReuseService {
         panorama: 'panoramic view, wide angle, 360 degree view, complete environment',
         wide: 'wide shot, establishing shot, full view of the scene',
         detail: 'detailed view, close-up of key elements, texture details',
-        aerial: 'aerial view, bird eye view, top-down perspective, overview'
+        aerial: 'aerial view, bird eye view, top-down perspective, overview',
       };
 
       // 构建生成提示词
       const prompt = `${scene.prompt}, ${viewPrompts[viewType]}, same location, consistent lighting and atmosphere`;
-      
+
       // 如果有已有场景图，使用作为参考
       const referenceImages: string[] = [];
       if (scene.views?.wide || scene.currentImageId) {
-        const refImage = scene.views?.wide || 
-                        scene.generatedImages?.find(img => img.id === scene.currentImageId);
+        const refImage =
+          scene.views?.wide || scene.generatedImages?.find(img => img.id === scene.currentImageId);
         if (refImage) {
           const refBase64 = await this.imageToBase64(refImage.path);
           referenceImages.push(refBase64);
@@ -130,8 +144,13 @@ export class AssetReuseService {
 
       // 处理返回的图片数据
       const imageData = Array.isArray(result.data) ? result.data[0] : result.data;
-      const generatedImage = await this.saveGeneratedImage(imageData, projectId, prompt, modelConfigId);
-      
+      const generatedImage = await this.saveGeneratedImage(
+        imageData,
+        projectId,
+        prompt,
+        modelConfigId
+      );
+
       return { success: true, image: generatedImage };
     } catch (error) {
       console.error('[AssetReuseService] Generate scene view failed:', error);
@@ -143,17 +162,20 @@ export class AssetReuseService {
    * 获取角色特定视角的图片
    * 用于分镜生图时作为参考
    */
-  getCharacterViewForShot(character: CharacterAsset, preferredAngle?: CharacterViewAngle): GeneratedImage | undefined {
+  getCharacterViewForShot(
+    character: CharacterAsset,
+    preferredAngle?: CharacterViewAngle
+  ): GeneratedImage | undefined {
     // 优先使用指定视角
     if (preferredAngle && character.views?.[preferredAngle]) {
       return character.views[preferredAngle];
     }
-    
+
     // 其次使用当前选中的图片
     if (character.currentImageId) {
       return character.generatedImages?.find(img => img.id === character.currentImageId);
     }
-    
+
     // 最后使用任意可用图片
     return character.generatedImages?.[0];
   }
@@ -172,16 +194,16 @@ export class AssetReuseService {
         return scene.views.wide;
       }
     }
-    
+
     // 优先使用全景或广角
     if (scene.views?.panorama) return scene.views.panorama;
     if (scene.views?.wide) return scene.views.wide;
-    
+
     // 使用当前选中的图片
     if (scene.currentImageId) {
       return scene.generatedImages?.find(img => img.id === scene.currentImageId);
     }
-    
+
     return scene.generatedImages?.[0];
   }
 
@@ -193,7 +215,7 @@ export class AssetReuseService {
     if (!file) {
       throw new Error(`文件不存在: ${filePath}`);
     }
-    
+
     const arrayBuffer = await file.arrayBuffer();
     const uint8Array = new Uint8Array(arrayBuffer);
     let binary = '';
@@ -201,7 +223,7 @@ export class AssetReuseService {
       binary += String.fromCharCode(uint8Array[i]);
     }
     const base64 = btoa(binary);
-    
+
     const ext = filePath.split('.').pop()?.toLowerCase() || 'png';
     return `data:image/${ext};base64,${base64}`;
   }
@@ -210,13 +232,13 @@ export class AssetReuseService {
    * 保存生成的图片
    */
   private async saveGeneratedImage(
-    imageData: any, 
-    projectId: string, 
-    prompt: string, 
+    imageData: any,
+    projectId: string,
+    prompt: string,
     modelConfigId: string
   ): Promise<GeneratedImage> {
     const imageUrl = imageData.url || imageData.path;
-    
+
     // 下载图片
     let localPath = imageUrl;
     if (imageUrl && (imageUrl.startsWith('http://') || imageUrl.startsWith('https://'))) {
@@ -224,14 +246,14 @@ export class AssetReuseService {
         const proxyUrl = `/api/proxy?url=${encodeURIComponent(imageUrl)}`;
         const response = await fetch(proxyUrl);
         if (!response.ok) throw new Error('Download failed');
-        
+
         const blob = await response.blob();
         const timestamp = Date.now();
         const random = Math.random().toString(36).substring(2, 8);
         const ext = blob.type === 'image/webp' ? 'webp' : blob.type === 'image/png' ? 'png' : 'jpg';
         const filename = `${timestamp}_${random}.${ext}`;
         const path = `projects/${projectId}/assets/${filename}`;
-        
+
         await storageService.saveBinaryFile(path, blob);
         localPath = path;
       } catch (error) {
@@ -245,9 +267,10 @@ export class AssetReuseService {
       prompt,
       modelConfigId,
       modelId: imageData.modelId,
+      referenceImages: [],
       createdAt: Date.now(),
       width: imageData.width,
-      height: imageData.height
+      height: imageData.height,
     };
   }
 
@@ -255,8 +278,8 @@ export class AssetReuseService {
    * 更新角色的视图
    */
   async updateCharacterViews(
-    character: CharacterAsset, 
-    viewAngle: CharacterViewAngle, 
+    character: CharacterAsset,
+    viewAngle: CharacterViewAngle,
     image: GeneratedImage
   ): Promise<CharacterViews> {
     const views = character.views || {};
@@ -268,8 +291,8 @@ export class AssetReuseService {
    * 更新场景的视图
    */
   async updateSceneViews(
-    scene: SceneAsset, 
-    viewType: SceneViewType, 
+    scene: SceneAsset,
+    viewType: SceneViewType,
     image: GeneratedImage
   ): Promise<SceneViews> {
     const views = scene.views || {};

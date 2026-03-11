@@ -19,14 +19,14 @@ import {
   ModalFooter,
   Textarea,
   Input,
-  Chip
-} from "@heroui/react";
+  Chip,
+} from '@heroui/react';
 import { User, Link2, Plus, Edit2, Wand2, CheckCircle2 } from 'lucide-react';
 import { ImageGenerationPanel } from '../ProjectDetail/Shared/ImageGenerationPanel';
 
 interface CharacterMappingProps {
   projectId: string;
-  scriptId: string;  // 当前剧本ID
+  scriptId: string; // 当前剧本ID
   scriptCharacters: ScriptCharacter[];
   existingCharacters: CharacterAsset[];
   onCharactersUpdate: (characters: ScriptCharacter[]) => void;
@@ -39,7 +39,7 @@ export const CharacterMapping: React.FC<CharacterMappingProps> = ({
   scriptCharacters,
   existingCharacters,
   onCharactersUpdate,
-  onCharacterCreated
+  onCharacterCreated,
 }) => {
   const { t, settings } = useApp();
   const { showToast } = useToast();
@@ -59,15 +59,18 @@ export const CharacterMapping: React.FC<CharacterMappingProps> = ({
   // 纯创建逻辑 - 只创建资产，不更新状态
   const createCharacterAsset = async (scriptChar: ScriptCharacter): Promise<string> => {
     const generatedPrompt = CharacterPromptBuilder.build(scriptChar);
-    
+
     const newCharacter: CharacterAsset = {
       id: `char_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
       projectId,
-      scriptId,  // 关联当前剧本
+      scriptId, // 关联当前剧本
       type: AssetType.CHARACTER,
       name: scriptChar.name,
       prompt: generatedPrompt,
-      gender: (scriptChar.gender === 'male' || scriptChar.gender === 'female') ? scriptChar.gender : 'unlimited',
+      gender:
+        scriptChar.gender === 'male' || scriptChar.gender === 'female'
+          ? scriptChar.gender
+          : 'unlimited',
       ageGroup: mapAgeToGroup(scriptChar.age),
       metadata: {
         scriptDescription: JSON.stringify(scriptChar.appearance),
@@ -75,16 +78,19 @@ export const CharacterMapping: React.FC<CharacterMappingProps> = ({
         signatureItems: scriptChar.signatureItems,
         emotionalArc: scriptChar.emotionalArc,
         relationships: scriptChar.relationships,
-        visualPrompt: scriptChar.visualPrompt
+        visualPrompt: scriptChar.visualPrompt,
       },
       createdAt: Date.now(),
-      updatedAt: Date.now()
+      updatedAt: Date.now(),
     };
 
-    console.log('[CharacterMapping] 创建角色:', { name: newCharacter.name, scriptId: newCharacter.scriptId });
+    console.log('[CharacterMapping] 创建角色:', {
+      name: newCharacter.name,
+      scriptId: newCharacter.scriptId,
+    });
     await storageService.saveAsset(newCharacter);
     console.log('[CharacterMapping] 角色保存成功');
-    
+
     return newCharacter.id;
   };
 
@@ -93,7 +99,7 @@ export const CharacterMapping: React.FC<CharacterMappingProps> = ({
     try {
       // 1. 创建资产（不更新状态）
       const assetId = await createCharacterAsset(scriptChar);
-      
+
       // 2. 更新状态
       const updated = scriptCharacters.map(c =>
         c.name === scriptChar.name ? { ...c, mappedAssetId: assetId } : c
@@ -117,21 +123,36 @@ export const CharacterMapping: React.FC<CharacterMappingProps> = ({
       return;
     }
 
+    console.log(`[CharacterMapping] ========== 开始批量创建角色 ==========`);
+    console.log(`[CharacterMapping] 待创建角色数量: ${unmapped.length}`);
+    console.log(`[CharacterMapping] 角色列表: ${unmapped.map(c => c.name).join(', ')}`);
+
     setIsGenerating(true);
     const createdMappings: { name: string; assetId: string }[] = [];
     const failedCharacters: string[] = [];
+    const startTime = Date.now();
 
     try {
       // 第一步：串行创建所有资产（不更新状态）
-      for (const char of unmapped) {
+      for (let i = 0; i < unmapped.length; i++) {
+        const char = unmapped[i];
+        console.log(`[CharacterMapping] [${i + 1}/${unmapped.length}] 创建角色: ${char.name}`);
         try {
-          const assetId = await createCharacterAsset(char);  // 只创建，不更新状态
+          const assetId = await createCharacterAsset(char); // 只创建，不更新状态
           createdMappings.push({ name: char.name, assetId });
+          console.log(
+            `[CharacterMapping] [${i + 1}/${unmapped.length}] 角色 ${char.name} 创建成功，ID: ${assetId}`
+          );
         } catch (error) {
           console.error(`[CharacterMapping] 创建角色 ${char.name} 失败:`, error);
           failedCharacters.push(char.name);
         }
       }
+
+      const duration = Date.now() - startTime;
+      console.log(`[CharacterMapping] 批量创建完成，耗时: ${duration}ms`);
+      console.log(`[CharacterMapping] 成功: ${createdMappings.length}/${unmapped.length}`);
+      console.log(`[CharacterMapping] 失败: ${failedCharacters.length}/${unmapped.length}`);
 
       // 第二步：统一更新所有状态（只更新一次）
       if (createdMappings.length > 0) {
@@ -139,11 +160,14 @@ export const CharacterMapping: React.FC<CharacterMappingProps> = ({
           const mapping = createdMappings.find(m => m.name === c.name);
           return mapping ? { ...c, mappedAssetId: mapping.assetId } : c;
         });
-        onCharactersUpdate(updated);  // 关键：只更新一次
+        onCharactersUpdate(updated); // 关键：只更新一次
         onCharacterCreated?.();
-        
+
         if (failedCharacters.length > 0) {
-          showToast(`成功创建 ${createdMappings.length} 个角色，${failedCharacters.length} 个失败`, 'warning');
+          showToast(
+            `成功创建 ${createdMappings.length} 个角色，${failedCharacters.length} 个失败`,
+            'warning'
+          );
         } else {
           showToast(`成功创建 ${createdMappings.length} 个角色`, 'success');
         }
@@ -152,14 +176,13 @@ export const CharacterMapping: React.FC<CharacterMappingProps> = ({
       }
     } finally {
       setIsGenerating(false);
+      console.log(`[CharacterMapping] ========== 批量创建角色结束 ==========`);
     }
   };
 
   // Handle updating script character details
   const handleUpdateCharacter = (updated: ScriptCharacter) => {
-    const updatedList = scriptCharacters.map(c =>
-      c.name === updated.name ? updated : c
-    );
+    const updatedList = scriptCharacters.map(c => (c.name === updated.name ? updated : c));
     onCharactersUpdate(updatedList);
     setIsEditModalOpen(false);
     showToast('角色信息已更新', 'success');
@@ -174,7 +197,10 @@ export const CharacterMapping: React.FC<CharacterMappingProps> = ({
 
     setIsGenerating(true);
     try {
-      const asset = await storageService.getAsset(scriptChar.mappedAssetId, projectId) as CharacterAsset;
+      const asset = (await storageService.getAsset(
+        scriptChar.mappedAssetId,
+        projectId
+      )) as CharacterAsset;
       if (!asset) {
         showToast('角色资源不存在', 'error');
         return;
@@ -210,12 +236,33 @@ export const CharacterMapping: React.FC<CharacterMappingProps> = ({
     // If not a number, try to convert Chinese numbers
     if (isNaN(ageNum)) {
       const chineseNumbers: Record<string, number> = {
-        '一': 1, '二': 2, '三': 3, '四': 4, '五': 5,
-        '六': 6, '七': 7, '八': 8, '九': 9, '十': 10,
-        '十一': 11, '十二': 12, '十三': 13, '十四': 14, '十五': 15,
-        '十六': 16, '十七': 17, '十八': 18, '十九': 19, '二十': 20,
-        '三十': 30, '四十': 40, '五十': 50, '六十': 60, '七十': 70,
-        '八十': 80, '九十': 90
+        一: 1,
+        二: 2,
+        三: 3,
+        四: 4,
+        五: 5,
+        六: 6,
+        七: 7,
+        八: 8,
+        九: 9,
+        十: 10,
+        十一: 11,
+        十二: 12,
+        十三: 13,
+        十四: 14,
+        十五: 15,
+        十六: 16,
+        十七: 17,
+        十八: 18,
+        十九: 19,
+        二十: 20,
+        三十: 30,
+        四十: 40,
+        五十: 50,
+        六十: 60,
+        七十: 70,
+        八十: 80,
+        九十: 90,
       };
 
       // Try exact match first
@@ -268,8 +315,8 @@ export const CharacterMapping: React.FC<CharacterMappingProps> = ({
         <div>
           <h3 className="text-lg font-bold">角色映射</h3>
           <p className="text-sm text-default-500">
-            共 {scriptCharacters.length} 个角色，
-            已关联 {scriptCharacters.filter(c => c.mappedAssetId).length} 个
+            共 {scriptCharacters.length} 个角色， 已关联{' '}
+            {scriptCharacters.filter(c => c.mappedAssetId).length} 个
           </p>
         </div>
         <Button
@@ -286,7 +333,7 @@ export const CharacterMapping: React.FC<CharacterMappingProps> = ({
 
       {/* Character Cards Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {scriptCharacters.map((char) => {
+        {scriptCharacters.map(char => {
           const mappedAsset = getMappedAsset(char.mappedAssetId);
           const hasImage = mappedAsset?.currentImageId || mappedAsset?.generatedImages?.length;
 
@@ -315,7 +362,12 @@ export const CharacterMapping: React.FC<CharacterMappingProps> = ({
                         </Chip>
                       )}
                       {mappedAsset && (
-                        <Chip size="sm" color="success" variant="flat" startContent={<CheckCircle2 size={12} />}>
+                        <Chip
+                          size="sm"
+                          color="success"
+                          variant="flat"
+                          startContent={<CheckCircle2 size={12} />}
+                        >
                           已关联
                         </Chip>
                       )}
@@ -327,20 +379,21 @@ export const CharacterMapping: React.FC<CharacterMappingProps> = ({
                 <div className="space-y-2 text-sm mb-3">
                   {char.identity && (
                     <p className="text-default-600">
-                      <span className="font-medium">身份：</span>{char.identity}
+                      <span className="font-medium">身份：</span>
+                      {char.identity}
                     </p>
                   )}
                   {char.personality?.length > 0 && (
                     <div className="flex flex-wrap gap-1">
                       {char.personality.slice(0, 3).map((p, i) => (
-                        <Chip key={i} size="sm" variant="bordered">{p}</Chip>
+                        <Chip key={i} size="sm" variant="bordered">
+                          {p}
+                        </Chip>
                       ))}
                     </div>
                   )}
                   {char.visualPrompt && (
-                    <p className="text-default-500 text-xs line-clamp-2">
-                      {char.visualPrompt}
-                    </p>
+                    <p className="text-default-500 text-xs line-clamp-2">{char.visualPrompt}</p>
                   )}
                 </div>
 
@@ -350,10 +403,12 @@ export const CharacterMapping: React.FC<CharacterMappingProps> = ({
                     label="关联到现有角色"
                     placeholder="选择现有角色或留空"
                     selectedKeys={char.mappedAssetId ? new Set([char.mappedAssetId]) : new Set()}
-                    onChange={(e) => handleMapCharacter(char, e.target.value)}
+                    onChange={e => handleMapCharacter(char, e.target.value)}
                     size="sm"
                   >
-                    <SelectItem key="" value="">不关联</SelectItem>
+                    <SelectItem key="" value="">
+                      不关联
+                    </SelectItem>
                     {existingCharacters.map(asset => (
                       <SelectItem key={asset.id} value={asset.id}>
                         {asset.name}
@@ -414,40 +469,50 @@ export const CharacterMapping: React.FC<CharacterMappingProps> = ({
               <ModalHeader>编辑角色 - {selectedCharacter.name}</ModalHeader>
               <ModalBody className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
-                  <Input
-                    label="姓名"
-                    value={selectedCharacter.name}
-                    isReadOnly
-                  />
+                  <Input label="姓名" value={selectedCharacter.name} isReadOnly />
                   <Input
                     label="年龄"
                     value={selectedCharacter.age || ''}
-                    onChange={(e) => setSelectedCharacter({ ...selectedCharacter, age: e.target.value })}
+                    onChange={e =>
+                      setSelectedCharacter({ ...selectedCharacter, age: e.target.value })
+                    }
                   />
                   <Select
                     label="性别"
-                    selectedKeys={selectedCharacter.gender ? new Set([selectedCharacter.gender]) : new Set()}
-                    onChange={(e) => setSelectedCharacter({ ...selectedCharacter, gender: e.target.value as any })}
+                    selectedKeys={
+                      selectedCharacter.gender ? new Set([selectedCharacter.gender]) : new Set()
+                    }
+                    onChange={e =>
+                      setSelectedCharacter({ ...selectedCharacter, gender: e.target.value as any })
+                    }
                   >
-                    <SelectItem key="male" value="male">男</SelectItem>
-                    <SelectItem key="female" value="female">女</SelectItem>
-                    <SelectItem key="unknown" value="unknown">未知</SelectItem>
+                    <SelectItem key="male" value="male">
+                      男
+                    </SelectItem>
+                    <SelectItem key="female" value="female">
+                      女
+                    </SelectItem>
+                    <SelectItem key="unknown" value="unknown">
+                      未知
+                    </SelectItem>
                   </Select>
                   <Input
                     label="身份"
                     value={selectedCharacter.identity || ''}
-                    onChange={(e) => setSelectedCharacter({ ...selectedCharacter, identity: e.target.value })}
+                    onChange={e =>
+                      setSelectedCharacter({ ...selectedCharacter, identity: e.target.value })
+                    }
                   />
                 </div>
 
                 <Textarea
                   label="外貌描述"
                   value={JSON.stringify(selectedCharacter.appearance, null, 2)}
-                  onChange={(e) => {
+                  onChange={e => {
                     try {
                       const appearance = JSON.parse(e.target.value);
                       setSelectedCharacter({ ...selectedCharacter, appearance });
-                    } catch { }
+                    } catch {}
                   }}
                   minRows={4}
                 />
@@ -455,16 +520,23 @@ export const CharacterMapping: React.FC<CharacterMappingProps> = ({
                 <Textarea
                   label="性格特征（逗号分隔）"
                   value={selectedCharacter.personality?.join(', ') || ''}
-                  onChange={(e) => setSelectedCharacter({
-                    ...selectedCharacter,
-                    personality: e.target.value.split(',').map(p => p.trim()).filter(Boolean)
-                  })}
+                  onChange={e =>
+                    setSelectedCharacter({
+                      ...selectedCharacter,
+                      personality: e.target.value
+                        .split(',')
+                        .map(p => p.trim())
+                        .filter(Boolean),
+                    })
+                  }
                 />
 
                 <Textarea
                   label="视觉提示词（用于AI生图）"
                   value={selectedCharacter.visualPrompt || ''}
-                  onChange={(e) => setSelectedCharacter({ ...selectedCharacter, visualPrompt: e.target.value })}
+                  onChange={e =>
+                    setSelectedCharacter({ ...selectedCharacter, visualPrompt: e.target.value })
+                  }
                   minRows={3}
                 />
               </ModalBody>

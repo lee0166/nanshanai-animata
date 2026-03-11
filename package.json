@@ -27,7 +27,25 @@
     "download-model": "node scripts/download-model.js && node scripts/download-wasm.js",
     "download-wasm": "node scripts/download-wasm.js",
     "check-model-update": "node scripts/check-model-update.js",
-    "chroma": ".venv-chroma\\Scripts\\chroma run --path ./data/chroma_db"
+    "chroma": ".venv-chroma\\Scripts\\chroma run --path ./data/chroma_db",
+    "lint": "eslint . --ext .ts,.tsx,.js,.jsx --ignore-pattern 'services/errorHandler.ts'",
+    "lint:fix": "eslint . --ext .ts,.tsx,.js,.jsx --fix --ignore-pattern 'services/errorHandler.ts'",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "*.{ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{js,jsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,md}": [
+      "prettier --write"
+    ]
   },
   "dependencies": {
     "@chroma-core/default-embed": "^0.1.9",
@@ -39,6 +57,8 @@
     "chromadb": "^3.3.1",
     "framer-motion": "^12.23.26",
     "lucide-react": "^0.562.0",
+    "mammoth": "^1.11.0",
+    "pdfjs-dist": "^5.5.207",
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
     "react-router-dom": "^7.11.0",
@@ -46,7 +66,11 @@
     "zod": "^3.25.76"
   },
   "devDependencies": {
+    "@commitlint/cli": "^20.4.3",
+    "@commitlint/config-conventional": "^20.4.3",
+    "@eslint/js": "^10.0.1",
     "@tailwindcss/postcss": "^4.1.18",
+    "@testing-library/dom": "^10.4.1",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
     "@types/node": "^22.14.0",
@@ -54,10 +78,18 @@
     "@vitejs/plugin-react": "^5.0.0",
     "@vitest/ui": "^4.0.18",
     "autoprefixer": "^10.4.23",
+    "eslint": "^10.0.3",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^7.0.1",
+    "husky": "^9.1.7",
     "jsdom": "^28.0.0",
+    "lint-staged": "^16.3.3",
     "postcss": "^8.5.6",
+    "prettier": "^3.8.1",
     "tailwindcss": "^4.1.18",
     "typescript": "~5.8.2",
+    "typescript-eslint": "^8.57.0",
     "vite": "^6.2.0",
     "vitest": "^4.0.18"
   }

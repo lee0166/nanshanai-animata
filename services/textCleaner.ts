@@ -78,7 +78,7 @@ export class TextCleaner {
 
     // 找到所有章节标题的位置
     const chapterPositions: { title: string; start: number; end: number }[] = [];
-    
+
     for (const pattern of chapterTitlePatterns) {
       const matches = [...text.matchAll(new RegExp(pattern, 'gm'))];
       if (matches.length > 0) {
@@ -101,8 +101,8 @@ export class TextCleaner {
         const nextPos = chapterPositions[index + 1];
         const contentStart = pos.end;
         const contentEnd = nextPos ? nextPos.start : text.length;
-        let content = text.slice(contentStart, contentEnd).trim();
-        
+        const content = text.slice(contentStart, contentEnd).trim();
+
         chapters.push({
           title: pos.title,
           content,

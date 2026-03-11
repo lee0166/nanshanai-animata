@@ -8,18 +8,25 @@
  * @version 1.0.0
  */
 
-import { ScriptMetadata, ScriptCharacter, ScriptScene, ScriptItem, Shot, QualityReport } from '../../types';
+import {
+  ScriptMetadata,
+  ScriptCharacter,
+  ScriptScene,
+  ScriptItem,
+  Shot,
+  QualityReport,
+} from '../../types';
 import { ShortDramaRules, RuleContext, RuleViolation } from './ShortDramaRules';
 
 /**
  * 质量维度枚举
  */
 export enum QualityDimension {
-  COMPLETENESS = 'completeness',    // 完整性
-  ACCURACY = 'accuracy',            // 准确性
-  CONSISTENCY = 'consistency',      // 一致性
-  USABILITY = 'usability',          // 可用性
-  DRAMATIC = 'dramatic',            // 戏剧性
+  COMPLETENESS = 'completeness', // 完整性
+  ACCURACY = 'accuracy', // 准确性
+  CONSISTENCY = 'consistency', // 一致性
+  USABILITY = 'usability', // 可用性
+  DRAMATIC = 'dramatic', // 戏剧性
 }
 
 /**
@@ -27,35 +34,35 @@ export enum QualityDimension {
  */
 export interface DimensionScore {
   dimension: QualityDimension;
-  score: number;                    // 0-100
-  weight: number;                   // 权重 0-1
-  details: string[];                // 详细说明
-  issues: QualityIssue[];           // 问题列表
+  score: number; // 0-100
+  weight: number; // 权重 0-1
+  details: string[]; // 详细说明
+  issues: QualityIssue[]; // 问题列表
 }
 
 /**
  * 质量问题接口
  */
 export interface QualityIssue {
-  type: 'error' | 'warning' | 'info';
+  type: 'error' | 'critical' | 'warning' | 'info';
   message: string;
-  target?: string;                  // 问题对象（角色名、场景名等）
-  targetId?: string;                // 问题对象ID（用于跳转）
-  targetType?: 'character' | 'scene' | 'shot' | 'item' | 'metadata';  // 对象类型
-  context?: string;                 // 上下文信息（如当前值、期望值等）
+  target?: string; // 问题对象（角色名、场景名等）
+  targetId?: string; // 问题对象ID（用于跳转）
+  targetType?: 'character' | 'scene' | 'shot' | 'item' | 'metadata'; // 对象类型
+  context?: string; // 上下文信息（如当前值、期望值等）
   suggestion: string;
-  autoFixable?: boolean;            // 是否可自动修复
+  autoFixable?: boolean; // 是否可自动修复
 }
 
 /**
  * 详细质量报告接口
  */
 export interface DetailedQualityReport extends QualityReport {
-  dimensionScores: DimensionScore[];  // 各维度评分
-  overallGrade: string;               // 总评级 A/B/C/D/F
-  confidence: number;                 // 置信度 0-1
-  statistics: QualityStatistics;      // 统计信息
-  recommendations: string[];          // 优化建议（按优先级排序）
+  dimensionScores: DimensionScore[]; // 各维度评分
+  overallGrade: string; // 总评级 A/B/C/D/F
+  confidence: number; // 置信度 0-1
+  statistics: QualityStatistics; // 统计信息
+  recommendations: string[]; // 优化建议（按优先级排序）
   stage: 'metadata' | 'characters' | 'scenes' | 'shots' | 'completed';
 }
 
@@ -132,9 +139,16 @@ export class QualityAnalyzer {
     skippedFeatures?: string[]
   ): DetailedQualityReport {
     const statistics = this.calculateStatistics(characters, scenes, items, shots);
-    
+
     // 分析各维度
-    const completenessScore = this.analyzeCompleteness(metadata, characters, scenes, items, shots, stage);
+    const completenessScore = this.analyzeCompleteness(
+      metadata,
+      characters,
+      scenes,
+      items,
+      shots,
+      stage
+    );
     const accuracyScore = this.analyzeAccuracy(characters, scenes, shots);
     const consistencyScore = this.analyzeConsistency(characters, scenes, shots);
     const usabilityScore = this.analyzeUsability(characters, scenes, shots);
@@ -222,10 +236,11 @@ export class QualityAnalyzer {
     }
 
     // 检查角色信息完整性
-    const incompleteCharacters = characters.filter(c =>
-      !c.appearance ||
-      Object.values(c.appearance).every(v => !v) ||
-      (c.description && c.description.length < this.config.minCharacterDescriptionLength)
+    const incompleteCharacters = characters.filter(
+      c =>
+        !c.appearance ||
+        Object.values(c.appearance).every(v => !v) ||
+        (c.description && c.description.length < this.config.minCharacterDescriptionLength)
     );
 
     if (incompleteCharacters.length > 0) {
@@ -254,14 +269,16 @@ export class QualityAnalyzer {
         });
       }
       score -= Math.min(15, incompleteCharacters.length * 3);
-      details.push(`角色描述完整度: ${characters.length - incompleteCharacters.length}/${characters.length}`);
+      details.push(
+        `角色描述完整度: ${characters.length - incompleteCharacters.length}/${characters.length}`
+      );
     } else if (characters.length > 0) {
       details.push(`所有${characters.length}个角色都有完整描述`);
     }
 
     // 检查场景信息完整性
-    const incompleteScenes = scenes.filter(s =>
-      !s.description || s.description.length < this.config.minSceneDescriptionLength
+    const incompleteScenes = scenes.filter(
+      s => !s.description || s.description.length < this.config.minSceneDescriptionLength
     );
 
     if (incompleteScenes.length > 0) {
@@ -294,9 +311,7 @@ export class QualityAnalyzer {
 
     // 检查分镜覆盖度
     if (stage === 'shots' || stage === 'completed') {
-      const scenesWithoutShots = scenes.filter(s =>
-        !shots.some(shot => shot.sceneId === s.id)
-      );
+      const scenesWithoutShots = scenes.filter(s => !shots.some(shot => shot.sceneId === s.id));
 
       if (scenesWithoutShots.length > 0) {
         // 为每个缺少分镜的场景生成具体问题
@@ -369,10 +384,8 @@ export class QualityAnalyzer {
     }
 
     // 检查分镜参数准确性
-    const invalidShots = shots.filter(s =>
-      !s.type ||
-      !s.description ||
-      (s.duration && (s.duration < 1 || s.duration > 60))
+    const invalidShots = shots.filter(
+      s => !s.type || !s.description || (s.duration && (s.duration < 1 || s.duration > 60))
     );
 
     if (invalidShots.length > 0) {
@@ -419,7 +432,7 @@ export class QualityAnalyzer {
     return {
       dimension: QualityDimension.ACCURACY,
       score: Math.max(0, score),
-      weight: 0.20,
+      weight: 0.2,
       details,
       issues,
     };
@@ -499,8 +512,8 @@ export class QualityAnalyzer {
     }
 
     // 检查分镜与场景的一致性
-    const shotsWithInvalidScene = shots.filter(s =>
-      s.sceneId && !scenes.find(scene => scene.id === s.sceneId)
+    const shotsWithInvalidScene = shots.filter(
+      s => s.sceneId && !scenes.find(scene => scene.id === s.sceneId)
     );
 
     if (shotsWithInvalidScene.length > 0) {
@@ -535,7 +548,7 @@ export class QualityAnalyzer {
     return {
       dimension: QualityDimension.CONSISTENCY,
       score: Math.max(0, score),
-      weight: 0.20,
+      weight: 0.2,
       details,
       issues,
     };
@@ -555,16 +568,16 @@ export class QualityAnalyzer {
 
     // 检查角色可用性（是否有足够信息用于生成）
     const usableCharacters = characters.filter(c => {
-      const hasAppearance = c.appearance && 
-        (c.appearance.face || c.appearance.hair || c.appearance.clothing);
+      const hasAppearance =
+        c.appearance && (c.appearance.face || c.appearance.hair || c.appearance.clothing);
       const hasDescription = c.description && c.description.length > 10;
       return hasAppearance || hasDescription;
     });
 
     if (usableCharacters.length < characters.length) {
       const unusableCharacters = characters.filter(c => {
-        const hasAppearance = c.appearance &&
-          (c.appearance.face || c.appearance.hair || c.appearance.clothing);
+        const hasAppearance =
+          c.appearance && (c.appearance.face || c.appearance.hair || c.appearance.clothing);
         const hasDescription = c.description && c.description.length > 10;
         return !(hasAppearance || hasDescription);
       });
@@ -599,20 +612,16 @@ export class QualityAnalyzer {
     details.push(`可用角色: ${usableCharacters.length}/${characters.length}`);
 
     // 检查场景可用性
-    const usableScenes = scenes.filter(s => 
-      s.description && s.description.length > 20
-    );
+    const usableScenes = scenes.filter(s => s.description && s.description.length > 20);
 
     details.push(`可用场景: ${usableScenes.length}/${scenes.length}`);
 
     // 检查分镜可用性
-    const usableShots = shots.filter(s => 
-      s.type && s.description && s.description.length > 10
-    );
+    const usableShots = shots.filter(s => s.type && s.description && s.description.length > 10);
 
     if (usableShots.length < shots.length) {
-      const shortDescriptionShots = shots.filter(s =>
-        s.type && s.description && s.description.length <= 10
+      const shortDescriptionShots = shots.filter(
+        s => s.type && s.description && s.description.length <= 10
       );
 
       // 为每个描述较短的分镜生成具体问题（info级别）
@@ -645,7 +654,7 @@ export class QualityAnalyzer {
     return {
       dimension: QualityDimension.USABILITY,
       score: Math.max(0, score),
-      weight: 0.20,
+      weight: 0.2,
       details,
       issues,
     };
@@ -690,8 +699,8 @@ export class QualityAnalyzer {
     shots: Shot[]
   ): QualityStatistics {
     const scenesWithShots = new Set(shots.map(s => s.sceneId)).size;
-    const charactersWithDescription = characters.filter(c => 
-      c.description && c.description.length > 10
+    const charactersWithDescription = characters.filter(
+      c => c.description && c.description.length > 10
     ).length;
 
     return {
@@ -699,12 +708,14 @@ export class QualityAnalyzer {
       totalScenes: scenes.length,
       totalItems: items.length,
       totalShots: shots.length,
-      avgCharactersPerScene: scenes.length > 0 
-        ? Math.round((scenes.reduce((sum, s) => sum + (s.characters?.length || 0), 0) / scenes.length) * 10) / 10
-        : 0,
-      avgShotsPerScene: scenes.length > 0
-        ? Math.round((shots.length / scenes.length) * 10) / 10
-        : 0,
+      avgCharactersPerScene:
+        scenes.length > 0
+          ? Math.round(
+              (scenes.reduce((sum, s) => sum + (s.characters?.length || 0), 0) / scenes.length) * 10
+            ) / 10
+          : 0,
+      avgShotsPerScene:
+        scenes.length > 0 ? Math.round((shots.length / scenes.length) * 10) / 10 : 0,
       scenesWithShots,
       scenesWithoutShots: scenes.length - scenesWithShots,
       charactersWithDescription,
@@ -749,7 +760,8 @@ export class QualityAnalyzer {
             if (issue.target) {
               if (issue.targetType === 'character') characterNames.add(issue.target);
               else if (issue.targetType === 'scene') sceneNames.add(issue.target);
-              else if (issue.targetType === 'shot') shotNumbers.add(issue.target.replace('分镜#', ''));
+              else if (issue.targetType === 'shot')
+                shotNumbers.add(parseInt(issue.target.replace('分镜#', ''), 10) || 0);
             }
             // 构建更具体的建议文字
             const targetInfo = issue.target ? `【${issue.target}】` : '';
@@ -760,7 +772,8 @@ export class QualityAnalyzer {
             if (issue.target) {
               if (issue.targetType === 'character') characterNames.add(issue.target);
               else if (issue.targetType === 'scene') sceneNames.add(issue.target);
-              else if (issue.targetType === 'shot') shotNumbers.add(issue.target.replace('分镜#', ''));
+              else if (issue.targetType === 'shot')
+                shotNumbers.add(parseInt(issue.target.replace('分镜#', ''), 10) || 0);
             }
             // 构建更具体的建议文字
             const targetInfo = issue.target ? `【${issue.target}】` : '';
@@ -785,11 +798,15 @@ export class QualityAnalyzer {
     if (statistics.charactersWithoutDescription > 0) {
       const charList = Array.from(characterNames).slice(0, 3).join('、');
       const moreText = characterNames.size > 3 ? `等${characterNames.size}个` : '';
-      recommendations.push(`🟡 优化: 角色${charList || ''}${moreText}缺少详细描述，补充外貌特征后可生成更精准的形象`);
+      recommendations.push(
+        `🟡 优化: 角色${charList || ''}${moreText}缺少详细描述，补充外貌特征后可生成更精准的形象`
+      );
     }
 
     if (statistics.avgShotsPerScene < 3 && stage === 'completed') {
-      recommendations.push(`💡 提示: 当前平均每场景${statistics.avgShotsPerScene}个分镜，建议增加到3-5个以丰富剧情`);
+      recommendations.push(
+        `💡 提示: 当前平均每场景${statistics.avgShotsPerScene}个分镜，建议增加到3-5个以丰富剧情`
+      );
     }
 
     return recommendations;
@@ -798,22 +815,19 @@ export class QualityAnalyzer {
   /**
    * 计算置信度
    */
-  private calculateConfidence(
-    dimensionScores: DimensionScore[],
-    stage: string
-  ): number {
+  private calculateConfidence(dimensionScores: DimensionScore[], stage: string): number {
     // 基于完成阶段和维度分数计算
     const stageConfidence: Record<string, number> = {
-      'metadata': 0.3,
-      'characters': 0.5,
-      'scenes': 0.7,
-      'shots': 0.9,
-      'completed': 1.0,
+      metadata: 0.3,
+      characters: 0.5,
+      scenes: 0.7,
+      shots: 0.9,
+      completed: 1.0,
     };
 
     const baseConfidence = stageConfidence[stage] || 0.5;
     const avgScore = dimensionScores.reduce((sum, d) => sum + d.score, 0) / dimensionScores.length;
-    
+
     // 置信度 = 基础置信度 * (平均分/100)
     return Math.round(baseConfidence * (avgScore / 100) * 100) / 100;
   }

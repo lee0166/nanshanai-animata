@@ -1,4 +1,4 @@
-import { ModelConfig } from "../../types";
+import { ModelConfig } from '@/types';
 
 /**
  * Provider插件标准接口
@@ -82,7 +82,7 @@ export interface TextGenerationRequest {
   systemPrompt?: string;
   temperature?: number;
   maxTokens?: number;
-  messages?: Array<{ role: "system" | "user" | "assistant"; content: string }>;
+  messages?: Array<{ role: 'system' | 'user' | 'assistant'; content: string }>;
   extraParams?: Record<string, any>;
 }
 
@@ -112,14 +112,21 @@ export interface ValidationResult {
  * 健康检查结果
  */
 export interface HealthCheckResult {
-  status: "healthy" | "degraded" | "unhealthy" | "unknown";
+  status: 'healthy' | 'degraded' | 'unhealthy' | 'unknown';
+  providerId?: string;
+  modelId?: string;
+  responseTime?: number;
   latency?: number;
+  lastChecked?: string;
+  timestamp?: number;
+  healthy?: boolean;
+  message?: string;
   error?: string;
-  timestamp: number;
+  details?: Record<string, any>;
   checks?: {
-    apiKey?: { status: "pass" | "fail"; message?: string };
-    connectivity?: { status: "pass" | "fail"; latency?: number; message?: string };
-    service?: { status: "pass" | "fail"; message?: string };
+    apiKey?: { status: 'pass' | 'fail'; message?: string };
+    connectivity?: { status: 'pass' | 'fail'; latency?: number; message?: string };
+    service?: { status: 'pass' | 'fail'; message?: string };
   };
 }
 
@@ -148,7 +155,7 @@ export interface ProviderInitConfig {
  */
 export interface ProviderMetadata {
   /** 环境限制 */
-  environment: "all" | "development" | "production";
+  environment: 'all' | 'development' | 'production';
 
   /** 加载优先级（数字越小优先级越高） */
   priority: number;
@@ -171,10 +178,10 @@ export interface IProvider {
   readonly name: string;
 
   /** 支持的模型类型 */
-  readonly supportedTypes: ("image" | "video" | "llm")[];
+  readonly supportedTypes: ('image' | 'video' | 'llm')[];
 
   /** 默认协议适配器类型 */
-  readonly defaultProtocol: "openai" | "volcengine" | "aliyun" | "custom";
+  readonly defaultProtocol: 'openai' | 'volcengine' | 'aliyun' | 'custom';
 
   /**
    * 初始化Provider
@@ -183,25 +190,19 @@ export interface IProvider {
   initialize(config: ProviderInitConfig): Promise<void>;
 
   /**
-   * 图像生成
+   * 图像生成 - 可选实现
    */
-  generateImage(
-    request: ImageGenerationRequest
-  ): Promise<AIResult<ImageGenerationResponse>>;
+  generateImage?(request: ImageGenerationRequest): Promise<AIResult<ImageGenerationResponse>>;
 
   /**
-   * 视频生成
+   * 视频生成 - 可选实现
    */
-  generateVideo?(
-    request: VideoGenerationRequest
-  ): Promise<AIResult<VideoGenerationResponse>>;
+  generateVideo?(request: VideoGenerationRequest): Promise<AIResult<VideoGenerationResponse>>;
 
   /**
    * 文本生成
    */
-  generateText?(
-    request: TextGenerationRequest
-  ): Promise<AIResult<TextGenerationResponse>>;
+  generateText?(request: TextGenerationRequest): Promise<AIResult<TextGenerationResponse>>;
 
   /**
    * 验证配置有效性
@@ -241,7 +242,7 @@ export class ProviderError extends Error {
     public code?: string
   ) {
     super(`[${providerId}] ${message}`);
-    this.name = "ProviderError";
+    this.name = 'ProviderError';
   }
 }
 
@@ -250,8 +251,8 @@ export class ProviderError extends Error {
  */
 export class ProviderNotFoundError extends ProviderError {
   constructor(providerId: string) {
-    super(providerId, `Provider not found: ${providerId}`, "PROVIDER_NOT_FOUND");
-    this.name = "ProviderNotFoundError";
+    super(providerId, `Provider not found: ${providerId}`, 'PROVIDER_NOT_FOUND');
+    this.name = 'ProviderNotFoundError';
   }
 }
 
@@ -263,7 +264,7 @@ export class ProviderNotAvailableError extends ProviderError {
     providerId: string,
     public reason: string
   ) {
-    super(providerId, `Provider not available: ${reason}`, "PROVIDER_NOT_AVAILABLE");
-    this.name = "ProviderNotAvailableError";
+    super(providerId, `Provider not available: ${reason}`, 'PROVIDER_NOT_AVAILABLE');
+    this.name = 'ProviderNotAvailableError';
   }
 }

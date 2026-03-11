@@ -1,6 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Project, AssetType, Job, JobStatus, Asset, CharacterAsset, GeneratedImage, FragmentAsset, ItemType } from '../types';
+import {
+  Project,
+  AssetType,
+  Job,
+  JobStatus,
+  Asset,
+  CharacterAsset,
+  GeneratedImage,
+  FragmentAsset,
+  ItemType,
+} from '../types';
 import { storageService } from '../services/storage';
 import { jobQueue } from '../services/queue';
 import { useApp } from '../contexts/context';
@@ -14,24 +24,22 @@ import ItemSidebar from '@/components/ProjectDetail/ItemSidebar';
 import ScriptManager from './ScriptManager';
 import ShotManager from './ShotManager';
 import { GenerationParams } from '../components/ProjectDetail/GenerationForm';
-import { Sparkles, Send, ChevronLeft, ArrowRight, Play, X, Plus, FileText } from 'lucide-react';
-import { 
-  Button, 
-  Input, 
-  Modal, 
-  ModalContent, 
-  ModalHeader, 
-  ModalBody, 
+import { ChevronLeft } from 'lucide-react';
+import {
+  Button,
+  Input,
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
   ModalFooter,
   useDisclosure,
   Spinner,
   Select,
-  SelectItem
-} from "@heroui/react";
+  SelectItem,
+} from '@heroui/react';
 
 import { useToast } from '../contexts/ToastContext';
-
-import FragmentDetail from '../components/ProjectDetail/Fragment/FragmentDetail';
 
 interface ProjectDetailProps {
   activeTab: AssetType;
@@ -39,7 +47,11 @@ interface ProjectDetailProps {
   onProjectLoaded?: (project: Project | null) => void;
 }
 
-const ProjectDetail: React.FC<ProjectDetailProps> = ({ activeTab, setActiveTab, onProjectLoaded }) => {
+const ProjectDetail: React.FC<ProjectDetailProps> = ({
+  activeTab,
+  setActiveTab,
+  onProjectLoaded,
+}) => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { settings, t } = useApp();
@@ -52,16 +64,16 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({ activeTab, setActiveTab, 
   const [highlightedAssetId, setHighlightedAssetId] = useState<string>('');
   const [itemTypeFilter, setItemTypeFilter] = useState<string>('all');
   const { isOpen: isAddOpen, onOpen: onAddOpen, onClose: onAddClose } = useDisclosure();
-  
+
   // Script Filter States - 剧本筛选状态
   const [characterScriptFilter, setCharacterScriptFilter] = useState<string>('all');
   const [sceneScriptFilter, setSceneScriptFilter] = useState<string>('all');
   const [itemScriptFilter, setItemScriptFilter] = useState<string>('all');
   const [scripts, setScripts] = useState<Array<{ id: string; title: string }>>([]);
-  
+
   // Creation/Edit State
   const [assetName, setAssetName] = useState('');
-  const [newAssetScriptId, setNewAssetScriptId] = useState<string>('');  // 新建资产时选择的剧本
+  const [newAssetScriptId, setNewAssetScriptId] = useState<string>(''); // 新建资产时选择的剧本
   const [prompt, setPrompt] = useState('');
   const [selectedModelId, setSelectedModelId] = useState('');
   const [generating, setGenerating] = useState(false);
@@ -72,7 +84,7 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({ activeTab, setActiveTab, 
 
   useEffect(() => {
     if (onProjectLoaded && project) {
-        onProjectLoaded(project);
+      onProjectLoaded(project);
     }
   }, [project, onProjectLoaded]);
 
@@ -97,9 +109,9 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({ activeTab, setActiveTab, 
     const type = activeTab === AssetType.VIDEO_SEGMENT ? 'video' : 'image';
     const models = settings.models.filter(m => m.type === type);
     if (models.length > 0) {
-        setSelectedModelId(models[0].id);
+      setSelectedModelId(models[0].id);
     } else {
-        setSelectedModelId('');
+      setSelectedModelId('');
     }
     setSelectedAsset(null);
     setItemTypeFilter('all');
@@ -107,54 +119,55 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({ activeTab, setActiveTab, 
 
   useEffect(() => {
     if (selectedAsset) {
-        setPrompt(selectedAsset.prompt || '');
-        
-        // Sync model ID if available in metadata
-        const savedModelId = selectedAsset.metadata?.modelConfigId || selectedAsset.metadata?.modelId;
-        if (savedModelId) {
-            // Check if it's a valid ID in our current settings
-            if (settings.models.some(m => m.id === savedModelId)) {
-                setSelectedModelId(savedModelId);
-            } else {
-                // Try to find by modelId (API string) for legacy support
-                const matched = settings.models.find(m => m.modelId === savedModelId);
-                if (matched) {
-                    setSelectedModelId(matched.id);
-                }
-            }
-        }
+      setPrompt(selectedAsset.prompt || '');
 
-        // NEW: Check for active jobs for this asset
-        const checkActiveJob = async () => {
-             const jobs = await storageService.getJobs();
-             const activeJob = jobs.find(j => 
-                 j.params.assetId === selectedAsset.id && 
-                 (j.status === JobStatus.PENDING || j.status === JobStatus.PROCESSING)
-             );
-             if (activeJob) {
-                 console.log(`[ProjectDetail] Found active job for asset ${selectedAsset.id}`);
-                 setGenerating(true);
-             } else {
-                 setGenerating(false);
-             }
-        };
-        checkActiveJob();
+      // Sync model ID if available in metadata
+      const savedModelId = selectedAsset.metadata?.modelConfigId || selectedAsset.metadata?.modelId;
+      if (savedModelId) {
+        // Check if it's a valid ID in our current settings
+        if (settings.models.some(m => m.id === savedModelId)) {
+          setSelectedModelId(savedModelId);
+        } else {
+          // Try to find by modelId (API string) for legacy support
+          const matched = settings.models.find(m => m.modelId === savedModelId);
+          if (matched) {
+            setSelectedModelId(matched.id);
+          }
+        }
+      }
+
+      // NEW: Check for active jobs for this asset
+      const checkActiveJob = async () => {
+        const jobs = await storageService.getJobs();
+        const activeJob = jobs.find(
+          j =>
+            j.params.assetId === selectedAsset.id &&
+            (j.status === JobStatus.PENDING || j.status === JobStatus.PROCESSING)
+        );
+        if (activeJob) {
+          console.log(`[ProjectDetail] Found active job for asset ${selectedAsset.id}`);
+          setGenerating(true);
+        } else {
+          setGenerating(false);
+        }
+      };
+      checkActiveJob();
     }
   }, [selectedAsset, settings.models]);
 
   useEffect(() => {
-    const unsub = jobQueue.subscribe((job) => {
-        if (job.projectId !== id) return;
+    const unsub = jobQueue.subscribe(job => {
+      if (job.projectId !== id) return;
 
-        console.log(`[ProjectDetail] Job update: ${job.id} Status: ${job.status}`);
+      console.log(`[ProjectDetail] Job update: ${job.id} Status: ${job.status}`);
 
-        if (job.status === JobStatus.COMPLETED) {
-            handleJobComplete(job);
-        } else if (job.status === JobStatus.FAILED) {
-            setGenerating(false);
-            showToast(`${t.errors.generationFailed}: ${job.error || t.errors.unknownError}`, 'error');
-            console.error(`[ProjectDetail] Job failed:`, job.error);
-        }
+      if (job.status === JobStatus.COMPLETED) {
+        handleJobComplete(job);
+      } else if (job.status === JobStatus.FAILED) {
+        setGenerating(false);
+        showToast(`${t.errors.generationFailed}: ${job.error || t.errors.unknownError}`, 'error');
+        console.error(`[ProjectDetail] Job failed:`, job.error);
+      }
     });
     return () => unsub();
   }, [id]);
@@ -169,39 +182,44 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({ activeTab, setActiveTab, 
   const handleJobComplete = async (job: Job) => {
     // We don't need to update asset here because queue.ts handles it.
     // Just refresh the view and show toast.
-    
+
     // If the currently selected asset is the one that was updated, we might want to reload it?
-    // But setRefreshTrigger should handle the list. 
+    // But setRefreshTrigger should handle the list.
     // DetailView might need a way to know.
     // Actually, DetailView (CharacterDetail) subscribes to queue itself and handles reload.
-    
+
     // So here we primarily handle the global list refresh.
     if (job.projectId === id) {
-        setRefreshTrigger(prev => prev + 1);
+      setRefreshTrigger(prev => prev + 1);
     }
 
     // Check if we need to update the currently selected asset (for fallback views)
     // The specialized views (Character, Scene, Item, Fragment) handle this themselves via internal subscriptions
     // to avoid race conditions and duplicate updates.
-    const specializedTypes = [AssetType.CHARACTER, AssetType.SCENE, AssetType.ITEM, AssetType.VIDEO_SEGMENT];
-    
+    const specializedTypes = [
+      AssetType.CHARACTER,
+      AssetType.SCENE,
+      AssetType.ITEM,
+      AssetType.VIDEO_SEGMENT,
+    ];
+
     if (selectedAsset && job.params.assetId === selectedAsset.id) {
-         if (!specializedTypes.includes(selectedAsset.type)) {
-             // This is a fallback view asset (e.g. IMAGE, VIDEO)
-             // We need to atomic update and refresh it to prevent overwrite issues
-             try {
-                await storageService.updateAsset(selectedAsset.id, id, async (current) => {
-                    return current; // Queue already added the file, just need to ensure we have latest version to return
-                });
-                const latest = await storageService.getAsset(selectedAsset.id, id);
-                if (latest) {
-                    setSelectedAsset(latest);
-                    showToast(t.project.generationSuccess, 'success');
-                }
-             } catch (e) {
-                 console.error("Failed to update asset in fallback view:", e);
-             }
-         }
+      if (!specializedTypes.includes(selectedAsset.type)) {
+        // This is a fallback view asset (e.g. IMAGE, VIDEO)
+        // We need to atomic update and refresh it to prevent overwrite issues
+        try {
+          await storageService.updateAsset(selectedAsset.id, id, async current => {
+            return current; // Queue already added the file, just need to ensure we have latest version to return
+          });
+          const latest = await storageService.getAsset(selectedAsset.id, id);
+          if (latest) {
+            setSelectedAsset(latest);
+            showToast(t.project.generationSuccess, 'success');
+          }
+        } catch (e) {
+          console.error('Failed to update asset in fallback view:', e);
+        }
+      }
     }
 
     setGenerating(false);
@@ -212,32 +230,35 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({ activeTab, setActiveTab, 
     if (!id || !assetName) return;
 
     const newAsset: Asset = {
-      id: typeof crypto.randomUUID === 'function' ? crypto.randomUUID() : Math.random().toString(36).substring(2, 11),
+      id:
+        typeof crypto.randomUUID === 'function'
+          ? crypto.randomUUID()
+          : Math.random().toString(36).substring(2, 11),
       projectId: id,
       type: activeTab,
       name: assetName,
       prompt: '',
       createdAt: Date.now(),
-      updatedAt: Date.now()
+      updatedAt: Date.now(),
     };
 
     // If we are creating an item and a specific filter is selected, apply it
     if (activeTab === AssetType.ITEM) {
-        if (itemTypeFilter !== 'all') {
-            (newAsset as any).itemType = itemTypeFilter;
-        } else {
-            (newAsset as any).itemType = ItemType.PROP;
-        }
+      if (itemTypeFilter !== 'all') {
+        (newAsset as any).itemType = itemTypeFilter;
+      } else {
+        (newAsset as any).itemType = ItemType.PROP;
+      }
     }
 
     // Add scriptId for scene and item assets
     if ((activeTab === AssetType.SCENE || activeTab === AssetType.ITEM) && newAssetScriptId) {
-        (newAsset as any).scriptId = newAssetScriptId;
+      (newAsset as any).scriptId = newAssetScriptId;
     }
 
     await storageService.saveAsset(newAsset);
     setAssetName('');
-    setNewAssetScriptId('');  // Reset script selection
+    setNewAssetScriptId(''); // Reset script selection
     onAddClose();
     setRefreshTrigger(prev => prev + 1);
     setSelectedAsset(newAsset);
@@ -253,8 +274,8 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({ activeTab, setActiveTab, 
 
     const model = settings.models.find(m => m.id === selectedModelId);
     if (!model) {
-        showToast(t.settings?.noApiKey || t.errors.unknownError, 'error');
-        return;
+      showToast(t.settings?.noApiKey || t.errors.unknownError, 'error');
+      return;
     }
 
     setGenerating(true);
@@ -264,147 +285,158 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({ activeTab, setActiveTab, 
     const jobType = isVideo ? 'generate_video' : 'generate_image';
 
     try {
-        const job: Job = {
-            id: crypto.randomUUID(),
-            projectId: id,
-            type: jobType,
-            status: JobStatus.PENDING,
-            params: {
-                prompt: genParams.prompt,
-                model: selectedModelId, // configuration ID (e.g., volc-img-1)
-                assetId: selectedAsset.id,
-                assetName: selectedAsset.name,
-                assetType: selectedAsset.type,
-                referenceImages: genParams.referenceImages,
-                startImage: genParams.startImage,
-                endImage: genParams.endImage
-            },
-            createdAt: Date.now(),
-            updatedAt: Date.now()
-        };
+      const job: Job = {
+        id: crypto.randomUUID(),
+        projectId: id,
+        type: jobType,
+        status: JobStatus.PENDING,
+        params: {
+          prompt: genParams.prompt,
+          model: selectedModelId, // configuration ID (e.g., volc-img-1)
+          assetId: selectedAsset.id,
+          assetName: selectedAsset.name,
+          assetType: selectedAsset.type,
+          referenceImages: genParams.referenceImages,
+          startImage: genParams.startImage,
+          endImage: genParams.endImage,
+        },
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+      };
 
-        console.log(`[ProjectDetail] Submitting job: ${job.id}`);
-        await jobQueue.addJob(job);
+      console.log(`[ProjectDetail] Submitting job: ${job.id}`);
+      await jobQueue.addJob(job);
     } catch (error: any) {
-        console.error('[ProjectDetail] Failed to add job:', error);
-        showToast(error.message || t.errors.generationFailed, 'error');
-        setGenerating(false);
+      console.error('[ProjectDetail] Failed to add job:', error);
+      showToast(error.message || t.errors.generationFailed, 'error');
+      setGenerating(false);
     }
   };
 
-  if (!project) return (
-    <div className="flex items-center justify-center h-full">
-      <Spinner size="lg" color="primary" />
-    </div>
-  );
+  if (!project)
+    return (
+      <div className="flex items-center justify-center h-full">
+        <Spinner size="lg" color="primary" />
+      </div>
+    );
 
-  const filteredModels = settings.models.filter(m => 
+  const filteredModels = settings.models.filter(m =>
     activeTab === AssetType.VIDEO_SEGMENT ? m.type === 'video' : m.type === 'image'
   );
 
   const activeTabSingular = t.project[activeTab as keyof typeof t.project] || activeTab;
-  const activeTabPlural = activeTab === AssetType.RESOURCES 
-    ? t.project.resources 
-    : activeTab === AssetType.VIDEO_SEGMENT
-    ? t.project.segments
-    : (t.project[(activeTab + 's') as keyof typeof t.project] || t.project.assets);
+  const activeTabPlural =
+    activeTab === AssetType.RESOURCES
+      ? t.project.resources
+      : activeTab === AssetType.VIDEO_SEGMENT
+        ? t.project.segments
+        : t.project[(activeTab + 's') as keyof typeof t.project] || t.project.assets;
 
   const handleAssetUpdate = async (updatedAsset: Asset, skipSave: boolean = false) => {
     if (!skipSave) {
-        // Prevent duplicate names check (optional, but good to keep if needed)
-        // However, updateAsset is atomic, checking outside might be slightly stale but acceptable for names
-        const assets = await storageService.getAssets(id || '');
-        // 检查重复时考虑scriptId：同剧本同名才视为重复
-        const exists = assets.some(a => 
-            a.type === updatedAsset.type && 
-            a.name === updatedAsset.name && 
-            a.scriptId === updatedAsset.scriptId &&  // 同剧本才检查重复
-            a.id !== updatedAsset.id
-        );
-        if (exists) {
-            showToast(t.errors?.duplicateName || 'Name already exists', 'error');
-            return;
+      // Prevent duplicate names check (optional, but good to keep if needed)
+      // However, updateAsset is atomic, checking outside might be slightly stale but acceptable for names
+      const assets = await storageService.getAssets(id || '');
+      // 检查重复时考虑scriptId：同剧本同名才视为重复
+      const exists = assets.some(
+        a =>
+          a.type === updatedAsset.type &&
+          a.name === updatedAsset.name &&
+          a.scriptId === updatedAsset.scriptId && // 同剧本才检查重复
+          a.id !== updatedAsset.id
+      );
+      if (exists) {
+        showToast(t.errors?.duplicateName || 'Name already exists', 'error');
+        return;
+      }
+
+      // Use atomic update to merge UI changes with potential background updates (e.g. new images)
+      await storageService.updateAsset(updatedAsset.id, id || '', async currentOnDisk => {
+        // Merge strategy:
+        // 1. Keep UI changes for scalar fields (name, prompt, metadata settings)
+        // 2. Be careful with lists like generatedImages/videos that Queue appends to
+
+        const merged = { ...currentOnDisk, ...updatedAsset };
+
+        // Restore generated lists from disk if they have more items (Queue appended something)
+        // This is a heuristic: Queue only appends. UI only appends (or deletes).
+        // If UI deletes, we trust UI. If Queue appends, we trust Queue.
+        // Conflict: UI deletes item A, Queue appends item B.
+        // If we use disk list, we lose UI deletion. If we use UI list, we lose Queue append.
+
+        // Safer approach:
+        // Trust UI for everything EXCEPT if we suspect a background update happened that UI missed.
+        // But UI should have reloaded if it caught the event.
+        // The user issue is: UI has old list, Queue wrote new list, UI saves old list -> New items lost.
+
+        const diskImages = (currentOnDisk as CharacterAsset).generatedImages || [];
+        const uiImages = (updatedAsset as CharacterAsset).generatedImages || [];
+
+        // If disk has MORE images than UI, it means Queue added some that UI doesn't know about yet.
+        // We should preserve them.
+        // But what if UI deleted some?
+        // If UI deleted, uiImages.length < diskImages.length could be valid.
+        // But usually deletions are explicit actions that also use onUpdate.
+
+        // Let's look at the IDs.
+        const uiIds = new Set(uiImages.map(i => i.id));
+        const diskIds = new Set(diskImages.map(i => i.id));
+
+        // Find images on disk that are NOT in UI
+        const newOnDisk = diskImages.filter(i => !uiIds.has(i.id));
+
+        if (newOnDisk.length > 0) {
+          console.log(
+            `[ProjectDetail] Detected ${newOnDisk.length} new images on disk during save. Merging...`
+          );
+
+          // HEURISTIC: Only resurrect images that are VERY RECENT (e.g. created in last 2 minutes).
+          // This protects against "Overwrite due to stale UI" (which happens during generation).
+          // It allows "Explicit Deletion" (which usually happens on older images, or at least we accept the risk for very new ones).
+          // If we don't do this, explicit deletions of old images will fail (they will be resurrected).
+
+          const RECENT_THRESHOLD = 2 * 60 * 1000; // 2 minutes
+          const now = Date.now();
+
+          const imagesToRescue = newOnDisk.filter(
+            img => now - (img.createdAt || 0) < RECENT_THRESHOLD
+          );
+
+          if (imagesToRescue.length > 0) {
+            console.log(
+              `[ProjectDetail] Rescuing ${imagesToRescue.length} recent images that were missing in UI.`
+            );
+            (merged as CharacterAsset).generatedImages = [...uiImages, ...imagesToRescue].sort(
+              (a, b) => (a.createdAt || 0) - (b.createdAt || 0)
+            ); // Keep chronological order
+          }
         }
 
-        // Use atomic update to merge UI changes with potential background updates (e.g. new images)
-        await storageService.updateAsset(updatedAsset.id, id || '', async (currentOnDisk) => {
-             // Merge strategy:
-             // 1. Keep UI changes for scalar fields (name, prompt, metadata settings)
-             // 2. Be careful with lists like generatedImages/videos that Queue appends to
-             
-             const merged = { ...currentOnDisk, ...updatedAsset };
-             
-             // Restore generated lists from disk if they have more items (Queue appended something)
-             // This is a heuristic: Queue only appends. UI only appends (or deletes).
-             // If UI deletes, we trust UI. If Queue appends, we trust Queue.
-             // Conflict: UI deletes item A, Queue appends item B.
-             // If we use disk list, we lose UI deletion. If we use UI list, we lose Queue append.
-             
-             // Safer approach: 
-             // Trust UI for everything EXCEPT if we suspect a background update happened that UI missed.
-             // But UI should have reloaded if it caught the event.
-             // The user issue is: UI has old list, Queue wrote new list, UI saves old list -> New items lost.
-             
-             const diskImages = (currentOnDisk as CharacterAsset).generatedImages || [];
-             const uiImages = (updatedAsset as CharacterAsset).generatedImages || [];
-             
-             // If disk has MORE images than UI, it means Queue added some that UI doesn't know about yet.
-             // We should preserve them.
-             // But what if UI deleted some? 
-             // If UI deleted, uiImages.length < diskImages.length could be valid.
-             // But usually deletions are explicit actions that also use onUpdate.
-             
-             // Let's look at the IDs.
-             const uiIds = new Set(uiImages.map(i => i.id));
-             const diskIds = new Set(diskImages.map(i => i.id));
-             
-             // Find images on disk that are NOT in UI
-             const newOnDisk = diskImages.filter(i => !uiIds.has(i.id));
-             
-             if (newOnDisk.length > 0) {
-                 console.log(`[ProjectDetail] Detected ${newOnDisk.length} new images on disk during save. Merging...`);
-                 
-                 // HEURISTIC: Only resurrect images that are VERY RECENT (e.g. created in last 2 minutes).
-                 // This protects against "Overwrite due to stale UI" (which happens during generation).
-                 // It allows "Explicit Deletion" (which usually happens on older images, or at least we accept the risk for very new ones).
-                 // If we don't do this, explicit deletions of old images will fail (they will be resurrected).
-                 
-                 const RECENT_THRESHOLD = 2 * 60 * 1000; // 2 minutes
-                 const now = Date.now();
-                 
-                 const imagesToRescue = newOnDisk.filter(img => (now - (img.createdAt || 0)) < RECENT_THRESHOLD);
-                 
-                 if (imagesToRescue.length > 0) {
-                     console.log(`[ProjectDetail] Rescuing ${imagesToRescue.length} recent images that were missing in UI.`);
-                     (merged as CharacterAsset).generatedImages = [
-                         ...uiImages,
-                         ...imagesToRescue
-                     ].sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0)); // Keep chronological order
-                 }
-             }
-             
-             // Same for videos
-             const diskVideos = (currentOnDisk as FragmentAsset).videos || [];
-             const uiVideos = (updatedAsset as FragmentAsset).videos || [];
-             const uiVideoIds = new Set(uiVideos.map(v => v.id));
-             const newVideosOnDisk = diskVideos.filter(v => !uiVideoIds.has(v.id));
-             
-             if (newVideosOnDisk.length > 0) {
-                  const RECENT_THRESHOLD = 2 * 60 * 1000;
-                  const now = Date.now();
-                  const videosToRescue = newVideosOnDisk.filter(v => (now - (v.createdAt || 0)) < RECENT_THRESHOLD);
-                  
-                  if (videosToRescue.length > 0) {
-                      console.log(`[ProjectDetail] Rescuing ${videosToRescue.length} recent videos that were missing in UI.`);
-                       (merged as FragmentAsset).videos = [
-                           ...uiVideos, 
-                           ...videosToRescue
-                       ].sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0));
-                  }
-             }
-             
-             return merged;
-        });
+        // Same for videos
+        const diskVideos = (currentOnDisk as FragmentAsset).videos || [];
+        const uiVideos = (updatedAsset as FragmentAsset).videos || [];
+        const uiVideoIds = new Set(uiVideos.map(v => v.id));
+        const newVideosOnDisk = diskVideos.filter(v => !uiVideoIds.has(v.id));
+
+        if (newVideosOnDisk.length > 0) {
+          const RECENT_THRESHOLD = 2 * 60 * 1000;
+          const now = Date.now();
+          const videosToRescue = newVideosOnDisk.filter(
+            v => now - (v.createdAt || 0) < RECENT_THRESHOLD
+          );
+
+          if (videosToRescue.length > 0) {
+            console.log(
+              `[ProjectDetail] Rescuing ${videosToRescue.length} recent videos that were missing in UI.`
+            );
+            (merged as FragmentAsset).videos = [...uiVideos, ...videosToRescue].sort(
+              (a, b) => (a.createdAt || 0) - (b.createdAt || 0)
+            );
+          }
+        }
+
+        return merged;
+      });
     }
     setSelectedAsset(updatedAsset);
     setRefreshTrigger(prev => prev + 1);
@@ -413,37 +445,34 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({ activeTab, setActiveTab, 
   // DETAIL VIEW
   if (selectedAsset) {
     return (
-        <DetailView 
-            selectedAsset={selectedAsset}
-            setSelectedAsset={setSelectedAsset}
-            activeTab={activeTab}
-            activeTabPlural={activeTabPlural}
-            handleAssetUpdate={handleAssetUpdate}
-            projectId={id || ''}
-            prompt={prompt}
-            setPrompt={setPrompt}
-            selectedModelId={selectedModelId}
-            setSelectedModelId={setSelectedModelId}
-            generating={generating}
-            onGenerate={handleGenerate}
-            models={filteredModels}
-            t={t}
-        />
+      <DetailView
+        selectedAsset={selectedAsset}
+        setSelectedAsset={setSelectedAsset}
+        activeTab={activeTab}
+        activeTabPlural={activeTabPlural}
+        handleAssetUpdate={handleAssetUpdate}
+        projectId={id || ''}
+        prompt={prompt}
+        setPrompt={setPrompt}
+        selectedModelId={selectedModelId}
+        setSelectedModelId={setSelectedModelId}
+        generating={generating}
+        onGenerate={handleGenerate}
+        models={filteredModels}
+        t={t}
+      />
     );
   }
 
   // RESOURCE MANAGER VIEW
   if (activeTab === AssetType.RESOURCES) {
-      return (
-          <div className="h-full bg-slate-50 dark:bg-slate-950">
-             <ResourceManager 
-                 projectId={id || ''} 
-                 refreshTrigger={refreshTrigger} 
-             />
-            {activeTab === AssetType.ITEM && (
-          <ItemSidebar 
+    return (
+      <div className="h-full bg-slate-50 dark:bg-slate-950">
+        <ResourceManager projectId={id || ''} refreshTrigger={refreshTrigger} />
+        {activeTab === AssetType.ITEM && (
+          <ItemSidebar
             projectId={id || ''}
-            onSelect={(asset) => setHighlightedAssetId(asset.id)}
+            onSelect={asset => setHighlightedAssetId(asset.id)}
             refreshTrigger={refreshTrigger}
             selectedId={highlightedAssetId}
             filterType={itemTypeFilter}
@@ -452,10 +481,8 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({ activeTab, setActiveTab, 
           />
         )}
       </div>
-      );
+    );
   }
-
-
 
   // SCRIPT MANAGER VIEW
   if (activeTab === AssetType.SCRIPT) {
@@ -478,7 +505,6 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({ activeTab, setActiveTab, 
   // LIST VIEW
   return (
     <div className="h-full flex flex-col overflow-hidden bg-slate-50 dark:bg-slate-950">
-
       {/* Header */}
       <div className="px-6 md:px-10 pt-6 pb-2">
         <div className="max-w-[1600px] mx-auto flex justify-between items-center">
@@ -486,41 +512,51 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({ activeTab, setActiveTab, 
             <h2 className="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tight">
               {activeTabPlural}
             </h2>
-            
+
             {/* Script Filter - 剧本筛选器（角色/场景/物品） */}
-            {(activeTab === AssetType.CHARACTER || activeTab === AssetType.SCENE || activeTab === AssetType.ITEM) && scripts && scripts.length > 0 && (
-              <Select
-                aria-label="剧本筛选"
-                placeholder="选择剧本"
-                selectedKeys={[
-                  activeTab === AssetType.CHARACTER ? characterScriptFilter :
-                  activeTab === AssetType.SCENE ? sceneScriptFilter :
-                  itemScriptFilter
-                ]}
-                onChange={(e) => {
-                  const value = e.target.value;
-                  if (activeTab === AssetType.CHARACTER) setCharacterScriptFilter(value);
-                  else if (activeTab === AssetType.SCENE) setSceneScriptFilter(value);
-                  else if (activeTab === AssetType.ITEM) setItemScriptFilter(value);
-                }}
-                className="w-40"
-                variant="bordered"
-                radius="lg"
-                size="sm"
-                classNames={{
-                  value: "font-bold text-xs",
-                  trigger: "border-slate-300 dark:border-slate-700 h-8 min-h-unit-8"
-                }}
-              >
-                <SelectItem key="all" value="all" textValue="全部剧本">全部剧本</SelectItem>
-                <SelectItem key="uncategorized" value="uncategorized" textValue="未分类">未分类</SelectItem>
-                {scripts.map((script) => (
-                  <SelectItem key={script.id} value={script.id} textValue={script.title}>
-                    {script.title}
+            {(activeTab === AssetType.CHARACTER ||
+              activeTab === AssetType.SCENE ||
+              activeTab === AssetType.ITEM) &&
+              scripts &&
+              scripts.length > 0 && (
+                <Select
+                  aria-label="剧本筛选"
+                  placeholder="选择剧本"
+                  selectedKeys={[
+                    activeTab === AssetType.CHARACTER
+                      ? characterScriptFilter
+                      : activeTab === AssetType.SCENE
+                        ? sceneScriptFilter
+                        : itemScriptFilter,
+                  ]}
+                  onChange={e => {
+                    const value = e.target.value;
+                    if (activeTab === AssetType.CHARACTER) setCharacterScriptFilter(value);
+                    else if (activeTab === AssetType.SCENE) setSceneScriptFilter(value);
+                    else if (activeTab === AssetType.ITEM) setItemScriptFilter(value);
+                  }}
+                  className="w-40"
+                  variant="bordered"
+                  radius="lg"
+                  size="sm"
+                  classNames={{
+                    value: 'font-bold text-xs',
+                    trigger: 'border-slate-300 dark:border-slate-700 h-8 min-h-unit-8',
+                  }}
+                >
+                  <SelectItem key="all" value="all" textValue="全部剧本">
+                    全部剧本
                   </SelectItem>
-                ))}
-              </Select>
-            )}
+                  <SelectItem key="uncategorized" value="uncategorized" textValue="未分类">
+                    未分类
+                  </SelectItem>
+                  {scripts.map(script => (
+                    <SelectItem key={script.id} value={script.id} textValue={script.title}>
+                      {script.title}
+                    </SelectItem>
+                  ))}
+                </Select>
+              )}
           </div>
         </div>
       </div>
@@ -529,9 +565,9 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({ activeTab, setActiveTab, 
       <div className="flex-1 flex overflow-hidden">
         <div className="flex-1 overflow-y-auto px-6 md:px-10 py-6">
           <div className="max-w-[1600px] mx-auto">
-            <AssetList 
-              projectId={id || ''} 
-              type={activeTab} 
+            <AssetList
+              projectId={id || ''}
+              type={activeTab}
               refreshTrigger={refreshTrigger}
               onSelect={setSelectedAsset}
               onAdd={onAddOpen}
@@ -540,12 +576,15 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({ activeTab, setActiveTab, 
               onItemTypeFilterChange={setItemTypeFilter}
               onDelete={() => setRefreshTrigger(prev => prev + 1)}
               scriptFilter={
-                activeTab === AssetType.CHARACTER ? characterScriptFilter :
-                activeTab === AssetType.SCENE ? sceneScriptFilter :
-                activeTab === AssetType.ITEM ? itemScriptFilter :
-                'all'
+                activeTab === AssetType.CHARACTER
+                  ? characterScriptFilter
+                  : activeTab === AssetType.SCENE
+                    ? sceneScriptFilter
+                    : activeTab === AssetType.ITEM
+                      ? itemScriptFilter
+                      : 'all'
               }
-              onScriptFilterChange={(value) => {
+              onScriptFilterChange={value => {
                 if (activeTab === AssetType.CHARACTER) setCharacterScriptFilter(value);
                 else if (activeTab === AssetType.SCENE) setSceneScriptFilter(value);
                 else if (activeTab === AssetType.ITEM) setItemScriptFilter(value);
@@ -556,9 +595,9 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({ activeTab, setActiveTab, 
         </div>
 
         {activeTab === AssetType.ITEM && (
-          <ItemSidebar 
+          <ItemSidebar
             projectId={id || ''}
-            onSelect={(asset) => setHighlightedAssetId(asset.id)}
+            onSelect={asset => setHighlightedAssetId(asset.id)}
             refreshTrigger={refreshTrigger}
             selectedId={highlightedAssetId}
             filterType={itemTypeFilter}
@@ -566,9 +605,9 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({ activeTab, setActiveTab, 
         )}
 
         {activeTab === AssetType.CHARACTER && (
-          <CharacterSidebar 
+          <CharacterSidebar
             projectId={id || ''}
-            onSelect={(asset) => setHighlightedAssetId(asset.id)}
+            onSelect={asset => setHighlightedAssetId(asset.id)}
             refreshTrigger={refreshTrigger}
             selectedId={highlightedAssetId}
             scriptFilter={characterScriptFilter}
@@ -577,18 +616,18 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({ activeTab, setActiveTab, 
         )}
 
         {activeTab === AssetType.VIDEO_SEGMENT && (
-          <FragmentSidebar 
+          <FragmentSidebar
             projectId={id || ''}
-            onSelect={(asset) => setHighlightedAssetId(asset.id)}
+            onSelect={asset => setHighlightedAssetId(asset.id)}
             refreshTrigger={refreshTrigger}
             selectedId={highlightedAssetId}
           />
         )}
 
         {activeTab === AssetType.SCENE && (
-          <SceneSidebar 
+          <SceneSidebar
             projectId={id || ''}
-            onSelect={(asset) => setHighlightedAssetId(asset.id)}
+            onSelect={asset => setHighlightedAssetId(asset.id)}
             refreshTrigger={refreshTrigger}
             selectedId={highlightedAssetId}
             scriptFilter={sceneScriptFilter}
@@ -598,22 +637,22 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({ activeTab, setActiveTab, 
       </div>
 
       {/* ADD ASSET MODAL */}
-      <Modal 
-        isOpen={isAddOpen} 
+      <Modal
+        isOpen={isAddOpen}
         onClose={onAddClose}
         placement="center"
         backdrop="blur"
         size="md"
         radius="lg"
         classNames={{
-          base: "dark:bg-slate-900 border border-slate-200 dark:border-slate-800",
-          header: "border-b-[1px] border-slate-100 dark:border-slate-800 p-6",
-          body: "p-8",
-          footer: "border-t-[1px] border-slate-100 dark:border-slate-800 p-6",
+          base: 'dark:bg-slate-900 border border-slate-200 dark:border-slate-800',
+          header: 'border-b-[1px] border-slate-100 dark:border-slate-800 p-6',
+          body: 'p-8',
+          footer: 'border-t-[1px] border-slate-100 dark:border-slate-800 p-6',
         }}
       >
         <ModalContent>
-          {(onClose) => (
+          {onClose => (
             <>
               <ModalHeader className="flex flex-col gap-1">
                 <h2 className="text-2xl font-black text-slate-900 dark:text-white uppercase tracking-tight">
@@ -632,44 +671,48 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({ activeTab, setActiveTab, 
                   value={assetName}
                   onValueChange={setAssetName}
                   classNames={{
-                    label: "font-black text-[14px] uppercase tracking-widest text-slate-400 mb-2",
-                    input: "text-sm",
-                    inputWrapper: "border-2 group-data-[focus=true]:border-primary"
+                    label: 'font-black text-[14px] uppercase tracking-widest text-slate-400 mb-2',
+                    input: 'text-sm',
+                    inputWrapper: 'border-2 group-data-[focus=true]:border-primary',
                   }}
                 />
-                
+
                 {/* 场景/物品创建时选择剧本 */}
-                {(activeTab === AssetType.SCENE || activeTab === AssetType.ITEM) && scripts.length > 0 && (
-                  <Select
-                    label="所属剧本（可选）"
-                    labelPlacement="outside"
-                    placeholder="选择剧本"
-                    selectedKeys={[newAssetScriptId]}
-                    onChange={(e) => setNewAssetScriptId(e.target.value)}
-                    variant="bordered"
-                    radius="lg"
-                    size="lg"
-                    classNames={{
-                      label: "font-black text-[14px] uppercase tracking-widest text-slate-400 mb-2",
-                      value: "text-sm",
-                      trigger: "border-2"
-                    }}
-                  >
-                    <SelectItem key="" value="" textValue="不关联剧本">不关联剧本</SelectItem>
-                    {scripts.map((script) => (
-                      <SelectItem key={script.id} value={script.id} textValue={script.title}>
-                        {script.title}
+                {(activeTab === AssetType.SCENE || activeTab === AssetType.ITEM) &&
+                  scripts.length > 0 && (
+                    <Select
+                      label="所属剧本（可选）"
+                      labelPlacement="outside"
+                      placeholder="选择剧本"
+                      selectedKeys={[newAssetScriptId]}
+                      onChange={e => setNewAssetScriptId(e.target.value)}
+                      variant="bordered"
+                      radius="lg"
+                      size="lg"
+                      classNames={{
+                        label:
+                          'font-black text-[14px] uppercase tracking-widest text-slate-400 mb-2',
+                        value: 'text-sm',
+                        trigger: 'border-2',
+                      }}
+                    >
+                      <SelectItem key="" value="" textValue="不关联剧本">
+                        不关联剧本
                       </SelectItem>
-                    ))}
-                  </Select>
-                )}
+                      {scripts.map(script => (
+                        <SelectItem key={script.id} value={script.id} textValue={script.title}>
+                          {script.title}
+                        </SelectItem>
+                      ))}
+                    </Select>
+                  )}
               </ModalBody>
               <ModalFooter>
                 <Button variant="light" onPress={onClose} className="font-bold text-slate-500">
                   {t.dashboard.cancel}
                 </Button>
-                <Button 
-                  color="primary" 
+                <Button
+                  color="primary"
                   onPress={handleCreateEmptyAsset}
                   className="font-black uppercase tracking-widest text-xs px-8"
                   radius="lg"

@@ -1,18 +1,19 @@
 /**
  * Provider健康检查系统
- * 
+ *
  * 功能：
  * - 实时Provider可用性检测
  * - 连接状态监控
  * - 自动故障切换支持
  * - 健康状态历史记录
- * 
+ *
  * @author AI Assistant
  * @version 1.0.0
  */
 
 import type { ModelConfig } from '../../../types';
 import { providerPluginManager } from './ProviderPluginManager';
+import type { HealthCheckResult } from './IProvider';
 import { environmentConfigLoader } from './EnvironmentConfigLoader';
 
 /**
@@ -20,19 +21,7 @@ import { environmentConfigLoader } from './EnvironmentConfigLoader';
  */
 export type HealthStatus = 'healthy' | 'degraded' | 'unhealthy' | 'unknown';
 
-/**
- * 健康检查结果
- */
-export interface HealthCheckResult {
-  status: HealthStatus;
-  providerId: string;
-  modelId?: string;
-  responseTime: number;
-  lastChecked: string;
-  message?: string;
-  error?: string;
-  details?: Record<string, any>;
-}
+// HealthCheckResult 从 IProvider.ts 导入
 
 /**
  * 健康检查配置
@@ -82,10 +71,10 @@ export type HealthCheckListener = (event: HealthCheckEvent) => void;
 export const DEFAULT_HEALTH_CHECK_CONFIG: HealthCheckConfig = {
   enabled: true,
   interval: 60000, // 1分钟
-  timeout: 10000,  // 10秒
+  timeout: 10000, // 10秒
   retries: 2,
-  degradedThreshold: 3000,  // 3秒以上视为降级
-  unhealthyThreshold: 10000 // 10秒以上视为不健康
+  degradedThreshold: 3000, // 3秒以上视为降级
+  unhealthyThreshold: 10000, // 10秒以上视为不健康
 };
 
 /**
@@ -115,7 +104,7 @@ export class ProviderHealthChecker {
       models: new Map(),
       lastCheck: new Date().toISOString(),
       consecutiveFailures: 0,
-      averageResponseTime: 0
+      averageResponseTime: 0,
     };
 
     // 如果有模型配置，为每个模型初始化状态
@@ -126,7 +115,7 @@ export class ProviderHealthChecker {
           providerId,
           modelId: config.modelId,
           responseTime: 0,
-          lastChecked: new Date().toISOString()
+          lastChecked: new Date().toISOString(),
         });
       }
     }
@@ -152,10 +141,10 @@ export class ProviderHealthChecker {
    */
   async checkHealth(providerId: string, modelId?: string): Promise<HealthCheckResult> {
     const startTime = Date.now();
-    
+
     try {
       const provider = providerPluginManager.getProvider(providerId);
-      
+
       if (!provider) {
         const result: HealthCheckResult = {
           status: 'unhealthy',
@@ -163,7 +152,7 @@ export class ProviderHealthChecker {
           modelId,
           responseTime: Date.now() - startTime,
           lastChecked: new Date().toISOString(),
-          error: 'Provider not found'
+          error: 'Provider not found',
         };
         this.updateHealthStatus(result);
         return result;
@@ -193,12 +182,11 @@ export class ProviderHealthChecker {
         responseTime,
         lastChecked: new Date().toISOString(),
         message: checkResult.message,
-        details: checkResult.details
+        details: checkResult.details,
       };
 
       this.updateHealthStatus(result);
       return result;
-
     } catch (error) {
       const result: HealthCheckResult = {
         status: 'unhealthy',
@@ -206,7 +194,7 @@ export class ProviderHealthChecker {
         modelId,
         responseTime: Date.now() - startTime,
         lastChecked: new Date().toISOString(),
-        error: error instanceof Error ? error.message : 'Unknown error'
+        error: error instanceof Error ? error.message : 'Unknown error',
       };
       this.updateHealthStatus(result);
       return result;
@@ -305,7 +293,7 @@ export class ProviderHealthChecker {
     const sorted = healthy
       .map(id => ({
         id,
-        responseTime: this.healthStatus.get(id)?.averageResponseTime || Infinity
+        responseTime: this.healthStatus.get(id)?.averageResponseTime || Infinity,
       }))
       .sort((a, b) => a.responseTime - b.responseTime);
 
@@ -317,7 +305,7 @@ export class ProviderHealthChecker {
    */
   addListener(listener: HealthCheckListener): () => void {
     this.listeners.push(listener);
-    
+
     // 返回取消订阅函数
     return () => {
       const index = this.listeners.indexOf(listener);
@@ -382,8 +370,8 @@ export class ProviderHealthChecker {
     if (!health) return;
 
     const previousStatus = health.overallStatus;
-    const previousModelStatus = result.modelId 
-      ? health.models.get(result.modelId)?.status 
+    const previousModelStatus = result.modelId
+      ? health.models.get(result.modelId)?.status
       : undefined;
 
     // 更新模型状态
@@ -412,7 +400,7 @@ export class ProviderHealthChecker {
     const responseTimes = Array.from(health.models.values())
       .map(m => m.responseTime)
       .filter(rt => rt > 0);
-    
+
     if (responseTimes.length > 0) {
       health.averageResponseTime = responseTimes.reduce((a, b) => a + b, 0) / responseTimes.length;
     }
@@ -428,7 +416,7 @@ export class ProviderHealthChecker {
         previousStatus: previousModelStatus || previousStatus,
         currentStatus: result.status,
         timestamp: new Date().toISOString(),
-        message: result.message || result.error
+        message: result.message || result.error,
       });
     }
 
@@ -438,7 +426,7 @@ export class ProviderHealthChecker {
         type: 'recovered',
         providerId: result.providerId,
         currentStatus: 'healthy',
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       });
     }
 
@@ -448,7 +436,7 @@ export class ProviderHealthChecker {
         providerId: result.providerId,
         currentStatus: 'unhealthy',
         timestamp: new Date().toISOString(),
-        message: result.error
+        message: result.error,
       });
     }
   }
@@ -483,7 +471,7 @@ export class ProviderHealthChecker {
       degraded: 0,
       unhealthy: 0,
       unknown: 0,
-      averageResponseTime: 0
+      averageResponseTime: 0,
     };
 
     let totalResponseTime = 0;

@@ -33,9 +33,13 @@ export class AutoTester {
   }
 
   async runAllTests(): Promise<TestResult[]> {
+    // eslint-disable-next-line no-console
     console.clear();
+
     console.log('========================================');
+
     console.log('🚀 模型配置系统自动测试开始');
+
     console.log('========================================\n');
 
     this.testBasicFunctions();
@@ -55,12 +59,7 @@ export class AutoTester {
 
     // 测试1.1: 获取所有模型
     const allModels = modelConfigManager.getAllConfigs();
-    this.assert(
-      '模型总数应为38',
-      38,
-      allModels.length,
-      '桥接器应导入所有DEFAULT_MODELS'
-    );
+    this.assert('模型总数应为38', 38, allModels.length, '桥接器应导入所有DEFAULT_MODELS');
 
     // 测试1.2: 按类型获取
     const imageModels = modelConfigManager.getConfigsByType('image');
@@ -122,26 +121,14 @@ export class AutoTester {
 
     // 测试2.1: 环境检测
     const env = environmentConfigLoader.getCurrentEnvironment();
-    this.assert(
-      '当前环境为development',
-      'development',
-      env
-    );
+    this.assert('当前环境为development', 'development', env);
 
     // 测试2.2: 生产环境判断
     const isProd = environmentConfigLoader.isProduction();
-    this.assert(
-      '不是生产环境',
-      false,
-      isProd
-    );
+    this.assert('不是生产环境', false, isProd);
 
     // 测试2.3: Provider允许检查
-    this.assert(
-      'volcengine被允许',
-      true,
-      environmentConfigLoader.isProviderAllowed('volcengine')
-    );
+    this.assert('volcengine被允许', true, environmentConfigLoader.isProviderAllowed('volcengine'));
 
     this.assert(
       'modelscope在开发环境被允许',
@@ -151,22 +138,13 @@ export class AutoTester {
 
     // 测试2.4: 安全提示
     const warnings = environmentConfigLoader.getSecurityWarnings();
-    this.assert(
-      '有安全提示',
-      true,
-      warnings.length > 0,
-      `安全提示数: ${warnings.length}`
-    );
+    this.assert('有安全提示', true, warnings.length > 0, `安全提示数: ${warnings.length}`);
 
     // 测试2.5: 魔搭社区模型标记
     const msModels = modelConfigManager.getConfigsByProvider('modelscope');
     if (msModels.length > 0) {
       const label = environmentConfigLoader.getModelEnvironmentLabel(msModels[0]);
-      this.assert(
-        '魔搭社区模型标记为开发测试',
-        '开发测试',
-        label?.label
-      );
+      this.assert('魔搭社区模型标记为开发测试', '开发测试', label?.label);
     }
 
     console.log('');
@@ -179,23 +157,11 @@ export class AutoTester {
     // 测试3.1: 生成诊断报告
     const report = configDiagnostics.generateReport();
 
-    this.assert(
-      '诊断报告存在',
-      true,
-      !!report
-    );
+    this.assert('诊断报告存在', true, !!report);
 
-    this.assert(
-      '配置总数为38',
-      38,
-      report.totalConfigs
-    );
+    this.assert('配置总数为38', 38, report.totalConfigs);
 
-    this.assert(
-      '错误数为0',
-      0,
-      report.summary.errors
-    );
+    this.assert('错误数为0', 0, report.summary.errors);
 
     this.assert(
       '有警告（API密钥相关）',
@@ -208,11 +174,7 @@ export class AutoTester {
     const models = modelConfigManager.getAllConfigs();
     if (models.length > 0) {
       const issues = configDiagnostics.diagnoseConfig(models[0]);
-      this.assert(
-        '单配置诊断返回数组',
-        true,
-        Array.isArray(issues)
-      );
+      this.assert('单配置诊断返回数组', true, Array.isArray(issues));
     }
 
     console.log('');
@@ -225,7 +187,7 @@ export class AutoTester {
     // 测试4.1: 图像路由
     const imageRoute = await smartRouter.route({
       type: 'image',
-      capability: 'textToImage'
+      capability: 'textToImage',
     });
 
     this.assert(
@@ -238,7 +200,7 @@ export class AutoTester {
     // 测试4.2: 视频路由
     const videoRoute = await smartRouter.route({
       type: 'video',
-      capability: 'imageToVideo'
+      capability: 'imageToVideo',
     });
 
     this.assert(
@@ -250,7 +212,7 @@ export class AutoTester {
     // 测试4.3: LLM路由
     const llmRoute = await smartRouter.route({
       type: 'llm',
-      capability: 'textToText'
+      capability: 'textToText',
     });
 
     this.assert(
@@ -261,11 +223,7 @@ export class AutoTester {
 
     // 测试4.4: 路由策略
     const strategy = smartRouter.getStrategy();
-    this.assert(
-      '路由策略存在',
-      true,
-      typeof strategy === 'string'
-    );
+    this.assert('路由策略存在', true, typeof strategy === 'string');
 
     console.log('');
   }
@@ -277,25 +235,13 @@ export class AutoTester {
     // 测试5.1: 获取统计
     const stats = providerHealthChecker.getStatistics();
 
-    this.assert(
-      '健康统计存在',
-      true,
-      !!stats
-    );
+    this.assert('健康统计存在', true, !!stats);
 
-    this.assert(
-      '统计包含total字段',
-      true,
-      typeof stats.total === 'number'
-    );
+    this.assert('统计包含total字段', true, typeof stats.total === 'number');
 
     // 测试5.2: 获取所有健康状态
     const allHealth = providerHealthChecker.getAllHealth();
-    this.assert(
-      '健康状态Map存在',
-      true,
-      allHealth instanceof Map
-    );
+    this.assert('健康状态Map存在', true, allHealth instanceof Map);
 
     console.log('');
   }
@@ -307,30 +253,17 @@ export class AutoTester {
     // 测试6.1: 获取所有模板
     const templates = modelTemplateRegistry.getAllTemplates();
 
-    this.assert(
-      '模板数量大于0',
-      true,
-      templates.length > 0,
-      `模板数: ${templates.length}`
-    );
+    this.assert('模板数量大于0', true, templates.length > 0, `模板数: ${templates.length}`);
 
     // 测试6.2: 按类型获取
     const imageTemplates = templates.filter(t => t.type === 'image');
-    this.assert(
-      '图像模板存在',
-      true,
-      imageTemplates.length > 0
-    );
+    this.assert('图像模板存在', true, imageTemplates.length > 0);
 
     // 测试6.3: 获取特定模板
     if (templates.length > 0) {
       const firstTemplate = templates[0];
       const found = modelTemplateRegistry.getTemplate(firstTemplate.id);
-      this.assert(
-        '可通过ID获取模板',
-        true,
-        !!found
-      );
+      this.assert('可通过ID获取模板', true, !!found);
     }
 
     console.log('');

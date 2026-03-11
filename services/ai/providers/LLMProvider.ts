@@ -43,7 +43,8 @@ export class LLMProvider extends BaseProvider implements IAIProvider {
     prompt: string,
     config: ModelConfig,
     systemPrompt?: string,
-    extraParams?: Record<string, any>
+    extraParams?: Record<string, any>,
+    timeout?: number
   ): Promise<AIResult> {
     try {
       const apiKey = this.getApiKey(config);
@@ -87,6 +88,7 @@ export class LLMProvider extends BaseProvider implements IAIProvider {
       console.log(`[LLMProvider] Messages count: ${messages.length}`);
       console.log(`[LLMProvider] First message length: ${messages[0]?.content?.length || 0} characters`);
       console.log(`[LLMProvider] Request body:`, JSON.stringify(requestBody, null, 2).substring(0, 500) + '...');
+      console.log(`[LLMProvider] Timeout: ${timeout || 120000}ms`);
 
       console.log('[LLMProvider] Sending request...');
       const startTime = Date.now();
@@ -98,7 +100,7 @@ export class LLMProvider extends BaseProvider implements IAIProvider {
           'Authorization': `Bearer ${apiKey}`,
         },
         body: JSON.stringify(requestBody),
-      }, 120000); // 120 second timeout for LLM
+      }, timeout || 120000);
 
       const elapsed = Date.now() - startTime;
       console.log(`[LLMProvider] Request completed in ${elapsed}ms`);

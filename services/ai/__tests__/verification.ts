@@ -54,7 +54,7 @@ export class ModelConfigVerifier {
     console.log('------------------------');
 
     const errors: string[] = [];
-    let details: any = {};
+    const details: any = {};
 
     try {
       // 验证模型配置管理器
@@ -83,7 +83,6 @@ export class ModelConfigVerifier {
       const enabledModels = modelConfigManager.getEnabledConfigs();
       details.enabledModels = enabledModels.length;
       console.log(`  ✓ 启用模型: ${enabledModels.length}`);
-
     } catch (error) {
       errors.push(`基础功能验证失败: ${error}`);
     }
@@ -98,7 +97,7 @@ export class ModelConfigVerifier {
     console.log('------------------------');
 
     const errors: string[] = [];
-    let details: any = {};
+    const details: any = {};
 
     try {
       // 验证环境检测
@@ -132,7 +131,6 @@ export class ModelConfigVerifier {
           errors.push('魔搭社区模型未被正确标记为开发测试');
         }
       }
-
     } catch (error) {
       errors.push(`环境隔离验证失败: ${error}`);
     }
@@ -147,7 +145,7 @@ export class ModelConfigVerifier {
     console.log('------------------------');
 
     const errors: string[] = [];
-    let details: any = {};
+    const details: any = {};
 
     try {
       // 生成诊断报告
@@ -175,7 +173,6 @@ export class ModelConfigVerifier {
       if (report.summary.errors > 5) {
         errors.push(`发现 ${report.summary.errors} 个错误，需要检查`);
       }
-
     } catch (error) {
       errors.push(`配置诊断验证失败: ${error}`);
     }
@@ -190,20 +187,20 @@ export class ModelConfigVerifier {
     console.log('------------------------');
 
     const errors: string[] = [];
-    let details: any = {};
+    const details: any = {};
 
     try {
       // 测试图像路由
       const imageRoute = await smartRouter.route({
         type: 'image',
-        capability: 'textToImage'
+        capability: 'textToImage',
       });
 
       if (imageRoute) {
         details.imageRoute = {
           providerId: imageRoute.providerId,
           strategy: imageRoute.strategy,
-          reason: imageRoute.reason
+          reason: imageRoute.reason,
         };
         console.log(`  ✓ 图像路由: ${imageRoute.providerId} (${imageRoute.strategy})`);
       } else {
@@ -213,14 +210,14 @@ export class ModelConfigVerifier {
       // 测试视频路由
       const videoRoute = await smartRouter.route({
         type: 'video',
-        capability: 'imageToVideo'
+        capability: 'imageToVideo',
       });
 
       if (videoRoute) {
         details.videoRoute = {
           providerId: videoRoute.providerId,
           strategy: videoRoute.strategy,
-          reason: videoRoute.reason
+          reason: videoRoute.reason,
         };
         console.log(`  ✓ 视频路由: ${videoRoute.providerId} (${videoRoute.strategy})`);
       } else {
@@ -230,20 +227,19 @@ export class ModelConfigVerifier {
       // 测试LLM路由
       const llmRoute = await smartRouter.route({
         type: 'llm',
-        capability: 'textToText'
+        capability: 'textToText',
       });
 
       if (llmRoute) {
         details.llmRoute = {
           providerId: llmRoute.providerId,
           strategy: llmRoute.strategy,
-          reason: llmRoute.reason
+          reason: llmRoute.reason,
         };
         console.log(`  ✓ LLM路由: ${llmRoute.providerId} (${llmRoute.strategy})`);
       } else {
         console.log('  ⚠️ LLM路由: 无可用Provider（可能正常，如果没有LLM模型）');
       }
-
     } catch (error) {
       errors.push(`智能路由验证失败: ${error}`);
     }
@@ -258,7 +254,7 @@ export class ModelConfigVerifier {
     console.log('------------------------');
 
     const errors: string[] = [];
-    let details: any = {};
+    const details: any = {};
 
     try {
       // 获取健康统计
@@ -284,7 +280,6 @@ export class ModelConfigVerifier {
       allHealth.forEach((health, id) => {
         console.log(`    - ${id}: ${health.overallStatus}`);
       });
-
     } catch (error) {
       errors.push(`健康检查验证失败: ${error}`);
     }
@@ -299,7 +294,7 @@ export class ModelConfigVerifier {
     console.log('------------------------');
 
     const errors: string[] = [];
-    let details: any = {};
+    const details: any = {};
 
     try {
       // 获取所有模板
@@ -330,7 +325,6 @@ export class ModelConfigVerifier {
       if (templates.length === 0) {
         errors.push('模板列表为空');
       }
-
     } catch (error) {
       errors.push(`模板系统验证失败: ${error}`);
     }

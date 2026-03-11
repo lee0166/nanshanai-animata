@@ -14,10 +14,10 @@ export interface CacheEntry<T> {
   key: string;
   value: T;
   timestamp: number;
-  ttl: number;           // 过期时间（毫秒）
+  ttl: number; // 过期时间（毫秒）
   level: 'L1' | 'L2' | 'L3';
   hitCount: number;
-  size: number;          // 数据大小（字节）
+  size: number; // 数据大小（字节）
 }
 
 export interface CacheStats {
@@ -31,12 +31,12 @@ export interface CacheStats {
 }
 
 export interface CacheOptions {
-  l1TTL?: number;        // L1缓存TTL（毫秒）
-  l2TTL?: number;        // L2缓存TTL（毫秒）
-  l3TTL?: number;        // L3缓存TTL（毫秒）
-  maxL1Size?: number;    // L1最大条目数
-  maxL2Size?: number;    // L2最大条目数
-  maxL3Size?: number;    // L3最大条目数
+  l1TTL?: number; // L1缓存TTL（毫秒）
+  l2TTL?: number; // L2缓存TTL（毫秒）
+  l3TTL?: number; // L3缓存TTL（毫秒）
+  maxL1Size?: number; // L1最大条目数
+  maxL2Size?: number; // L2最大条目数
+  maxL3Size?: number; // L3最大条目数
 }
 
 export class MultiLevelCache {
@@ -52,7 +52,7 @@ export class MultiLevelCache {
     misses: 0,
     l1Hits: 0,
     l2Hits: 0,
-    l3Hits: 0
+    l3Hits: 0,
   };
 
   // 配置
@@ -60,13 +60,13 @@ export class MultiLevelCache {
 
   constructor(options: CacheOptions = {}) {
     this.options = {
-      l1TTL: 5 * 60 * 1000,      // 5分钟
-      l2TTL: 60 * 60 * 1000,     // 1小时
+      l1TTL: 5 * 60 * 1000, // 5分钟
+      l2TTL: 60 * 60 * 1000, // 1小时
       l3TTL: 24 * 60 * 60 * 1000, // 24小时
       maxL1Size: 100,
       maxL2Size: 1000,
       maxL3Size: 10000,
-      ...options
+      ...options,
     };
 
     // 启动定期清理
@@ -217,7 +217,7 @@ export class MultiLevelCache {
       totalHits: this.stats.hits,
       totalMisses: this.stats.misses,
       hitRate,
-      totalSize: l1Size
+      totalSize: l1Size,
     };
   }
 
@@ -228,7 +228,7 @@ export class MultiLevelCache {
     for (const entry of entries) {
       await this.set(entry.key, entry.value, {
         ttl: entry.ttl,
-        levels: ['L1', 'L2']
+        levels: ['L1', 'L2'],
       });
     }
     console.log(`[MultiLevelCache] Warmup completed: ${entries.length} entries`);
@@ -260,7 +260,7 @@ export class MultiLevelCache {
       ttl,
       level: 'L1',
       hitCount: 0,
-      size: this.estimateSize(value)
+      size: this.estimateSize(value),
     };
 
     this.l1Cache.set(key, entry);
@@ -302,7 +302,8 @@ export class MultiLevelCache {
 
   private async setL2<T>(key: string, value: T, ttl: number): Promise<void> {
     try {
-      const cache = await storageService.getCache<Record<string, CacheEntry<any>>>(this.l2CacheKey) || {};
+      const cache =
+        (await storageService.getCache<Record<string, CacheEntry<any>>>(this.l2CacheKey)) || {};
 
       // 检查大小限制
       const keys = Object.keys(cache);
@@ -319,7 +320,7 @@ export class MultiLevelCache {
         ttl,
         level: 'L2',
         hitCount: 0,
-        size: this.estimateSize(value)
+        size: this.estimateSize(value),
       };
 
       cache[key] = entry;
@@ -356,8 +357,8 @@ export class MultiLevelCache {
     // 实际生产环境应调用云端API
     try {
       const l3Key = `l3_${key}`;
-      const cache = await storageService.getCache<Record<string, CacheEntry<any>>>(l3Key);
-      return cache ? (cache as CacheEntry<T>) : null;
+      const cache = await storageService.getCache<CacheEntry<T>>(l3Key);
+      return cache || null;
     } catch (e) {
       return null;
     }
@@ -374,7 +375,7 @@ export class MultiLevelCache {
         ttl,
         level: 'L3',
         hitCount: 0,
-        size: this.estimateSize(value)
+        size: this.estimateSize(value),
       };
 
       await storageService.setCache(l3Key, entry);
@@ -427,9 +428,12 @@ export class MultiLevelCache {
 
   private startCleanupTimer(): void {
     // 每5分钟清理一次过期缓存
-    setInterval(() => {
-      this.cleanup();
-    }, 5 * 60 * 1000);
+    setInterval(
+      () => {
+        this.cleanup();
+      },
+      5 * 60 * 1000
+    );
   }
 
   private cleanup(): void {

@@ -18,13 +18,13 @@ import {
   ModalFooter,
   Textarea,
   Input,
-  Chip
-} from "@heroui/react";
+  Chip,
+} from '@heroui/react';
 import { MapPin, Link2, Plus, Edit2, Wand2, CheckCircle2, Home, Sun, Cloud } from 'lucide-react';
 
 interface SceneMappingProps {
   projectId: string;
-  scriptId: string;  // 当前剧本ID
+  scriptId: string; // 当前剧本ID
   scriptScenes: ScriptScene[];
   existingScenes: SceneAsset[];
   onScenesUpdate: (scenes: ScriptScene[]) => void;
@@ -37,7 +37,7 @@ export const SceneMapping: React.FC<SceneMappingProps> = ({
   scriptScenes,
   existingScenes,
   onScenesUpdate,
-  onSceneCreated
+  onSceneCreated,
 }) => {
   const { t, settings } = useApp();
   const { showToast } = useToast();
@@ -57,11 +57,11 @@ export const SceneMapping: React.FC<SceneMappingProps> = ({
   // 纯创建逻辑 - 只创建资产，不更新状态
   const createSceneAsset = async (scriptScene: ScriptScene): Promise<string> => {
     const generatedPrompt = ScenePromptBuilder.build(scriptScene);
-    
+
     const newScene: SceneAsset = {
       id: `scene_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
       projectId,
-      scriptId,  // 关联当前剧本
+      scriptId, // 关联当前剧本
       type: AssetType.SCENE,
       name: scriptScene.name,
       prompt: generatedPrompt,
@@ -73,10 +73,10 @@ export const SceneMapping: React.FC<SceneMappingProps> = ({
         environment: scriptScene.environment,
         sceneFunction: scriptScene.sceneFunction,
         characters: scriptScene.characters,
-        visualPrompt: scriptScene.visualPrompt
+        visualPrompt: scriptScene.visualPrompt,
       },
       createdAt: Date.now(),
-      updatedAt: Date.now()
+      updatedAt: Date.now(),
     };
 
     await storageService.saveAsset(newScene);
@@ -88,7 +88,7 @@ export const SceneMapping: React.FC<SceneMappingProps> = ({
     try {
       // 1. 创建资产（不更新状态）
       const assetId = await createSceneAsset(scriptScene);
-      
+
       // 2. 更新状态
       const updated = scriptScenes.map(s =>
         s.name === scriptScene.name ? { ...s, mappedAssetId: assetId } : s
@@ -112,20 +112,35 @@ export const SceneMapping: React.FC<SceneMappingProps> = ({
       return;
     }
 
+    console.log(`[SceneMapping] ========== 开始批量创建场景 ==========`);
+    console.log(`[SceneMapping] 待创建场景数量: ${unmapped.length}`);
+    console.log(`[SceneMapping] 场景列表: ${unmapped.map(s => s.name).join(', ')}`);
+
     const createdMappings: { name: string; assetId: string }[] = [];
     const failedScenes: string[] = [];
+    const startTime = Date.now();
 
     try {
       // 第一步：串行创建所有资产（不更新状态）
-      for (const scene of unmapped) {
+      for (let i = 0; i < unmapped.length; i++) {
+        const scene = unmapped[i];
+        console.log(`[SceneMapping] [${i + 1}/${unmapped.length}] 创建场景: ${scene.name}`);
         try {
-          const assetId = await createSceneAsset(scene);  // 只创建，不更新状态
+          const assetId = await createSceneAsset(scene); // 只创建，不更新状态
           createdMappings.push({ name: scene.name, assetId });
+          console.log(
+            `[SceneMapping] [${i + 1}/${unmapped.length}] 场景 ${scene.name} 创建成功，ID: ${assetId}`
+          );
         } catch (error) {
           console.error(`[SceneMapping] 创建场景 ${scene.name} 失败:`, error);
           failedScenes.push(scene.name);
         }
       }
+
+      const duration = Date.now() - startTime;
+      console.log(`[SceneMapping] 批量创建完成，耗时: ${duration}ms`);
+      console.log(`[SceneMapping] 成功: ${createdMappings.length}/${unmapped.length}`);
+      console.log(`[SceneMapping] 失败: ${failedScenes.length}/${unmapped.length}`);
 
       // 第二步：统一更新所有状态（只更新一次）
       if (createdMappings.length > 0) {
@@ -133,11 +148,14 @@ export const SceneMapping: React.FC<SceneMappingProps> = ({
           const mapping = createdMappings.find(m => m.name === s.name);
           return mapping ? { ...s, mappedAssetId: mapping.assetId } : s;
         });
-        onScenesUpdate(updated);  // 关键：只更新一次
+        onScenesUpdate(updated); // 关键：只更新一次
         onSceneCreated?.();
-        
+
         if (failedScenes.length > 0) {
-          showToast(`成功创建 ${createdMappings.length} 个场景，${failedScenes.length} 个失败`, 'warning');
+          showToast(
+            `成功创建 ${createdMappings.length} 个场景，${failedScenes.length} 个失败`,
+            'warning'
+          );
         } else {
           showToast(`成功创建 ${createdMappings.length} 个场景`, 'success');
         }
@@ -147,14 +165,14 @@ export const SceneMapping: React.FC<SceneMappingProps> = ({
     } catch (error) {
       console.error('[SceneMapping] 批量创建场景失败:', error);
       showToast('批量创建失败', 'error');
+    } finally {
+      console.log(`[SceneMapping] ========== 批量创建场景结束 ==========`);
     }
   };
 
   // Handle updating script scene details
   const handleUpdateScene = (updated: ScriptScene) => {
-    const updatedList = scriptScenes.map(s =>
-      s.name === updated.name ? updated : s
-    );
+    const updatedList = scriptScenes.map(s => (s.name === updated.name ? updated : s));
     onScenesUpdate(updatedList);
     setIsEditModalOpen(false);
     showToast('场景信息已更新', 'success');
@@ -169,9 +187,12 @@ export const SceneMapping: React.FC<SceneMappingProps> = ({
   // Get location type icon
   const getLocationIcon = (type?: string) => {
     switch (type) {
-      case 'indoor': return <Home size={16} />;
-      case 'outdoor': return <Sun size={16} />;
-      default: return <MapPin size={16} />;
+      case 'indoor':
+        return <Home size={16} />;
+      case 'outdoor':
+        return <Sun size={16} />;
+      default:
+        return <MapPin size={16} />;
     }
   };
 
@@ -182,8 +203,8 @@ export const SceneMapping: React.FC<SceneMappingProps> = ({
         <div>
           <h3 className="text-lg font-bold">场景映射</h3>
           <p className="text-sm text-default-500">
-            共 {scriptScenes.length} 个场景，
-            已关联 {scriptScenes.filter(s => s.mappedAssetId).length} 个
+            共 {scriptScenes.length} 个场景， 已关联{' '}
+            {scriptScenes.filter(s => s.mappedAssetId).length} 个
           </p>
         </div>
         <div className="flex gap-2">
@@ -215,7 +236,7 @@ export const SceneMapping: React.FC<SceneMappingProps> = ({
       {/* Scene Cards Grid */}
       {viewMode === 'grid' ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {scriptScenes.map((scene) => {
+          {scriptScenes.map(scene => {
             const mappedAsset = getMappedAsset(scene.mappedAssetId);
             const hasImage = mappedAsset?.currentImageId || mappedAsset?.generatedImages?.length;
 
@@ -232,7 +253,11 @@ export const SceneMapping: React.FC<SceneMappingProps> = ({
                       <div className="flex gap-1 flex-wrap">
                         {scene.locationType && (
                           <Chip size="sm" variant="flat">
-                            {scene.locationType === 'indoor' ? '室内' : scene.locationType === 'outdoor' ? '室外' : '未知'}
+                            {scene.locationType === 'indoor'
+                              ? '室内'
+                              : scene.locationType === 'outdoor'
+                                ? '室外'
+                                : '未知'}
                           </Chip>
                         )}
                         {scene.timeOfDay && (
@@ -241,7 +266,12 @@ export const SceneMapping: React.FC<SceneMappingProps> = ({
                           </Chip>
                         )}
                         {mappedAsset && (
-                          <Chip size="sm" color="success" variant="flat" startContent={<CheckCircle2 size={12} />}>
+                          <Chip
+                            size="sm"
+                            color="success"
+                            variant="flat"
+                            startContent={<CheckCircle2 size={12} />}
+                          >
                             已关联
                           </Chip>
                         )}
@@ -252,29 +282,30 @@ export const SceneMapping: React.FC<SceneMappingProps> = ({
                   {/* Scene Info */}
                   <div className="space-y-2 text-sm mb-3">
                     {scene.description && (
-                      <p className="text-default-600 line-clamp-2">
-                        {scene.description}
-                      </p>
+                      <p className="text-default-600 line-clamp-2">{scene.description}</p>
                     )}
                     {scene.environment?.architecture && (
                       <p className="text-default-500 text-xs">
-                        <span className="font-medium">建筑：</span>{scene.environment.architecture}
+                        <span className="font-medium">建筑：</span>
+                        {scene.environment.architecture}
                       </p>
                     )}
                     {scene.characters?.length > 0 && (
                       <div className="flex flex-wrap gap-1">
                         {scene.characters.slice(0, 3).map((char, i) => (
-                          <Chip key={i} size="sm" variant="bordered">{char}</Chip>
+                          <Chip key={i} size="sm" variant="bordered">
+                            {char}
+                          </Chip>
                         ))}
                         {scene.characters.length > 3 && (
-                          <Chip size="sm" variant="bordered">+{scene.characters.length - 3}</Chip>
+                          <Chip size="sm" variant="bordered">
+                            +{scene.characters.length - 3}
+                          </Chip>
                         )}
                       </div>
                     )}
                     {scene.visualPrompt && (
-                      <p className="text-default-500 text-xs line-clamp-2">
-                        {scene.visualPrompt}
-                      </p>
+                      <p className="text-default-500 text-xs line-clamp-2">{scene.visualPrompt}</p>
                     )}
                   </div>
 
@@ -283,11 +314,15 @@ export const SceneMapping: React.FC<SceneMappingProps> = ({
                     <Select
                       label="关联到现有场景"
                       placeholder="选择现有场景或留空"
-                      selectedKeys={scene.mappedAssetId ? new Set([scene.mappedAssetId]) : new Set()}
-                      onChange={(e) => handleMapScene(scene, e.target.value)}
+                      selectedKeys={
+                        scene.mappedAssetId ? new Set([scene.mappedAssetId]) : new Set()
+                      }
+                      onChange={e => handleMapScene(scene, e.target.value)}
                       size="sm"
                     >
-                      <SelectItem key="" value="">不关联</SelectItem>
+                      <SelectItem key="" value="">
+                        不关联
+                      </SelectItem>
                       {existingScenes.map(asset => (
                         <SelectItem key={asset.id} value={asset.id}>
                           {asset.name}
@@ -350,7 +385,11 @@ export const SceneMapping: React.FC<SceneMappingProps> = ({
                         <div className="flex gap-2 mt-1">
                           {scene.locationType && (
                             <Chip size="sm" variant="flat">
-                              {scene.locationType === 'indoor' ? '室内' : scene.locationType === 'outdoor' ? '室外' : '未知'}
+                              {scene.locationType === 'indoor'
+                                ? '室内'
+                                : scene.locationType === 'outdoor'
+                                  ? '室外'
+                                  : '未知'}
                             </Chip>
                           )}
                           {scene.timeOfDay && (
@@ -409,53 +448,63 @@ export const SceneMapping: React.FC<SceneMappingProps> = ({
               <ModalHeader>编辑场景 - {selectedScene.name}</ModalHeader>
               <ModalBody className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
-                  <Input
-                    label="场景名称"
-                    value={selectedScene.name}
-                    isReadOnly
-                  />
+                  <Input label="场景名称" value={selectedScene.name} isReadOnly />
                   <Select
                     label="地点类型"
-                    selectedKeys={selectedScene.locationType ? new Set([selectedScene.locationType]) : new Set()}
-                    onChange={(e) => setSelectedScene({ ...selectedScene, locationType: e.target.value as any })}
+                    selectedKeys={
+                      selectedScene.locationType ? new Set([selectedScene.locationType]) : new Set()
+                    }
+                    onChange={e =>
+                      setSelectedScene({ ...selectedScene, locationType: e.target.value as any })
+                    }
                   >
-                    <SelectItem key="indoor" value="indoor">室内</SelectItem>
-                    <SelectItem key="outdoor" value="outdoor">室外</SelectItem>
-                    <SelectItem key="unknown" value="unknown">未知</SelectItem>
+                    <SelectItem key="indoor" value="indoor">
+                      室内
+                    </SelectItem>
+                    <SelectItem key="outdoor" value="outdoor">
+                      室外
+                    </SelectItem>
+                    <SelectItem key="unknown" value="unknown">
+                      未知
+                    </SelectItem>
                   </Select>
                   <Input
                     label="时间段"
                     value={selectedScene.timeOfDay || ''}
-                    onChange={(e) => setSelectedScene({ ...selectedScene, timeOfDay: e.target.value })}
+                    onChange={e =>
+                      setSelectedScene({ ...selectedScene, timeOfDay: e.target.value })
+                    }
                     placeholder="如：清晨、正午、黄昏、夜晚"
                   />
                   <Input
                     label="季节"
                     value={selectedScene.season || ''}
-                    onChange={(e) => setSelectedScene({ ...selectedScene, season: e.target.value })}
+                    onChange={e => setSelectedScene({ ...selectedScene, season: e.target.value })}
                   />
                   <Input
                     label="天气"
                     value={selectedScene.weather || ''}
-                    onChange={(e) => setSelectedScene({ ...selectedScene, weather: e.target.value })}
+                    onChange={e => setSelectedScene({ ...selectedScene, weather: e.target.value })}
                   />
                 </div>
 
                 <Textarea
                   label="场景描述"
                   value={selectedScene.description}
-                  onChange={(e) => setSelectedScene({ ...selectedScene, description: e.target.value })}
+                  onChange={e =>
+                    setSelectedScene({ ...selectedScene, description: e.target.value })
+                  }
                   minRows={3}
                 />
 
                 <Textarea
                   label="环境细节"
                   value={JSON.stringify(selectedScene.environment, null, 2)}
-                  onChange={(e) => {
+                  onChange={e => {
                     try {
                       const environment = JSON.parse(e.target.value);
                       setSelectedScene({ ...selectedScene, environment });
-                    } catch { }
+                    } catch {}
                   }}
                   minRows={4}
                 />
@@ -463,17 +512,24 @@ export const SceneMapping: React.FC<SceneMappingProps> = ({
                 <Textarea
                   label="视觉提示词（用于AI生图）"
                   value={selectedScene.visualPrompt || ''}
-                  onChange={(e) => setSelectedScene({ ...selectedScene, visualPrompt: e.target.value })}
+                  onChange={e =>
+                    setSelectedScene({ ...selectedScene, visualPrompt: e.target.value })
+                  }
                   minRows={3}
                 />
 
                 <Input
                   label="涉及角色（逗号分隔）"
                   value={selectedScene.characters?.join(', ') || ''}
-                  onChange={(e) => setSelectedScene({
-                    ...selectedScene,
-                    characters: e.target.value.split(',').map(c => c.trim()).filter(Boolean)
-                  })}
+                  onChange={e =>
+                    setSelectedScene({
+                      ...selectedScene,
+                      characters: e.target.value
+                        .split(',')
+                        .map(c => c.trim())
+                        .filter(Boolean),
+                    })
+                  }
                 />
               </ModalBody>
               <ModalFooter>

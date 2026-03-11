@@ -106,9 +106,9 @@ const DEFAULT_SAME_DURATION_THRESHOLD = 3;
 
 /** 评分权重配置 */
 const SCORE_WEIGHTS = {
-  duration: 0.4,      // 时长合规性权重
-  pacing: 0.3,        // 节奏变化权重
-  budget: 0.3,        // 预算偏差权重
+  duration: 0.4, // 时长合规性权重
+  pacing: 0.3, // 节奏变化权重
+  budget: 0.3, // 预算偏差权重
 };
 
 // ============================================================================
@@ -137,7 +137,12 @@ function detectSameDurationSequences(
   shots: Shot[],
   threshold: number
 ): Array<{ startIndex: number; endIndex: number; duration: number; count: number }> {
-  const sequences: Array<{ startIndex: number; endIndex: number; duration: number; count: number }> = [];
+  const sequences: Array<{
+    startIndex: number;
+    endIndex: number;
+    duration: number;
+    count: number;
+  }> = [];
 
   if (shots.length < threshold) return sequences;
 
@@ -186,7 +191,7 @@ function calculateDurationScore(
   minDuration: number,
   maxDuration: number
 ): { score: number; violations: QCIssue[] } {
-  let violations: QCIssue[] = [];
+  const violations: QCIssue[] = [];
   let compliantCount = 0;
 
   for (let i = 0; i < shots.length; i++) {
@@ -224,7 +229,7 @@ function calculatePacingScore(
   sameDurationThreshold: number
 ): { score: number; violations: QCIssue[] } {
   const sequences = detectSameDurationSequences(shots, sameDurationThreshold);
-  let violations: QCIssue[] = [];
+  const violations: QCIssue[] = [];
 
   for (const seq of sequences) {
     violations.push({
@@ -239,7 +244,7 @@ function calculatePacingScore(
   const uniqueDurations = new Set(shots.map(s => s.duration)).size;
   const diversityRatio = shots.length > 0 ? uniqueDurations / shots.length : 1;
   const penaltyPerSequence = 0.1;
-  const score = Math.max(0, (diversityRatio * 100) - sequences.length * penaltyPerSequence * 100);
+  const score = Math.max(0, diversityRatio * 100 - sequences.length * penaltyPerSequence * 100);
 
   return { score, violations };
 }
@@ -256,7 +261,7 @@ function calculateBudgetScore(
   const absVariance = Math.abs(variance);
   const tolerancePercent = tolerance * 100;
 
-  let violations: QCIssue[] = [];
+  const violations: QCIssue[] = [];
 
   if (absVariance > tolerancePercent) {
     const isOverBudget = variance > 0;
@@ -273,9 +278,8 @@ function calculateBudgetScore(
   }
 
   // 评分计算：在容忍范围内得满分，超出后线性递减
-  const score = absVariance <= tolerancePercent
-    ? 100
-    : Math.max(0, 100 - (absVariance - tolerancePercent) * 2);
+  const score =
+    absVariance <= tolerancePercent ? 100 : Math.max(0, 100 - (absVariance - tolerancePercent) * 2);
 
   return { score, variance, violations };
 }
@@ -388,7 +392,10 @@ export function compressNonCritical(
   }
 
   // 压缩非关键场景
-  const compressionRatio = Math.max(0.5, (availableNonCritical - excessDuration) / availableNonCritical);
+  const compressionRatio = Math.max(
+    0.5,
+    (availableNonCritical - excessDuration) / availableNonCritical
+  );
 
   const adjustedShots = shots.map((shot, index) => {
     const category = shotCategories.find(c => c.index === index);
@@ -511,10 +518,7 @@ export function autoAdjustShots(
  * @param options - 校验配置选项
  * @returns 包含调整建议的质量校验报告
  */
-export function generateQCReportWithAdjustments(
-  shots: Shot[],
-  options: QCOptions
-): QCReport {
+export function generateQCReportWithAdjustments(shots: Shot[], options: QCOptions): QCReport {
   // 先进行基础校验
   const baseReport = validateShots(shots, options);
 

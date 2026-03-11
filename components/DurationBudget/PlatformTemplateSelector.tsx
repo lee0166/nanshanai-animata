@@ -8,7 +8,7 @@
  */
 
 import React from 'react';
-import { Button, Card, CardBody } from '@heroui/react';
+import { Card, CardBody } from '@heroui/react';
 import { Smartphone, Video, Monitor, Film } from 'lucide-react';
 
 export interface PlatformTemplate {
@@ -35,7 +35,7 @@ export interface PlatformTemplateSelectorProps {
 
 export const PlatformTemplateSelector: React.FC<PlatformTemplateSelectorProps> = ({
   onSelectTemplate,
-  t
+  t,
 }) => {
   // 定义平台模板
   const templates: PlatformTemplate[] = [
@@ -131,7 +131,7 @@ export const PlatformTemplateSelector: React.FC<PlatformTemplateSelectorProps> =
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pl-3">
-        {templates.map((template) => (
+        {templates.map(template => (
           <Card
             key={template.id}
             className="border border-slate-200 dark:border-slate-800 hover:border-primary dark:hover:border-primary transition-all duration-300 cursor-pointer group"
@@ -147,9 +147,7 @@ export const PlatformTemplateSelector: React.FC<PlatformTemplateSelectorProps> =
                   <h4 className="text-[15px] font-bold text-slate-900 dark:text-white group-hover:text-primary transition-colors">
                     {template.name}
                   </h4>
-                  <p className="text-xs text-slate-500 mt-1">
-                    {template.description}
-                  </p>
+                  <p className="text-xs text-slate-500 mt-1">{template.description}</p>
                   <div className="flex flex-wrap gap-2 mt-2">
                     {template.features.map((feature, index) => (
                       <span

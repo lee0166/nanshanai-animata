@@ -19,14 +19,14 @@ import { QualityScore, QualityDimension } from '../quality/QualityEvaluator';
  * 修正操作类型
  */
 export type RefinementActionType =
-  | 'add_description'      // 添加描述
-  | 'update_description'   // 更新描述
-  | 'merge_characters'     // 合并角色
-  | 'add_location'         // 添加地点
-  | 'add_time'             // 添加时间
-  | 'fix_reference'        // 修复引用
-  | 'remove_redundant'     // 移除冗余
-  | 'enhance_detail';      // 增强细节
+  | 'add_description' // 添加描述
+  | 'update_description' // 更新描述
+  | 'merge_characters' // 合并角色
+  | 'add_location' // 添加地点
+  | 'add_time' // 添加时间
+  | 'fix_reference' // 修复引用
+  | 'remove_redundant' // 移除冗余
+  | 'enhance_detail'; // 增强细节
 
 /**
  * 修正操作
@@ -80,6 +80,8 @@ export interface RefinementChange {
   type: RefinementActionType;
   /** 目标 */
   target: string;
+  /** 目标类型 */
+  targetType?: 'character' | 'scene' | 'shot' | 'dialogue' | 'action' | 'metadata' | 'other';
   /** 变更前 */
   before: string | object;
   /** 变更后 */
@@ -126,12 +128,12 @@ export interface RefinementEngineConfig {
  * 默认配置
  */
 const DEFAULT_CONFIG: RefinementEngineConfig = {
-  minConfidence: 0.7,
+  minConfidence: 0.6,
   autoSafeOnly: true,
   maxRefinements: 20,
   enableCharacterRefinement: true,
   enableSceneRefinement: true,
-  enableMetadataRefinement: true
+  enableMetadataRefinement: true,
 };
 
 /**
@@ -232,15 +234,19 @@ export class RefinementEngine {
             currentValue: character.description,
             proposedValue: this.generateCharacterDescription(character, context),
             confidence: 0.75,
-            autoSafe: false,
-            requiresConfirmation: true
+            autoSafe: true,
+            requiresConfirmation: false,
           });
         }
 
         // 如果角色缺少外观，建议添加
-        const hasAppearance = character.appearance && 
-          (character.appearance.height || character.appearance.build || 
-           character.appearance.face || character.appearance.hair || character.appearance.clothing);
+        const hasAppearance =
+          character.appearance &&
+          (character.appearance.height ||
+            character.appearance.build ||
+            character.appearance.face ||
+            character.appearance.hair ||
+            character.appearance.clothing);
         if (!hasAppearance) {
           actions.push({
             id: `refine-char-appearance-${charId}`,
@@ -251,8 +257,8 @@ export class RefinementEngine {
             currentValue: character.appearance,
             proposedValue: '根据角色特征生成的外观描述',
             confidence: 0.7,
-            autoSafe: false,
-            requiresConfirmation: true
+            autoSafe: true,
+            requiresConfirmation: false,
           });
         }
       }
@@ -288,7 +294,7 @@ export class RefinementEngine {
             proposedValue: this.inferSceneTime(scene, context),
             confidence: 0.6,
             autoSafe: false,
-            requiresConfirmation: true
+            requiresConfirmation: true,
           });
         }
 
@@ -304,7 +310,7 @@ export class RefinementEngine {
             proposedValue: this.inferSceneLocation(scene, context),
             confidence: 0.65,
             autoSafe: false,
-            requiresConfirmation: true
+            requiresConfirmation: true,
           });
         }
       }
@@ -338,7 +344,7 @@ export class RefinementEngine {
           proposedValue: `建议在适当场景中添加 "${character.name}" 的出场`,
           confidence: 0.8,
           autoSafe: false,
-          requiresConfirmation: true
+          requiresConfirmation: true,
         });
       }
     }
@@ -366,7 +372,7 @@ export class RefinementEngine {
       proposedValue: violation.suggestion || '请检查并调整时间线',
       confidence: 0.5,
       autoSafe: false,
-      requiresConfirmation: true
+      requiresConfirmation: true,
     });
 
     return actions;
@@ -417,7 +423,7 @@ export class RefinementEngine {
         proposedValue: '剧情', // 默认值
         confidence: 0.8,
         autoSafe: true,
-        requiresConfirmation: false
+        requiresConfirmation: false,
       });
     }
 
@@ -444,8 +450,8 @@ export class RefinementEngine {
           currentValue: desc,
           proposedValue: this.enhanceCharacterDescription(character, context),
           confidence: 0.7,
-          autoSafe: false,
-          requiresConfirmation: true
+          autoSafe: true,
+          requiresConfirmation: false,
         });
       }
     }
@@ -462,9 +468,12 @@ export class RefinementEngine {
 
     // 检查角色可用性
     for (const character of context.characters) {
-      const hasDetailedAppearance = character.appearance && 
-        (character.appearance.height && character.appearance.build && 
-         character.appearance.face && character.appearance.hair);
+      const hasDetailedAppearance =
+        character.appearance &&
+        character.appearance.height &&
+        character.appearance.build &&
+        character.appearance.face &&
+        character.appearance.hair;
       if (!hasDetailedAppearance) {
         actions.push({
           id: `refine-char-usability-${character.id}`,
@@ -475,8 +484,8 @@ export class RefinementEngine {
           currentValue: character.appearance,
           proposedValue: '根据角色描述推断的外观特征',
           confidence: 0.65,
-          autoSafe: false,
-          requiresConfirmation: true
+          autoSafe: true,
+          requiresConfirmation: false,
         });
       }
     }
@@ -504,7 +513,7 @@ export class RefinementEngine {
           proposedValue: this.generateSceneDescription(scene, context),
           confidence: 0.6,
           autoSafe: false,
-          requiresConfirmation: true
+          requiresConfirmation: true,
         });
       }
     }
@@ -533,8 +542,14 @@ export class RefinementEngine {
 
     for (const action of actions) {
       try {
+        let skipReason = '';
+
+        // 检查置信度
+        if (action.confidence < this.config.minConfidence) {
+          skipReason = `置信度不足 (${action.confidence.toFixed(2)} < ${this.config.minConfidence.toFixed(2)})`;
+        }
         // 检查是否应该自动应用
-        if (autoApply && action.autoSafe && !action.requiresConfirmation) {
+        else if (autoApply && action.autoSafe && !action.requiresConfirmation) {
           const success = await this.applyAction(action, context);
           if (success) {
             applied.push(action);
@@ -542,14 +557,34 @@ export class RefinementEngine {
               type: action.type,
               target: `${action.targetType}:${action.targetId}`,
               before: action.currentValue || '',
-              after: action.proposedValue
+              after: action.proposedValue,
             });
+            console.log(
+              `[RefinementEngine] ✅ Applied action: ${action.description} (id: ${action.id})`
+            );
           } else {
             failed.push(action);
+            console.log(
+              `[RefinementEngine] ❌ Failed to apply action: ${action.description} (id: ${action.id})`
+            );
           }
         } else {
-          // 需要手动确认
+          if (!autoApply) {
+            skipReason = '自动应用被禁用';
+          } else if (!action.autoSafe) {
+            skipReason = '非自动安全操作 (autoSafe = false)';
+          } else if (action.requiresConfirmation) {
+            skipReason = '需要用户确认 (requiresConfirmation = true)';
+          } else {
+            skipReason = '未知原因';
+          }
+        }
+
+        if (skipReason) {
           skipped.push(action);
+          console.log(
+            `[RefinementEngine] ⏸️ Skipped action: ${action.description} (id: ${action.id}) - Reason: ${skipReason}`
+          );
         }
       } catch (error) {
         console.error(`[RefinementEngine] Failed to apply action ${action.id}:`, error);
@@ -560,7 +595,9 @@ export class RefinementEngine {
     // 计算质量提升（简化计算）
     const qualityImprovement = applied.length * 2; // 每个修正约提升2分
 
-    console.log(`[RefinementEngine] Applied: ${applied.length}, Skipped: ${skipped.length}, Failed: ${failed.length}`);
+    console.log(
+      `[RefinementEngine] Applied: ${applied.length}, Skipped: ${skipped.length}, Failed: ${failed.length}`
+    );
 
     return {
       success: failed.length === 0,
@@ -568,7 +605,7 @@ export class RefinementEngine {
       skippedActions: skipped,
       failedActions: failed,
       changes,
-      qualityImprovement
+      qualityImprovement,
     };
   }
 
@@ -576,7 +613,10 @@ export class RefinementEngine {
    * 应用单个修正操作
    * @private
    */
-  private async applyAction(action: RefinementAction, context: RefinementContext): Promise<boolean> {
+  private async applyAction(
+    action: RefinementAction,
+    context: RefinementContext
+  ): Promise<boolean> {
     // 这里应该实际修改数据
     // 由于这是演示实现，我们只记录操作
     console.log(`[RefinementEngine] Applied: ${action.description}`);
@@ -584,7 +624,10 @@ export class RefinementEngine {
   }
 
   // 辅助方法：生成角色描述
-  private generateCharacterDescription(character: ScriptCharacter, context: RefinementContext): string {
+  private generateCharacterDescription(
+    character: ScriptCharacter,
+    context: RefinementContext
+  ): string {
     const parts: string[] = [];
     if (character.name) parts.push(character.name);
     if (character.description) parts.push(`，${character.description}`);
@@ -606,7 +649,10 @@ export class RefinementEngine {
   }
 
   // 辅助方法：增强角色描述
-  private enhanceCharacterDescription(character: ScriptCharacter, context: RefinementContext): string {
+  private enhanceCharacterDescription(
+    character: ScriptCharacter,
+    context: RefinementContext
+  ): string {
     const current = character.description || '';
     return `${current}（已增强）`;
   }

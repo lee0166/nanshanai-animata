@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   Button,
+  ButtonGroup,
   Card,
   CardBody,
   CardHeader,
@@ -17,7 +18,7 @@ import {
   Tooltip,
   Tabs,
   Tab,
-  Divider
+  Divider,
 } from '@heroui/react';
 import {
   Film,
@@ -37,7 +38,7 @@ import {
   Settings,
   Layers,
   Grid3X3,
-  List
+  List,
 } from 'lucide-react';
 import { useApp } from '../contexts/context';
 import { storageService } from '../services/storage';
@@ -45,10 +46,9 @@ import { timelineService } from '../services/editing';
 import { videoGenerationService } from '../services/video';
 import { Timeline, TimelineClip, Shot, ExportConfig } from '../types';
 import { useToast } from '../contexts/ToastContext';
-import { ButtonGroup } from '@heroui/react';
 
 // View modes
- type ViewMode = 'timeline' | 'grid' | 'list';
+type ViewMode = 'timeline' | 'grid' | 'list';
 
 // Timeline scale (pixels per second)
 const TIMELINE_SCALE = 50;
@@ -78,7 +78,7 @@ export const TimelineEditor: React.FC = () => {
     resolution: '1080p',
     frameRate: 24,
     quality: 'high',
-    includeAudio: true
+    includeAudio: true,
   });
 
   // Load data
@@ -108,7 +108,7 @@ export const TimelineEditor: React.FC = () => {
             projectId,
             scriptId,
             name: `${script.title || 'Untitled'} - Timeline`,
-            shots: script.parseState.shots
+            shots: script.parseState.shots,
           });
 
           if (result.success && result.data) {
@@ -180,11 +180,7 @@ export const TimelineEditor: React.FC = () => {
 
     const videoTrack = timeline.tracks.find(t => t.type === 'video');
     if (videoTrack) {
-      const result = await timelineService.reorderClips(
-        timeline.id,
-        videoTrack.id,
-        newOrder
-      );
+      const result = await timelineService.reorderClips(timeline.id, videoTrack.id, newOrder);
 
       if (result.success && result.data) {
         setTimeline(result.data);
@@ -203,11 +199,7 @@ export const TimelineEditor: React.FC = () => {
     const videoTrack = timeline.tracks.find(t => t.type === 'video');
     if (!videoTrack) return;
 
-    const result = await timelineService.deleteClip(
-      timeline.id,
-      videoTrack.id,
-      clipId
-    );
+    const result = await timelineService.deleteClip(timeline.id, videoTrack.id, clipId);
 
     if (result.success && result.data) {
       setTimeline(result.data);
@@ -227,7 +219,7 @@ export const TimelineEditor: React.FC = () => {
       const result = await timelineService.exportVideo({
         timeline,
         config: exportConfig,
-        outputPath
+        outputPath,
       });
 
       if (result.success) {
@@ -300,11 +292,7 @@ export const TimelineEditor: React.FC = () => {
       {/* Header */}
       <header className="flex items-center justify-between px-6 py-4 bg-[#1E1B4B] border-b border-[#1E1B4B]/50">
         <div className="flex items-center gap-4">
-          <Button
-            variant="light"
-            isIconOnly
-            onPress={() => navigate(-1)}
-          >
+          <Button variant="light" isIconOnly onPress={() => navigate(-1)}>
             <ChevronLeft size={20} />
           </Button>
           <div>
@@ -408,8 +396,8 @@ export const TimelineEditor: React.FC = () => {
                         key={clip.id}
                         draggable
                         onDragStart={() => handleDragStart(clip.id)}
-                        onDragOver={(e) => handleDragOver(e, index)}
-                        onDrop={(e) => handleDrop(e, index)}
+                        onDragOver={e => handleDragOver(e, index)}
+                        onDrop={e => handleDrop(e, index)}
                         onClick={() => handleClipClick(clip.id)}
                         className={`
                           absolute top-2 bottom-2 rounded cursor-pointer
@@ -420,18 +408,14 @@ export const TimelineEditor: React.FC = () => {
                         `}
                         style={{
                           left: clip.startTime * TIMELINE_SCALE,
-                          width: Math.max(clip.duration * TIMELINE_SCALE - 4, 60)
+                          width: Math.max(clip.duration * TIMELINE_SCALE - 4, 60),
                         }}
                       >
                         <div className="flex items-center gap-2 p-2 h-full">
                           <GripVertical size={16} className="text-gray-500 cursor-grab" />
                           <div className="flex-1 min-w-0">
-                            <p className="text-xs font-medium truncate">
-                              {clip.name}
-                            </p>
-                            <p className="text-xs text-gray-500">
-                              {formatTime(clip.duration)}
-                            </p>
+                            <p className="text-xs font-medium truncate">{clip.name}</p>
+                            <p className="text-xs text-gray-500">{formatTime(clip.duration)}</p>
                           </div>
                           {isSelected && (
                             <Button
@@ -465,7 +449,7 @@ export const TimelineEditor: React.FC = () => {
 
           {viewMode === 'grid' && (
             <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-              {videoClips.map((clip) => {
+              {videoClips.map(clip => {
                 const shot = getShotByClip(clip);
                 const isSelected = selectedClipId === clip.id;
 
@@ -511,7 +495,9 @@ export const TimelineEditor: React.FC = () => {
                       </div>
                       <div className="flex-1">
                         <p className="font-medium">{clip.name}</p>
-                        <p className="text-sm text-gray-500">{shot?.description?.slice(0, 60)}...</p>
+                        <p className="text-sm text-gray-500">
+                          {shot?.description?.slice(0, 60)}...
+                        </p>
                       </div>
                       <Chip size="sm" variant="flat">
                         {formatTime(clip.duration)}
@@ -559,7 +545,9 @@ export const TimelineEditor: React.FC = () => {
 
                   <div>
                     <label className="text-xs text-gray-500">Shot Type</label>
-                    <Chip size="sm" className="mt-1">{shot.shotType}</Chip>
+                    <Chip size="sm" className="mt-1">
+                      {shot.shotType}
+                    </Chip>
                   </div>
 
                   <div>
@@ -593,12 +581,7 @@ export const TimelineEditor: React.FC = () => {
           <Button isIconOnly variant="light" size="sm">
             <SkipBack size={20} />
           </Button>
-          <Button
-            isIconOnly
-            color="primary"
-            size="lg"
-            onPress={() => setIsPlaying(!isPlaying)}
-          >
+          <Button isIconOnly color="primary" size="lg" onPress={() => setIsPlaying(!isPlaying)}>
             {isPlaying ? <Pause size={24} /> : <Play size={24} />}
           </Button>
           <Button isIconOnly variant="light" size="sm">
@@ -624,55 +607,85 @@ export const TimelineEditor: React.FC = () => {
             <Select
               label="Format"
               selectedKeys={[exportConfig.format]}
-              onChange={(e) => setExportConfig({ ...exportConfig, format: e.target.value as any })}
+              onChange={e => setExportConfig({ ...exportConfig, format: e.target.value as any })}
             >
-              <SelectItem key="mp4" value="mp4">MP4 (H.264)</SelectItem>
-              <SelectItem key="mov" value="mov">MOV (ProRes)</SelectItem>
-              <SelectItem key="prores" value="prores">ProRes 422</SelectItem>
+              <SelectItem key="mp4" value="mp4">
+                MP4 (H.264)
+              </SelectItem>
+              <SelectItem key="mov" value="mov">
+                MOV (ProRes)
+              </SelectItem>
+              <SelectItem key="prores" value="prores">
+                ProRes 422
+              </SelectItem>
             </Select>
 
             <Select
               label="Resolution"
               selectedKeys={[exportConfig.resolution]}
-              onChange={(e) => setExportConfig({ ...exportConfig, resolution: e.target.value as any })}
+              onChange={e =>
+                setExportConfig({ ...exportConfig, resolution: e.target.value as any })
+              }
             >
-              <SelectItem key="720p" value="720p">720p HD</SelectItem>
-              <SelectItem key="1080p" value="1080p">1080p Full HD</SelectItem>
-              <SelectItem key="2k" value="2k">2K</SelectItem>
-              <SelectItem key="4k" value="4k">4K UHD</SelectItem>
+              <SelectItem key="720p" value="720p">
+                720p HD
+              </SelectItem>
+              <SelectItem key="1080p" value="1080p">
+                1080p Full HD
+              </SelectItem>
+              <SelectItem key="2k" value="2k">
+                2K
+              </SelectItem>
+              <SelectItem key="4k" value="4k">
+                4K UHD
+              </SelectItem>
             </Select>
 
             <Select
               label="Frame Rate"
               selectedKeys={[String(exportConfig.frameRate)]}
-              onChange={(e) => setExportConfig({ ...exportConfig, frameRate: Number(e.target.value) as any })}
+              onChange={e =>
+                setExportConfig({ ...exportConfig, frameRate: Number(e.target.value) as any })
+              }
             >
-              <SelectItem key="24" value="24">24 fps (Cinematic)</SelectItem>
-              <SelectItem key="25" value="25">25 fps (PAL)</SelectItem>
-              <SelectItem key="30" value="30">30 fps (NTSC)</SelectItem>
-              <SelectItem key="60" value="60">60 fps (High Frame Rate)</SelectItem>
+              <SelectItem key="24" value="24">
+                24 fps (Cinematic)
+              </SelectItem>
+              <SelectItem key="25" value="25">
+                25 fps (PAL)
+              </SelectItem>
+              <SelectItem key="30" value="30">
+                30 fps (NTSC)
+              </SelectItem>
+              <SelectItem key="60" value="60">
+                60 fps (High Frame Rate)
+              </SelectItem>
             </Select>
 
             <Select
               label="Quality"
               selectedKeys={[exportConfig.quality]}
-              onChange={(e) => setExportConfig({ ...exportConfig, quality: e.target.value as any })}
+              onChange={e => setExportConfig({ ...exportConfig, quality: e.target.value as any })}
             >
-              <SelectItem key="low" value="low">Low (Fast)</SelectItem>
-              <SelectItem key="medium" value="medium">Medium</SelectItem>
-              <SelectItem key="high" value="high">High</SelectItem>
-              <SelectItem key="lossless" value="lossless">Lossless (Slow)</SelectItem>
+              <SelectItem key="low" value="low">
+                Low (Fast)
+              </SelectItem>
+              <SelectItem key="medium" value="medium">
+                Medium
+              </SelectItem>
+              <SelectItem key="high" value="high">
+                High
+              </SelectItem>
+              <SelectItem key="lossless" value="lossless">
+                Lossless (Slow)
+              </SelectItem>
             </Select>
           </ModalBody>
           <ModalFooter>
             <Button variant="light" onPress={() => setIsExportModalOpen(false)}>
               Cancel
             </Button>
-            <Button
-              color="primary"
-              isLoading={isExporting}
-              onPress={handleExport}
-            >
+            <Button color="primary" isLoading={isExporting} onPress={handleExport}>
               Start Export
             </Button>
           </ModalFooter>

@@ -11,17 +11,17 @@
  * @version 1.0.0
  */
 
-import { ScriptCharacter, ScriptScene, ScriptShot, ScriptMetadata } from '../../../types';
+import { ScriptCharacter, ScriptScene, Shot as ScriptShot, ScriptMetadata } from '../../../types';
 import { ConsistencyCheckResult } from '../consistency/ConsistencyChecker';
 
 /**
  * 质量维度
  */
 export type QualityDimension =
-  | 'completeness'    // 完整性
-  | 'accuracy'        // 准确性
-  | 'consistency'     // 一致性
-  | 'usability';      // 可用性
+  | 'completeness' // 完整性
+  | 'accuracy' // 准确性
+  | 'consistency' // 一致性
+  | 'usability'; // 可用性
 
 /**
  * 质量评分
@@ -105,12 +105,12 @@ const DEFAULT_CONFIG: QualityEvaluatorConfig = {
   dimensionWeights: {
     completeness: 0.25,
     accuracy: 0.25,
-    consistency: 0.30,
-    usability: 0.20
+    consistency: 0.3,
+    usability: 0.2,
   },
   minCharacters: 1,
   minScenes: 1,
-  minShots: 0
+  minShots: 0,
 };
 
 /**
@@ -142,7 +142,7 @@ export class QualityEvaluator {
       completenessScore,
       accuracyScore,
       consistencyScore,
-      usabilityScore
+      usabilityScore,
     ];
 
     // 计算总体得分
@@ -168,7 +168,7 @@ export class QualityEvaluator {
       criticalIssues,
       improvementSuggestions,
       timestamp: new Date().toISOString(),
-      duration
+      duration,
     };
   }
 
@@ -202,12 +202,11 @@ export class QualityEvaluator {
     }
 
     // 检查角色信息完整性
-    const characterInfoComplete = characters.filter(c =>
-      c.description && c.description.length > 10
+    const characterInfoComplete = characters.filter(
+      c => c.description && c.description.length > 10
     ).length;
-    metrics.characterInfoCompleteness = characters.length > 0
-      ? (characterInfoComplete / characters.length) * 100
-      : 0;
+    metrics.characterInfoCompleteness =
+      characters.length > 0 ? (characterInfoComplete / characters.length) * 100 : 0;
 
     if (metrics.characterInfoCompleteness < 80) {
       suggestions.push('为角色添加更详细的描述信息');
@@ -222,12 +221,11 @@ export class QualityEvaluator {
     }
 
     // 检查场景信息完整性
-    const sceneInfoComplete = scenes.filter(s =>
-      s.description && s.description.length > 10 && s.location
+    const sceneInfoComplete = scenes.filter(
+      s => s.description && s.description.length > 10 && s.location
     ).length;
-    metrics.sceneInfoCompleteness = scenes.length > 0
-      ? (sceneInfoComplete / scenes.length) * 100
-      : 0;
+    metrics.sceneInfoCompleteness =
+      scenes.length > 0 ? (sceneInfoComplete / scenes.length) * 100 : 0;
 
     if (metrics.sceneInfoCompleteness < 80) {
       suggestions.push('为场景添加更详细的描述和地点信息');
@@ -236,10 +234,10 @@ export class QualityEvaluator {
     // 计算完整性得分
     const score = Math.round(
       metrics.metadataCompleteness * 0.2 +
-      metrics.characterCompleteness * 0.2 +
-      metrics.characterInfoCompleteness * 0.2 +
-      metrics.sceneCompleteness * 0.2 +
-      metrics.sceneInfoCompleteness * 0.2
+        metrics.characterCompleteness * 0.2 +
+        metrics.characterInfoCompleteness * 0.2 +
+        metrics.sceneCompleteness * 0.2 +
+        metrics.sceneInfoCompleteness * 0.2
     );
 
     return {
@@ -248,7 +246,7 @@ export class QualityEvaluator {
       weight: this.config.dimensionWeights.completeness,
       description: '评估剧本信息的完整程度',
       suggestions,
-      metrics
+      metrics,
     };
   }
 
@@ -270,9 +268,11 @@ export class QualityEvaluator {
       return length > 20 && hasKeywords ? 100 : length > 10 ? 70 : 40;
     });
 
-    metrics.characterDescriptionQuality = characterDescriptionQuality.length > 0
-      ? characterDescriptionQuality.reduce((a, b) => a + b, 0) / characterDescriptionQuality.length
-      : 0;
+    metrics.characterDescriptionQuality =
+      characterDescriptionQuality.length > 0
+        ? characterDescriptionQuality.reduce((a, b) => a + b, 0) /
+          characterDescriptionQuality.length
+        : 0;
 
     if (metrics.characterDescriptionQuality < 70) {
       suggestions.push('提升角色描述质量，包含年龄、外貌、性格等关键信息');
@@ -291,9 +291,10 @@ export class QualityEvaluator {
       return Math.max(0, score);
     });
 
-    metrics.sceneDescriptionQuality = sceneDescriptionQuality.length > 0
-      ? sceneDescriptionQuality.reduce((a, b) => a + b, 0) / sceneDescriptionQuality.length
-      : 0;
+    metrics.sceneDescriptionQuality =
+      sceneDescriptionQuality.length > 0
+        ? sceneDescriptionQuality.reduce((a, b) => a + b, 0) / sceneDescriptionQuality.length
+        : 0;
 
     if (metrics.sceneDescriptionQuality < 70) {
       suggestions.push('提升场景描述质量，包含地点、时间、氛围等信息');
@@ -302,15 +303,14 @@ export class QualityEvaluator {
     // 检查角色-场景关联准确性
     const validCharacterReferences = scenes.map(s => {
       const sceneChars = s.characters || [];
-      const validChars = sceneChars.filter(charId =>
-        characters.some(c => c.id === charId)
-      ).length;
+      const validChars = sceneChars.filter(charId => characters.some(c => c.id === charId)).length;
       return sceneChars.length > 0 ? (validChars / sceneChars.length) * 100 : 100;
     });
 
-    metrics.characterReferenceAccuracy = validCharacterReferences.length > 0
-      ? validCharacterReferences.reduce((a, b) => a + b, 0) / validCharacterReferences.length
-      : 100;
+    metrics.characterReferenceAccuracy =
+      validCharacterReferences.length > 0
+        ? validCharacterReferences.reduce((a, b) => a + b, 0) / validCharacterReferences.length
+        : 100;
 
     if (metrics.characterReferenceAccuracy < 100) {
       suggestions.push('修复场景中无效的角色引用');
@@ -319,8 +319,8 @@ export class QualityEvaluator {
     // 计算准确性得分
     const score = Math.round(
       metrics.characterDescriptionQuality * 0.4 +
-      metrics.sceneDescriptionQuality * 0.4 +
-      metrics.characterReferenceAccuracy * 0.2
+        metrics.sceneDescriptionQuality * 0.4 +
+        metrics.characterReferenceAccuracy * 0.2
     );
 
     return {
@@ -329,7 +329,7 @@ export class QualityEvaluator {
       weight: this.config.dimensionWeights.accuracy,
       description: '评估剧本信息的准确程度',
       suggestions,
-      metrics
+      metrics,
     };
   }
 
@@ -347,7 +347,9 @@ export class QualityEvaluator {
       metrics.consistencyScore = consistencyResult.score;
       metrics.violationCount = consistencyResult.violations.length;
       metrics.errorCount = consistencyResult.violations.filter(v => v.severity === 'error').length;
-      metrics.warningCount = consistencyResult.violations.filter(v => v.severity === 'warning').length;
+      metrics.warningCount = consistencyResult.violations.filter(
+        v => v.severity === 'warning'
+      ).length;
 
       if (metrics.errorCount > 0) {
         suggestions.push(`修复 ${metrics.errorCount} 个严重的一致性问题`);
@@ -370,7 +372,7 @@ export class QualityEvaluator {
       weight: this.config.dimensionWeights.consistency,
       description: '评估剧本内容的一致程度',
       suggestions,
-      metrics
+      metrics,
     };
   }
 
@@ -387,15 +389,21 @@ export class QualityEvaluator {
     const characterUsability = characters.map(c => {
       let score = 100;
       // 检查是否有生成可用的信息
-      if (!c.appearance || c.appearance.length < 5) score -= 20;
-      if (!c.personality || c.personality.length < 5) score -= 15;
+      const appearanceStr =
+        typeof c.appearance === 'string' ? c.appearance : JSON.stringify(c.appearance);
+      const personalityStr = Array.isArray(c.personality)
+        ? c.personality.join(' ')
+        : c.personality || '';
+      if (!appearanceStr || appearanceStr.length < 5) score -= 20;
+      if (!personalityStr || personalityStr.length < 5) score -= 15;
       if (!c.description || c.description.length < 10) score -= 15;
       return Math.max(0, score);
     });
 
-    metrics.characterUsability = characterUsability.length > 0
-      ? characterUsability.reduce((a, b) => a + b, 0) / characterUsability.length
-      : 0;
+    metrics.characterUsability =
+      characterUsability.length > 0
+        ? characterUsability.reduce((a, b) => a + b, 0) / characterUsability.length
+        : 0;
 
     if (metrics.characterUsability < 80) {
       suggestions.push('为角色添加外观、性格等可用于AI生成的信息');
@@ -412,9 +420,10 @@ export class QualityEvaluator {
       return Math.max(0, score);
     });
 
-    metrics.sceneUsability = sceneUsability.length > 0
-      ? sceneUsability.reduce((a, b) => a + b, 0) / sceneUsability.length
-      : 0;
+    metrics.sceneUsability =
+      sceneUsability.length > 0
+        ? sceneUsability.reduce((a, b) => a + b, 0) / sceneUsability.length
+        : 0;
 
     if (metrics.sceneUsability < 80) {
       suggestions.push('为场景添加地点、时间、氛围等可用于AI生成的信息');
@@ -445,8 +454,8 @@ export class QualityEvaluator {
 
     const score = Math.round(
       metrics.characterUsability * charSceneWeight +
-      metrics.sceneUsability * charSceneWeight +
-      (metrics.shotUsability || 100) * shotWeight
+        metrics.sceneUsability * charSceneWeight +
+        (metrics.shotUsability || 100) * shotWeight
     );
 
     return {
@@ -455,7 +464,7 @@ export class QualityEvaluator {
       weight: this.config.dimensionWeights.usability,
       description: '评估剧本信息的可用程度（用于AI生成）',
       suggestions,
-      metrics
+      metrics,
     };
   }
 
@@ -542,7 +551,7 @@ export class QualityEvaluator {
       completeness: '完整性',
       accuracy: '准确性',
       consistency: '一致性',
-      usability: '可用性'
+      usability: '可用性',
     };
 
     for (const score of result.scores) {

@@ -9,14 +9,14 @@ export enum AssetType {
   RESOURCES = 'resources',
   SCRIPT = 'script',
   IMAGE = 'image',
-  VIDEO = 'video'
+  VIDEO = 'video',
 }
 
 export enum JobStatus {
   PENDING = 'pending',
   PROCESSING = 'processing',
   COMPLETED = 'completed',
-  FAILED = 'failed'
+  FAILED = 'failed',
 }
 
 export interface Project {
@@ -30,12 +30,12 @@ export interface Project {
 export interface Asset {
   id: string;
   projectId: string;
-  scriptId?: string;  // 关联剧本ID，用于区分不同剧本的角色
+  scriptId?: string; // 关联剧本ID，用于区分不同剧本的角色
   type: AssetType;
   name: string;
   prompt: string;
   negativePrompt?: string;
-  filePath?: string; 
+  filePath?: string;
   thumbnailPath?: string;
   metadata?: Record<string, any>;
   category?: 'generated' | 'imported';
@@ -65,9 +65,9 @@ export type CharacterViewAngle = 'front' | 'side' | 'back' | 'three-quarter';
 
 // 角色三视图
 export interface CharacterViews {
-  front?: GeneratedImage;      // 正面
-  side?: GeneratedImage;       // 侧面
-  back?: GeneratedImage;       // 背面
+  front?: GeneratedImage; // 正面
+  side?: GeneratedImage; // 侧面
+  back?: GeneratedImage; // 背面
   threeQuarter?: GeneratedImage; // 四分之三侧面
 }
 
@@ -88,7 +88,7 @@ export enum ItemType {
   CREATURE = 'creature',
   ANIMAL = 'animal',
   EFFECT = 'effect',
-  REFERENCE = 'reference'
+  REFERENCE = 'reference',
 }
 
 export interface GeneratedVideo {
@@ -117,7 +117,7 @@ export interface FragmentAsset extends Asset {
 
 export interface ItemAsset extends Asset {
   itemType: ItemType;
-  scriptId?: string;  // 关联剧本ID
+  scriptId?: string; // 关联剧本ID
   generatedImages?: GeneratedImage[];
   currentImageId?: string;
 }
@@ -127,14 +127,14 @@ export type SceneViewType = 'panorama' | 'wide' | 'detail' | 'aerial';
 
 // 场景多视角
 export interface SceneViews {
-  panorama?: GeneratedImage;   // 全景图
-  wide?: GeneratedImage;       // 广角图
-  detail?: GeneratedImage[];   // 细节图数组
-  aerial?: GeneratedImage;     // 鸟瞰图
+  panorama?: GeneratedImage; // 全景图
+  wide?: GeneratedImage; // 广角图
+  detail?: GeneratedImage[]; // 细节图数组
+  aerial?: GeneratedImage; // 鸟瞰图
 }
 
 export interface SceneAsset extends Asset {
-  scriptId?: string;  // 关联剧本ID
+  scriptId?: string; // 关联剧本ID
   generatedImages?: GeneratedImage[];
   currentImageId?: string;
   // 多视角支持
@@ -168,6 +168,8 @@ export interface Job {
 
 export type ThemeMode = 'light' | 'dark' | 'system';
 export type Language = 'en' | 'zh';
+export type Environment = 'development' | 'testing' | 'production';
+export type ModelType = 'image' | 'video' | 'llm';
 
 export interface ModelCapabilities {
   supportsImageInput?: boolean;
@@ -188,13 +190,21 @@ export interface ModelCapabilities {
   maxPixels?: number;
   minAspectRatio?: number;
   maxAspectRatio?: number;
+  supportedAspectRatios?: string[]; // Supported aspect ratios
   // LLM specific capabilities
   maxContextLength?: number;
+  maxTokens?: number;
   supportsStreaming?: boolean;
   supportsFunctionCalling?: boolean;
   supportsJsonMode?: boolean;
   supportsVision?: boolean;
   supportsSystemPrompt?: boolean;
+  // Generation type capabilities
+  textToImage?: boolean;
+  imageToImage?: boolean;
+  textToVideo?: boolean;
+  imageToVideo?: boolean;
+  textToText?: boolean;
 }
 
 export interface ModelParameter {
@@ -226,7 +236,7 @@ export interface ModelParameter {
 }
 
 export interface ModelConfig {
-  id: string;          // For templates, this is the template ID; for instances, this is the instance ID
+  id: string; // For templates, this is the template ID; for instances, this is the instance ID
   name: string;
   provider: string;
   modelId: string;
@@ -234,13 +244,15 @@ export interface ModelConfig {
   capabilities: ModelCapabilities;
   parameters: ModelParameter[];
   templateId?: string; // Only instances have this, pointing back to the template
-  apiKey?: string;     // Instances must have this to work, templates don't
+  apiKey?: string; // Instances must have this to work, templates don't
   isDefault?: boolean;
   apiUrl?: string;
+  baseUrl?: string; // Base URL for API requests
+  enabled?: boolean; // Whether the model is enabled
   providerOptions?: any;
   // 新增：价格配置（可选，用于成本估算）
-  costPer1KInput?: number;   // 输入价格（美元/1K tokens）
-  costPer1KOutput?: number;  // 输出价格（美元/1K tokens）
+  costPer1KInput?: number; // 输入价格（美元/1K tokens）
+  costPer1KOutput?: number; // 输出价格（美元/1K tokens）
 }
 
 /**
@@ -285,7 +297,17 @@ export interface Script {
   updatedAt: number;
 }
 
-export type ParseStage = 'idle' | 'metadata' | 'characters' | 'scenes' | 'refinement' | 'budget' | 'items' | 'shots' | 'completed' | 'error';
+export type ParseStage =
+  | 'idle'
+  | 'metadata'
+  | 'characters'
+  | 'scenes'
+  | 'refinement'
+  | 'budget'
+  | 'items'
+  | 'shots'
+  | 'completed'
+  | 'error';
 
 export interface ScriptItem {
   name: string;
@@ -301,14 +323,14 @@ export interface ScriptItem {
  * Rule violation severity
  * @deprecated Use RuleViolation from './parsing/ShortDramaRules' instead
  */
-export type RuleSeverity = 'critical' | 'warning' | 'info';
+export type RuleSeverity = 'critical' | 'error' | 'warning' | 'info';
 
 /**
  * Rule violation interface (simplified version for types.ts)
  * For full version with ruleId and ruleName, use RuleViolation from './parsing/ShortDramaRules'
  */
 export interface RuleViolation {
-  rule: string;
+  rule?: string;
   message: string;
   severity: RuleSeverity;
   sceneName?: string;
@@ -358,28 +380,28 @@ export interface ParseOptions {
 export interface CreativeIntent {
   /** 影视风格：短剧/电影/纪录片/自定义 */
   filmStyle: 'short-drama' | 'film' | 'documentary' | 'custom';
-  
+
   /** 叙事重点：用户希望表现的核心内容 */
   narrativeFocus: {
-    protagonistArc: boolean;      // 主角成长弧线
-    emotionalCore: boolean;       // 情感核心
-    worldBuilding: boolean;       // 世界观构建
-    visualSpectacle: boolean;     // 视觉奇观
-    thematicDepth: boolean;       // 主题深度
+    protagonistArc: boolean; // 主角成长弧线
+    emotionalCore: boolean; // 情感核心
+    worldBuilding: boolean; // 世界观构建
+    visualSpectacle: boolean; // 视觉奇观
+    thematicDepth: boolean; // 主题深度
   };
-  
+
   /** 情感基调 */
   emotionalTone: {
     primary: 'inspiring' | 'melancholic' | 'thrilling' | 'romantic' | 'mysterious';
-    intensity: number;  // 1-10
+    intensity: number; // 1-10
   };
-  
+
   /** 视觉参考：参考影片、导演、视觉风格 */
   visualReferences?: string[];
-  
+
   /** 创作备注：用户的特殊要求 */
   creativeNotes?: string;
-  
+
   /** 目标平台（制作完成后适配，不是制作前限制） */
   targetPlatforms?: ('douyin' | 'kuaishou' | 'bilibili' | 'theatrical')[];
 }
@@ -387,7 +409,7 @@ export interface CreativeIntent {
 /**
  * Script Parser Configuration
  * 用于配置剧本解析器的行为
- * 
+ *
  * 2.0版本重大变更：
  * - 移除所有基于字数的配置（durationBudgetConfig等）
  * - 新增creativeIntent创作意图配置
@@ -399,33 +421,33 @@ export interface ScriptParserConfig {
   extractEmotionalArc?: boolean;
   /** 文本长度阈值，低于此值跳过情绪曲线提取，默认800 */
   textLengthThreshold?: number;
-  
+
   // ==================== 2.0版本新增 ====================
-  
-  /** 
+
+  /**
    * 创作意图 - 替代旧的平台模板配置
    * 用户的创作方向和风格偏好
    */
   creativeIntent?: CreativeIntent;
-  
+
   // ==================== 2.0版本移除 ====================
   // 以下配置基于字数计算，与情节分析架构冲突，已移除
-  
+
   /** @deprecated 2.0移除：基于字数的时长预算规划 */
   useDurationBudget?: boolean;
-  
+
   /** @deprecated 2.0移除：动态时长调整 */
   useDynamicDuration?: boolean;
-  
+
   /** @deprecated 2.0移除：生产级Prompt开关（现在默认启用） */
   useProductionPrompt?: boolean;
-  
+
   /** @deprecated 2.0移除：基于字数的分镜质检 */
   useShotQC?: boolean;
-  
+
   /** @deprecated 2.0移除：质检自动调整 */
   qcAutoAdjust?: boolean;
-  
+
   /** @deprecated 2.0移除：质检容错率 */
   qcTolerance?: number;
 }
@@ -557,6 +579,8 @@ export interface ScriptMetadata {
   coreConflict?: string;
   /** 主题思想列表 */
   theme?: string[];
+  /** 主题思想列表（别名） */
+  themes?: string[];
 
   // ===== Phase 1 新增：故事结构层 =====
   /** 故事结构（三幕式/英雄之旅等） */
@@ -588,6 +612,14 @@ export interface ScriptMetadata {
     /** 参考艺术风格 */
     artStyles?: string[];
   };
+
+  // ===== 其他属性 =====
+  /** 角色列表（详细） */
+  characters?: ScriptCharacter[];
+  /** 目标受众 */
+  targetAudience?: string;
+  /** 关键道具 */
+  keyProps?: string[];
 }
 
 export interface ScriptCharacter {
@@ -597,6 +629,7 @@ export interface ScriptCharacter {
   gender?: 'male' | 'female' | 'unknown';
   age?: string;
   identity?: string;
+  background?: string;
   appearance: {
     height?: string;
     build?: string;
@@ -621,11 +654,14 @@ export interface ScriptCharacter {
 export interface ScriptScene {
   id?: string;
   name: string;
+  location?: string;
   locationType: 'indoor' | 'outdoor' | 'unknown';
   description: string;
   timeOfDay?: string;
+  time?: string;
   season?: string;
   weather?: string;
+  mood?: string;
   environment: {
     architecture?: string;
     furnishings?: string[];
@@ -639,53 +675,53 @@ export interface ScriptScene {
 }
 
 // 影视级景别标准
-export type ShotType = 
-  | 'extreme_long'    // 大远景
-  | 'long'            // 远景
-  | 'full'            // 全景
-  | 'medium'          // 中景
-  | 'close_up'        // 近景
+export type ShotType =
+  | 'extreme_long' // 大远景
+  | 'long' // 远景
+  | 'full' // 全景
+  | 'medium' // 中景
+  | 'close_up' // 近景
   | 'extreme_close_up'; // 特写
 
 // 影视级运镜技巧
-export type CameraMovement = 
-  | 'static'          // 静止
-  | 'push'            // 推
-  | 'pull'            // 拉
-  | 'pan'             // 摇
-  | 'tilt'            // 升降
-  | 'track'           // 跟
-  | 'crane'           //  crane
-  | 'zoom_in'         // 变焦推
-  | 'zoom_out'        // 变焦拉
-  | 'dolly_in'        // 移近
-  | 'dolly_out';      // 移远
+export type CameraMovement =
+  | 'static' // 静止
+  | 'push' // 推
+  | 'pull' // 拉
+  | 'pan' // 摇
+  | 'tilt' // 升降
+  | 'track' // 跟
+  | 'crane' //  crane
+  | 'zoom_in' // 变焦推
+  | 'zoom_out' // 变焦拉
+  | 'dolly_in' // 移近
+  | 'dolly_out'; // 移远
 
 // 机位角度
-export type CameraAngle = 
-  | 'eye_level'       // 平视
-  | 'high_angle'      // 俯拍
-  | 'low_angle'       // 仰拍
-  | 'dutch_angle'     // 倾斜
-  | 'overhead'        // 顶拍
-  | 'bird_eye';       // 鸟瞰
+export type CameraAngle =
+  | 'eye_level' // 平视
+  | 'high_angle' // 俯拍
+  | 'low_angle' // 仰拍
+  | 'dutch_angle' // 倾斜
+  | 'overhead' // 顶拍
+  | 'bird_eye'; // 鸟瞰
 
 // 分镜类型（用于区分静态/动态）
-export type ShotContentType = 
-  | 'static'          // 静态（对话/环境）→ 生成图片
-  | 'dynamic-simple'  // 简单动态（走路/转身）→ 生成视频（2关键帧）
+export type ShotContentType =
+  | 'static' // 静态（对话/环境）→ 生成图片
+  | 'dynamic-simple' // 简单动态（走路/转身）→ 生成视频（2关键帧）
   | 'dynamic-complex'; // 复杂动态（打斗/特效）→ 生成视频（3关键帧）
 
 // 分镜层级
-export type ShotLayer = 
-  | 'key'             // 关键分镜（必须生成）
-  | 'optional';       // 可选分镜（按需生成）
+export type ShotLayer =
+  | 'key' // 关键分镜（必须生成）
+  | 'optional'; // 可选分镜（按需生成）
 
 // 影视风格（影响分镜密度和表现方式）
-export type FilmStyle = 
-  | 'short-drama'     // 短剧风格：快节奏、高密度
-  | 'film'            // 电影风格：慢节奏、重意境
-  | 'custom';         // 自定义：用户指定密度
+export type FilmStyle =
+  | 'short-drama' // 短剧风格：快节奏、高密度
+  | 'film' // 电影风格：慢节奏、重意境
+  | 'custom'; // 自定义：用户指定密度
 
 // 影视级分镜定义
 export interface Shot {
@@ -694,59 +730,61 @@ export interface Shot {
   sequence: number;
   sceneName: string;
   sceneId?: string;
-  
+
   // 影视级镜号（如：SC01-01A）
   shotNumber?: string;
-  
+
   // 景别与运镜（影视标准）
   shotType: ShotType;
   cameraMovement: CameraMovement;
   cameraAngle?: CameraAngle;
-  
+
   // 视觉描述（影视级）
   description: string;
   visualDescription?: {
-    composition?: string;     // 构图
-    lighting?: string;        // 光影
-    colorPalette?: string;    // 色调
-    characterPositions?: {    // 角色位置
+    composition?: string; // 构图
+    lighting?: string; // 光影
+    colorPalette?: string; // 色调
+    characterPositions?: {
+      // 角色位置
       characterId: string;
       position: string;
       action: string;
       expression: string;
     }[];
   };
-  
+
   // 音频
   dialogue?: string;
   sound?: string;
   music?: string;
-  
+
   // 时长（参考值，后期可调）
   duration: number;
-  
+
   // 角色列表（名称）
   characters: string[];
-  
+
   // 资产关联（关键！）
   assets: {
-    characterIds: string[];   // 关联角色资产ID
-    sceneId: string;          // 关联场景资产ID
-    propIds?: string[];       // 关联道具资产ID
+    characterIds: string[]; // 关联角色资产ID
+    sceneId: string; // 关联场景资产ID
+    propIds?: string[]; // 关联道具资产ID
   };
-  
+
   // 分镜类型与层级
   contentType: ShotContentType;
+  type?: ShotContentType; // 别名，兼容旧代码
   layer: ShotLayer;
-  
+
   // 影视风格（该分镜采用的风格）
   style?: FilmStyle;
-  
+
   // 生成状态
-  mappedFragmentId?: string;    // 关联视频片段
-  keyframes?: Keyframe[];       // 关键帧列表
-  generatedImages?: string[];   // 已生成图片ID
-  generatedVideo?: string;      // 已生成视频ID
+  mappedFragmentId?: string; // 关联视频片段
+  keyframes?: Keyframe[]; // 关键帧列表
+  generatedImages?: string[]; // 已生成图片ID
+  generatedVideo?: string; // 已生成视频ID
   status: 'pending' | 'generating' | 'completed' | 'failed';
 }
 
@@ -769,10 +807,10 @@ export interface TimelineClip {
   id: string;
   shotId: string;
   name: string;
-  startTime: number;      // 在时间轴上的开始时间（秒）
-  endTime: number;        // 在时间轴上的结束时间（秒）
-  duration: number;       // 片段时长（秒）
-  sourcePath: string;     // 源文件路径
+  startTime: number; // 在时间轴上的开始时间（秒）
+  endTime: number; // 在时间轴上的结束时间（秒）
+  duration: number; // 片段时长（秒）
+  sourcePath: string; // 源文件路径
   thumbnailPath?: string; // 缩略图路径
   transition?: {
     type: 'cut' | 'dissolve' | 'fade' | 'wipe';

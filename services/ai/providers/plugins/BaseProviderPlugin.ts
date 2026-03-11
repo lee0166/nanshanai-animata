@@ -10,9 +10,9 @@ import {
   ProviderInitConfig,
   ValidationResult,
   HealthCheckResult,
-} from "../../core/IProvider";
-import { ModelConfig } from "../../../types";
-import { storageService } from "../../storage";
+} from '../../core/IProvider';
+import { ModelConfig } from '@/types';
+import { storageService } from '@/services/storage';
 
 /**
  * Provider插件基类
@@ -26,8 +26,8 @@ import { storageService } from "../../storage";
 export abstract class BaseProviderPlugin implements IProvider {
   abstract readonly id: string;
   abstract readonly name: string;
-  abstract readonly supportedTypes: ("image" | "video" | "llm")[];
-  abstract readonly defaultProtocol: "openai" | "volcengine" | "aliyun" | "custom";
+  abstract readonly supportedTypes: ('image' | 'video' | 'llm')[];
+  abstract readonly defaultProtocol: 'openai' | 'volcengine' | 'aliyun' | 'custom';
 
   protected config: ProviderInitConfig = {};
 
@@ -39,25 +39,19 @@ export abstract class BaseProviderPlugin implements IProvider {
   }
 
   /**
-   * 图像生成 - 子类必须实现
+   * 图像生成 - 可选实现
    */
-  abstract generateImage(
-    request: ImageGenerationRequest
-  ): Promise<AIResult<ImageGenerationResponse>>;
+  generateImage?(request: ImageGenerationRequest): Promise<AIResult<ImageGenerationResponse>>;
 
   /**
    * 视频生成 - 可选实现
    */
-  generateVideo?(
-    request: VideoGenerationRequest
-  ): Promise<AIResult<VideoGenerationResponse>>;
+  generateVideo?(request: VideoGenerationRequest): Promise<AIResult<VideoGenerationResponse>>;
 
   /**
    * 文本生成 - 可选实现
    */
-  generateText?(
-    request: TextGenerationRequest
-  ): Promise<AIResult<TextGenerationResponse>>;
+  generateText?(request: TextGenerationRequest): Promise<AIResult<TextGenerationResponse>>;
 
   /**
    * 验证配置有效性 - 子类必须实现
@@ -69,7 +63,7 @@ export abstract class BaseProviderPlugin implements IProvider {
    */
   async healthCheck(): Promise<HealthCheckResult> {
     return {
-      status: "unknown",
+      status: 'unknown',
       timestamp: Date.now(),
     };
   }
@@ -108,18 +102,18 @@ export abstract class BaseProviderPlugin implements IProvider {
    * 获取基础URL
    */
   protected getBaseUrl(config?: ModelConfig): string {
-    return config?.apiUrl || this.config.baseUrl || "";
+    return config?.apiUrl || this.config.baseUrl || '';
   }
 
   /**
    * 加载Blob为Base64
    */
   protected async loadBlobAsBase64(urlOrPath: string): Promise<string | null> {
-    if (urlOrPath.startsWith("data:")) return urlOrPath;
+    if (urlOrPath.startsWith('data:')) return urlOrPath;
 
     try {
       let blob: Blob;
-      if (urlOrPath.startsWith("http")) {
+      if (urlOrPath.startsWith('http')) {
         const res = await this.makeRequest(urlOrPath);
         blob = await res.blob();
       } else {
@@ -130,7 +124,7 @@ export abstract class BaseProviderPlugin implements IProvider {
       }
       return await this.blobToBase64DataUri(blob);
     } catch (e) {
-      console.error("[BaseProviderPlugin] Failed to load blob as base64", e);
+      console.error('[BaseProviderPlugin] Failed to load blob as base64', e);
       return null;
     }
   }
@@ -158,23 +152,20 @@ export abstract class BaseProviderPlugin implements IProvider {
     timeout: number = 60000
   ): Promise<Response> {
     const isLocalhost =
-      typeof window !== "undefined" &&
-      (window.location.hostname === "localhost" ||
-        window.location.hostname === "127.0.0.1");
+      typeof window !== 'undefined' &&
+      (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
     const shouldUseProxy = (import.meta as any).env?.DEV || isLocalhost;
 
     console.log(
       `[BaseProviderPlugin] Requesting: ${url}, Mode: ${
-        (import.meta as any).env?.DEV ? "DEV" : "PROD"
+        (import.meta as any).env?.DEV ? 'DEV' : 'PROD'
       }, Localhost: ${isLocalhost}`
     );
 
     // 创建AbortController用于超时控制
     const controller = new AbortController();
     const timeoutId = setTimeout(() => {
-      console.error(
-        `[BaseProviderPlugin] Request timeout after ${timeout}ms: ${url}`
-      );
+      console.error(`[BaseProviderPlugin] Request timeout after ${timeout}ms: ${url}`);
       controller.abort();
     }, timeout);
 
@@ -182,12 +173,12 @@ export abstract class BaseProviderPlugin implements IProvider {
       let response: Response;
 
       if (shouldUseProxy) {
-        const proxyUrl = "/api/universal-proxy";
+        const proxyUrl = '/api/universal-proxy';
         const headers = new Headers(options.headers || {});
 
         // 避免重复设置X-Target-URL
-        if (!headers.has("X-Target-URL")) {
-          headers.set("X-Target-URL", url);
+        if (!headers.has('X-Target-URL')) {
+          headers.set('X-Target-URL', url);
         }
 
         console.log(`[BaseProviderPlugin] Using Proxy: ${proxyUrl} -> ${url}`);
@@ -211,10 +202,8 @@ export abstract class BaseProviderPlugin implements IProvider {
       return response;
     } catch (error: any) {
       clearTimeout(timeoutId);
-      if (error.name === "AbortError") {
-        console.error(
-          `[BaseProviderPlugin] Request aborted (timeout): ${url}`
-        );
+      if (error.name === 'AbortError') {
+        console.error(`[BaseProviderPlugin] Request aborted (timeout): ${url}`);
         throw new Error(`Request timeout after ${timeout}ms`);
       }
       console.error(`[BaseProviderPlugin] Request failed: ${url}`, error);

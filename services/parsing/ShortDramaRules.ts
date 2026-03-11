@@ -26,9 +26,10 @@ export interface RuleContext {
 }
 
 export interface RuleViolation {
+  rule?: string;
   ruleId: string;
   ruleName: string;
-  severity: 'error' | 'warning' | 'info';
+  severity: 'error' | 'warning' | 'info' | 'critical';
   message: string;
   sceneIndex?: number;
   suggestion: string;
@@ -59,9 +60,9 @@ export class ShortDramaRules {
       name: '黄金3秒规则',
       description: '开场3秒内必须有强冲突或悬念',
       priority: 'high',
-      validate: (context) => {
+      validate: context => {
         const violations: RuleViolation[] = [];
-        
+
         if (context.scenes.length === 0) {
           return violations;
         }
@@ -77,12 +78,13 @@ export class ShortDramaRules {
             severity: 'error',
             message: '开场场景缺乏强冲突或悬念',
             sceneIndex: 0,
-            suggestion: '建议在第一场景加入冲突元素（如争吵、意外、危机）或悬念元素（如神秘事件、未解之谜）'
+            suggestion:
+              '建议在第一场景加入冲突元素（如争吵、意外、危机）或悬念元素（如神秘事件、未解之谜）',
           });
         }
 
         return violations;
-      }
+      },
     });
 
     // 规则2: 冲突密度 - 每60秒至少1个冲突点
@@ -91,7 +93,7 @@ export class ShortDramaRules {
       name: '冲突密度规则',
       description: '每60秒至少1个冲突点',
       priority: 'high',
-      validate: (context) => {
+      validate: context => {
         const violations: RuleViolation[] = [];
         const targetDuration = context.targetDuration || 600; // 默认10分钟
         const minConflicts = Math.ceil(targetDuration / 60);
@@ -108,12 +110,12 @@ export class ShortDramaRules {
             ruleName: '冲突密度规则',
             severity: 'warning',
             message: `冲突点不足，当前${totalConflicts}个，建议至少${minConflicts}个`,
-            suggestion: '增加角色间的矛盾、外部阻碍或内心挣扎等冲突元素'
+            suggestion: '增加角色间的矛盾、外部阻碍或内心挣扎等冲突元素',
           });
         }
 
         return violations;
-      }
+      },
     });
 
     // 规则3: 情绪曲线 - 必须有高潮和低谷
@@ -122,9 +124,9 @@ export class ShortDramaRules {
       name: '情绪曲线规则',
       description: '情绪必须有起伏，不能平淡',
       priority: 'medium',
-      validate: (context) => {
+      validate: context => {
         const violations: RuleViolation[] = [];
-        
+
         if (context.scenes.length < 3) {
           return violations;
         }
@@ -139,12 +141,12 @@ export class ShortDramaRules {
             ruleName: '情绪曲线规则',
             severity: 'warning',
             message: '情绪曲线过于平淡，缺乏起伏',
-            suggestion: '设计情绪高潮（如胜利、团聚）和低谷（如失败、分离）'
+            suggestion: '设计情绪高潮（如胜利、团聚）和低谷（如失败、分离）',
           });
         }
 
         return violations;
-      }
+      },
     });
 
     // 规则4: 角色出场 - 主要角色必须在60秒内出场
@@ -153,13 +155,13 @@ export class ShortDramaRules {
       name: '角色出场规则',
       description: '主要角色必须在60秒内出场',
       priority: 'high',
-      validate: (context) => {
+      validate: context => {
         const violations: RuleViolation[] = [];
-        
+
         // 简化实现：假设前3个场景是前60秒
         const introScenes = context.scenes.slice(0, 3);
         const introCharacters = new Set<string>();
-        
+
         introScenes.forEach(scene => {
           scene.characters?.forEach(charName => {
             introCharacters.add(charName);
@@ -173,13 +175,13 @@ export class ShortDramaRules {
               ruleName: '角色出场规则',
               severity: 'warning',
               message: `主要角色"${char.name}"在前60秒内未出场`,
-              suggestion: `考虑让"${char.name}"尽早出场，或通过对话提及`
+              suggestion: `考虑让"${char.name}"尽早出场，或通过对话提及`,
             });
           }
         });
 
         return violations;
-      }
+      },
     });
 
     // 规则5: 场景多样性 - 避免场景过于单一
@@ -188,9 +190,9 @@ export class ShortDramaRules {
       name: '场景多样性规则',
       description: '场景类型应该多样化',
       priority: 'low',
-      validate: (context) => {
+      validate: context => {
         const violations: RuleViolation[] = [];
-        
+
         if (context.scenes.length < 5) {
           return violations;
         }
@@ -202,12 +204,12 @@ export class ShortDramaRules {
             ruleName: '场景多样性规则',
             severity: 'info',
             message: '场景类型过于单一',
-            suggestion: '增加不同场景类型（室内/室外、白天/夜晚）以增加视觉多样性'
+            suggestion: '增加不同场景类型（室内/室外、白天/夜晚）以增加视觉多样性',
           });
         }
 
         return violations;
-      }
+      },
     });
   }
 
@@ -227,7 +229,7 @@ export class ShortDramaRules {
     }
 
     // 按严重程度排序
-    const severityOrder = { 'error': 0, 'warning': 1, 'info': 2 };
+    const severityOrder = { error: 0, warning: 1, info: 2 };
     allViolations.sort((a, b) => severityOrder[a.severity] - severityOrder[b.severity]);
 
     return allViolations;
@@ -245,7 +247,7 @@ export class ShortDramaRules {
         type: 'extreme_closeup',
         subject: scene.characters[0] || '主角',
         duration: 3,
-        motivation: '黄金3秒，制造视觉冲击'
+        motivation: '黄金3秒，制造视觉冲击',
       });
     }
 
@@ -256,14 +258,14 @@ export class ShortDramaRules {
         subject: '冲突双方',
         duration: 5,
         cameraMovement: '快速切换',
-        motivation: '强化冲突张力'
+        motivation: '强化冲突张力',
       });
-      
+
       suggestions.push({
         type: 'closeup',
         subject: scene.characters[0] || '主角',
         duration: 3,
-        motivation: '捕捉情绪反应'
+        motivation: '捕捉情绪反应',
       });
     }
 
@@ -273,7 +275,7 @@ export class ShortDramaRules {
         type: 'closeup',
         subject: scene.characters[0] || '主角',
         duration: 4,
-        motivation: '强调情感表达'
+        motivation: '强调情感表达',
       });
     }
 
@@ -283,7 +285,7 @@ export class ShortDramaRules {
         type: 'wide',
         subject: scene.name,
         duration: 3,
-        motivation: '建立场景环境'
+        motivation: '建立场景环境',
       });
     }
 
@@ -317,7 +319,7 @@ export class ShortDramaRules {
     } else {
       const errorCount = violations.filter(v => v.severity === 'error').length;
       const warningCount = violations.filter(v => v.severity === 'warning').length;
-      
+
       if (errorCount > 0) {
         suggestions.push(`发现${errorCount}个严重问题，建议优先修复`);
       }
@@ -348,9 +350,27 @@ export class ShortDramaRules {
    */
   private detectConflict(text: string): boolean {
     const conflictKeywords = [
-      '争吵', '打架', '冲突', '对立', '矛盾', '斗争', '对抗',
-      '骂', '打', '杀', '死', '伤', '恨', '怒', '战',
-      '拒绝', '反对', '质疑', '挑战', '威胁', '逼迫'
+      '争吵',
+      '打架',
+      '冲突',
+      '对立',
+      '矛盾',
+      '斗争',
+      '对抗',
+      '骂',
+      '打',
+      '杀',
+      '死',
+      '伤',
+      '恨',
+      '怒',
+      '战',
+      '拒绝',
+      '反对',
+      '质疑',
+      '挑战',
+      '威胁',
+      '逼迫',
     ];
     return conflictKeywords.some(kw => text.includes(kw));
   }
@@ -360,9 +380,24 @@ export class ShortDramaRules {
    */
   private detectSuspense(text: string): boolean {
     const suspenseKeywords = [
-      '神秘', '未知', '秘密', '谜', '悬念', '奇怪', '异常',
-      '突然', '意外', '竟然', '居然', '没想到', '出乎意料',
-      '谁', '什么', '为什么', '怎么回事', '难道'
+      '神秘',
+      '未知',
+      '秘密',
+      '谜',
+      '悬念',
+      '奇怪',
+      '异常',
+      '突然',
+      '意外',
+      '竟然',
+      '居然',
+      '没想到',
+      '出乎意料',
+      '谁',
+      '什么',
+      '为什么',
+      '怎么回事',
+      '难道',
     ];
     return suspenseKeywords.some(kw => text.includes(kw));
   }
@@ -372,8 +407,20 @@ export class ShortDramaRules {
    */
   private countConflicts(text: string): number {
     const conflictKeywords = [
-      '争吵', '打架', '冲突', '对立', '矛盾', '斗争', '对抗',
-      '骂', '打', '杀', '拒绝', '反对', '质疑', '挑战'
+      '争吵',
+      '打架',
+      '冲突',
+      '对立',
+      '矛盾',
+      '斗争',
+      '对抗',
+      '骂',
+      '打',
+      '杀',
+      '拒绝',
+      '反对',
+      '质疑',
+      '挑战',
     ];
     let count = 0;
     conflictKeywords.forEach(kw => {
@@ -388,12 +435,23 @@ export class ShortDramaRules {
    */
   private detectEmotion(text: string): 'high' | 'medium' | 'low' {
     const highEmotionKeywords = [
-      '狂喜', '暴怒', '悲痛', '惊恐', '兴奋', '激动', '绝望',
-      '爱', '恨', '死', '杀', '胜利', '失败', '成功', '崩溃'
+      '狂喜',
+      '暴怒',
+      '悲痛',
+      '惊恐',
+      '兴奋',
+      '激动',
+      '绝望',
+      '爱',
+      '恨',
+      '死',
+      '杀',
+      '胜利',
+      '失败',
+      '成功',
+      '崩溃',
     ];
-    const lowEmotionKeywords = [
-      '平静', '安静', '平和', '普通', '日常', '平常', '一般'
-    ];
+    const lowEmotionKeywords = ['平静', '安静', '平和', '普通', '日常', '平常', '一般'];
 
     if (highEmotionKeywords.some(kw => text.includes(kw))) {
       return 'high';

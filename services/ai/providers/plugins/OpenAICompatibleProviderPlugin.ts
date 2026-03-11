@@ -1,16 +1,13 @@
-import { BaseProviderPlugin } from "./BaseProviderPlugin";
+import { BaseProviderPlugin } from './BaseProviderPlugin';
 import {
   AIResult,
   TextGenerationRequest,
   TextGenerationResponse,
   ValidationResult,
   HealthCheckResult,
-} from "../../core/IProvider";
-import {
-  createProtocolAdapter,
-  OpenAIProtocolAdapter,
-} from "../../core/adapters";
-import { ModelConfig } from "../../../types";
+} from '../../core/IProvider';
+import { createProtocolAdapter, OpenAIProtocolAdapter } from '../../core/adapters';
+import { ModelConfig } from '@/types';
 
 /**
  * OpenAI兼容Provider插件
@@ -25,8 +22,8 @@ import { ModelConfig } from "../../../types";
 export class OpenAICompatibleProviderPlugin extends BaseProviderPlugin {
   readonly id: string;
   readonly name: string;
-  readonly supportedTypes = ["llm"] as const;
-  readonly defaultProtocol = "openai" as const;
+  readonly supportedTypes: ('image' | 'video' | 'llm')[] = ['llm'];
+  readonly defaultProtocol = 'openai' as const;
 
   private adapter: OpenAIProtocolAdapter;
 
@@ -34,7 +31,7 @@ export class OpenAICompatibleProviderPlugin extends BaseProviderPlugin {
     super();
     this.id = id;
     this.name = name;
-    this.adapter = createProtocolAdapter("openai") as OpenAIProtocolAdapter;
+    this.adapter = createProtocolAdapter('openai') as OpenAIProtocolAdapter;
   }
 
   /**
@@ -42,26 +39,22 @@ export class OpenAICompatibleProviderPlugin extends BaseProviderPlugin {
    */
   async initialize(config: { apiKey?: string; baseUrl?: string }): Promise<void> {
     await super.initialize(config);
-    this.adapter = createProtocolAdapter("openai") as OpenAIProtocolAdapter;
+    this.adapter = createProtocolAdapter('openai') as OpenAIProtocolAdapter;
   }
 
   /**
    * 文本生成
    */
-  async generateText(
-    request: TextGenerationRequest
-  ): Promise<AIResult<TextGenerationResponse>> {
+  async generateText(request: TextGenerationRequest): Promise<AIResult<TextGenerationResponse>> {
     try {
       const apiKey = this.getApiKey({ apiKey: request.extraParams?.apiKey } as ModelConfig);
       const baseUrl = this.getBaseUrl({ apiUrl: request.extraParams?.baseUrl } as ModelConfig);
 
       // 构建请求体
       const body = this.adapter.buildRequest({
-        operation: "chat",
+        operation: 'chat',
         modelId: request.modelId,
-        messages: request.messages || [
-          { role: "user", content: request.prompt },
-        ],
+        messages: request.messages || [{ role: 'user', content: request.prompt }],
         systemPrompt: request.systemPrompt,
         temperature: request.temperature,
         maxTokens: request.maxTokens,
@@ -70,9 +63,9 @@ export class OpenAICompatibleProviderPlugin extends BaseProviderPlugin {
 
       // 发送请求
       const response = await this.makeRequest(
-        this.adapter.getEndpoint(baseUrl || "https://api.openai.com/v1", "chat"),
+        this.adapter.getEndpoint(baseUrl || 'https://api.openai.com/v1', 'chat'),
         {
-          method: "POST",
+          method: 'POST',
           headers: this.adapter.getAuthHeaders(apiKey),
           body: JSON.stringify(body),
         },
@@ -90,7 +83,7 @@ export class OpenAICompatibleProviderPlugin extends BaseProviderPlugin {
 
       return this.createSuccessResult(
         {
-          content: result.content || "",
+          content: result.content || '',
           usage: result.usage,
           metadata: result.raw,
         },
@@ -107,11 +100,11 @@ export class OpenAICompatibleProviderPlugin extends BaseProviderPlugin {
   async validateConfig(config: ModelConfig): Promise<ValidationResult> {
     try {
       const apiKey = this.getApiKey(config);
-      const baseUrl = this.getBaseUrl(config) || "https://api.openai.com/v1";
+      const baseUrl = this.getBaseUrl(config) || 'https://api.openai.com/v1';
 
       // 调用模型列表接口验证
       const response = await this.makeRequest(
-        this.adapter.getEndpoint(baseUrl, "models"),
+        this.adapter.getEndpoint(baseUrl, 'models'),
         {
           headers: this.adapter.getAuthHeaders(apiKey),
         },
@@ -121,7 +114,7 @@ export class OpenAICompatibleProviderPlugin extends BaseProviderPlugin {
       if (response.status === 200) {
         return { valid: true };
       } else if (response.status === 401) {
-        return { valid: false, error: "API密钥无效或已过期" };
+        return { valid: false, error: 'API密钥无效或已过期' };
       } else {
         return { valid: false, error: `验证失败: ${response.status}` };
       }
@@ -141,11 +134,11 @@ export class OpenAICompatibleProviderPlugin extends BaseProviderPlugin {
 
     try {
       // 简单的连通性检查
-      const baseUrl = this.config.baseUrl || "https://api.openai.com/v1";
+      const baseUrl = this.config.baseUrl || 'https://api.openai.com/v1';
       const response = await this.makeRequest(
-        `${baseUrl.replace(/\/$/, "")}/models`,
+        `${baseUrl.replace(/\/$/, '')}/models`,
         {
-          headers: this.adapter.getAuthHeaders(this.config.apiKey || ""),
+          headers: this.adapter.getAuthHeaders(this.config.apiKey || ''),
         },
         10000
       );
@@ -154,34 +147,34 @@ export class OpenAICompatibleProviderPlugin extends BaseProviderPlugin {
 
       if (response.ok) {
         return {
-          status: "healthy",
+          status: 'healthy',
           latency,
           timestamp: Date.now(),
           checks: {
-            connectivity: { status: "pass", latency },
-            apiKey: { status: "pass" },
-            service: { status: "pass" },
+            connectivity: { status: 'pass', latency },
+            apiKey: { status: 'pass' },
+            service: { status: 'pass' },
           },
         };
       } else {
         return {
-          status: "degraded",
+          status: 'degraded',
           latency,
           timestamp: Date.now(),
           checks: {
-            connectivity: { status: "pass", latency },
-            apiKey: { status: response.status === 401 ? "fail" : "pass" },
-            service: { status: "fail", message: `HTTP ${response.status}` },
+            connectivity: { status: 'pass', latency },
+            apiKey: { status: response.status === 401 ? 'fail' : 'pass' },
+            service: { status: 'fail', message: `HTTP ${response.status}` },
           },
         };
       }
     } catch (error) {
       return {
-        status: "unhealthy",
+        status: 'unhealthy',
         timestamp: Date.now(),
         error: error instanceof Error ? error.message : String(error),
         checks: {
-          connectivity: { status: "fail", message: String(error) },
+          connectivity: { status: 'fail', message: String(error) },
         },
       };
     }

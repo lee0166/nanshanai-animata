@@ -1,0 +1,18 @@
+- [ ] 模型预下载脚本 `scripts/download-model.js` 创建完成
+- [ ] 预下载脚本可以从 ModelScope 下载模型文件
+- [ ] 模型文件保存到正确的目录结构 `./data/models/Xenova/all-MiniLM-L6-v2/`
+- [ ] package.json 添加了 `download-model` 命令
+- [ ] EmbeddingService.ts 移除了浏览器环境的 `env.remoteHost` 配置
+- [ ] EmbeddingService.ts 保留了 Node.js 环境的 ModelScope 配置
+- [ ] EmbeddingService.ts 优先检查本地缓存模型
+- [ ] EmbeddingService.ts 本地模型不存在时快速失败
+- [ ] ModelDownloadProgress 组件显示下载失败提示
+- [ ] ModelDownloadProgress 组件提供手动下载指引
+- [ ] ModelDownloadProgress 组件提供"使用标准模式"选项
+- [ ] 运行预下载脚本可以成功下载模型
+- [ ] 浏览器环境开启智能记忆时使用本地模型
+- [ ] 本地模型不存在时显示友好的失败提示
+- [ ] README.md 包含智能记忆功能说明
+- [ ] README.md 包含模型预下载步骤
+- [ ] README.md 包含模型文件大小提示
+- [ ] 界面提示信息包含明确的解决步骤

@@ -1,23 +1,36 @@
-
 import React, { useEffect } from 'react';
-import { Settings, Clapperboard, Moon, Sun, Languages, Database, ChevronLeft, Film, User, Map, Box, Library, FileText, Camera } from 'lucide-react';
+import {
+  Settings,
+  Moon,
+  Sun,
+  Languages,
+  Database,
+  ChevronLeft,
+  Film,
+  User,
+  Map,
+  Box,
+  Library,
+  FileText,
+  Camera,
+} from 'lucide-react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useApp } from '../contexts/context';
 import { storageService } from '../services/storage';
 import { AssetType, Project } from '../types';
-import { 
-  Navbar, 
-  NavbarBrand, 
-  NavbarContent, 
-  NavbarItem, 
-  Button, 
-  Tooltip, 
+import {
+  Navbar,
+  NavbarBrand,
+  NavbarContent,
+  NavbarItem,
+  Button,
+  Tooltip,
   ButtonGroup,
   Tabs,
   Tab,
   Chip,
-  Card
-} from "@heroui/react";
+  Card,
+} from '@heroui/react';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -30,15 +43,22 @@ interface LayoutProps {
 
 import { jobQueue } from '../services/queue';
 
-const Layout: React.FC<LayoutProps> = ({ children, isConnected, onConnect, activeTab, setActiveTab, currentProject }) => {
+const Layout: React.FC<LayoutProps> = ({
+  children,
+  isConnected,
+  onConnect,
+  activeTab,
+  setActiveTab,
+  currentProject,
+}) => {
   const location = useLocation();
   const navigate = useNavigate();
   const { t, settings, toggleTheme, toggleLanguage } = useApp();
-  
+
   const isRoot = location.pathname === '/' || location.pathname === '';
   const isSettings = location.pathname === '/settings';
-  
-  const projectMatch = location.pathname.match(/\/project\/([^\/]+)/);
+
+  const projectMatch = location.pathname.match(/\/project\/([^/]+)/);
   const isProject = !!projectMatch;
   const isOpfs = storageService.isOpfs();
   const isSandbox = isOpfs || localStorage.getItem('avss_use_sandbox') === 'true';
@@ -63,7 +83,7 @@ const Layout: React.FC<LayoutProps> = ({ children, isConnected, onConnect, activ
       // But I can't edit Queue in this tool call.
       // I will assume I will add `getProcessingCount` to Queue class in next step or use `any` cast.
       // Actually, I can edit Queue first.
-      
+
       // Let's assume we will add `hasActiveJobs()` method to jobQueue.
       if ((jobQueue as any).hasActiveJobs && (jobQueue as any).hasActiveJobs()) {
         e.preventDefault();
@@ -88,8 +108,8 @@ const Layout: React.FC<LayoutProps> = ({ children, isConnected, onConnect, activ
 
   return (
     <div className="flex flex-col h-screen w-screen overflow-hidden bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-200 transition-colors font-sans">
-      <Navbar 
-        maxWidth="full" 
+      <Navbar
+        maxWidth="full"
         height="4rem"
         className="border-b border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md"
       >
@@ -107,7 +127,7 @@ const Layout: React.FC<LayoutProps> = ({ children, isConnected, onConnect, activ
               </Button>
             </NavbarItem>
           )}
-          
+
           <NavbarBrand>
             <Link to="/" className="flex items-center gap-2">
               <div className="w-8 h-8">
@@ -123,27 +143,28 @@ const Layout: React.FC<LayoutProps> = ({ children, isConnected, onConnect, activ
             <NavbarContent className="hidden lg:flex gap-4 ml-4">
               <NavbarItem>
                 <div className="flex items-center gap-3">
-                  <Chip 
-                    variant="flat" 
+                  <Chip
+                    variant="flat"
                     color="primary"
                     className="h-9 px-3 rounded-xl font-black text-[10px] uppercase tracking-widest border-none"
                   >
                     {currentProject.name}
                   </Chip>
                   <span className="text-slate-300 dark:text-slate-700">/</span>
-                  <Tabs 
-                    aria-label={t.project.projectTabs} 
+                  <Tabs
+                    aria-label={t.project.projectTabs}
                     variant="light"
                     color="primary"
                     selectedKey={activeTab}
-                    onSelectionChange={(key) => setActiveTab?.(key as AssetType)}
+                    onSelectionChange={key => setActiveTab?.(key as AssetType)}
                     classNames={{
-                      tabList: "bg-transparent p-0 gap-1",
-                      tab: "group h-9 px-3",
-                      tabContent: "font-bold text-[13px] uppercase tracking-wider text-slate-500 dark:text-slate-400 group-data-[selected=true]:text-white"
+                      tabList: 'bg-transparent p-0 gap-1',
+                      tab: 'group h-9 px-3',
+                      tabContent:
+                        'font-bold text-[13px] uppercase tracking-wider text-slate-500 dark:text-slate-400 group-data-[selected=true]:text-white',
                     }}
                   >
-                    {tabs.map((tab) => (
+                    {tabs.map(tab => (
                       <Tab
                         key={tab.id}
                         title={
@@ -190,7 +211,11 @@ const Layout: React.FC<LayoutProps> = ({ children, isConnected, onConnect, activ
           )}
 
           <NavbarItem>
-            <ButtonGroup variant="flat" radius="lg" className="bg-slate-100 dark:bg-slate-800 p-0.5 border border-slate-200 dark:border-slate-700 rounded-xl">
+            <ButtonGroup
+              variant="flat"
+              radius="lg"
+              className="bg-slate-100 dark:bg-slate-800 p-0.5 border border-slate-200 dark:border-slate-700 rounded-xl"
+            >
               <Tooltip content={t.common.switchLanguage}>
                 <Button
                   isIconOnly
@@ -210,7 +235,11 @@ const Layout: React.FC<LayoutProps> = ({ children, isConnected, onConnect, activ
                   onPress={() => toggleTheme(settings.theme === 'dark' ? 'light' : 'dark')}
                   className="text-slate-500 min-w-8 w-8 h-8"
                 >
-                  {settings.theme === 'dark' ? <Sun className="w-4 h-4"/> : <Moon className="w-4 h-4"/>}
+                  {settings.theme === 'dark' ? (
+                    <Sun className="w-4 h-4" />
+                  ) : (
+                    <Moon className="w-4 h-4" />
+                  )}
                 </Button>
               </Tooltip>
               <Tooltip content={t.sidebar.settings}>
@@ -219,8 +248,8 @@ const Layout: React.FC<LayoutProps> = ({ children, isConnected, onConnect, activ
                   as={Link}
                   to="/settings"
                   size="sm"
-                  variant={isSettings ? "solid" : "light"}
-                  color={isSettings ? "primary" : "default"}
+                  variant={isSettings ? 'solid' : 'light'}
+                  color={isSettings ? 'primary' : 'default'}
                   className={`min-w-8 w-8 h-8 ${!isSettings ? 'text-slate-500' : 'text-white font-bold'}`}
                 >
                   <Settings className="w-4 h-4" />
@@ -238,7 +267,9 @@ const Layout: React.FC<LayoutProps> = ({ children, isConnected, onConnect, activ
               <div className="w-8 h-8 mx-auto mb-10">
                 <img src="/icon.png" className="w-full h-full object-contain" />
               </div>
-              <h2 className="text-4xl font-black mb-4 text-slate-900 dark:text-white tracking-tighter uppercase">{t.workspace.selectTitle}</h2>
+              <h2 className="text-4xl font-black mb-4 text-slate-900 dark:text-white tracking-tighter uppercase">
+                {t.workspace.selectTitle}
+              </h2>
               <p className="text-slate-500 dark:text-slate-400 mb-10 leading-relaxed text-lg font-medium">
                 {t.workspace.selectDesc}
               </p>

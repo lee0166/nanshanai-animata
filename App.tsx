@@ -1,27 +1,29 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, Suspense, lazy } from 'react';
 import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Layout from './components/Layout';
-import Dashboard from './views/Dashboard';
-import ProjectDetail from './views/ProjectDetail';
-import Settings from './views/Settings';
 import JobMonitor from './components/JobMonitor';
 import WelcomeView from './components/WelcomeView';
 import LoadingView from './components/LoadingView';
-import Tasks from './views/Tasks';
-import ScriptManager from './views/ScriptManager';
-import ShotManager from './views/ShotManager';
-import TimelineEditor from './views/TimelineEditor';
+import PageLoader from './components/PageLoader';
 import { storageService } from './services/storage';
 import { jobQueue } from './services/queue';
 import { useApp } from './contexts/context';
 import { useToast } from './contexts/ToastContext';
 import { AssetType, Project } from './types';
-import { ToastProvider } from './contexts/ToastContext';
 import { PreviewProvider } from './components/PreviewProvider';
+
+// 懒加载视图组件
+const Dashboard = lazy(() => import('./views/Dashboard'));
+const ProjectDetail = lazy(() => import('./views/ProjectDetail'));
+const Settings = lazy(() => import('./views/Settings'));
+const Tasks = lazy(() => import('./views/Tasks'));
+const ScriptManager = lazy(() => import('./views/ScriptManager'));
+const ShotManager = lazy(() => import('./views/ShotManager'));
+const TimelineEditor = lazy(() => import('./views/TimelineEditor'));
 
 const App: React.FC = () => {
   const { showToast } = useToast();
-  const { reloadSettings, t, isConnected, isInitializing, isFsResponsive, resetWorkspace } = useApp();
+  const { reloadSettings, isConnected, isInitializing, isFsResponsive } = useApp();
 
   // Unified State for Project Navigation
   const [activeTab, setActiveTab] = useState<AssetType>(AssetType.SCRIPT);
@@ -30,7 +32,7 @@ const App: React.FC = () => {
   // Auto-load queue when connected and responsive
   useEffect(() => {
     if (isConnected && isFsResponsive && !isInitializing) {
-      console.log("[APP] Triggering jobQueue.loadQueue()...");
+      console.log('[APP] Triggering jobQueue.loadQueue()...');
       jobQueue.loadQueue();
     }
   }, [isConnected, isFsResponsive, isInitializing]);
@@ -43,22 +45,22 @@ const App: React.FC = () => {
         jobQueue.loadQueue();
       }
     } catch (error: any) {
-      console.error("[APP] Connection failed:", error);
-      showToast(error.message || "Connection failed", 'error');
+      console.error('[APP] Connection failed:', error);
+      showToast(error.message || 'Connection failed', 'error');
     }
   };
 
   if (!isFsResponsive && isConnected) {
-     // If we thought we were connected but FS is unresponsive, maybe show loading or reset
-     // But typically LoadingView covers initialization.
+    // If we thought we were connected but FS is unresponsive, maybe show loading or reset
+    // But typically LoadingView covers initialization.
   }
 
   if (isInitializing) {
-      return <LoadingView />;
+    return <LoadingView />;
   }
 
   if (!isConnected) {
-      return <WelcomeView onConnect={handleConnect} />;
+    return <WelcomeView onConnect={handleConnect} />;
   }
 
   return (
@@ -71,32 +73,34 @@ const App: React.FC = () => {
           setActiveTab={setActiveTab}
           currentProject={currentProject}
         >
-          <Routes>
-            <Route path="/" element={<Dashboard />} />
-            <Route 
-              path="/project/:id" 
-              element={
-                <ProjectDetail 
-                  activeTab={activeTab}
-                  setActiveTab={setActiveTab}
-                  onProjectLoaded={setCurrentProject}
-                />
-              } 
-            />
-            <Route path="/settings" element={<Settings />} />
-            <Route path="/tasks" element={<Tasks />} />
-            <Route path="/scripts" element={<ScriptManager />} />
-            <Route path="/project/:projectId/scripts" element={<ScriptManager />} />
-            <Route 
-              path="/project/:projectId/shots" 
-              element={<ShotManager setActiveTab={setActiveTab} />} 
-            />
-            <Route 
-              path="/project/:projectId/script/:scriptId/timeline" 
-              element={<TimelineEditor />} 
-            />
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
+          <Suspense fallback={<PageLoader />}>
+            <Routes>
+              <Route path="/" element={<Dashboard />} />
+              <Route
+                path="/project/:id"
+                element={
+                  <ProjectDetail
+                    activeTab={activeTab}
+                    setActiveTab={setActiveTab}
+                    onProjectLoaded={setCurrentProject}
+                  />
+                }
+              />
+              <Route path="/settings" element={<Settings />} />
+              <Route path="/tasks" element={<Tasks />} />
+              <Route path="/scripts" element={<ScriptManager />} />
+              <Route path="/project/:projectId/scripts" element={<ScriptManager />} />
+              <Route
+                path="/project/:projectId/shots"
+                element={<ShotManager setActiveTab={setActiveTab} />}
+              />
+              <Route
+                path="/project/:projectId/script/:scriptId/timeline"
+                element={<TimelineEditor />}
+              />
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+          </Suspense>
           <JobMonitor />
         </Layout>
       </PreviewProvider>

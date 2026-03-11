@@ -14,7 +14,18 @@
  * @version 1.0.0
  */
 
-import { Script, ScriptParseState, ScriptMetadata, ScriptCharacter, ScriptScene, ScriptItem, Shot, ShotContentType, ShotLayer, ParseStage } from '../types';
+import {
+  Script,
+  ScriptParseState,
+  ScriptMetadata,
+  ScriptCharacter,
+  ScriptScene,
+  ScriptItem,
+  Shot,
+  ShotContentType,
+  ShotLayer,
+  ParseStage,
+} from '../types';
 import { storageService } from './storage';
 import { JSONRepair } from './parsing/JSONRepair';
 import { SemanticChunker, SemanticChunk } from './parsing/SemanticChunker';
@@ -33,14 +44,28 @@ import {
 import { z } from 'zod';
 import { GlobalContextExtractor, GlobalContext } from './parsing/GlobalContextExtractor';
 import { ContextInjector, InjectionOptions } from './parsing/ContextInjector';
-import { IterativeRefinementEngine, IterativeRefinementConfig, IterativeRefinementResult } from './parsing/refinement/IterativeRefinementEngine';
-import { DurationBudget, SceneBudget, calculateBudget, validateBudget } from './parsing/BudgetPlanner';
-import { ParseStrategySelector, StrategySelection, ParseStrategy, StrategySelectorConfig } from './parsing/ParseStrategySelector';
+import {
+  IterativeRefinementEngine,
+  IterativeRefinementConfig,
+  IterativeRefinementResult,
+} from './parsing/refinement/IterativeRefinementEngine';
+import {
+  DurationBudget,
+  SceneBudget,
+  calculateBudget,
+  validateBudget,
+} from './parsing/BudgetPlanner';
+import {
+  ParseStrategySelector,
+  StrategySelection,
+  ParseStrategy,
+  StrategySelectorConfig,
+} from './parsing/ParseStrategySelector';
 import { PerformanceMonitor, PerformanceReport } from './parsing/PerformanceMonitor';
 
 /**
  * Script Parser Configuration Interface
- * 
+ *
  * 2.0版本重大变更：
  * - 移除所有基于字数的配置（durationBudgetConfig等）
  * - 新增creativeIntent创作意图配置
@@ -58,7 +83,7 @@ export interface ScriptParserConfig {
   iterativeRefinementConfig?: Partial<IterativeRefinementConfig>; // 迭代优化配置
 
   // ========== 2.0版本：创作意图配置 ==========
-  
+
   /**
    * 创作意图
    * 用户的创作方向和风格偏好，替代旧的平台模板配置
@@ -262,7 +287,7 @@ const DEFAULT_PARSER_CONFIG: ScriptParserConfig = {
   shotCountOverrides: {
     shortText: '1-2个',
     mediumText: '2-3个',
-    longText: '3-5个'
+    longText: '3-5个',
   },
 
   // 全局上下文提取配置（默认开启情绪曲线提取）
@@ -282,16 +307,16 @@ const CONFIG = {
   /** Maximum retry attempts for API calls */
   maxRetries: 3,
   /** Initial retry delay in ms (exponential backoff) */
-  retryDelay: 2000,
+  retryDelay: 4000,
   /** API call timeout in ms (60 seconds) */
   timeout: 60000,
-  /** 
+  /**
    * Maximum concurrent API calls
    * V2 优化：从 1 增加到 3，提升并行处理能力
    * 如果遇到限流问题，可以适当降低
    */
   concurrency: 3,
-  /** 
+  /**
    * Delay between API calls in ms
    * V2 优化：从 1000ms 降低到 100ms，减少不必要的等待
    * 如果遇到限流问题，可以适当增加
@@ -307,33 +332,33 @@ const TASK_CONFIG = {
   metadata: {
     maxTokens: 4000,
     timeout: 60000,
-    description: '元数据提取'
+    description: '元数据提取',
   },
   globalContext: {
     maxTokens: 5000,
     timeout: 90000,
-    description: '全局上下文提取'
+    description: '全局上下文提取',
   },
   character: {
     maxTokens: 6000,
     timeout: 90000,
-    description: '角色解析'
+    description: '角色解析',
   },
   scene: {
     maxTokens: 6000,
     timeout: 90000,
-    description: '场景解析'
+    description: '场景解析',
   },
   shots: {
-    maxTokens: 12000,  // 分镜需要更多Token
-    timeout: 120000,
-    description: '分镜生成'
+    maxTokens: 12000, // 分镜需要更多Token
+    timeout: 90000,
+    description: '分镜生成',
   },
   'plot-analysis': {
     maxTokens: 4000,
     timeout: 60000,
-    description: '剧情分析'
-  }
+    description: '剧情分析',
+  },
 } as const;
 
 type TaskType = keyof typeof TASK_CONFIG;
@@ -837,11 +862,17 @@ eye_level(平视), high_angle(俯拍), low_angle(仰拍), dutch_angle(倾斜), o
 2. 运镜选择要服务于叙事，不要过度炫技
 3. 时长分配要符合情感曲线，紧张场景短、情感场景长
 4. 每个分镜都要有明确的叙事目的
-`
+`,
 };
 
 export interface ParseProgressCallback {
-  (stage: ParseStage, progress: number, message?: string): void;
+  (stage: ParseStage, progress: number, message?: string, details?: {
+    currentScene?: number;
+    totalScenes?: number;
+    currentBatch?: number;
+    totalBatches?: number;
+    elapsedTime?: number;
+  }): void;
 }
 
 /**
@@ -939,7 +970,7 @@ class ParseCache {
     let hash = 0;
     for (let i = 0; i < content.length; i++) {
       const char = content.charCodeAt(i);
-      hash = ((hash << 5) - hash) + char;
+      hash = (hash << 5) - hash + char;
       hash = hash & hash;
     }
     return hash.toString(16);
@@ -1107,7 +1138,7 @@ export class ScriptParser {
     // Initialize strategy selector
     this.strategySelector = new ParseStrategySelector({
       ...this.parserConfig.strategySelectorConfig,
-      forcedStrategy: this.parserConfig.forcedStrategy
+      forcedStrategy: this.parserConfig.forcedStrategy,
     });
 
     console.log('[ScriptParser] Initialized with config:', {
@@ -1118,7 +1149,7 @@ export class ScriptParser {
       cacheTTL: this.parserConfig.cacheTTL,
       useGlobalContext: this.useGlobalContext,
       enableIterativeRefinement: this.parserConfig.enableIterativeRefinement,
-      hasIterativeRefinementConfig: !!this.parserConfig.iterativeRefinementConfig
+      hasIterativeRefinementConfig: !!this.parserConfig.iterativeRefinementConfig,
     });
 
     if (this.parserConfig.useSemanticChunking) {
@@ -1211,7 +1242,7 @@ export class ScriptParser {
       includeEraContext: true,
       includeEmotionalContext: true,
       includeConsistencyRules: true,
-      maxPromptLength: 8000
+      maxPromptLength: 8000,
     });
     console.log('[ScriptParser] ContextInjector initialized');
 
@@ -1231,7 +1262,7 @@ export class ScriptParser {
    */
   updateConfig(config: Partial<ScriptParserConfig>): void {
     this.parserConfig = { ...this.parserConfig, ...config };
-    
+
     if (config.useSemanticChunking !== undefined) {
       if (config.useSemanticChunking && !this.semanticChunker) {
         this.semanticChunker = new SemanticChunker({ extractMetadata: true });
@@ -1239,7 +1270,7 @@ export class ScriptParser {
         this.semanticChunker = null;
       }
     }
-    
+
     if (config.useDramaRules !== undefined) {
       if (config.useDramaRules && !this.dramaRules) {
         this.dramaRules = new ShortDramaRules();
@@ -1247,7 +1278,7 @@ export class ScriptParser {
         this.dramaRules = null;
       }
     }
-    
+
     if (config.useCache !== undefined) {
       if (config.useCache && !this.multiLevelCache) {
         this.multiLevelCache = new MultiLevelCache({ l1TTL: this.parserConfig.cacheTTL });
@@ -1282,8 +1313,9 @@ export class ScriptParser {
     }
 
     // 确定是否提取了情绪曲线
-    const emotionalArcExtracted = metadata?.emotionalArc !== undefined && metadata.emotionalArc.length > 0;
-    
+    const emotionalArcExtracted =
+      metadata?.emotionalArc !== undefined && metadata.emotionalArc.length > 0;
+
     // 确定跳过的功能列表
     const skippedFeatures: string[] = [];
     if (!emotionalArcExtracted) {
@@ -1291,17 +1323,17 @@ export class ScriptParser {
     }
 
     const report = this.qualityAnalyzer.analyze(
-      metadata, 
-      characters, 
-      scenes, 
-      items, 
-      shots, 
+      metadata,
+      characters,
+      scenes,
+      items,
+      shots,
       stage,
       emotionalArcExtracted,
       skippedFeatures.length > 0 ? skippedFeatures : undefined
     );
     this.qualityReport = report;
-    
+
     console.log(`[ScriptParser] Quality report generated for stage: ${stage}`, {
       score: report.score,
       grade: report.overallGrade,
@@ -1329,7 +1361,9 @@ export class ScriptParser {
   forceStrategy(strategy: ParseStrategy | undefined): void {
     if (this.strategySelector) {
       this.strategySelector.forceStrategy(strategy);
-      console.log(`[ScriptParser] Strategy ${strategy ? 'forced to: ' + strategy : 'reset to auto'}`);
+      console.log(
+        `[ScriptParser] Strategy ${strategy ? 'forced to: ' + strategy : 'reset to auto'}`
+      );
     }
   }
 
@@ -1392,7 +1426,7 @@ export class ScriptParser {
     let hash = 0;
     for (let i = 0; i < content.length; i++) {
       const char = content.charCodeAt(i);
-      hash = ((hash << 5) - hash) + char;
+      hash = (hash << 5) - hash + char;
       hash = hash & hash;
     }
     return hash.toString(16);
@@ -1414,25 +1448,29 @@ export class ScriptParser {
   } {
     // 叙事语速：200字/分钟（行业标准）
     const estimatedMinutes = Math.ceil(textLength / 200);
-    
+
     // 分镜密度：3-5个/分钟（修正为更合理的值）
     // 短剧标准8-12个/分钟，但AI生成成本考虑，取保守值3-5个
     let density = 3;
-    if (textLength < 3000) density = 5;      // 短篇：更密集
-    else if (textLength < 10000) density = 4; // 中篇：适中
-    else density = 3;                         // 长篇：稀疏
-    
+    if (textLength < 3000)
+      density = 5; // 短篇：更密集
+    else if (textLength < 10000)
+      density = 4; // 中篇：适中
+    else density = 3; // 长篇：稀疏
+
     // 目标分镜数（设置上限避免过多）
     let targetShots = Math.ceil(estimatedMinutes * density);
     const maxShots = textLength < 10000 ? 150 : 500; // 中短篇上限150，长篇上限500
     targetShots = Math.min(targetShots, maxShots);
-    
+
     // 分层：关键分镜70%，可选分镜30%
     const keyShots = Math.ceil(targetShots * 0.7);
     const optionalShots = targetShots - keyShots;
-    
-    console.log(`[ScriptParser] Shot calculation: ${textLength} chars → ${estimatedMinutes}min → ${targetShots} shots (key: ${keyShots}, optional: ${optionalShots}, density: ${density})`);
-    
+
+    console.log(
+      `[ScriptParser] Shot calculation: ${textLength} chars → ${estimatedMinutes}min → ${targetShots} shots (key: ${keyShots}, optional: ${optionalShots}, density: ${density})`
+    );
+
     return {
       estimatedMinutes,
       targetShots,
@@ -1474,7 +1512,10 @@ export class ScriptParser {
    * @returns Array of text chunks
    * @private
    */
-  private async chunkText(text: string, maxChunkSize: number = CONFIG.maxChunkSize): Promise<string[]> {
+  private async chunkText(
+    text: string,
+    maxChunkSize: number = CONFIG.maxChunkSize
+  ): Promise<string[]> {
     if (this.parserConfig.useSemanticChunking && this.semanticChunker) {
       return await this.semanticChunkText(text);
     }
@@ -1557,13 +1598,16 @@ export class ScriptParser {
   ): Promise<string> {
     const taskConfig = TASK_CONFIG[taskType];
 
+    const timeout = retryCount === 0 ? taskConfig.timeout : 180000;
+
     console.log(`[ScriptParser] callLLM called for ${taskType}, retryCount: ${retryCount}`);
     console.log(`[ScriptParser] API URL: ${this.apiUrl}`);
     console.log(`[ScriptParser] Model: ${this.model}`);
     console.log(`[ScriptParser] Max Tokens: ${taskConfig.maxTokens}`);
+    console.log(`[ScriptParser] Timeout: ${timeout}ms`);
 
     this.abortController = new AbortController();
-    const timeoutId = setTimeout(() => this.abortController?.abort(), taskConfig.timeout);
+    const timeoutId = setTimeout(() => this.abortController?.abort(), timeout);
 
     try {
       // Use LLMProvider instead of direct fetch to properly handle proxy
@@ -1585,15 +1629,17 @@ export class ScriptParser {
           supportsImageOutput: false,
           supportsVideoOutput: false,
           maxTokens: taskConfig.maxTokens,
-          maxInputTokens: 8000
-        }
+          maxInputTokens: 8000,
+        },
       };
 
       console.log('[ScriptParser] Calling LLMProvider.generateText...');
       const result = await llmProvider.generateText(
         prompt,
         config,
-        '你是一个专业的剧本分析助手，擅长从小说/剧本中提取结构化信息。请严格按照要求的JSON格式输出。'
+        '你是一个专业的剧本分析助手，擅长从小说/剧本中提取结构化信息。请严格按照要求的JSON格式输出。',
+        {},
+        timeout
       );
 
       clearTimeout(timeoutId);
@@ -1605,7 +1651,9 @@ export class ScriptParser {
         // Retry on rate limit or server errors
         if (retryCount < CONFIG.maxRetries) {
           const delay = CONFIG.retryDelay * Math.pow(2, retryCount);
-          console.warn(`API error, retrying in ${delay}ms... (attempt ${retryCount + 1}/${CONFIG.maxRetries})`);
+          console.warn(
+            `API error, retrying in ${delay}ms... (attempt ${retryCount + 1}/${CONFIG.maxRetries})`
+          );
           await new Promise(resolve => setTimeout(resolve, delay));
           return this.callLLM(prompt, taskType, retryCount + 1);
         }
@@ -1623,7 +1671,9 @@ export class ScriptParser {
       if (error.name === 'TypeError' || error.name === 'AbortError') {
         if (retryCount < CONFIG.maxRetries) {
           const delay = CONFIG.retryDelay * Math.pow(2, retryCount);
-          console.warn(`Network error, retrying in ${delay}ms... (attempt ${retryCount + 1}/${CONFIG.maxRetries})`);
+          console.warn(
+            `Network error, retrying in ${delay}ms... (attempt ${retryCount + 1}/${CONFIG.maxRetries})`
+          );
           await new Promise(resolve => setTimeout(resolve, delay));
           return this.callLLM(prompt, taskType, retryCount + 1);
         }
@@ -1636,7 +1686,7 @@ export class ScriptParser {
   /**
    * Extracts and parses JSON from LLM response
    * Uses JSONRepair utility for robust parsing with multiple fallback strategies
-   * 
+   *
    * @param response - Raw LLM response text
    * @returns Parsed JSON object
    * @throws Error if JSON cannot be parsed after all repair attempts
@@ -1700,8 +1750,8 @@ export class ScriptParser {
         supportsImageOutput: false,
         supportsVideoOutput: false,
         maxTokens: taskConfig.maxTokens,
-        maxInputTokens: 8000
-      }
+        maxInputTokens: 8000,
+      },
     };
 
     console.log('[ScriptParser] Calling LLMProvider.generateStructured...');
@@ -1739,7 +1789,9 @@ export class ScriptParser {
       },
       personality: character.personality?.length ? character.personality : ['性格温和'],
       signatureItems: character.signatureItems?.length ? character.signatureItems : [],
-      emotionalArc: character.emotionalArc?.length ? character.emotionalArc : [{ phase: '初始', emotion: '平静' }],
+      emotionalArc: character.emotionalArc?.length
+        ? character.emotionalArc
+        : [{ phase: '初始', emotion: '平静' }],
       relationships: character.relationships?.length ? character.relationships : [],
       visualPrompt: character.visualPrompt || `${name}的角色形象`,
     };
@@ -1758,7 +1810,9 @@ export class ScriptParser {
       weather: scene.weather || '晴朗',
       environment: {
         architecture: scene.environment?.architecture || '普通建筑',
-        furnishings: scene.environment?.furnishings?.length ? scene.environment.furnishings : ['基本陈设'],
+        furnishings: scene.environment?.furnishings?.length
+          ? scene.environment.furnishings
+          : ['基本陈设'],
         lighting: scene.environment?.lighting || '自然光',
         colorTone: scene.environment?.colorTone || '明亮',
       },
@@ -1792,23 +1846,25 @@ export class ScriptParser {
           name: 'maxTokens',
           label: 'Max Tokens',
           type: 'number' as const,
-          defaultValue: taskConfig.maxTokens,  // Use 5000 from TASK_CONFIG
+          defaultValue: taskConfig.maxTokens, // Use 5000 from TASK_CONFIG
           description: 'Maximum tokens for context extraction',
-        }
+        },
       ],
       capabilities: {
         supportsJsonMode: true,
-        supportsSystemPrompt: true
-      }
+        supportsSystemPrompt: true,
+      },
     };
 
     // Create extractor config from parser config
     const extractorConfig = {
       extractEmotionalArc: this.parserConfig.extractEmotionalArc ?? true,
-      textLengthThreshold: this.parserConfig.textLengthThreshold ?? 800
+      textLengthThreshold: this.parserConfig.textLengthThreshold ?? 800,
     };
 
-    console.log(`[ScriptParser] GlobalContextExtractor initialized with maxTokens: ${taskConfig.maxTokens}`);
+    console.log(
+      `[ScriptParser] GlobalContextExtractor initialized with maxTokens: ${taskConfig.maxTokens}`
+    );
     console.log(`[ScriptParser] GlobalContextExtractor config:`, extractorConfig);
 
     this.globalContextExtractor = new GlobalContextExtractor(config, extractorConfig);
@@ -1845,7 +1901,9 @@ export class ScriptParser {
       console.log(`  - Visual style: ${this.globalContext.visual.artStyle}`);
       console.log(`  - Era: ${this.globalContext.era.era}`);
       console.log(`  - Emotional arc points: ${this.globalContext.emotional.arc?.length || 0}`);
-      console.log(`  - Consistency rules: ${this.globalContext.rules.eraConstraints?.length || 0} era constraints`);
+      console.log(
+        `  - Consistency rules: ${this.globalContext.rules.eraConstraints?.length || 0} era constraints`
+      );
 
       return this.globalContext;
     } catch (error) {
@@ -1866,13 +1924,18 @@ export class ScriptParser {
   /**
    * Stage 1: Extract metadata (使用结构化输出)
    * Also extracts global context if enabled and not skipped
-   * 
+   *
    * @param content - Script content to parse
    * @param options - Optional parsing options to control behavior
    * @returns Script metadata
    */
-  async extractMetadata(content: string, options?: { skipGlobalContext?: boolean }): Promise<ScriptMetadata> {
-    console.log('[ScriptParser] ========== Stage 1: Extract Metadata (Structured Output) ==========');
+  async extractMetadata(
+    content: string,
+    options?: { skipGlobalContext?: boolean }
+  ): Promise<ScriptMetadata> {
+    console.log(
+      '[ScriptParser] ========== Stage 1: Extract Metadata (Structured Output) =========='
+    );
     console.log(`[ScriptParser] Content length: ${content.length} characters`);
     console.log(`[ScriptParser] Skip global context: ${options?.skipGlobalContext ?? false}`);
 
@@ -1892,7 +1955,9 @@ export class ScriptParser {
     console.log('[ScriptParser] Metadata extracted successfully (Structured Output):');
     console.log(`  - Title: ${metadata.title}`);
     console.log(`  - Word Count: ${metadata.wordCount}`);
-    console.log(`  - Characters: ${metadata.characterCount} (${metadata.characterNames?.join(', ')})`);
+    console.log(
+      `  - Characters: ${metadata.characterCount} (${metadata.characterNames?.join(', ')})`
+    );
     console.log(`  - Scenes: ${metadata.sceneCount} (${metadata.sceneNames?.join(', ')})`);
     console.log(`  - Genre: ${metadata.genre}`);
     console.log(`  - Tone: ${metadata.tone}`);
@@ -1907,7 +1972,9 @@ export class ScriptParser {
         console.log('[ScriptParser] Global context merged into metadata');
       }
     } else {
-      console.log('[ScriptParser] Global context extraction skipped (options.skipGlobalContext=true)');
+      console.log(
+        '[ScriptParser] Global context extraction skipped (options.skipGlobalContext=true)'
+      );
     }
 
     // Ensure required fields are present
@@ -1924,33 +1991,39 @@ export class ScriptParser {
       genre: metadata.genre ?? '',
       tone: metadata.tone ?? '',
       // Ensure storyStructure has all required fields if present
-      storyStructure: metadata.storyStructure ? {
-        structureType: metadata.storyStructure.structureType ?? 'other',
-        act1: metadata.storyStructure.act1 ?? '',
-        act2a: metadata.storyStructure.act2a ?? '',
-        act2b: metadata.storyStructure.act2b ?? '',
-        act3: metadata.storyStructure.act3 ?? '',
-        midpoint: metadata.storyStructure.midpoint ?? '',
-        climax: metadata.storyStructure.climax ?? '',
-      } : undefined,
+      storyStructure: metadata.storyStructure
+        ? {
+            structureType: metadata.storyStructure.structureType ?? 'other',
+            act1: metadata.storyStructure.act1 ?? '',
+            act2a: metadata.storyStructure.act2a ?? '',
+            act2b: metadata.storyStructure.act2b ?? '',
+            act3: metadata.storyStructure.act3 ?? '',
+            midpoint: metadata.storyStructure.midpoint ?? '',
+            climax: metadata.storyStructure.climax ?? '',
+          }
+        : undefined,
       // Ensure visualStyle has all required fields if present
-      visualStyle: metadata.visualStyle ? {
-        artDirection: metadata.visualStyle.artDirection ?? '',
-        artStyle: metadata.visualStyle.artStyle ?? '',
-        artStyleDescription: metadata.visualStyle.artStyleDescription ?? '',
-        colorPalette: metadata.visualStyle.colorPalette ?? [],
-        colorMood: metadata.visualStyle.colorMood ?? '',
-        cinematography: metadata.visualStyle.cinematography ?? '',
-        lightingStyle: metadata.visualStyle.lightingStyle ?? '',
-      } : undefined,
+      visualStyle: metadata.visualStyle
+        ? {
+            artDirection: metadata.visualStyle.artDirection ?? '',
+            artStyle: metadata.visualStyle.artStyle ?? '',
+            artStyleDescription: metadata.visualStyle.artStyleDescription ?? '',
+            colorPalette: metadata.visualStyle.colorPalette ?? [],
+            colorMood: metadata.visualStyle.colorMood ?? '',
+            cinematography: metadata.visualStyle.cinematography ?? '',
+            lightingStyle: metadata.visualStyle.lightingStyle ?? '',
+          }
+        : undefined,
       // Ensure eraContext has all required fields if present
-      eraContext: metadata.eraContext ? {
-        era: metadata.eraContext.era ?? '',
-        eraDescription: metadata.eraContext.eraDescription ?? '',
-        location: metadata.eraContext.location ?? '',
-        season: metadata.eraContext.season,
-        timeOfDay: metadata.eraContext.timeOfDay,
-      } : undefined,
+      eraContext: metadata.eraContext
+        ? {
+            era: metadata.eraContext.era ?? '',
+            eraDescription: metadata.eraContext.eraDescription ?? '',
+            location: metadata.eraContext.location ?? '',
+            season: metadata.eraContext.season,
+            timeOfDay: metadata.eraContext.timeOfDay,
+          }
+        : undefined,
       // Ensure emotionalArc has all required fields if present
       emotionalArc: metadata.emotionalArc?.map(point => ({
         plotPoint: point.plotPoint ?? '',
@@ -1960,12 +2033,14 @@ export class ScriptParser {
         percentage: point.percentage ?? 0,
       })),
       // Ensure consistencyRules has all required fields if present
-      consistencyRules: metadata.consistencyRules ? {
-        characterTraits: metadata.consistencyRules.characterTraits ?? {},
-        eraConstraints: metadata.consistencyRules.eraConstraints ?? [],
-        styleConstraints: metadata.consistencyRules.styleConstraints ?? [],
-        forbiddenElements: metadata.consistencyRules.forbiddenElements ?? [],
-      } : undefined,
+      consistencyRules: metadata.consistencyRules
+        ? {
+            characterTraits: metadata.consistencyRules.characterTraits ?? {},
+            eraConstraints: metadata.consistencyRules.eraConstraints ?? [],
+            styleConstraints: metadata.consistencyRules.styleConstraints ?? [],
+            forbiddenElements: metadata.consistencyRules.forbiddenElements ?? [],
+          }
+        : undefined,
     };
 
     return result;
@@ -1980,7 +2055,7 @@ export class ScriptParser {
   /**
    * Discover character names in a specific chunk of text
    * This method scans the chunk and returns all character names mentioned
-   * 
+   *
    * @param chunkContent - The chunk content to analyze
    * @returns Array of character names found in the chunk
    */
@@ -2012,11 +2087,15 @@ ${chunkContent.substring(0, 4000)}
     try {
       const response = await this.callLLM(prompt, 'metadata');
       const result = this.extractJSON<{ characterNames: string[] }>(response);
-      
+
       // Filter out empty names and duplicates
-      const uniqueNames = Array.from(new Set(result.characterNames?.filter(name => name && name.trim()) || []));
-      console.log(`[ScriptParser] Discovered ${uniqueNames.length} characters: ${uniqueNames.join(', ')}`);
-      
+      const uniqueNames = Array.from(
+        new Set(result.characterNames?.filter(name => name && name.trim()) || [])
+      );
+      console.log(
+        `[ScriptParser] Discovered ${uniqueNames.length} characters: ${uniqueNames.join(', ')}`
+      );
+
       return uniqueNames;
     } catch (error) {
       console.error('[ScriptParser] Failed to discover characters in chunk:', error);
@@ -2027,7 +2106,7 @@ ${chunkContent.substring(0, 4000)}
   /**
    * Discover scene names in a specific chunk of text
    * This method scans the chunk and returns all scene/location names mentioned
-   * 
+   *
    * @param chunkContent - The chunk content to analyze
    * @returns Array of scene names found in the chunk
    */
@@ -2060,11 +2139,15 @@ ${chunkContent.substring(0, 4000)}
     try {
       const response = await this.callLLM(prompt, 'metadata');
       const result = this.extractJSON<{ sceneNames: string[] }>(response);
-      
+
       // Filter out empty names and duplicates
-      const uniqueNames = Array.from(new Set(result.sceneNames?.filter(name => name && name.trim()) || []));
-      console.log(`[ScriptParser] Discovered ${uniqueNames.length} scenes: ${uniqueNames.join(', ')}`);
-      
+      const uniqueNames = Array.from(
+        new Set(result.sceneNames?.filter(name => name && name.trim()) || [])
+      );
+      console.log(
+        `[ScriptParser] Discovered ${uniqueNames.length} scenes: ${uniqueNames.join(', ')}`
+      );
+
       return uniqueNames;
     } catch (error) {
       console.error('[ScriptParser] Failed to discover scenes in chunk:', error);
@@ -2096,16 +2179,19 @@ ${chunkContent.substring(0, 4000)}
     console.log(`[ScriptParser] useProductionPrompt: ${this.parserConfig.useProductionPrompt}`);
 
     const paragraphs = content.split('\n\n');
-    const sceneStartIndex = paragraphs.findIndex(p =>
-      p.includes(sceneName) || p.toLowerCase().includes(sceneName.toLowerCase())
+    const sceneStartIndex = paragraphs.findIndex(
+      p => p.includes(sceneName) || p.toLowerCase().includes(sceneName.toLowerCase())
     );
 
     let sceneContent = content;
     if (sceneStartIndex >= 0) {
-      const nextSceneIndex = paragraphs.slice(sceneStartIndex + 1).findIndex(p =>
-        p.includes('场景') || p.includes('地点') || p.includes('第') && p.includes('章')
-      );
-      const endIndex = nextSceneIndex >= 0 ? sceneStartIndex + 1 + nextSceneIndex : paragraphs.length;
+      const nextSceneIndex = paragraphs
+        .slice(sceneStartIndex + 1)
+        .findIndex(
+          p => p.includes('场景') || p.includes('地点') || (p.includes('第') && p.includes('章'))
+        );
+      const endIndex =
+        nextSceneIndex >= 0 ? sceneStartIndex + 1 + nextSceneIndex : paragraphs.length;
       sceneContent = paragraphs.slice(sceneStartIndex, endIndex).join('\n\n');
     }
     console.log(`[ScriptParser] Scene content length: ${sceneContent.length} characters`);
@@ -2220,10 +2306,10 @@ ${chunkContent.substring(0, 4000)}
 
     // 映射场景重要性为中文
     const importanceMap: Record<string, string> = {
-      'opening': '开场',
-      'development': '发展',
-      'climax': '高潮',
-      'ending': '结尾'
+      opening: '开场',
+      development: '发展',
+      climax: '高潮',
+      ending: '结尾',
     };
     const sceneImportance = importanceMap[sceneBudget.importance] || '发展';
 
@@ -2240,19 +2326,19 @@ ${chunkContent.substring(0, 4000)}
 
     // 获取平台显示名称
     const platformMap: Record<string, string> = {
-      'douyin': '抖音（竖屏，快节奏）',
-      'kuaishou': '快手（竖屏，生活化）',
-      'bilibili': 'B站（横屏，多样化）',
-      'premium': '精品短剧（横屏，高质量）'
+      douyin: '抖音（竖屏，快节奏）',
+      kuaishou: '快手（竖屏，生活化）',
+      bilibili: 'B站（横屏，多样化）',
+      premium: '精品短剧（横屏，高质量）',
     };
     const targetPlatform = platformMap[this.parserConfig.targetPlatform || 'douyin'];
 
     // 获取总时长预算
-    const totalDuration = this.durationBudget?.totalDuration ||
-      (sceneBudget.shotCount * sceneBudget.averageShotDuration);
+    const totalDuration =
+      this.durationBudget?.totalDuration || sceneBudget.shotCount * sceneBudget.averageShotDuration;
 
     // 构建Prompt
-    let prompt = PROMPTS.productionShots
+    const prompt = PROMPTS.productionShots
       .replace('{content}', sceneContent.substring(0, 6000))
       .replace(/{sceneName}/g, sceneName)
       .replace('{sceneDescription}', sceneDescription)
@@ -2294,14 +2380,18 @@ ${chunkContent.substring(0, 4000)}
       shots,
       'shots'
     );
-    
+
     this.qualityReport = report;
 
     if (report.score < this.parserConfig.dramaRulesMinScore) {
-      console.warn(`[ScriptParser] Shots quality below threshold: ${report.score}/${this.parserConfig.dramaRulesMinScore}`);
+      console.warn(
+        `[ScriptParser] Shots quality below threshold: ${report.score}/${this.parserConfig.dramaRulesMinScore}`
+      );
       console.warn(`[ScriptParser] Violations:`, report.violations.map(v => v.message).join('; '));
     } else {
-      console.log(`[ScriptParser] Shots quality passed: ${report.score}/${this.parserConfig.dramaRulesMinScore}`);
+      console.log(
+        `[ScriptParser] Shots quality passed: ${report.score}/${this.parserConfig.dramaRulesMinScore}`
+      );
     }
 
     if (report.recommendations.length > 0) {
@@ -2312,13 +2402,18 @@ ${chunkContent.substring(0, 4000)}
   /**
    * Batch extract all characters in one API call
    */
-  async extractAllCharacters(content: string, characterNames: string[]): Promise<ScriptCharacter[]> {
+  async extractAllCharacters(
+    content: string,
+    characterNames: string[]
+  ): Promise<ScriptCharacter[]> {
     if (characterNames.length === 0) return [];
     if (characterNames.length === 1) {
       return [await this.extractCharacterWithContext(content, characterNames[0])];
     }
 
-    console.log(`[ScriptParser] ---------- Batch Extracting ${characterNames.length} Characters ----------`);
+    console.log(
+      `[ScriptParser] ---------- Batch Extracting ${characterNames.length} Characters ----------`
+    );
 
     const prompt = PROMPTS.charactersBatch
       .replace('{content}', content.substring(0, 4000))
@@ -2333,16 +2428,21 @@ ${chunkContent.substring(0, 4000)}
     console.log(`[ScriptParser] Parsed ${characters.length} characters from batch response`);
 
     // Validate and ensure all characters have required fields
-    return characters.map((char, index) => this.validateCharacter(char, characterNames[index] || char.name || `角色${index + 1}`));
+    return characters.map((char, index) =>
+      this.validateCharacter(char, characterNames[index] || char.name || `角色${index + 1}`)
+    );
   }
 
   /**
    * Batch extract all characters with global context injection
    * This method injects story context, visual style, and era constraints into the prompt
-   * 
+   *
    * Phase 2.1.2: Smart batching - split into batches of 5 when character count > 5
    */
-  async extractAllCharactersWithContext(content: string, characterNames: string[]): Promise<ScriptCharacter[]> {
+  async extractAllCharactersWithContext(
+    content: string,
+    characterNames: string[]
+  ): Promise<ScriptCharacter[]> {
     if (characterNames.length === 0) return [];
     if (characterNames.length === 1) {
       return [await this.extractCharacterWithContext(content, characterNames[0])];
@@ -2351,13 +2451,17 @@ ${chunkContent.substring(0, 4000)}
     // Phase 2.1.2: Smart batching - if > 5 characters, split into batches
     const BATCH_SIZE = 5;
     if (characterNames.length > BATCH_SIZE) {
-      console.log(`[ScriptParser] ---------- Smart Batching ${characterNames.length} Characters (${Math.ceil(characterNames.length / BATCH_SIZE)} batches) ----------`);
+      console.log(
+        `[ScriptParser] ---------- Smart Batching ${characterNames.length} Characters (${Math.ceil(characterNames.length / BATCH_SIZE)} batches) ----------`
+      );
       const allCharacters: ScriptCharacter[] = [];
-      
+
       for (let i = 0; i < characterNames.length; i += BATCH_SIZE) {
         const batch = characterNames.slice(i, i + BATCH_SIZE);
-        console.log(`[ScriptParser] Processing batch ${Math.floor(i / BATCH_SIZE) + 1}/${Math.ceil(characterNames.length / BATCH_SIZE)}: ${batch.length} characters`);
-        
+        console.log(
+          `[ScriptParser] Processing batch ${Math.floor(i / BATCH_SIZE) + 1}/${Math.ceil(characterNames.length / BATCH_SIZE)}: ${batch.length} characters`
+        );
+
         try {
           const batchCharacters = await this.extractCharacterBatchWithContext(content, batch);
           allCharacters.push(...batchCharacters);
@@ -2375,13 +2479,17 @@ ${chunkContent.substring(0, 4000)}
           }
         }
       }
-      
-      console.log(`[ScriptParser] Smart batching complete: ${allCharacters.length} characters extracted`);
+
+      console.log(
+        `[ScriptParser] Smart batching complete: ${allCharacters.length} characters extracted`
+      );
       return allCharacters;
     }
 
     // Original logic for <= 5 characters
-    console.log(`[ScriptParser] ---------- Batch Extracting ${characterNames.length} Characters with Context ----------`);
+    console.log(
+      `[ScriptParser] ---------- Batch Extracting ${characterNames.length} Characters with Context ----------`
+    );
     return this.extractCharacterBatchWithContext(content, characterNames);
   }
 
@@ -2389,7 +2497,10 @@ ${chunkContent.substring(0, 4000)}
    * Extract a single batch of characters (max 5) with context
    * @private
    */
-  private async extractCharacterBatchWithContext(content: string, characterNames: string[]): Promise<ScriptCharacter[]> {
+  private async extractCharacterBatchWithContext(
+    content: string,
+    characterNames: string[]
+  ): Promise<ScriptCharacter[]> {
     // Build base prompt
     let prompt = PROMPTS.charactersBatch
       .replace('{content}', content.substring(0, 4000))
@@ -2398,7 +2509,11 @@ ${chunkContent.substring(0, 4000)}
     // Inject global context if available
     if (this.globalContext && this.contextInjector) {
       console.log('[ScriptParser] Injecting global context into character extraction');
-      prompt = this.contextInjector.injectForCharacter(prompt, this.globalContext, characterNames[0]);
+      prompt = this.contextInjector.injectForCharacter(
+        prompt,
+        this.globalContext,
+        characterNames[0]
+      );
     }
 
     console.log(`[ScriptParser] Context-enhanced prompt length: ${prompt.length} characters`);
@@ -2410,7 +2525,9 @@ ${chunkContent.substring(0, 4000)}
     console.log(`[ScriptParser] Parsed ${characters.length} characters from batch response`);
 
     // Validate and ensure all characters have required fields
-    return characters.map((char, index) => this.validateCharacter(char, characterNames[index] || char.name || `角色${index + 1}`));
+    return characters.map((char, index) =>
+      this.validateCharacter(char, characterNames[index] || char.name || `角色${index + 1}`)
+    );
   }
 
   /**
@@ -2425,15 +2542,20 @@ ${chunkContent.substring(0, 4000)}
       signatureItems: [],
       emotionalArc: [],
       relationships: [],
-      visualPrompt: name
+      visualPrompt: name,
     };
   }
 
   /**
    * Extract single character with global context injection
    */
-  async extractCharacterWithContext(content: string, characterName: string): Promise<ScriptCharacter> {
-    console.log(`[ScriptParser] ---------- Extracting Character with Context: ${characterName} ----------`);
+  async extractCharacterWithContext(
+    content: string,
+    characterName: string
+  ): Promise<ScriptCharacter> {
+    console.log(
+      `[ScriptParser] ---------- Extracting Character with Context: ${characterName} ----------`
+    );
 
     // Check cache first
     const cacheKey = `char:${characterName}:${this.hashContent(content.substring(0, 1000))}:context`;
@@ -2445,16 +2567,16 @@ ${chunkContent.substring(0, 4000)}
 
     // Extract relevant paragraphs containing the character
     const paragraphs = content.split('\n\n');
-    const relevantParagraphs = paragraphs.filter(p =>
-      p.includes(characterName) ||
-      p.includes(characterName.split('').join('.*?')) // Fuzzy match for Chinese names
+    const relevantParagraphs = paragraphs.filter(
+      p => p.includes(characterName) || p.includes(characterName.split('').join('.*?')) // Fuzzy match for Chinese names
     );
-    console.log(`[ScriptParser] Found ${relevantParagraphs.length} paragraphs mentioning ${characterName}`);
+    console.log(
+      `[ScriptParser] Found ${relevantParagraphs.length} paragraphs mentioning ${characterName}`
+    );
 
     // If not enough content, use the whole text
-    const characterContent = relevantParagraphs.length > 3
-      ? relevantParagraphs.join('\n\n')
-      : content;
+    const characterContent =
+      relevantParagraphs.length > 3 ? relevantParagraphs.join('\n\n') : content;
     console.log(`[ScriptParser] Character content length: ${characterContent.length} characters`);
 
     // Build base prompt
@@ -2501,7 +2623,9 @@ ${chunkContent.substring(0, 4000)}
       return [await this.extractSceneWithContext(content, sceneNames[0])];
     }
 
-    console.log(`[ScriptParser] ---------- Batch Extracting ${sceneNames.length} Scenes ----------`);
+    console.log(
+      `[ScriptParser] ---------- Batch Extracting ${sceneNames.length} Scenes ----------`
+    );
 
     const prompt = PROMPTS.scenesBatch
       .replace('{content}', content.substring(0, 4000))
@@ -2516,13 +2640,15 @@ ${chunkContent.substring(0, 4000)}
     console.log(`[ScriptParser] Parsed ${scenes.length} scenes from batch response`);
 
     // Validate and ensure all scenes have required fields
-    return scenes.map((scene, index) => this.validateScene(scene, sceneNames[index] || scene.name || `场景${index + 1}`));
+    return scenes.map((scene, index) =>
+      this.validateScene(scene, sceneNames[index] || scene.name || `场景${index + 1}`)
+    );
   }
 
   /**
    * Batch extract all scenes with global context injection
    * This method injects story context, visual style, era constraints, and emotional context into the prompt
-   * 
+   *
    * Phase 2.1.2: Smart batching - split into batches of 5 when scene count > 5
    */
   async extractAllScenesWithContext(content: string, sceneNames: string[]): Promise<ScriptScene[]> {
@@ -2534,13 +2660,17 @@ ${chunkContent.substring(0, 4000)}
     // Phase 2.1.2: Smart batching - if > 5 scenes, split into batches
     const BATCH_SIZE = 5;
     if (sceneNames.length > BATCH_SIZE) {
-      console.log(`[ScriptParser] ---------- Smart Batching ${sceneNames.length} Scenes (${Math.ceil(sceneNames.length / BATCH_SIZE)} batches) ----------`);
+      console.log(
+        `[ScriptParser] ---------- Smart Batching ${sceneNames.length} Scenes (${Math.ceil(sceneNames.length / BATCH_SIZE)} batches) ----------`
+      );
       const allScenes: ScriptScene[] = [];
-      
+
       for (let i = 0; i < sceneNames.length; i += BATCH_SIZE) {
         const batch = sceneNames.slice(i, i + BATCH_SIZE);
-        console.log(`[ScriptParser] Processing batch ${Math.floor(i / BATCH_SIZE) + 1}/${Math.ceil(sceneNames.length / BATCH_SIZE)}: ${batch.length} scenes`);
-        
+        console.log(
+          `[ScriptParser] Processing batch ${Math.floor(i / BATCH_SIZE) + 1}/${Math.ceil(sceneNames.length / BATCH_SIZE)}: ${batch.length} scenes`
+        );
+
         try {
           const batchScenes = await this.extractSceneBatchWithContext(content, batch);
           allScenes.push(...batchScenes);
@@ -2558,13 +2688,15 @@ ${chunkContent.substring(0, 4000)}
           }
         }
       }
-      
+
       console.log(`[ScriptParser] Smart batching complete: ${allScenes.length} scenes extracted`);
       return allScenes;
     }
 
     // Original logic for <= 5 scenes
-    console.log(`[ScriptParser] ---------- Batch Extracting ${sceneNames.length} Scenes with Context ----------`);
+    console.log(
+      `[ScriptParser] ---------- Batch Extracting ${sceneNames.length} Scenes with Context ----------`
+    );
     return this.extractSceneBatchWithContext(content, sceneNames);
   }
 
@@ -2572,7 +2704,10 @@ ${chunkContent.substring(0, 4000)}
    * Extract a single batch of scenes (max 5) with context
    * @private
    */
-  private async extractSceneBatchWithContext(content: string, sceneNames: string[]): Promise<ScriptScene[]> {
+  private async extractSceneBatchWithContext(
+    content: string,
+    sceneNames: string[]
+  ): Promise<ScriptScene[]> {
     // Build base prompt
     let prompt = PROMPTS.scenesBatch
       .replace('{content}', content.substring(0, 4000))
@@ -2593,7 +2728,9 @@ ${chunkContent.substring(0, 4000)}
     console.log(`[ScriptParser] Parsed ${scenes.length} scenes from batch response`);
 
     // Validate and ensure all scenes have required fields
-    return scenes.map((scene, index) => this.validateScene(scene, sceneNames[index] || scene.name || `场景${index + 1}`));
+    return scenes.map((scene, index) =>
+      this.validateScene(scene, sceneNames[index] || scene.name || `场景${index + 1}`)
+    );
   }
 
   /**
@@ -2608,7 +2745,7 @@ ${chunkContent.substring(0, 4000)}
       environment: {},
       sceneFunction: '',
       visualPrompt: name,
-      characters: []
+      characters: [],
     };
   }
 
@@ -2628,15 +2765,14 @@ ${chunkContent.substring(0, 4000)}
 
     // Extract relevant paragraphs containing the scene
     const paragraphs = content.split('\n\n');
-    const relevantParagraphs = paragraphs.filter(p =>
-      p.includes(sceneName) ||
-      p.toLowerCase().includes(sceneName.toLowerCase())
+    const relevantParagraphs = paragraphs.filter(
+      p => p.includes(sceneName) || p.toLowerCase().includes(sceneName.toLowerCase())
     );
-    console.log(`[ScriptParser] Found ${relevantParagraphs.length} paragraphs mentioning ${sceneName}`);
+    console.log(
+      `[ScriptParser] Found ${relevantParagraphs.length} paragraphs mentioning ${sceneName}`
+    );
 
-    const sceneContent = relevantParagraphs.length > 2
-      ? relevantParagraphs.join('\n\n')
-      : content;
+    const sceneContent = relevantParagraphs.length > 2 ? relevantParagraphs.join('\n\n') : content;
     console.log(`[ScriptParser] Scene content length: ${sceneContent.length} characters`);
 
     // Build base prompt
@@ -2679,7 +2815,12 @@ ${chunkContent.substring(0, 4000)}
   async generateAllShots(content: string, scenes: ScriptScene[]): Promise<Shot[]> {
     if (scenes.length === 0) return [];
     if (scenes.length === 1) {
-      const shots = await this.generateShots(content, scenes[0].name, scenes[0].description, scenes[0].characters);
+      const shots = await this.generateShots(
+        content,
+        scenes[0].name,
+        scenes[0].description,
+        scenes[0].characters
+      );
       const result = shots.map((shot, index) => ({
         ...shot,
         id: shot.id || crypto.randomUUID(),
@@ -2693,9 +2834,16 @@ ${chunkContent.substring(0, 4000)}
       return result;
     }
 
-    console.log(`[ScriptParser] ---------- Batch Generating Shots for ${scenes.length} Scenes ----------`);
+    console.log(
+      `[ScriptParser] ---------- Batch Generating Shots for ${scenes.length} Scenes ----------`
+    );
 
-    const scenesInfo = scenes.map(s => `- ${s.name}: ${s.description?.substring(0, 50) || '无描述'}... (角色: ${s.characters?.join(', ') || '无'})`).join('\n');
+    const scenesInfo = scenes
+      .map(
+        s =>
+          `- ${s.name}: ${s.description?.substring(0, 50) || '无描述'}... (角色: ${s.characters?.join(', ') || '无'})`
+      )
+      .join('\n');
 
     const prompt = PROMPTS.shotsBatch
       .replace('{content}', content.substring(0, 3000))
@@ -2746,31 +2894,38 @@ ${chunkContent.substring(0, 4000)}
     // Step 1: 情节分析
     console.log(`[ScriptParser] Step 1: Analyzing plot structure...`);
     const plotAnalysis = await this.analyzePlot(content);
-    console.log(`[ScriptParser] Plot analysis complete: ${plotAnalysis.statistics.totalPlotPoints} plot points`);
-    console.log(`[ScriptParser] Estimated shots: ${plotAnalysis.statistics.estimatedShots.shortDrama} (short-drama) / ${plotAnalysis.statistics.estimatedShots.film} (film)`);
+    console.log(
+      `[ScriptParser] Plot analysis complete: ${plotAnalysis.statistics.totalPlotPoints} plot points`
+    );
+    console.log(
+      `[ScriptParser] Estimated shots: ${plotAnalysis.statistics.estimatedShots.shortDrama} (short-drama) / ${plotAnalysis.statistics.estimatedShots.film} (film)`
+    );
 
     // Step 2: 根据风格确定密度系数
     const densityMap = {
-      'short-drama': 1.2,  // 短剧：快节奏
-      'film': 2.0,         // 电影：慢节奏
-      'custom': customDensity || 1.5
+      'short-drama': 1.2, // 短剧：快节奏
+      film: 2.0, // 电影：慢节奏
+      custom: customDensity || 1.5,
     };
     const density = densityMap[filmStyle];
 
     // Step 3: 生成分镜
     console.log(`[ScriptParser] Step 2: Generating shots with density: ${density}`);
-    const scenesInfo = scenes.map(s => 
-      `- ${s.name}: ${s.description?.substring(0, 50) || '无描述'}... (角色: ${s.characters?.join(', ') || '无'})`
-    ).join('\n');
+    const scenesInfo = scenes
+      .map(
+        s =>
+          `- ${s.name}: ${s.description?.substring(0, 50) || '无描述'}... (角色: ${s.characters?.join(', ') || '无'})`
+      )
+      .join('\n');
 
     const styleDescription = {
       'short-drama': '短剧风格：快节奏，每个情节点1-2个分镜，注重情节推进',
-      'film': '电影风格：慢节奏，每个情节点2-4个分镜，注重意境和情感表达',
-      'custom': `自定义风格：密度系数${density}，按需生成`
+      film: '电影风格：慢节奏，每个情节点2-4个分镜，注重意境和情感表达',
+      custom: `自定义风格：密度系数${density}，按需生成`,
     }[filmStyle];
 
     const prompt = PROMPTS.shotsBatch
-      .replace('{content}', content.substring(0, 8000))  // 增加内容长度
+      .replace('{content}', content.substring(0, 8000)) // 增加内容长度
       .replace('{scenesInfo}', scenesInfo)
       .replace('{filmStyle}', `${filmStyle}\n${styleDescription}`);
 
@@ -2866,25 +3021,58 @@ ${chunkContent.substring(0, 4000)}
       console.error(`[ScriptParser] Plot analysis failed: ${error}`);
       // 返回默认分析结果
       return {
-        plotPoints: [{
-          type: 'opening',
-          importance: 'major',
-          description: '故事开端',
-          characters: [],
-          emotionalTone: 'neutral',
-          sceneContext: 'default'
-        }],
+        plotPoints: [
+          {
+            type: 'opening',
+            importance: 'major',
+            description: '故事开端',
+            characters: [],
+            emotionalTone: 'neutral',
+            sceneContext: 'default',
+          },
+        ],
         statistics: {
           totalPlotPoints: 1,
           majorPoints: 1,
           minorPoints: 0,
           estimatedShots: {
             shortDrama: 10,
-            film: 20
-          }
-        }
+            film: 20,
+          },
+        },
       };
     }
+  }
+
+  /**
+   * 提取场景相关的文本片段（前后500字符）
+   * @private
+   */
+  private extractSceneContext(content: string, sceneName: string): string {
+    const paragraphs = content.split('\n\n');
+    let context: string[] = [];
+
+    for (let i = 0; i < paragraphs.length; i++) {
+      const para = paragraphs[i];
+      if (para.includes(sceneName) || para.toLowerCase().includes(sceneName.toLowerCase())) {
+        const startIdx = Math.max(0, i - 2);
+        const endIdx = Math.min(paragraphs.length, i + 3);
+        context = paragraphs.slice(startIdx, endIdx);
+        break;
+      }
+    }
+
+    if (context.length === 0) {
+      const idx = content.indexOf(sceneName);
+      if (idx !== -1) {
+        const start = Math.max(0, idx - 500);
+        const end = Math.min(content.length, idx + 500);
+        return content.substring(start, end);
+      }
+      return content.substring(0, 1000);
+    }
+
+    return context.join('\n\n');
   }
 
   /**
@@ -2908,17 +3096,31 @@ ${chunkContent.substring(0, 4000)}
       return result;
     }
 
-    console.log(`[ScriptParser] ---------- Batch Generating Shots with Context for ${scenes.length} Scenes ----------`);
+    console.log(
+      `[ScriptParser] ---------- Batch Generating Shots with Context for ${scenes.length} Scenes ----------`
+    );
 
-    const scenesInfo = scenes.map(s => `- ${s.name}: ${s.description?.substring(0, 50) || '无描述'}... (角色: ${s.characters?.join(', ') || '无'})`).join('\n');
+    const scenesInfo = scenes
+      .map(
+        s =>
+          `- ${s.name}: ${s.description?.substring(0, 50) || '无描述'}... (角色: ${s.characters?.join(', ') || '无'})`
+      )
+      .join('\n');
+
+    // 提取每个场景相关的文本片段
+    const allSceneContents = scenes
+      .map(scene => this.extractSceneContext(content, scene.name))
+      .join('\n\n');
 
     // 计算分镜生成参数（基于行业标准）
-    const shotGen = this.calculateShotGeneration(content.length);
-    console.log(`[ScriptParser] Target: ${shotGen.targetShots} shots (${shotGen.keyShots} key + ${shotGen.optionalShots} optional)`);
+    const shotGen = this.calculateShotGeneration(allSceneContents.length);
+    console.log(
+      `[ScriptParser] Target: ${shotGen.targetShots} shots (${shotGen.keyShots} key + ${shotGen.optionalShots} optional)`
+    );
 
     // Build base prompt
     let prompt = PROMPTS.shotsBatch
-      .replace('{content}', content.substring(0, 5000))  // 增加内容长度，确保覆盖全部情节
+      .replace('{content}', allSceneContents)
       .replace('{scenesInfo}', scenesInfo);
 
     // Inject global context if available
@@ -2953,7 +3155,9 @@ ${chunkContent.substring(0, 4000)}
     // 统计关键分镜和可选分镜数量
     const keyShots = result.filter(s => s.layer === 'key').length;
     const optionalShots = result.filter(s => s.layer === 'optional').length;
-    console.log(`[ScriptParser] Generated ${result.length} shots: ${keyShots} key + ${optionalShots} optional`);
+    console.log(
+      `[ScriptParser] Generated ${result.length} shots: ${keyShots} key + ${optionalShots} optional`
+    );
 
     return result;
   }
@@ -2971,28 +3175,16 @@ ${chunkContent.substring(0, 4000)}
     sceneIndex?: number,
     totalScenes?: number
   ): Promise<Shot[]> {
-    console.log(`[ScriptParser] ---------- Generating Shots with Context for Scene: ${scene.name} ----------`);
+    console.log(
+      `[ScriptParser] ---------- Generating Shots with Context for Scene: ${scene.name} ----------`
+    );
     console.log(`[ScriptParser] useProductionPrompt: ${this.parserConfig.useProductionPrompt}`);
 
-    const paragraphs = content.split('\n\n');
-    const sceneStartIndex = paragraphs.findIndex(p =>
-      p.includes(scene.name) || p.toLowerCase().includes(scene.name.toLowerCase())
-    );
-
-    let sceneContent = content;
-    if (sceneStartIndex >= 0) {
-      const nextSceneIndex = paragraphs.slice(sceneStartIndex + 1).findIndex(p =>
-        p.includes('场景') || p.includes('地点') || p.includes('第') && p.includes('章')
-      );
-      const endIndex = nextSceneIndex >= 0 ? sceneStartIndex + 1 + nextSceneIndex : paragraphs.length;
-      sceneContent = paragraphs.slice(sceneStartIndex, endIndex).join('\n\n');
-    }
+    const sceneContent = this.extractSceneContext(content, scene.name);
     console.log(`[ScriptParser] Scene content length: ${sceneContent.length} characters`);
 
     // Get scene budget if available
-    const sceneBudget = this.durationBudget?.sceneBudgets.find(
-      sb => sb.sceneName === scene.name
-    );
+    const sceneBudget = this.durationBudget?.sceneBudgets.find(sb => sb.sceneName === scene.name);
 
     // 选择使用生产级Prompt或标准Prompt
     const useProductionPrompt = this.parserConfig.useProductionPrompt && sceneBudget;
@@ -3069,11 +3261,13 @@ ${chunkContent.substring(0, 4000)}
   ): Promise<ScriptParseState> {
     console.log(`[ScriptParser] ========== Short Text Fast Path ==========`);
     console.log(`[ScriptParser] Content length: ${content.length} characters`);
-    console.log(`[ScriptParser] skipGlobalContextForFastPath: ${this.parserConfig.skipGlobalContextForFastPath}`);
+    console.log(
+      `[ScriptParser] skipGlobalContextForFastPath: ${this.parserConfig.skipGlobalContextForFastPath}`
+    );
 
     const state: ScriptParseState = {
       stage: 'metadata',
-      progress: 10
+      progress: 10,
     };
 
     try {
@@ -3086,8 +3280,15 @@ ${chunkContent.substring(0, 4000)}
 
       // Step 2: Batch extract all characters
       if (state.metadata.characterNames && state.metadata.characterNames.length > 0) {
-        onProgress?.('characters', 25, `正在批量分析 ${state.metadata.characterNames.length} 个角色...`);
-        state.characters = await this.extractAllCharactersWithContext(content, state.metadata.characterNames);
+        onProgress?.(
+          'characters',
+          25,
+          `正在批量分析 ${state.metadata.characterNames.length} 个角色...`
+        );
+        state.characters = await this.extractAllCharactersWithContext(
+          content,
+          state.metadata.characterNames
+        );
         console.log(`[ScriptParser] Fast path: Extracted ${state.characters.length} characters`);
       } else {
         state.characters = [];
@@ -3129,7 +3330,7 @@ ${chunkContent.substring(0, 4000)}
               assets: { characterIds: scene.characters || [], sceneId: scene.id || '' },
               contentType: 'static',
               layer: 'key',
-              status: 'pending'
+              status: 'pending',
             });
           });
           state.shots = fallbackShots;
@@ -3158,8 +3359,9 @@ ${chunkContent.substring(0, 4000)}
       onProgress?.('completed', 100, '解析完成！');
 
       console.log(`[ScriptParser] ========== Short Text Parse Completed ==========`);
-      console.log(`[ScriptParser] Characters: ${state.characters?.length}, Scenes: ${state.scenes?.length}, Shots: ${state.shots?.length}`);
-
+      console.log(
+        `[ScriptParser] Characters: ${state.characters?.length}, Scenes: ${state.scenes?.length}, Shots: ${state.shots?.length}`
+      );
     } catch (error: any) {
       state.stage = 'error';
       state.error = error.message;
@@ -3171,14 +3373,14 @@ ${chunkContent.substring(0, 4000)}
 
   /**
    * V4 Ultra-Fast: Ultra-short text single-pass parsing (<500 characters)
-   * 
+   *
    * 优化点：
    * 1. 单次API调用提取所有信息（元数据、角色、场景、分镜）
    * 2. 简化Prompt，减少token消耗
    * 3. 跳过中间状态，直接生成最终结果
-   * 
+   *
    * 相比parseShortScriptOptimized，可减少约70-80%的解析时间和token消耗
-   * 
+   *
    * @param content - 剧本内容（<500字符）
    * @param onProgress - 进度回调
    * @returns 完整的解析状态
@@ -3192,7 +3394,7 @@ ${chunkContent.substring(0, 4000)}
 
     const state: ScriptParseState = {
       stage: 'metadata',
-      progress: 10
+      progress: 10,
     };
 
     try {
@@ -3240,19 +3442,24 @@ ${content}
 
       // 单次API调用获取所有信息
       const startTime = Date.now();
-      
-      // 启动进度更新定时器，让用户知道API调用正在进行
+
+      // 启动进度更新定时器，让用户知道API调用正在进行（降低频率减少日志）
       let progress = 10;
+      let updateCount = 0;
       const progressInterval = setInterval(() => {
-        progress += 2;
+        progress += 5; // 每次增加5%，减少更新次数
+        updateCount++;
         if (progress < 35) {
-          onProgress?.('metadata', progress, '正在等待AI分析结果...');
+          // 每3次更新才打印一次日志（约15秒一次）
+          if (updateCount % 3 === 1) {
+            onProgress?.('metadata', progress, '正在等待AI分析结果...');
+          }
         }
-      }, 2000); // 每2秒更新一次进度
-      
+      }, 5000); // 每5秒更新一次（原来是2秒）
+
       // 使用'metadata'任务类型，它配置了合适的maxTokens和timeout
       const response = await this.callLLM(prompt, 'metadata');
-      
+
       clearInterval(progressInterval);
       const duration = Date.now() - startTime;
 
@@ -3282,13 +3489,15 @@ ${content}
         genre: parsedData.genre || '剧情',
         tone: parsedData.tone || 'neutral',
         targetAudience: parsedData.targetAudience || 'general',
+        wordCount: parsedData.wordCount || 0,
+        chapterCount: parsedData.chapters?.length || 1,
         characterCount: parsedData.characters?.length || 0,
         sceneCount: parsedData.scenes?.length || 0,
-        estimatedDuration: parsedData.shots?.length * 3 || 0, // 每个分镜约3秒
+        estimatedDuration: String(parsedData.shots?.length * 3 || 0), // 每个分镜约3秒
         characterNames: parsedData.characters?.map((c: any) => c.name) || [],
         sceneNames: parsedData.scenes?.map((s: any) => s.name) || [],
         keyProps: parsedData.keyProps || [],
-        themes: parsedData.themes || []
+        themes: parsedData.themes || [],
       };
 
       // 构建characters
@@ -3302,9 +3511,9 @@ ${content}
           build: '',
           face: '',
           hair: '',
-          clothing: ''
+          clothing: '',
         },
-        tags: []
+        tags: [],
       }));
 
       // 构建scenes
@@ -3316,7 +3525,7 @@ ${content}
         locationType: 'interior',
         characters: scene.characters || [],
         duration: 0,
-        emotionalTone: 'neutral'
+        emotionalTone: 'neutral',
       }));
 
       onProgress?.('shots', 70, '正在生成分镜...');
@@ -3333,11 +3542,11 @@ ${content}
         characters: shot.characters || [],
         assets: {
           characterIds: shot.characters || [],
-          sceneId: state.scenes.find(s => s.name === shot.sceneName)?.id || ''
+          sceneId: state.scenes.find(s => s.name === shot.sceneName)?.id || '',
         },
         contentType: 'static',
         layer: 'key',
-        status: 'pending'
+        status: 'pending',
       }));
 
       state.progress = 90;
@@ -3363,10 +3572,11 @@ ${content}
       onProgress?.('completed', 100, '解析完成！');
 
       console.log(`[ScriptParser] ========== Ultra-Short Text Parse Completed ==========`);
-      console.log(`[ScriptParser] Characters: ${state.characters?.length}, Scenes: ${state.scenes?.length}, Shots: ${state.shots?.length}`);
+      console.log(
+        `[ScriptParser] Characters: ${state.characters?.length}, Scenes: ${state.scenes?.length}, Shots: ${state.shots?.length}`
+      );
       console.log(`[ScriptParser] Total API calls: 1 (vs 5+ in standard mode)`);
       console.log(`[ScriptParser] Estimated token savings: ~80%`);
-
     } catch (error: any) {
       state.stage = 'error';
       state.error = error.message;
@@ -3379,12 +3589,12 @@ ${content}
 
   /**
    * V3 Optimized: Short text fast path with parallel extraction
-   * 
+   *
    * 优化点：
    * 1. 元数据和全局上下文并行提取
    * 2. 角色和场景并行提取
    * 3. 分镜生成仍然串行（依赖角色和场景结果）
-   * 
+   *
    * 相比原 parseShortScript，可减少约30-40%的解析时间
    */
   async parseShortScriptOptimized(
@@ -3396,46 +3606,52 @@ ${content}
 
     const state: ScriptParseState = {
       stage: 'metadata',
-      progress: 10
+      progress: 10,
     };
 
     try {
       // Step 1: 并行提取元数据和全局上下文
       onProgress?.('metadata', 10, '正在并行提取元数据和全局上下文...');
-      
+
       const [metadata, globalContext] = await Promise.all([
         this.extractMetadata(content, { skipGlobalContext: true }),
-        this.extractGlobalContext(content)
+        this.extractGlobalContext(content),
       ]);
-      
+
       state.metadata = metadata;
       this.globalContext = globalContext;
-      
+
       console.log(`[ScriptParser] Parallel extraction complete:`);
-      console.log(`  - Metadata: ${metadata.title}, ${metadata.characterCount} characters, ${metadata.sceneCount} scenes`);
+      console.log(
+        `  - Metadata: ${metadata.title}, ${metadata.characterCount} characters, ${metadata.sceneCount} scenes`
+      );
       console.log(`  - Global Context: ${globalContext ? 'extracted' : 'skipped'}`);
-      
+
       state.progress = 30;
 
       // Step 2: 并行提取角色和场景
       const characterNames = state.metadata.characterNames || [];
       const sceneNames = state.metadata.sceneNames || [];
-      
+
       if (characterNames.length > 0 || sceneNames.length > 0) {
-        onProgress?.('characters', 30, `正在并行分析 ${characterNames.length} 个角色和 ${sceneNames.length} 个场景...`);
-        
+        onProgress?.(
+          'characters',
+          30,
+          `正在并行分析 ${characterNames.length} 个角色和 ${sceneNames.length} 个场景...`
+        );
+
         const [characters, scenes] = await Promise.all([
-          characterNames.length > 0 
+          characterNames.length > 0
             ? this.extractAllCharactersWithContext(content, characterNames)
             : Promise.resolve([]),
           sceneNames.length > 0
             ? this.extractAllScenesWithContext(content, sceneNames)
-            : Promise.resolve([])
+            : Promise.resolve([]),
         ]);
-        
+
         state.characters = characters;
         state.scenes = scenes;
-        
+
         console.log(`[ScriptParser] Parallel character/scene extraction complete:`);
         console.log(`  - Characters: ${characters.length}`);
         console.log(`  - Scenes: ${scenes.length}`);
@@ -3443,7 +3659,7 @@ ${content}
         state.characters = [];
         state.scenes = [];
       }
-      
+
       state.progress = 70;
 
       // Step 3: 分镜生成（串行，依赖角色和场景结果）
@@ -3452,7 +3668,9 @@ ${content}
         try {
           const allShots = await this.generateAllShotsWithContext(content, state.scenes);
           state.shots = allShots;
-          console.log(`[ScriptParser] Fast path optimized: Generated ${allShots.length} shots in 1 API call`);
+          console.log(
+            `[ScriptParser] Fast path optimized: Generated ${allShots.length} shots in 1 API call`
+          );
         } catch (e) {
           console.error('[ScriptParser] Batch shots generation failed:', e);
           // Fallback: generate placeholder shots
@@ -3470,7 +3688,7 @@ ${content}
               assets: { characterIds: scene.characters || [], sceneId: scene.id || '' },
               contentType: 'static',
               layer: 'key',
-              status: 'pending'
+              status: 'pending',
             });
           });
           state.shots = fallbackShots;
@@ -3484,14 +3702,15 @@ ${content}
       // Step 4: 生成质量报告
       if (this.parserConfig.useDramaRules && this.qualityAnalyzer) {
         // 确定是否提取了情绪曲线
-        const emotionalArcExtracted = state.metadata?.emotionalArc !== undefined && state.metadata.emotionalArc.length > 0;
-        
+        const emotionalArcExtracted =
+          state.metadata?.emotionalArc !== undefined && state.metadata.emotionalArc.length > 0;
+
         // 确定跳过的功能列表
         const skippedFeatures: string[] = [];
         if (!emotionalArcExtracted) {
           skippedFeatures.push('emotionalArc');
         }
-        
+
         const report = this.qualityAnalyzer.analyze(
           state.metadata,
           state.characters,
@@ -3511,8 +3730,9 @@ ${content}
       onProgress?.('completed', 100, '解析完成！');
 
       console.log(`[ScriptParser] ========== Short Text Parse (Optimized) Completed ==========`);
-      console.log(`[ScriptParser] Characters: ${state.characters?.length}, Scenes: ${state.scenes?.length}, Shots: ${state.shots?.length}`);
-
+      console.log(
+        `[ScriptParser] Characters: ${state.characters?.length}, Scenes: ${state.scenes?.length}, Shots: ${state.shots?.length}`
+      );
     } catch (error: any) {
       state.stage = 'error';
       state.error = error.message;
@@ -3529,55 +3749,85 @@ ${content}
    */
   async parseChunkedScript(
     content: string,
-    onProgress?: ParseProgressCallback
+    onProgress?: ParseProgressCallback,
+    scriptId?: string,
+    projectId?: string,
+    resumeFromState?: ScriptParseState
   ): Promise<ScriptParseState> {
     console.log(`[ScriptParser] ========== Chunked Text Parse Path ==========`);
     console.log(`[ScriptParser] Content length: ${content.length} characters`);
 
-    const state: ScriptParseState = {
+    // Try to resume from provided state or start fresh
+    const state: ScriptParseState = resumeFromState || {
       stage: 'metadata',
-      progress: 0
+      progress: 0,
     };
 
     try {
-      // Step 1: Semantic chunking
-      onProgress?.('metadata', 5, '正在分块...');
+      let chunks: SemanticChunk[] = [];
       
+      // Always create chunks (needed for character/scene parsing)
+      onProgress?.('metadata', 5, '正在分块...');
+
       if (!this.semanticChunker) {
-        this.semanticChunker = new SemanticChunker({ 
+        this.semanticChunker = new SemanticChunker({
           maxTokens: 3000, // Smaller chunks for long texts
           preserveParagraphs: true,
-          extractMetadata: false
+          extractMetadata: false,
         });
       }
 
-      const chunks = await this.semanticChunker.chunk(content);
+      chunks = await this.semanticChunker.chunk(content);
       console.log(`[ScriptParser] Text split into ${chunks.length} chunks`);
       state.progress = 10;
+      
+      // Step 1: Semantic chunking and metadata extraction (skip if metadata already exists)
+      if (!state.metadata) {
 
-      // Step 2: Extract metadata from FULL content (not just first chunk) for complete character/scene list
-      onProgress?.('metadata', 10, '正在提取元数据...');
-      // Use beginning portion of content for metadata extraction but with instruction to find all
-      const metadataContent = content.substring(0, Math.min(content.length, 8000)); // Use more content for better metadata
-      state.metadata = await this.extractMetadata(metadataContent);
-      console.log(`[ScriptParser] Metadata extracted from full content: ${state.metadata.characterCount} characters, ${state.metadata.sceneCount} scenes`);
-      console.log(`[ScriptParser] Character names from metadata: ${state.metadata.characterNames?.join(', ') || 'none'}`);
-      console.log(`[ScriptParser] Scene names from metadata: ${state.metadata.sceneNames?.join(', ') || 'none'}`);
-      state.progress = 20;
+        // Step 2: Extract metadata from FULL content (not just first chunk) for complete character/scene list
+        onProgress?.('metadata', 10, '正在提取元数据...');
+        // Use beginning portion of content for metadata extraction but with instruction to find all
+        const metadataContent = content.substring(0, Math.min(content.length, 8000)); // Use more content for better metadata
+        state.metadata = await this.extractMetadata(metadataContent);
+        console.log(
+          `[ScriptParser] Metadata extracted from full content: ${state.metadata.characterCount} characters, ${state.metadata.sceneCount} scenes`
+        );
+        console.log(
+          `[ScriptParser] Character names from metadata: ${state.metadata.characterNames?.join(', ') || 'none'}`
+        );
+        console.log(
+          `[ScriptParser] Scene names from metadata: ${state.metadata.sceneNames?.join(', ') || 'none'}`
+        );
+        state.progress = 20;
+        
+        if (scriptId && projectId) {
+          await this.saveState(scriptId, projectId, state);
+        }
+      } else {
+        console.log('[ScriptParser] Skipping metadata extraction (already exists)');
+        onProgress?.('metadata', 20, '元数据已存在，跳过...');
+      }
 
       // Step 3: Parse each chunk for characters and scenes (Phase 2.2: Parallel extraction)
       // FIXED: Each chunk independently discovers and extracts characters/scenes from its content
-      const allCharacters: ScriptCharacter[] = [];
-      const allScenes: ScriptScene[] = [];
-      const characterNames = new Set<string>();
-      const sceneNames = new Set<string>();
+      const allCharacters: ScriptCharacter[] = state.characters ? [...state.characters] : [];
+      const allScenes: ScriptScene[] = state.scenes ? [...state.scenes] : [];
+      const characterNames = new Set(allCharacters.map(c => c.name));
+      const sceneNames = new Set(allScenes.map(s => s.name));
+      
+      // Check if we already have characters and scenes
+      if (allCharacters.length > 0 || allScenes.length > 0) {
+        console.log(`[ScriptParser] Resuming with ${allCharacters.length} characters and ${allScenes.length} scenes`);
+      }
 
       for (let i = 0; i < chunks.length; i++) {
         const chunk = chunks[i];
         const progress = 20 + (i / chunks.length) * 40;
         onProgress?.('characters', progress, `正在并行解析第 ${i + 1}/${chunks.length} 块...`);
 
-        console.log(`[ScriptParser] Processing chunk ${i + 1}/${chunks.length} (${chunk.content.length} chars)...`);
+        console.log(
+          `[ScriptParser] Processing chunk ${i + 1}/${chunks.length} (${chunk.content.length} chars)...`
+        );
 
         // Prepare extraction tasks for parallel execution
         const extractionTasks: Promise<void>[] = [];
@@ -3587,24 +3837,32 @@ ${content}
           try {
             // First, discover characters in this chunk
             const discoveredCharacters = await this.discoverCharactersInChunk(chunk.content);
-            console.log(`[ScriptParser] Chunk ${i + 1}: Discovered ${discoveredCharacters.length} characters: ${discoveredCharacters.join(', ') || 'none'}`);
-            
+            console.log(
+              `[ScriptParser] Chunk ${i + 1}: Discovered ${discoveredCharacters.length} characters: ${discoveredCharacters.join(', ') || 'none'}`
+            );
+
             if (discoveredCharacters.length === 0) return;
 
             // Filter out already extracted characters
-            const newCharacterNames = discoveredCharacters.filter(name => !characterNames.has(name));
+            const newCharacterNames = discoveredCharacters.filter(
+              name => !characterNames.has(name)
+            );
             if (newCharacterNames.length === 0) {
-              console.log(`[ScriptParser] Chunk ${i + 1}: All discovered characters already extracted`);
+              console.log(
+                `[ScriptParser] Chunk ${i + 1}: All discovered characters already extracted`
+              );
               return;
             }
 
-            console.log(`[ScriptParser] Chunk ${i + 1}: Extracting ${newCharacterNames.length} new characters: ${newCharacterNames.join(', ')}`);
+            console.log(
+              `[ScriptParser] Chunk ${i + 1}: Extracting ${newCharacterNames.length} new characters: ${newCharacterNames.join(', ')}`
+            );
 
             const chunkCharacters = await this.extractAllCharactersWithContext(
               chunk.content,
               newCharacterNames
             );
-            
+
             for (const char of chunkCharacters) {
               if (!characterNames.has(char.name)) {
                 characterNames.add(char.name);
@@ -3623,8 +3881,10 @@ ${content}
           try {
             // First, discover scenes in this chunk
             const discoveredScenes = await this.discoverScenesInChunk(chunk.content);
-            console.log(`[ScriptParser] Chunk ${i + 1}: Discovered ${discoveredScenes.length} scenes: ${discoveredScenes.join(', ') || 'none'}`);
-            
+            console.log(
+              `[ScriptParser] Chunk ${i + 1}: Discovered ${discoveredScenes.length} scenes: ${discoveredScenes.join(', ') || 'none'}`
+            );
+
             if (discoveredScenes.length === 0) return;
 
             // Filter out already extracted scenes
@@ -3634,13 +3894,15 @@ ${content}
               return;
             }
 
-            console.log(`[ScriptParser] Chunk ${i + 1}: Extracting ${newSceneNames.length} new scenes: ${newSceneNames.join(', ')}`);
+            console.log(
+              `[ScriptParser] Chunk ${i + 1}: Extracting ${newSceneNames.length} new scenes: ${newSceneNames.join(', ')}`
+            );
 
             const chunkScenes = await this.extractAllScenesWithContext(
               chunk.content,
               newSceneNames
             );
-            
+
             for (const scene of chunkScenes) {
               if (!sceneNames.has(scene.name)) {
                 sceneNames.add(scene.name);
@@ -3656,11 +3918,15 @@ ${content}
 
         // Execute extractions in parallel
         if (extractionTasks.length > 0) {
-          console.log(`[ScriptParser] Executing ${extractionTasks.length} extraction tasks in parallel for chunk ${i + 1}...`);
+          console.log(
+            `[ScriptParser] Executing ${extractionTasks.length} extraction tasks in parallel for chunk ${i + 1}...`
+          );
           await Promise.all(extractionTasks);
         }
 
-        console.log(`[ScriptParser] Chunk ${i + 1} complete. Total so far: ${allCharacters.length} characters, ${allScenes.length} scenes`);
+        console.log(
+          `[ScriptParser] Chunk ${i + 1} complete. Total so far: ${allCharacters.length} characters, ${allScenes.length} scenes`
+        );
 
         // Small delay between chunks to avoid rate limiting
         if (i < chunks.length - 1) {
@@ -3671,27 +3937,69 @@ ${content}
       state.characters = allCharacters;
       state.scenes = allScenes;
       state.progress = 60;
-      console.log(`[ScriptParser] Chunked extraction complete: ${allCharacters.length} characters, ${allScenes.length} scenes`);
-      console.log(`[ScriptParser] Final character list: ${allCharacters.map(c => c.name).join(', ')}`);
+      console.log(
+        `[ScriptParser] Chunked extraction complete: ${allCharacters.length} characters, ${allScenes.length} scenes`
+      );
+      console.log(
+        `[ScriptParser] Final character list: ${allCharacters.map(c => c.name).join(', ')}`
+      );
       console.log(`[ScriptParser] Final scene list: ${allScenes.map(s => s.name).join(', ')}`);
 
       // Step 4: Generate shots in batches
-      onProgress?.('shots', 60, '正在生成分镜...');
+      const shotGenStartTime = Date.now();
       
-      if (state.scenes.length > 0) {
-        const BATCH_SIZE = 3;
-        const allShots: Shot[] = [];
-        
-        for (let i = 0; i < state.scenes.length; i += BATCH_SIZE) {
-          const batch = state.scenes.slice(i, i + BATCH_SIZE);
+      // Resume from existing shots if available
+      const existingShots = state.shots || [];
+      const existingSceneShots = new Map<string, Shot[]>();
+      existingShots.forEach(shot => {
+        if (!existingSceneShots.has(shot.sceneName)) {
+          existingSceneShots.set(shot.sceneName, []);
+        }
+        existingSceneShots.get(shot.sceneName)!.push(shot);
+      });
+
+      const allShots: Shot[] = [...existingShots];
+      
+      // Filter out scenes that already have shots
+      const remainingScenes = state.scenes.filter(scene => !existingSceneShots.has(scene.name));
+
+      if (existingShots.length > 0) {
+        console.log(`[ScriptParser] Resuming with ${existingShots.length} shots for ${existingSceneShots.size} scenes`);
+      }
+
+      onProgress?.('shots', 60, existingShots.length > 0 ? '继续生成分镜...' : '正在生成分镜...', {
+        totalScenes: state.scenes.length,
+        elapsedTime: 0
+      });
+
+      if (remainingScenes.length > 0) {
+        const BATCH_SIZE = 2;
+
+        for (let i = 0; i < remainingScenes.length; i += BATCH_SIZE) {
+          const batch = remainingScenes.slice(i, i + BATCH_SIZE);
           const batchNum = Math.floor(i / BATCH_SIZE) + 1;
-          const totalBatches = Math.ceil(state.scenes.length / BATCH_SIZE);
-          
-          onProgress?.('shots', 60 + (i / state.scenes.length) * 30, `正在生成分镜 (批次 ${batchNum}/${totalBatches})...`);
-          
+          const totalBatches = Math.ceil(remainingScenes.length / BATCH_SIZE);
+          const elapsedTime = Date.now() - shotGenStartTime;
+          const processedCount = existingShots.length + i;
+          const totalCount = state.scenes.length;
+
+          onProgress?.(
+            'shots',
+            60 + (processedCount / totalCount) * 30,
+            `正在生成分镜 (批次 ${batchNum}/${totalBatches}, 场景 ${processedCount + 1}-${Math.min(processedCount + BATCH_SIZE, totalCount)}/${totalCount})...`,
+            {
+              currentScene: processedCount + 1,
+              totalScenes: totalCount,
+              currentBatch: batchNum,
+              totalBatches: totalBatches,
+              elapsedTime: elapsedTime
+            }
+          );
+
           try {
             const batchShots = await this.generateAllShotsWithContext(content, batch);
             allShots.push(...batchShots);
+            console.log(`[ScriptParser] Batch ${batchNum} complete: ${batchShots.length} shots`);
           } catch (e) {
             console.error(`[ScriptParser] Batch ${batchNum} failed:`, e);
             // Fallback: generate placeholder shots
@@ -3708,23 +4016,33 @@ ${content}
                 assets: { characterIds: scene.characters || [], sceneId: scene.id || '' },
                 contentType: 'static',
                 layer: 'key',
-                status: 'pending'
+                status: 'pending',
               });
             }
           }
 
+          // Save progress after each batch
+          state.shots = allShots;
+          state.progress = 60 + ((processedCount + batch.length) / totalCount) * 30;
+          if (scriptId && projectId) {
+            await this.saveState(scriptId, projectId, state);
+          }
+
           // Small delay between batches
-          if (i + BATCH_SIZE < state.scenes.length) {
+          if (i + BATCH_SIZE < remainingScenes.length) {
             await new Promise(resolve => setTimeout(resolve, 300));
           }
         }
-        
+
         state.shots = allShots;
-        console.log(`[ScriptParser] Generated ${allShots.length} shots`);
+        console.log(`[ScriptParser] Generated ${allShots.length} total shots`);
+      } else if (existingShots.length > 0) {
+        console.log('[ScriptParser] All shots already generated, skipping...');
+        onProgress?.('shots', 95, '分镜已存在，跳过...');
       } else {
         state.shots = [];
       }
-      
+
       state.progress = 90;
 
       // Step 5: Generate quality report
@@ -3746,8 +4064,9 @@ ${content}
       onProgress?.('completed', 100, '解析完成！');
 
       console.log(`[ScriptParser] ========== Chunked Parse Completed ==========`);
-      console.log(`[ScriptParser] Characters: ${state.characters?.length}, Scenes: ${state.scenes?.length}, Shots: ${state.shots?.length}`);
-
+      console.log(
+        `[ScriptParser] Characters: ${state.characters?.length}, Scenes: ${state.scenes?.length}, Shots: ${state.shots?.length}`
+      );
     } catch (error: any) {
       state.stage = 'error';
       state.error = error.message;
@@ -3759,7 +4078,7 @@ ${content}
 
   /**
    * Full parsing pipeline with progress tracking and error recovery
-   * 
+   *
    * V2 优化：添加详细的性能监控日志
    * V3 优化：添加短文本快速路径
    */
@@ -3772,7 +4091,7 @@ ${content}
   ): Promise<ScriptParseState> {
     // Phase 3.1: Use strategy selector for automatic strategy selection
     console.log(`[ScriptParser] ========== Starting Parse Script ==========`);
-    
+
     let strategySelection: StrategySelection;
     if (this.strategySelector && !resumeFromState) {
       strategySelection = this.strategySelector.selectStrategy(content);
@@ -3781,7 +4100,9 @@ ${content}
       console.log(`[ScriptParser] Reason: ${strategySelection.reason}`);
       console.log(`[ScriptParser] Word count: ${strategySelection.wordCount}`);
       console.log(`[ScriptParser] Estimated time: ${strategySelection.estimatedTime}s`);
-      console.log(`[ScriptParser] Recommended batch size: ${strategySelection.recommendedBatchSize}`);
+      console.log(
+        `[ScriptParser] Recommended batch size: ${strategySelection.recommendedBatchSize}`
+      );
     } else {
       // Fallback to legacy logic
       const wordCount = this.countWords(content);
@@ -3790,28 +4111,32 @@ ${content}
         reason: 'Legacy fallback selection',
         wordCount,
         estimatedTime: wordCount < 800 ? 60 : Math.ceil(wordCount / 200) * 15,
-        recommendedBatchSize: wordCount < 800 ? 10 : 5
+        recommendedBatchSize: wordCount < 800 ? 10 : 5,
       };
     }
 
     // Phase 3.1: Route to appropriate parsing strategy
-    
+
     // V4: Ultra-short path for very short texts (<500 chars) - single API call
     if (content.length < 500 && !resumeFromState) {
-      console.log(`[ScriptParser] Using ULTRA-SHORT PATH (content length: ${content.length} < 500)`);
+      console.log(
+        `[ScriptParser] Using ULTRA-SHORT PATH (content length: ${content.length} < 500)`
+      );
       console.log(`[ScriptParser] This path uses only 1 API call vs 5+ in standard mode`);
-      
+
       const ultraShortStartTime = Date.now();
-      
+
       try {
         const result = await this.parseUltraShortScript(content, onProgress);
-        
+
         const ultraShortDuration = Date.now() - ultraShortStartTime;
         console.log(`[ScriptParser] ========== Ultra-Short Path Completed ==========`);
-        console.log(`[ScriptParser] Total duration: ${ultraShortDuration}ms (${(ultraShortDuration/1000).toFixed(1)}s)`);
+        console.log(
+          `[ScriptParser] Total duration: ${ultraShortDuration}ms (${(ultraShortDuration / 1000).toFixed(1)}s)`
+        );
         console.log(`[ScriptParser] Estimated token savings: ~80%`);
         console.log(`[ScriptParser] ==========================================`);
-        
+
         await this.saveState(scriptId, projectId, result);
         return result;
       } catch (error) {
@@ -3819,23 +4144,27 @@ ${content}
         // Fall through to fast path
       }
     }
-    
+
     if (strategySelection.strategy === 'fast' && !resumeFromState) {
       const useParallel = this.parserConfig.useParallelExtraction ?? true;
       console.log(`[ScriptParser] Using FAST PATH (${strategySelection.reason})`);
       console.log(`[ScriptParser] useParallelExtraction: ${useParallel}`);
-      
+
       const fastStartTime = Date.now();
-      
+
       // 根据配置选择使用优化版本或原版本
       const result = useParallel
         ? await this.parseShortScriptOptimized(content, onProgress)
         : await this.parseShortScript(content, onProgress);
-        
+
       const fastDuration = Date.now() - fastStartTime;
       console.log(`[ScriptParser] ========== Fast Path Completed ==========`);
-      console.log(`[ScriptParser] Total duration: ${fastDuration}ms (${(fastDuration/1000).toFixed(1)}s)`);
-      console.log(`[ScriptParser] Mode: ${useParallel ? 'Parallel (Optimized)' : 'Sequential (Legacy)'}`);
+      console.log(
+        `[ScriptParser] Total duration: ${fastDuration}ms (${(fastDuration / 1000).toFixed(1)}s)`
+      );
+      console.log(
+        `[ScriptParser] Mode: ${useParallel ? 'Parallel (Optimized)' : 'Sequential (Legacy)'}`
+      );
       console.log(`[ScriptParser] ==========================================`);
       await this.saveState(scriptId, projectId, result);
       return result;
@@ -3848,13 +4177,17 @@ ${content}
       const result = await this.parseChunkedScript(content, onProgress);
       const chunkedDuration = Date.now() - chunkedStartTime;
       console.log(`[ScriptParser] ========== Chunked Path Completed ==========`);
-      console.log(`[ScriptParser] Total duration: ${chunkedDuration}ms (${(chunkedDuration/1000).toFixed(1)}s)`);
+      console.log(
+        `[ScriptParser] Total duration: ${chunkedDuration}ms (${(chunkedDuration / 1000).toFixed(1)}s)`
+      );
       console.log(`[ScriptParser] ==========================================`);
       await this.saveState(scriptId, projectId, result);
       return result;
     }
 
-    console.log(`[ScriptParser] Using ${strategySelection.strategy.toUpperCase()} PATH (${strategySelection.reason})`);
+    console.log(
+      `[ScriptParser] Using ${strategySelection.strategy.toUpperCase()} PATH (${strategySelection.reason})`
+    );
 
     // V2: 性能监控 - 记录总耗时
     const totalStartTime = Date.now();
@@ -3863,7 +4196,7 @@ ${content}
     // Try to resume from provided state or load from storage
     let state: ScriptParseState = resumeFromState || {
       stage: 'idle',
-      progress: 0
+      progress: 0,
     };
 
     // If no resume state provided, try to load from storage
@@ -3887,7 +4220,7 @@ ${content}
         state.stage = 'metadata';
         state.progress = 10;
         onProgress?.('metadata', 10, '正在提取元数据...');
-        
+
         state.metadata = await this.extractMetadata(content);
         state.progress = 20;
         await this.saveState(scriptId, projectId, state);
@@ -3914,7 +4247,9 @@ ${content}
       const sceneNames = state.metadata.sceneNames || [];
 
       // Filter out already processed items
-      const remainingCharacterNames = characterNames.filter(name => !existingCharacterNames.has(name));
+      const remainingCharacterNames = characterNames.filter(
+        name => !existingCharacterNames.has(name)
+      );
       const remainingSceneNames = sceneNames.filter(name => !existingSceneNames.has(name));
 
       // Prepare extraction tasks
@@ -3922,11 +4257,20 @@ ${content}
 
       // Character extraction task
       if (remainingCharacterNames.length > 0) {
-        console.log(`[ScriptParser] Processing ${remainingCharacterNames.length} remaining characters using batch extraction`);
+        console.log(
+          `[ScriptParser] Processing ${remainingCharacterNames.length} remaining characters using batch extraction`
+        );
         const characterTask = (async () => {
           try {
-            onProgress?.('characters', 30, `正在批量分析 ${remainingCharacterNames.length} 个角色...`);
-            const newCharacters = await this.extractAllCharactersWithContext(content, remainingCharacterNames);
+            onProgress?.(
+              'characters',
+              30,
+              `正在批量分析 ${remainingCharacterNames.length} 个角色...`
+            );
+            const newCharacters = await this.extractAllCharactersWithContext(
+              content,
+              remainingCharacterNames
+            );
             characters.push(...newCharacters);
             state.characters = characters;
             console.log(`[ScriptParser] Batch extracted ${newCharacters.length} characters`);
@@ -3946,7 +4290,9 @@ ${content}
 
       // Scene extraction task
       if (remainingSceneNames.length > 0) {
-        console.log(`[ScriptParser] Processing ${remainingSceneNames.length} remaining scenes using batch extraction`);
+        console.log(
+          `[ScriptParser] Processing ${remainingSceneNames.length} remaining scenes using batch extraction`
+        );
         const sceneTask = (async () => {
           try {
             onProgress?.('scenes', 40, `正在批量分析 ${remainingSceneNames.length} 个场景...`);
@@ -3970,11 +4316,15 @@ ${content}
 
       // Execute extractions in parallel
       if (extractionTasks.length > 0) {
-        console.log(`[ScriptParser] Executing ${extractionTasks.length} extraction tasks in parallel...`);
+        console.log(
+          `[ScriptParser] Executing ${extractionTasks.length} extraction tasks in parallel...`
+        );
         await Promise.all(extractionTasks);
         state.progress = 70;
         await this.saveState(scriptId, projectId, state);
-        console.log(`[ScriptParser] Parallel extraction complete: ${characters.length} characters, ${scenes.length} scenes`);
+        console.log(
+          `[ScriptParser] Parallel extraction complete: ${characters.length} characters, ${scenes.length} scenes`
+        );
       } else {
         state.progress = 70;
         onProgress?.('scenes', 70, '角色和场景已存在，跳过...');
@@ -4003,7 +4353,9 @@ ${content}
 
           // Apply optimized metadata if improvement was made
           if (refinementResult.success && refinementResult.totalQualityImprovement > 0) {
-            console.log(`[ScriptParser] Refinement successful: ${refinementResult.initialQualityScore.toFixed(2)} -> ${refinementResult.finalQualityScore.toFixed(2)} (+${refinementResult.totalQualityImprovement.toFixed(2)})`);
+            console.log(
+              `[ScriptParser] Refinement successful: ${refinementResult.initialQualityScore.toFixed(2)} -> ${refinementResult.finalQualityScore.toFixed(2)} (+${refinementResult.totalQualityImprovement.toFixed(2)})`
+            );
             state.metadata = refinementResult.finalMetadata;
             // Note: characters and scenes are stored separately in parse state, not in metadata
             // They are passed separately to the refinement engine
@@ -4046,7 +4398,10 @@ ${content}
               const sceneContent = content.includes(scene.name)
                 ? content.split(scene.name)[1]?.split('\n\n')[0] || ''
                 : '';
-              const estimatedShotCount = Math.max(3, Math.min(5, Math.ceil(sceneContent.length / 200)));
+              const estimatedShotCount = Math.max(
+                3,
+                Math.min(5, Math.ceil(sceneContent.length / 200))
+              );
 
               for (let i = 0; i < estimatedShotCount; i++) {
                 estimatedShots.push({
@@ -4063,7 +4418,7 @@ ${content}
                   assets: { characterIds: scene.characters || [], sceneId: scene.id || '' },
                   contentType: 'static',
                   layer: 'key',
-                  status: 'pending'
+                  status: 'pending',
                 });
               }
             });
@@ -4084,7 +4439,9 @@ ${content}
           state.durationBudget = this.durationBudget;
           await this.saveState(scriptId, projectId, state);
 
-          console.log(`[ScriptParser] Budget calculated: ${this.durationBudget.totalDuration}s total, ${this.durationBudget.sceneBudgets.length} scenes`);
+          console.log(
+            `[ScriptParser] Budget calculated: ${this.durationBudget.totalDuration}s total, ${this.durationBudget.sceneBudgets.length} scenes`
+          );
         } catch (error) {
           console.warn('[ScriptParser] Budget calculation failed:', error);
           // Continue without budget if calculation fails
@@ -4114,34 +4471,46 @@ ${content}
       const remainingScenes = scenes.filter(scene => !existingSceneShots.has(scene.name));
 
       if (remainingScenes.length > 0) {
-        console.log(`[ScriptParser] Processing shots for ${remainingScenes.length} remaining scenes`);
+        console.log(
+          `[ScriptParser] Processing shots for ${remainingScenes.length} remaining scenes`
+        );
 
         // Phase 2.3: Use batch generation for better performance
         // If <= 3 scenes remaining, use single API call; otherwise process in batches
-        const BATCH_SIZE = 3;
-        
+        const BATCH_SIZE = 2;
+
         if (remainingScenes.length <= BATCH_SIZE) {
           // Small batch: use single API call
           console.log(`[ScriptParser] Using single API call for ${remainingScenes.length} scenes`);
           onProgress?.('shots', 75, `正在批量生成分镜 (${remainingScenes.length} 场景)...`);
-          
+
           try {
             const newShots = await this.generateAllShotsWithContext(content, remainingScenes);
             allShots.push(...newShots);
             console.log(`[ScriptParser] Batch generated ${newShots.length} shots in 1 API call`);
           } catch (e) {
-            console.error('[ScriptParser] Batch shots generation failed, falling back to individual:', e);
+            console.error(
+              '[ScriptParser] Batch shots generation failed, falling back to individual:',
+              e
+            );
             // Fallback: generate individually
             for (const scene of remainingScenes) {
               try {
                 const sceneIndex = scenes.findIndex(s => s.name === scene.name);
-                const shots = await this.generateShotsWithContext(content, scene, sceneIndex, scenes.length);
-                allShots.push(...shots.map((shot, idx) => ({
-                  ...shot,
-                  id: shot.id || crypto.randomUUID(),
-                  sceneName: scene.name,
-                  sequence: shot.sequence || idx + 1
-                })));
+                const shots = await this.generateShotsWithContext(
+                  content,
+                  scene,
+                  sceneIndex,
+                  scenes.length
+                );
+                allShots.push(
+                  ...shots.map((shot, idx) => ({
+                    ...shot,
+                    id: shot.id || crypto.randomUUID(),
+                    sceneName: scene.name,
+                    sequence: shot.sequence || idx + 1,
+                  }))
+                );
               } catch (err) {
                 console.error(`[ScriptParser] Failed to generate shots for ${scene.name}:`, err);
               }
@@ -4149,46 +4518,64 @@ ${content}
           }
         } else {
           // Large batch: process in batches of 3 scenes
-          console.log(`[ScriptParser] Using batched generation for ${remainingScenes.length} scenes (${Math.ceil(remainingScenes.length / BATCH_SIZE)} batches)`);
-          
+          console.log(
+            `[ScriptParser] Using batched generation for ${remainingScenes.length} scenes (${Math.ceil(remainingScenes.length / BATCH_SIZE)} batches)`
+          );
+
           for (let i = 0; i < remainingScenes.length; i += BATCH_SIZE) {
             const batch = remainingScenes.slice(i, i + BATCH_SIZE);
             const batchNum = Math.floor(i / BATCH_SIZE) + 1;
             const totalBatches = Math.ceil(remainingScenes.length / BATCH_SIZE);
-            
-            console.log(`[ScriptParser] Processing batch ${batchNum}/${totalBatches}: ${batch.length} scenes`);
-            onProgress?.('shots', 70 + (i / remainingScenes.length) * 25, `正在生成分镜 (批次 ${batchNum}/${totalBatches})...`);
-            
+
+            console.log(
+              `[ScriptParser] Processing batch ${batchNum}/${totalBatches}: ${batch.length} scenes`
+            );
+            onProgress?.(
+              'shots',
+              70 + (i / remainingScenes.length) * 25,
+              `正在生成分镜 (批次 ${batchNum}/${totalBatches})...`
+            );
+
             try {
               const newShots = await this.generateAllShotsWithContext(content, batch);
               allShots.push(...newShots);
               console.log(`[ScriptParser] Batch ${batchNum} complete: ${newShots.length} shots`);
             } catch (e) {
-              console.error(`[ScriptParser] Batch ${batchNum} failed, falling back to individual:`, e);
+              console.error(
+                `[ScriptParser] Batch ${batchNum} failed, falling back to individual:`,
+                e
+              );
               // Fallback: generate individually
               for (const scene of batch) {
                 try {
                   const sceneIndex = scenes.findIndex(s => s.name === scene.name);
-                  const shots = await this.generateShotsWithContext(content, scene, sceneIndex, scenes.length);
-                  allShots.push(...shots.map((shot, idx) => ({
-                    ...shot,
-                    id: shot.id || crypto.randomUUID(),
-                    sceneName: scene.name,
-                    sequence: shot.sequence || idx + 1
-                  })));
+                  const shots = await this.generateShotsWithContext(
+                    content,
+                    scene,
+                    sceneIndex,
+                    scenes.length
+                  );
+                  allShots.push(
+                    ...shots.map((shot, idx) => ({
+                      ...shot,
+                      id: shot.id || crypto.randomUUID(),
+                      sceneName: scene.name,
+                      sequence: shot.sequence || idx + 1,
+                    }))
+                  );
                 } catch (err) {
                   console.error(`[ScriptParser] Failed to generate shots for ${scene.name}:`, err);
                 }
               }
             }
-            
+
             // Save progress after each batch
             state.shots = allShots;
             state.progress = 70 + ((i + batch.length) / remainingScenes.length) * 25;
             await this.saveState(scriptId, projectId, state);
           }
         }
-        
+
         state.shots = allShots;
         await this.saveState(scriptId, projectId, state);
       } else {
@@ -4209,7 +4596,7 @@ ${content}
           charactersCount: this.currentCharacters.length,
           scenesCount: this.currentScenes.length,
           itemsCount: this.currentItems.length,
-          shotsCount: (state.shots || []).length
+          shotsCount: (state.shots || []).length,
         });
 
         const finalReport = this.qualityAnalyzer.analyze(
@@ -4246,26 +4633,29 @@ ${content}
       // V2: 性能监控 - 输出总耗时报告
       const totalDuration = Date.now() - totalStartTime;
       console.log(`[ScriptParser] ========== Parse Completed ==========`);
-      console.log(`[ScriptParser] Total duration: ${totalDuration}ms (${(totalDuration/1000).toFixed(1)}s)`);
+      console.log(
+        `[ScriptParser] Total duration: ${totalDuration}ms (${(totalDuration / 1000).toFixed(1)}s)`
+      );
       console.log(`[ScriptParser] Stage timings:`);
       Object.entries(stageTimings).forEach(([stage, duration]) => {
         const percentage = ((duration / totalDuration) * 100).toFixed(1);
         console.log(`[ScriptParser]   - ${stage}: ${duration}ms (${percentage}%)`);
       });
       console.log(`[ScriptParser] Content length: ${content.length} chars`);
-      console.log(`[ScriptParser] Characters: ${state.metadata?.characterCount}, Scenes: ${state.metadata?.sceneCount}`);
+      console.log(
+        `[ScriptParser] Characters: ${state.metadata?.characterCount}, Scenes: ${state.metadata?.sceneCount}`
+      );
       console.log(`[ScriptParser] ==========================================`);
-
     } catch (error: any) {
       state.stage = 'error';
       state.error = error.message;
       onProgress?.('error', state.progress, `解析失败: ${error.message}`);
       await this.saveState(scriptId, projectId, state);
-      
+
       // V2: 性能监控 - 即使失败也输出耗时
       const totalDuration = Date.now() - totalStartTime;
       console.error(`[ScriptParser] Parse failed after ${totalDuration}ms:`, error.message);
-      
+
       throw error;
     }
 
@@ -4275,7 +4665,11 @@ ${content}
   /**
    * Save parsing state to storage
    */
-  private async saveState(scriptId: string, projectId: string, state: ScriptParseState): Promise<void> {
+  private async saveState(
+    scriptId: string,
+    projectId: string,
+    state: ScriptParseState
+  ): Promise<void> {
     await storageService.updateScriptParseState(scriptId, projectId, () => state);
   }
 

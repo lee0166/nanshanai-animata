@@ -1,17 +1,35 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Script, ScriptParseState, ScriptCharacter, ScriptScene, ScriptItem, Shot, CharacterAsset, SceneAsset, FragmentAsset, ItemAsset, AssetType, ModelConfig, CreativeIntent } from '../types';
+import {
+  Script,
+  ScriptParseState,
+  ScriptCharacter,
+  ScriptScene,
+  ScriptItem,
+  Shot,
+  CharacterAsset,
+  SceneAsset,
+  FragmentAsset,
+  ItemAsset,
+  AssetType,
+  ModelConfig,
+  CreativeIntent,
+} from '../types';
 import { storageService } from '../services/storage';
-import { createScriptParser, ParseProgressCallback, ScriptParserConfig } from '../services/scriptParser';
-import { TextCleaner } from '../services/textCleaner';
+import {
+  createScriptParser,
+  ParseProgressCallback,
+  ScriptParserConfig,
+} from '../services/scriptParser';
 import { useApp } from '../contexts/context';
 import { useToast } from '../contexts/ToastContext';
+import mammoth from 'mammoth';
+import * as pdfjsLib from 'pdfjs-dist';
 import { CharacterMapping } from '../components/ScriptParser/CharacterMapping';
 import { SceneMapping } from '../components/ScriptParser/SceneMapping';
 import { ItemMapping } from '../components/ScriptParser/ItemMapping';
 import { ShotList } from '../components/ScriptParser/ShotList';
 import { QualityReport } from '../services/scriptParser';
-import type { RuleViolation } from '../services/parsing/ShortDramaRules';
 import { DetailedQualityReport } from '../services/parsing/QualityAnalyzer';
 import QualityReportCard from '../components/ScriptParser/QualityReportCard';
 import { CreativeIntentModal } from '../components/CreativeIntentModal';
@@ -44,16 +62,34 @@ import {
   SelectItem,
   Divider,
   Badge,
-  Switch
-} from "@heroui/react";
-import { FileText, Upload, Play, RotateCcw, Users, MapPin, Film, CheckCircle2, AlertCircle, Brain, Box, Trash2, Sparkles, AlertTriangle, Info, BookOpen, Layout, Palette, Music, Clock, Clapperboard } from 'lucide-react';
+  Switch,
+} from '@heroui/react';
+import {
+  FileText,
+  Upload,
+  Play,
+  RotateCcw,
+  Users,
+  MapPin,
+  Film,
+  CheckCircle2,
+  AlertCircle,
+  Box,
+  Trash2,
+  Sparkles,
+  Clock,
+  Clapperboard,
+} from 'lucide-react';
 
 interface ScriptManagerProps {
   projectId?: string;
   initialTab?: 'scripts' | 'shots';
 }
 
-const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId, initialTab = 'scripts' }) => {
+const ScriptManager: React.FC<ScriptManagerProps> = ({
+  projectId: propProjectId,
+  initialTab = 'scripts',
+}) => {
   const { projectId: urlProjectId } = useParams<{ projectId: string }>();
   const projectId = propProjectId || urlProjectId;
   const navigate = useNavigate();
@@ -67,6 +103,14 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
   const [parseProgress, setParseProgress] = useState(0);
   const [parseStage, setParseStage] = useState<string>('');
   const [activeParseButton, setActiveParseButton] = useState<string | null>(null);
+  const [parseDetails, setParseDetails] = useState<{
+    currentScene?: number;
+    totalScenes?: number;
+    currentBatch?: number;
+    totalBatches?: number;
+    elapsedTime?: number;
+    estimatedRemainingTime?: number;
+  }>({});
 
   // 2.0: 模型选择状态
   const [selectedModelId, setSelectedModelId] = useState<string>('');
@@ -77,7 +121,12 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
   // Delete confirmation modal
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [scriptToDelete, setScriptToDelete] = useState<Script | null>(null);
-  const [deleteStats, setDeleteStats] = useState<{ characters: number; scenes: number; items: number; shots: number } | null>(null);
+  const [deleteStats, setDeleteStats] = useState<{
+    characters: number;
+    scenes: number;
+    items: number;
+    shots: number;
+  } | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
   // Script content for upload
@@ -94,15 +143,15 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
       emotionalCore: true,
       worldBuilding: false,
       visualSpectacle: true,
-      thematicDepth: false
+      thematicDepth: false,
     },
     emotionalTone: {
       primary: 'inspiring',
-      intensity: 7
+      intensity: 7,
     },
     visualReferences: [],
     creativeNotes: '',
-    targetPlatforms: []
+    targetPlatforms: [],
   });
 
   // Existing assets for mapping
@@ -132,7 +181,10 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
   // Track scripts state changes
   useEffect(() => {
     console.log('[ScriptManager] scripts state changed:', scripts.length, 'scripts');
-    console.log('[ScriptManager] scripts array:', scripts.map(s => ({ id: s.id, title: s.title })));
+    console.log(
+      '[ScriptManager] scripts array:',
+      scripts.map(s => ({ id: s.id, title: s.title }))
+    );
   }, [scripts]);
 
   // Update quality report when script changes
@@ -141,7 +193,10 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
       console.log('[ScriptManager] ========== useEffect: currentScript changed ==========');
       console.log('[ScriptManager] currentScript exists:', !!currentScript);
       console.log('[ScriptManager] parseState exists:', !!currentScript?.parseState);
-      console.log('[ScriptManager] qualityReport exists:', !!currentScript?.parseState?.qualityReport);
+      console.log(
+        '[ScriptManager] qualityReport exists:',
+        !!currentScript?.parseState?.qualityReport
+      );
 
       if (currentScript.parseState.qualityReport) {
         setQualityReport(currentScript.parseState.qualityReport);
@@ -149,7 +204,7 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
           score: currentScript.parseState.qualityReport.score,
           violationsCount: currentScript.parseState.qualityReport.violations?.length,
           suggestionsCount: currentScript.parseState.qualityReport.suggestions?.length,
-          type: typeof currentScript.parseState.qualityReport
+          type: typeof currentScript.parseState.qualityReport,
         });
         console.log('[ScriptManager] ========== Quality Report Restored ==========');
       } else {
@@ -167,7 +222,7 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
       console.log('[ScriptManager] No projectId, skipping');
       return;
     }
-    
+
     // 2.0: 检查存储连接状态
     const connected = await checkConnection();
     console.log('[ScriptManager] Connection check:', connected);
@@ -175,7 +230,7 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
       console.log('[ScriptManager] Not connected, skipping loadScripts');
       return;
     }
-    
+
     try {
       console.log('[ScriptManager] Calling storageService.getScripts...');
       const loadedScripts = await storageService.getScripts(projectId);
@@ -195,71 +250,94 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
 
   const loadExistingAssets = async () => {
     if (!projectId) return;
-    
+
     // 2.0: 检查存储连接状态
     const connected = await checkConnection();
     if (!connected) {
       console.log('[ScriptManager] Not connected, skipping loadExistingAssets');
       return;
     }
-    
+
     try {
       const assets = await storageService.getAssets(projectId);
-      if (isMountedRef.current) {
-        setExistingCharacters(assets.filter(a => a.type === AssetType.CHARACTER) as CharacterAsset[]);
-        setExistingScenes(assets.filter(a => a.type === AssetType.SCENE) as SceneAsset[]);
-        setExistingItems(assets.filter(a => a.type === AssetType.ITEM) as ItemAsset[]);
-        setExistingFragments(assets.filter(a => a.type === AssetType.VIDEO_SEGMENT) as FragmentAsset[]);
-      }
+      // Note: Removed isMountedRef check to fix React StrictMode issues
+      setExistingCharacters(assets.filter(a => a.type === AssetType.CHARACTER) as CharacterAsset[]);
+      setExistingScenes(assets.filter(a => a.type === AssetType.SCENE) as SceneAsset[]);
+      setExistingItems(assets.filter(a => a.type === AssetType.ITEM) as ItemAsset[]);
+      setExistingFragments(
+        assets.filter(a => a.type === AssetType.VIDEO_SEGMENT) as FragmentAsset[]
+      );
     } catch (error) {
       console.error('[ScriptManager] Failed to load existing assets:', error);
     }
   };
 
   // 2.0: 文件上传处理 - 支持多种文档格式
-  const handleFileUpload = useCallback(async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
+  const handleFileUpload = useCallback(
+    async (event: React.ChangeEvent<HTMLInputElement>) => {
+      const file = event.target.files?.[0];
+      if (!file) return;
 
-    // 支持的文件扩展名
-    const supportedExtensions = [
-      '.txt', '.md', '.markdown',
-      '.html', '.htm',
-      '.rtf',
-      '.csv', '.json'
-    ];
-    const fileExtension = file.name.substring(file.name.lastIndexOf('.')).toLowerCase();
-    
-    if (!supportedExtensions.includes(fileExtension)) {
-      showToast(`不支持的文件格式: ${fileExtension}。请上传文本文档`, 'error');
-      return;
-    }
+      // 支持的文件扩展名
+      const supportedExtensions = ['.txt', '.md', '.markdown', '.docx', '.pdf'];
+      const fileExtension = file.name.substring(file.name.lastIndexOf('.')).toLowerCase();
 
-    // 检查文件大小（最大50MB）
-    if (file.size > 50 * 1024 * 1024) {
-      showToast('文件大小超过50MB限制', 'error');
-      return;
-    }
+      if (!supportedExtensions.includes(fileExtension)) {
+        showToast(
+          `不支持的文件格式: ${fileExtension}。请上传 .txt, .md, .docx 或 .pdf 格式`,
+          'error'
+        );
+        return;
+      }
 
-    try {
-      let content = '';
-      
-      // 文本文件直接读取
-      content = await file.text();
+      // 检查文件大小（最大50MB）
+      if (file.size > 50 * 1024 * 1024) {
+        showToast('文件大小超过50MB限制', 'error');
+        return;
+      }
 
-      // 自动设置标题（使用文件名，去掉扩展名）
-      const fileName = file.name.substring(0, file.name.lastIndexOf('.'));
-      setScriptTitle(fileName);
-      setScriptContent(content);
-      showToast(`文件 "${file.name}" 读取成功（${content.length.toLocaleString()} 字符）`, 'success');
-    } catch (error) {
-      console.error('[ScriptManager] Failed to read file:', error);
-      showToast('文件读取失败', 'error');
-    }
+      try {
+        let content = '';
 
-    // 清空input，允许重复选择同一文件
-    event.target.value = '';
-  }, [showToast]);
+        if (fileExtension === '.docx') {
+          // 解析 Word 文档
+          const arrayBuffer = await file.arrayBuffer();
+          const result = await mammoth.extractRawText({ arrayBuffer });
+          content = result.value;
+        } else if (fileExtension === '.pdf') {
+          // 解析 PDF 文档
+          const arrayBuffer = await file.arrayBuffer();
+          const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+          let text = '';
+          for (let i = 1; i <= pdf.numPages; i++) {
+            const page = await pdf.getPage(i);
+            const textContent = await page.getTextContent();
+            text += textContent.items.map((item: any) => item.str).join(' ') + '\n';
+          }
+          content = text;
+        } else {
+          // 文本文件直接读取
+          content = await file.text();
+        }
+
+        // 自动设置标题（使用文件名，去掉扩展名）
+        const fileName = file.name.substring(0, file.name.lastIndexOf('.'));
+        setScriptTitle(fileName);
+        setScriptContent(content);
+        showToast(
+          `文件 "${file.name}" 读取成功（${content.length.toLocaleString()} 字符）`,
+          'success'
+        );
+      } catch (error) {
+        console.error('[ScriptManager] Failed to read file:', error);
+        showToast('文件读取失败', 'error');
+      }
+
+      // 清空input，允许重复选择同一文件
+      event.target.value = '';
+    },
+    [showToast]
+  );
 
   const handleUploadScript = async () => {
     if (!scriptTitle.trim() || !scriptContent.trim()) {
@@ -289,8 +367,8 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
         updatedAt: Date.now(),
         parseState: {
           stage: 'idle',
-          progress: 0
-        }
+          progress: 0,
+        },
       };
 
       await storageService.saveScript(newScript);
@@ -329,7 +407,7 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
     await handleParseScript();
   };
 
-  const handleParseScript = async () => {
+  const handleParseScript = async (resumeFromState?: ScriptParseState) => {
     if (!currentScript || !projectId) {
       showToast('Please select a script first', 'error');
       return;
@@ -348,8 +426,13 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
     }
 
     setIsParsing(true);
-    setParseProgress(0);
-    setParseStage('正在初始化...');
+    if (!resumeFromState) {
+      setParseProgress(0);
+      setParseStage('正在初始化...');
+    } else {
+      setParseProgress(resumeFromState.progress || 0);
+      setParseStage(`从 ${resumeFromState.stage} 阶段恢复...`);
+    }
     setActiveParseButton('full');
 
     try {
@@ -367,7 +450,7 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
           minImprovementThreshold: 2,
           autoApplySafeRefinements: true,
           confidenceThreshold: 0.7,
-          verboseLogging: true
+          verboseLogging: true,
         },
         // 2.0: 使用创作意图替代旧的durationBudgetConfig
         creativeIntent: creativeIntent,
@@ -377,7 +460,7 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
         useProductionPrompt: true, // 默认启用专业Prompt
         useShotQC: false, // 2.0: 移除基于字数的质检
         qcAutoAdjust: false,
-        qcTolerance: 0.15
+        qcTolerance: 0.15,
       };
 
       const parser = createScriptParser(
@@ -393,10 +476,11 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
       // 2.0: 添加解析超时检测
       const parseStartTime = Date.now();
       const TIMEOUT_WARNING = 60000; // 60秒后显示警告
-      let timeoutWarningShown = false;
+      const timeoutWarningShown = false;
 
-      const onProgress: ParseProgressCallback = (stage, progress, message) => {
-        if (!isMountedRef.current) return;
+      const onProgress: ParseProgressCallback = (stage, progress, message, details) => {
+        // Note: Removed isMountedRef check to fix progress not updating in React StrictMode
+        // StrictMode causes double mounting/unmounting which breaks the ref
         setParseProgress(progress);
         const stageNames: Record<string, string> = {
           metadata: '正在分析创作意图...',
@@ -404,19 +488,51 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
           scenes: '正在规划场景...',
           shots: '正在创建分镜列表...',
           completed: '解析完成',
-          error: '解析错误'
+          error: '解析错误',
         };
-        
-        // 2.0: 添加解析耗时提示
+
+        const baseMessage = message || stageNames[stage] || stage;
         const elapsed = Date.now() - parseStartTime;
         const elapsedSec = Math.floor(elapsed / 1000);
-        const baseMessage = message || stageNames[stage] || stage;
-        
-        // 如果耗时超过30秒，显示耗时信息
+
+        let estimatedRemainingTime: number | undefined;
+        if (progress > 0 && progress < 100) {
+          const remainingProgress = 100 - progress;
+          estimatedRemainingTime = Math.floor((elapsed / progress) * remainingProgress / 1000);
+        }
+
+        setParseDetails({
+          ...details,
+          elapsedTime: elapsed,
+          estimatedRemainingTime
+        });
+
+        let displayMessage = baseMessage;
+
+        if (stage === 'shots' && details?.totalScenes) {
+          const sceneInfo = details.currentScene 
+            ? `场景 ${details.currentScene}/${details.totalScenes}` 
+            : `共 ${details.totalScenes} 个场景`;
+          const batchInfo = details.currentBatch && details.totalBatches 
+            ? `，批次 ${details.currentBatch}/${details.totalBatches}` 
+            : '';
+          displayMessage = `${baseMessage} (${sceneInfo}${batchInfo})`;
+        }
+
         if (elapsed > 30000 && stage !== 'completed' && stage !== 'error') {
-          setParseStage(`${baseMessage} (已耗时${elapsedSec}秒，模型响应较慢，请耐心等待...)`);
+          let timeInfo = `已耗时${elapsedSec}秒`;
+          if (estimatedRemainingTime && estimatedRemainingTime > 0) {
+            const mins = Math.floor(estimatedRemainingTime / 60);
+            const secs = estimatedRemainingTime % 60;
+            if (mins > 0) {
+              timeInfo += `，预计还需${mins}分${secs}秒`;
+            } else {
+              timeInfo += `，预计还需${secs}秒`;
+            }
+          }
+          setParseStage(`${displayMessage} (${timeInfo}，模型响应较慢，请耐心等待...)`);
         } else {
-          setParseStage(baseMessage);
+          setParseStage(displayMessage);
         }
       };
 
@@ -424,11 +540,11 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
         currentScript.id,
         projectId,
         currentScript.content,
-        onProgress
+        onProgress,
+        resumeFromState
       );
 
-      if (!isMountedRef.current) return;
-
+      // Note: Removed isMountedRef check to fix React StrictMode issues
       const updatedScript = { ...currentScript, parseState };
       setCurrentScript(updatedScript);
 
@@ -442,7 +558,7 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
           score: report?.score,
           type: typeof report,
           hasViolations: report?.violations ? report.violations.length > 0 : false,
-          hasSuggestions: report?.suggestions ? report.suggestions.length > 0 : false
+          hasSuggestions: report?.suggestions ? report.suggestions.length > 0 : false,
         });
 
         if (report) {
@@ -455,12 +571,15 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
         showToast(`解析失败: ${parseState.error}`, 'error');
       }
     } catch (error: any) {
-      if (!isMountedRef.current) return;
-
+      // Note: Removed isMountedRef check to fix React StrictMode issues
       console.error('[ScriptManager] Parse error:', error);
 
       // 处理API速率限制错误
-      if (error.message?.includes('429') || error.message?.includes('Too Many Requests') || error.message?.includes('速率限制')) {
+      if (
+        error.message?.includes('429') ||
+        error.message?.includes('Too Many Requests') ||
+        error.message?.includes('速率限制')
+      ) {
         showToast('API请求过于频繁，请稍后再试（建议等待30秒）', 'error');
       } else if (error.name === 'AbortError') {
         showToast('解析已取消', 'info');
@@ -468,10 +587,9 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
         showToast(`解析失败: ${error.message || '未知错误'}`, 'error');
       }
     } finally {
-      if (isMountedRef.current) {
-        setIsParsing(false);
-        setActiveParseButton(null);
-      }
+      // Note: Removed isMountedRef check to fix React StrictMode issues
+      setIsParsing(false);
+      setActiveParseButton(null);
     }
   };
 
@@ -505,7 +623,7 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
       characters: script.parseState?.characters?.length || 0,
       scenes: script.parseState?.scenes?.length || 0,
       items: script.parseState?.items?.length || 0,
-      shots: script.parseState?.shots?.length || 0
+      shots: script.parseState?.shots?.length || 0,
     };
     setDeleteStats(stats);
     setIsDeleteModalOpen(true);
@@ -517,19 +635,22 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
   }, [settings.models]);
 
   // 2.0: 获取选中的模型（支持用户选择）
-  const getSelectedModel = useCallback((needApiKey: boolean = true): ModelConfig | null => {
-    const llmModels = getAvailableModels();
-    if (llmModels.length === 0) return null;
+  const getSelectedModel = useCallback(
+    (needApiKey: boolean = true): ModelConfig | null => {
+      const llmModels = getAvailableModels();
+      if (llmModels.length === 0) return null;
 
-    // 如果用户选择了特定模型，使用它
-    if (selectedModelId) {
-      const selected = llmModels.find(m => m.id === selectedModelId);
-      if (selected) return selected;
-    }
+      // 如果用户选择了特定模型，使用它
+      if (selectedModelId) {
+        const selected = llmModels.find(m => m.id === selectedModelId);
+        if (selected) return selected;
+      }
 
-    // 否则使用第一个可用的模型
-    return llmModels[0];
-  }, [getAvailableModels, selectedModelId]);
+      // 否则使用第一个可用的模型
+      return llmModels[0];
+    },
+    [getAvailableModels, selectedModelId]
+  );
 
   // Update word count when content changes
   useEffect(() => {
@@ -553,7 +674,9 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
             剧本管理
           </h2>
           {scripts.length > 0 && (
-            <Chip size="sm" variant="flat">{scripts.length} 个剧本</Chip>
+            <Chip size="sm" variant="flat">
+              {scripts.length} 个剧本
+            </Chip>
           )}
         </div>
         <div className="flex items-center gap-2">
@@ -638,18 +761,34 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
                   {getAvailableModels().length > 0 && (
                     <Select
                       size="sm"
+                      label="选择模型"
                       placeholder="选择模型"
                       selectedKeys={selectedModelId ? [selectedModelId] : []}
-                      onChange={(e) => setSelectedModelId(e.target.value)}
+                      onChange={e => setSelectedModelId(e.target.value)}
                       className="w-48"
                       isDisabled={isParsing}
                     >
-                      {getAvailableModels().map((model) => (
+                      {getAvailableModels().map(model => (
                         <SelectItem key={model.id} value={model.id}>
                           {model.name}
                         </SelectItem>
                       ))}
                     </Select>
+                  )}
+                  {currentScript.parseState?.stage !== 'completed' && 
+                   currentScript.parseState?.stage !== 'error' &&
+                   (currentScript.parseState?.stage !== 'idle' || 
+                    (currentScript.parseState?.metadata || 
+                     currentScript.parseState?.characters?.length || 
+                     currentScript.parseState?.scenes?.length)) && (
+                    <Button
+                      color="secondary"
+                      startContent={<RotateCcw className="w-4 h-4" />}
+                      isLoading={isParsing && activeParseButton === 'full'}
+                      onPress={() => handleParseScript(currentScript.parseState)}
+                    >
+                      {isParsing ? '解析中...' : '继续解析'}
+                    </Button>
                   )}
                   {currentScript.parseState?.stage !== 'completed' && (
                     <Button
@@ -657,6 +796,7 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
                       startContent={isParsing ? undefined : <Play className="w-4 h-4" />}
                       isLoading={isParsing && activeParseButton === 'full'}
                       onPress={handleStartParse}
+                      isDisabled={isParsing}
                     >
                       {isParsing ? '解析中...' : '开始分析'}
                     </Button>
@@ -681,7 +821,44 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
                       <span className="font-medium">{parseStage}</span>
                       <span className="text-sm text-slate-500">{parseProgress}%</span>
                     </div>
-                    <Progress value={parseProgress} className="w-full" />
+                    
+                    <Progress 
+                      value={parseProgress} 
+                      className="w-full"
+                      aria-label={`解析进度: ${parseProgress}%`}
+                    />
+                    
+                    {/* Detailed Progress Info */}
+                    {(parseDetails.currentScene || parseDetails.totalScenes || parseDetails.estimatedRemainingTime) && (
+                      <div className="grid grid-cols-2 md:grid-cols-3 gap-2 text-sm">
+                        {parseDetails.totalScenes && (
+                          <div className="flex items-center gap-1 text-slate-500">
+                            <MapPin className="w-3 h-3" />
+                            <span>
+                              {parseDetails.currentScene || 0}/{parseDetails.totalScenes} 场景
+                            </span>
+                          </div>
+                        )}
+                        
+                        {parseDetails.totalBatches && (
+                          <div className="flex items-center gap-1 text-slate-500">
+                            <Box className="w-3 h-3" />
+                            <span>
+                              {parseDetails.currentBatch || 0}/{parseDetails.totalBatches} 批次
+                            </span>
+                          </div>
+                        )}
+                        
+                        {parseDetails.estimatedRemainingTime && parseDetails.estimatedRemainingTime > 0 && (
+                          <div className="flex items-center gap-1 text-slate-500">
+                            <Clock className="w-3 h-3" />
+                            <span>
+                              预计还需 {Math.floor(parseDetails.estimatedRemainingTime / 60)}分{parseDetails.estimatedRemainingTime % 60}秒
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </CardBody>
                 </Card>
               )}
@@ -706,7 +883,9 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
                           <Card className="bg-primary/5">
                             <CardBody className="text-center">
                               <p className="text-2xl font-bold text-primary">
-                                {currentScript.parseState.plotAnalysis?.plotPoints?.length || currentScript.parseState.shots?.length || 0}
+                                {currentScript.parseState.plotAnalysis?.plotPoints?.length ||
+                                  currentScript.parseState.shots?.length ||
+                                  0}
                               </p>
                               <p className="text-sm text-slate-500">情节点</p>
                             </CardBody>
@@ -739,14 +918,8 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
 
                         {/* Story Overview & Visual Style */}
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                          <StoryOverviewCard
-                            metadata={currentScript.parseState.metadata}
-                            t={{}}
-                          />
-                          <VisualStyleCard
-                            metadata={currentScript.parseState.metadata}
-                            t={{}}
-                          />
+                          <StoryOverviewCard metadata={currentScript.parseState.metadata} t={{}} />
+                          <VisualStyleCard metadata={currentScript.parseState.metadata} t={{}} />
                         </div>
 
                         {/* Emotional Arc */}
@@ -780,10 +953,12 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
                     }
                   >
                     <CharacterMapping
-                      characters={currentScript.parseState.characters || []}
+                      scriptId={currentScript.id}
+                      scriptCharacters={currentScript.parseState.characters || []}
                       existingCharacters={existingCharacters}
                       projectId={projectId!}
-                      onAssetsChanged={loadExistingAssets}
+                      onCharactersUpdate={() => {}}
+                      onCharacterCreated={loadExistingAssets}
                     />
                   </Tab>
 
@@ -801,10 +976,12 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
                     }
                   >
                     <SceneMapping
-                      scenes={currentScript.parseState.scenes || []}
+                      scriptId={currentScript.id}
+                      scriptScenes={currentScript.parseState.scenes || []}
                       existingScenes={existingScenes}
                       projectId={projectId!}
-                      onAssetsChanged={loadExistingAssets}
+                      onScenesUpdate={() => {}}
+                      onSceneCreated={loadExistingAssets}
                     />
                   </Tab>
 
@@ -822,10 +999,12 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
                     }
                   >
                     <ItemMapping
-                      items={currentScript.parseState.items || []}
+                      scriptId={currentScript.id}
+                      scriptItems={currentScript.parseState.items || []}
                       existingItems={existingItems}
                       projectId={projectId!}
-                      onAssetsChanged={loadExistingAssets}
+                      onItemsUpdate={() => {}}
+                      onItemCreated={loadExistingAssets}
                     />
                   </Tab>
 
@@ -844,8 +1023,11 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
                   >
                     <ShotList
                       shots={currentScript.parseState.shots || []}
+                      scenes={currentScript.parseState.scenes || []}
                       scriptId={currentScript.id}
                       projectId={projectId!}
+                      onShotsUpdate={() => {}}
+                      viewMode="list"
                     />
                   </Tab>
 
@@ -857,7 +1039,16 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
                         <div className="flex items-center gap-2">
                           <AlertCircle size={16} />
                           <span>质量</span>
-                          <Chip size="sm" color={qualityReport.score >= 80 ? 'success' : qualityReport.score >= 60 ? 'warning' : 'danger'}>
+                          <Chip
+                            size="sm"
+                            color={
+                              qualityReport.score >= 80
+                                ? 'success'
+                                : qualityReport.score >= 60
+                                  ? 'warning'
+                                  : 'danger'
+                            }
+                          >
                             {qualityReport.score}
                           </Chip>
                         </div>
@@ -898,14 +1089,11 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
                   点击或拖拽文件到此处上传
                 </p>
                 <p className="text-xs text-slate-500">
-                  支持 .txt, .md, .html, .rtf, .csv, .json 等格式（最大50MB）
-                </p>
-                <p className="text-xs text-slate-400 mt-1">
-                  Word(.docx)和PDF请先转换为txt格式
+                  支持 .txt, .md, .docx, .pdf 格式（最大50MB）
                 </p>
                 <input
                   type="file"
-                  accept=".txt,.md,.markdown,.html,.htm,.rtf,.csv,.json"
+                  accept=".txt,.md,.markdown,.docx,.pdf"
                   onChange={handleFileUpload}
                   className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                 />
@@ -918,28 +1106,26 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
               label="剧本标题"
               placeholder="请输入剧本标题"
               value={scriptTitle}
-              onChange={(e) => setScriptTitle(e.target.value)}
+              onChange={e => setScriptTitle(e.target.value)}
             />
             <Textarea
               label="剧本内容"
               placeholder="请粘贴小说或剧本内容，或通过上方上传文件..."
               value={scriptContent}
-              onChange={(e) => setScriptContent(e.target.value)}
+              onChange={e => setScriptContent(e.target.value)}
               minRows={10}
               maxRows={20}
             />
             {scriptWordCount > 0 && (
-              <p className="text-sm text-slate-500">
-                {scriptWordCount.toLocaleString()} 字符
-              </p>
+              <p className="text-sm text-slate-500">{scriptWordCount.toLocaleString()} 字符</p>
             )}
           </ModalBody>
           <ModalFooter>
             <Button variant="light" onPress={() => setIsUploadModalOpen(false)}>
               取消
             </Button>
-            <Button 
-              color="primary" 
+            <Button
+              color="primary"
               onPress={handleUploadScript}
               isDisabled={!scriptTitle.trim() || !scriptContent.trim()}
             >
@@ -958,7 +1144,8 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({ projectId: propProjectId,
             {deleteStats && (
               <div className="mt-4 p-4 bg-slate-100 dark:bg-slate-800 rounded-lg">
                 <p className="text-sm text-slate-600 dark:text-slate-400">
-                  这将同时删除 {deleteStats.characters} 个角色、{deleteStats.scenes} 个场景、{deleteStats.items} 个物品和 {deleteStats.shots} 个分镜。
+                  这将同时删除 {deleteStats.characters} 个角色、{deleteStats.scenes} 个场景、
+                  {deleteStats.items} 个物品和 {deleteStats.shots} 个分镜。
                 </p>
               </div>
             )}

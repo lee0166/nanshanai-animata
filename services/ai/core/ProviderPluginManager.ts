@@ -3,7 +3,7 @@ import {
   ProviderMetadata,
   ProviderNotFoundError,
   ProviderNotAvailableError,
-} from "./IProvider";
+} from './IProvider';
 
 /**
  * Provider插件管理器
@@ -20,8 +20,7 @@ export class ProviderPluginManager {
   private readonly isDevMode: boolean;
 
   constructor() {
-    this.isDevMode =
-      (import.meta as any).env?.DEV || process.env.NODE_ENV === "development";
+    this.isDevMode = (import.meta as any).env?.DEV || process.env.NODE_ENV === 'development';
   }
 
   /**
@@ -59,9 +58,7 @@ export class ProviderPluginManager {
     this.plugins.set(provider.id, provider);
     this.metadata.set(provider.id, metadata);
 
-    console.log(
-      `[ProviderPluginManager] Registered: ${provider.name} (${provider.id})`
-    );
+    console.log(`[ProviderPluginManager] Registered: ${provider.name} (${provider.id})`);
   }
 
   /**
@@ -71,17 +68,13 @@ export class ProviderPluginManager {
     providers: Array<{ provider: IProvider; metadata: ProviderMetadata }>
   ): Promise<void> {
     // 按优先级排序
-    const sorted = providers.sort(
-      (a, b) => a.metadata.priority - b.metadata.priority
-    );
+    const sorted = providers.sort((a, b) => a.metadata.priority - b.metadata.priority);
 
     for (const { provider, metadata } of sorted) {
       this.register(provider, metadata);
     }
 
-    console.log(
-      `[ProviderPluginManager] Registered ${this.plugins.size} providers`
-    );
+    console.log(`[ProviderPluginManager] Registered ${this.plugins.size} providers`);
   }
 
   /**
@@ -92,7 +85,7 @@ export class ProviderPluginManager {
     if (!provider) {
       // 检查是否是开发环境专用
       const meta = this.metadata.get(id);
-      if (meta?.environment === "development" && !this.isDevMode) {
+      if (meta?.environment === 'development' && !this.isDevMode) {
         throw new ProviderNotAvailableError(
           id,
           `Provider ${id} is DEVELOPMENT ONLY and cannot be used in production`
@@ -113,8 +106,8 @@ export class ProviderPluginManager {
   /**
    * 按类型获取Provider
    */
-  getProvidersByType(type: "image" | "video" | "llm"): IProvider[] {
-    return this.getAllProviders().filter((p) => p.supportedTypes.includes(type));
+  getProvidersByType(type: 'image' | 'video' | 'llm'): IProvider[] {
+    return this.getAllProviders().filter(p => p.supportedTypes.includes(type));
   }
 
   /**
@@ -137,10 +130,10 @@ export class ProviderPluginManager {
   getProviderInfos(): Array<{
     id: string;
     name: string;
-    supportedTypes: ("image" | "video" | "llm")[];
+    supportedTypes: ('image' | 'video' | 'llm')[];
     metadata: ProviderMetadata;
   }> {
-    return this.getAllProviders().map((p) => ({
+    return this.getAllProviders().map(p => ({
       id: p.id,
       name: p.name,
       supportedTypes: p.supportedTypes,
@@ -159,10 +152,7 @@ export class ProviderPluginManager {
           await provider.initialize(config);
           console.log(`[ProviderPluginManager] Initialized: ${id}`);
         } catch (error) {
-          console.error(
-            `[ProviderPluginManager] Failed to initialize ${id}:`,
-            error
-          );
+          console.error(`[ProviderPluginManager] Failed to initialize ${id}:`, error);
         }
       }
     }
@@ -178,10 +168,7 @@ export class ProviderPluginManager {
           await provider.dispose();
           console.log(`[ProviderPluginManager] Disposed: ${id}`);
         } catch (error) {
-          console.error(
-            `[ProviderPluginManager] Failed to dispose ${id}:`,
-            error
-          );
+          console.error(`[ProviderPluginManager] Failed to dispose ${id}:`, error);
         }
       }
     }
@@ -192,12 +179,10 @@ export class ProviderPluginManager {
   /**
    * 检查当前环境是否可加载
    */
-  private canLoadInEnvironment(
-    environment: "all" | "development" | "production"
-  ): boolean {
-    if (environment === "all") return true;
-    if (environment === "development") return this.isDevMode;
-    if (environment === "production") return !this.isDevMode;
+  private canLoadInEnvironment(environment: 'all' | 'development' | 'production'): boolean {
+    if (environment === 'all') return true;
+    if (environment === 'development') return this.isDevMode;
+    if (environment === 'production') return !this.isDevMode;
     return false;
   }
 }
@@ -221,3 +206,9 @@ export function getProviderPluginManager(): ProviderPluginManager {
 export function resetProviderPluginManager(): void {
   globalPluginManager = null;
 }
+
+/**
+ * Provider插件管理器单例实例
+ * @deprecated 使用 getProviderPluginManager() 替代
+ */
+export const providerPluginManager = getProviderPluginManager();

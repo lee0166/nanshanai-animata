@@ -8,15 +8,7 @@
  */
 
 import React from 'react';
-import {
-  Modal,
-  ModalContent,
-  ModalHeader,
-  ModalBody,
-  Button,
-  Progress,
-  Code
-} from '@heroui/react';
+import { Modal, ModalContent, ModalHeader, ModalBody, Button, Progress, Code } from '@heroui/react';
 import { Brain, AlertCircle, CheckCircle, Terminal, Info } from 'lucide-react';
 import { ModelDownloadState } from '../services/parsing/EmbeddingService';
 
@@ -38,10 +30,10 @@ interface ModelDownloadProgressProps {
 export const ModelDownloadProgress: React.FC<ModelDownloadProgressProps> = ({
   isOpen,
   downloadState,
-  onRetry,
+  onRetry: _onRetry,
   onCancel,
   onUseStandardMode,
-  manualGuide
+  manualGuide,
 }) => {
   const renderContent = () => {
     switch (downloadState.status) {
@@ -53,16 +45,9 @@ export const ModelDownloadProgress: React.FC<ModelDownloadProgressProps> = ({
             </div>
             <div className="text-center space-y-2">
               <p className="text-lg font-medium">正在检查本地模型...</p>
-              <p className="text-sm text-gray-500">
-                检查本地缓存中是否存在模型文件
-              </p>
+              <p className="text-sm text-gray-500">检查本地缓存中是否存在模型文件</p>
             </div>
-            <Progress
-              isIndeterminate
-              className="w-full"
-              color="primary"
-              size="md"
-            />
+            <Progress isIndeterminate className="w-full" color="primary" size="md" />
           </div>
         );
 
@@ -74,16 +59,9 @@ export const ModelDownloadProgress: React.FC<ModelDownloadProgressProps> = ({
             </div>
             <div className="text-center space-y-2">
               <p className="text-lg font-medium">正在加载 AI 模型...</p>
-              <p className="text-sm text-gray-500">
-                从本地缓存加载模型文件
-              </p>
+              <p className="text-sm text-gray-500">从本地缓存加载模型文件</p>
             </div>
-            <Progress
-              value={downloadState.progress}
-              className="w-full"
-              color="primary"
-              size="md"
-            />
+            <Progress value={downloadState.progress} className="w-full" color="primary" size="md" />
             <div className="flex justify-between text-sm text-gray-500">
               <span>{downloadState.progress}%</span>
               <span>加载中...</span>
@@ -99,9 +77,7 @@ export const ModelDownloadProgress: React.FC<ModelDownloadProgressProps> = ({
             </div>
             <div className="text-center space-y-2">
               <p className="text-lg font-medium text-success">模型加载完成</p>
-              <p className="text-sm text-gray-500">
-                AI 模型已准备就绪，可以开始使用智能记忆功能
-              </p>
+              <p className="text-sm text-gray-500">AI 模型已准备就绪，可以开始使用智能记忆功能</p>
             </div>
             <div className="bg-success-50 dark:bg-success-900/20 rounded-lg p-4">
               <p className="text-sm text-success-700 dark:text-success-400">
@@ -119,9 +95,7 @@ export const ModelDownloadProgress: React.FC<ModelDownloadProgressProps> = ({
             </div>
             <div className="text-center space-y-2">
               <p className="text-lg font-medium text-danger">模型加载失败</p>
-              <p className="text-sm text-gray-500">
-                本地模型文件不存在，需要预先下载
-              </p>
+              <p className="text-sm text-gray-500">本地模型文件不存在，需要预先下载</p>
             </div>
 
             {/* 错误详情 */}
@@ -183,11 +157,7 @@ export const ModelDownloadProgress: React.FC<ModelDownloadProgressProps> = ({
               <Button variant="flat" onPress={onUseStandardMode} className="flex-1">
                 使用标准模式
               </Button>
-              <Button
-                color="primary"
-                onPress={onCancel}
-                className="flex-1"
-              >
+              <Button color="primary" onPress={onCancel} className="flex-1">
                 我知道了
               </Button>
             </div>
@@ -203,7 +173,9 @@ export const ModelDownloadProgress: React.FC<ModelDownloadProgressProps> = ({
     <Modal
       isOpen={isOpen}
       onClose={() => {}}
-      hideCloseButton={downloadState.status === 'checking' || downloadState.status === 'downloading'}
+      hideCloseButton={
+        downloadState.status === 'checking' || downloadState.status === 'downloading'
+      }
       size="md"
       backdrop="blur"
     >
@@ -212,9 +184,7 @@ export const ModelDownloadProgress: React.FC<ModelDownloadProgressProps> = ({
           <Brain className="w-5 h-5 text-primary" />
           智能记忆模型
         </ModalHeader>
-        <ModalBody className="pb-6">
-          {renderContent()}
-        </ModalBody>
+        <ModalBody className="pb-6">{renderContent()}</ModalBody>
       </ModalContent>
     </Modal>
   );

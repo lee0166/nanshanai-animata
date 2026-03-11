@@ -9,9 +9,22 @@
  */
 
 import { ScriptMetadata, ScriptCharacter, ScriptScene } from '../../../types';
-import { ConsistencyChecker, ConsistencyCheckResult, ConsistencyRule } from '../consistency/ConsistencyChecker';
-import { QualityEvaluator, QualityEvaluationResult, QualityDimension } from '../quality/QualityEvaluator';
-import { RefinementEngine, RefinementAction, RefinementResult, RefinementContext } from './RefinementEngine';
+import {
+  ConsistencyChecker,
+  ConsistencyCheckResult,
+  ConsistencyRule,
+} from '../consistency/ConsistencyChecker';
+import {
+  QualityEvaluator,
+  QualityEvaluationResult,
+  QualityDimension,
+} from '../quality/QualityEvaluator';
+import {
+  RefinementEngine,
+  RefinementAction,
+  RefinementResult,
+  RefinementContext,
+} from './RefinementEngine';
 
 /**
  * 迭代优化配置
@@ -116,8 +129,8 @@ const DEFAULT_CONFIG: IterativeRefinementConfig = {
   targetQualityScore: 85,
   minImprovementThreshold: 2,
   autoApplySafeRefinements: true,
-  confidenceThreshold: 0.7,
-  verboseLogging: true
+  confidenceThreshold: 0.6,
+  verboseLogging: true,
 };
 
 /**
@@ -151,19 +164,21 @@ export class IterativeRefinementEngine {
     scenes: ScriptScene[]
   ): Promise<IterativeRefinementResult> {
     console.log('[IterativeRefinementEngine] Starting refinement process...');
-    console.log(`[IterativeRefinementEngine] Config: maxIterations=${this.config.maxIterations}, targetScore=${this.config.targetQualityScore}`);
+    console.log(
+      `[IterativeRefinementEngine] Config: maxIterations=${this.config.maxIterations}, targetScore=${this.config.targetQualityScore}`
+    );
 
     const startTime = Date.now();
     const iterationResults: IterationResult[] = [];
     let currentMetadata = { ...metadata };
-    let currentCharacters = [...characters];
-    let currentScenes = [...scenes];
+    const currentCharacters = [...characters];
+    const currentScenes = [...scenes];
 
     // 获取初始质量分数
     const initialQualityResult = await this.qualityEvaluator.evaluate({
       metadata: currentMetadata,
       characters: currentCharacters,
-      scenes: currentScenes
+      scenes: currentScenes,
     });
     const initialQualityScore = initialQualityResult.overallScore;
     let previousQualityScore = initialQualityScore;
@@ -172,7 +187,9 @@ export class IterativeRefinementEngine {
 
     // 迭代优化循环
     for (let iteration = 1; iteration <= this.config.maxIterations; iteration++) {
-      console.log(`\n[IterativeRefinementEngine] === Iteration ${iteration}/${this.config.maxIterations} ===`);
+      console.log(
+        `\n[IterativeRefinementEngine] === Iteration ${iteration}/${this.config.maxIterations} ===`
+      );
 
       const iterationStartTime = Date.now();
 
@@ -182,7 +199,7 @@ export class IterativeRefinementEngine {
         characters: currentCharacters,
         scenes: currentScenes,
         iteration,
-        previousQualityScore
+        previousQualityScore,
       });
 
       iterationResults.push(iterationResult);
@@ -197,7 +214,9 @@ export class IterativeRefinementEngine {
       previousQualityScore = iterationResult.qualityScoreAfter;
 
       const iterationTime = Date.now() - iterationStartTime;
-      console.log(`[IterativeRefinementEngine] Iteration ${iteration} completed in ${iterationTime}ms, improvement: ${iterationResult.improvement.toFixed(2)}`);
+      console.log(
+        `[IterativeRefinementEngine] Iteration ${iteration} completed in ${iterationTime}ms, improvement: ${iterationResult.improvement.toFixed(2)}`
+      );
 
       // 检查终止条件
       if (this.shouldStopIteration(iterationResult, iteration)) {
@@ -210,11 +229,15 @@ export class IterativeRefinementEngine {
     const finalQualityScore = previousQualityScore;
 
     console.log(`\n[IterativeRefinementEngine] Refinement completed in ${totalTime}ms`);
-    console.log(`[IterativeRefinementEngine] Final quality score: ${finalQualityScore} (improvement: ${(finalQualityScore - initialQualityScore).toFixed(2)})`);
+    console.log(
+      `[IterativeRefinementEngine] Final quality score: ${finalQualityScore} (improvement: ${(finalQualityScore - initialQualityScore).toFixed(2)})`
+    );
 
     // 生成结果
     const result: IterativeRefinementResult = {
-      success: finalQualityScore >= this.config.targetQualityScore || finalQualityScore > initialQualityScore,
+      success:
+        finalQualityScore >= this.config.targetQualityScore ||
+        finalQualityScore > initialQualityScore,
       totalIterations: iterationResults.length,
       initialQualityScore,
       finalQualityScore,
@@ -222,7 +245,12 @@ export class IterativeRefinementEngine {
       iterationResults,
       finalMetadata: currentMetadata,
       stats: { ...this.stats },
-      report: this.generateReport(iterationResults, initialQualityScore, finalQualityScore, totalTime)
+      report: this.generateReport(
+        iterationResults,
+        initialQualityScore,
+        finalQualityScore,
+        totalTime
+      ),
     };
 
     return result;
@@ -240,11 +268,13 @@ export class IterativeRefinementEngine {
     const consistencyResult = await this.consistencyChecker.check({
       metadata: context.metadata,
       characters: context.characters,
-      scenes: context.scenes
+      scenes: context.scenes,
     });
 
     if (this.config.verboseLogging) {
-      console.log(`[IterativeRefinementEngine] Found ${consistencyResult.violations.length} violations`);
+      console.log(
+        `[IterativeRefinementEngine] Found ${consistencyResult.violations.length} violations`
+      );
       consistencyResult.violations.forEach((v, i) => {
         console.log(`  [Violation ${i + 1}] ${v.type}: ${v.message}`);
       });
@@ -255,12 +285,12 @@ export class IterativeRefinementEngine {
     const qualityResult = await this.qualityEvaluator.evaluate({
       metadata: context.metadata,
       characters: context.characters,
-      scenes: context.scenes
+      scenes: context.scenes,
     });
 
     if (this.config.verboseLogging) {
       console.log(`[IterativeRefinementEngine] Quality score: ${qualityResult.overallScore}`);
-      qualityResult.scores?.forEach((score) => {
+      qualityResult.scores?.forEach(score => {
         console.log(`  [${score.dimension}] ${score.score}/${score.weight * 100}`);
       });
     }
@@ -271,7 +301,7 @@ export class IterativeRefinementEngine {
       characters: context.characters,
       scenes: context.scenes,
       violations: consistencyResult.violations,
-      qualityScores: qualityResult.scores || []
+      qualityScores: qualityResult.scores || [],
     };
 
     // 4. 生成修正动作
@@ -288,7 +318,27 @@ export class IterativeRefinementEngine {
     );
 
     if (this.config.verboseLogging) {
-      console.log(`[IterativeRefinementEngine] Applied: ${refinementResult.appliedActions.length}, Skipped: ${refinementResult.skippedActions.length}, Failed: ${refinementResult.failedActions.length}`);
+      console.log(
+        `[IterativeRefinementEngine] Applied: ${refinementResult.appliedActions.length}, Skipped: ${refinementResult.skippedActions.length}, Failed: ${refinementResult.failedActions.length}`
+      );
+      if (refinementResult.skippedActions.length > 0) {
+        console.log(
+          `[IterativeRefinementEngine] Skipped actions details (see RefinementEngine logs for specific reasons):`
+        );
+        refinementResult.skippedActions.forEach((action, i) => {
+          console.log(
+            `  [Skipped ${i + 1}] ${action.description} (confidence: ${(action.confidence * 100).toFixed(0)}%, autoSafe: ${action.autoSafe}, requiresConfirmation: ${action.requiresConfirmation})`
+          );
+        });
+      }
+      if (refinementResult.appliedActions.length > 0) {
+        console.log(`[IterativeRefinementEngine] Applied actions details:`);
+        refinementResult.appliedActions.forEach((action, i) => {
+          console.log(
+            `  [Applied ${i + 1}] ${action.description} (confidence: ${(action.confidence * 100).toFixed(0)}%)`
+          );
+        });
+      }
     }
 
     const executionTime = Date.now() - iterationStartTime;
@@ -302,7 +352,7 @@ export class IterativeRefinementEngine {
       qualityResult,
       refinementResult,
       improvement,
-      executionTime
+      executionTime,
     };
   }
 
@@ -325,13 +375,17 @@ export class IterativeRefinementEngine {
 
     // 改进幅度太小
     if (iterationResult.improvement < this.config.minImprovementThreshold) {
-      console.log(`[IterativeRefinementEngine] Improvement (${iterationResult.improvement.toFixed(2)}) below threshold (${this.config.minImprovementThreshold})`);
+      console.log(
+        `[IterativeRefinementEngine] Improvement (${iterationResult.improvement.toFixed(2)}) below threshold (${this.config.minImprovementThreshold})`
+      );
       return true;
     }
 
     // 没有生成任何修正动作
-    if (iterationResult.refinementResult.appliedActions.length === 0 &&
-        iterationResult.refinementResult.skippedActions.length === 0) {
+    if (
+      iterationResult.refinementResult.appliedActions.length === 0 &&
+      iterationResult.refinementResult.skippedActions.length === 0
+    ) {
       console.log('[IterativeRefinementEngine] No refinement actions generated');
       return true;
     }
@@ -424,7 +478,7 @@ export class IterativeRefinementEngine {
       totalActionsGenerated: 0,
       totalActionsApplied: 0,
       totalActionsSkipped: 0,
-      totalActionsFailed: 0
+      totalActionsFailed: 0,
     };
   }
 
@@ -435,9 +489,10 @@ export class IterativeRefinementEngine {
   private updateStats(iterationResult: IterationResult): void {
     this.stats.totalChecks++;
     this.stats.totalViolationsFound += iterationResult.consistencyResult.violations.length;
-    this.stats.totalActionsGenerated += iterationResult.refinementResult.appliedActions.length +
-                                        iterationResult.refinementResult.skippedActions.length +
-                                        iterationResult.refinementResult.failedActions.length;
+    this.stats.totalActionsGenerated +=
+      iterationResult.refinementResult.appliedActions.length +
+      iterationResult.refinementResult.skippedActions.length +
+      iterationResult.refinementResult.failedActions.length;
     this.stats.totalActionsApplied += iterationResult.refinementResult.appliedActions.length;
     this.stats.totalActionsSkipped += iterationResult.refinementResult.skippedActions.length;
     this.stats.totalActionsFailed += iterationResult.refinementResult.failedActions.length;
@@ -477,10 +532,14 @@ export class IterativeRefinementEngine {
     lines.push(`## 迭代详情`);
     for (const result of iterationResults) {
       lines.push(`\n### 迭代 ${result.iteration}`);
-      lines.push(`- **质量分数**: ${result.qualityScoreBefore.toFixed(2)} → ${result.qualityScoreAfter.toFixed(2)}`);
+      lines.push(
+        `- **质量分数**: ${result.qualityScoreBefore.toFixed(2)} → ${result.qualityScoreAfter.toFixed(2)}`
+      );
       lines.push(`- **改进**: ${result.improvement.toFixed(2)}`);
       lines.push(`- **违规数**: ${result.consistencyResult.violations.length}`);
-      lines.push(`- **应用/跳过/失败**: ${result.refinementResult.appliedActions.length}/${result.refinementResult.skippedActions.length}/${result.refinementResult.failedActions.length}`);
+      lines.push(
+        `- **应用/跳过/失败**: ${result.refinementResult.appliedActions.length}/${result.refinementResult.skippedActions.length}/${result.refinementResult.failedActions.length}`
+      );
       lines.push(`- **执行时间**: ${result.executionTime}ms`);
     }
 

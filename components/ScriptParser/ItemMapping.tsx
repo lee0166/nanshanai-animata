@@ -17,13 +17,26 @@ import {
   ModalFooter,
   Textarea,
   Input,
-  Chip
-} from "@heroui/react";
-import { Box, Link2, Plus, Edit2, Wand2, CheckCircle2, Sword, FileText, Gem, Hammer, PawPrint, HelpCircle } from 'lucide-react';
+  Chip,
+} from '@heroui/react';
+import {
+  Box,
+  Link2,
+  Plus,
+  Edit2,
+  Wand2,
+  CheckCircle2,
+  Sword,
+  FileText,
+  Gem,
+  Hammer,
+  PawPrint,
+  HelpCircle,
+} from 'lucide-react';
 
 interface ItemMappingProps {
   projectId: string;
-  scriptId: string;  // 当前剧本ID
+  scriptId: string; // 当前剧本ID
   scriptItems: ScriptItem[];
   existingItems: ItemAsset[];
   onItemsUpdate: (items: ScriptItem[]) => void;
@@ -37,7 +50,7 @@ const categoryIcons: Record<string, React.ReactNode> = {
   document: <FileText size={16} />,
   creature: <PawPrint size={16} />,
   animal: <PawPrint size={16} />,
-  other: <Box size={16} />
+  other: <Box size={16} />,
 };
 
 const categoryLabels: Record<string, string> = {
@@ -47,7 +60,7 @@ const categoryLabels: Record<string, string> = {
   document: '文档',
   creature: '生物',
   animal: '动物',
-  other: '其他'
+  other: '其他',
 };
 
 const categoryToItemType: Record<string, ItemType> = {
@@ -57,7 +70,7 @@ const categoryToItemType: Record<string, ItemType> = {
   document: ItemType.REFERENCE,
   creature: ItemType.CREATURE,
   animal: ItemType.ANIMAL,
-  other: ItemType.PROP
+  other: ItemType.PROP,
 };
 
 export const ItemMapping: React.FC<ItemMappingProps> = ({
@@ -66,7 +79,7 @@ export const ItemMapping: React.FC<ItemMappingProps> = ({
   scriptItems,
   existingItems,
   onItemsUpdate,
-  onItemCreated
+  onItemCreated,
 }) => {
   const { t, settings } = useApp();
   const { showToast } = useToast();
@@ -88,13 +101,13 @@ export const ItemMapping: React.FC<ItemMappingProps> = ({
     const newItem: ItemAsset = {
       id: `item_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
       projectId,
-      scriptId,  // 关联当前剧本
+      scriptId, // 关联当前剧本
       type: AssetType.ITEM,
       name: scriptItem.name,
       prompt: scriptItem.visualPrompt || `${scriptItem.name}的物品设定`,
       itemType: categoryToItemType[scriptItem.category] || ItemType.PROP,
       createdAt: Date.now(),
-      updatedAt: Date.now()
+      updatedAt: Date.now(),
     };
 
     await storageService.saveAsset(newItem);
@@ -105,7 +118,7 @@ export const ItemMapping: React.FC<ItemMappingProps> = ({
     try {
       // 1. 创建资产（不更新状态）
       const assetId = await createItemAsset(scriptItem);
-      
+
       // 2. 更新状态
       const updated = scriptItems.map(i =>
         i.name === scriptItem.name ? { ...i, mappedAssetId: assetId } : i
@@ -129,20 +142,35 @@ export const ItemMapping: React.FC<ItemMappingProps> = ({
       return;
     }
 
+    console.log(`[ItemMapping] ========== 开始批量创建物品 ==========`);
+    console.log(`[ItemMapping] 待创建物品数量: ${unmapped.length}`);
+    console.log(`[ItemMapping] 物品列表: ${unmapped.map(i => i.name).join(', ')}`);
+
     const createdMappings: { name: string; assetId: string }[] = [];
     const failedItems: string[] = [];
+    const startTime = Date.now();
 
     try {
       // 第一步：串行创建所有资产（不更新状态）
-      for (const item of unmapped) {
+      for (let i = 0; i < unmapped.length; i++) {
+        const item = unmapped[i];
+        console.log(`[ItemMapping] [${i + 1}/${unmapped.length}] 创建物品: ${item.name}`);
         try {
-          const assetId = await createItemAsset(item);  // 只创建，不更新状态
+          const assetId = await createItemAsset(item); // 只创建，不更新状态
           createdMappings.push({ name: item.name, assetId });
+          console.log(
+            `[ItemMapping] [${i + 1}/${unmapped.length}] 物品 ${item.name} 创建成功，ID: ${assetId}`
+          );
         } catch (error) {
           console.error(`[ItemMapping] 创建物品 ${item.name} 失败:`, error);
           failedItems.push(item.name);
         }
       }
+
+      const duration = Date.now() - startTime;
+      console.log(`[ItemMapping] 批量创建完成，耗时: ${duration}ms`);
+      console.log(`[ItemMapping] 成功: ${createdMappings.length}/${unmapped.length}`);
+      console.log(`[ItemMapping] 失败: ${failedItems.length}/${unmapped.length}`);
 
       // 第二步：统一更新所有状态（只更新一次）
       if (createdMappings.length > 0) {
@@ -150,11 +178,14 @@ export const ItemMapping: React.FC<ItemMappingProps> = ({
           const mapping = createdMappings.find(m => m.name === i.name);
           return mapping ? { ...i, mappedAssetId: mapping.assetId } : i;
         });
-        onItemsUpdate(updated);  // 关键：只更新一次
+        onItemsUpdate(updated); // 关键：只更新一次
         onItemCreated?.();
-        
+
         if (failedItems.length > 0) {
-          showToast(`成功创建 ${createdMappings.length} 个道具，${failedItems.length} 个失败`, 'warning');
+          showToast(
+            `成功创建 ${createdMappings.length} 个道具，${failedItems.length} 个失败`,
+            'warning'
+          );
         } else {
           showToast(`成功创建 ${createdMappings.length} 个道具`, 'success');
         }
@@ -164,14 +195,14 @@ export const ItemMapping: React.FC<ItemMappingProps> = ({
     } catch (error) {
       console.error('[ItemMapping] 批量创建道具失败:', error);
       showToast('批量创建失败', 'error');
+    } finally {
+      console.log(`[ItemMapping] ========== 批量创建物品结束 ==========`);
     }
   };
 
   // Handle updating script item details
   const handleUpdateItem = (updated: ScriptItem) => {
-    const updatedList = scriptItems.map(i =>
-      i.name === updated.name ? updated : i
-    );
+    const updatedList = scriptItems.map(i => (i.name === updated.name ? updated : i));
     onItemsUpdate(updatedList);
     setIsEditModalOpen(false);
     showToast('物品信息已更新', 'success');
@@ -190,8 +221,8 @@ export const ItemMapping: React.FC<ItemMappingProps> = ({
         <div>
           <h3 className="text-lg font-bold">道具映射</h3>
           <p className="text-sm text-default-500">
-            共 {scriptItems.length} 个道具，
-            已关联 {scriptItems.filter(i => i.mappedAssetId).length} 个
+            共 {scriptItems.length} 个道具， 已关联{' '}
+            {scriptItems.filter(i => i.mappedAssetId).length} 个
           </p>
         </div>
         <Button
@@ -206,7 +237,7 @@ export const ItemMapping: React.FC<ItemMappingProps> = ({
 
       {/* Item Cards Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {scriptItems.map((item) => {
+        {scriptItems.map(item => {
           const mappedAsset = getMappedAsset(item.mappedAssetId);
           const hasImage = mappedAsset?.currentImageId || mappedAsset?.generatedImages?.length;
 
@@ -230,7 +261,12 @@ export const ItemMapping: React.FC<ItemMappingProps> = ({
                         </Chip>
                       )}
                       {mappedAsset && (
-                        <Chip size="sm" color="success" variant="flat" startContent={<CheckCircle2 size={12} />}>
+                        <Chip
+                          size="sm"
+                          color="success"
+                          variant="flat"
+                          startContent={<CheckCircle2 size={12} />}
+                        >
                           已关联
                         </Chip>
                       )}
@@ -241,19 +277,16 @@ export const ItemMapping: React.FC<ItemMappingProps> = ({
                 {/* Item Info */}
                 <div className="space-y-2 text-sm mb-3">
                   {item.description && (
-                    <p className="text-default-600 line-clamp-2">
-                      {item.description}
-                    </p>
+                    <p className="text-default-600 line-clamp-2">{item.description}</p>
                   )}
                   {item.owner && (
                     <p className="text-default-500 text-xs">
-                      <span className="font-medium">所属：</span>{item.owner}
+                      <span className="font-medium">所属：</span>
+                      {item.owner}
                     </p>
                   )}
                   {item.visualPrompt && (
-                    <p className="text-default-500 text-xs line-clamp-2">
-                      {item.visualPrompt}
-                    </p>
+                    <p className="text-default-500 text-xs line-clamp-2">{item.visualPrompt}</p>
                   )}
                 </div>
 
@@ -263,10 +296,12 @@ export const ItemMapping: React.FC<ItemMappingProps> = ({
                     label="关联到现有物品"
                     placeholder="选择现有物品或留空"
                     selectedKeys={item.mappedAssetId ? new Set([item.mappedAssetId]) : new Set()}
-                    onChange={(e) => handleMapItem(item, e.target.value)}
+                    onChange={e => handleMapItem(item, e.target.value)}
                     size="sm"
                   >
-                    <SelectItem key="" value="">不关联</SelectItem>
+                    <SelectItem key="" value="">
+                      不关联
+                    </SelectItem>
                     {existingItems.map(asset => (
                       <SelectItem key={asset.id} value={asset.id}>
                         {asset.name}
@@ -315,36 +350,54 @@ export const ItemMapping: React.FC<ItemMappingProps> = ({
               <ModalHeader>编辑道具 - {selectedItem.name}</ModalHeader>
               <ModalBody className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
-                  <Input
-                    label="道具名称"
-                    value={selectedItem.name}
-                    isReadOnly
-                  />
+                  <Input label="道具名称" value={selectedItem.name} isReadOnly />
                   <Select
                     label="分类"
                     selectedKeys={new Set([selectedItem.category])}
-                    onChange={(e) => setSelectedItem({ ...selectedItem, category: e.target.value as any })}
+                    onChange={e =>
+                      setSelectedItem({ ...selectedItem, category: e.target.value as any })
+                    }
                   >
-                    <SelectItem key="weapon" value="weapon">武器</SelectItem>
-                    <SelectItem key="tool" value="tool">工具</SelectItem>
-                    <SelectItem key="jewelry" value="jewelry">饰品</SelectItem>
-                    <SelectItem key="document" value="document">文档</SelectItem>
-                    <SelectItem key="creature" value="creature">生物</SelectItem>
-                    <SelectItem key="animal" value="animal">动物</SelectItem>
-                    <SelectItem key="other" value="other">其他</SelectItem>
+                    <SelectItem key="weapon" value="weapon">
+                      武器
+                    </SelectItem>
+                    <SelectItem key="tool" value="tool">
+                      工具
+                    </SelectItem>
+                    <SelectItem key="jewelry" value="jewelry">
+                      饰品
+                    </SelectItem>
+                    <SelectItem key="document" value="document">
+                      文档
+                    </SelectItem>
+                    <SelectItem key="creature" value="creature">
+                      生物
+                    </SelectItem>
+                    <SelectItem key="animal" value="animal">
+                      动物
+                    </SelectItem>
+                    <SelectItem key="other" value="other">
+                      其他
+                    </SelectItem>
                   </Select>
                   <Select
                     label="重要性"
                     selectedKeys={new Set([selectedItem.importance])}
-                    onChange={(e) => setSelectedItem({ ...selectedItem, importance: e.target.value as any })}
+                    onChange={e =>
+                      setSelectedItem({ ...selectedItem, importance: e.target.value as any })
+                    }
                   >
-                    <SelectItem key="major" value="major">重要道具</SelectItem>
-                    <SelectItem key="minor" value="minor">次要道具</SelectItem>
+                    <SelectItem key="major" value="major">
+                      重要道具
+                    </SelectItem>
+                    <SelectItem key="minor" value="minor">
+                      次要道具
+                    </SelectItem>
                   </Select>
                   <Input
                     label="所属角色"
                     value={selectedItem.owner || ''}
-                    onChange={(e) => setSelectedItem({ ...selectedItem, owner: e.target.value })}
+                    onChange={e => setSelectedItem({ ...selectedItem, owner: e.target.value })}
                     placeholder="如有"
                   />
                 </div>
@@ -352,14 +405,14 @@ export const ItemMapping: React.FC<ItemMappingProps> = ({
                 <Textarea
                   label="道具描述"
                   value={selectedItem.description}
-                  onChange={(e) => setSelectedItem({ ...selectedItem, description: e.target.value })}
+                  onChange={e => setSelectedItem({ ...selectedItem, description: e.target.value })}
                   minRows={3}
                 />
 
                 <Textarea
                   label="视觉提示词（用于AI生图）"
                   value={selectedItem.visualPrompt}
-                  onChange={(e) => setSelectedItem({ ...selectedItem, visualPrompt: e.target.value })}
+                  onChange={e => setSelectedItem({ ...selectedItem, visualPrompt: e.target.value })}
                   minRows={3}
                 />
               </ModalBody>

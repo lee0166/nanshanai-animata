@@ -1,5 +1,13 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { Shot, ScriptScene, FragmentAsset, AssetType, Keyframe, CharacterAsset, Asset } from '../../types';
+import {
+  Shot,
+  ScriptScene,
+  FragmentAsset,
+  AssetType,
+  Keyframe,
+  CharacterAsset,
+  Asset,
+} from '../../types';
 import {
   Table,
   TableHeader,
@@ -23,9 +31,24 @@ import {
   Tabs,
   Tab,
   Badge,
-  Progress
-} from "@heroui/react";
-import { Film, Edit2, Trash2, Plus, Eye, Clock, Users, Camera, Move, Scissors, Image, CheckCircle, ArrowUp, ArrowDown } from 'lucide-react';
+  Progress,
+} from '@heroui/react';
+import {
+  Film,
+  Edit2,
+  Trash2,
+  Plus,
+  Eye,
+  Clock,
+  Users,
+  Camera,
+  Move,
+  Scissors,
+  Image,
+  CheckCircle,
+  ArrowUp,
+  ArrowDown,
+} from 'lucide-react';
 import { keyframeService } from '../../services/keyframe';
 import { storageService } from '../../services/storage';
 import { useApp } from '../../contexts/context';
@@ -47,7 +70,7 @@ const SHOT_TYPE_LABELS: Record<string, string> = {
   full: '全景',
   medium: '中景',
   close_up: '近景',
-  extreme_close_up: '极近景'
+  extreme_close_up: '极近景',
 };
 
 const CAMERA_MOVEMENT_LABELS: Record<string, string> = {
@@ -57,7 +80,7 @@ const CAMERA_MOVEMENT_LABELS: Record<string, string> = {
   pan: '摇',
   tilt: '升降',
   track: '移',
-  crane: '升降'
+  crane: '升降',
 };
 
 export const ShotList: React.FC<ShotListProps> = ({
@@ -68,7 +91,7 @@ export const ShotList: React.FC<ShotListProps> = ({
   projectId,
   scriptId,
   viewMode = 'list',
-  headerAction
+  headerAction,
 }) => {
   const { settings } = useApp();
   const [selectedShot, setSelectedShot] = useState<Shot | null>(null);
@@ -89,9 +112,8 @@ export const ShotList: React.FC<ShotListProps> = ({
     characters: CharacterAsset[];
     scenes: Asset[];
   }>({ characters: [], scenes: [] });
-  
-  // 展开/收起状态
 
+  // 展开/收起状态
 
   // 获取用户已配置的模型
   const availableLLMModels = useMemo(() => {
@@ -114,15 +136,17 @@ export const ShotList: React.FC<ShotListProps> = ({
           if (!scriptId) return true; // 没有scriptId时加载所有（兼容旧代码）
           return a.scriptId === scriptId; // 严格匹配当前剧本
         });
-        console.log('[ShotList] 加载资产:', { 
-          scriptId, 
-          totalAssets: assets.length, 
+        console.log('[ShotList] 加载资产:', {
+          scriptId,
+          totalAssets: assets.length,
           filteredAssets: filteredAssets.length,
-          scenes: filteredAssets.filter(a => a.type === AssetType.SCENE).map(s => s.name)
+          scenes: filteredAssets.filter(a => a.type === AssetType.SCENE).map(s => s.name),
         });
         setProjectAssets({
-          characters: filteredAssets.filter(a => a.type === AssetType.CHARACTER) as CharacterAsset[],
-          scenes: filteredAssets.filter(a => a.type === AssetType.SCENE)
+          characters: filteredAssets.filter(
+            a => a.type === AssetType.CHARACTER
+          ) as CharacterAsset[],
+          scenes: filteredAssets.filter(a => a.type === AssetType.SCENE),
         });
       } catch (error) {
         console.error('加载项目资产失败:', error);
@@ -143,8 +167,16 @@ export const ShotList: React.FC<ShotListProps> = ({
 
   // Filter shots by scene
   const filteredShots = useMemo(() => {
-    if (selectedScene === 'all') return shots;
-    return shots.filter(s => (s.sceneName || '未分类场景') === selectedScene);
+    let result = shots;
+    if (selectedScene !== 'all') {
+      result = shots.filter(s => (s.sceneName || '未分类场景') === selectedScene);
+    }
+    // Key shots优先显示
+    return [...result].sort((a, b) => {
+      if (a.layer === 'key' && b.layer !== 'key') return -1;
+      if (a.layer !== 'key' && b.layer === 'key') return 1;
+      return 0;
+    });
   }, [shots, selectedScene]);
 
   // 从场景名称提取场景号
@@ -152,8 +184,6 @@ export const ShotList: React.FC<ShotListProps> = ({
     const match = sceneName.match(/场景(\d+)/);
     return match ? match[1] : '1';
   };
-
-
 
   // Group shots by scene
   const shotsByScene = useMemo(() => {
@@ -171,9 +201,7 @@ export const ShotList: React.FC<ShotListProps> = ({
 
   // Handle update shot
   const handleUpdateShot = (updated: Shot) => {
-    const updatedList = shots.map(s =>
-      s.id === updated.id ? updated : s
-    );
+    const updatedList = shots.map(s => (s.id === updated.id ? updated : s));
     onShotsUpdate(updatedList);
     setIsEditModalOpen(false);
   };
@@ -189,7 +217,7 @@ export const ShotList: React.FC<ShotListProps> = ({
   const handleAddShot = (sceneName: string) => {
     const sceneShots = shots.filter(s => s.sceneName === sceneName);
     const maxSequence = Math.max(...sceneShots.map(s => s.sequence), 0);
-    
+
     const newShot: Shot = {
       id: `shot_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
       sequence: maxSequence + 1,
@@ -198,9 +226,16 @@ export const ShotList: React.FC<ShotListProps> = ({
       cameraMovement: 'static',
       description: '',
       duration: 3,
-      characters: []
+      characters: [],
+      assets: {
+        characterIds: [],
+        sceneId: '',
+      },
+      contentType: 'static',
+      layer: 'key',
+      status: 'pending',
     };
-    
+
     onShotsUpdate([...shots, newShot]);
   };
 
@@ -233,7 +268,7 @@ export const ShotList: React.FC<ShotListProps> = ({
     const newShots = [...shots];
     // 交换位置
     [newShots[index], newShots[index - 1]] = [newShots[index - 1], newShots[index]];
-    
+
     // 重新计算sequence
     const updatedShots = recalculateSequences(newShots);
     onShotsUpdate(updatedShots);
@@ -247,7 +282,7 @@ export const ShotList: React.FC<ShotListProps> = ({
     const newShots = [...shots];
     // 交换位置
     [newShots[index], newShots[index + 1]] = [newShots[index + 1], newShots[index]];
-    
+
     // 重新计算sequence
     const updatedShots = recalculateSequences(newShots);
     onShotsUpdate(updatedShots);
@@ -280,7 +315,7 @@ export const ShotList: React.FC<ShotListProps> = ({
         projectId: projectId,
         characterAssets: characterAssets,
         sceneAsset: sceneAsset,
-        modelConfigId: selectedLLMModel // 使用用户选择的模型
+        modelConfigId: selectedLLMModel, // 使用用户选择的模型
       });
 
       const updatedShot = { ...selectedShot, keyframes };
@@ -301,10 +336,10 @@ export const ShotList: React.FC<ShotListProps> = ({
     }
     if (shot.keyframes && shot.keyframes.length > 0) {
       const completed = shot.keyframes.filter(kf => kf.status === 'completed').length;
-      return { 
-        label: `${completed}/${shot.keyframes.length} 已生成`, 
-        color: 'success', 
-        icon: <CheckCircle size={14} /> 
+      return {
+        label: `${completed}/${shot.keyframes.length} 已生成`,
+        color: 'success',
+        icon: <CheckCircle size={14} />,
       };
     }
     return { label: '未拆分', color: 'default', icon: <Scissors size={14} /> };
@@ -319,12 +354,17 @@ export const ShotList: React.FC<ShotListProps> = ({
   const getShotTypeColor = (type: string) => {
     switch (type) {
       case 'extreme_long':
-      case 'long': return 'default';
-      case 'full': return 'primary';
-      case 'medium': return 'secondary';
+      case 'long':
+        return 'default';
+      case 'full':
+        return 'primary';
+      case 'medium':
+        return 'secondary';
       case 'close_up':
-      case 'extreme_close_up': return 'success';
-      default: return 'default';
+      case 'extreme_close_up':
+        return 'success';
+      default:
+        return 'default';
     }
   };
 
@@ -335,7 +375,8 @@ export const ShotList: React.FC<ShotListProps> = ({
         <div>
           <h3 className="text-lg font-bold">分镜列表</h3>
           <p className="text-sm text-default-500">
-            共 {filteredShots.length} 个镜头，总时长 {Math.floor(totalDuration / 60)}分{totalDuration % 60}秒
+            共 {filteredShots.length} 个镜头，总时长 {Math.floor(totalDuration / 60)}分
+            {totalDuration % 60}秒
           </p>
         </div>
         <div className="flex gap-2">
@@ -343,11 +384,13 @@ export const ShotList: React.FC<ShotListProps> = ({
             aria-label="筛选场景"
             placeholder="筛选场景"
             selectedKeys={new Set([selectedScene])}
-            onChange={(e) => setSelectedScene(e.target.value)}
+            onChange={e => setSelectedScene(e.target.value)}
             size="sm"
             className="w-40"
           >
-            <SelectItem key="all" value="all">全部场景</SelectItem>
+            <SelectItem key="all" value="all">
+              全部场景
+            </SelectItem>
             {scenes.map(scene => (
               <SelectItem key={scene.name} value={scene.name}>
                 {scene.name}
@@ -355,7 +398,9 @@ export const ShotList: React.FC<ShotListProps> = ({
             ))}
             {/* 如果有未分类的分镜，显示未分类场景选项 */}
             {shots.some(s => !s.sceneName) && (
-              <SelectItem key="未分类场景" value="未分类场景">未分类场景</SelectItem>
+              <SelectItem key="未分类场景" value="未分类场景">
+                未分类场景
+              </SelectItem>
             )}
           </Select>
           <Button
@@ -381,6 +426,7 @@ export const ShotList: React.FC<ShotListProps> = ({
         <>
           <Table aria-label="分镜列表">
             <TableHeader>
+              <TableColumn>类型</TableColumn>
               <TableColumn>序号</TableColumn>
               <TableColumn>场景</TableColumn>
               <TableColumn>景别</TableColumn>
@@ -394,10 +440,23 @@ export const ShotList: React.FC<ShotListProps> = ({
               {filteredShots.map((shot, index) => (
                 <TableRow key={shot.id}>
                   <TableCell>
-                    <span className="font-mono text-sm">{getSceneNumber(shot.sceneName)}-{shot.sequence}</span>
+                    <Chip 
+                      size="sm" 
+                      color={shot.layer === 'key' ? 'primary' : 'default'}
+                      variant={shot.layer === 'key' ? 'solid' : 'flat'}
+                    >
+                      {shot.layer === 'key' ? '关键' : '可选'}
+                    </Chip>
                   </TableCell>
                   <TableCell>
-                    <Chip size="sm" variant="flat">{shot.sceneName}</Chip>
+                    <span className="font-mono text-sm">
+                      {getSceneNumber(shot.sceneName)}-{shot.sequence}
+                    </span>
+                  </TableCell>
+                  <TableCell>
+                    <Chip size="sm" variant="flat">
+                      {shot.sceneName}
+                    </Chip>
                   </TableCell>
                   <TableCell>
                     <Chip size="sm" color={getShotTypeColor(shot.shotType) as any}>
@@ -415,10 +474,14 @@ export const ShotList: React.FC<ShotListProps> = ({
                   <TableCell>
                     <div className="flex flex-wrap gap-1">
                       {shot.characters?.slice(0, 2).map((char, i) => (
-                        <Chip key={i} size="sm" variant="bordered">{char}</Chip>
+                        <Chip key={i} size="sm" variant="bordered">
+                          {char}
+                        </Chip>
                       ))}
                       {shot.characters && shot.characters.length > 2 && (
-                        <Chip size="sm" variant="bordered">+{shot.characters.length - 2}</Chip>
+                        <Chip size="sm" variant="bordered">
+                          +{shot.characters.length - 2}
+                        </Chip>
                       )}
                     </div>
                   </TableCell>
@@ -497,7 +560,11 @@ export const ShotList: React.FC<ShotListProps> = ({
                           variant="flat"
                           color={shot.keyframes ? 'success' : 'primary'}
                           isLoading={splittingShotId === shot.id}
-                          onPress={() => shot.keyframes ? setIsKeyframeModalOpen(true) : handleSplitKeyframes(shot)}
+                          onPress={() =>
+                            shot.keyframes
+                              ? setIsKeyframeModalOpen(true)
+                              : handleSplitKeyframes(shot)
+                          }
                         >
                           <Scissors size={14} />
                         </Button>
@@ -530,14 +597,30 @@ export const ShotList: React.FC<ShotListProps> = ({
                     </Button>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {sceneShots.map((shot, index) => (
-                      <Card key={shot.id}>
+                    {/* 对场景内的分镜进行排序，key shots优先 */}
+                    {[...sceneShots].sort((a, b) => {
+                      if (a.layer === 'key' && b.layer !== 'key') return -1;
+                      if (a.layer !== 'key' && b.layer === 'key') return 1;
+                      return 0;
+                    }).map((shot, index) => (
+                      <Card key={shot.id} className={shot.layer === 'key' ? 'border-primary' : ''}>
                         <CardBody className="p-4">
                           <div className="flex items-start justify-between mb-2">
                             <div className="flex items-center gap-2">
-                              <Badge content={`${getSceneNumber(shot.sceneName)}-${shot.sequence}`} color="primary" shape="circle">
+                              <Badge
+                                content={`${getSceneNumber(shot.sceneName)}-${shot.sequence}`}
+                                color={shot.layer === 'key' ? 'primary' : 'default'}
+                                shape="circle"
+                              >
                                 <Camera size={20} />
                               </Badge>
+                              <Chip 
+                                size="sm" 
+                                color={shot.layer === 'key' ? 'primary' : 'default'}
+                                variant={shot.layer === 'key' ? 'solid' : 'flat'}
+                              >
+                                {shot.layer === 'key' ? '关键' : '可选'}
+                              </Chip>
                               <Chip size="sm" color={getShotTypeColor(shot.shotType) as any}>
                                 {SHOT_TYPE_LABELS[shot.shotType] || shot.shotType}
                               </Chip>
@@ -587,26 +670,28 @@ export const ShotList: React.FC<ShotListProps> = ({
                               )}
                             </div>
                           </div>
-                          
+
                           <p className="text-sm text-default-600 mb-3 line-clamp-3">
                             {shot.description}
                           </p>
-                          
+
                           <div className="flex items-center justify-between text-xs text-default-500 mb-2">
                             <div className="flex items-center gap-1">
                               <Move size={14} />
-                              <span>{CAMERA_MOVEMENT_LABELS[shot.cameraMovement] || shot.cameraMovement}</span>
+                              <span>
+                                {CAMERA_MOVEMENT_LABELS[shot.cameraMovement] || shot.cameraMovement}
+                              </span>
                             </div>
                             <div className="flex items-center gap-1">
                               <Clock size={14} />
                               <span>{shot.duration}秒</span>
                             </div>
                           </div>
-                          
+
                           {/* 关键帧状态 */}
                           <div className="flex items-center justify-between mt-2 pt-2 border-t border-default-200">
-                            <Chip 
-                              size="sm" 
+                            <Chip
+                              size="sm"
                               color={getKeyframeStatus(shot).color as any}
                               variant="flat"
                               startContent={getKeyframeStatus(shot).icon}
@@ -620,21 +705,27 @@ export const ShotList: React.FC<ShotListProps> = ({
                                 variant="flat"
                                 color={shot.keyframes ? 'success' : 'primary'}
                                 isLoading={splittingShotId === shot.id}
-                                onPress={() => shot.keyframes ? setIsKeyframeModalOpen(true) : handleSplitKeyframes(shot)}
+                                onPress={() =>
+                                  shot.keyframes
+                                    ? setIsKeyframeModalOpen(true)
+                                    : handleSplitKeyframes(shot)
+                                }
                               >
                                 {shot.keyframes ? '查看关键帧' : '拆分关键帧'}
                               </Button>
                             )}
                           </div>
-                          
+
                           {shot.characters && shot.characters.length > 0 && (
                             <div className="flex flex-wrap gap-1 mt-2">
                               {shot.characters.map((char, i) => (
-                                <Chip key={i} size="sm" variant="bordered">{char}</Chip>
+                                <Chip key={i} size="sm" variant="bordered">
+                                  {char}
+                                </Chip>
                               ))}
                             </div>
                           )}
-                          
+
                           {shot.dialogue && (
                             <div className="mt-2 p-2 bg-default-100 rounded text-sm italic">
                               "{shot.dialogue}"
@@ -656,31 +747,43 @@ export const ShotList: React.FC<ShotListProps> = ({
         <ModalContent>
           {selectedShot && (
             <>
-              <ModalHeader>编辑分镜 - {selectedShot.sceneName} #{selectedShot.sequence}</ModalHeader>
+              <ModalHeader>
+                编辑分镜 - {selectedShot.sceneName} #{selectedShot.sequence}
+              </ModalHeader>
               <ModalBody className="space-y-4">
                 <div className="grid grid-cols-3 gap-4">
                   <Input
                     label="序号"
                     type="number"
                     value={String(selectedShot.sequence)}
-                    onChange={(e) => setSelectedShot({ ...selectedShot, sequence: parseInt(e.target.value) || 0 })}
+                    onChange={e =>
+                      setSelectedShot({ ...selectedShot, sequence: parseInt(e.target.value) || 0 })
+                    }
                   />
                   <Select
                     label="景别"
                     selectedKeys={new Set([selectedShot.shotType])}
-                    onChange={(e) => setSelectedShot({ ...selectedShot, shotType: e.target.value as any })}
+                    onChange={e =>
+                      setSelectedShot({ ...selectedShot, shotType: e.target.value as any })
+                    }
                   >
                     {Object.entries(SHOT_TYPE_LABELS).map(([key, label]) => (
-                      <SelectItem key={key} value={key}>{label}</SelectItem>
+                      <SelectItem key={key} value={key}>
+                        {label}
+                      </SelectItem>
                     ))}
                   </Select>
                   <Select
                     label="运镜"
                     selectedKeys={new Set([selectedShot.cameraMovement])}
-                    onChange={(e) => setSelectedShot({ ...selectedShot, cameraMovement: e.target.value as any })}
+                    onChange={e =>
+                      setSelectedShot({ ...selectedShot, cameraMovement: e.target.value as any })
+                    }
                   >
                     {Object.entries(CAMERA_MOVEMENT_LABELS).map(([key, label]) => (
-                      <SelectItem key={key} value={key}>{label}</SelectItem>
+                      <SelectItem key={key} value={key}>
+                        {label}
+                      </SelectItem>
                     ))}
                   </Select>
                 </div>
@@ -688,7 +791,7 @@ export const ShotList: React.FC<ShotListProps> = ({
                 <Textarea
                   label="画面描述"
                   value={selectedShot.description}
-                  onChange={(e) => setSelectedShot({ ...selectedShot, description: e.target.value })}
+                  onChange={e => setSelectedShot({ ...selectedShot, description: e.target.value })}
                   minRows={3}
                 />
 
@@ -696,13 +799,13 @@ export const ShotList: React.FC<ShotListProps> = ({
                   <Textarea
                     label="台词"
                     value={selectedShot.dialogue || ''}
-                    onChange={(e) => setSelectedShot({ ...selectedShot, dialogue: e.target.value })}
+                    onChange={e => setSelectedShot({ ...selectedShot, dialogue: e.target.value })}
                     placeholder="角色的台词（可选）"
                   />
                   <Textarea
                     label="音效"
                     value={selectedShot.sound || ''}
-                    onChange={(e) => setSelectedShot({ ...selectedShot, sound: e.target.value })}
+                    onChange={e => setSelectedShot({ ...selectedShot, sound: e.target.value })}
                     placeholder="音效描述（可选）"
                   />
                 </div>
@@ -712,15 +815,22 @@ export const ShotList: React.FC<ShotListProps> = ({
                     label="时长（秒）"
                     type="number"
                     value={String(selectedShot.duration)}
-                    onChange={(e) => setSelectedShot({ ...selectedShot, duration: parseInt(e.target.value) || 0 })}
+                    onChange={e =>
+                      setSelectedShot({ ...selectedShot, duration: parseInt(e.target.value) || 0 })
+                    }
                   />
                   <Input
                     label="涉及角色（逗号分隔）"
                     value={selectedShot.characters?.join(', ') || ''}
-                    onChange={(e) => setSelectedShot({
-                      ...selectedShot,
-                      characters: e.target.value.split(',').map(c => c.trim()).filter(Boolean)
-                    })}
+                    onChange={e =>
+                      setSelectedShot({
+                        ...selectedShot,
+                        characters: e.target.value
+                          .split(',')
+                          .map(c => c.trim())
+                          .filter(Boolean),
+                      })
+                    }
                   />
                 </div>
               </ModalBody>
@@ -753,8 +863,8 @@ export const ShotList: React.FC<ShotListProps> = ({
             <Button variant="flat" onPress={() => setIsDeleteModalOpen(false)}>
               取消
             </Button>
-            <Button 
-              color="danger" 
+            <Button
+              color="danger"
               onPress={() => selectedShot && handleDeleteShot(selectedShot.id)}
             >
               删除
@@ -768,9 +878,7 @@ export const ShotList: React.FC<ShotListProps> = ({
         <ModalContent>
           <ModalHeader>确认移动</ModalHeader>
           <ModalBody>
-            <p>
-              确定要将这个分镜{moveDirection === 'up' ? '上移' : '下移'}吗？
-            </p>
+            <p>确定要将这个分镜{moveDirection === 'up' ? '上移' : '下移'}吗？</p>
             {selectedShot && (
               <p className="text-sm text-default-500 mt-2">
                 {selectedShot.sceneName} - 镜头 #{selectedShot.sequence}
@@ -834,8 +942,8 @@ export const ShotList: React.FC<ShotListProps> = ({
                     {/* 图片占位区 */}
                     <div className="aspect-video bg-default-100 rounded-lg flex items-center justify-center relative">
                       {selectedShot.keyframes[selectedKeyframeIndex].generatedImage ? (
-                        <img 
-                          src={selectedShot.keyframes[selectedKeyframeIndex].generatedImage?.path} 
+                        <img
+                          src={selectedShot.keyframes[selectedKeyframeIndex].generatedImage?.path}
                           alt="关键帧"
                           className="w-full h-full object-cover rounded-lg"
                         />
@@ -866,8 +974,20 @@ export const ShotList: React.FC<ShotListProps> = ({
                           <div className="text-xs text-default-500 mb-1">参考角色</div>
                           <div className="flex items-center gap-2">
                             <Users size={16} className="text-primary" />
-                            <span className="text-sm">{selectedShot.keyframes[selectedKeyframeIndex].references.character.name}</span>
-                            <span className="text-xs text-default-400">({selectedShot.keyframes[selectedKeyframeIndex].references.character.id})</span>
+                            <span className="text-sm">
+                              {
+                                selectedShot.keyframes[selectedKeyframeIndex].references.character
+                                  .name
+                              }
+                            </span>
+                            <span className="text-xs text-default-400">
+                              (
+                              {
+                                selectedShot.keyframes[selectedKeyframeIndex].references.character
+                                  .id
+                              }
+                              )
+                            </span>
                           </div>
                         </div>
                       )}
@@ -876,8 +996,12 @@ export const ShotList: React.FC<ShotListProps> = ({
                           <div className="text-xs text-default-500 mb-1">参考场景</div>
                           <div className="flex items-center gap-2">
                             <Camera size={16} className="text-success" />
-                            <span className="text-sm">{selectedShot.keyframes[selectedKeyframeIndex].references.scene.name}</span>
-                            <span className="text-xs text-default-400">({selectedShot.keyframes[selectedKeyframeIndex].references.scene.id})</span>
+                            <span className="text-sm">
+                              {selectedShot.keyframes[selectedKeyframeIndex].references.scene.name}
+                            </span>
+                            <span className="text-xs text-default-400">
+                              ({selectedShot.keyframes[selectedKeyframeIndex].references.scene.id})
+                            </span>
                           </div>
                         </div>
                       )}
@@ -887,15 +1011,21 @@ export const ShotList: React.FC<ShotListProps> = ({
                     <div>
                       <div className="flex items-center justify-between mb-1">
                         <label className="text-sm font-medium">图生图提示词</label>
-                        <Button size="sm" variant="flat" onPress={() => {
-                          navigator.clipboard.writeText(selectedShot.keyframes![selectedKeyframeIndex].prompt);
-                        }}>
+                        <Button
+                          size="sm"
+                          variant="flat"
+                          onPress={() => {
+                            navigator.clipboard.writeText(
+                              selectedShot.keyframes![selectedKeyframeIndex].prompt
+                            );
+                          }}
+                        >
                           复制
                         </Button>
                       </div>
                       <Textarea
                         value={selectedShot.keyframes[selectedKeyframeIndex].prompt}
-                        onChange={(e) => {
+                        onChange={e => {
                           const updatedKeyframes = [...selectedShot.keyframes!];
                           updatedKeyframes[selectedKeyframeIndex].prompt = e.target.value;
                           setSelectedShot({ ...selectedShot, keyframes: updatedKeyframes });
@@ -909,9 +1039,13 @@ export const ShotList: React.FC<ShotListProps> = ({
                       <label className="text-sm font-medium mb-2 block">选择生图模型</label>
                       <Select
                         label="生图模型"
-                        placeholder={availableImageModels.length > 0 ? "选择用于生成关键帧图片的模型" : "请先在设置中配置生图模型"}
+                        placeholder={
+                          availableImageModels.length > 0
+                            ? '选择用于生成关键帧图片的模型'
+                            : '请先在设置中配置生图模型'
+                        }
                         selectedKeys={selectedImageModel ? [selectedImageModel] : []}
-                        onChange={(e) => setSelectedImageModel(e.target.value)}
+                        onChange={e => setSelectedImageModel(e.target.value)}
                         isDisabled={availableImageModels.length === 0}
                       >
                         {availableImageModels.map(model => (
@@ -925,9 +1059,7 @@ export const ShotList: React.FC<ShotListProps> = ({
                           未配置生图模型，请先在设置中添加模型
                         </p>
                       ) : (
-                        <p className="text-xs text-default-500 mt-1">
-                          支持多图参考的模型效果更佳
-                        </p>
+                        <p className="text-xs text-default-500 mt-1">支持多图参考的模型效果更佳</p>
                       )}
                     </div>
 
@@ -954,7 +1086,7 @@ export const ShotList: React.FC<ShotListProps> = ({
                               projectId,
                               characterAsset,
                               sceneAsset,
-                              modelConfigId: selectedImageModel
+                              modelConfigId: selectedImageModel,
                             });
                             // 创建新的keyframes数组以触发React重新渲染
                             const updatedKeyframes = [...selectedShot.keyframes!];
@@ -976,8 +1108,8 @@ export const ShotList: React.FC<ShotListProps> = ({
                 <Button variant="flat" onPress={() => setIsKeyframeModalOpen(false)}>
                   关闭
                 </Button>
-                <Button 
-                  color="primary" 
+                <Button
+                  color="primary"
                   onPress={() => {
                     handleUpdateShot(selectedShot);
                     setIsKeyframeModalOpen(false);
@@ -1005,8 +1137,12 @@ export const ShotList: React.FC<ShotListProps> = ({
               <>
                 <div className="bg-default-100 p-3 rounded">
                   <div className="text-xs text-default-500 mb-1">当前分镜</div>
-                  <div className="text-sm font-medium">{selectedShot.sceneName} - 镜头 #{selectedShot.sequence}</div>
-                  <div className="text-xs text-default-600 mt-1 line-clamp-2">{selectedShot.description}</div>
+                  <div className="text-sm font-medium">
+                    {selectedShot.sceneName} - 镜头 #{selectedShot.sequence}
+                  </div>
+                  <div className="text-xs text-default-600 mt-1 line-clamp-2">
+                    {selectedShot.description}
+                  </div>
                 </div>
 
                 {/* 选择LLM模型 */}
@@ -1014,9 +1150,13 @@ export const ShotList: React.FC<ShotListProps> = ({
                   <label className="text-sm font-medium mb-2 block">选择拆分模型</label>
                   <Select
                     label="LLM模型"
-                    placeholder={availableLLMModels.length > 0 ? "选择用于拆分关键帧的模型" : "请先在设置中配置LLM模型"}
+                    placeholder={
+                      availableLLMModels.length > 0
+                        ? '选择用于拆分关键帧的模型'
+                        : '请先在设置中配置LLM模型'
+                    }
                     selectedKeys={selectedLLMModel ? [selectedLLMModel] : []}
-                    onChange={(e) => setSelectedLLMModel(e.target.value)}
+                    onChange={e => setSelectedLLMModel(e.target.value)}
                     isDisabled={availableLLMModels.length === 0}
                   >
                     {availableLLMModels.map(model => (
@@ -1026,9 +1166,7 @@ export const ShotList: React.FC<ShotListProps> = ({
                     ))}
                   </Select>
                   {availableLLMModels.length === 0 ? (
-                    <p className="text-xs text-danger mt-1">
-                      未配置LLM模型，请先在设置中添加模型
-                    </p>
+                    <p className="text-xs text-danger mt-1">未配置LLM模型，请先在设置中添加模型</p>
                   ) : (
                     <p className="text-xs text-default-500 mt-1">
                       选择不同的模型会影响拆分质量和速度
@@ -1042,12 +1180,20 @@ export const ShotList: React.FC<ShotListProps> = ({
                   <Select
                     label="数量"
                     selectedKeys={[keyframeCount.toString()]}
-                    onChange={(e) => setKeyframeCount(parseInt(e.target.value))}
+                    onChange={e => setKeyframeCount(parseInt(e.target.value))}
                   >
-                    <SelectItem key="2" value="2">2个关键帧</SelectItem>
-                    <SelectItem key="3" value="3">3个关键帧（推荐）</SelectItem>
-                    <SelectItem key="4" value="4">4个关键帧</SelectItem>
-                    <SelectItem key="5" value="5">5个关键帧</SelectItem>
+                    <SelectItem key="2" value="2">
+                      2个关键帧
+                    </SelectItem>
+                    <SelectItem key="3" value="3">
+                      3个关键帧（推荐）
+                    </SelectItem>
+                    <SelectItem key="4" value="4">
+                      4个关键帧
+                    </SelectItem>
+                    <SelectItem key="5" value="5">
+                      5个关键帧
+                    </SelectItem>
                   </Select>
                 </div>
               </>
@@ -1057,11 +1203,7 @@ export const ShotList: React.FC<ShotListProps> = ({
             <Button variant="flat" onPress={() => setIsSplitModalOpen(false)}>
               取消
             </Button>
-            <Button 
-              color="primary" 
-              isDisabled={!selectedLLMModel}
-              onPress={confirmSplitKeyframes}
-            >
+            <Button color="primary" isDisabled={!selectedLLMModel} onPress={confirmSplitKeyframes}>
               开始拆分
             </Button>
           </ModalFooter>
