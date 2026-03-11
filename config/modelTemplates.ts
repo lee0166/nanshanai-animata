@@ -1,14 +1,14 @@
-import { ModelCapabilities, ModelParameter } from "../types";
+import { ModelCapabilities, ModelParameter } from '../types';
 
 /**
  * 模型模板类型
  */
-export type ModelType = "image" | "video" | "llm";
+export type ModelType = 'image' | 'video' | 'llm';
 
 /**
  * 环境限制
  */
-export type Environment = "all" | "development" | "production";
+export type Environment = 'all' | 'development' | 'production';
 
 /**
  * Provider特定选项
@@ -72,137 +72,137 @@ export interface ModelTemplate {
  * 所有图像模型的基础配置
  */
 export const BASE_IMAGE_TEMPLATE: ModelTemplate = {
-  id: "template-base-image",
-  name: "基础图像生成模板",
-  type: "image",
+  id: 'template-base-image',
+  name: '基础图像生成模板',
+  type: 'image',
 
   capabilities: {
     supportsReferenceImage: true,
     maxReferenceImages: 5,
     maxBatchSize: 1,
-    supportedResolutions: ["1K", "2K", "4K"],
-    supportedAspectRatios: ["1:1", "16:9", "9:16", "4:3", "3:4"],
-    defaultResolution: "2K",
+    supportedResolutions: ['1K', '2K', '4K'],
+    supportedAspectRatios: ['1:1', '16:9', '9:16', '4:3', '3:4'],
+    defaultResolution: '2K',
   },
 
   parameters: [
     {
-      name: "resolution",
-      type: "select",
-      label: "分辨率",
+      name: 'resolution',
+      type: 'select',
+      label: '分辨率',
       options: [
-        { label: "1K", value: "1K" },
-        { label: "2K", value: "2K" },
-        { label: "4K", value: "4K" },
+        { label: '1K', value: '1K' },
+        { label: '2K', value: '2K' },
+        { label: '4K', value: '4K' },
       ],
-      defaultValue: "2K",
+      defaultValue: '2K',
     },
     {
-      name: "aspectRatio",
-      type: "select",
-      label: "宽高比",
+      name: 'aspectRatio',
+      type: 'select',
+      label: '宽高比',
       options: [
-        { label: "1:1", value: "1:1" },
-        { label: "16:9", value: "16:9" },
-        { label: "9:16", value: "9:16" },
-        { label: "4:3", value: "4:3" },
-        { label: "3:4", value: "3:4" },
+        { label: '1:1', value: '1:1' },
+        { label: '16:9', value: '16:9' },
+        { label: '9:16', value: '9:16' },
+        { label: '4:3', value: '4:3' },
+        { label: '3:4', value: '3:4' },
       ],
-      defaultValue: "16:9",
+      defaultValue: '16:9',
     },
     {
-      name: "guidanceScale",
-      type: "number",
-      label: "引导系数",
+      name: 'guidanceScale',
+      type: 'number',
+      label: '引导系数',
       min: 1,
       max: 20,
       step: 0.1,
       defaultValue: 3.5,
     },
     {
-      name: "seed",
-      type: "number",
-      label: "随机种子",
+      name: 'seed',
+      type: 'number',
+      label: '随机种子',
       defaultValue: -1,
-      description: "-1表示随机",
+      description: '-1表示随机',
     },
   ],
 
-  environment: "all",
-  version: "1.0.0",
+  environment: 'all',
+  version: '1.0.0',
 };
 
 /**
  * 基础视频生成模板
  */
 export const BASE_VIDEO_TEMPLATE: ModelTemplate = {
-  id: "template-base-video",
-  name: "基础视频生成模板",
-  type: "video",
+  id: 'template-base-video',
+  name: '基础视频生成模板',
+  type: 'video',
 
   capabilities: {
     supportsStartFrame: true,
     supportsEndFrame: false,
     supportsReferenceImage: false,
     maxReferenceImages: 0,
-    supportedGenerationTypes: ["text_to_video"],
+    supportedGenerationTypes: ['text_to_video'],
     supportsAudioGeneration: false,
   },
 
   parameters: [
     {
-      name: "duration",
-      type: "number",
-      label: "时长(秒)",
+      name: 'duration',
+      type: 'number',
+      label: '时长(秒)',
       min: 3,
       max: 10,
       step: 1,
       defaultValue: 5,
     },
     {
-      name: "aspectRatio",
-      type: "select",
-      label: "宽高比",
+      name: 'aspectRatio',
+      type: 'select',
+      label: '宽高比',
       options: [
-        { label: "16:9", value: "16:9" },
-        { label: "9:16", value: "9:16" },
-        { label: "1:1", value: "1:1" },
-        { label: "4:3", value: "4:3" },
-        { label: "3:4", value: "3:4" },
+        { label: '16:9', value: '16:9' },
+        { label: '9:16', value: '9:16' },
+        { label: '1:1', value: '1:1' },
+        { label: '4:3', value: '4:3' },
+        { label: '3:4', value: '3:4' },
       ],
-      defaultValue: "16:9",
+      defaultValue: '16:9',
     },
     {
-      name: "resolution",
-      type: "select",
-      label: "分辨率",
+      name: 'resolution',
+      type: 'select',
+      label: '分辨率',
       options: [
-        { label: "480p", value: "480p" },
-        { label: "720p", value: "720p" },
-        { label: "1080p", value: "1080p" },
+        { label: '480p', value: '480p' },
+        { label: '720p', value: '720p' },
+        { label: '1080p', value: '1080p' },
       ],
-      defaultValue: "720p",
+      defaultValue: '720p',
     },
     {
-      name: "seed",
-      type: "number",
-      label: "随机种子",
+      name: 'seed',
+      type: 'number',
+      label: '随机种子',
       defaultValue: -1,
-      description: "-1表示随机",
+      description: '-1表示随机',
     },
   ],
 
-  environment: "all",
-  version: "1.0.0",
+  environment: 'all',
+  version: '1.0.0',
 };
 
 /**
  * 基础LLM模板
  */
 export const BASE_LLM_TEMPLATE: ModelTemplate = {
-  id: "template-base-llm",
-  name: "基础LLM模板",
-  type: "llm",
+  id: 'template-base-llm',
+  name: '基础LLM模板',
+  type: 'llm',
 
   capabilities: {
     maxContextLength: 32000,
@@ -214,46 +214,46 @@ export const BASE_LLM_TEMPLATE: ModelTemplate = {
 
   parameters: [
     {
-      name: "temperature",
-      type: "number",
-      label: "温度",
+      name: 'temperature',
+      type: 'number',
+      label: '温度',
       min: 0,
       max: 2,
       step: 0.1,
       defaultValue: 0.3,
-      description: "控制输出的随机性，值越高越随机",
+      description: '控制输出的随机性，值越高越随机',
     },
     {
-      name: "maxTokens",
-      type: "number",
-      label: "最大Token数",
+      name: 'maxTokens',
+      type: 'number',
+      label: '最大Token数',
       min: 100,
       max: 128000,
       step: 100,
       defaultValue: 4000,
     },
     {
-      name: "topP",
-      type: "number",
-      label: "Top P",
+      name: 'topP',
+      type: 'number',
+      label: 'Top P',
       min: 0,
       max: 1,
       step: 0.01,
       defaultValue: 0.9,
     },
     {
-      name: "presencePenalty",
-      type: "number",
-      label: "存在惩罚",
+      name: 'presencePenalty',
+      type: 'number',
+      label: '存在惩罚',
       min: -2,
       max: 2,
       step: 0.1,
       defaultValue: 0,
     },
     {
-      name: "frequencyPenalty",
-      type: "number",
-      label: "频率惩罚",
+      name: 'frequencyPenalty',
+      type: 'number',
+      label: '频率惩罚',
       min: -2,
       max: 2,
       step: 0.1,
@@ -261,35 +261,26 @@ export const BASE_LLM_TEMPLATE: ModelTemplate = {
     },
   ],
 
-  environment: "all",
-  version: "1.0.0",
+  environment: 'all',
+  version: '1.0.0',
 };
 
 /**
  * 火山方舟图像模板
  */
 export const VOLCENGINE_IMAGE_TEMPLATE: ModelTemplate = {
-  id: "template-volcengine-image",
-  name: "火山方舟图像生成模板",
-  type: "image",
-  extends: "template-base-image",
+  id: 'template-volcengine-image',
+  name: '火山方舟图像生成模板',
+  type: 'image',
+  extends: 'template-base-image',
 
   capabilities: {
     supportsReferenceImage: true,
     maxReferenceImages: 10,
     maxBatchSize: 4,
-    supportedResolutions: ["1K", "2K", "4K"],
-    supportedAspectRatios: [
-      "1:1",
-      "16:9",
-      "9:16",
-      "4:3",
-      "3:4",
-      "3:2",
-      "2:3",
-      "21:9",
-    ],
-    defaultResolution: "2K",
+    supportedResolutions: ['1K', '2K', '4K'],
+    supportedAspectRatios: ['1:1', '16:9', '9:16', '4:3', '3:4', '3:2', '2:3', '21:9'],
+    defaultResolution: '2K',
     minPixels: 3686400,
     maxPixels: 16777216,
     minAspectRatio: 0.0625,
@@ -298,146 +289,146 @@ export const VOLCENGINE_IMAGE_TEMPLATE: ModelTemplate = {
 
   parameters: [
     {
-      name: "resolution",
-      type: "select",
-      label: "分辨率",
+      name: 'resolution',
+      type: 'select',
+      label: '分辨率',
       options: [
-        { label: "1K", value: "1K" },
-        { label: "2K", value: "2K" },
-        { label: "4K", value: "4K" },
+        { label: '1K', value: '1K' },
+        { label: '2K', value: '2K' },
+        { label: '4K', value: '4K' },
       ],
-      defaultValue: "2K",
+      defaultValue: '2K',
     },
     {
-      name: "aspectRatio",
-      type: "select",
-      label: "宽高比",
+      name: 'aspectRatio',
+      type: 'select',
+      label: '宽高比',
       options: [
-        { label: "1:1", value: "1:1" },
-        { label: "16:9", value: "16:9" },
-        { label: "9:16", value: "9:16" },
-        { label: "4:3", value: "4:3" },
-        { label: "3:4", value: "3:4" },
-        { label: "3:2", value: "3:2" },
-        { label: "2:3", value: "2:3" },
-        { label: "21:9", value: "21:9" },
+        { label: '1:1', value: '1:1' },
+        { label: '16:9', value: '16:9' },
+        { label: '9:16', value: '9:16' },
+        { label: '4:3', value: '4:3' },
+        { label: '3:4', value: '3:4' },
+        { label: '3:2', value: '3:2' },
+        { label: '2:3', value: '2:3' },
+        { label: '21:9', value: '21:9' },
       ],
-      defaultValue: "16:9",
+      defaultValue: '16:9',
     },
     {
-      name: "guidanceScale",
-      type: "number",
-      label: "引导系数",
+      name: 'guidanceScale',
+      type: 'number',
+      label: '引导系数',
       min: 1,
       max: 20,
       step: 0.1,
       defaultValue: 3.5,
     },
     {
-      name: "seed",
-      type: "number",
-      label: "随机种子",
+      name: 'seed',
+      type: 'number',
+      label: '随机种子',
       defaultValue: -1,
-      description: "-1表示随机",
+      description: '-1表示随机',
     },
     {
-      name: "watermark",
-      type: "boolean",
-      label: "水印",
+      name: 'watermark',
+      type: 'boolean',
+      label: '水印',
       defaultValue: false,
     },
   ],
 
   providerOptions: {
-    provider: "volcengine",
-    protocol: "volcengine",
-    strategy: "seedream-4",
+    provider: 'volcengine',
+    protocol: 'volcengine',
+    strategy: 'seedream-4',
   },
 
-  environment: "all",
-  version: "1.0.0",
+  environment: 'all',
+  version: '1.0.0',
 };
 
 /**
  * 火山方舟视频模板
  */
 export const VOLCENGINE_VIDEO_TEMPLATE: ModelTemplate = {
-  id: "template-volcengine-video",
-  name: "火山方舟视频生成模板",
-  type: "video",
-  extends: "template-base-video",
+  id: 'template-volcengine-video',
+  name: '火山方舟视频生成模板',
+  type: 'video',
+  extends: 'template-base-video',
 
   capabilities: {
     supportsStartFrame: true,
     supportsEndFrame: true,
     supportsReferenceImage: true,
     maxReferenceImages: 10,
-    supportedGenerationTypes: ["text_to_video", "first_last_frame", "multi_ref"],
+    supportedGenerationTypes: ['text_to_video', 'first_last_frame', 'multi_ref'],
     supportsAudioGeneration: true,
   },
 
   parameters: [
     {
-      name: "duration",
-      type: "number",
-      label: "时长(秒)",
+      name: 'duration',
+      type: 'number',
+      label: '时长(秒)',
       min: 3,
       max: 10,
       step: 1,
       defaultValue: 5,
     },
     {
-      name: "aspectRatio",
-      type: "select",
-      label: "宽高比",
+      name: 'aspectRatio',
+      type: 'select',
+      label: '宽高比',
       options: [
-        { label: "16:9", value: "16:9" },
-        { label: "9:16", value: "9:16" },
-        { label: "4:3", value: "4:3" },
-        { label: "3:4", value: "3:4" },
-        { label: "1:1", value: "1:1" },
+        { label: '16:9', value: '16:9' },
+        { label: '9:16', value: '9:16' },
+        { label: '4:3', value: '4:3' },
+        { label: '3:4', value: '3:4' },
+        { label: '1:1', value: '1:1' },
       ],
-      defaultValue: "16:9",
+      defaultValue: '16:9',
     },
     {
-      name: "resolution",
-      type: "select",
-      label: "分辨率",
+      name: 'resolution',
+      type: 'select',
+      label: '分辨率',
       options: [
-        { label: "480p", value: "480p" },
-        { label: "720p", value: "720p" },
-        { label: "1080p", value: "1080p" },
+        { label: '480p', value: '480p' },
+        { label: '720p', value: '720p' },
+        { label: '1080p', value: '1080p' },
       ],
-      defaultValue: "720p",
+      defaultValue: '720p',
     },
     {
-      name: "seed",
-      type: "number",
-      label: "随机种子",
+      name: 'seed',
+      type: 'number',
+      label: '随机种子',
       defaultValue: -1,
-      description: "-1表示随机",
+      description: '-1表示随机',
     },
     {
-      name: "watermark",
-      type: "boolean",
-      label: "水印",
+      name: 'watermark',
+      type: 'boolean',
+      label: '水印',
       defaultValue: false,
     },
     {
-      name: "generateAudio",
-      type: "boolean",
-      label: "生成音频",
+      name: 'generateAudio',
+      type: 'boolean',
+      label: '生成音频',
       defaultValue: true,
     },
   ],
 
   providerOptions: {
-    provider: "volcengine",
-    protocol: "volcengine",
+    provider: 'volcengine',
+    protocol: 'volcengine',
   },
 
-  environment: "all",
-  version: "1.0.0",
+  environment: 'all',
+  version: '1.0.0',
 };
 
 /**
@@ -446,10 +437,10 @@ export const VOLCENGINE_VIDEO_TEMPLATE: ModelTemplate = {
  * 适用于：阿里百炼、DeepSeek、Kimi、智谱等
  */
 export const OPENAI_COMPATIBLE_LLM_TEMPLATE: ModelTemplate = {
-  id: "template-openai-llm",
-  name: "OpenAI兼容LLM模板",
-  type: "llm",
-  extends: "template-base-llm",
+  id: 'template-openai-llm',
+  name: 'OpenAI兼容LLM模板',
+  type: 'llm',
+  extends: 'template-base-llm',
 
   capabilities: {
     maxContextLength: 32000,
@@ -461,45 +452,45 @@ export const OPENAI_COMPATIBLE_LLM_TEMPLATE: ModelTemplate = {
 
   parameters: [
     {
-      name: "temperature",
-      type: "number",
-      label: "温度",
+      name: 'temperature',
+      type: 'number',
+      label: '温度',
       min: 0,
       max: 2,
       step: 0.1,
       defaultValue: 0.3,
     },
     {
-      name: "maxTokens",
-      type: "number",
-      label: "最大Token数",
+      name: 'maxTokens',
+      type: 'number',
+      label: '最大Token数',
       min: 100,
       max: 32000,
       step: 100,
       defaultValue: 4000,
     },
     {
-      name: "topP",
-      type: "number",
-      label: "Top P",
+      name: 'topP',
+      type: 'number',
+      label: 'Top P',
       min: 0,
       max: 1,
       step: 0.01,
       defaultValue: 0.9,
     },
     {
-      name: "presencePenalty",
-      type: "number",
-      label: "存在惩罚",
+      name: 'presencePenalty',
+      type: 'number',
+      label: '存在惩罚',
       min: -2,
       max: 2,
       step: 0.1,
       defaultValue: 0,
     },
     {
-      name: "frequencyPenalty",
-      type: "number",
-      label: "频率惩罚",
+      name: 'frequencyPenalty',
+      type: 'number',
+      label: '频率惩罚',
       min: -2,
       max: 2,
       step: 0.1,
@@ -508,44 +499,44 @@ export const OPENAI_COMPATIBLE_LLM_TEMPLATE: ModelTemplate = {
   ],
 
   providerOptions: {
-    provider: "openai-compatible",
-    protocol: "openai",
+    provider: 'openai-compatible',
+    protocol: 'openai',
   },
 
-  environment: "all",
-  version: "1.0.0",
+  environment: 'all',
+  version: '1.0.0',
 };
 
 /**
  * 魔搭社区开发测试模板
  */
 export const MODELSCOPE_DEV_TEMPLATE: ModelTemplate = {
-  id: "template-modelscope-dev",
-  name: "魔搭社区开发测试模板",
-  type: "image",
+  id: 'template-modelscope-dev',
+  name: '魔搭社区开发测试模板',
+  type: 'image',
 
   capabilities: {
     supportsReferenceImage: true,
     maxReferenceImages: 5,
     maxBatchSize: 1,
-    supportedResolutions: ["1024x1024"],
-    defaultResolution: "1024x1024",
+    supportedResolutions: ['1024x1024'],
+    defaultResolution: '1024x1024',
     minPixels: 1048576,
     maxPixels: 1048576,
   },
 
   parameters: [
     {
-      name: "resolution",
-      type: "select",
-      label: "分辨率",
-      options: [{ label: "1024x1024", value: "1024x1024" }],
-      defaultValue: "1024x1024",
+      name: 'resolution',
+      type: 'select',
+      label: '分辨率',
+      options: [{ label: '1024x1024', value: '1024x1024' }],
+      defaultValue: '1024x1024',
     },
     {
-      name: "guidanceScale",
-      type: "number",
-      label: "引导系数",
+      name: 'guidanceScale',
+      type: 'number',
+      label: '引导系数',
       min: 1,
       max: 10,
       step: 0.1,
@@ -554,12 +545,12 @@ export const MODELSCOPE_DEV_TEMPLATE: ModelTemplate = {
   ],
 
   providerOptions: {
-    provider: "modelscope",
-    protocol: "openai",
+    provider: 'modelscope',
+    protocol: 'openai',
   },
 
-  environment: "development",
-  version: "1.0.0",
+  environment: 'development',
+  version: '1.0.0',
 };
 
 /**
@@ -606,9 +597,7 @@ export class ModelTemplateRegistry {
       if (parent) {
         template = this.mergeTemplate(parent, template);
       } else {
-        console.warn(
-          `[ModelTemplateRegistry] Parent template not found: ${template.extends}`
-        );
+        console.warn(`[ModelTemplateRegistry] Parent template not found: ${template.extends}`);
       }
     }
 
@@ -633,16 +622,14 @@ export class ModelTemplateRegistry {
    * 按类型获取模板
    */
   getTemplatesByType(type: ModelType): ModelTemplate[] {
-    return this.getAllTemplates().filter((t) => t.type === type);
+    return this.getAllTemplates().filter(t => t.type === type);
   }
 
   /**
    * 按Provider获取模板
    */
   getTemplatesByProvider(provider: string): ModelTemplate[] {
-    return this.getAllTemplates().filter(
-      (t) => t.providerOptions?.provider === provider
-    );
+    return this.getAllTemplates().filter(t => t.providerOptions?.provider === provider);
   }
 
   /**
@@ -655,10 +642,7 @@ export class ModelTemplateRegistry {
   /**
    * 合并模板（继承逻辑）
    */
-  private mergeTemplate(
-    parent: ModelTemplate,
-    child: ModelTemplate
-  ): ModelTemplate {
+  private mergeTemplate(parent: ModelTemplate, child: ModelTemplate): ModelTemplate {
     return {
       ...parent,
       ...child,
@@ -673,10 +657,7 @@ export class ModelTemplateRegistry {
   /**
    * 合并参数（子模板可覆盖父模板）
    */
-  private mergeParameters(
-    parent: ModelParameter[],
-    child: ModelParameter[]
-  ): ModelParameter[] {
+  private mergeParameters(parent: ModelParameter[], child: ModelParameter[]): ModelParameter[] {
     const merged = new Map<string, ModelParameter>();
 
     // 先添加父模板参数

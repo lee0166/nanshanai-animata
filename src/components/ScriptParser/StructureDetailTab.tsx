@@ -19,14 +19,7 @@ import {
   TableRow,
   TableCell,
 } from '@heroui/react';
-import {
-  Layout,
-  Clock,
-  FileText,
-  TrendingUp,
-  Target,
-  Activity,
-} from 'lucide-react';
+import { Layout, Clock, FileText, TrendingUp, Target, Activity } from 'lucide-react';
 import type { ScriptMetadata } from '@/types';
 import {
   screenplayStructureAnalyzer,
@@ -37,9 +30,7 @@ interface StructureDetailTabProps {
   metadata: ScriptMetadata;
 }
 
-export const StructureDetailTab: React.FC<StructureDetailTabProps> = ({
-  metadata,
-}) => {
+export const StructureDetailTab: React.FC<StructureDetailTabProps> = ({ metadata }) => {
   // 使用 useMemo 缓存分析结果
   const analysis = useMemo(() => {
     return screenplayStructureAnalyzer.analyze(
@@ -164,7 +155,7 @@ export const StructureDetailTab: React.FC<StructureDetailTabProps> = ({
         <Divider />
         <CardBody>
           <div className="space-y-4">
-            {acts.map((act) => (
+            {acts.map(act => (
               <div key={act.key} className="p-4 bg-default-50 rounded-lg">
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2">
@@ -294,7 +285,10 @@ export const StructureDetailTab: React.FC<StructureDetailTabProps> = ({
     const { structure } = analysis;
 
     const details = [
-      { label: '结构类型', value: screenplayStructureAnalyzer.getStructureTypeDisplayName(structure.structureType) },
+      {
+        label: '结构类型',
+        value: screenplayStructureAnalyzer.getStructureTypeDisplayName(structure.structureType),
+      },
       { label: '中点转折', value: structure.midpoint || '未定义' },
       { label: '高潮', value: structure.climax || '未定义' },
     ];

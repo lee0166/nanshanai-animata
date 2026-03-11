@@ -1,16 +1,12 @@
 /**
  * SoundDesigner - 声音设计分析服务
- * 
+ *
  * 基于现有数据进行声音设计分析，零LLM调用，纯数据转换
  * 输入: emotionalArc, Shot.sound, colorMood
  * 输出: SoundDesignAnalysis
  */
 
-import type {
-  EmotionalPoint,
-  Shot,
-  ScriptMetadata,
-} from '../../../../types';
+import type { EmotionalPoint, Shot, ScriptMetadata } from '../../../../types';
 
 // ==========================================
 // 类型定义
@@ -87,43 +83,43 @@ export interface SoundDesignAnalysis {
  */
 const EMOTION_TO_MUSIC_MAP: Record<string, string[]> = {
   // 积极情绪
-  '喜悦': ['轻快钢琴', '明亮弦乐', '欢快节奏', '民谣吉他'],
-  '开心': ['轻快钢琴', '明亮弦乐', '欢快节奏', '民谣吉他'],
-  '快乐': ['轻快钢琴', '明亮弦乐', '欢快节奏', '爵士乐'],
-  '兴奋': ['激昂管弦乐', '电子音乐', '摇滚节奏', '史诗配乐'],
-  '激动': ['激昂管弦乐', '电子音乐', '强烈节拍', '史诗配乐'],
-  
+  喜悦: ['轻快钢琴', '明亮弦乐', '欢快节奏', '民谣吉他'],
+  开心: ['轻快钢琴', '明亮弦乐', '欢快节奏', '民谣吉他'],
+  快乐: ['轻快钢琴', '明亮弦乐', '欢快节奏', '爵士乐'],
+  兴奋: ['激昂管弦乐', '电子音乐', '摇滚节奏', '史诗配乐'],
+  激动: ['激昂管弦乐', '电子音乐', '强烈节拍', '史诗配乐'],
+
   // 消极情绪
-  '悲伤': ['大提琴独奏', '忧郁钢琴', '弦乐慢板', '哀婉笛声'],
-  '难过': ['大提琴独奏', '忧郁钢琴', '弦乐慢板', '悲伤小提琴'],
-  '痛苦': ['沉重低音', '压抑弦乐', '悲怆钢琴', '哀鸣管乐'],
-  '绝望': ['极简氛围', '低沉 drone', '空旷回响', '压抑弦乐'],
-  
+  悲伤: ['大提琴独奏', '忧郁钢琴', '弦乐慢板', '哀婉笛声'],
+  难过: ['大提琴独奏', '忧郁钢琴', '弦乐慢板', '悲伤小提琴'],
+  痛苦: ['沉重低音', '压抑弦乐', '悲怆钢琴', '哀鸣管乐'],
+  绝望: ['极简氛围', '低沉 drone', '空旷回响', '压抑弦乐'],
+
   // 紧张情绪
-  '紧张': ['悬疑弦乐', '节奏渐强', '低音铺垫', '打击乐'],
-  '焦虑': ['不规则节奏', '高音弦乐', '电子氛围', '心跳音效'],
-  '恐惧': ['不和谐音程', '低沉 drone', '惊悚音效', '弦乐滑音'],
-  '惊悚': ['不和谐音程', '突强音效', '弦乐颤音', '电子噪音'],
-  
+  紧张: ['悬疑弦乐', '节奏渐强', '低音铺垫', '打击乐'],
+  焦虑: ['不规则节奏', '高音弦乐', '电子氛围', '心跳音效'],
+  恐惧: ['不和谐音程', '低沉 drone', '惊悚音效', '弦乐滑音'],
+  惊悚: ['不和谐音程', '突强音效', '弦乐颤音', '电子噪音'],
+
   // 愤怒情绪
-  '愤怒': ['重金属', '强烈打击乐', '低音失真', '激进弦乐'],
-  '暴怒': ['工业噪音', '极端打击乐', '失真吉他', '压迫性低音'],
-  
+  愤怒: ['重金属', '强烈打击乐', '低音失真', '激进弦乐'],
+  暴怒: ['工业噪音', '极端打击乐', '失真吉他', '压迫性低音'],
+
   // 平静情绪
-  '平静': [' ambient', '轻音乐', '自然音效', '钢琴独奏'],
-  '宁静': [' ambient', '轻音乐', '自然音效', '长笛'],
-  '安详': ['弦乐和声', '竖琴', '合唱', '管风琴'],
-  
+  平静: [' ambient', '轻音乐', '自然音效', '钢琴独奏'],
+  宁静: [' ambient', '轻音乐', '自然音效', '长笛'],
+  安详: ['弦乐和声', '竖琴', '合唱', '管风琴'],
+
   // 浪漫情绪
-  '浪漫': ['弦乐四重奏', '萨克斯', '浪漫钢琴', '柔和吉他'],
-  '温馨': ['原声吉他', '轻弦乐', '温暖 pad', '民谣'],
-  
+  浪漫: ['弦乐四重奏', '萨克斯', '浪漫钢琴', '柔和吉他'],
+  温馨: ['原声吉他', '轻弦乐', '温暖 pad', '民谣'],
+
   // 神秘情绪
-  '神秘': ['合成器氛围', '空灵女声', '电子音效', '异域乐器'],
-  '悬疑': ['低音弦乐', '不规则节奏', '电子氛围', '钢琴点缀'],
-  
+  神秘: ['合成器氛围', '空灵女声', '电子音效', '异域乐器'],
+  悬疑: ['低音弦乐', '不规则节奏', '电子氛围', '钢琴点缀'],
+
   // 默认
-  'default': ['中性配乐', '轻背景音乐', '氛围音乐'],
+  default: ['中性配乐', '轻背景音乐', '氛围音乐'],
 };
 
 /**
@@ -151,48 +147,111 @@ const INTENSITY_TO_DYNAMIC_MAP: Record<number, string> = {
  * 环境音关键词
  */
 const AMBIENT_KEYWORDS = [
-  '雨声', '雨', '下雨', '雨景',
-  '风声', '风', '刮风',
-  '雷声', '雷', '打雷',
-  '城市', '街道', '交通',
-  '自然', '森林', '鸟鸣',
-  '室内', '房间', '空调',
-  '海浪', '海边', '水声',
-  '火声', '篝火', '燃烧',
-  '人群', '嘈杂', '喧闹',
-  '安静', '寂静', '静默',
-  'ambient', '环境音', '背景音',
+  '雨声',
+  '雨',
+  '下雨',
+  '雨景',
+  '风声',
+  '风',
+  '刮风',
+  '雷声',
+  '雷',
+  '打雷',
+  '城市',
+  '街道',
+  '交通',
+  '自然',
+  '森林',
+  '鸟鸣',
+  '室内',
+  '房间',
+  '空调',
+  '海浪',
+  '海边',
+  '水声',
+  '火声',
+  '篝火',
+  '燃烧',
+  '人群',
+  '嘈杂',
+  '喧闹',
+  '安静',
+  '寂静',
+  '静默',
+  'ambient',
+  '环境音',
+  '背景音',
 ];
 
 /**
  * 音效关键词
  */
 const EFFECT_KEYWORDS = [
-  '门', '开门', '关门', '敲门',
-  '脚步声', '走路', '奔跑',
-  '电话', '手机', '铃声',
-  '枪声', '射击', '爆炸',
-  '碰撞', '破碎', '玻璃',
-  '心跳', '呼吸', '喘息',
-  '车辆', '汽车', '引擎',
-  'effect', '音效', '声音效果',
-  '打击', '撞击', '掉落',
+  '门',
+  '开门',
+  '关门',
+  '敲门',
+  '脚步声',
+  '走路',
+  '奔跑',
+  '电话',
+  '手机',
+  '铃声',
+  '枪声',
+  '射击',
+  '爆炸',
+  '碰撞',
+  '破碎',
+  '玻璃',
+  '心跳',
+  '呼吸',
+  '喘息',
+  '车辆',
+  '汽车',
+  '引擎',
+  'effect',
+  '音效',
+  '声音效果',
+  '打击',
+  '撞击',
+  '掉落',
 ];
 
 /**
  * 音乐主题关键词
  */
 const MUSIC_KEYWORDS = [
-  '配乐', '音乐', 'BGM', 'bgm',
-  '主题曲', '插曲', '片尾曲',
-  '钢琴', '小提琴', '吉他',
-  '管弦乐', '弦乐', '管乐',
-  '电子音乐', '合成器', '氛围音乐',
-  '紧张', '悬疑', '惊悚',
-  '悲伤', '忧郁', '哀婉',
-  '欢快', '轻快', '明亮',
-  '浪漫', '温馨', '柔和',
-  '史诗', '宏大', '壮丽',
+  '配乐',
+  '音乐',
+  'BGM',
+  'bgm',
+  '主题曲',
+  '插曲',
+  '片尾曲',
+  '钢琴',
+  '小提琴',
+  '吉他',
+  '管弦乐',
+  '弦乐',
+  '管乐',
+  '电子音乐',
+  '合成器',
+  '氛围音乐',
+  '紧张',
+  '悬疑',
+  '惊悚',
+  '悲伤',
+  '忧郁',
+  '哀婉',
+  '欢快',
+  '轻快',
+  '明亮',
+  '浪漫',
+  '温馨',
+  '柔和',
+  '史诗',
+  '宏大',
+  '壮丽',
 ];
 
 // ==========================================
@@ -206,10 +265,7 @@ export class SoundDesigner {
    * @param shots 分镜列表（包含 sound 字段）
    * @returns 声音设计分析结果
    */
-  analyze(
-    metadata: ScriptMetadata,
-    shots: Shot[] = []
-  ): SoundDesignAnalysis {
+  analyze(metadata: ScriptMetadata, shots: Shot[] = []): SoundDesignAnalysis {
     console.log('[SoundDesigner] Starting sound design analysis...');
 
     const emotionalArc = metadata.emotionalArc || [];
@@ -222,10 +278,7 @@ export class SoundDesigner {
     const soundPalette = this.analyzeSoundPalette(shots);
 
     // 3. 生成整体音景
-    const overallSoundscape = this.generateOverallSoundscape(
-      emotionalArc,
-      colorMood
-    );
+    const overallSoundscape = this.generateOverallSoundscape(emotionalArc, colorMood);
 
     // 4. 计算统计信息
     const statistics = this.calculateStatistics(shots, soundPalette);
@@ -248,16 +301,14 @@ export class SoundDesigner {
   /**
    * 生成情绪音乐映射表
    */
-  private generateEmotionalMusicMap(
-    emotionalArc: EmotionalPoint[]
-  ): EmotionalMusicMapItem[] {
+  private generateEmotionalMusicMap(emotionalArc: EmotionalPoint[]): EmotionalMusicMapItem[] {
     if (!emotionalArc || emotionalArc.length === 0) {
       return [];
     }
 
-    return emotionalArc.map((point) => {
+    return emotionalArc.map(point => {
       const suggestedMusic = this.getSuggestedMusicForEmotion(point.emotion);
-      
+
       return {
         plotPoint: point.plotPoint,
         emotion: point.emotion,
@@ -275,7 +326,7 @@ export class SoundDesigner {
   private getSuggestedMusicForEmotion(emotion: string): string {
     // 标准化情绪名称
     const normalizedEmotion = emotion.toLowerCase().trim();
-    
+
     // 查找映射
     for (const [key, values] of Object.entries(EMOTION_TO_MUSIC_MAP)) {
       if (normalizedEmotion.includes(key.toLowerCase())) {
@@ -283,7 +334,7 @@ export class SoundDesigner {
         return values[Math.floor(Math.random() * values.length)];
       }
     }
-    
+
     // 默认音乐
     const defaultMusic = EMOTION_TO_MUSIC_MAP['default'];
     return defaultMusic[Math.floor(Math.random() * defaultMusic.length)];
@@ -332,27 +383,21 @@ export class SoundDesigner {
    * 判断是否为环境音
    */
   private isAmbientSound(sound: string): boolean {
-    return AMBIENT_KEYWORDS.some((keyword) =>
-      sound.toLowerCase().includes(keyword.toLowerCase())
-    );
+    return AMBIENT_KEYWORDS.some(keyword => sound.toLowerCase().includes(keyword.toLowerCase()));
   }
 
   /**
    * 判断是否为音效
    */
   private isEffectSound(sound: string): boolean {
-    return EFFECT_KEYWORDS.some((keyword) =>
-      sound.toLowerCase().includes(keyword.toLowerCase())
-    );
+    return EFFECT_KEYWORDS.some(keyword => sound.toLowerCase().includes(keyword.toLowerCase()));
   }
 
   /**
    * 判断是否为音乐主题
    */
   private isMusicTheme(sound: string): boolean {
-    return MUSIC_KEYWORDS.some((keyword) =>
-      sound.toLowerCase().includes(keyword.toLowerCase())
-    );
+    return MUSIC_KEYWORDS.some(keyword => sound.toLowerCase().includes(keyword.toLowerCase()));
   }
 
   /**
@@ -411,14 +456,14 @@ export class SoundDesigner {
    */
   private getBackgroundToneFromColorMood(colorMood: string): string {
     const moodMap: Record<string, string> = {
-      '温暖明亮': '暖色调音乐，以弦乐和木管为主',
-      '冷峻压抑': '冷色调音乐，以合成器和低音为主',
-      '复古怀旧': '复古音色，模拟老式录音质感',
-      '明亮清新': '明亮音色，轻快的高音乐器',
-      '阴暗沉重': '阴暗音色，深沉的低音乐器',
-      '鲜艳夺目': '鲜艳音色，丰富的配器层次',
-      '柔和淡雅': '柔和音色，简约的配器',
-      '神秘莫测': '神秘音色，不和谐的音程',
+      温暖明亮: '暖色调音乐，以弦乐和木管为主',
+      冷峻压抑: '冷色调音乐，以合成器和低音为主',
+      复古怀旧: '复古音色，模拟老式录音质感',
+      明亮清新: '明亮音色，轻快的高音乐器',
+      阴暗沉重: '阴暗音色，深沉的低音乐器',
+      鲜艳夺目: '鲜艳音色，丰富的配器层次',
+      柔和淡雅: '柔和音色，简约的配器',
+      神秘莫测: '神秘音色，不和谐的音程',
     };
 
     for (const [key, value] of Object.entries(moodMap)) {
@@ -438,7 +483,7 @@ export class SoundDesigner {
       return '中等动态 (mf)';
     }
 
-    const intensities = emotionalArc.map((p) => p.intensity);
+    const intensities = emotionalArc.map(p => p.intensity);
     const minIntensity = Math.min(...intensities);
     const maxIntensity = Math.max(...intensities);
     const range = maxIntensity - minIntensity;
@@ -461,7 +506,7 @@ export class SoundDesigner {
     shots: Shot[],
     soundPalette: SoundPalette
   ): SoundDesignAnalysis['statistics'] {
-    const shotsWithSound = shots.filter((s) => s.sound && s.sound.trim() !== '').length;
+    const shotsWithSound = shots.filter(s => s.sound && s.sound.trim() !== '').length;
 
     return {
       totalShots: shots.length,

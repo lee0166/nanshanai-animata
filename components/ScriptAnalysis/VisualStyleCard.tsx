@@ -9,23 +9,8 @@
  */
 
 import React from 'react';
-import {
-  Card,
-  CardBody,
-  CardHeader,
-  Chip,
-  Divider,
-  Tooltip,
-} from '@heroui/react';
-import {
-  Palette,
-  Film,
-  Camera,
-  Sun,
-  Brush,
-  Clapperboard,
-  User,
-} from 'lucide-react';
+import { Card, CardBody, CardHeader, Chip, Divider, Tooltip } from '@heroui/react';
+import { Palette, Film, Camera, Sun, Brush, Clapperboard, User } from 'lucide-react';
 import type { ScriptMetadata, VisualStyle, EraContext } from '../../types';
 
 interface VisualStyleCardProps {
@@ -40,7 +25,7 @@ const ColorBlock: React.FC<{ color: string; index: number }> = ({ color, index }
   // 判断颜色是否为十六进制
   const isHex = color.startsWith('#');
   const displayColor = isHex ? color : `#${color}`;
-  
+
   return (
     <Tooltip content={color}>
       <div
@@ -55,10 +40,7 @@ const ColorBlock: React.FC<{ color: string; index: number }> = ({ color, index }
 /**
  * 视觉风格卡片组件
  */
-export const VisualStyleCard: React.FC<VisualStyleCardProps> = ({
-  metadata,
-  t,
-}) => {
+export const VisualStyleCard: React.FC<VisualStyleCardProps> = ({ metadata, t }) => {
   const { visualStyle, eraContext, references } = metadata;
 
   if (!visualStyle && !eraContext) {
@@ -100,9 +82,7 @@ export const VisualStyleCard: React.FC<VisualStyleCardProps> = ({
                 {visualStyle.artStyle}
               </Chip>
               {visualStyle.artDirection && (
-                <span className="text-sm text-default-500">
-                  {visualStyle.artDirection}
-                </span>
+                <span className="text-sm text-default-500">{visualStyle.artDirection}</span>
               )}
             </div>
             {visualStyle.artStyleDescription && (
@@ -147,9 +127,7 @@ export const VisualStyleCard: React.FC<VisualStyleCardProps> = ({
                     <Camera className="w-4 h-4" />
                     <span className="text-sm font-medium">摄影风格</span>
                   </div>
-                  <p className="text-sm text-foreground">
-                    {visualStyle.cinematography}
-                  </p>
+                  <p className="text-sm text-foreground">{visualStyle.cinematography}</p>
                 </div>
               )}
               {visualStyle.lightingStyle && (
@@ -158,9 +136,7 @@ export const VisualStyleCard: React.FC<VisualStyleCardProps> = ({
                     <Sun className="w-4 h-4" />
                     <span className="text-sm font-medium">光影风格</span>
                   </div>
-                  <p className="text-sm text-foreground">
-                    {visualStyle.lightingStyle}
-                  </p>
+                  <p className="text-sm text-foreground">{visualStyle.lightingStyle}</p>
                 </div>
               )}
             </div>
@@ -211,7 +187,7 @@ export const VisualStyleCard: React.FC<VisualStyleCardProps> = ({
                 <Film className="w-4 h-4" />
                 <span className="text-sm font-medium">参考风格</span>
               </div>
-              
+
               {references.films && references.films.length > 0 && (
                 <div className="mb-2">
                   <span className="text-xs text-default-400 mb-1 block">参考影片</span>

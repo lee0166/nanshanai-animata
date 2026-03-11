@@ -1,8 +1,8 @@
 /**
  * AI Service Types
- * 
+ *
  * 定义 AI 服务的通用类型和枚举
- * 
+ *
  * @module services/ai/types
  * @version 2.0.0
  */
@@ -23,7 +23,7 @@ export const PROVIDER_ENUM = {
 /**
  * Provider 类型
  */
-export type ProviderType = typeof PROVIDER_ENUM[keyof typeof PROVIDER_ENUM];
+export type ProviderType = (typeof PROVIDER_ENUM)[keyof typeof PROVIDER_ENUM];
 
 /**
  * 有效的 provider 值数组
@@ -33,7 +33,7 @@ export const VALID_PROVIDERS: string[] = Object.values(PROVIDER_ENUM);
 /**
  * 校验 provider 是否有效
  * 无效时抛出明确错误，不掩盖
- * 
+ *
  * @param provider - 要校验的 provider 字符串
  * @returns 校验后的 ProviderType
  * @throws Error 如果 provider 无效
@@ -41,8 +41,7 @@ export const VALID_PROVIDERS: string[] = Object.values(PROVIDER_ENUM);
 export function validateProvider(provider: string): ProviderType {
   if (!VALID_PROVIDERS.includes(provider)) {
     throw new Error(
-      `Invalid provider: "${provider}". ` +
-      `Expected one of: ${VALID_PROVIDERS.join('/')}`
+      `Invalid provider: "${provider}". ` + `Expected one of: ${VALID_PROVIDERS.join('/')}`
     );
   }
   return provider as ProviderType;
@@ -50,7 +49,7 @@ export function validateProvider(provider: string): ProviderType {
 
 /**
  * 检查 provider 是否有效（不抛出错误）
- * 
+ *
  * @param provider - 要检查的 provider 字符串
  * @returns 是否有效
  */

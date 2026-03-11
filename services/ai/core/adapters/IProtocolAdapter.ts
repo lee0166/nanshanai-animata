@@ -12,18 +12,13 @@
  */
 export interface AdapterRequestParams {
   /** 操作类型 */
-  operation:
-    | "chat"
-    | "image_generation"
-    | "video_generation"
-    | "embeddings"
-    | "models";
+  operation: 'chat' | 'image_generation' | 'video_generation' | 'embeddings' | 'models';
 
   /** 模型ID */
   modelId: string;
 
   /** 消息列表（用于LLM） */
-  messages?: Array<{ role: "system" | "user" | "assistant"; content: string }>;
+  messages?: Array<{ role: 'system' | 'user' | 'assistant'; content: string }>;
 
   /** 提示词（用于图像/视频生成） */
   prompt?: string;
@@ -122,13 +117,13 @@ export interface AdapterError {
  * 错误类型
  */
 export type ErrorType =
-  | "auth_error" // 认证错误
-  | "rate_limit" // 限流
-  | "server_error" // 服务器错误
-  | "request_error" // 请求错误
-  | "timeout" // 超时
-  | "network_error" // 网络错误
-  | "unknown_error"; // 未知错误
+  | 'auth_error' // 认证错误
+  | 'rate_limit' // 限流
+  | 'server_error' // 服务器错误
+  | 'request_error' // 请求错误
+  | 'timeout' // 超时
+  | 'network_error' // 网络错误
+  | 'unknown_error'; // 未知错误
 
 /**
  * 协议适配器接口

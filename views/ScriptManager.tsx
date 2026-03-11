@@ -33,6 +33,8 @@ import { QualityReport } from '../services/scriptParser';
 import { DetailedQualityReport } from '../services/parsing/QualityAnalyzer';
 import QualityReportCard from '../components/ScriptParser/QualityReportCard';
 import { CreativeIntentModal } from '../components/CreativeIntentModal';
+import { PerformanceReport } from '../components/ScriptParser/PerformanceReport';
+import { PerformanceReport as PerformanceReportType } from '../services/parsing/PerformanceMonitor';
 
 // Professional Analysis Components
 import { SoundDesignTab } from '../src/components/ScriptParser/SoundDesignTab';
@@ -117,6 +119,10 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({
 
   // Quality report state
   const [qualityReport, setQualityReport] = useState<QualityReport | null>(null);
+
+  // Performance report state
+  const [performanceReport, setPerformanceReport] = useState<PerformanceReportType | null>(null);
+  const [showPerformanceReport, setShowPerformanceReport] = useState(false);
 
   // Delete confirmation modal
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -498,24 +504,25 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({
         let estimatedRemainingTime: number | undefined;
         if (progress > 0 && progress < 100) {
           const remainingProgress = 100 - progress;
-          estimatedRemainingTime = Math.floor((elapsed / progress) * remainingProgress / 1000);
+          estimatedRemainingTime = Math.floor(((elapsed / progress) * remainingProgress) / 1000);
         }
 
         setParseDetails({
           ...details,
           elapsedTime: elapsed,
-          estimatedRemainingTime
+          estimatedRemainingTime,
         });
 
         let displayMessage = baseMessage;
 
         if (stage === 'shots' && details?.totalScenes) {
-          const sceneInfo = details.currentScene 
-            ? `场景 ${details.currentScene}/${details.totalScenes}` 
+          const sceneInfo = details.currentScene
+            ? `场景 ${details.currentScene}/${details.totalScenes}`
             : `共 ${details.totalScenes} 个场景`;
-          const batchInfo = details.currentBatch && details.totalBatches 
-            ? `，批次 ${details.currentBatch}/${details.totalBatches}` 
-            : '';
+          const batchInfo =
+            details.currentBatch && details.totalBatches
+              ? `，批次 ${details.currentBatch}/${details.totalBatches}`
+              : '';
           displayMessage = `${baseMessage} (${sceneInfo}${batchInfo})`;
         }
 
@@ -566,6 +573,24 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({
           console.log('[ScriptManager] ========== Quality Report Set to State ==========');
         } else {
           console.warn('[ScriptManager] No quality report received from parser!');
+        }
+
+        // Get performance report
+        console.log('[ScriptManager] ========== Getting Performance Report ==========');
+        const perfReport = parser.getPerformanceReport();
+        console.log('[ScriptManager] Performance report from parser:', {
+          exists: !!perfReport,
+          totalDuration: perfReport?.totalDuration,
+          apiCallCount: perfReport?.apiCallCount,
+          hasTokenEfficiency: !!perfReport?.tokenEfficiency,
+          hasPercentiles: !!perfReport?.percentiles,
+        });
+
+        if (perfReport) {
+          setPerformanceReport(perfReport);
+          console.log('[ScriptManager] ========== Performance Report Set to State ==========');
+        } else {
+          console.warn('[ScriptManager] No performance report received from parser!');
         }
       } else if (parseState.stage === 'error') {
         showToast(`解析失败: ${parseState.error}`, 'error');
@@ -775,21 +800,21 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({
                       ))}
                     </Select>
                   )}
-                  {currentScript.parseState?.stage !== 'completed' && 
-                   currentScript.parseState?.stage !== 'error' &&
-                   (currentScript.parseState?.stage !== 'idle' || 
-                    (currentScript.parseState?.metadata || 
-                     currentScript.parseState?.characters?.length || 
-                     currentScript.parseState?.scenes?.length)) && (
-                    <Button
-                      color="secondary"
-                      startContent={<RotateCcw className="w-4 h-4" />}
-                      isLoading={isParsing && activeParseButton === 'full'}
-                      onPress={() => handleParseScript(currentScript.parseState)}
-                    >
-                      {isParsing ? '解析中...' : '继续解析'}
-                    </Button>
-                  )}
+                  {currentScript.parseState?.stage !== 'completed' &&
+                    currentScript.parseState?.stage !== 'error' &&
+                    (currentScript.parseState?.stage !== 'idle' ||
+                      currentScript.parseState?.metadata ||
+                      currentScript.parseState?.characters?.length ||
+                      currentScript.parseState?.scenes?.length) && (
+                      <Button
+                        color="secondary"
+                        startContent={<RotateCcw className="w-4 h-4" />}
+                        isLoading={isParsing && activeParseButton === 'full'}
+                        onPress={() => handleParseScript(currentScript.parseState)}
+                      >
+                        {isParsing ? '解析中...' : '继续解析'}
+                      </Button>
+                    )}
                   {currentScript.parseState?.stage !== 'completed' && (
                     <Button
                       color="primary"
@@ -821,15 +846,17 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({
                       <span className="font-medium">{parseStage}</span>
                       <span className="text-sm text-slate-500">{parseProgress}%</span>
                     </div>
-                    
-                    <Progress 
-                      value={parseProgress} 
+
+                    <Progress
+                      value={parseProgress}
                       className="w-full"
                       aria-label={`解析进度: ${parseProgress}%`}
                     />
-                    
+
                     {/* Detailed Progress Info */}
-                    {(parseDetails.currentScene || parseDetails.totalScenes || parseDetails.estimatedRemainingTime) && (
+                    {(parseDetails.currentScene ||
+                      parseDetails.totalScenes ||
+                      parseDetails.estimatedRemainingTime) && (
                       <div className="grid grid-cols-2 md:grid-cols-3 gap-2 text-sm">
                         {parseDetails.totalScenes && (
                           <div className="flex items-center gap-1 text-slate-500">
@@ -839,7 +866,7 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({
                             </span>
                           </div>
                         )}
-                        
+
                         {parseDetails.totalBatches && (
                           <div className="flex items-center gap-1 text-slate-500">
                             <Box className="w-3 h-3" />
@@ -848,15 +875,17 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({
                             </span>
                           </div>
                         )}
-                        
-                        {parseDetails.estimatedRemainingTime && parseDetails.estimatedRemainingTime > 0 && (
-                          <div className="flex items-center gap-1 text-slate-500">
-                            <Clock className="w-3 h-3" />
-                            <span>
-                              预计还需 {Math.floor(parseDetails.estimatedRemainingTime / 60)}分{parseDetails.estimatedRemainingTime % 60}秒
-                            </span>
-                          </div>
-                        )}
+
+                        {parseDetails.estimatedRemainingTime &&
+                          parseDetails.estimatedRemainingTime > 0 && (
+                            <div className="flex items-center gap-1 text-slate-500">
+                              <Clock className="w-3 h-3" />
+                              <span>
+                                预计还需 {Math.floor(parseDetails.estimatedRemainingTime / 60)}分
+                                {parseDetails.estimatedRemainingTime % 60}秒
+                              </span>
+                            </div>
+                          )}
                       </div>
                     )}
                   </CardBody>
@@ -878,6 +907,26 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({
                   >
                     <Card>
                       <CardBody className="space-y-6">
+                        {/* 性能报告按钮 */}
+                        <div className="flex justify-end">
+                          <Button
+                            size="sm"
+                            variant="flat"
+                            color="primary"
+                            startContent={<Clock className="w-4 h-4" />}
+                            onPress={() => {
+                              if (performanceReport) {
+                                setShowPerformanceReport(true);
+                              } else {
+                                showToast('暂无性能报告', 'info');
+                              }
+                            }}
+                            isDisabled={!performanceReport}
+                          >
+                            📊 性能分析报告
+                          </Button>
+                        </div>
+
                         {/* 2.0: 项目概览 - 移除分镜数量预估，显示实际解析结果 */}
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                           <Card className="bg-primary/5">
@@ -1170,6 +1219,14 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({
         creativeIntent={creativeIntent}
         onIntentChange={setCreativeIntent}
       />
+
+      {/* Performance Report Modal */}
+      {performanceReport && (
+        <PerformanceReport
+          report={performanceReport}
+          onClose={() => setShowPerformanceReport(false)}
+        />
+      )}
     </div>
   );
 };

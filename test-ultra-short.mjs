@@ -1,7 +1,7 @@
 /* eslint-disable no-undef */
 /**
  * Ultra-Short Script Parsing Test
- * 
+ *
  * This script tests the parseUltraShortScript functionality
  * to verify it works correctly with short texts (<500 chars).
  */
@@ -40,14 +40,14 @@ const onProgress = (stage, progress, message) => {
 
 async function runTest() {
   const startTime = Date.now();
-  
+
   try {
     console.log('Creating script parser...');
     const parser = createScriptParser({
       useCache: false,
       useDramaRules: false,
     });
-    
+
     console.log('\nStarting parse...\n');
     const result = await parser.parseScript(
       'test-script-id',
@@ -55,13 +55,13 @@ async function runTest() {
       testScript,
       onProgress
     );
-    
+
     const duration = Date.now() - startTime;
-    
+
     console.log('\n========================================');
     console.log('Parse Result');
     console.log('========================================');
-    console.log(`Duration: ${duration}ms (${(duration/1000).toFixed(1)}s)`);
+    console.log(`Duration: ${duration}ms (${(duration / 1000).toFixed(1)}s)`);
     console.log(`Stage: ${result.stage}`);
     console.log(`Progress: ${result.progress}%`);
     console.log(`\nMetadata:`);
@@ -81,11 +81,11 @@ async function runTest() {
     result.shots?.forEach((shot, i) => {
       console.log(`  ${i + 1}. [${shot.sceneName}] ${shot.description?.substring(0, 50)}...`);
     });
-    
+
     console.log('\n========================================');
     console.log('Test Result: SUCCESS');
     console.log('========================================');
-    
+
     // Validate results
     const checks = {
       hasMetadata: !!result.metadata,
@@ -95,15 +95,14 @@ async function runTest() {
       hasShots: (result.shots?.length || 0) > 0,
       isCompleted: result.stage === 'completed',
     };
-    
+
     console.log('\nValidation Checks:');
     Object.entries(checks).forEach(([check, passed]) => {
       console.log(`  ${passed ? '✓' : '✗'} ${check}`);
     });
-    
+
     const allPassed = Object.values(checks).every(v => v);
     console.log(`\n${allPassed ? '✓ All checks passed!' : '✗ Some checks failed!'}`);
-    
   } catch (error) {
     console.error('\n========================================');
     console.error('Test Result: FAILED');

@@ -59,11 +59,15 @@ export class LLMProvider extends BaseProvider implements IAIProvider {
       messages.push({ role: 'user', content: prompt });
 
       // Get parameters from config
-      const temperature = extraParams?.temperature ?? 
-        config.parameters?.find(p => p.name === 'temperature')?.defaultValue ?? 0.3;
-      const maxTokens = extraParams?.maxTokens ?? 
+      const temperature =
+        extraParams?.temperature ??
+        config.parameters?.find(p => p.name === 'temperature')?.defaultValue ??
+        0.3;
+      const maxTokens =
+        extraParams?.maxTokens ??
         config.parameters?.find(p => p.name === 'maxTokens')?.defaultValue ??
-        config.capabilities?.maxTokens ?? 4000;
+        config.capabilities?.maxTokens ??
+        4000;
 
       // Build request body - conditionally add enable_thinking for providers that need it
       const requestBody: LLMRequest & { enable_thinking?: boolean } = {
@@ -86,21 +90,30 @@ export class LLMProvider extends BaseProvider implements IAIProvider {
       console.log(`[LLMProvider] Temperature: ${temperature}`);
       console.log(`[LLMProvider] Max Tokens: ${maxTokens}`);
       console.log(`[LLMProvider] Messages count: ${messages.length}`);
-      console.log(`[LLMProvider] First message length: ${messages[0]?.content?.length || 0} characters`);
-      console.log(`[LLMProvider] Request body:`, JSON.stringify(requestBody, null, 2).substring(0, 500) + '...');
+      console.log(
+        `[LLMProvider] First message length: ${messages[0]?.content?.length || 0} characters`
+      );
+      console.log(
+        `[LLMProvider] Request body:`,
+        JSON.stringify(requestBody, null, 2).substring(0, 500) + '...'
+      );
       console.log(`[LLMProvider] Timeout: ${timeout || 120000}ms`);
 
       console.log('[LLMProvider] Sending request...');
       const startTime = Date.now();
 
-      const response = await this.makeRequest(`${apiUrl}/chat/completions`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${apiKey}`,
+      const response = await this.makeRequest(
+        `${apiUrl}/chat/completions`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${apiKey}`,
+          },
+          body: JSON.stringify(requestBody),
         },
-        body: JSON.stringify(requestBody),
-      }, timeout || 120000);
+        timeout || 120000
+      );
 
       const elapsed = Date.now() - startTime;
       console.log(`[LLMProvider] Request completed in ${elapsed}ms`);
@@ -213,13 +226,16 @@ export class LLMProvider extends BaseProvider implements IAIProvider {
       // 构建消息
       const messages: LLMMessage[] = [
         { role: 'system', content: enhancedSystemPrompt },
-        { role: 'user', content: prompt }
+        { role: 'user', content: prompt },
       ];
 
       // 从配置获取参数
-      const temperature = config.parameters?.find(p => p.name === 'temperature')?.defaultValue ?? 0.3;
-      const maxTokens = config.parameters?.find(p => p.name === 'maxTokens')?.defaultValue ??
-        config.capabilities?.maxTokens ?? 4000;
+      const temperature =
+        config.parameters?.find(p => p.name === 'temperature')?.defaultValue ?? 0.3;
+      const maxTokens =
+        config.parameters?.find(p => p.name === 'maxTokens')?.defaultValue ??
+        config.capabilities?.maxTokens ??
+        4000;
 
       // 检查模型是否支持json_mode
       const useJsonMode = config.capabilities?.supportsJsonMode ?? false;
@@ -247,14 +263,18 @@ export class LLMProvider extends BaseProvider implements IAIProvider {
       console.log('[LLMProvider] Sending structured output request...');
       const startTime = Date.now();
 
-      const response = await this.makeRequest(`${apiUrl}/chat/completions`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${apiKey}`,
+      const response = await this.makeRequest(
+        `${apiUrl}/chat/completions`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${apiKey}`,
+          },
+          body: JSON.stringify(requestBody),
         },
-        body: JSON.stringify(requestBody),
-      }, 120000);
+        120000
+      );
 
       const elapsed = Date.now() - startTime;
       console.log(`[LLMProvider] Structured request completed in ${elapsed}ms`);
@@ -286,13 +306,38 @@ export class LLMProvider extends BaseProvider implements IAIProvider {
       }
 
       // 使用Zod进行类型校验和补全默认值
-      const validationResult = schema.safeParse(parsedData);
+      let validationResult = schema.safeParse(parsedData);
+
+      // 如果验证失败，尝试Schema-aware修复
       if (!validationResult.success) {
-        console.error('[LLMProvider] Zod validation failed:', validationResult.error);
-        return {
-          success: false,
-          error: `Schema validation failed: ${validationResult.error.message}`
-        };
+        console.warn('[LLMProvider] Zod validation failed, attempting schema-aware repair...');
+        console.warn(
+          '[LLMProvider] Validation errors:',
+          validationResult.error.issues.map(i => `${i.path.join('.')}: ${i.message}`).join(', ')
+        );
+
+        // 导入JSONRepair进行字段级修复
+        const { JSONRepair } = await import('../../parsing/JSONRepair');
+
+        // 使用预定义的字段类型映射进行修复
+        const repairedData = JSONRepair.repairBySchema(
+          parsedData,
+          JSONRepair.SCRIPT_METADATA_FIELD_TYPES
+        );
+
+        // 重新验证修复后的数据
+        validationResult = schema.safeParse(repairedData);
+
+        if (validationResult.success) {
+          console.log('[LLMProvider] Schema-aware repair successful');
+          parsedData = repairedData;
+        } else {
+          console.error('[LLMProvider] Schema-aware repair failed:', validationResult.error);
+          return {
+            success: false,
+            error: `Schema validation failed: ${validationResult.error.message}`,
+          };
+        }
       }
 
       console.log('[LLMProvider] Structured output validated successfully');

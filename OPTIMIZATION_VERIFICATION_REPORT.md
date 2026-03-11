@@ -10,21 +10,21 @@
 
 ### 第一阶段：结构化输出优化
 
-| 指标 | 优化前 | 优化后 | 提升 |
-|------|--------|--------|------|
-| **解析成功率** | ~80% (依赖JSONRepair) | **100%** | +20% |
-| **类型安全** | 运行时才发现错误 | **编译时 + Zod校验** | 显著提升 |
-| **代码稳定性** | 多级JSON修复策略 | **结构化输出** | 显著提升 |
-| **维护成本** | 高（JSONRepair复杂） | **低（Schema驱动）** | 显著降低 |
+| 指标           | 优化前                | 优化后               | 提升     |
+| -------------- | --------------------- | -------------------- | -------- |
+| **解析成功率** | ~80% (依赖JSONRepair) | **100%**             | +20%     |
+| **类型安全**   | 运行时才发现错误      | **编译时 + Zod校验** | 显著提升 |
+| **代码稳定性** | 多级JSON修复策略      | **结构化输出**       | 显著提升 |
+| **维护成本**   | 高（JSONRepair复杂）  | **低（Schema驱动）** | 显著降低 |
 
 ### 第二阶段：向量记忆优化
 
-| 指标 | 优化前 | 优化后 | 提升 |
-|------|--------|--------|------|
-| **上下文获取** | 500字符固定窗口 | **语义召回** | 智能匹配 |
-| **支持小说长度** | <5万字 | **200万字** | +40倍 |
-| **角色一致性** | 易崩塌 | **全局记忆** | 稳定保持 |
-| **上下文相关性** | 机械截取 | **语义相似度** | 智能关联 |
+| 指标             | 优化前          | 优化后         | 提升     |
+| ---------------- | --------------- | -------------- | -------- |
+| **上下文获取**   | 500字符固定窗口 | **语义召回**   | 智能匹配 |
+| **支持小说长度** | <5万字          | **200万字**    | +40倍    |
+| **角色一致性**   | 易崩塌          | **全局记忆**   | 稳定保持 |
+| **上下文相关性** | 机械截取        | **语义相似度** | 智能关联 |
 
 ---
 
@@ -72,6 +72,7 @@
 ### 2. 代码质量验证
 
 #### 类型安全
+
 ```typescript
 // 优化前：any类型，运行时错误
 const metadata = JSON.parse(response); // 可能解析失败
@@ -84,6 +85,7 @@ if (result.success) {
 ```
 
 #### 默认值自动填充
+
 ```typescript
 // 优化前：手动处理缺失字段
 if (!character.gender) character.gender = 'unknown';
@@ -100,6 +102,7 @@ const result = ScriptCharacterSchema.safeParse(partialData);
 ### 3. 架构改进验证
 
 #### 存储架构（3层缓存）
+
 ```
 ┌─────────────────────────────────────┐
 │  L1: 内存缓存 (MultiLevelCache)      │
@@ -114,6 +117,7 @@ const result = ScriptCharacterSchema.safeParse(partialData);
 ```
 
 #### 解析流程改进
+
 ```
 优化前:
 小说上传 → 文本分块 → 固定窗口上下文 → LLM解析
@@ -130,23 +134,23 @@ const result = ScriptCharacterSchema.safeParse(partialData);
 
 ### 新增文件（5个）
 
-| 文件 | 行数 | 功能 |
-|------|------|------|
-| `services/parsing/ParsingSchemas.ts` | 174 | 9个Zod Schema定义 |
-| `services/parsing/VectorMemory.ts` | 240 | ChromaDB向量存储服务 |
-| `services/parsing/EmbeddingService.ts` | 175 | 本地Embedding模型服务 |
-| `services/parsing/ParsingSchemas.test.ts` | 282 | Schema验证测试 |
-| `services/parsing/VectorMemory.test.ts` | 105 | 向量存储测试 |
+| 文件                                      | 行数 | 功能                  |
+| ----------------------------------------- | ---- | --------------------- |
+| `services/parsing/ParsingSchemas.ts`      | 174  | 9个Zod Schema定义     |
+| `services/parsing/VectorMemory.ts`        | 240  | ChromaDB向量存储服务  |
+| `services/parsing/EmbeddingService.ts`    | 175  | 本地Embedding模型服务 |
+| `services/parsing/ParsingSchemas.test.ts` | 282  | Schema验证测试        |
+| `services/parsing/VectorMemory.test.ts`   | 105  | 向量存储测试          |
 
 ### 修改文件（5个）
 
-| 文件 | 修改内容 |
-|------|---------|
-| `services/ai/interfaces.ts` | AIResult泛型支持 |
+| 文件                                   | 修改内容                |
+| -------------------------------------- | ----------------------- |
+| `services/ai/interfaces.ts`            | AIResult泛型支持        |
 | `services/ai/providers/LLMProvider.ts` | +generateStructured方法 |
-| `services/scriptParser.ts` | +callStructuredLLM方法 |
-| `services/parsing/SemanticChunker.ts` | +向量记忆方法 |
-| `config/models.ts` | +supportsJsonMode配置 |
+| `services/scriptParser.ts`             | +callStructuredLLM方法  |
+| `services/parsing/SemanticChunker.ts`  | +向量记忆方法           |
+| `config/models.ts`                     | +supportsJsonMode配置   |
 
 ---
 
@@ -155,12 +159,14 @@ const result = ScriptCharacterSchema.safeParse(partialData);
 ### 1. 结构化输出（第一阶段）
 
 **核心改进**:
+
 - 使用Zod Schema定义所有解析类型
 - LLM原生JSON Mode支持
 - 自动默认值补全
 - 完整的类型推导
 
 **代码示例**:
+
 ```typescript
 // Schema定义
 export const ScriptCharacterSchema = z.object({
@@ -183,22 +189,20 @@ const result = await llmProvider.generateStructured(
 ### 2. 向量记忆（第二阶段）
 
 **核心改进**:
+
 - 文本向量化存储（ChromaDB）
 - 语义相似度召回
 - 长文本记忆保持
 - 本地Embedding模型
 
 **代码示例**:
+
 ```typescript
 // 存储分块
 await semanticChunker.storeChunksToVectorDB(chunks, 'novel_001');
 
 // 语义召回
-const context = await semanticChunker.recallRelevantContext(
-  '角色张三的外貌描述',
-  'novel_001',
-  5
-);
+const context = await semanticChunker.recallRelevantContext('角色张三的外貌描述', 'novel_001', 5);
 ```
 
 ---
@@ -248,38 +252,41 @@ npx chroma run --path ./data/chroma_db
 
 ### 解析成功率
 
-| 场景 | 优化前 | 优化后 |
-|------|--------|--------|
-| 短文本(<1万字) | 85% | **100%** |
-| 中等文本(1-5万字) | 80% | **100%** |
-| 长文本(>5万字) | 70% | **100%** |
+| 场景              | 优化前 | 优化后   |
+| ----------------- | ------ | -------- |
+| 短文本(<1万字)    | 85%    | **100%** |
+| 中等文本(1-5万字) | 80%    | **100%** |
+| 长文本(>5万字)    | 70%    | **100%** |
 
 ### 上下文质量
 
-| 指标 | 优化前 | 优化后 |
-|------|--------|--------|
-| 上下文获取方式 | 固定窗口截取 | **语义相似度召回** |
-| 相关度 | 低（可能不相关） | **高（语义匹配）** |
-| 覆盖范围 | 局部（500字符） | **全局（全文）** |
-| 角色一致性 | 易崩塌 | **稳定保持** |
+| 指标           | 优化前           | 优化后             |
+| -------------- | ---------------- | ------------------ |
+| 上下文获取方式 | 固定窗口截取     | **语义相似度召回** |
+| 相关度         | 低（可能不相关） | **高（语义匹配）** |
+| 覆盖范围       | 局部（500字符）  | **全局（全文）**   |
+| 角色一致性     | 易崩塌           | **稳定保持**       |
 
 ---
 
 ## ✅ 验证结论
 
 ### 第一阶段验证结果
+
 - ✅ **Schema验证**: 17/17 测试通过
 - ✅ **类型安全**: 编译时校验 + 运行时Zod验证
 - ✅ **解析成功率**: 从~80%提升至100%
 - ✅ **代码质量**: 消除JSONRepair技术债务
 
 ### 第二阶段验证结果
+
 - ✅ **向量存储**: ChromaDB集成完成
 - ✅ **Embedding**: 本地模型集成完成
 - ✅ **语义召回**: 智能上下文获取
 - ✅ **长文本支持**: 支持200万字级别
 
 ### 总体评估
+
 - ✅ **可靠性**: 显著提升（结构化输出保证）
 - ✅ **智能化**: 显著提升（语义召回）
 - ✅ **可维护性**: 显著提升（Schema驱动）
@@ -290,11 +297,13 @@ npx chroma run --path ./data/chroma_db
 ## 📝 后续建议
 
 ### 第三阶段（可选）
+
 - **Agent协作解析**: 使用LangGraph实现多Agent协作
 - **知识图谱**: 构建角色-场景-道具关系图谱
 - **增量更新**: 支持小说增量解析
 
 ### 性能优化
+
 - **Embedding缓存**: 缓存已计算的向量
 - **并行处理**: 批量向量计算并行化
 - **索引优化**: ChromaDB索引调优

@@ -1,9 +1,9 @@
 /**
  * ParseStrategySelector - 剧本解析策略选择器
- * 
+ *
  * 根据文本长度、内容特征自动选择最优解析策略
  * 支持用户强制覆盖策略选择
- * 
+ *
  * @module services/parsing/ParseStrategySelector
  * @version 1.0.0
  */
@@ -35,7 +35,7 @@ export const DEFAULT_STRATEGY_CONFIG: StrategySelectorConfig = {
   fastPathThreshold: 800,
   chunkedPathThreshold: 5000,
   standardBatchSize: 5,
-  chunkedBatchSize: 3
+  chunkedBatchSize: 3,
 };
 
 export class ParseStrategySelector {
@@ -53,11 +53,7 @@ export class ParseStrategySelector {
   selectStrategy(content: string): StrategySelection {
     // Check for user forced strategy
     if (this.config.forcedStrategy) {
-      return this.createSelection(
-        this.config.forcedStrategy,
-        '用户强制选择',
-        content
-      );
+      return this.createSelection(this.config.forcedStrategy, '用户强制选择', content);
     }
 
     const wordCount = this.countWords(content);
@@ -125,7 +121,7 @@ export class ParseStrategySelector {
     estimatedTime?: number
   ): StrategySelection {
     const wordCount = this.countWords(content);
-    
+
     let batchSize = this.config.standardBatchSize;
     if (strategy === 'chunked') {
       batchSize = this.config.chunkedBatchSize;
@@ -138,7 +134,7 @@ export class ParseStrategySelector {
       reason,
       wordCount,
       estimatedTime: estimatedTime || this.estimateTime(wordCount, strategy),
-      recommendedBatchSize: batchSize
+      recommendedBatchSize: batchSize,
     };
   }
 
@@ -210,7 +206,8 @@ export class ParseStrategySelector {
     score += Math.min(20, dialogueMatches * 2);
 
     // Factor 4: Scene/character indicators (0-20 points)
-    const sceneIndicators = (trimmed.match(/(场景|地点|时间|第[一二三四五六七八九十\d]+章)/g) || []).length;
+    const sceneIndicators = (trimmed.match(/(场景|地点|时间|第[一二三四五六七八九十\d]+章)/g) || [])
+      .length;
     const characterIndicators = (trimmed.match(/(角色|人物|主角|配角)/g) || []).length;
     score += Math.min(20, (sceneIndicators + characterIndicators) * 2);
 
@@ -222,31 +219,35 @@ export class ParseStrategySelector {
    * @param strategy - Parse strategy
    * @returns Human-readable description
    */
-  static getStrategyDescription(strategy: ParseStrategy): { title: string; description: string; icon: string } {
+  static getStrategyDescription(strategy: ParseStrategy): {
+    title: string;
+    description: string;
+    icon: string;
+  } {
     switch (strategy) {
       case 'fast':
         return {
           title: '快速解析',
           description: '适用于短文本，1-2次API调用完成',
-          icon: '⚡'
+          icon: '⚡',
         };
       case 'standard':
         return {
           title: '标准解析',
           description: '适用于中等长度文本，分批处理',
-          icon: '📄'
+          icon: '📄',
         };
       case 'chunked':
         return {
           title: '分块解析',
           description: '适用于长文本，智能分块处理',
-          icon: '📚'
+          icon: '📚',
         };
       default:
         return {
           title: '自动选择',
           description: '根据文本长度自动选择最优策略',
-          icon: '🤖'
+          icon: '🤖',
         };
     }
   }

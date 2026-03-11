@@ -26,7 +26,8 @@
     // 动态导入模块
     console.log('\n📦 正在加载 ModelCapabilityManager 模块...');
     const module = await import('/src/services/ai/core/ModelCapabilityManager.ts');
-    const { getModelLimits, calculateEffectiveMaxTokens, validateTokenConfig, MODEL_LIMITS } = module;
+    const { getModelLimits, calculateEffectiveMaxTokens, validateTokenConfig, MODEL_LIMITS } =
+      module;
     console.log('✅ 模块加载成功\n');
 
     console.log('📋 开始执行测试...\n');
@@ -47,7 +48,10 @@
     console.log('----------------------------------------');
     const limits2 = getModelLimits('doubao-lite-32k-character-250228');
     console.log('getModelLimits("doubao-lite-32k-character-250228"):', limits2);
-    assert(limits2?.maxTokens === 4096, '带版本号的模型应该匹配到 doubao-lite-32k 并限制 4096 tokens');
+    assert(
+      limits2?.maxTokens === 4096,
+      '带版本号的模型应该匹配到 doubao-lite-32k 并限制 4096 tokens'
+    );
 
     const limits3 = getModelLimits('doubao-lite-4k-240515');
     console.log('getModelLimits("doubao-lite-4k-240515"):', limits3);
@@ -141,8 +145,14 @@
     console.log('----------------------------------------');
     console.log('MODEL_LIMITS 长度:', MODEL_LIMITS.length);
     assert(MODEL_LIMITS.length > 0, 'MODEL_LIMITS 应该包含配置');
-    assert(MODEL_LIMITS.some(m => m.modelId === 'doubao-lite-32k'), '应该包含 doubao-lite-32k');
-    assert(MODEL_LIMITS.some(m => m.modelId === 'deepseek-v3'), '应该包含 deepseek-v3');
+    assert(
+      MODEL_LIMITS.some(m => m.modelId === 'doubao-lite-32k'),
+      '应该包含 doubao-lite-32k'
+    );
+    assert(
+      MODEL_LIMITS.some(m => m.modelId === 'deepseek-v3'),
+      '应该包含 deepseek-v3'
+    );
 
     // ========== 测试报告 ==========
     console.log('\n╔════════════════════════════════════════════════════════════╗');
@@ -159,7 +169,6 @@
     }
 
     return { passed, failed, total: passed + failed };
-
   } catch (error) {
     console.error('\n❌ 测试执行异常:', error);
     console.error('堆栈:', error.stack);

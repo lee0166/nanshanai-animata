@@ -42,7 +42,12 @@ import {
   FileText,
   Lightbulb,
 } from 'lucide-react';
-import { DetailedQualityReport, QualityDimension, DimensionScore, QualityIssue } from '../../services/parsing/QualityAnalyzer';
+import {
+  DetailedQualityReport,
+  QualityDimension,
+  DimensionScore,
+  QualityIssue,
+} from '../../services/parsing/QualityAnalyzer';
 
 interface QualityReportCardProps {
   report: DetailedQualityReport;
@@ -92,11 +97,11 @@ const getScoreColor = (score: number): string => {
  */
 const getGradeColor = (grade: string): string => {
   const colors: Record<string, string> = {
-    'A': 'bg-success text-success-foreground',
-    'B': 'bg-primary text-primary-foreground',
-    'C': 'bg-warning text-warning-foreground',
-    'D': 'bg-warning-500 text-warning-foreground',
-    'F': 'bg-danger text-danger-foreground',
+    A: 'bg-success text-success-foreground',
+    B: 'bg-primary text-primary-foreground',
+    C: 'bg-warning text-warning-foreground',
+    D: 'bg-warning-500 text-warning-foreground',
+    F: 'bg-danger text-danger-foreground',
   };
   return colors[grade] || 'bg-default text-default-foreground';
 };
@@ -104,7 +109,10 @@ const getGradeColor = (grade: string): string => {
 /**
  * 问题类型图标
  */
-const IssueIcon: React.FC<{ type: 'error' | 'warning' | 'info'; className?: string }> = ({ type, className = 'w-4 h-4' }) => {
+const IssueIcon: React.FC<{ type: 'error' | 'warning' | 'info'; className?: string }> = ({
+  type,
+  className = 'w-4 h-4',
+}) => {
   if (type === 'error') return <AlertCircle className={`${className} text-danger`} />;
   if (type === 'warning') return <AlertTriangle className={`${className} text-warning`} />;
   return <Info className={`${className} text-primary`} />;
@@ -116,8 +124,18 @@ const IssueIcon: React.FC<{ type: 'error' | 'warning' | 'info'; className?: stri
 const IssueCard: React.FC<{
   issue: QualityIssue;
 }> = ({ issue }) => {
-  const bgColor = issue.type === 'error' ? 'bg-danger-50' : issue.type === 'warning' ? 'bg-warning-50' : 'bg-primary-50';
-  const textColor = issue.type === 'error' ? 'text-danger' : issue.type === 'warning' ? 'text-warning' : 'text-primary';
+  const bgColor =
+    issue.type === 'error'
+      ? 'bg-danger-50'
+      : issue.type === 'warning'
+        ? 'bg-warning-50'
+        : 'bg-primary-50';
+  const textColor =
+    issue.type === 'error'
+      ? 'text-danger'
+      : issue.type === 'warning'
+        ? 'text-warning'
+        : 'text-primary';
 
   return (
     <div className={`p-3 rounded-lg ${bgColor} ${textColor}`}>
@@ -131,11 +149,7 @@ const IssueCard: React.FC<{
               <span className="font-medium">{issue.target}</span>
             </div>
           )}
-          {issue.context && (
-            <div className="text-xs mt-1 opacity-80">
-              {issue.context}
-            </div>
-          )}
+          {issue.context && <div className="text-xs mt-1 opacity-80">{issue.context}</div>}
         </div>
       </div>
     </div>
@@ -150,7 +164,7 @@ const IssuesByDimension: React.FC<{
 }> = ({ dimensionScores }) => {
   return (
     <div className="space-y-4">
-      {dimensionScores.map((dimScore) => {
+      {dimensionScores.map(dimScore => {
         if (dimScore.issues.length === 0) return null;
 
         return (
@@ -164,10 +178,7 @@ const IssuesByDimension: React.FC<{
             </div>
             <div className="space-y-2 pl-6">
               {dimScore.issues.slice(0, 3).map((issue, idx) => (
-                <IssueCard
-                  key={idx}
-                  issue={issue}
-                />
+                <IssueCard key={idx} issue={issue} />
               ))}
               {dimScore.issues.length > 3 && (
                 <div className="text-xs text-default-400 pl-2">
@@ -185,7 +196,10 @@ const IssuesByDimension: React.FC<{
 /**
  * 维度评分条组件 - 带动画效果
  */
-const DimensionScoreBar: React.FC<{ score: DimensionScore; index: number }> = ({ score, index }) => {
+const DimensionScoreBar: React.FC<{ score: DimensionScore; index: number }> = ({
+  score,
+  index,
+}) => {
   const color = getScoreColor(score.score);
   const issueCount = score.issues.length;
   const [animatedScore, setAnimatedScore] = useState(0);
@@ -223,7 +237,9 @@ const DimensionScoreBar: React.FC<{ score: DimensionScore; index: number }> = ({
           </div>
           <div>
             <span className="text-sm font-medium">{getDimensionName(score.dimension)}</span>
-            <span className="text-xs text-default-400 ml-2">权重 {Math.round(score.weight * 100)}%</span>
+            <span className="text-xs text-default-400 ml-2">
+              权重 {Math.round(score.weight * 100)}%
+            </span>
           </div>
         </div>
         <div className="flex items-center gap-2">
@@ -233,25 +249,26 @@ const DimensionScoreBar: React.FC<{ score: DimensionScore; index: number }> = ({
             </Chip>
           )}
           <div className={`text-lg font-bold text-${color}`}>
-            {animatedScore}<span className="text-sm text-default-400">/100</span>
+            {animatedScore}
+            <span className="text-sm text-default-400">/100</span>
           </div>
         </div>
       </div>
       <div className="relative">
-        <Progress 
-          value={animatedScore} 
-          color={color as any} 
+        <Progress
+          value={animatedScore}
+          color={color as any}
           size="md"
           className="h-2"
           aria-label={`${getDimensionName(score.dimension)}评分`}
         />
         {/* 分数标记点 */}
-        <div 
+        <div
           className="absolute top-0 w-3 h-3 rounded-full bg-white border-2 border-current transform -translate-y-0.5 transition-all duration-300"
-          style={{ 
+          style={{
             left: `${animatedScore}%`,
             color: `var(--heroui-${color})`,
-            marginLeft: '-6px'
+            marginLeft: '-6px',
           }}
         />
       </div>
@@ -275,43 +292,45 @@ const DimensionScoreBar: React.FC<{ score: DimensionScore; index: number }> = ({
 /**
  * 统计信息卡片 - 优化样式
  */
-const StatisticsCard: React.FC<{ statistics: DetailedQualityReport['statistics'] }> = ({ statistics }) => {
+const StatisticsCard: React.FC<{ statistics: DetailedQualityReport['statistics'] }> = ({
+  statistics,
+}) => {
   const stats = [
-    { 
-      icon: <Users className="w-5 h-5" />, 
-      label: '角色', 
-      value: statistics.totalCharacters, 
+    {
+      icon: <Users className="w-5 h-5" />,
+      label: '角色',
+      value: statistics.totalCharacters,
       subValue: `${statistics.charactersWithDescription}个有描述`,
-      color: 'primary'
+      color: 'primary',
     },
-    { 
-      icon: <Map className="w-5 h-5" />, 
-      label: '场景', 
-      value: statistics.totalScenes, 
+    {
+      icon: <Map className="w-5 h-5" />,
+      label: '场景',
+      value: statistics.totalScenes,
       subValue: `${statistics.scenesWithShots}个有分镜`,
-      color: 'success'
+      color: 'success',
     },
-    { 
-      icon: <Box className="w-5 h-5" />, 
-      label: '物品', 
-      value: statistics.totalItems, 
+    {
+      icon: <Box className="w-5 h-5" />,
+      label: '物品',
+      value: statistics.totalItems,
       subValue: statistics.totalItems > 0 ? '已识别' : '未识别',
-      color: 'warning'
+      color: 'warning',
     },
-    { 
-      icon: <Film className="w-5 h-5" />, 
-      label: '分镜', 
-      value: statistics.totalShots, 
+    {
+      icon: <Film className="w-5 h-5" />,
+      label: '分镜',
+      value: statistics.totalShots,
       subValue: `平均${statistics.avgShotsPerScene}个/场景`,
-      color: 'danger'
+      color: 'danger',
     },
   ];
 
   return (
     <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
       {stats.map((stat, idx) => (
-        <div 
-          key={idx} 
+        <div
+          key={idx}
           className="bg-content2/50 hover:bg-content2 rounded-xl p-4 transition-all duration-200 border border-transparent hover:border-content3"
         >
           <div className={`flex items-center gap-2 text-${stat.color} mb-2`}>
@@ -319,9 +338,7 @@ const StatisticsCard: React.FC<{ statistics: DetailedQualityReport['statistics']
             <span className="text-xs font-medium">{stat.label}</span>
           </div>
           <div className="text-3xl font-bold text-foreground">{stat.value}</div>
-          {stat.subValue && (
-            <div className="text-xs text-default-400 mt-1">{stat.subValue}</div>
-          )}
+          {stat.subValue && <div className="text-xs text-default-400 mt-1">{stat.subValue}</div>}
         </div>
       ))}
     </div>
@@ -361,12 +378,14 @@ export const QualityReportCard: React.FC<QualityReportCardProps> = ({ report, t 
 
   // 统计各维度问题数量
   const dimensionIssueCounts = useMemo(() => {
-    return report.dimensionScores.map(dim => ({
-      dimension: dim.dimension,
-      name: getDimensionName(dim.dimension),
-      count: dim.issues.length,
-      score: dim.score,
-    })).filter(d => d.count > 0);
+    return report.dimensionScores
+      .map(dim => ({
+        dimension: dim.dimension,
+        name: getDimensionName(dim.dimension),
+        count: dim.issues.length,
+        score: dim.score,
+      }))
+      .filter(d => d.count > 0);
   }, [report.dimensionScores]);
 
   return (
@@ -375,7 +394,9 @@ export const QualityReportCard: React.FC<QualityReportCardProps> = ({ report, t 
       <CardHeader className="flex items-center justify-between pb-3 border-b border-divider">
         <div className="flex items-center gap-4">
           {/* 总体评级徽章 */}
-          <div className={`w-14 h-14 rounded-2xl flex items-center justify-center text-xl font-bold shadow-md ${getGradeColor(report.overallGrade)}`}>
+          <div
+            className={`w-14 h-14 rounded-2xl flex items-center justify-center text-xl font-bold shadow-md ${getGradeColor(report.overallGrade)}`}
+          >
             {report.overallGrade}
           </div>
           <div>
@@ -398,7 +419,7 @@ export const QualityReportCard: React.FC<QualityReportCardProps> = ({ report, t 
           variant="light"
           size="sm"
           onPress={() => setExpanded(!expanded)}
-          title={expanded ? "收起" : "展开"}
+          title={expanded ? '收起' : '展开'}
           className="hover:bg-content2"
         >
           {expanded ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
@@ -433,7 +454,7 @@ export const QualityReportCard: React.FC<QualityReportCardProps> = ({ report, t 
             {/* 按维度展示问题分布 */}
             {dimensionIssueCounts.length > 0 && (
               <div className="flex flex-wrap gap-2">
-                {dimensionIssueCounts.map((dim) => (
+                {dimensionIssueCounts.map(dim => (
                   <Chip
                     key={dim.dimension}
                     size="sm"
@@ -481,7 +502,7 @@ export const QualityReportCard: React.FC<QualityReportCardProps> = ({ report, t 
           <>
             <Divider className="my-4" />
 
-            <Tabs selectedKey={activeTab} onSelectionChange={(key) => setActiveTab(key as string)}>
+            <Tabs selectedKey={activeTab} onSelectionChange={key => setActiveTab(key as string)}>
               <Tab
                 key="issues"
                 title={
@@ -493,9 +514,7 @@ export const QualityReportCard: React.FC<QualityReportCardProps> = ({ report, t 
               >
                 <div className="pt-4">
                   {totalIssues > 0 ? (
-                    <IssuesByDimension
-                      dimensionScores={report.dimensionScores}
-                    />
+                    <IssuesByDimension dimensionScores={report.dimensionScores} />
                   ) : (
                     <div className="text-center text-default-400 py-8">
                       <CheckCircle2 className="w-12 h-12 mx-auto mb-2 text-success" />
@@ -518,10 +537,7 @@ export const QualityReportCard: React.FC<QualityReportCardProps> = ({ report, t 
                   {report.recommendations.length > 0 ? (
                     <div className="space-y-2">
                       {report.recommendations.map((recommendation, idx) => (
-                        <div
-                          key={idx}
-                          className="p-3 rounded-lg bg-content2 text-sm"
-                        >
+                        <div key={idx} className="p-3 rounded-lg bg-content2 text-sm">
                           <div className="flex items-start gap-2">
                             {recommendation.startsWith('🔴') ? (
                               <AlertCircle className="w-4 h-4 text-danger flex-shrink-0 mt-0.5" />
@@ -538,8 +554,8 @@ export const QualityReportCard: React.FC<QualityReportCardProps> = ({ report, t 
                                 {recommendation.startsWith('🔴')
                                   ? '严重问题，请优先修复'
                                   : recommendation.startsWith('🟡')
-                                  ? '优化建议，可提升生成效果'
-                                  : '提示信息，供您参考'}
+                                    ? '优化建议，可提升生成效果'
+                                    : '提示信息，供您参考'}
                               </div>
                             </div>
                           </div>
@@ -557,8 +573,6 @@ export const QualityReportCard: React.FC<QualityReportCardProps> = ({ report, t 
             </Tabs>
           </>
         )}
-
-
       </CardBody>
     </Card>
   );

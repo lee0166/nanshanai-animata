@@ -1,13 +1,13 @@
 import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react';
-import Lightbox, { Slide } from "yet-another-react-lightbox";
-import "yet-another-react-lightbox/styles.css";
+import Lightbox, { Slide } from 'yet-another-react-lightbox';
+import 'yet-another-react-lightbox/styles.css';
 // Plugins
-import Zoom from "yet-another-react-lightbox/plugins/zoom";
-import Thumbnails from "yet-another-react-lightbox/plugins/thumbnails";
-import Video from "yet-another-react-lightbox/plugins/video";
-import Counter from "yet-another-react-lightbox/plugins/counter";
-import "yet-another-react-lightbox/plugins/thumbnails.css";
-import "yet-another-react-lightbox/plugins/counter.css";
+import Zoom from 'yet-another-react-lightbox/plugins/zoom';
+import Thumbnails from 'yet-another-react-lightbox/plugins/thumbnails';
+import Video from 'yet-another-react-lightbox/plugins/video';
+import Counter from 'yet-another-react-lightbox/plugins/counter';
+import 'yet-another-react-lightbox/plugins/thumbnails.css';
+import 'yet-another-react-lightbox/plugins/counter.css';
 
 interface PreviewContextType {
   openPreview: (slides: Slide[], index?: number) => void;

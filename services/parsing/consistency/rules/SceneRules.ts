@@ -15,7 +15,7 @@ import {
   ConsistencyRule,
   CheckContext,
   ConsistencyViolation,
-  ViolationType
+  ViolationType,
 } from '../ConsistencyChecker';
 import { ScriptScene, ScriptCharacter } from '../../../../types';
 
@@ -40,7 +40,7 @@ const DEFAULT_CONFIG: SceneRulesConfig = {
   checkLocation: true,
   checkCharacterAppearance: true,
   checkTransitions: true,
-  maxTimeGapMinutes: 1440 // 24小时
+  maxTimeGapMinutes: 1440, // 24小时
 };
 
 /**
@@ -55,21 +55,21 @@ function parseTime(timeStr: string): { hour: number; minute: number } | null {
   if (timeMatch) {
     return {
       hour: parseInt(timeMatch[1]),
-      minute: parseInt(timeMatch[2])
+      minute: parseInt(timeMatch[2]),
     };
   }
 
   // 匹配 "早晨"、"上午"、"中午"、"下午"、"晚上"、"深夜"
   const timeKeywords: Record<string, number> = {
-    '早晨': 7,
-    '早上': 7,
-    '上午': 10,
-    '中午': 12,
-    '下午': 15,
-    '傍晚': 18,
-    '晚上': 20,
-    '深夜': 23,
-    '凌晨': 3
+    早晨: 7,
+    早上: 7,
+    上午: 10,
+    中午: 12,
+    下午: 15,
+    傍晚: 18,
+    晚上: 20,
+    深夜: 23,
+    凌晨: 3,
   };
 
   for (const [keyword, hour] of Object.entries(timeKeywords)) {
@@ -212,7 +212,7 @@ export class SceneRules implements ConsistencyRule {
             sceneIds: [prevScene.id, currScene.id],
             suggestion: `请检查场景时间线是否正确，或添加日期变化说明`,
             autoFixable: false,
-            confidence: 0.7
+            confidence: 0.7,
           });
         }
 
@@ -226,7 +226,7 @@ export class SceneRules implements ConsistencyRule {
             sceneIds: [prevScene.id, currScene.id],
             suggestion: `长时间间隔可能需要添加过渡场景或说明`,
             autoFixable: false,
-            confidence: 0.5
+            confidence: 0.5,
           });
         }
       }
@@ -257,7 +257,7 @@ export class SceneRules implements ConsistencyRule {
             sceneIds: [prevScene.id, currScene.id],
             suggestion: `请添加场景转换说明或过渡场景`,
             autoFixable: false,
-            confidence: 0.6
+            confidence: 0.6,
           });
         }
       }
@@ -274,7 +274,7 @@ export class SceneRules implements ConsistencyRule {
           sceneIds: [scene.id],
           suggestion: `建议为场景添加具体的地点描述`,
           autoFixable: false,
-          confidence: 0.8
+          confidence: 0.8,
         });
       }
     }
@@ -315,7 +315,7 @@ export class SceneRules implements ConsistencyRule {
                 sceneIds: [lastAppearance.sceneId, scene.id],
                 suggestion: `长时间未出场的角色再次出现，建议添加说明或回忆`,
                 autoFixable: false,
-                confidence: 0.5
+                confidence: 0.5,
               });
             }
           }
@@ -343,7 +343,7 @@ export class SceneRules implements ConsistencyRule {
                 sceneIds: [scene.id],
                 suggestion: `请检查角色是否应该在场景中，或修改场景描述`,
                 autoFixable: false,
-                confidence: 0.6
+                confidence: 0.6,
               });
             }
           }
@@ -376,17 +376,17 @@ export class SceneRules implements ConsistencyRule {
           sceneIds: [prevScene.id, currScene.id],
           suggestion: `快速场景切换可能需要添加过渡说明`,
           autoFixable: false,
-          confidence: 0.4
+          confidence: 0.4,
         });
       }
 
       // 检查场景情绪转换是否过于突兀
       if (prevScene.mood && currScene.mood) {
         const moodTransitions: Record<string, string[]> = {
-          '紧张': ['平静', '轻松', '愉快'],
-          '悲伤': ['愉快', '兴奋', '轻松'],
-          '愤怒': ['平静', '愉快', '轻松'],
-          '恐惧': ['平静', '愉快', '轻松']
+          紧张: ['平静', '轻松', '愉快'],
+          悲伤: ['愉快', '兴奋', '轻松'],
+          愤怒: ['平静', '愉快', '轻松'],
+          恐惧: ['平静', '愉快', '轻松'],
         };
 
         const incompatibleMoods = moodTransitions[prevScene.mood];
@@ -399,7 +399,7 @@ export class SceneRules implements ConsistencyRule {
             sceneIds: [prevScene.id, currScene.id],
             suggestion: `情绪大幅转变可能需要添加过渡场景或说明`,
             autoFixable: false,
-            confidence: 0.5
+            confidence: 0.5,
           });
         }
       }

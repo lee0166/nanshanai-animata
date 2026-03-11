@@ -33,7 +33,7 @@ export class TimelineService {
   async createTimeline(params: CreateTimelineParams): Promise<TimelineOperationResult> {
     try {
       const { projectId, scriptId, name, shots } = params;
-      
+
       console.log(`[TimelineService] Creating timeline for ${shots.length} shots`);
 
       // 按sequence排序分镜
@@ -54,7 +54,7 @@ export class TimelineService {
             endTime: currentTime + duration,
             duration: duration,
             sourcePath: shot.generatedVideo,
-            transition: { type: 'cut', duration: 0 }
+            transition: { type: 'cut', duration: 0 },
           };
           videoClips.push(clip);
           currentTime += duration;
@@ -65,7 +65,7 @@ export class TimelineService {
         id: `track_video_${Date.now()}`,
         type: 'video',
         name: '视频轨道',
-        clips: videoClips
+        clips: videoClips,
       };
 
       const timeline: Timeline = {
@@ -78,7 +78,7 @@ export class TimelineService {
         resolution: '1920x1080',
         frameRate: 24,
         createdAt: Date.now(),
-        updatedAt: Date.now()
+        updatedAt: Date.now(),
       };
 
       // 保存到存储
@@ -144,7 +144,7 @@ export class TimelineService {
 
       const clip = track.clips[clipIndex];
       const duration = clip.duration;
-      
+
       // 更新片段时间
       clip.startTime = newStartTime;
       clip.endTime = newStartTime + duration;
@@ -259,7 +259,7 @@ export class TimelineService {
   async exportVideo(params: ExportTimelineParams): Promise<TimelineOperationResult> {
     try {
       const { timeline, config, outputPath } = params;
-      
+
       console.log(`[TimelineService] Exporting timeline to ${outputPath}`);
       console.log(`[TimelineService] Format: ${config.format}, Resolution: ${config.resolution}`);
 
@@ -278,7 +278,7 @@ export class TimelineService {
         outputPath,
         status: 'pending' as const,
         progress: 0,
-        createdAt: Date.now()
+        createdAt: Date.now(),
       };
 
       // 保存导出任务
@@ -429,13 +429,13 @@ export class TimelineService {
   private async saveTimeline(timeline: Timeline): Promise<void> {
     const timelines = await this.getAllTimelines();
     const index = timelines.findIndex(t => t.id === timeline.id);
-    
+
     if (index >= 0) {
       timelines[index] = timeline;
     } else {
       timelines.push(timeline);
     }
-    
+
     await storageService.setItem(this.STORAGE_KEY, JSON.stringify(timelines));
   }
 
@@ -455,13 +455,13 @@ export class TimelineService {
     const data = await storageService.getItem('export_tasks');
     const tasks = data ? JSON.parse(data) : [];
     const index = tasks.findIndex((t: any) => t.id === task.id);
-    
+
     if (index >= 0) {
       tasks[index] = task;
     } else {
       tasks.push(task);
     }
-    
+
     await storageService.setItem('export_tasks', JSON.stringify(tasks));
   }
 }

@@ -2,12 +2,12 @@
 
 Use dependencies when:
 
-* They can't be declared in Pydantic validation and require additional logic
-* The logic depends on external resources or could block in any other way
-* Other dependencies need their results (it's a sub-dependency)
-* The logic can be shared by multiple endpoints to do things like error early, authentication, etc.
-* They need to handle cleanup (e.g., DB sessions, file handles), using dependencies with `yield`
-* Their logic needs input data from the request, like headers, query parameters, etc.
+- They can't be declared in Pydantic validation and require additional logic
+- The logic depends on external resources or could block in any other way
+- Other dependencies need their results (it's a sub-dependency)
+- The logic can be shared by multiple endpoints to do things like error early, authentication, etc.
+- They need to handle cleanup (e.g., DB sessions, file handles), using dependencies with `yield`
+- Their logic needs input data from the request, like headers, query parameters, etc.
 
 ## Dependencies with `yield` and `scope`
 

@@ -1,7 +1,7 @@
 /**
  * Parsing Schemas - 小说解析Schema定义
  * 使用Zod进行类型安全的结构化输出
- * @version 1.0.0
+ * @version 1.1.0 - 添加柔性Schema支持，自动类型转换
  */
 
 import { z } from 'zod';
@@ -55,10 +55,33 @@ export const EmotionalPointSchema = z.object({
 });
 
 // ==========================================
+// 辅助函数：修复characterTraits中的字符串值
+// ==========================================
+const repairCharacterTraits = (val: unknown): Record<string, string[]> => {
+  if (typeof val !== 'object' || val === null) return {};
+
+  const result: Record<string, string[]> = {};
+  for (const [key, value] of Object.entries(val)) {
+    if (typeof value === 'string') {
+      // 将字符串转换为数组
+      result[key] = value
+        .split(/[,，;；]/)
+        .map(s => s.trim())
+        .filter(Boolean);
+    } else if (Array.isArray(value)) {
+      result[key] = value;
+    } else {
+      result[key] = [];
+    }
+  }
+  return result;
+};
+
+// ==========================================
 // Schema 5: 一致性规则
 // ==========================================
 export const ConsistencyRulesSchema = z.object({
-  characterTraits: z.record(z.array(z.string())).default({}),
+  characterTraits: z.preprocess(repairCharacterTraits, z.record(z.array(z.string())).default({})),
   eraConstraints: z.array(z.string()).default([]),
   styleConstraints: z.array(z.string()).default([]),
   forbiddenElements: z.array(z.string()).default([]),
@@ -74,7 +97,167 @@ export const ReferencesSchema = z.object({
 });
 
 // ==========================================
-// Schema 7: 元数据提取（扩展版）
+// 辅助函数：将可能的string转换为array
+// ==========================================
+const stringToArray = (val: unknown): string[] => {
+  if (Array.isArray(val)) return val as string[];
+  if (typeof val === 'string') {
+    return val
+      .split(/[,，;；]/)
+      .map(x => x.trim())
+      .filter(Boolean);
+  }
+  return [];
+};
+
+// ==========================================
+// 辅助函数：将可能的string转换为StoryStructure
+// ==========================================
+const stringToStoryStructure = (val: unknown): z.infer<typeof StoryStructureSchema> => {
+  if (val && typeof val === 'object' && 'structureType' in val) {
+    return val as z.infer<typeof StoryStructureSchema>;
+  }
+  if (typeof val === 'string') {
+    return {
+      structureType: 'other',
+      act1: val,
+      act2a: '',
+      act2b: '',
+      act3: '',
+      midpoint: '',
+      climax: '',
+    };
+  }
+  return {
+    structureType: 'other',
+    act1: '',
+    act2a: '',
+    act2b: '',
+    act3: '',
+    midpoint: '',
+    climax: '',
+  };
+};
+
+// ==========================================
+// 辅助函数：将可能的string转换为VisualStyle
+// ==========================================
+const stringToVisualStyle = (val: unknown): z.infer<typeof VisualStyleSchema> => {
+  if (val && typeof val === 'object' && 'artDirection' in val) {
+    return val as z.infer<typeof VisualStyleSchema>;
+  }
+  if (typeof val === 'string') {
+    return {
+      artDirection: val,
+      artStyle: '',
+      artStyleDescription: '',
+      colorPalette: [],
+      colorMood: '',
+      cinematography: '',
+      lightingStyle: '',
+    };
+  }
+  return {
+    artDirection: '',
+    artStyle: '',
+    artStyleDescription: '',
+    colorPalette: [],
+    colorMood: '',
+    cinematography: '',
+    lightingStyle: '',
+  };
+};
+
+// ==========================================
+// 辅助函数：将可能的string转换为EraContext
+// ==========================================
+const stringToEraContext = (val: unknown): z.infer<typeof EraContextSchema> => {
+  if (val && typeof val === 'object' && 'era' in val) {
+    return val as z.infer<typeof EraContextSchema>;
+  }
+  if (typeof val === 'string') {
+    return {
+      era: val,
+      eraDescription: '',
+      location: '',
+      season: '',
+      timeOfDay: '',
+    };
+  }
+  return {
+    era: '',
+    eraDescription: '',
+    location: '',
+    season: '',
+    timeOfDay: '',
+  };
+};
+
+// ==========================================
+// 辅助函数：将可能的string转换为EmotionalPoint数组
+// ==========================================
+const stringToEmotionalArc = (val: unknown): z.infer<typeof EmotionalPointSchema>[] => {
+  if (Array.isArray(val)) return val as z.infer<typeof EmotionalPointSchema>[];
+  if (typeof val === 'string') {
+    return [
+      {
+        plotPoint: val,
+        emotion: '',
+        intensity: 5,
+        colorTone: '',
+        percentage: 0,
+      },
+    ];
+  }
+  return [];
+};
+
+// ==========================================
+// 辅助函数：将可能的string转换为ConsistencyRules
+// ==========================================
+const stringToConsistencyRules = (val: unknown): z.infer<typeof ConsistencyRulesSchema> => {
+  if (val && typeof val === 'object' && 'characterTraits' in val) {
+    return val as z.infer<typeof ConsistencyRulesSchema>;
+  }
+  if (typeof val === 'string') {
+    return {
+      characterTraits: {},
+      eraConstraints: [val],
+      styleConstraints: [],
+      forbiddenElements: [],
+    };
+  }
+  return {
+    characterTraits: {},
+    eraConstraints: [],
+    styleConstraints: [],
+    forbiddenElements: [],
+  };
+};
+
+// ==========================================
+// 辅助函数：将可能的string转换为References
+// ==========================================
+const stringToReferences = (val: unknown): z.infer<typeof ReferencesSchema> => {
+  if (val && typeof val === 'object' && 'films' in val) {
+    return val as z.infer<typeof ReferencesSchema>;
+  }
+  if (typeof val === 'string') {
+    return {
+      films: [val],
+      directors: [],
+      artStyles: [],
+    };
+  }
+  return {
+    films: [],
+    directors: [],
+    artStyles: [],
+  };
+};
+
+// ==========================================
+// Schema 7: 元数据提取（扩展版 - 柔性Schema）
 // ==========================================
 export const ScriptMetadataSchema = z.object({
   // 基础信息
@@ -88,30 +271,37 @@ export const ScriptMetadataSchema = z.object({
   chapterCount: z.number().int().min(0),
   genre: z.string(),
   tone: z.string(),
-  
+
   // Phase 1 新增：故事核心层
   synopsis: z.string().optional(),
   logline: z.string().optional(),
   coreConflict: z.string().optional(),
-  theme: z.array(z.string()).optional(),
-  
+  // 柔性Schema：使用preprocess自动转换string到array
+  theme: z.preprocess(stringToArray, z.array(z.string()).default([])),
+
   // Phase 1 新增：故事结构层
-  storyStructure: StoryStructureSchema.optional(),
-  
+  // 柔性Schema：使用preprocess自动转换string到object
+  storyStructure: z.preprocess(stringToStoryStructure, StoryStructureSchema),
+
   // Phase 1 新增：视觉风格层
-  visualStyle: VisualStyleSchema.optional(),
-  
+  // 柔性Schema：使用preprocess自动转换string到object
+  visualStyle: z.preprocess(stringToVisualStyle, VisualStyleSchema),
+
   // Phase 1 新增：时代背景层
-  eraContext: EraContextSchema.optional(),
-  
+  // 柔性Schema：使用preprocess自动转换string到object
+  eraContext: z.preprocess(stringToEraContext, EraContextSchema),
+
   // Phase 1 新增：情绪曲线层
-  emotionalArc: z.array(EmotionalPointSchema).optional(),
-  
+  // 柔性Schema：使用preprocess自动转换string到array
+  emotionalArc: z.preprocess(stringToEmotionalArc, z.array(EmotionalPointSchema).default([])),
+
   // Phase 1 新增：一致性规则层
-  consistencyRules: ConsistencyRulesSchema.optional(),
-  
+  // 柔性Schema：使用preprocess自动转换string到object
+  consistencyRules: z.preprocess(stringToConsistencyRules, ConsistencyRulesSchema),
+
   // Phase 1 新增：参考层
-  references: ReferencesSchema.optional(),
+  // 柔性Schema：使用preprocess自动转换string到object
+  references: z.preprocess(stringToReferences, ReferencesSchema),
 });
 
 // ==========================================
@@ -189,7 +379,9 @@ export const ScriptSceneSchema = z.object({
 export const ScriptItemSchema = z.object({
   name: z.string().min(1),
   description: z.string().max(50).default('道具描述'),
-  category: z.enum(['weapon', 'tool', 'jewelry', 'document', 'creature', 'animal', 'other']).default('other'),
+  category: z
+    .enum(['weapon', 'tool', 'jewelry', 'document', 'creature', 'animal', 'other'])
+    .default('other'),
   owner: z.string().optional(),
   importance: z.enum(['major', 'minor']).default('minor'),
   visualPrompt: z.string().max(50).default('道具图像'),
@@ -202,8 +394,12 @@ export const ShotSchema = z.object({
   id: z.string().optional(),
   sceneName: z.string().min(1),
   sequence: z.number().int().min(1),
-  shotType: z.enum(['extreme_long', 'long', 'full', 'medium', 'close_up', 'extreme_close_up']).default('full'),
-  cameraMovement: z.enum(['static', 'push', 'pull', 'pan', 'tilt', 'track', 'crane']).default('static'),
+  shotType: z
+    .enum(['extreme_long', 'long', 'full', 'medium', 'close_up', 'extreme_close_up'])
+    .default('full'),
+  cameraMovement: z
+    .enum(['static', 'push', 'pull', 'pan', 'tilt', 'track', 'crane'])
+    .default('static'),
   description: z.string().min(1),
   dialogue: z.string().optional(),
   sound: z.string().optional(),
@@ -244,22 +440,22 @@ export type Shot = z.infer<typeof ShotSchema>;
 export function getJsonSchemaDescription(schema: z.ZodType): string {
   const shape = (schema as any).shape;
   if (!shape) return '';
-  
+
   const fields = Object.keys(shape).map(key => {
     const field = shape[key];
     let type = 'string';
     let required = true;
-    
+
     if (field._def.typeName === 'ZodArray') type = 'array';
     if (field._def.typeName === 'ZodNumber') type = 'number';
     if (field._def.typeName === 'ZodBoolean') type = 'boolean';
     if (field._def.typeName === 'ZodEnum') type = 'enum';
     if (field._def.typeName === 'ZodObject') type = 'object';
     if (field._def.defaultValue !== undefined) required = false;
-    
+
     return `- ${key}: ${type}${required ? ' (required)' : ' (optional)'}`;
   });
-  
+
   return fields.join('\n');
 }
 

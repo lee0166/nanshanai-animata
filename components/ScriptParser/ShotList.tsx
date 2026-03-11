@@ -440,8 +440,8 @@ export const ShotList: React.FC<ShotListProps> = ({
               {filteredShots.map((shot, index) => (
                 <TableRow key={shot.id}>
                   <TableCell>
-                    <Chip 
-                      size="sm" 
+                    <Chip
+                      size="sm"
                       color={shot.layer === 'key' ? 'primary' : 'default'}
                       variant={shot.layer === 'key' ? 'solid' : 'flat'}
                     >
@@ -598,142 +598,148 @@ export const ShotList: React.FC<ShotListProps> = ({
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {/* 对场景内的分镜进行排序，key shots优先 */}
-                    {[...sceneShots].sort((a, b) => {
-                      if (a.layer === 'key' && b.layer !== 'key') return -1;
-                      if (a.layer !== 'key' && b.layer === 'key') return 1;
-                      return 0;
-                    }).map((shot, index) => (
-                      <Card key={shot.id} className={shot.layer === 'key' ? 'border-primary' : ''}>
-                        <CardBody className="p-4">
-                          <div className="flex items-start justify-between mb-2">
-                            <div className="flex items-center gap-2">
-                              <Badge
-                                content={`${getSceneNumber(shot.sceneName)}-${shot.sequence}`}
-                                color={shot.layer === 'key' ? 'primary' : 'default'}
-                                shape="circle"
-                              >
-                                <Camera size={20} />
-                              </Badge>
-                              <Chip 
-                                size="sm" 
-                                color={shot.layer === 'key' ? 'primary' : 'default'}
-                                variant={shot.layer === 'key' ? 'solid' : 'flat'}
-                              >
-                                {shot.layer === 'key' ? '关键' : '可选'}
-                              </Chip>
-                              <Chip size="sm" color={getShotTypeColor(shot.shotType) as any}>
-                                {SHOT_TYPE_LABELS[shot.shotType] || shot.shotType}
-                              </Chip>
-                            </div>
-                            <div className="flex gap-1">
-                              {/* 上移按钮 */}
-                              <Button
-                                isIconOnly
-                                size="sm"
-                                variant="light"
-                                onPress={() => handleMoveUp(shot.id)}
-                                isDisabled={index === 0}
-                              >
-                                <ArrowUp size={14} />
-                              </Button>
-                              {/* 下移按钮 */}
-                              <Button
-                                isIconOnly
-                                size="sm"
-                                variant="light"
-                                onPress={() => handleMoveDown(shot.id)}
-                                isDisabled={index === sceneShots.length - 1}
-                              >
-                                <ArrowDown size={14} />
-                              </Button>
-                              <Button
-                                isIconOnly
-                                size="sm"
-                                variant="flat"
-                                onPress={() => {
-                                  setSelectedShot(shot);
-                                  setIsEditModalOpen(true);
-                                }}
-                              >
-                                <Edit2 size={14} />
-                              </Button>
-                              {onGenerateFragment && (
+                    {[...sceneShots]
+                      .sort((a, b) => {
+                        if (a.layer === 'key' && b.layer !== 'key') return -1;
+                        if (a.layer !== 'key' && b.layer === 'key') return 1;
+                        return 0;
+                      })
+                      .map((shot, index) => (
+                        <Card
+                          key={shot.id}
+                          className={shot.layer === 'key' ? 'border-primary' : ''}
+                        >
+                          <CardBody className="p-4">
+                            <div className="flex items-start justify-between mb-2">
+                              <div className="flex items-center gap-2">
+                                <Badge
+                                  content={`${getSceneNumber(shot.sceneName)}-${shot.sequence}`}
+                                  color={shot.layer === 'key' ? 'primary' : 'default'}
+                                  shape="circle"
+                                >
+                                  <Camera size={20} />
+                                </Badge>
+                                <Chip
+                                  size="sm"
+                                  color={shot.layer === 'key' ? 'primary' : 'default'}
+                                  variant={shot.layer === 'key' ? 'solid' : 'flat'}
+                                >
+                                  {shot.layer === 'key' ? '关键' : '可选'}
+                                </Chip>
+                                <Chip size="sm" color={getShotTypeColor(shot.shotType) as any}>
+                                  {SHOT_TYPE_LABELS[shot.shotType] || shot.shotType}
+                                </Chip>
+                              </div>
+                              <div className="flex gap-1">
+                                {/* 上移按钮 */}
+                                <Button
+                                  isIconOnly
+                                  size="sm"
+                                  variant="light"
+                                  onPress={() => handleMoveUp(shot.id)}
+                                  isDisabled={index === 0}
+                                >
+                                  <ArrowUp size={14} />
+                                </Button>
+                                {/* 下移按钮 */}
+                                <Button
+                                  isIconOnly
+                                  size="sm"
+                                  variant="light"
+                                  onPress={() => handleMoveDown(shot.id)}
+                                  isDisabled={index === sceneShots.length - 1}
+                                >
+                                  <ArrowDown size={14} />
+                                </Button>
                                 <Button
                                   isIconOnly
                                   size="sm"
                                   variant="flat"
-                                  color="primary"
-                                  onPress={() => onGenerateFragment(shot)}
+                                  onPress={() => {
+                                    setSelectedShot(shot);
+                                    setIsEditModalOpen(true);
+                                  }}
                                 >
-                                  <Film size={14} />
+                                  <Edit2 size={14} />
+                                </Button>
+                                {onGenerateFragment && (
+                                  <Button
+                                    isIconOnly
+                                    size="sm"
+                                    variant="flat"
+                                    color="primary"
+                                    onPress={() => onGenerateFragment(shot)}
+                                  >
+                                    <Film size={14} />
+                                  </Button>
+                                )}
+                              </div>
+                            </div>
+
+                            <p className="text-sm text-default-600 mb-3 line-clamp-3">
+                              {shot.description}
+                            </p>
+
+                            <div className="flex items-center justify-between text-xs text-default-500 mb-2">
+                              <div className="flex items-center gap-1">
+                                <Move size={14} />
+                                <span>
+                                  {CAMERA_MOVEMENT_LABELS[shot.cameraMovement] ||
+                                    shot.cameraMovement}
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-1">
+                                <Clock size={14} />
+                                <span>{shot.duration}秒</span>
+                              </div>
+                            </div>
+
+                            {/* 关键帧状态 */}
+                            <div className="flex items-center justify-between mt-2 pt-2 border-t border-default-200">
+                              <Chip
+                                size="sm"
+                                color={getKeyframeStatus(shot).color as any}
+                                variant="flat"
+                                startContent={getKeyframeStatus(shot).icon}
+                              >
+                                {getKeyframeStatus(shot).label}
+                              </Chip>
+                              {/* 仅在 manager 模式下显示拆分关键帧按钮 */}
+                              {viewMode === 'manager' && (
+                                <Button
+                                  size="sm"
+                                  variant="flat"
+                                  color={shot.keyframes ? 'success' : 'primary'}
+                                  isLoading={splittingShotId === shot.id}
+                                  onPress={() =>
+                                    shot.keyframes
+                                      ? setIsKeyframeModalOpen(true)
+                                      : handleSplitKeyframes(shot)
+                                  }
+                                >
+                                  {shot.keyframes ? '查看关键帧' : '拆分关键帧'}
                                 </Button>
                               )}
                             </div>
-                          </div>
 
-                          <p className="text-sm text-default-600 mb-3 line-clamp-3">
-                            {shot.description}
-                          </p>
-
-                          <div className="flex items-center justify-between text-xs text-default-500 mb-2">
-                            <div className="flex items-center gap-1">
-                              <Move size={14} />
-                              <span>
-                                {CAMERA_MOVEMENT_LABELS[shot.cameraMovement] || shot.cameraMovement}
-                              </span>
-                            </div>
-                            <div className="flex items-center gap-1">
-                              <Clock size={14} />
-                              <span>{shot.duration}秒</span>
-                            </div>
-                          </div>
-
-                          {/* 关键帧状态 */}
-                          <div className="flex items-center justify-between mt-2 pt-2 border-t border-default-200">
-                            <Chip
-                              size="sm"
-                              color={getKeyframeStatus(shot).color as any}
-                              variant="flat"
-                              startContent={getKeyframeStatus(shot).icon}
-                            >
-                              {getKeyframeStatus(shot).label}
-                            </Chip>
-                            {/* 仅在 manager 模式下显示拆分关键帧按钮 */}
-                            {viewMode === 'manager' && (
-                              <Button
-                                size="sm"
-                                variant="flat"
-                                color={shot.keyframes ? 'success' : 'primary'}
-                                isLoading={splittingShotId === shot.id}
-                                onPress={() =>
-                                  shot.keyframes
-                                    ? setIsKeyframeModalOpen(true)
-                                    : handleSplitKeyframes(shot)
-                                }
-                              >
-                                {shot.keyframes ? '查看关键帧' : '拆分关键帧'}
-                              </Button>
+                            {shot.characters && shot.characters.length > 0 && (
+                              <div className="flex flex-wrap gap-1 mt-2">
+                                {shot.characters.map((char, i) => (
+                                  <Chip key={i} size="sm" variant="bordered">
+                                    {char}
+                                  </Chip>
+                                ))}
+                              </div>
                             )}
-                          </div>
 
-                          {shot.characters && shot.characters.length > 0 && (
-                            <div className="flex flex-wrap gap-1 mt-2">
-                              {shot.characters.map((char, i) => (
-                                <Chip key={i} size="sm" variant="bordered">
-                                  {char}
-                                </Chip>
-                              ))}
-                            </div>
-                          )}
-
-                          {shot.dialogue && (
-                            <div className="mt-2 p-2 bg-default-100 rounded text-sm italic">
-                              "{shot.dialogue}"
-                            </div>
-                          )}
-                        </CardBody>
-                      </Card>
-                    ))}
+                            {shot.dialogue && (
+                              <div className="mt-2 p-2 bg-default-100 rounded text-sm italic">
+                                "{shot.dialogue}"
+                              </div>
+                            )}
+                          </CardBody>
+                        </Card>
+                      ))}
                   </div>
                 </div>
               );

@@ -19,7 +19,12 @@ import { modelConfigManager } from './ModelConfigManager';
 /**
  * 路由策略
  */
-export type RoutingStrategy = 'round-robin' | 'weighted' | 'least-response-time' | 'health-first' | 'capability-match';
+export type RoutingStrategy =
+  | 'round-robin'
+  | 'weighted'
+  | 'least-response-time'
+  | 'health-first'
+  | 'capability-match';
 
 /**
  * 路由请求
@@ -80,7 +85,7 @@ export class SmartRouter {
     successfulRoutes: 0,
     failedRoutes: 0,
     averageDecisionTime: 0,
-    strategyUsage: new Map()
+    strategyUsage: new Map(),
   };
   private fallbackEnabled: boolean = true;
   private maxRetries: number = 3;
@@ -102,7 +107,7 @@ export class SmartRouter {
         currentConnections: 0,
         totalRequests: 0,
         successfulRequests: 0,
-        averageResponseTime: 0
+        averageResponseTime: 0,
       });
     }
   }
@@ -131,7 +136,7 @@ export class SmartRouter {
     try {
       // 获取候选Provider
       const candidates = this.getCandidates(request);
-      
+
       if (candidates.length === 0) {
         this.statistics.failedRoutes++;
         return null;
@@ -190,9 +195,8 @@ export class SmartRouter {
         strategy: this.strategy,
         reason,
         estimatedResponseTime: this.getEstimatedResponseTime(selected.provider),
-        alternatives
+        alternatives,
       };
-
     } catch (error) {
       this.statistics.failedRoutes++;
       console.error('[SmartRouter] Routing failed:', error);
@@ -268,7 +272,7 @@ export class SmartRouter {
     }, 0);
 
     let random = Math.random() * totalWeight;
-    
+
     for (const candidate of candidates) {
       const weight = this.weights.get(candidate.provider)?.weight || 1;
       random -= weight;
@@ -297,7 +301,7 @@ export class SmartRouter {
   private healthFirstSelect(candidates: ModelConfig[]): ModelConfig {
     // 首先选择健康的
     const healthy = candidates.filter(c => providerHealthChecker.isHealthy(c.provider));
-    
+
     if (healthy.length > 0) {
       // 在健康的里面选择响应时间最短的
       return this.leastResponseTimeSelect(healthy);
@@ -403,7 +407,7 @@ export class SmartRouter {
    */
   private updateAverageDecisionTime(decisionTime: number): void {
     const total = this.statistics.totalRequests;
-    this.statistics.averageDecisionTime = 
+    this.statistics.averageDecisionTime =
       (this.statistics.averageDecisionTime * (total - 1) + decisionTime) / total;
   }
 
@@ -423,7 +427,7 @@ export class SmartRouter {
       successfulRoutes: 0,
       failedRoutes: 0,
       averageDecisionTime: 0,
-      strategyUsage: new Map()
+      strategyUsage: new Map(),
     };
   }
 
@@ -455,7 +459,7 @@ export class SmartRouter {
     while (attempts < this.maxRetries) {
       const routeResult = await this.route({
         ...request,
-        excludedProviders
+        excludedProviders,
       });
 
       if (!routeResult) {
@@ -471,7 +475,7 @@ export class SmartRouter {
       } catch (error) {
         const errorMsg = error instanceof Error ? error.message : 'Unknown error';
         errors.push(`[${routeResult.providerId}] ${errorMsg}`);
-        
+
         // 排除失败的Provider
         excludedProviders.push(routeResult.providerId);
         this.releaseConnection(routeResult.providerId);
@@ -490,7 +494,7 @@ export class SmartRouter {
    */
   async warmup(providers?: string[]): Promise<void> {
     const targetProviders = providers || Array.from(this.weights.keys());
-    
+
     await Promise.all(
       targetProviders.map(async providerId => {
         try {
@@ -507,21 +511,23 @@ export class SmartRouter {
    * 获取负载分布
    */
   getLoadDistribution(): { providerId: string; load: number; percentage: number }[] {
-    const totalConnections = Array.from(this.weights.values())
-      .reduce((sum, w) => sum + w.currentConnections, 0);
+    const totalConnections = Array.from(this.weights.values()).reduce(
+      (sum, w) => sum + w.currentConnections,
+      0
+    );
 
     if (totalConnections === 0) {
       return Array.from(this.weights.keys()).map(id => ({
         providerId: id,
         load: 0,
-        percentage: 0
+        percentage: 0,
       }));
     }
 
     return Array.from(this.weights.entries()).map(([providerId, weight]) => ({
       providerId,
       load: weight.currentConnections,
-      percentage: (weight.currentConnections / totalConnections) * 100
+      percentage: (weight.currentConnections / totalConnections) * 100,
     }));
   }
 }

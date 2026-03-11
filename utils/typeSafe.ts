@@ -1,8 +1,8 @@
 /**
  * Type Safe Utilities
- * 
+ *
  * 类型安全的工具函数，用于处理 LLM 返回的不确定类型数据
- * 
+ *
  * @module utils/typeSafe
  * @version 1.0.0
  */
@@ -79,7 +79,7 @@ export function safeNumber(
   max?: number
 ): number {
   let num: number;
-  
+
   if (typeof value === 'number' && !isNaN(value)) {
     num = value;
   } else if (typeof value === 'string') {
@@ -88,7 +88,7 @@ export function safeNumber(
   } else {
     num = defaultValue;
   }
-  
+
   // 应用范围限制
   if (min !== undefined) {
     num = Math.max(min, num);
@@ -96,7 +96,7 @@ export function safeNumber(
   if (max !== undefined) {
     num = Math.min(max, num);
   }
-  
+
   return num;
 }
 

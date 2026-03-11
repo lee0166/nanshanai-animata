@@ -16,6 +16,6 @@ export const DEFAULT_SETTINGS: AppSettings = {
     useDynamicDuration: false,
     useProductionPrompt: false,
     useShotQC: false,
-    qcAutoAdjust: false
-  }
+    qcAutoAdjust: false,
+  },
 };

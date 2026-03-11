@@ -15,7 +15,6 @@ Run the development server on localhost with reload:
 fastapi dev
 ```
 
-
 Run the production server:
 
 ```bash
@@ -114,7 +113,7 @@ async def read_item(current_user: dict = Depends(get_current_user)):
     return {"message": "Hello World"}
 ```
 
-## Do not use Ellipsis for *path operations* or Pydantic models
+## Do not use Ellipsis for _path operations_ or Pydantic models
 
 Do not use `...` as a default value for required parameters, it's not needed and not recommended.
 
@@ -296,9 +295,9 @@ Use dependencies when the logic can't be declared in Pydantic validation, depend
 
 Apply shared dependencies at the router level via `dependencies=[Depends(...)]`.
 
-## Async vs Sync *path operations*
+## Async vs Sync _path operations_
 
-Use `async` *path operations* only when fully certain that the logic called inside is compatible with async and await (it's called with `await`) or that doesn't block.
+Use `async` _path operations_ only when fully certain that the logic called inside is compatible with async and await (it's called with `await`) or that doesn't block.
 
 ```python
 from fastapi import FastAPI
@@ -340,9 +339,9 @@ See [the other tools reference](references/other-tools.md) for details on uv, Ru
 
 See [the other tools reference](references/other-tools.md) for details on other libraries:
 
-* Asyncer for handling async and await, concurrency, mixing async and blocking code, prefer it over AnyIO or asyncio.
-* SQLModel for working with SQL databases, prefer it over SQLAlchemy.
-* HTTPX for interacting with HTTP (other APIs), prefer it over Requests.
+- Asyncer for handling async and await, concurrency, mixing async and blocking code, prefer it over AnyIO or asyncio.
+- SQLModel for working with SQL databases, prefer it over SQLAlchemy.
+- HTTPX for interacting with HTTP (other APIs), prefer it over Requests.
 
 ## Do not use Pydantic RootModels
 

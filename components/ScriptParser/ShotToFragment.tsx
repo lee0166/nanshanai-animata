@@ -1,5 +1,13 @@
 import React, { useState, useMemo } from 'react';
-import { Shot, ScriptCharacter, ScriptScene, FragmentAsset, AssetType, CharacterAsset, SceneAsset } from '../../types';
+import {
+  Shot,
+  ScriptCharacter,
+  ScriptScene,
+  FragmentAsset,
+  AssetType,
+  CharacterAsset,
+  SceneAsset,
+} from '../../types';
 import { storageService } from '../../services/storage';
 import { useApp } from '../../contexts/context';
 import { useToast } from '../../contexts/ToastContext';
@@ -19,8 +27,8 @@ import {
   Select,
   SelectItem,
   Checkbox,
-  Divider
-} from "@heroui/react";
+  Divider,
+} from '@heroui/react';
 import { Film, Play, CheckCircle2, AlertCircle, RefreshCw } from 'lucide-react';
 
 interface ShotToFragmentProps {
@@ -40,7 +48,7 @@ export const ShotToFragment: React.FC<ShotToFragmentProps> = ({
   scriptScenes,
   existingCharacters,
   existingScenes,
-  onFragmentsCreated
+  onFragmentsCreated,
 }) => {
   const { t, settings } = useApp();
   const { showToast } = useToast();
@@ -147,9 +155,9 @@ export const ShotToFragment: React.FC<ShotToFragmentProps> = ({
         setProgress(Math.round((i / selectedShotsList.length) * 100));
 
         // Get character IDs
-        const characterIds = shot.characters
-          ?.map(name => getCharacterId(name))
-          .filter((id): id is string => !!id) || [];
+        const characterIds =
+          shot.characters?.map(name => getCharacterId(name)).filter((id): id is string => !!id) ||
+          [];
 
         // Get scene ID
         const sceneId = getSceneId(shot.sceneName);
@@ -170,10 +178,10 @@ export const ShotToFragment: React.FC<ShotToFragmentProps> = ({
             cameraMovement: shot.cameraMovement,
             dialogue: shot.dialogue,
             sound: shot.sound,
-            modelId: videoModelId
+            modelId: videoModelId,
           },
           createdAt: Date.now(),
-          updatedAt: Date.now()
+          updatedAt: Date.now(),
         };
 
         await storageService.saveAsset(fragment);
@@ -223,16 +231,16 @@ export const ShotToFragment: React.FC<ShotToFragmentProps> = ({
         setProgress(Math.round((i / selectedShotsList.length) * 100));
 
         // Get character IDs
-        const characterIds = shot.characters
-          ?.map(name => getCharacterId(name))
-          .filter((id): id is string => !!id) || [];
+        const characterIds =
+          shot.characters?.map(name => getCharacterId(name)).filter((id): id is string => !!id) ||
+          [];
 
         // Get scene ID
         const sceneId = getSceneId(shot.sceneName);
 
         // Get reference images
         const refImages: string[] = [];
-        
+
         // Add character images
         for (const charId of characterIds) {
           const char = existingCharacters.find(c => c.id === charId);
@@ -266,8 +274,8 @@ export const ShotToFragment: React.FC<ShotToFragmentProps> = ({
               shotType: shot.shotType,
               cameraMovement: shot.cameraMovement,
               dialogue: shot.dialogue,
-              sound: shot.sound
-            }
+              sound: shot.sound,
+            },
           },
           1
         );
@@ -291,15 +299,13 @@ export const ShotToFragment: React.FC<ShotToFragmentProps> = ({
       <div className="flex items-center justify-between flex-wrap gap-2">
         <div>
           <h3 className="text-lg font-bold">分镜转片段</h3>
-          <p className="text-sm text-default-500">
-            已选择 {selectedShots.size} 个分镜
-          </p>
+          <p className="text-sm text-default-500">已选择 {selectedShots.size} 个分镜</p>
         </div>
         <div className="flex gap-2">
           <Select
             label="视频模型"
             selectedKeys={videoModelId ? new Set([videoModelId]) : new Set()}
-            onChange={(e) => setVideoModelId(e.target.value)}
+            onChange={e => setVideoModelId(e.target.value)}
             size="sm"
             className="w-48"
           >
@@ -309,11 +315,7 @@ export const ShotToFragment: React.FC<ShotToFragmentProps> = ({
               </SelectItem>
             ))}
           </Select>
-          <Button
-            size="sm"
-            variant="flat"
-            onPress={selectAllShots}
-          >
+          <Button size="sm" variant="flat" onPress={selectAllShots}>
             {selectedShots.size === shots.length ? '取消全选' : '全选'}
           </Button>
         </div>
@@ -321,7 +323,7 @@ export const ShotToFragment: React.FC<ShotToFragmentProps> = ({
 
       {/* Shot Selection Grid */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-        {shots.map((shot) => (
+        {shots.map(shot => (
           <Card
             key={shot.id}
             className={`cursor-pointer transition-all ${
@@ -336,16 +338,14 @@ export const ShotToFragment: React.FC<ShotToFragmentProps> = ({
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-1">
                     <span className="font-bold text-sm">#{shot.sequence}</span>
-                    <Chip size="sm" variant="flat">{shot.sceneName}</Chip>
+                    <Chip size="sm" variant="flat">
+                      {shot.sceneName}
+                    </Chip>
                   </div>
-                  <p className="text-xs text-default-600 line-clamp-2 mt-1">
-                    {shot.description}
-                  </p>
+                  <p className="text-xs text-default-600 line-clamp-2 mt-1">{shot.description}</p>
                   <div className="flex items-center gap-2 mt-1 text-xs text-default-500">
                     <span>{shot.duration}秒</span>
-                    {shot.mappedFragmentId && (
-                      <CheckCircle2 size={12} className="text-success" />
-                    )}
+                    {shot.mappedFragmentId && <CheckCircle2 size={12} className="text-success" />}
                   </div>
                 </div>
               </div>
@@ -380,9 +380,7 @@ export const ShotToFragment: React.FC<ShotToFragmentProps> = ({
       {isConverting && (
         <div className="space-y-2">
           <Progress value={progress} className="w-full" />
-          <p className="text-sm text-center text-default-500">
-            正在处理... {progress}%
-          </p>
+          <p className="text-sm text-center text-default-500">正在处理... {progress}%</p>
         </div>
       )}
 

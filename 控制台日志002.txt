@@ -14,7 +14,8 @@ AppContext.tsx:132 [INIT] autoConnect returned: false
 AppContext.tsx:132 [INIT] autoConnect returned: false
 AppContext.tsx:25 [STORAGE] Connection check: Connected=false, Responsive=true
 client:912 [vite] connected.
-AppContext.tsx:159 [INIT] Initialization complete. FS Responsive: true, Connected: false, HasPrevious: false, Elapsed: 308ms
+AppContext.tsx:159 [INIT] Initialization complete. FS Responsive: true, Connected: false, HasPrevious: false, Elapsed: 507ms
+AppContext.tsx:25 [STORAGE] Connection check: Connected=false, Responsive=true
 storage.ts:550 [STORAGE] Triggering showDirectoryPicker...
 AppContext.tsx:25 [STORAGE] Connection check: Connected=false, Responsive=true
 storage.ts:554 [STORAGE] Directory picker success: ProjectML
@@ -26,8 +27,8 @@ storage.ts:1230 [Storage] getScripts called, projectId: d86d53d6-f709-465e-bdde-
 storage.ts:1231 [Storage] Reading file: scripts_d86d53d6-f709-465e-bdde-339535cb2ff0.json
 storage.ts:1230 [Storage] getScripts called, projectId: d86d53d6-f709-465e-bdde-339535cb2ff0
 storage.ts:1231 [Storage] Reading file: scripts_d86d53d6-f709-465e-bdde-339535cb2ff0.json
-storage.ts:1233 [Storage] Read result: Found 1 scripts
-storage.ts:1233 [Storage] Read result: Found 1 scripts
+storage.ts:1233 [Storage] Read result: Found 2 scripts
+storage.ts:1233 [Storage] Read result: Found 2 scripts
 ScriptManager.tsx:220 [ScriptManager] loadScripts called, projectId: d86d53d6-f709-465e-bdde-339535cb2ff0
 ScriptManager.tsx:183 [ScriptManager] scripts state changed: 0 scripts
 ScriptManager.tsx:184 [ScriptManager] scripts array: []
@@ -46,437 +47,85 @@ ScriptManager.tsx:235 [ScriptManager] Calling storageService.getScripts...
 storage.ts:1230 [Storage] getScripts called, projectId: d86d53d6-f709-465e-bdde-339535cb2ff0
 storage.ts:1231 [Storage] Reading file: scripts_d86d53d6-f709-465e-bdde-339535cb2ff0.json
 AppContext.tsx:25 [STORAGE] Connection check: Connected=true, Responsive=true
-storage.ts:1233 [Storage] Read result: Found 1 scripts
-ScriptManager.tsx:237 [ScriptManager] Loaded scripts: 1
-ScriptManager.tsx:239 [ScriptManager] Calling setScripts with 1 scripts
+storage.ts:1233 [Storage] Read result: Found 2 scripts
+ScriptManager.tsx:237 [ScriptManager] Loaded scripts: 2
+ScriptManager.tsx:239 [ScriptManager] Calling setScripts with 2 scripts
 ScriptManager.tsx:242 [ScriptManager] Setting currentScript to first script: script_1773146102239
-ScriptManager.tsx:183 [ScriptManager] scripts state changed: 1 scripts
-ScriptManager.tsx:184 [ScriptManager] scripts array: [{…}]
-ScriptManager.tsx:193 [ScriptManager] ========== useEffect: currentScript changed ==========
-ScriptManager.tsx:194 [ScriptManager] currentScript exists: true
-ScriptManager.tsx:195 [ScriptManager] parseState exists: true
-ScriptManager.tsx:196 [ScriptManager] qualityReport exists: true
-ScriptManager.tsx:203 [ScriptManager] Restoring quality report: {score: 87, violationsCount: 18, suggestionsCount: 5, type: 'object'}
-ScriptManager.tsx:209 [ScriptManager] ========== Quality Report Restored ==========
-storage.ts:768 [STORAGE] Slow read scripts_d86d53d6-f709-465e-bdde-339535cb2ff0.json: 232.80ms
-storage.ts:1233 [Storage] Read result: Found 1 scripts
-ScriptManager.tsx:237 [ScriptManager] Loaded scripts: 1
-ScriptManager.tsx:239 [ScriptManager] Calling setScripts with 1 scripts
-ScriptManager.tsx:242 [ScriptManager] Setting currentScript to first script: script_1773146102239
-ScriptManager.tsx:183 [ScriptManager] scripts state changed: 1 scripts
-ScriptManager.tsx:184 [ScriptManager] scripts array: [{…}]
-ScriptManager.tsx:193 [ScriptManager] ========== useEffect: currentScript changed ==========
-ScriptManager.tsx:194 [ScriptManager] currentScript exists: true
-ScriptManager.tsx:195 [ScriptManager] parseState exists: true
-ScriptManager.tsx:196 [ScriptManager] qualityReport exists: true
-ScriptManager.tsx:203 [ScriptManager] Restoring quality report: {score: 87, violationsCount: 18, suggestionsCount: 5, type: 'object'}
-ScriptManager.tsx:209 [ScriptManager] ========== Quality Report Restored ==========
-scheduler.development.js:14 [Violation]'message' handler took 166ms
-AppContext.tsx:25 [STORAGE] Connection check: Connected=true, Responsive=true
-scheduler.development.js:14 [Violation]'message' handler took 302ms
-[Violation]Forced reflow while executing JavaScript took 69ms
-AppContext.tsx:25 [STORAGE] Connection check: Connected=true, Responsive=true
-storage.ts:1271 [Storage] ========== Saving Script ==========
-storage.ts:1272 [Storage] Script ID: script_1773207903864
-storage.ts:1273 [Storage] Has parseState: true
-storage.ts:1274 [Storage] Has qualityReport: false
-storage.ts:1230 [Storage] getScripts called, projectId: d86d53d6-f709-465e-bdde-339535cb2ff0
-storage.ts:1231 [Storage] Reading file: scripts_d86d53d6-f709-465e-bdde-339535cb2ff0.json
-storage.ts:1233 [Storage] Read result: Found 1 scripts
-storage.ts:1290 [Storage] New script added
-storage.ts:1294 [Storage] ========== Script Saved ==========
 ScriptManager.tsx:183 [ScriptManager] scripts state changed: 2 scripts
 ScriptManager.tsx:184 [ScriptManager] scripts array: (2) [{…}, {…}]
-[Violation]Forced reflow while executing JavaScript took 43ms
-scriptParser.ts:1144 [ScriptParser] Initialized with config: {useSemanticChunking: true, useDramaRules: true, dramaRulesMinScore: 60, useCache: true, cacheTTL: 3600000, …}
-scriptParser.ts:1157 [ScriptParser] SemanticChunker initialized
-scriptParser.ts:1161 [ScriptParser] ShortDramaRules initialized
-scriptParser.ts:1165 [ScriptParser] MultiLevelCache initialized
-scriptParser.ts:1172 [ScriptParser] QualityAnalyzer initialized
-scriptParser.ts:1176 [ScriptParser] PerformanceMonitor initialized
-scriptParser.ts:1247 [ScriptParser] ContextInjector initialized
-scriptParser.ts:1250 [ScriptParser] Global context support initialized
-scriptParser.ts:1221 [ScriptParser] IterativeRefinementEngine initialized
-scriptParser.ts:1199 [ScriptParser] Budget planner disabled
+ScriptManager.tsx:193 [ScriptManager] ========== useEffect: currentScript changed ==========
+ScriptManager.tsx:194 [ScriptManager] currentScript exists: true
+ScriptManager.tsx:195 [ScriptManager] parseState exists: true
+ScriptManager.tsx:196 [ScriptManager] qualityReport exists: true
+ScriptManager.tsx:203 [ScriptManager] Restoring quality report: {score: 87, violationsCount: 18, suggestionsCount: 5, type: 'object'}
+ScriptManager.tsx:209 [ScriptManager] ========== Quality Report Restored ==========
+scheduler.development.js:14 [Violation]'message' handler took 155ms
+storage.ts:768 [STORAGE] Slow read scripts_d86d53d6-f709-465e-bdde-339535cb2ff0.json: 248.80ms
+storage.ts:1233 [Storage] Read result: Found 2 scripts
+ScriptManager.tsx:237 [ScriptManager] Loaded scripts: 2
+ScriptManager.tsx:239 [ScriptManager] Calling setScripts with 2 scripts
+ScriptManager.tsx:242 [ScriptManager] Setting currentScript to first script: script_1773146102239
+ScriptManager.tsx:183 [ScriptManager] scripts state changed: 2 scripts
+ScriptManager.tsx:184 [ScriptManager] scripts array: (2) [{…}, {…}]
+ScriptManager.tsx:193 [ScriptManager] ========== useEffect: currentScript changed ==========
+ScriptManager.tsx:194 [ScriptManager] currentScript exists: true
+ScriptManager.tsx:195 [ScriptManager] parseState exists: true
+ScriptManager.tsx:196 [ScriptManager] qualityReport exists: true
+ScriptManager.tsx:203 [ScriptManager] Restoring quality report: {score: 87, violationsCount: 18, suggestionsCount: 5, type: 'object'}
+ScriptManager.tsx:209 [ScriptManager] ========== Quality Report Restored ==========
+scheduler.development.js:14 [Violation]'message' handler took 175ms
+scriptParser.ts:1156 [ScriptParser] Initialized with config: {useSemanticChunking: true, useDramaRules: true, dramaRulesMinScore: 60, useCache: true, cacheTTL: 3600000, …}
+scriptParser.ts:1169 [ScriptParser] SemanticChunker initialized
+scriptParser.ts:1173 [ScriptParser] ShortDramaRules initialized
+scriptParser.ts:1177 [ScriptParser] MultiLevelCache initialized
+scriptParser.ts:1184 [ScriptParser] QualityAnalyzer initialized
+scriptParser.ts:1188 [ScriptParser] PerformanceMonitor initialized
+scriptParser.ts:1259 [ScriptParser] ContextInjector initialized
+scriptParser.ts:1262 [ScriptParser] Global context support initialized
+scriptParser.ts:1233 [ScriptParser] IterativeRefinementEngine initialized
+scriptParser.ts:1211 [ScriptParser] Budget planner disabled
 ScriptManager.tsx:474 [ScriptManager] v2.0 Parser config: {useSemanticChunking: true, useDramaRules: true, dramaRulesMinScore: 60, useCache: true, cacheTTL: 3600000, …}
-scriptParser.ts:4091 [ScriptParser] ========== Starting Parse Script ==========
-scriptParser.ts:4097 [ScriptParser] Strategy selected: standard
-scriptParser.ts:4098 [ScriptParser] Reason: 标准解析路径 (800-5000 字)
-scriptParser.ts:4099 [ScriptParser] Word count: 3600
-scriptParser.ts:4100 [ScriptParser] Estimated time: 270s
-scriptParser.ts:4101 [ScriptParser] Recommended batch size: 5
-scriptParser.ts:4186 [ScriptParser] Using STANDARD PATH (标准解析路径 (800-5000 字))
+scriptParser.ts:4266 [ScriptParser] ========== Starting Parse Script ==========
+scriptParser.ts:4272 [ScriptParser] Strategy selected: standard
+scriptParser.ts:4273 [ScriptParser] Reason: 标准解析路径 (800-5000 字)
+scriptParser.ts:4274 [ScriptParser] Word count: 3600
+scriptParser.ts:4275 [ScriptParser] Estimated time: 270s
+scriptParser.ts:4276 [ScriptParser] Recommended batch size: 5
+scriptParser.ts:4361 [ScriptParser] Using STANDARD PATH (标准解析路径 (800-5000 字))
 storage.ts:1255 [Storage] ========== Getting Script ==========
-storage.ts:1256 [Storage] Script ID: script_1773207903864
+storage.ts:1256 [Storage] Script ID: script_1773224239897
 storage.ts:1230 [Storage] getScripts called, projectId: d86d53d6-f709-465e-bdde-339535cb2ff0
 storage.ts:1231 [Storage] Reading file: scripts_d86d53d6-f709-465e-bdde-339535cb2ff0.json
 storage.ts:1233 [Storage] Read result: Found 2 scripts
 storage.ts:1259 [Storage] Script found: true
 storage.ts:1263 [Storage] No quality report in loaded script
 storage.ts:1265 [Storage] ========== Script Loaded ==========
-scriptParser.ts:4205 [ScriptParser] Resuming from saved state: idle
-scriptParser.ts:1934 [ScriptParser] ========== Stage 1: Extract Metadata (Structured Output) ==========
-scriptParser.ts:1937 [ScriptParser] Content length: 4587 characters
-scriptParser.ts:1938 [ScriptParser] Skip global context: false
-scriptParser.ts:1941 [ScriptParser] Prompt length: 3750 characters
-scriptParser.ts:1942 [ScriptParser] Sending structured output request to LLM...
-scriptParser.ts:1726 [ScriptParser] callStructuredLLM called for metadata
-scriptParser.ts:1727 [ScriptParser] API URL: https://ark.cn-beijing.volces.com/api/v3
-scriptParser.ts:1728 [ScriptParser] Model: doubao-seed-1-8-251228
-scriptParser.ts:1729 [ScriptParser] Max Tokens: 4000
-scriptParser.ts:1755 [ScriptParser] Calling LLMProvider.generateStructured...
-LLMProvider.ts:240 [LLMProvider] ========== Structured Output Request ==========
-LLMProvider.ts:241 [LLMProvider] Endpoint: https://ark.cn-beijing.volces.com/api/v3/chat/completions
-LLMProvider.ts:242 [LLMProvider] Model: doubao-seed-1-8-251228
-LLMProvider.ts:243 [LLMProvider] JSON Mode: true
-LLMProvider.ts:245 [LLMProvider] Sending structured output request...
+scriptParser.ts:2061 [ScriptParser] ========== Stage 1: Extract Metadata (Structured Output) ==========
+scriptParser.ts:2064 [ScriptParser] Content length: 4587 characters
+scriptParser.ts:2065 [ScriptParser] Skip global context: false
+scriptParser.ts:2068 [ScriptParser] Prompt length: 3750 characters
+scriptParser.ts:2069 [ScriptParser] Sending structured output request to LLM...
+scriptParser.ts:1773 [ScriptParser] callStructuredLLM called for metadata
+scriptParser.ts:1774 [ScriptParser] API URL: https://ark.cn-beijing.volces.com/api/v3
+scriptParser.ts:1775 [ScriptParser] Model: glm-4-7-251222
+scriptParser.ts:1776 [ScriptParser] Max Tokens: 4000
+scriptParser.ts:1802 [ScriptParser] Calling LLMProvider.generateStructured...
+LLMProvider.ts:242 [LLMProvider] ========== Structured Output Request ==========
+LLMProvider.ts:243 [LLMProvider] Endpoint: https://ark.cn-beijing.volces.com/api/v3/chat/completions
+LLMProvider.ts:244 [LLMProvider] Model: glm-4-7-251222
+LLMProvider.ts:245 [LLMProvider] JSON Mode: true
+LLMProvider.ts:247 [LLMProvider] Sending structured output request...
 BaseProvider.ts:63 [BaseProvider] Requesting: https://ark.cn-beijing.volces.com/api/v3/chat/completions, Mode: DEV, Localhost: true
 BaseProvider.ts:84 [BaseProvider] Using Proxy: /api/universal-proxy -> https://ark.cn-beijing.volces.com/api/v3/chat/completions
-AppContext.tsx:25 [STORAGE] Connection check: Connected=true, Responsive=true
-BaseProvider.ts:99 [BaseProvider] Response received: 200 OK
-LLMProvider.ts:258 [LLMProvider] Structured request completed in 48881ms
-LLMProvider.ts:269 [LLMProvider] Response length: 278 characters
-LLMProvider.ts:296 [LLMProvider] Structured output validated successfully
-scriptParser.ts:1768 [ScriptParser] Structured output received successfully
-scriptParser.ts:1953 [ScriptParser] Metadata extracted successfully (Structured Output):
-scriptParser.ts:1954   - Title: 青云混沌录
-scriptParser.ts:1955   - Word Count: 2500
-scriptParser.ts:1956   - Characters: 3 (林清玄, 王虎, 云澜子)
-scriptParser.ts:1959   - Scenes: 6 (青云宗山门, 青云宗杂役院, 后山, 黑风崖, 炼丹房, 炼器房)
-scriptParser.ts:1960   - Genre: 古装修仙
-scriptParser.ts:1961   - Tone: 正剧
-scriptParser.ts:1884 [ScriptParser] ========== Extracting Global Context ==========
-scriptParser.ts:1863 [ScriptParser] GlobalContextExtractor initialized with maxTokens: 5000
-scriptParser.ts:1866 [ScriptParser] GlobalContextExtractor config: {extractEmotionalArc: true, textLengthThreshold: 800}
-scriptParser.ts:1869 [ScriptParser] GlobalContextExtractor initialized with model config
-GlobalContextExtractor.ts:179 [GlobalContextExtractor] Starting optimized extraction (single LLM call)...
-LLMProvider.ts:81 [LLMProvider] ========== API Request ==========
-LLMProvider.ts:82 [LLMProvider] Endpoint: https://ark.cn-beijing.volces.com/api/v3/chat/completions
-LLMProvider.ts:83 [LLMProvider] Model: doubao-seed-1-8-251228
-LLMProvider.ts:84 [LLMProvider] enable_thinking: false
-LLMProvider.ts:85 [LLMProvider] Temperature: 0.3
-LLMProvider.ts:86 [LLMProvider] Max Tokens: 5000
-LLMProvider.ts:87 [LLMProvider] Messages count: 2
-LLMProvider.ts:88 [LLMProvider] First message length: 48 characters
-LLMProvider.ts:89 [LLMProvider] Request body: {
-  "model": "doubao-seed-1-8-251228",
-  "messages": [
-    {
-      "role": "system",
-      "content": "你是一个专业的剧本分析助手，擅长从小说/剧本中提取结构化信息。请严格按照要求的JSON格式输出。"
-    },
-    {
-      "role": "user",
-      "content": "\n请深入分析以下剧本/小说，一次性提取故事核心、视觉风格和时代背景信息。\n\n【剧本内容】\n## 第一章 杂役苦\r\n青云宗，东域三大修仙宗门之一，立宗三千年，山门矗立于青云山脉之巅，云雾缭绕，灵气流淌，仙鹤盘旋，琼楼玉宇隐于云海之间，是无数凡人与低阶修士梦寐以求的修仙圣地。\r\n\r\n可这圣地的荣光，从来照不进山脚下的杂役院。\r\n\r\n杂役院位于青云宗最外围，没有灵脉滋养，没有丹药供给，连空气中的灵气都稀薄得可怜。这里住着的，都是灵根低劣、无缘正式入宗的少年人，每日做着劈柴、挑水、炼丹房采药、炼器房烧火的粗活，若三年内无法踏入炼气一层，便会被逐出宗门，重回凡尘，...
-LLMProvider.ts:91 [LLMProvider] Sending request...
-BaseProvider.ts:63 [BaseProvider] Requesting: https://ark.cn-beijing.volces.com/api/v3/chat/completions, Mode: DEV, Localhost: true
-BaseProvider.ts:84 [BaseProvider] Using Proxy: /api/universal-proxy -> https://ark.cn-beijing.volces.com/api/v3/chat/completions
-提取 已完成加载:POST "<URL>"。
-提取 已完成加载:POST "<URL>"。
-提取 已完成加载:POST "<URL>"。
-提取 已完成加载:POST "<URL>"。
-提取 已完成加载:POST "<URL>"。
-提取 已完成加载:POST "<URL>"。
-提取 已完成加载:POST "<URL>"。
-AppContext.tsx:25 [STORAGE] Connection check: Connected=true, Responsive=true
-BaseProvider.ts:99 [BaseProvider] Response received: 200 OK
-LLMProvider.ts:104 [LLMProvider] Request completed in 39125ms
-LLMProvider.ts:118 [LLMProvider] ========== API Response ==========
-LLMProvider.ts:119 [LLMProvider] Response length: 1090 characters
-LLMProvider.ts:120 [LLMProvider] Prompt tokens: 3628
-LLMProvider.ts:121 [LLMProvider] Completion tokens: 1707
-LLMProvider.ts:122 [LLMProvider] Total tokens: 5335
-LLMProvider.ts:123 [LLMProvider] Response preview: {
-  "story": {
-    "synopsis": "青云宗杂役林清玄因四属性伪灵根受尽欺凌，三年苦修难进炼气一层。被派险地黑风崖采药时坠崖，滴血激活祖传墨玉佩，得知自身是混沌灵根，获专属功...
-GlobalContextExtractor.ts:187 [GlobalContextExtractor] Unified extraction completed in 39127ms
-GlobalContextExtractor.ts:195 [GlobalContextExtractor] Extracting emotional arc (content length: 4587 >= threshold: 800)
-LLMProvider.ts:81 [LLMProvider] ========== API Request ==========
-LLMProvider.ts:82 [LLMProvider] Endpoint: https://ark.cn-beijing.volces.com/api/v3/chat/completions
-LLMProvider.ts:83 [LLMProvider] Model: doubao-seed-1-8-251228
-LLMProvider.ts:84 [LLMProvider] enable_thinking: false
-LLMProvider.ts:85 [LLMProvider] Temperature: 0.3
-LLMProvider.ts:86 [LLMProvider] Max Tokens: 5000
-LLMProvider.ts:87 [LLMProvider] Messages count: 2
-LLMProvider.ts:88 [LLMProvider] First message length: 51 characters
-LLMProvider.ts:89 [LLMProvider] Request body: {
-  "model": "doubao-seed-1-8-251228",
-  "messages": [
-    {
-      "role": "system",
-      "content": "你是一个专业的情绪分析助手，擅长从剧本中提取情绪曲线和情感变化信息。请严格按照要求的JSON格式输出。"
-    },
-    {
-      "role": "user",
-      "content": "\n基于以下故事信息，分析情绪曲线：\n\n【故事梗概】\n青云宗杂役林清玄因四属性伪灵根受尽欺凌，三年苦修难进炼气一层。被派险地黑风崖采药时坠崖，滴血激活祖传墨玉佩，得知自身是混沌灵根，获专属功法后修为连破三层，教训欺压者，开启真正仙途。\n\n【故事结构】\n第一幕：青云宗杂役院，林清玄因废灵根遭三年欺凌\n第二幕上：被派黑风崖采药，失足坠崖遇生死危机\n第二幕下：获混沌功法与灵气，修为连破三层境\n第三幕：教训欺压者王虎，决心踏上真正仙途\n中点：滴血激活墨玉，得知自身是混沌灵根\n高潮：以炼气三层实力轻松击败王虎立威\n\n【剧本片段】\n## 第一章 杂役苦\r\n...
-LLMProvider.ts:91 [LLMProvider] Sending request...
-BaseProvider.ts:63 [BaseProvider] Requesting: https://ark.cn-beijing.volces.com/api/v3/chat/completions, Mode: DEV, Localhost: true
-BaseProvider.ts:84 [BaseProvider] Using Proxy: /api/universal-proxy -> https://ark.cn-beijing.volces.com/api/v3/chat/completions
-BaseProvider.ts:99 [BaseProvider] Response received: 200 OK
-LLMProvider.ts:104 [LLMProvider] Request completed in 30230ms
-LLMProvider.ts:118 [LLMProvider] ========== API Response ==========
-LLMProvider.ts:119 [LLMProvider] Response length: 925 characters
-LLMProvider.ts:120 [LLMProvider] Prompt tokens: 3528
-LLMProvider.ts:121 [LLMProvider] Completion tokens: 1419
-LLMProvider.ts:122 [LLMProvider] Total tokens: 4947
-LLMProvider.ts:123 [LLMProvider] Response preview: {
-  "overallMood": "励志向上、逆袭燃爽",
-  "arc": [
-    {
-      "plotPoint": "开场：杂役院日常受欺",
-      "emotion": "...
-scriptParser.ts:1897 [ScriptParser] Global context extracted successfully:
-scriptParser.ts:1898   - Story synopsis: 青云宗杂役林清玄因四属性伪灵根受尽欺凌，三年苦修难进炼气一层。被派险地黑风崖采药时坠崖，滴血激活祖传...
-scriptParser.ts:1899   - Visual style: 东方写意仙侠、古风写实
-scriptParser.ts:1900   - Era: 架空修仙纪元
-scriptParser.ts:1901   - Emotional arc points: 6
-scriptParser.ts:1902   - Consistency rules: 0 era constraints
-scriptParser.ts:1970 [ScriptParser] Global context merged into metadata
-storage.ts:1230 [Storage] getScripts called, projectId: d86d53d6-f709-465e-bdde-339535cb2ff0
-storage.ts:1231 [Storage] Reading file: scripts_d86d53d6-f709-465e-bdde-339535cb2ff0.json
-storage.ts:1233 [Storage] Read result: Found 2 scripts
-scriptParser.ts:4258 [ScriptParser] Processing 3 remaining characters using batch extraction
-scriptParser.ts:2488 [ScriptParser] ---------- Batch Extracting 3 Characters with Context ----------
-scriptParser.ts:2509 [ScriptParser] Injecting global context into character extraction
-scriptParser.ts:2517 [ScriptParser] Context-enhanced prompt length: 5453 characters
-scriptParser.ts:1603 [ScriptParser] callLLM called for character, retryCount: 0
-scriptParser.ts:1604 [ScriptParser] API URL: https://ark.cn-beijing.volces.com/api/v3
-scriptParser.ts:1605 [ScriptParser] Model: doubao-seed-1-8-251228
-scriptParser.ts:1606 [ScriptParser] Max Tokens: 6000
-scriptParser.ts:1607 [ScriptParser] Timeout: 90000ms
-scriptParser.ts:4291 [ScriptParser] Processing 6 remaining scenes using batch extraction
-scriptParser.ts:2661 [ScriptParser] ---------- Smart Batching 6 Scenes (2 batches) ----------
-scriptParser.ts:2668 [ScriptParser] Processing batch 1/2: 5 scenes
-scriptParser.ts:2716 [ScriptParser] Injecting global context into scene extraction
-scriptParser.ts:2720 [ScriptParser] Context-enhanced prompt length: 5776 characters
-scriptParser.ts:1603 [ScriptParser] callLLM called for scene, retryCount: 0
-scriptParser.ts:1604 [ScriptParser] API URL: https://ark.cn-beijing.volces.com/api/v3
-scriptParser.ts:1605 [ScriptParser] Model: doubao-seed-1-8-251228
-scriptParser.ts:1606 [ScriptParser] Max Tokens: 6000
-scriptParser.ts:1607 [ScriptParser] Timeout: 90000ms
-scriptParser.ts:4317 [ScriptParser] Executing 2 extraction tasks in parallel...
-scriptParser.ts:1636 [ScriptParser] Calling LLMProvider.generateText...
-LLMProvider.ts:81 [LLMProvider] ========== API Request ==========
-LLMProvider.ts:82 [LLMProvider] Endpoint: https://ark.cn-beijing.volces.com/api/v3/chat/completions
-LLMProvider.ts:83 [LLMProvider] Model: doubao-seed-1-8-251228
-LLMProvider.ts:84 [LLMProvider] enable_thinking: false
-LLMProvider.ts:85 [LLMProvider] Temperature: 0.3
-LLMProvider.ts:86 [LLMProvider] Max Tokens: 6000
-LLMProvider.ts:87 [LLMProvider] Messages count: 2
-LLMProvider.ts:88 [LLMProvider] First message length: 48 characters
-LLMProvider.ts:89 [LLMProvider] Request body: {
-  "model": "doubao-seed-1-8-251228",
-  "messages": [
-    {
-      "role": "system",
-      "content": "你是一个专业的剧本分析助手，擅长从小说/剧本中提取结构化信息。请严格按照要求的JSON格式输出。"
-    },
-    {
-      "role": "user",
-      "content": "【故事背景】\n- 一句话简介：废灵根少年得奇遇，逆袭开启修仙路\n- 故事梗概：青云宗杂役林清玄因四属性伪灵根受尽欺凌，三年苦修难进炼气一层。被派险地黑风崖采药时坠崖，滴血激活祖传墨玉佩，得知自身是混沌灵根，获专属功法后修为连破三层，教训欺压者，开启真正仙途。\n- 核心冲突：自身灵根桎梏与修仙渴望的内在矛盾，与欺凌者、宗门阶层的外在冲突\n- 主题思想：反抗命运、坚守本心\n\n\n【视觉风格】\n- 美术指导：水墨国风仙侠\n- 艺术风格：东方写意仙侠、古风写实\n- 主色调：#1A2421、#8B5A2B、#F9F6E8\n- 色彩情绪：前期沉郁压抑，后期明快昂扬\n\n\...
-LLMProvider.ts:91 [LLMProvider] Sending request...
-BaseProvider.ts:63 [BaseProvider] Requesting: https://ark.cn-beijing.volces.com/api/v3/chat/completions, Mode: DEV, Localhost: true
-BaseProvider.ts:84 [BaseProvider] Using Proxy: /api/universal-proxy -> https://ark.cn-beijing.volces.com/api/v3/chat/completions
-scriptParser.ts:1636 [ScriptParser] Calling LLMProvider.generateText...
-LLMProvider.ts:81 [LLMProvider] ========== API Request ==========
-LLMProvider.ts:82 [LLMProvider] Endpoint: https://ark.cn-beijing.volces.com/api/v3/chat/completions
-LLMProvider.ts:83 [LLMProvider] Model: doubao-seed-1-8-251228
-LLMProvider.ts:84 [LLMProvider] enable_thinking: false
-LLMProvider.ts:85 [LLMProvider] Temperature: 0.3
-LLMProvider.ts:86 [LLMProvider] Max Tokens: 6000
-LLMProvider.ts:87 [LLMProvider] Messages count: 2
-LLMProvider.ts:88 [LLMProvider] First message length: 48 characters
-LLMProvider.ts:89 [LLMProvider] Request body: {
-  "model": "doubao-seed-1-8-251228",
-  "messages": [
-    {
-      "role": "system",
-      "content": "你是一个专业的剧本分析助手，擅长从小说/剧本中提取结构化信息。请严格按照要求的JSON格式输出。"
-    },
-    {
-      "role": "user",
-      "content": "【故事背景】\n- 一句话简介：废灵根少年得奇遇，逆袭开启修仙路\n- 故事梗概：青云宗杂役林清玄因四属性伪灵根受尽欺凌，三年苦修难进炼气一层。被派险地黑风崖采药时坠崖，滴血激活祖传墨玉佩，得知自身是混沌灵根，获专属功法后修为连破三层，教训欺压者，开启真正仙途。\n- 核心冲突：自身灵根桎梏与修仙渴望的内在矛盾，与欺凌者、宗门阶层的外在冲突\n- 主题思想：反抗命运、坚守本心\n\n\n【视觉风格】\n- 美术指导：水墨国风仙侠\n- 艺术风格：东方写意仙侠、古风写实\n- 主色调：#1A2421、#8B5A2B、#F9F6E8\n- 色彩情绪：前期沉郁压抑，后期明快昂扬\n\n\...
-LLMProvider.ts:91 [LLMProvider] Sending request...
-BaseProvider.ts:63 [BaseProvider] Requesting: https://ark.cn-beijing.volces.com/api/v3/chat/completions, Mode: DEV, Localhost: true
-BaseProvider.ts:84 [BaseProvider] Using Proxy: /api/universal-proxy -> https://ark.cn-beijing.volces.com/api/v3/chat/completions
-AppContext.tsx:25 [STORAGE] Connection check: Connected=true, Responsive=true
-BaseProvider.ts:99 [BaseProvider] Response received: 200 OK
-LLMProvider.ts:104 [LLMProvider] Request completed in 72662ms
-LLMProvider.ts:118 [LLMProvider] ========== API Response ==========
-LLMProvider.ts:119 [LLMProvider] Response length: 1834 characters
-LLMProvider.ts:120 [LLMProvider] Prompt tokens: 3568
-LLMProvider.ts:121 [LLMProvider] Completion tokens: 3508
-LLMProvider.ts:122 [LLMProvider] Total tokens: 7076
-LLMProvider.ts:123 [LLMProvider] Response preview: [
-  {
-    "name": "林清玄",
-    "gender": "male",
-    "age": "15",
-    "identity": "青云宗杂役院弟子",
-    "app...
-scriptParser.ts:1662 [ScriptParser] LLM response received, length: 1834
-scriptParser.ts:2520 [ScriptParser] Batch response received, length: 1834 characters
-scriptParser.ts:2523 [ScriptParser] Parsed 3 characters from batch response
-scriptParser.ts:4274 [ScriptParser] Batch extracted 3 characters
-AppContext.tsx:25 [STORAGE] Connection check: Connected=true, Responsive=true
-BaseProvider.ts:99 [BaseProvider] Response received: 200 OK
-LLMProvider.ts:104 [LLMProvider] Request completed in 111241ms
-LLMProvider.ts:118 [LLMProvider] ========== API Response ==========
-LLMProvider.ts:119 [LLMProvider] Response length: 2881 characters
-LLMProvider.ts:120 [LLMProvider] Prompt tokens: 3801
-LLMProvider.ts:121 [LLMProvider] Completion tokens: 5241
-LLMProvider.ts:122 [LLMProvider] Total tokens: 9042
-LLMProvider.ts:123 [LLMProvider] Response preview: [
-  {
-    "name": "青云宗山门",
-    "locationType": "outdoor",
-    "description": "青云山脉之巅，云雾缭绕，灵气流淌，琼楼玉宇隐...
-scriptParser.ts:1662 [ScriptParser] LLM response received, length: 2881
-scriptParser.ts:2723 [ScriptParser] Batch response received, length: 2881 characters
-scriptParser.ts:2726 [ScriptParser] Parsed 5 scenes from batch response
-scriptParser.ts:2668 [ScriptParser] Processing batch 2/2: 1 scenes
-scriptParser.ts:2716 [ScriptParser] Injecting global context into scene extraction
-scriptParser.ts:2720 [ScriptParser] Context-enhanced prompt length: 5756 characters
-scriptParser.ts:1603 [ScriptParser] callLLM called for scene, retryCount: 0
-scriptParser.ts:1604 [ScriptParser] API URL: https://ark.cn-beijing.volces.com/api/v3
-scriptParser.ts:1605 [ScriptParser] Model: doubao-seed-1-8-251228
-scriptParser.ts:1606 [ScriptParser] Max Tokens: 6000
-scriptParser.ts:1607 [ScriptParser] Timeout: 90000ms
-scriptParser.ts:1636 [ScriptParser] Calling LLMProvider.generateText...
-LLMProvider.ts:81 [LLMProvider] ========== API Request ==========
-LLMProvider.ts:82 [LLMProvider] Endpoint: https://ark.cn-beijing.volces.com/api/v3/chat/completions
-LLMProvider.ts:83 [LLMProvider] Model: doubao-seed-1-8-251228
-LLMProvider.ts:84 [LLMProvider] enable_thinking: false
-LLMProvider.ts:85 [LLMProvider] Temperature: 0.3
-LLMProvider.ts:86 [LLMProvider] Max Tokens: 6000
-LLMProvider.ts:87 [LLMProvider] Messages count: 2
-LLMProvider.ts:88 [LLMProvider] First message length: 48 characters
-LLMProvider.ts:89 [LLMProvider] Request body: {
-  "model": "doubao-seed-1-8-251228",
-  "messages": [
-    {
-      "role": "system",
-      "content": "你是一个专业的剧本分析助手，擅长从小说/剧本中提取结构化信息。请严格按照要求的JSON格式输出。"
-    },
-    {
-      "role": "user",
-      "content": "【故事背景】\n- 一句话简介：废灵根少年得奇遇，逆袭开启修仙路\n- 故事梗概：青云宗杂役林清玄因四属性伪灵根受尽欺凌，三年苦修难进炼气一层。被派险地黑风崖采药时坠崖，滴血激活祖传墨玉佩，得知自身是混沌灵根，获专属功法后修为连破三层，教训欺压者，开启真正仙途。\n- 核心冲突：自身灵根桎梏与修仙渴望的内在矛盾，与欺凌者、宗门阶层的外在冲突\n- 主题思想：反抗命运、坚守本心\n\n\n【视觉风格】\n- 美术指导：水墨国风仙侠\n- 艺术风格：东方写意仙侠、古风写实\n- 主色调：#1A2421、#8B5A2B、#F9F6E8\n- 色彩情绪：前期沉郁压抑，后期明快昂扬\n\n\...
-LLMProvider.ts:91 [LLMProvider] Sending request...
-BaseProvider.ts:63 [BaseProvider] Requesting: https://ark.cn-beijing.volces.com/api/v3/chat/completions, Mode: DEV, Localhost: true
-BaseProvider.ts:84 [BaseProvider] Using Proxy: /api/universal-proxy -> https://ark.cn-beijing.volces.com/api/v3/chat/completions
-BaseProvider.ts:99 [BaseProvider] Response received: 200 OK
-LLMProvider.ts:104 [LLMProvider] Request completed in 34375ms
-LLMProvider.ts:118 [LLMProvider] ========== API Response ==========
-LLMProvider.ts:119 [LLMProvider] Response length: 768 characters
-LLMProvider.ts:120 [LLMProvider] Prompt tokens: 3785
-LLMProvider.ts:121 [LLMProvider] Completion tokens: 1467
-LLMProvider.ts:122 [LLMProvider] Total tokens: 5252
-LLMProvider.ts:123 [LLMProvider] Response preview: [
-  {
-    "name": "炼器房",
-    "locationType": "indoor",
-    "description": "古风砖木结构建筑，屋顶铺青灰瓦，墙体由原木与土坯混...
-scriptParser.ts:1662 [ScriptParser] LLM response received, length: 768
-scriptParser.ts:2723 [ScriptParser] Batch response received, length: 768 characters
-scriptParser.ts:2726 [ScriptParser] Parsed 1 scenes from batch response
-scriptParser.ts:2690 [ScriptParser] Smart batching complete: 6 scenes extracted
-scriptParser.ts:4300 [ScriptParser] Batch extracted 6 scenes
-storage.ts:1230 [Storage] getScripts called, projectId: d86d53d6-f709-465e-bdde-339535cb2ff0
-storage.ts:1231 [Storage] Reading file: scripts_d86d53d6-f709-465e-bdde-339535cb2ff0.json
-storage.ts:1233 [Storage] Read result: Found 2 scripts
-scriptParser.ts:4323 [ScriptParser] Parallel extraction complete: 3 characters, 6 scenes
-scriptParser.ts:4343 [ScriptParser] Starting iterative refinement...
-IterativeRefinementEngine.ts:166 [IterativeRefinementEngine] Starting refinement process...
-IterativeRefinementEngine.ts:167 [IterativeRefinementEngine] Config: maxIterations=3, targetScore=85
-QualityEvaluator.ts:133 [QualityEvaluator] Starting quality evaluation...
-QualityEvaluator.ts:161 [QualityEvaluator] Evaluation completed in 0ms, score: 64
-IterativeRefinementEngine.ts:186 [IterativeRefinementEngine] Initial quality score: 64
-IterativeRefinementEngine.ts:190 
-[IterativeRefinementEngine] === Iteration 1/3 ===
-IterativeRefinementEngine.ts:267 [IterativeRefinementEngine] Running consistency check...
-ConsistencyChecker.ts:201 [ConsistencyChecker] Starting consistency check...
-ConsistencyChecker.ts:250 [ConsistencyChecker] Check completed in 0ms, score: 100
-IterativeRefinementEngine.ts:275 [IterativeRefinementEngine] Found 0 violations
-IterativeRefinementEngine.ts:284 [IterativeRefinementEngine] Running quality evaluation...
-QualityEvaluator.ts:133 [QualityEvaluator] Starting quality evaluation...
-QualityEvaluator.ts:161 [QualityEvaluator] Evaluation completed in 0ms, score: 64
-IterativeRefinementEngine.ts:292 [IterativeRefinementEngine] Quality score: 64
-IterativeRefinementEngine.ts:294   [completeness] 60/25
-IterativeRefinementEngine.ts:294   [accuracy] 44/25
-IterativeRefinementEngine.ts:294   [consistency] 80/30
-IterativeRefinementEngine.ts:294   [usability] 68/20
-IterativeRefinementEngine.ts:308 [IterativeRefinementEngine] Generating refinement actions...
-RefinementEngine.ts:157 [RefinementEngine] Generating refinement actions...
-RefinementEngine.ts:177 [RefinementEngine] Generated 3 refinement actions
-IterativeRefinementEngine.ts:310 [IterativeRefinementEngine] Generated 3 actions
-IterativeRefinementEngine.ts:313 [IterativeRefinementEngine] Applying refinements...
-RefinementEngine.ts:536 [RefinementEngine] Applying 3 refinements...
-RefinementEngine.ts:585 [RefinementEngine] ⏸️ Skipped action: 增强角色 "林清玄" 的描述细节 (id: refine-char-accuracy-undefined) - Reason: 非自动安全操作 (autoSafe = false)
-RefinementEngine.ts:585 [RefinementEngine] ⏸️ Skipped action: 增强角色 "王虎" 的描述细节 (id: refine-char-accuracy-undefined) - Reason: 非自动安全操作 (autoSafe = false)
-RefinementEngine.ts:585 [RefinementEngine] ⏸️ Skipped action: 增强角色 "云澜子" 的描述细节 (id: refine-char-accuracy-undefined) - Reason: 非自动安全操作 (autoSafe = false)
-RefinementEngine.ts:598 [RefinementEngine] Applied: 0, Skipped: 3, Failed: 0
-IterativeRefinementEngine.ts:321 [IterativeRefinementEngine] Applied: 0, Skipped: 3, Failed: 0
-IterativeRefinementEngine.ts:325 [IterativeRefinementEngine] Skipped actions details (see RefinementEngine logs for specific reasons):
-IterativeRefinementEngine.ts:329   [Skipped 1] 增强角色 "林清玄" 的描述细节 (confidence: 70%, autoSafe: false, requiresConfirmation: true)
-IterativeRefinementEngine.ts:329   [Skipped 2] 增强角色 "王虎" 的描述细节 (confidence: 70%, autoSafe: false, requiresConfirmation: true)
-IterativeRefinementEngine.ts:329   [Skipped 3] 增强角色 "云澜子" 的描述细节 (confidence: 70%, autoSafe: false, requiresConfirmation: true)
-IterativeRefinementEngine.ts:217 [IterativeRefinementEngine] Iteration 1 completed in 1ms, improvement: 0.00
-IterativeRefinementEngine.ts:378 [IterativeRefinementEngine] Improvement (0.00) below threshold (2)
-IterativeRefinementEngine.ts:223 [IterativeRefinementEngine] Stopping iteration: termination condition met
-IterativeRefinementEngine.ts:231 
-[IterativeRefinementEngine] Refinement completed in 2ms
-IterativeRefinementEngine.ts:232 [IterativeRefinementEngine] Final quality score: 64 (improvement: 0.00)
-scriptParser.ts:4361 [ScriptParser] Refinement completed with no significant improvement
-storage.ts:1230 [Storage] getScripts called, projectId: d86d53d6-f709-465e-bdde-339535cb2ff0
-storage.ts:1231 [Storage] Reading file: scripts_d86d53d6-f709-465e-bdde-339535cb2ff0.json
-storage.ts:1233 [Storage] Read result: Found 2 scripts
-scriptParser.ts:4472 [ScriptParser] Processing shots for 6 remaining scenes
-scriptParser.ts:4519 [ScriptParser] Using batched generation for 6 scenes (3 batches)
-scriptParser.ts:4528 [ScriptParser] Processing batch 1/3: 2 scenes
-scriptParser.ts:3097 [ScriptParser] ---------- Batch Generating Shots with Context for 2 Scenes ----------
-scriptParser.ts:1470 [ScriptParser] Shot calculation: 2002 chars → 11min → 55 shots (key: 39, optional: 16, density: 5)
-scriptParser.ts:3115 [ScriptParser] Target: 55 shots (39 key + 16 optional)
-scriptParser.ts:3126 [ScriptParser] Injecting global context into shots generation
-scriptParser.ts:3131 [ScriptParser] Context-enhanced prompt length: 4166 characters
-scriptParser.ts:1603 [ScriptParser] callLLM called for shots, retryCount: 0
-scriptParser.ts:1604 [ScriptParser] API URL: https://ark.cn-beijing.volces.com/api/v3
-scriptParser.ts:1605 [ScriptParser] Model: doubao-seed-1-8-251228
-scriptParser.ts:1606 [ScriptParser] Max Tokens: 12000
-scriptParser.ts:1607 [ScriptParser] Timeout: 90000ms
-scriptParser.ts:1636 [ScriptParser] Calling LLMProvider.generateText...
-LLMProvider.ts:81 [LLMProvider] ========== API Request ==========
-LLMProvider.ts:82 [LLMProvider] Endpoint: https://ark.cn-beijing.volces.com/api/v3/chat/completions
-LLMProvider.ts:83 [LLMProvider] Model: doubao-seed-1-8-251228
-LLMProvider.ts:84 [LLMProvider] enable_thinking: false
-LLMProvider.ts:85 [LLMProvider] Temperature: 0.3
-LLMProvider.ts:86 [LLMProvider] Max Tokens: 12000
-LLMProvider.ts:87 [LLMProvider] Messages count: 2
-LLMProvider.ts:88 [LLMProvider] First message length: 48 characters
-LLMProvider.ts:89 [LLMProvider] Request body: {
-  "model": "doubao-seed-1-8-251228",
-  "messages": [
-    {
-      "role": "system",
-      "content": "你是一个专业的剧本分析助手，擅长从小说/剧本中提取结构化信息。请严格按照要求的JSON格式输出。"
-    },
-    {
-      "role": "user",
-      "content": "【视觉指导】\n- 美术风格：东方写意仙侠、古风写实\n- 色彩方案：#1A2421、#8B5A2B、#F9F6E8\n- 摄影风格：全景铺展仙宗格局，近景刻画人物情绪\n- 光影风格：杂役院暖黄夕照配冷暗阴影，仙宗柔光云雾\n- 参考风格：《诛仙Ⅰ》、《蜀山传》、徐克、程小东\n\n\n\n\n\n\n\n【角色】专业影视分镜师\n【任务】根据小说文本和情节分析生成影视级分镜脚本\n\n【剧本内容】\n## 第一章 杂役苦\r\n青云宗，东域三大修仙宗门之一，立宗三千年，山门矗立于青云山脉之巅，云雾缭绕，灵气流淌，仙鹤盘旋，琼楼玉宇隐于云海之间，是无数凡人与低阶修士梦寐以求的修仙...
-LLMProvider.ts:91 [LLMProvider] Sending request...
-BaseProvider.ts:63 [BaseProvider] Requesting: https://ark.cn-beijing.volces.com/api/v3/chat/completions, Mode: DEV, Localhost: true
-BaseProvider.ts:84 [BaseProvider] Using Proxy: /api/universal-proxy -> https://ark.cn-beijing.volces.com/api/v3/chat/completions
-MultiLevelCache.ts:447 [MultiLevelCache] Cleanup completed
-AppContext.tsx:25 [STORAGE] Connection check: Connected=true, Responsive=true
-MultiLevelCache.ts:447 [MultiLevelCache] Cleanup completed
 BaseProvider.ts:68  [BaseProvider] Request timeout after 120000ms: https://ark.cn-beijing.volces.com/api/v3/chat/completions
 (匿名) @ BaseProvider.ts:68
 setTimeout
 makeRequest @ BaseProvider.ts:67
-generateText @ LLMProvider.ts:94
-callLLM @ scriptParser.ts:1637
-await in callLLM
-generateAllShotsWithContext @ scriptParser.ts:3133
-parseScript @ scriptParser.ts:4538
+generateStructured @ LLMProvider.ts:250
+callStructuredLLM @ scriptParser.ts:1803
+await in callStructuredLLM
+extractMetadata @ scriptParser.ts:2072
+parseScript @ scriptParser.ts:4397
 await in parseScript
 handleParseScript @ ScriptManager.tsx:539
 handleParseWithIntent @ ScriptManager.tsx:407
@@ -528,11 +177,11 @@ processRootScheduleInMicrotask @ react-dom-client.development.js:18853
 BaseProvider.ts:104  [BaseProvider] Request aborted (timeout): https://ark.cn-beijing.volces.com/api/v3/chat/completions
 makeRequest @ BaseProvider.ts:104
 await in makeRequest
-generateText @ LLMProvider.ts:94
-callLLM @ scriptParser.ts:1637
-await in callLLM
-generateAllShotsWithContext @ scriptParser.ts:3133
-parseScript @ scriptParser.ts:4538
+generateStructured @ LLMProvider.ts:250
+callStructuredLLM @ scriptParser.ts:1803
+await in callStructuredLLM
+extractMetadata @ scriptParser.ts:2072
+parseScript @ scriptParser.ts:4397
 await in parseScript
 handleParseScript @ ScriptManager.tsx:539
 handleParseWithIntent @ ScriptManager.tsx:407
@@ -581,20 +230,20 @@ performSyncWorkOnRoot @ react-dom-client.development.js:18972
 flushSyncWorkAcrossRoots_impl @ react-dom-client.development.js:18814
 processRootScheduleInMicrotask @ react-dom-client.development.js:18853
 (匿名) @ react-dom-client.development.js:18991
-LLMProvider.ts:134  [LLMProvider] Error: Error: Request timeout after 120000ms
+LLMProvider.ts:309  [LLMProvider] Structured output error: Error: Request timeout after 120000ms
     at LLMProvider.makeRequest (BaseProvider.ts:105:23)
-    at async LLMProvider.generateText (LLMProvider.ts:94:24)
-    at async ScriptParser.callLLM (scriptParser.ts:1637:22)
-    at async ScriptParser.generateAllShotsWithContext (scriptParser.ts:3133:22)
-    at async ScriptParser.parseScript (scriptParser.ts:4538:32)
+    at async LLMProvider.generateStructured (LLMProvider.ts:250:24)
+    at async ScriptParser.callStructuredLLM (scriptParser.ts:1803:20)
+    at async ScriptParser.extractMetadata (scriptParser.ts:2072:22)
+    at async ScriptParser.parseScript (scriptParser.ts:4397:26)
     at async handleParseScript (ScriptManager.tsx:539:26)
     at async handleParseWithIntent (ScriptManager.tsx:407:5)
-generateText @ LLMProvider.ts:134
-await in generateText
-callLLM @ scriptParser.ts:1637
-await in callLLM
-generateAllShotsWithContext @ scriptParser.ts:3133
-parseScript @ scriptParser.ts:4538
+generateStructured @ LLMProvider.ts:309
+await in generateStructured
+callStructuredLLM @ scriptParser.ts:1803
+await in callStructuredLLM
+extractMetadata @ scriptParser.ts:2072
+parseScript @ scriptParser.ts:4397
 await in parseScript
 handleParseScript @ ScriptManager.tsx:539
 handleParseWithIntent @ ScriptManager.tsx:407
@@ -643,844 +292,167 @@ performSyncWorkOnRoot @ react-dom-client.development.js:18972
 flushSyncWorkAcrossRoots_impl @ react-dom-client.development.js:18814
 processRootScheduleInMicrotask @ react-dom-client.development.js:18853
 (匿名) @ react-dom-client.development.js:18991
-scriptParser.ts:1647  [ScriptParser] LLMProvider error: Request timeout after 120000ms
-callLLM @ scriptParser.ts:1647
-await in callLLM
-generateAllShotsWithContext @ scriptParser.ts:3133
-parseScript @ scriptParser.ts:4538
-await in parseScript
-handleParseScript @ ScriptManager.tsx:539
-handleParseWithIntent @ ScriptManager.tsx:407
-(匿名) @ index.mjs:362
-(匿名) @ usePress.ts:249
-onClick @ usePress.ts:548
-executeDispatch @ react-dom-client.development.js:19116
-runWithFiberInDEV @ react-dom-client.development.js:871
-processDispatchQueue @ react-dom-client.development.js:19166
-(匿名) @ react-dom-client.development.js:19767
-batchedUpdates$1 @ react-dom-client.development.js:3255
-dispatchEventForPluginEventSystem @ react-dom-client.development.js:19320
-dispatchEvent @ react-dom-client.development.js:23585
-dispatchDiscreteEvent @ react-dom-client.development.js:23553
-<button>
-exports.jsxs @ react-jsx-runtime.development.js:349
-HeroUI.Button @ chunk-WBUKVQRU.mjs:27
-react_stack_bottom_frame @ react-dom-client.development.js:25904
-renderWithHooksAgain @ react-dom-client.development.js:7762
-renderWithHooks @ react-dom-client.development.js:7674
-updateForwardRef @ react-dom-client.development.js:9724
-beginWork @ react-dom-client.development.js:12117
-runWithFiberInDEV @ react-dom-client.development.js:871
-performUnitOfWork @ react-dom-client.development.js:17641
-workLoopSync @ react-dom-client.development.js:17469
-renderRootSync @ react-dom-client.development.js:17450
-performWorkOnRoot @ react-dom-client.development.js:16504
-performSyncWorkOnRoot @ react-dom-client.development.js:18972
-flushSyncWorkAcrossRoots_impl @ react-dom-client.development.js:18814
-processRootScheduleInMicrotask @ react-dom-client.development.js:18853
-(匿名) @ react-dom-client.development.js:18991
-<HeroUI.Button>
-exports.jsxDEV @ react-jsx-dev-runtime.development.js:335
-CreativeIntentModal @ CreativeIntentModal.tsx:316
-react_stack_bottom_frame @ react-dom-client.development.js:25904
-renderWithHooksAgain @ react-dom-client.development.js:7762
-renderWithHooks @ react-dom-client.development.js:7674
-updateFunctionComponent @ react-dom-client.development.js:10166
-beginWork @ react-dom-client.development.js:11778
-runWithFiberInDEV @ react-dom-client.development.js:871
-performUnitOfWork @ react-dom-client.development.js:17641
-workLoopSync @ react-dom-client.development.js:17469
-renderRootSync @ react-dom-client.development.js:17450
-performWorkOnRoot @ react-dom-client.development.js:16504
-performSyncWorkOnRoot @ react-dom-client.development.js:18972
-flushSyncWorkAcrossRoots_impl @ react-dom-client.development.js:18814
-processRootScheduleInMicrotask @ react-dom-client.development.js:18853
-(匿名) @ react-dom-client.development.js:18991
-scriptParser.ts:1652  API error, retrying in 4000ms... (attempt 1/3)
-callLLM @ scriptParser.ts:1652
-await in callLLM
-generateAllShotsWithContext @ scriptParser.ts:3133
-parseScript @ scriptParser.ts:4538
-await in parseScript
-handleParseScript @ ScriptManager.tsx:539
-handleParseWithIntent @ ScriptManager.tsx:407
-(匿名) @ index.mjs:362
-(匿名) @ usePress.ts:249
-onClick @ usePress.ts:548
-executeDispatch @ react-dom-client.development.js:19116
-runWithFiberInDEV @ react-dom-client.development.js:871
-processDispatchQueue @ react-dom-client.development.js:19166
-(匿名) @ react-dom-client.development.js:19767
-batchedUpdates$1 @ react-dom-client.development.js:3255
-dispatchEventForPluginEventSystem @ react-dom-client.development.js:19320
-dispatchEvent @ react-dom-client.development.js:23585
-dispatchDiscreteEvent @ react-dom-client.development.js:23553
-<button>
-exports.jsxs @ react-jsx-runtime.development.js:349
-HeroUI.Button @ chunk-WBUKVQRU.mjs:27
-react_stack_bottom_frame @ react-dom-client.development.js:25904
-renderWithHooksAgain @ react-dom-client.development.js:7762
-renderWithHooks @ react-dom-client.development.js:7674
-updateForwardRef @ react-dom-client.development.js:9724
-beginWork @ react-dom-client.development.js:12117
-runWithFiberInDEV @ react-dom-client.development.js:871
-performUnitOfWork @ react-dom-client.development.js:17641
-workLoopSync @ react-dom-client.development.js:17469
-renderRootSync @ react-dom-client.development.js:17450
-performWorkOnRoot @ react-dom-client.development.js:16504
-performSyncWorkOnRoot @ react-dom-client.development.js:18972
-flushSyncWorkAcrossRoots_impl @ react-dom-client.development.js:18814
-processRootScheduleInMicrotask @ react-dom-client.development.js:18853
-(匿名) @ react-dom-client.development.js:18991
-<HeroUI.Button>
-exports.jsxDEV @ react-jsx-dev-runtime.development.js:335
-CreativeIntentModal @ CreativeIntentModal.tsx:316
-react_stack_bottom_frame @ react-dom-client.development.js:25904
-renderWithHooksAgain @ react-dom-client.development.js:7762
-renderWithHooks @ react-dom-client.development.js:7674
-updateFunctionComponent @ react-dom-client.development.js:10166
-beginWork @ react-dom-client.development.js:11778
-runWithFiberInDEV @ react-dom-client.development.js:871
-performUnitOfWork @ react-dom-client.development.js:17641
-workLoopSync @ react-dom-client.development.js:17469
-renderRootSync @ react-dom-client.development.js:17450
-performWorkOnRoot @ react-dom-client.development.js:16504
-performSyncWorkOnRoot @ react-dom-client.development.js:18972
-flushSyncWorkAcrossRoots_impl @ react-dom-client.development.js:18814
-processRootScheduleInMicrotask @ react-dom-client.development.js:18853
-(匿名) @ react-dom-client.development.js:18991
-BaseProvider.ts:85 提取 加载失败:POST "http://localhost:3000/api/universal-proxy".
-makeRequest @ BaseProvider.ts:85
-generateText @ LLMProvider.ts:94
-callLLM @ scriptParser.ts:1637
-await in callLLM
-generateAllShotsWithContext @ scriptParser.ts:3133
-parseScript @ scriptParser.ts:4538
-await in parseScript
-handleParseScript @ ScriptManager.tsx:539
-handleParseWithIntent @ ScriptManager.tsx:407
-(匿名) @ index.mjs:362
-(匿名) @ usePress.ts:249
-onClick @ usePress.ts:548
-executeDispatch @ react-dom-client.development.js:19116
-runWithFiberInDEV @ react-dom-client.development.js:871
-processDispatchQueue @ react-dom-client.development.js:19166
-(匿名) @ react-dom-client.development.js:19767
-batchedUpdates$1 @ react-dom-client.development.js:3255
-dispatchEventForPluginEventSystem @ react-dom-client.development.js:19320
-dispatchEvent @ react-dom-client.development.js:23585
-dispatchDiscreteEvent @ react-dom-client.development.js:23553
-<button>
-exports.jsxs @ react-jsx-runtime.development.js:349
-HeroUI.Button @ chunk-WBUKVQRU.mjs:27
-react_stack_bottom_frame @ react-dom-client.development.js:25904
-renderWithHooksAgain @ react-dom-client.development.js:7762
-renderWithHooks @ react-dom-client.development.js:7674
-updateForwardRef @ react-dom-client.development.js:9724
-beginWork @ react-dom-client.development.js:12117
-runWithFiberInDEV @ react-dom-client.development.js:871
-performUnitOfWork @ react-dom-client.development.js:17641
-workLoopSync @ react-dom-client.development.js:17469
-renderRootSync @ react-dom-client.development.js:17450
-performWorkOnRoot @ react-dom-client.development.js:16504
-performSyncWorkOnRoot @ react-dom-client.development.js:18972
-flushSyncWorkAcrossRoots_impl @ react-dom-client.development.js:18814
-processRootScheduleInMicrotask @ react-dom-client.development.js:18853
-(匿名) @ react-dom-client.development.js:18991
-<HeroUI.Button>
-exports.jsxDEV @ react-jsx-dev-runtime.development.js:335
-CreativeIntentModal @ CreativeIntentModal.tsx:316
-react_stack_bottom_frame @ react-dom-client.development.js:25904
-renderWithHooksAgain @ react-dom-client.development.js:7762
-renderWithHooks @ react-dom-client.development.js:7674
-updateFunctionComponent @ react-dom-client.development.js:10166
-beginWork @ react-dom-client.development.js:11778
-runWithFiberInDEV @ react-dom-client.development.js:871
-performUnitOfWork @ react-dom-client.development.js:17641
-workLoopSync @ react-dom-client.development.js:17469
-renderRootSync @ react-dom-client.development.js:17450
-performWorkOnRoot @ react-dom-client.development.js:16504
-performSyncWorkOnRoot @ react-dom-client.development.js:18972
-flushSyncWorkAcrossRoots_impl @ react-dom-client.development.js:18814
-processRootScheduleInMicrotask @ react-dom-client.development.js:18853
-(匿名) @ react-dom-client.development.js:18991
-scriptParser.ts:1603 [ScriptParser] callLLM called for shots, retryCount: 1
-scriptParser.ts:1604 [ScriptParser] API URL: https://ark.cn-beijing.volces.com/api/v3
-scriptParser.ts:1605 [ScriptParser] Model: doubao-seed-1-8-251228
-scriptParser.ts:1606 [ScriptParser] Max Tokens: 12000
-scriptParser.ts:1607 [ScriptParser] Timeout: 180000ms
-scriptParser.ts:1636 [ScriptParser] Calling LLMProvider.generateText...
-LLMProvider.ts:81 [LLMProvider] ========== API Request ==========
-LLMProvider.ts:82 [LLMProvider] Endpoint: https://ark.cn-beijing.volces.com/api/v3/chat/completions
-LLMProvider.ts:83 [LLMProvider] Model: doubao-seed-1-8-251228
-LLMProvider.ts:84 [LLMProvider] enable_thinking: false
-LLMProvider.ts:85 [LLMProvider] Temperature: 0.3
-LLMProvider.ts:86 [LLMProvider] Max Tokens: 12000
-LLMProvider.ts:87 [LLMProvider] Messages count: 2
-LLMProvider.ts:88 [LLMProvider] First message length: 48 characters
-LLMProvider.ts:89 [LLMProvider] Request body: {
-  "model": "doubao-seed-1-8-251228",
-  "messages": [
-    {
-      "role": "system",
-      "content": "你是一个专业的剧本分析助手，擅长从小说/剧本中提取结构化信息。请严格按照要求的JSON格式输出。"
-    },
-    {
-      "role": "user",
-      "content": "【视觉指导】\n- 美术风格：东方写意仙侠、古风写实\n- 色彩方案：#1A2421、#8B5A2B、#F9F6E8\n- 摄影风格：全景铺展仙宗格局，近景刻画人物情绪\n- 光影风格：杂役院暖黄夕照配冷暗阴影，仙宗柔光云雾\n- 参考风格：《诛仙Ⅰ》、《蜀山传》、徐克、程小东\n\n\n\n\n\n\n\n【角色】专业影视分镜师\n【任务】根据小说文本和情节分析生成影视级分镜脚本\n\n【剧本内容】\n## 第一章 杂役苦\r\n青云宗，东域三大修仙宗门之一，立宗三千年，山门矗立于青云山脉之巅，云雾缭绕，灵气流淌，仙鹤盘旋，琼楼玉宇隐于云海之间，是无数凡人与低阶修士梦寐以求的修仙...
-LLMProvider.ts:91 [LLMProvider] Sending request...
-BaseProvider.ts:63 [BaseProvider] Requesting: https://ark.cn-beijing.volces.com/api/v3/chat/completions, Mode: DEV, Localhost: true
-BaseProvider.ts:84 [BaseProvider] Using Proxy: /api/universal-proxy -> https://ark.cn-beijing.volces.com/api/v3/chat/completions
-AppContext.tsx:25 [STORAGE] Connection check: Connected=true, Responsive=true
-BaseProvider.ts:68  [BaseProvider] Request timeout after 120000ms: https://ark.cn-beijing.volces.com/api/v3/chat/completions
-(匿名) @ BaseProvider.ts:68
-setTimeout
-makeRequest @ BaseProvider.ts:67
-generateText @ LLMProvider.ts:94
-callLLM @ scriptParser.ts:1637
-await in callLLM
-callLLM @ scriptParser.ts:1656
-await in callLLM
-generateAllShotsWithContext @ scriptParser.ts:3133
-parseScript @ scriptParser.ts:4538
-await in parseScript
-handleParseScript @ ScriptManager.tsx:539
-handleParseWithIntent @ ScriptManager.tsx:407
-(匿名) @ index.mjs:362
-(匿名) @ usePress.ts:249
-onClick @ usePress.ts:548
-executeDispatch @ react-dom-client.development.js:19116
-runWithFiberInDEV @ react-dom-client.development.js:871
-processDispatchQueue @ react-dom-client.development.js:19166
-(匿名) @ react-dom-client.development.js:19767
-batchedUpdates$1 @ react-dom-client.development.js:3255
-dispatchEventForPluginEventSystem @ react-dom-client.development.js:19320
-dispatchEvent @ react-dom-client.development.js:23585
-dispatchDiscreteEvent @ react-dom-client.development.js:23553
-<button>
-exports.jsxs @ react-jsx-runtime.development.js:349
-HeroUI.Button @ chunk-WBUKVQRU.mjs:27
-react_stack_bottom_frame @ react-dom-client.development.js:25904
-renderWithHooksAgain @ react-dom-client.development.js:7762
-renderWithHooks @ react-dom-client.development.js:7674
-updateForwardRef @ react-dom-client.development.js:9724
-beginWork @ react-dom-client.development.js:12117
-runWithFiberInDEV @ react-dom-client.development.js:871
-performUnitOfWork @ react-dom-client.development.js:17641
-workLoopSync @ react-dom-client.development.js:17469
-renderRootSync @ react-dom-client.development.js:17450
-performWorkOnRoot @ react-dom-client.development.js:16504
-performSyncWorkOnRoot @ react-dom-client.development.js:18972
-flushSyncWorkAcrossRoots_impl @ react-dom-client.development.js:18814
-processRootScheduleInMicrotask @ react-dom-client.development.js:18853
-(匿名) @ react-dom-client.development.js:18991
-<HeroUI.Button>
-exports.jsxDEV @ react-jsx-dev-runtime.development.js:335
-CreativeIntentModal @ CreativeIntentModal.tsx:316
-react_stack_bottom_frame @ react-dom-client.development.js:25904
-renderWithHooksAgain @ react-dom-client.development.js:7762
-renderWithHooks @ react-dom-client.development.js:7674
-updateFunctionComponent @ react-dom-client.development.js:10166
-beginWork @ react-dom-client.development.js:11778
-runWithFiberInDEV @ react-dom-client.development.js:871
-performUnitOfWork @ react-dom-client.development.js:17641
-workLoopSync @ react-dom-client.development.js:17469
-renderRootSync @ react-dom-client.development.js:17450
-performWorkOnRoot @ react-dom-client.development.js:16504
-performSyncWorkOnRoot @ react-dom-client.development.js:18972
-flushSyncWorkAcrossRoots_impl @ react-dom-client.development.js:18814
-processRootScheduleInMicrotask @ react-dom-client.development.js:18853
-(匿名) @ react-dom-client.development.js:18991
-BaseProvider.ts:104  [BaseProvider] Request aborted (timeout): https://ark.cn-beijing.volces.com/api/v3/chat/completions
-makeRequest @ BaseProvider.ts:104
-await in makeRequest
-generateText @ LLMProvider.ts:94
-callLLM @ scriptParser.ts:1637
-await in callLLM
-callLLM @ scriptParser.ts:1656
-await in callLLM
-generateAllShotsWithContext @ scriptParser.ts:3133
-parseScript @ scriptParser.ts:4538
-await in parseScript
-handleParseScript @ ScriptManager.tsx:539
-handleParseWithIntent @ ScriptManager.tsx:407
-(匿名) @ index.mjs:362
-(匿名) @ usePress.ts:249
-onClick @ usePress.ts:548
-executeDispatch @ react-dom-client.development.js:19116
-runWithFiberInDEV @ react-dom-client.development.js:871
-processDispatchQueue @ react-dom-client.development.js:19166
-(匿名) @ react-dom-client.development.js:19767
-batchedUpdates$1 @ react-dom-client.development.js:3255
-dispatchEventForPluginEventSystem @ react-dom-client.development.js:19320
-dispatchEvent @ react-dom-client.development.js:23585
-dispatchDiscreteEvent @ react-dom-client.development.js:23553
-<button>
-exports.jsxs @ react-jsx-runtime.development.js:349
-HeroUI.Button @ chunk-WBUKVQRU.mjs:27
-react_stack_bottom_frame @ react-dom-client.development.js:25904
-renderWithHooksAgain @ react-dom-client.development.js:7762
-renderWithHooks @ react-dom-client.development.js:7674
-updateForwardRef @ react-dom-client.development.js:9724
-beginWork @ react-dom-client.development.js:12117
-runWithFiberInDEV @ react-dom-client.development.js:871
-performUnitOfWork @ react-dom-client.development.js:17641
-workLoopSync @ react-dom-client.development.js:17469
-renderRootSync @ react-dom-client.development.js:17450
-performWorkOnRoot @ react-dom-client.development.js:16504
-performSyncWorkOnRoot @ react-dom-client.development.js:18972
-flushSyncWorkAcrossRoots_impl @ react-dom-client.development.js:18814
-processRootScheduleInMicrotask @ react-dom-client.development.js:18853
-(匿名) @ react-dom-client.development.js:18991
-<HeroUI.Button>
-exports.jsxDEV @ react-jsx-dev-runtime.development.js:335
-CreativeIntentModal @ CreativeIntentModal.tsx:316
-react_stack_bottom_frame @ react-dom-client.development.js:25904
-renderWithHooksAgain @ react-dom-client.development.js:7762
-renderWithHooks @ react-dom-client.development.js:7674
-updateFunctionComponent @ react-dom-client.development.js:10166
-beginWork @ react-dom-client.development.js:11778
-runWithFiberInDEV @ react-dom-client.development.js:871
-performUnitOfWork @ react-dom-client.development.js:17641
-workLoopSync @ react-dom-client.development.js:17469
-renderRootSync @ react-dom-client.development.js:17450
-performWorkOnRoot @ react-dom-client.development.js:16504
-performSyncWorkOnRoot @ react-dom-client.development.js:18972
-flushSyncWorkAcrossRoots_impl @ react-dom-client.development.js:18814
-processRootScheduleInMicrotask @ react-dom-client.development.js:18853
-(匿名) @ react-dom-client.development.js:18991
-LLMProvider.ts:134  [LLMProvider] Error: Error: Request timeout after 120000ms
-    at LLMProvider.makeRequest (BaseProvider.ts:105:23)
-    at async LLMProvider.generateText (LLMProvider.ts:94:24)
-    at async ScriptParser.callLLM (scriptParser.ts:1637:22)
-    at async ScriptParser.generateAllShotsWithContext (scriptParser.ts:3133:22)
-    at async ScriptParser.parseScript (scriptParser.ts:4538:32)
-    at async handleParseScript (ScriptManager.tsx:539:26)
-    at async handleParseWithIntent (ScriptManager.tsx:407:5)
-generateText @ LLMProvider.ts:134
-await in generateText
-callLLM @ scriptParser.ts:1637
-await in callLLM
-callLLM @ scriptParser.ts:1656
-await in callLLM
-generateAllShotsWithContext @ scriptParser.ts:3133
-parseScript @ scriptParser.ts:4538
-await in parseScript
-handleParseScript @ ScriptManager.tsx:539
-handleParseWithIntent @ ScriptManager.tsx:407
-(匿名) @ index.mjs:362
-(匿名) @ usePress.ts:249
-onClick @ usePress.ts:548
-executeDispatch @ react-dom-client.development.js:19116
-runWithFiberInDEV @ react-dom-client.development.js:871
-processDispatchQueue @ react-dom-client.development.js:19166
-(匿名) @ react-dom-client.development.js:19767
-batchedUpdates$1 @ react-dom-client.development.js:3255
-dispatchEventForPluginEventSystem @ react-dom-client.development.js:19320
-dispatchEvent @ react-dom-client.development.js:23585
-dispatchDiscreteEvent @ react-dom-client.development.js:23553
-<button>
-exports.jsxs @ react-jsx-runtime.development.js:349
-HeroUI.Button @ chunk-WBUKVQRU.mjs:27
-react_stack_bottom_frame @ react-dom-client.development.js:25904
-renderWithHooksAgain @ react-dom-client.development.js:7762
-renderWithHooks @ react-dom-client.development.js:7674
-updateForwardRef @ react-dom-client.development.js:9724
-beginWork @ react-dom-client.development.js:12117
-runWithFiberInDEV @ react-dom-client.development.js:871
-performUnitOfWork @ react-dom-client.development.js:17641
-workLoopSync @ react-dom-client.development.js:17469
-renderRootSync @ react-dom-client.development.js:17450
-performWorkOnRoot @ react-dom-client.development.js:16504
-performSyncWorkOnRoot @ react-dom-client.development.js:18972
-flushSyncWorkAcrossRoots_impl @ react-dom-client.development.js:18814
-processRootScheduleInMicrotask @ react-dom-client.development.js:18853
-(匿名) @ react-dom-client.development.js:18991
-<HeroUI.Button>
-exports.jsxDEV @ react-jsx-dev-runtime.development.js:335
-CreativeIntentModal @ CreativeIntentModal.tsx:316
-react_stack_bottom_frame @ react-dom-client.development.js:25904
-renderWithHooksAgain @ react-dom-client.development.js:7762
-renderWithHooks @ react-dom-client.development.js:7674
-updateFunctionComponent @ react-dom-client.development.js:10166
-beginWork @ react-dom-client.development.js:11778
-runWithFiberInDEV @ react-dom-client.development.js:871
-performUnitOfWork @ react-dom-client.development.js:17641
-workLoopSync @ react-dom-client.development.js:17469
-renderRootSync @ react-dom-client.development.js:17450
-performWorkOnRoot @ react-dom-client.development.js:16504
-performSyncWorkOnRoot @ react-dom-client.development.js:18972
-flushSyncWorkAcrossRoots_impl @ react-dom-client.development.js:18814
-processRootScheduleInMicrotask @ react-dom-client.development.js:18853
-(匿名) @ react-dom-client.development.js:18991
-scriptParser.ts:1647  [ScriptParser] LLMProvider error: Request timeout after 120000ms
-callLLM @ scriptParser.ts:1647
-await in callLLM
-callLLM @ scriptParser.ts:1656
-await in callLLM
-generateAllShotsWithContext @ scriptParser.ts:3133
-parseScript @ scriptParser.ts:4538
-await in parseScript
-handleParseScript @ ScriptManager.tsx:539
-handleParseWithIntent @ ScriptManager.tsx:407
-(匿名) @ index.mjs:362
-(匿名) @ usePress.ts:249
-onClick @ usePress.ts:548
-executeDispatch @ react-dom-client.development.js:19116
-runWithFiberInDEV @ react-dom-client.development.js:871
-processDispatchQueue @ react-dom-client.development.js:19166
-(匿名) @ react-dom-client.development.js:19767
-batchedUpdates$1 @ react-dom-client.development.js:3255
-dispatchEventForPluginEventSystem @ react-dom-client.development.js:19320
-dispatchEvent @ react-dom-client.development.js:23585
-dispatchDiscreteEvent @ react-dom-client.development.js:23553
-<button>
-exports.jsxs @ react-jsx-runtime.development.js:349
-HeroUI.Button @ chunk-WBUKVQRU.mjs:27
-react_stack_bottom_frame @ react-dom-client.development.js:25904
-renderWithHooksAgain @ react-dom-client.development.js:7762
-renderWithHooks @ react-dom-client.development.js:7674
-updateForwardRef @ react-dom-client.development.js:9724
-beginWork @ react-dom-client.development.js:12117
-runWithFiberInDEV @ react-dom-client.development.js:871
-performUnitOfWork @ react-dom-client.development.js:17641
-workLoopSync @ react-dom-client.development.js:17469
-renderRootSync @ react-dom-client.development.js:17450
-performWorkOnRoot @ react-dom-client.development.js:16504
-performSyncWorkOnRoot @ react-dom-client.development.js:18972
-flushSyncWorkAcrossRoots_impl @ react-dom-client.development.js:18814
-processRootScheduleInMicrotask @ react-dom-client.development.js:18853
-(匿名) @ react-dom-client.development.js:18991
-<HeroUI.Button>
-exports.jsxDEV @ react-jsx-dev-runtime.development.js:335
-CreativeIntentModal @ CreativeIntentModal.tsx:316
-react_stack_bottom_frame @ react-dom-client.development.js:25904
-renderWithHooksAgain @ react-dom-client.development.js:7762
-renderWithHooks @ react-dom-client.development.js:7674
-updateFunctionComponent @ react-dom-client.development.js:10166
-beginWork @ react-dom-client.development.js:11778
-runWithFiberInDEV @ react-dom-client.development.js:871
-performUnitOfWork @ react-dom-client.development.js:17641
-workLoopSync @ react-dom-client.development.js:17469
-renderRootSync @ react-dom-client.development.js:17450
-performWorkOnRoot @ react-dom-client.development.js:16504
-performSyncWorkOnRoot @ react-dom-client.development.js:18972
-flushSyncWorkAcrossRoots_impl @ react-dom-client.development.js:18814
-processRootScheduleInMicrotask @ react-dom-client.development.js:18853
-(匿名) @ react-dom-client.development.js:18991
-scriptParser.ts:1652  API error, retrying in 8000ms... (attempt 2/3)
-callLLM @ scriptParser.ts:1652
-await in callLLM
-callLLM @ scriptParser.ts:1656
-await in callLLM
-generateAllShotsWithContext @ scriptParser.ts:3133
-parseScript @ scriptParser.ts:4538
-await in parseScript
-handleParseScript @ ScriptManager.tsx:539
-handleParseWithIntent @ ScriptManager.tsx:407
-(匿名) @ index.mjs:362
-(匿名) @ usePress.ts:249
-onClick @ usePress.ts:548
-executeDispatch @ react-dom-client.development.js:19116
-runWithFiberInDEV @ react-dom-client.development.js:871
-processDispatchQueue @ react-dom-client.development.js:19166
-(匿名) @ react-dom-client.development.js:19767
-batchedUpdates$1 @ react-dom-client.development.js:3255
-dispatchEventForPluginEventSystem @ react-dom-client.development.js:19320
-dispatchEvent @ react-dom-client.development.js:23585
-dispatchDiscreteEvent @ react-dom-client.development.js:23553
-<button>
-exports.jsxs @ react-jsx-runtime.development.js:349
-HeroUI.Button @ chunk-WBUKVQRU.mjs:27
-react_stack_bottom_frame @ react-dom-client.development.js:25904
-renderWithHooksAgain @ react-dom-client.development.js:7762
-renderWithHooks @ react-dom-client.development.js:7674
-updateForwardRef @ react-dom-client.development.js:9724
-beginWork @ react-dom-client.development.js:12117
-runWithFiberInDEV @ react-dom-client.development.js:871
-performUnitOfWork @ react-dom-client.development.js:17641
-workLoopSync @ react-dom-client.development.js:17469
-renderRootSync @ react-dom-client.development.js:17450
-performWorkOnRoot @ react-dom-client.development.js:16504
-performSyncWorkOnRoot @ react-dom-client.development.js:18972
-flushSyncWorkAcrossRoots_impl @ react-dom-client.development.js:18814
-processRootScheduleInMicrotask @ react-dom-client.development.js:18853
-(匿名) @ react-dom-client.development.js:18991
-<HeroUI.Button>
-exports.jsxDEV @ react-jsx-dev-runtime.development.js:335
-CreativeIntentModal @ CreativeIntentModal.tsx:316
-react_stack_bottom_frame @ react-dom-client.development.js:25904
-renderWithHooksAgain @ react-dom-client.development.js:7762
-renderWithHooks @ react-dom-client.development.js:7674
-updateFunctionComponent @ react-dom-client.development.js:10166
-beginWork @ react-dom-client.development.js:11778
-runWithFiberInDEV @ react-dom-client.development.js:871
-performUnitOfWork @ react-dom-client.development.js:17641
-workLoopSync @ react-dom-client.development.js:17469
-renderRootSync @ react-dom-client.development.js:17450
-performWorkOnRoot @ react-dom-client.development.js:16504
-performSyncWorkOnRoot @ react-dom-client.development.js:18972
-flushSyncWorkAcrossRoots_impl @ react-dom-client.development.js:18814
-processRootScheduleInMicrotask @ react-dom-client.development.js:18853
-(匿名) @ react-dom-client.development.js:18991
-BaseProvider.ts:85 提取 加载失败:POST "http://localhost:3000/api/universal-proxy".
-makeRequest @ BaseProvider.ts:85
-generateText @ LLMProvider.ts:94
-callLLM @ scriptParser.ts:1637
-await in callLLM
-callLLM @ scriptParser.ts:1656
-await in callLLM
-generateAllShotsWithContext @ scriptParser.ts:3133
-parseScript @ scriptParser.ts:4538
-await in parseScript
-handleParseScript @ ScriptManager.tsx:539
-handleParseWithIntent @ ScriptManager.tsx:407
-(匿名) @ index.mjs:362
-(匿名) @ usePress.ts:249
-onClick @ usePress.ts:548
-executeDispatch @ react-dom-client.development.js:19116
-runWithFiberInDEV @ react-dom-client.development.js:871
-processDispatchQueue @ react-dom-client.development.js:19166
-(匿名) @ react-dom-client.development.js:19767
-batchedUpdates$1 @ react-dom-client.development.js:3255
-dispatchEventForPluginEventSystem @ react-dom-client.development.js:19320
-dispatchEvent @ react-dom-client.development.js:23585
-dispatchDiscreteEvent @ react-dom-client.development.js:23553
-<button>
-exports.jsxs @ react-jsx-runtime.development.js:349
-HeroUI.Button @ chunk-WBUKVQRU.mjs:27
-react_stack_bottom_frame @ react-dom-client.development.js:25904
-renderWithHooksAgain @ react-dom-client.development.js:7762
-renderWithHooks @ react-dom-client.development.js:7674
-updateForwardRef @ react-dom-client.development.js:9724
-beginWork @ react-dom-client.development.js:12117
-runWithFiberInDEV @ react-dom-client.development.js:871
-performUnitOfWork @ react-dom-client.development.js:17641
-workLoopSync @ react-dom-client.development.js:17469
-renderRootSync @ react-dom-client.development.js:17450
-performWorkOnRoot @ react-dom-client.development.js:16504
-performSyncWorkOnRoot @ react-dom-client.development.js:18972
-flushSyncWorkAcrossRoots_impl @ react-dom-client.development.js:18814
-processRootScheduleInMicrotask @ react-dom-client.development.js:18853
-(匿名) @ react-dom-client.development.js:18991
-<HeroUI.Button>
-exports.jsxDEV @ react-jsx-dev-runtime.development.js:335
-CreativeIntentModal @ CreativeIntentModal.tsx:316
-react_stack_bottom_frame @ react-dom-client.development.js:25904
-renderWithHooksAgain @ react-dom-client.development.js:7762
-renderWithHooks @ react-dom-client.development.js:7674
-updateFunctionComponent @ react-dom-client.development.js:10166
-beginWork @ react-dom-client.development.js:11778
-runWithFiberInDEV @ react-dom-client.development.js:871
-performUnitOfWork @ react-dom-client.development.js:17641
-workLoopSync @ react-dom-client.development.js:17469
-renderRootSync @ react-dom-client.development.js:17450
-performWorkOnRoot @ react-dom-client.development.js:16504
-performSyncWorkOnRoot @ react-dom-client.development.js:18972
-flushSyncWorkAcrossRoots_impl @ react-dom-client.development.js:18814
-processRootScheduleInMicrotask @ react-dom-client.development.js:18853
-(匿名) @ react-dom-client.development.js:18991
-scriptParser.ts:1603 [ScriptParser] callLLM called for shots, retryCount: 2
-scriptParser.ts:1604 [ScriptParser] API URL: https://ark.cn-beijing.volces.com/api/v3
-scriptParser.ts:1605 [ScriptParser] Model: doubao-seed-1-8-251228
-scriptParser.ts:1606 [ScriptParser] Max Tokens: 12000
-scriptParser.ts:1607 [ScriptParser] Timeout: 180000ms
-scriptParser.ts:1636 [ScriptParser] Calling LLMProvider.generateText...
-LLMProvider.ts:81 [LLMProvider] ========== API Request ==========
-LLMProvider.ts:82 [LLMProvider] Endpoint: https://ark.cn-beijing.volces.com/api/v3/chat/completions
-LLMProvider.ts:83 [LLMProvider] Model: doubao-seed-1-8-251228
-LLMProvider.ts:84 [LLMProvider] enable_thinking: false
-LLMProvider.ts:85 [LLMProvider] Temperature: 0.3
-LLMProvider.ts:86 [LLMProvider] Max Tokens: 12000
-LLMProvider.ts:87 [LLMProvider] Messages count: 2
-LLMProvider.ts:88 [LLMProvider] First message length: 48 characters
-LLMProvider.ts:89 [LLMProvider] Request body: {
-  "model": "doubao-seed-1-8-251228",
-  "messages": [
-    {
-      "role": "system",
-      "content": "你是一个专业的剧本分析助手，擅长从小说/剧本中提取结构化信息。请严格按照要求的JSON格式输出。"
-    },
-    {
-      "role": "user",
-      "content": "【视觉指导】\n- 美术风格：东方写意仙侠、古风写实\n- 色彩方案：#1A2421、#8B5A2B、#F9F6E8\n- 摄影风格：全景铺展仙宗格局，近景刻画人物情绪\n- 光影风格：杂役院暖黄夕照配冷暗阴影，仙宗柔光云雾\n- 参考风格：《诛仙Ⅰ》、《蜀山传》、徐克、程小东\n\n\n\n\n\n\n\n【角色】专业影视分镜师\n【任务】根据小说文本和情节分析生成影视级分镜脚本\n\n【剧本内容】\n## 第一章 杂役苦\r\n青云宗，东域三大修仙宗门之一，立宗三千年，山门矗立于青云山脉之巅，云雾缭绕，灵气流淌，仙鹤盘旋，琼楼玉宇隐于云海之间，是无数凡人与低阶修士梦寐以求的修仙...
-LLMProvider.ts:91 [LLMProvider] Sending request...
-BaseProvider.ts:63 [BaseProvider] Requesting: https://ark.cn-beijing.volces.com/api/v3/chat/completions, Mode: DEV, Localhost: true
-BaseProvider.ts:84 [BaseProvider] Using Proxy: /api/universal-proxy -> https://ark.cn-beijing.volces.com/api/v3/chat/completions
-MultiLevelCache.ts:447 [MultiLevelCache] Cleanup completed
-MultiLevelCache.ts:447 [MultiLevelCache] Cleanup completed
-BaseProvider.ts:68  [BaseProvider] Request timeout after 120000ms: https://ark.cn-beijing.volces.com/api/v3/chat/completions
-(匿名) @ BaseProvider.ts:68
-setTimeout
-makeRequest @ BaseProvider.ts:67
-generateText @ LLMProvider.ts:94
-callLLM @ scriptParser.ts:1637
-await in callLLM
-callLLM @ scriptParser.ts:1656
-await in callLLM
-callLLM @ scriptParser.ts:1656
-await in callLLM
-generateAllShotsWithContext @ scriptParser.ts:3133
-parseScript @ scriptParser.ts:4538
-await in parseScript
-handleParseScript @ ScriptManager.tsx:539
-handleParseWithIntent @ ScriptManager.tsx:407
-(匿名) @ index.mjs:362
-(匿名) @ usePress.ts:249
-onClick @ usePress.ts:548
-executeDispatch @ react-dom-client.development.js:19116
-runWithFiberInDEV @ react-dom-client.development.js:871
-processDispatchQueue @ react-dom-client.development.js:19166
-(匿名) @ react-dom-client.development.js:19767
-batchedUpdates$1 @ react-dom-client.development.js:3255
-dispatchEventForPluginEventSystem @ react-dom-client.development.js:19320
-dispatchEvent @ react-dom-client.development.js:23585
-dispatchDiscreteEvent @ react-dom-client.development.js:23553
-BaseProvider.ts:104  [BaseProvider] Request aborted (timeout): https://ark.cn-beijing.volces.com/api/v3/chat/completions
-makeRequest @ BaseProvider.ts:104
-await in makeRequest
-generateText @ LLMProvider.ts:94
-callLLM @ scriptParser.ts:1637
-await in callLLM
-callLLM @ scriptParser.ts:1656
-await in callLLM
-callLLM @ scriptParser.ts:1656
-await in callLLM
-generateAllShotsWithContext @ scriptParser.ts:3133
-parseScript @ scriptParser.ts:4538
-await in parseScript
-handleParseScript @ ScriptManager.tsx:539
-handleParseWithIntent @ ScriptManager.tsx:407
-(匿名) @ index.mjs:362
-(匿名) @ usePress.ts:249
-onClick @ usePress.ts:548
-executeDispatch @ react-dom-client.development.js:19116
-runWithFiberInDEV @ react-dom-client.development.js:871
-processDispatchQueue @ react-dom-client.development.js:19166
-(匿名) @ react-dom-client.development.js:19767
-batchedUpdates$1 @ react-dom-client.development.js:3255
-dispatchEventForPluginEventSystem @ react-dom-client.development.js:19320
-dispatchEvent @ react-dom-client.development.js:23585
-dispatchDiscreteEvent @ react-dom-client.development.js:23553
-LLMProvider.ts:134  [LLMProvider] Error: Error: Request timeout after 120000ms
-    at LLMProvider.makeRequest (BaseProvider.ts:105:23)
-    at async LLMProvider.generateText (LLMProvider.ts:94:24)
-    at async ScriptParser.callLLM (scriptParser.ts:1637:22)
-    at async ScriptParser.generateAllShotsWithContext (scriptParser.ts:3133:22)
-    at async ScriptParser.parseScript (scriptParser.ts:4538:32)
-    at async handleParseScript (ScriptManager.tsx:539:26)
-    at async handleParseWithIntent (ScriptManager.tsx:407:5)
-generateText @ LLMProvider.ts:134
-await in generateText
-callLLM @ scriptParser.ts:1637
-await in callLLM
-callLLM @ scriptParser.ts:1656
-await in callLLM
-callLLM @ scriptParser.ts:1656
-await in callLLM
-generateAllShotsWithContext @ scriptParser.ts:3133
-parseScript @ scriptParser.ts:4538
-await in parseScript
-handleParseScript @ ScriptManager.tsx:539
-handleParseWithIntent @ ScriptManager.tsx:407
-(匿名) @ index.mjs:362
-(匿名) @ usePress.ts:249
-onClick @ usePress.ts:548
-executeDispatch @ react-dom-client.development.js:19116
-runWithFiberInDEV @ react-dom-client.development.js:871
-processDispatchQueue @ react-dom-client.development.js:19166
-(匿名) @ react-dom-client.development.js:19767
-batchedUpdates$1 @ react-dom-client.development.js:3255
-dispatchEventForPluginEventSystem @ react-dom-client.development.js:19320
-dispatchEvent @ react-dom-client.development.js:23585
-dispatchDiscreteEvent @ react-dom-client.development.js:23553
-scriptParser.ts:1647  [ScriptParser] LLMProvider error: Request timeout after 120000ms
-callLLM @ scriptParser.ts:1647
-await in callLLM
-callLLM @ scriptParser.ts:1656
-await in callLLM
-callLLM @ scriptParser.ts:1656
-await in callLLM
-generateAllShotsWithContext @ scriptParser.ts:3133
-parseScript @ scriptParser.ts:4538
-await in parseScript
-handleParseScript @ ScriptManager.tsx:539
-handleParseWithIntent @ ScriptManager.tsx:407
-(匿名) @ index.mjs:362
-(匿名) @ usePress.ts:249
-onClick @ usePress.ts:548
-executeDispatch @ react-dom-client.development.js:19116
-runWithFiberInDEV @ react-dom-client.development.js:871
-processDispatchQueue @ react-dom-client.development.js:19166
-(匿名) @ react-dom-client.development.js:19767
-batchedUpdates$1 @ react-dom-client.development.js:3255
-dispatchEventForPluginEventSystem @ react-dom-client.development.js:19320
-dispatchEvent @ react-dom-client.development.js:23585
-dispatchDiscreteEvent @ react-dom-client.development.js:23553
-scriptParser.ts:1652  API error, retrying in 16000ms... (attempt 3/3)
-callLLM @ scriptParser.ts:1652
-await in callLLM
-callLLM @ scriptParser.ts:1656
-await in callLLM
-callLLM @ scriptParser.ts:1656
-await in callLLM
-generateAllShotsWithContext @ scriptParser.ts:3133
-parseScript @ scriptParser.ts:4538
-await in parseScript
-handleParseScript @ ScriptManager.tsx:539
-handleParseWithIntent @ ScriptManager.tsx:407
-(匿名) @ index.mjs:362
-(匿名) @ usePress.ts:249
-onClick @ usePress.ts:548
-executeDispatch @ react-dom-client.development.js:19116
-runWithFiberInDEV @ react-dom-client.development.js:871
-processDispatchQueue @ react-dom-client.development.js:19166
-(匿名) @ react-dom-client.development.js:19767
-batchedUpdates$1 @ react-dom-client.development.js:3255
-dispatchEventForPluginEventSystem @ react-dom-client.development.js:19320
-dispatchEvent @ react-dom-client.development.js:23585
-dispatchDiscreteEvent @ react-dom-client.development.js:23553
-BaseProvider.ts:85 提取 加载失败:POST "http://localhost:3000/api/universal-proxy".
-makeRequest @ BaseProvider.ts:85
-generateText @ LLMProvider.ts:94
-callLLM @ scriptParser.ts:1637
-await in callLLM
-callLLM @ scriptParser.ts:1656
-await in callLLM
-callLLM @ scriptParser.ts:1656
-await in callLLM
-generateAllShotsWithContext @ scriptParser.ts:3133
-parseScript @ scriptParser.ts:4538
-await in parseScript
-handleParseScript @ ScriptManager.tsx:539
-handleParseWithIntent @ ScriptManager.tsx:407
-(匿名) @ index.mjs:362
-(匿名) @ usePress.ts:249
-onClick @ usePress.ts:548
-executeDispatch @ react-dom-client.development.js:19116
-runWithFiberInDEV @ react-dom-client.development.js:871
-processDispatchQueue @ react-dom-client.development.js:19166
-(匿名) @ react-dom-client.development.js:19767
-batchedUpdates$1 @ react-dom-client.development.js:3255
-dispatchEventForPluginEventSystem @ react-dom-client.development.js:19320
-dispatchEvent @ react-dom-client.development.js:23585
-dispatchDiscreteEvent @ react-dom-client.development.js:23553
-<button>
-exports.jsxs @ react-jsx-runtime.development.js:349
-HeroUI.Button @ chunk-WBUKVQRU.mjs:27
-react_stack_bottom_frame @ react-dom-client.development.js:25904
-renderWithHooksAgain @ react-dom-client.development.js:7762
-renderWithHooks @ react-dom-client.development.js:7674
-updateForwardRef @ react-dom-client.development.js:9724
-beginWork @ react-dom-client.development.js:12117
-runWithFiberInDEV @ react-dom-client.development.js:871
-performUnitOfWork @ react-dom-client.development.js:17641
-workLoopSync @ react-dom-client.development.js:17469
-renderRootSync @ react-dom-client.development.js:17450
-performWorkOnRoot @ react-dom-client.development.js:16504
-performSyncWorkOnRoot @ react-dom-client.development.js:18972
-flushSyncWorkAcrossRoots_impl @ react-dom-client.development.js:18814
-processRootScheduleInMicrotask @ react-dom-client.development.js:18853
-(匿名) @ react-dom-client.development.js:18991
-<HeroUI.Button>
-exports.jsxDEV @ react-jsx-dev-runtime.development.js:335
-CreativeIntentModal @ CreativeIntentModal.tsx:316
-react_stack_bottom_frame @ react-dom-client.development.js:25904
-renderWithHooksAgain @ react-dom-client.development.js:7762
-renderWithHooks @ react-dom-client.development.js:7674
-updateFunctionComponent @ react-dom-client.development.js:10166
-beginWork @ react-dom-client.development.js:11778
-runWithFiberInDEV @ react-dom-client.development.js:871
-performUnitOfWork @ react-dom-client.development.js:17641
-workLoopSync @ react-dom-client.development.js:17469
-renderRootSync @ react-dom-client.development.js:17450
-performWorkOnRoot @ react-dom-client.development.js:16504
-performSyncWorkOnRoot @ react-dom-client.development.js:18972
-flushSyncWorkAcrossRoots_impl @ react-dom-client.development.js:18814
-processRootScheduleInMicrotask @ react-dom-client.development.js:18853
-(匿名) @ react-dom-client.development.js:18991
-scriptParser.ts:1603 [ScriptParser] callLLM called for shots, retryCount: 3
-scriptParser.ts:1604 [ScriptParser] API URL: https://ark.cn-beijing.volces.com/api/v3
-scriptParser.ts:1605 [ScriptParser] Model: doubao-seed-1-8-251228
-scriptParser.ts:1606 [ScriptParser] Max Tokens: 12000
-scriptParser.ts:1607 [ScriptParser] Timeout: 180000ms
-scriptParser.ts:1636 [ScriptParser] Calling LLMProvider.generateText...
-LLMProvider.ts:81 [LLMProvider] ========== API Request ==========
-LLMProvider.ts:82 [LLMProvider] Endpoint: https://ark.cn-beijing.volces.com/api/v3/chat/completions
-LLMProvider.ts:83 [LLMProvider] Model: doubao-seed-1-8-251228
-LLMProvider.ts:84 [LLMProvider] enable_thinking: false
-LLMProvider.ts:85 [LLMProvider] Temperature: 0.3
-LLMProvider.ts:86 [LLMProvider] Max Tokens: 12000
-LLMProvider.ts:87 [LLMProvider] Messages count: 2
-LLMProvider.ts:88 [LLMProvider] First message length: 48 characters
-LLMProvider.ts:89 [LLMProvider] Request body: {
-  "model": "doubao-seed-1-8-251228",
-  "messages": [
-    {
-      "role": "system",
-      "content": "你是一个专业的剧本分析助手，擅长从小说/剧本中提取结构化信息。请严格按照要求的JSON格式输出。"
-    },
-    {
-      "role": "user",
-      "content": "【视觉指导】\n- 美术风格：东方写意仙侠、古风写实\n- 色彩方案：#1A2421、#8B5A2B、#F9F6E8\n- 摄影风格：全景铺展仙宗格局，近景刻画人物情绪\n- 光影风格：杂役院暖黄夕照配冷暗阴影，仙宗柔光云雾\n- 参考风格：《诛仙Ⅰ》、《蜀山传》、徐克、程小东\n\n\n\n\n\n\n\n【角色】专业影视分镜师\n【任务】根据小说文本和情节分析生成影视级分镜脚本\n\n【剧本内容】\n## 第一章 杂役苦\r\n青云宗，东域三大修仙宗门之一，立宗三千年，山门矗立于青云山脉之巅，云雾缭绕，灵气流淌，仙鹤盘旋，琼楼玉宇隐于云海之间，是无数凡人与低阶修士梦寐以求的修仙...
-LLMProvider.ts:91 [LLMProvider] Sending request...
-BaseProvider.ts:63 [BaseProvider] Requesting: https://ark.cn-beijing.volces.com/api/v3/chat/completions, Mode: DEV, Localhost: true
-BaseProvider.ts:84 [BaseProvider] Using Proxy: /api/universal-proxy -> https://ark.cn-beijing.volces.com/api/v3/chat/completions
-AppContext.tsx:25 [STORAGE] Connection check: Connected=true, Responsive=true
-AppContext.tsx:25 [STORAGE] Connection check: Connected=true, Responsive=true
-BaseProvider.ts:99 [BaseProvider] Response received: 200 OK
-LLMProvider.ts:104 [LLMProvider] Request completed in 120040ms
-LLMProvider.ts:118 [LLMProvider] ========== API Response ==========
-LLMProvider.ts:119 [LLMProvider] Response length: 10927 characters
-LLMProvider.ts:120 [LLMProvider] Prompt tokens: 2632
-LLMProvider.ts:121 [LLMProvider] Completion tokens: 5773
-LLMProvider.ts:122 [LLMProvider] Total tokens: 8405
-LLMProvider.ts:123 [LLMProvider] Response preview: [
-  {
-    "sceneName": "青云宗山门",
-    "shotNumber": "SC01-01A",
-    "sequence": 1,
-    "shotType": "ex...
-scriptParser.ts:1662 [ScriptParser] LLM response received, length: 10927
-scriptParser.ts:3134 [ScriptParser] Batch response received, length: 10927 characters
-scriptParser.ts:3137 [ScriptParser] Parsed 12 shots from batch response
-scriptParser.ts:3156 [ScriptParser] Generated 12 shots: 7 key + 3 optional
-scriptParser.ts:4540 [ScriptParser] Batch 1 complete: 12 shots
 storage.ts:1230 [Storage] getScripts called, projectId: d86d53d6-f709-465e-bdde-339535cb2ff0
 storage.ts:1231 [Storage] Reading file: scripts_d86d53d6-f709-465e-bdde-339535cb2ff0.json
+BaseProvider.ts:85 提取 加载失败:POST "http://localhost:3000/api/universal-proxy".
+makeRequest @ BaseProvider.ts:85
+generateStructured @ LLMProvider.ts:250
+callStructuredLLM @ scriptParser.ts:1803
+await in callStructuredLLM
+extractMetadata @ scriptParser.ts:2072
+parseScript @ scriptParser.ts:4397
+await in parseScript
+handleParseScript @ ScriptManager.tsx:539
+handleParseWithIntent @ ScriptManager.tsx:407
+(匿名) @ index.mjs:362
+(匿名) @ usePress.ts:249
+onClick @ usePress.ts:548
+executeDispatch @ react-dom-client.development.js:19116
+runWithFiberInDEV @ react-dom-client.development.js:871
+processDispatchQueue @ react-dom-client.development.js:19166
+(匿名) @ react-dom-client.development.js:19767
+batchedUpdates$1 @ react-dom-client.development.js:3255
+dispatchEventForPluginEventSystem @ react-dom-client.development.js:19320
+dispatchEvent @ react-dom-client.development.js:23585
+dispatchDiscreteEvent @ react-dom-client.development.js:23553
+<button>
+exports.jsxs @ react-jsx-runtime.development.js:349
+HeroUI.Button @ chunk-WBUKVQRU.mjs:27
+react_stack_bottom_frame @ react-dom-client.development.js:25904
+renderWithHooksAgain @ react-dom-client.development.js:7762
+renderWithHooks @ react-dom-client.development.js:7674
+updateForwardRef @ react-dom-client.development.js:9724
+beginWork @ react-dom-client.development.js:12117
+runWithFiberInDEV @ react-dom-client.development.js:871
+performUnitOfWork @ react-dom-client.development.js:17641
+workLoopSync @ react-dom-client.development.js:17469
+renderRootSync @ react-dom-client.development.js:17450
+performWorkOnRoot @ react-dom-client.development.js:16504
+performSyncWorkOnRoot @ react-dom-client.development.js:18972
+flushSyncWorkAcrossRoots_impl @ react-dom-client.development.js:18814
+processRootScheduleInMicrotask @ react-dom-client.development.js:18853
+(匿名) @ react-dom-client.development.js:18991
+<HeroUI.Button>
+exports.jsxDEV @ react-jsx-dev-runtime.development.js:335
+CreativeIntentModal @ CreativeIntentModal.tsx:316
+react_stack_bottom_frame @ react-dom-client.development.js:25904
+renderWithHooksAgain @ react-dom-client.development.js:7762
+renderWithHooks @ react-dom-client.development.js:7674
+updateFunctionComponent @ react-dom-client.development.js:10166
+beginWork @ react-dom-client.development.js:11778
+runWithFiberInDEV @ react-dom-client.development.js:871
+performUnitOfWork @ react-dom-client.development.js:17641
+workLoopSync @ react-dom-client.development.js:17469
+renderRootSync @ react-dom-client.development.js:17450
+performWorkOnRoot @ react-dom-client.development.js:16504
+performSyncWorkOnRoot @ react-dom-client.development.js:18972
+flushSyncWorkAcrossRoots_impl @ react-dom-client.development.js:18814
+processRootScheduleInMicrotask @ react-dom-client.development.js:18853
+(匿名) @ react-dom-client.development.js:18991
 storage.ts:1233 [Storage] Read result: Found 2 scripts
-storage.ts:712 [STORAGE] Slow FileSystem write: scripts_d86d53d6-f709-465e-bdde-339535cb2ff0.json took 107.00ms
-scriptParser.ts:4528 [ScriptParser] Processing batch 2/3: 2 scenes
-scriptParser.ts:3097 [ScriptParser] ---------- Batch Generating Shots with Context for 2 Scenes ----------
-scriptParser.ts:1470 [ScriptParser] Shot calculation: 5589 chars → 28min → 112 shots (key: 79, optional: 33, density: 4)
-scriptParser.ts:3115 [ScriptParser] Target: 112 shots (79 key + 33 optional)
-scriptParser.ts:3126 [ScriptParser] Injecting global context into shots generation
-scriptParser.ts:3131 [ScriptParser] Context-enhanced prompt length: 7724 characters
-scriptParser.ts:1603 [ScriptParser] callLLM called for shots, retryCount: 0
-scriptParser.ts:1604 [ScriptParser] API URL: https://ark.cn-beijing.volces.com/api/v3
-scriptParser.ts:1605 [ScriptParser] Model: doubao-seed-1-8-251228
-scriptParser.ts:1606 [ScriptParser] Max Tokens: 12000
-scriptParser.ts:1607 [ScriptParser] Timeout: 90000ms
-scriptParser.ts:1636 [ScriptParser] Calling LLMProvider.generateText...
-LLMProvider.ts:81 [LLMProvider] ========== API Request ==========
-LLMProvider.ts:82 [LLMProvider] Endpoint: https://ark.cn-beijing.volces.com/api/v3/chat/completions
-LLMProvider.ts:83 [LLMProvider] Model: doubao-seed-1-8-251228
-LLMProvider.ts:84 [LLMProvider] enable_thinking: false
-LLMProvider.ts:85 [LLMProvider] Temperature: 0.3
-LLMProvider.ts:86 [LLMProvider] Max Tokens: 12000
-LLMProvider.ts:87 [LLMProvider] Messages count: 2
-LLMProvider.ts:88 [LLMProvider] First message length: 48 characters
-LLMProvider.ts:89 [LLMProvider] Request body: {
-  "model": "doubao-seed-1-8-251228",
-  "messages": [
-    {
-      "role": "system",
-      "content": "你是一个专业的剧本分析助手，擅长从小说/剧本中提取结构化信息。请严格按照要求的JSON格式输出。"
-    },
-    {
-      "role": "user",
-      "content": "【视觉指导】\n- 美术风格：东方写意仙侠、古风写实\n- 色彩方案：#1A2421、#8B5A2B、#F9F6E8\n- 摄影风格：全景铺展仙宗格局，近景刻画人物情绪\n- 光影风格：杂役院暖黄夕照配冷暗阴影，仙宗柔光云雾\n- 参考风格：《诛仙Ⅰ》、《蜀山传》、徐克、程小东\n\n\n\n\n\n\n\n【角色】专业影视分镜师\n【任务】根据小说文本和情节分析生成影视级分镜脚本\n\n【剧本内容】\n## 第一章 杂役苦\r\n青云宗，东域三大修仙宗门之一，立宗三千年，山门矗立于青云山脉之巅，云雾缭绕，灵气流淌，仙鹤盘旋，琼楼玉宇隐于云海之间，是无数凡人与低阶修士梦寐以求的修仙...
-LLMProvider.ts:91 [LLMProvider] Sending request...
-BaseProvider.ts:63 [BaseProvider] Requesting: https://ark.cn-beijing.volces.com/api/v3/chat/completions, Mode: DEV, Localhost: true
-BaseProvider.ts:84 [BaseProvider] Using Proxy: /api/universal-proxy -> https://ark.cn-beijing.volces.com/api/v3/chat/completions
-AppContext.tsx:25 [STORAGE] Connection check: Connected=true, Responsive=true
+scriptParser.ts:4840  [ScriptParser] Parse failed after 120172ms: Request timeout after 120000ms
+parseScript @ scriptParser.ts:4840
+await in parseScript
+handleParseScript @ ScriptManager.tsx:539
+handleParseWithIntent @ ScriptManager.tsx:407
+(匿名) @ index.mjs:362
+(匿名) @ usePress.ts:249
+onClick @ usePress.ts:548
+executeDispatch @ react-dom-client.development.js:19116
+runWithFiberInDEV @ react-dom-client.development.js:871
+processDispatchQueue @ react-dom-client.development.js:19166
+(匿名) @ react-dom-client.development.js:19767
+batchedUpdates$1 @ react-dom-client.development.js:3255
+dispatchEventForPluginEventSystem @ react-dom-client.development.js:19320
+dispatchEvent @ react-dom-client.development.js:23585
+dispatchDiscreteEvent @ react-dom-client.development.js:23553
+<button>
+exports.jsxs @ react-jsx-runtime.development.js:349
+HeroUI.Button @ chunk-WBUKVQRU.mjs:27
+react_stack_bottom_frame @ react-dom-client.development.js:25904
+renderWithHooksAgain @ react-dom-client.development.js:7762
+renderWithHooks @ react-dom-client.development.js:7674
+updateForwardRef @ react-dom-client.development.js:9724
+beginWork @ react-dom-client.development.js:12117
+runWithFiberInDEV @ react-dom-client.development.js:871
+performUnitOfWork @ react-dom-client.development.js:17641
+workLoopSync @ react-dom-client.development.js:17469
+renderRootSync @ react-dom-client.development.js:17450
+performWorkOnRoot @ react-dom-client.development.js:16504
+performSyncWorkOnRoot @ react-dom-client.development.js:18972
+flushSyncWorkAcrossRoots_impl @ react-dom-client.development.js:18814
+processRootScheduleInMicrotask @ react-dom-client.development.js:18853
+(匿名) @ react-dom-client.development.js:18991
+<HeroUI.Button>
+exports.jsxDEV @ react-jsx-dev-runtime.development.js:335
+CreativeIntentModal @ CreativeIntentModal.tsx:316
+react_stack_bottom_frame @ react-dom-client.development.js:25904
+renderWithHooksAgain @ react-dom-client.development.js:7762
+renderWithHooks @ react-dom-client.development.js:7674
+updateFunctionComponent @ react-dom-client.development.js:10166
+beginWork @ react-dom-client.development.js:11778
+runWithFiberInDEV @ react-dom-client.development.js:871
+performUnitOfWork @ react-dom-client.development.js:17641
+workLoopSync @ react-dom-client.development.js:17469
+renderRootSync @ react-dom-client.development.js:17450
+performWorkOnRoot @ react-dom-client.development.js:16504
+performSyncWorkOnRoot @ react-dom-client.development.js:18972
+flushSyncWorkAcrossRoots_impl @ react-dom-client.development.js:18814
+processRootScheduleInMicrotask @ react-dom-client.development.js:18853
+(匿名) @ react-dom-client.development.js:18991
+ScriptManager.tsx:575  [ScriptManager] Parse error: Error: Request timeout after 120000ms
+    at ScriptParser.callStructuredLLM (scriptParser.ts:1812:13)
+    at async ScriptParser.extractMetadata (scriptParser.ts:2072:22)
+    at async ScriptParser.parseScript (scriptParser.ts:4397:26)
+    at async handleParseScript (ScriptManager.tsx:539:26)
+    at async handleParseWithIntent (ScriptManager.tsx:407:5)
+handleParseScript @ ScriptManager.tsx:575
+await in handleParseScript
+handleParseWithIntent @ ScriptManager.tsx:407
+(匿名) @ index.mjs:362
+(匿名) @ usePress.ts:249
+onClick @ usePress.ts:548
+executeDispatch @ react-dom-client.development.js:19116
+runWithFiberInDEV @ react-dom-client.development.js:871
+processDispatchQueue @ react-dom-client.development.js:19166
+(匿名) @ react-dom-client.development.js:19767
+batchedUpdates$1 @ react-dom-client.development.js:3255
+dispatchEventForPluginEventSystem @ react-dom-client.development.js:19320
+dispatchEvent @ react-dom-client.development.js:23585
+dispatchDiscreteEvent @ react-dom-client.development.js:23553
+<button>
+exports.jsxs @ react-jsx-runtime.development.js:349
+HeroUI.Button @ chunk-WBUKVQRU.mjs:27
+react_stack_bottom_frame @ react-dom-client.development.js:25904
+renderWithHooksAgain @ react-dom-client.development.js:7762
+renderWithHooks @ react-dom-client.development.js:7674
+updateForwardRef @ react-dom-client.development.js:9724
+beginWork @ react-dom-client.development.js:12117
+runWithFiberInDEV @ react-dom-client.development.js:871
+performUnitOfWork @ react-dom-client.development.js:17641
+workLoopSync @ react-dom-client.development.js:17469
+renderRootSync @ react-dom-client.development.js:17450
+performWorkOnRoot @ react-dom-client.development.js:16504
+performSyncWorkOnRoot @ react-dom-client.development.js:18972
+flushSyncWorkAcrossRoots_impl @ react-dom-client.development.js:18814
+processRootScheduleInMicrotask @ react-dom-client.development.js:18853
+(匿名) @ react-dom-client.development.js:18991
+<HeroUI.Button>
+exports.jsxDEV @ react-jsx-dev-runtime.development.js:335
+CreativeIntentModal @ CreativeIntentModal.tsx:316
+react_stack_bottom_frame @ react-dom-client.development.js:25904
+renderWithHooksAgain @ react-dom-client.development.js:7762
+renderWithHooks @ react-dom-client.development.js:7674
+updateFunctionComponent @ react-dom-client.development.js:10166
+beginWork @ react-dom-client.development.js:11778
+runWithFiberInDEV @ react-dom-client.development.js:871
+performUnitOfWork @ react-dom-client.development.js:17641
+workLoopSync @ react-dom-client.development.js:17469
+renderRootSync @ react-dom-client.development.js:17450
+performWorkOnRoot @ react-dom-client.development.js:16504
+performSyncWorkOnRoot @ react-dom-client.development.js:18972
+flushSyncWorkAcrossRoots_impl @ react-dom-client.development.js:18814
+processRootScheduleInMicrotask @ react-dom-client.development.js:18853
+(匿名) @ react-dom-client.development.js:18991
+MultiLevelCache.ts:447 [MultiLevelCache] Cleanup completed
+MultiLevelCache.ts:447 [MultiLevelCache] Cleanup completed

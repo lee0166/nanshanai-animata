@@ -6,7 +6,7 @@
 // 测试配置
 const TEST_CONFIG = {
   verbose: true,
-  stopOnFail: false
+  stopOnFail: false,
 };
 
 // 测试结果统计
@@ -14,7 +14,7 @@ let testResults = {
   passed: 0,
   failed: 0,
   total: 0,
-  errors: []
+  errors: [],
 };
 
 // 简单的断言函数
@@ -196,7 +196,8 @@ function testUnknownModel() {
   console.log('----------------------------------------');
 
   try {
-    const { getModelLimits, calculateEffectiveMaxTokens, validateTokenConfig } = window.ModelCapabilityManager || {};
+    const { getModelLimits, calculateEffectiveMaxTokens, validateTokenConfig } =
+      window.ModelCapabilityManager || {};
 
     if (!getModelLimits) {
       console.warn('⚠️ ModelCapabilityManager 未挂载到 window');
@@ -281,7 +282,7 @@ window.TokenLimitTests = {
   testCalculateEffectiveMaxTokensWithinLimit,
   testValidateTokenConfigValid,
   testValidateTokenConfigInvalid,
-  testUnknownModel
+  testUnknownModel,
 };
 
 console.log('✅ Token 限制测试脚本已加载');

@@ -1,6 +1,6 @@
 /**
  * SoundDesignTab - 声音设计Tab组件
- * 
+ *
  * 展示基于情绪曲线和分镜音效的声音设计方案
  */
 
@@ -21,20 +21,14 @@ import {
 } from '@heroui/react';
 import { Music, Volume2, Wind, Zap, BarChart3 } from 'lucide-react';
 import type { ScriptMetadata, Shot } from '@/types';
-import {
-  soundDesigner,
-  type SoundDesignAnalysis,
-} from '@/src/services/parsing/professional';
+import { soundDesigner, type SoundDesignAnalysis } from '@/src/services/parsing/professional';
 
 interface SoundDesignTabProps {
   metadata: ScriptMetadata;
   shots: Shot[];
 }
 
-export const SoundDesignTab: React.FC<SoundDesignTabProps> = ({
-  metadata,
-  shots,
-}) => {
+export const SoundDesignTab: React.FC<SoundDesignTabProps> = ({ metadata, shots }) => {
   // 使用 useMemo 缓存分析结果
   const analysis = useMemo(() => {
     return soundDesigner.analyze(metadata, shots);
@@ -131,9 +125,7 @@ export const SoundDesignTab: React.FC<SoundDesignTabProps> = ({
             <h3 className="text-lg font-semibold">情绪音乐映射</h3>
           </CardHeader>
           <CardBody>
-            <p className="text-default-500 text-center py-8">
-              暂无情绪曲线数据
-            </p>
+            <p className="text-default-500 text-center py-8">暂无情绪曲线数据</p>
           </CardBody>
         </Card>
       );
@@ -175,7 +167,13 @@ export const SoundDesignTab: React.FC<SoundDesignTabProps> = ({
                         value={item.intensity * 10}
                         className="w-16"
                         size="sm"
-                        color={item.intensity >= 7 ? 'danger' : item.intensity >= 4 ? 'warning' : 'success'}
+                        color={
+                          item.intensity >= 7
+                            ? 'danger'
+                            : item.intensity >= 4
+                              ? 'warning'
+                              : 'success'
+                        }
                       />
                       <span className="text-sm">{item.intensity}/10</span>
                     </div>
@@ -215,7 +213,9 @@ export const SoundDesignTab: React.FC<SoundDesignTabProps> = ({
               <div className="flex items-center gap-2 mb-3">
                 <Wind size={18} className="text-success" />
                 <h4 className="font-medium">环境音</h4>
-                <Chip size="sm" variant="flat">{soundPalette.ambientSounds.length}</Chip>
+                <Chip size="sm" variant="flat">
+                  {soundPalette.ambientSounds.length}
+                </Chip>
               </div>
               <div className="flex flex-wrap gap-2">
                 {soundPalette.ambientSounds.length > 0 ? (
@@ -235,7 +235,9 @@ export const SoundDesignTab: React.FC<SoundDesignTabProps> = ({
               <div className="flex items-center gap-2 mb-3">
                 <Zap size={18} className="text-warning" />
                 <h4 className="font-medium">音效</h4>
-                <Chip size="sm" variant="flat">{soundPalette.effectSounds.length}</Chip>
+                <Chip size="sm" variant="flat">
+                  {soundPalette.effectSounds.length}
+                </Chip>
               </div>
               <div className="flex flex-wrap gap-2">
                 {soundPalette.effectSounds.length > 0 ? (
@@ -255,7 +257,9 @@ export const SoundDesignTab: React.FC<SoundDesignTabProps> = ({
               <div className="flex items-center gap-2 mb-3">
                 <Music size={18} className="text-danger" />
                 <h4 className="font-medium">配乐主题</h4>
-                <Chip size="sm" variant="flat">{soundPalette.musicThemes.length}</Chip>
+                <Chip size="sm" variant="flat">
+                  {soundPalette.musicThemes.length}
+                </Chip>
               </div>
               <div className="flex flex-wrap gap-2">
                 {soundPalette.musicThemes.length > 0 ? (

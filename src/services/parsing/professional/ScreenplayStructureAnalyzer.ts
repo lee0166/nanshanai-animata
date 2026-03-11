@@ -1,16 +1,13 @@
 /**
  * ScreenplayStructureAnalyzer - 剧本结构分析服务
- * 
+ *
  * 基于现有 StoryStructure 和 emotionalArc 进行结构可视化分析
  * 零LLM调用，纯数据转换和计算
  * 输入: storyStructure, emotionalArc, wordCount
  * 输出: StructureAnalysis
  */
 
-import type {
-  StoryStructure,
-  EmotionalPoint,
-} from '../../../../types';
+import type { StoryStructure, EmotionalPoint } from '../../../../types';
 
 // ==========================================
 // 类型定义
@@ -99,9 +96,9 @@ const THREE_ACT_RATIOS = {
  */
 const FIVE_ACT_RATIOS = {
   act1: 0.15,
-  act2a: 0.20,
-  act2b: 0.30,
-  act2c: 0.20,
+  act2a: 0.2,
+  act2b: 0.3,
+  act2c: 0.2,
   act3: 0.15,
 };
 
@@ -109,10 +106,10 @@ const FIVE_ACT_RATIOS = {
  * 英雄之旅占比
  */
 const HERO_JOURNEY_RATIOS = {
-  act1: 0.20,
-  act2a: 0.30,
-  act2b: 0.30,
-  act3: 0.20,
+  act1: 0.2,
+  act2a: 0.3,
+  act2b: 0.3,
+  act3: 0.2,
 };
 
 // ==========================================
@@ -135,20 +132,13 @@ export class ScreenplayStructureAnalyzer {
     console.log('[ScreenplayStructureAnalyzer] Starting structure analysis...');
 
     // 1. 计算幕长度
-    const actLengths = this.calculateActLengths(
-      structure,
-      totalWordCount
-    );
+    const actLengths = this.calculateActLengths(structure, totalWordCount);
 
     // 2. 分析节奏
     const pacingAnalysis = this.analyzePacing(emotionalArc);
 
     // 3. 计算结构评分
-    const structureScore = this.calculateStructureScore(
-      structure,
-      emotionalArc,
-      actLengths
-    );
+    const structureScore = this.calculateStructureScore(structure, emotionalArc, actLengths);
 
     console.log('[ScreenplayStructureAnalyzer] Analysis complete:', {
       structureType: structure.structureType,
@@ -167,10 +157,7 @@ export class ScreenplayStructureAnalyzer {
   /**
    * 计算幕长度
    */
-  private calculateActLengths(
-    structure: StoryStructure,
-    totalWordCount: number
-  ): ActLengths {
+  private calculateActLengths(structure: StoryStructure, totalWordCount: number): ActLengths {
     // 获取结构类型对应的占比
     const ratios = this.getStructureRatios(structure.structureType);
 
@@ -243,16 +230,13 @@ export class ScreenplayStructureAnalyzer {
     }
 
     // 1. 生成紧张度曲线
-    const tensionCurve = emotionalArc.map((point) => point.intensity);
+    const tensionCurve = emotionalArc.map(point => point.intensity);
 
     // 2. 识别转折点
     const turningPoints = this.identifyTurningPoints(emotionalArc);
 
     // 3. 生成节奏描述
-    const pacingDescription = this.generatePacingDescription(
-      emotionalArc,
-      tensionCurve
-    );
+    const pacingDescription = this.generatePacingDescription(emotionalArc, tensionCurve);
 
     // 4. 找到高潮位置
     const climaxPosition = this.findClimaxPosition(emotionalArc);
@@ -290,7 +274,7 @@ export class ScreenplayStructureAnalyzer {
 
     for (const point of emotionalArc) {
       const plotPoint = point.plotPoint.toLowerCase();
-      
+
       for (const keyword of turningPointKeywords) {
         if (plotPoint.includes(keyword.toLowerCase())) {
           turningPoints.push(point.plotPoint);
@@ -314,8 +298,7 @@ export class ScreenplayStructureAnalyzer {
     }
 
     // 计算平均强度
-    const avgIntensity =
-      tensionCurve.reduce((sum, val) => sum + val, 0) / tensionCurve.length;
+    const avgIntensity = tensionCurve.reduce((sum, val) => sum + val, 0) / tensionCurve.length;
 
     // 计算强度变化范围
     const maxIntensity = Math.max(...tensionCurve);
@@ -406,9 +389,7 @@ export class ScreenplayStructureAnalyzer {
     const emotionalArcScore = this.calculateEmotionalArcScore(emotionalArc);
 
     // 4. 计算总分
-    const overall = Math.round(
-      completeness * 0.3 + balance * 0.3 + emotionalArcScore * 0.4
-    );
+    const overall = Math.round(completeness * 0.3 + balance * 0.3 + emotionalArcScore * 0.4);
 
     return {
       overall,
@@ -458,9 +439,7 @@ export class ScreenplayStructureAnalyzer {
 
     // 计算标准差
     const avg = lengths.reduce((sum, val) => sum + val, 0) / lengths.length;
-    const variance =
-      lengths.reduce((sum, val) => sum + Math.pow(val - avg, 2), 0) /
-      lengths.length;
+    const variance = lengths.reduce((sum, val) => sum + Math.pow(val - avg, 2), 0) / lengths.length;
     const stdDev = Math.sqrt(variance);
 
     // 标准差越小，平衡性越好
@@ -497,7 +476,7 @@ export class ScreenplayStructureAnalyzer {
     }
 
     // 2. 检查情绪强度范围
-    const intensities = emotionalArc.map((p) => p.intensity);
+    const intensities = emotionalArc.map(p => p.intensity);
     const range = Math.max(...intensities) - Math.min(...intensities);
     if (range >= 7) {
       score += 35;
@@ -508,10 +487,10 @@ export class ScreenplayStructureAnalyzer {
     }
 
     // 3. 检查是否有高潮（强度>=8）
-    const hasClimax = intensities.some((i) => i >= 8);
+    const hasClimax = intensities.some(i => i >= 8);
     if (hasClimax) {
       score += 35;
-    } else if (intensities.some((i) => i >= 6)) {
+    } else if (intensities.some(i => i >= 6)) {
       score += 25;
     } else {
       score += 15;
@@ -525,10 +504,10 @@ export class ScreenplayStructureAnalyzer {
    */
   getStructureTypeDisplayName(structureType: string): string {
     const nameMap: Record<string, string> = {
-      'three_act': '三幕式结构',
-      'hero_journey': '英雄之旅',
-      'five_act': '五幕式结构',
-      'other': '其他结构',
+      three_act: '三幕式结构',
+      hero_journey: '英雄之旅',
+      five_act: '五幕式结构',
+      other: '其他结构',
     };
 
     return nameMap[structureType] || '未知结构';
@@ -539,10 +518,10 @@ export class ScreenplayStructureAnalyzer {
    */
   getStructureTypeDescription(structureType: string): string {
     const descriptionMap: Record<string, string> = {
-      'three_act': '经典的三幕式结构：设定(25%)、对抗(50%)、结局(25%)',
-      'hero_journey': '英雄之旅：启程(20%)、启蒙(60%)、归来(20%)',
-      'five_act': '五幕式结构： exposition、rising action、climax、falling action、dénouement',
-      'other': '自定义结构',
+      three_act: '经典的三幕式结构：设定(25%)、对抗(50%)、结局(25%)',
+      hero_journey: '英雄之旅：启程(20%)、启蒙(60%)、归来(20%)',
+      five_act: '五幕式结构： exposition、rising action、climax、falling action、dénouement',
+      other: '自定义结构',
     };
 
     return descriptionMap[structureType] || '';

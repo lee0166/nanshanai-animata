@@ -22,37 +22,84 @@ export class KeyframeEngine {
    */
   detectShotType(description: string, cameraMovement: CameraMovement): ShotContentType {
     const desc = description.toLowerCase();
-    
+
     // 复杂动态关键词（需要3个关键帧）
     const complexKeywords = [
-      '打斗', '战斗', '追逐', '奔跑', '跳跃', '翻滚', '爆炸', '特效',
-      'fight', 'battle', 'chase', 'run', 'jump', 'roll', 'explosion', 'effect',
-      '激烈', '快速移动', '连续动作', '复杂的', '激烈地'
+      '打斗',
+      '战斗',
+      '追逐',
+      '奔跑',
+      '跳跃',
+      '翻滚',
+      '爆炸',
+      '特效',
+      'fight',
+      'battle',
+      'chase',
+      'run',
+      'jump',
+      'roll',
+      'explosion',
+      'effect',
+      '激烈',
+      '快速移动',
+      '连续动作',
+      '复杂的',
+      '激烈地',
     ];
-    
+
     // 简单动态关键词（需要2个关键帧）
     const simpleKeywords = [
-      '走', '走动', '转身', '回头', '坐下', '站起', '开门', '关门',
-      'walk', 'turn', 'sit', 'stand', 'open', 'close', 'move', 'enter', 'exit',
-      '走向', '离开', '靠近', '拿起', '放下'
+      '走',
+      '走动',
+      '转身',
+      '回头',
+      '坐下',
+      '站起',
+      '开门',
+      '关门',
+      'walk',
+      'turn',
+      'sit',
+      'stand',
+      'open',
+      'close',
+      'move',
+      'enter',
+      'exit',
+      '走向',
+      '离开',
+      '靠近',
+      '拿起',
+      '放下',
     ];
-    
+
     // 检查复杂动态
     if (complexKeywords.some(kw => desc.includes(kw))) {
       return 'dynamic-complex';
     }
-    
+
     // 检查简单动态
     if (simpleKeywords.some(kw => desc.includes(kw))) {
       return 'dynamic-simple';
     }
-    
+
     // 运镜判断：如果有动态运镜（推/拉/摇/移/跟），视为简单动态
-    const dynamicMovements: CameraMovement[] = ['push', 'pull', 'pan', 'tilt', 'track', 'zoom_in', 'zoom_out', 'dolly_in', 'dolly_out'];
+    const dynamicMovements: CameraMovement[] = [
+      'push',
+      'pull',
+      'pan',
+      'tilt',
+      'track',
+      'zoom_in',
+      'zoom_out',
+      'dolly_in',
+      'dolly_out',
+    ];
     if (dynamicMovements.includes(cameraMovement)) {
       return 'dynamic-simple';
     }
-    
+
     // 默认为静态
     return 'static';
   }
@@ -91,24 +138,22 @@ export class KeyframeEngine {
   async splitKeyframes(params: KeyframeSplitParams): Promise<KeyframeSplitResult> {
     try {
       const { shot } = params;
-      
+
       // Step 1: 自动检测分镜类型
       const contentType = this.detectShotType(shot.description, shot.cameraMovement);
       console.log(`[KeyframeEngine] Detected shot type: ${contentType}`);
-      
+
       // Step 2: 确定关键帧数量
       const keyframeCount = params.keyframeCount || this.getKeyframeCount(contentType);
       console.log(`[KeyframeEngine] Keyframe count: ${keyframeCount}`);
-      
+
       // Step 3: 构建并发送Prompt
       const prompt = this.buildSplitPrompt({ ...params, keyframeCount, contentType });
-      
-      const result = await aiService.generateText(
-        prompt,
-        params.modelConfigId || '',
-        undefined,
-        { temperature: 0.7, maxTokens: 2000 }
-      );
+
+      const result = await aiService.generateText(prompt, params.modelConfigId || '', undefined, {
+        temperature: 0.7,
+        maxTokens: 2000,
+      });
 
       if (!result.success || !result.data) {
         return { keyframes: [], contentType, error: result.error || 'LLM调用失败' };
@@ -126,10 +171,10 @@ export class KeyframeEngine {
       return { keyframes, contentType };
     } catch (error) {
       console.error('[KeyframeEngine] splitKeyframes error:', error);
-      return { 
-        keyframes: [], 
+      return {
+        keyframes: [],
         contentType: 'dynamic-simple',
-        error: String(error) 
+        error: String(error),
       };
     }
   }
@@ -137,21 +182,23 @@ export class KeyframeEngine {
   /**
    * 构建拆分提示词
    */
-  private buildSplitPrompt(params: KeyframeSplitParams & { keyframeCount: number; contentType: ShotContentType }): string {
+  private buildSplitPrompt(
+    params: KeyframeSplitParams & { keyframeCount: number; contentType: ShotContentType }
+  ): string {
     const { shot, keyframeCount, contentType, characterAssets, sceneAsset } = params;
-    
-    const characterDesc = characterAssets?.map(c => 
-      `- ${c.name}${c.features ? `（${c.features}）` : ''}`
-    ).join('\n') || '无';
 
-    const sceneDesc = sceneAsset 
+    const characterDesc =
+      characterAssets?.map(c => `- ${c.name}${c.features ? `（${c.features}）` : ''}`).join('\n') ||
+      '无';
+
+    const sceneDesc = sceneAsset
       ? `${sceneAsset.name}${sceneAsset.features ? `（${sceneAsset.features}）` : ''}`
       : '未指定';
 
     // 根据分镜类型生成不同的拆分要求
     let splitRequirement = '';
     let frameTypeDesc = '';
-    
+
     switch (contentType) {
       case 'static':
         splitRequirement = '此分镜为静态画面，只需1个关键帧，描述主要画面构图';
@@ -234,14 +281,14 @@ ${splitRequirement}
       }
 
       const data = JSON.parse(jsonMatch[0]);
-      
+
       if (!data.keyframes || !Array.isArray(data.keyframes)) {
         throw new Error('返回数据格式错误');
       }
 
       return data.keyframes.map((kf: any, index: number) => {
         const frameType = kf.frameType || this.getFrameType(index, keyframeCount);
-        
+
         return {
           id: `kf_${shot.id}_${index + 1}`,
           sequence: kf.sequence || index + 1,
@@ -250,16 +297,20 @@ ${splitRequirement}
           prompt: kf.prompt || '',
           duration: kf.duration || Math.ceil(shot.duration / data.keyframes.length),
           references: {
-            character: characterAssets?.[0] ? {
-              id: characterAssets[0].id,
-              name: characterAssets[0].name
-            } : undefined,
-            scene: sceneAsset ? {
-              id: sceneAsset.id,
-              name: sceneAsset.name
-            } : undefined
+            character: characterAssets?.[0]
+              ? {
+                  id: characterAssets[0].id,
+                  name: characterAssets[0].name,
+                }
+              : undefined,
+            scene: sceneAsset
+              ? {
+                  id: sceneAsset.id,
+                  name: sceneAsset.name,
+                }
+              : undefined,
           },
-          status: 'pending' as const
+          status: 'pending' as const,
         };
       });
     } catch (error) {
@@ -279,11 +330,11 @@ ${splitRequirement}
     sceneAsset?: { id: string; name: string }
   ): Keyframe[] {
     const durationPerFrame = Math.ceil(shot.duration / keyframeCount);
-    
+
     return Array.from({ length: keyframeCount }, (_, i) => {
       const frameType = this.getFrameType(i, keyframeCount);
       const typeDesc = frameType === 'start' ? '起始' : frameType === 'end' ? '结束' : '过渡';
-      
+
       return {
         id: `kf_${shot.id}_${i + 1}`,
         sequence: i + 1,
@@ -292,16 +343,20 @@ ${splitRequirement}
         prompt: `参考角色图：${characterAssets?.[0]?.id || '无'}，参考场景图：${sceneAsset?.id || '无'}；${shot.shotType}，${sceneAsset?.name || ''}，${characterAssets?.[0]?.name || ''}，${typeDesc}姿态，电影级画质`,
         duration: durationPerFrame,
         references: {
-          character: characterAssets?.[0] ? {
-            id: characterAssets[0].id,
-            name: characterAssets[0].name
-          } : undefined,
-          scene: sceneAsset ? {
-            id: sceneAsset.id,
-            name: sceneAsset.name
-          } : undefined
+          character: characterAssets?.[0]
+            ? {
+                id: characterAssets[0].id,
+                name: characterAssets[0].name,
+              }
+            : undefined,
+          scene: sceneAsset
+            ? {
+                id: sceneAsset.id,
+                name: sceneAsset.name,
+              }
+            : undefined,
         },
-        status: 'pending' as const
+        status: 'pending' as const,
       };
     });
   }

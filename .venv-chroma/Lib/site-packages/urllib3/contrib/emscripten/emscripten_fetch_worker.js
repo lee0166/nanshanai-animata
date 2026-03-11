@@ -9,15 +9,14 @@ let connections = new Map();
 let nextConnectionID = 1;
 const encoder = new TextEncoder();
 
-self.addEventListener("message", async function (event) {
+self.addEventListener('message', async function (event) {
   if (event.data.close) {
     let connectionID = event.data.close;
     connections.delete(connectionID);
     return;
   } else if (event.data.getMore) {
     let connectionID = event.data.getMore;
-    let { curOffset, value, reader, intBuffer, byteBuffer } =
-      connections.get(connectionID);
+    let { curOffset, value, reader, intBuffer, byteBuffer } = connections.get(connectionID);
     // if we still have some in buffer, then just send it back straight away
     if (!value || curOffset >= value.length) {
       // read another buffer if required
@@ -37,7 +36,7 @@ self.addEventListener("message", async function (event) {
         connections.get(connectionID).value = readResponse.value;
         value = readResponse.value;
       } catch (error) {
-        console.log("Request exception:", error);
+        console.log('Request exception:', error);
         let errorBytes = encoder.encode(error.message);
         let written = errorBytes.length;
         byteBuffer.set(errorBytes);
@@ -97,7 +96,7 @@ self.addEventListener("message", async function (event) {
       // all fetching after this goes through a new postmessage call with getMore
       // this allows for parallel requests
     } catch (error) {
-      console.log("Request exception:", error);
+      console.log('Request exception:', error);
       let errorBytes = encoder.encode(error.message);
       let written = errorBytes.length;
       byteBuffer.set(errorBytes);

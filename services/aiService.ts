@@ -11,331 +11,380 @@ import { ErrorHandler, UserFriendlyError } from './errorHandler';
 export type { UserFriendlyError };
 
 export interface GenerationJobParams {
-    projectId: string;
-    prompt: string;
-    userPrompt?: string;
-    assetName: string;
-    assetType: AssetType;
-    assetId: string;
-    referenceImages?: string[];
-    aspectRatio?: string;
-    resolution?: string;
-    style?: string;
-    guidanceScale?: number;
+  projectId: string;
+  prompt: string;
+  userPrompt?: string;
+  assetName: string;
+  assetType: AssetType;
+  assetId: string;
+  referenceImages?: string[];
+  aspectRatio?: string;
+  resolution?: string;
+  style?: string;
+  guidanceScale?: number;
 }
 
 export interface VideoGenerationJobParams {
-    projectId: string;
-    prompt: string;
-    userPrompt?: string;
-    assetName: string;
-    assetType: AssetType;
-    assetId: string;
-    duration?: number;
-    ratio?: string;
-    startImage?: string;
-    endImage?: string;
-    referenceImages?: string[];
-    extraParams?: Record<string, any>;
+  projectId: string;
+  prompt: string;
+  userPrompt?: string;
+  assetName: string;
+  assetType: AssetType;
+  assetId: string;
+  duration?: number;
+  ratio?: string;
+  startImage?: string;
+  endImage?: string;
+  referenceImages?: string[];
+  extraParams?: Record<string, any>;
 }
 
 export interface KeyframeGenerationJobParams {
-    projectId: string;
-    scriptId: string;
-    shotId: string;
-    keyframeId: string;
-    prompt: string;
-    userPrompt?: string;
-    assetName: string;
-    modelConfigId: string;
-    referenceImages?: string[];
-    resolution?: string;
-    aspectRatio?: string;
+  projectId: string;
+  scriptId: string;
+  shotId: string;
+  keyframeId: string;
+  prompt: string;
+  userPrompt?: string;
+  assetName: string;
+  modelConfigId: string;
+  referenceImages?: string[];
+  resolution?: string;
+  aspectRatio?: string;
 }
 
 export class AIService {
-    private providers: Map<string, IAIProvider> = new Map();
+  private providers: Map<string, IAIProvider> = new Map();
 
-    constructor() {
-        this.registerProvider(new VolcengineProvider());
-        this.registerProvider(new ViduProvider());
-        this.registerProvider(new ModelscopeProvider());
-        this.registerProvider(new LLMProvider());
+  constructor() {
+    this.registerProvider(new VolcengineProvider());
+    this.registerProvider(new ViduProvider());
+    this.registerProvider(new ModelscopeProvider());
+    this.registerProvider(new LLMProvider());
+  }
+
+  registerProvider(provider: IAIProvider) {
+    this.providers.set(provider.id, provider);
+    console.log(`[AIService] Registered provider: ${provider.id}`);
+  }
+
+  /**
+   * Creates generation jobs based on the model capabilities and requested count.
+   * Handles splitting requests into multiple jobs if the model has a maxBatchSize limit.
+   */
+  createGenerationJobs(model: ModelConfig, params: GenerationJobParams, totalCount: number): Job[] {
+    const capabilities = model.capabilities || {};
+    const maxBatchSize = capabilities.maxBatchSize || 4;
+
+    console.log(
+      `[AIService] Creating jobs for ${params.assetName} (${params.assetType}). Total: ${totalCount}, MaxBatch: ${maxBatchSize}`
+    );
+
+    const jobs: Job[] = [];
+    let remaining = totalCount;
+
+    while (remaining > 0) {
+      const currentBatchCount = Math.min(remaining, maxBatchSize);
+
+      // Check if model supports guidance scale (basic check based on ID convention or capability if added later)
+      // For now, preserving the logic from UI: check if modelId includes 'seededit'
+      const isSeedEdit = model.modelId.includes('seededit');
+
+      const job: Job = {
+        id:
+          typeof crypto.randomUUID === 'function'
+            ? crypto.randomUUID()
+            : Math.random().toString(36).substring(2) + Date.now().toString(36),
+        projectId: params.projectId,
+        type: 'generate_image',
+        status: JobStatus.PENDING,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        params: {
+          prompt: params.prompt,
+          userPrompt: params.userPrompt,
+          model: model.id, // config ID
+          modelConfigId: model.id, // config ID
+          modelId: model.modelId, // API model ID
+          assetName: params.assetName,
+          assetType: params.assetType,
+          assetId: params.assetId,
+          projectId: params.projectId,
+          referenceImages: params.referenceImages,
+          aspectRatio: params.aspectRatio,
+          resolution: params.resolution,
+          generateCount: currentBatchCount,
+          style: params.style,
+          guidanceScale: isSeedEdit ? params.guidanceScale : undefined,
+        },
+      };
+
+      jobs.push(job);
+      remaining -= currentBatchCount;
     }
 
-    registerProvider(provider: IAIProvider) {
-        this.providers.set(provider.id, provider);
-        console.log(`[AIService] Registered provider: ${provider.id}`);
+    return jobs;
+  }
+
+  /**
+   * Creates video generation jobs.
+   * Currently video models typically don't support batching in a single request,
+   * so this creates multiple individual jobs.
+   */
+  createVideoGenerationJobs(
+    model: ModelConfig,
+    params: VideoGenerationJobParams,
+    totalCount: number
+  ): Job[] {
+    console.log(
+      `[AIService] Creating video jobs for ${params.assetName} (${params.assetType}). Total: ${totalCount}`
+    );
+
+    const jobs: Job[] = [];
+
+    for (let i = 0; i < totalCount; i++) {
+      const job: Job = {
+        id:
+          typeof crypto.randomUUID === 'function'
+            ? crypto.randomUUID()
+            : Math.random().toString(36).substring(2) + Date.now().toString(36),
+        projectId: params.projectId,
+        type: 'generate_video',
+        status: JobStatus.PENDING,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        params: {
+          prompt: params.prompt,
+          userPrompt: params.userPrompt,
+          model: model.id, // config ID
+          modelConfigId: model.id, // config ID
+          modelId: model.modelId, // API model ID
+          assetName: params.assetName,
+          assetType: params.assetType,
+          assetId: params.assetId,
+          projectId: params.projectId,
+          duration: params.duration,
+          ratio: params.ratio,
+          startImage: params.startImage,
+          endImage: params.endImage,
+          referenceImages: params.referenceImages,
+          extraParams: params.extraParams,
+        },
+      };
+      jobs.push(job);
     }
 
-    /**
-     * Creates generation jobs based on the model capabilities and requested count.
-     * Handles splitting requests into multiple jobs if the model has a maxBatchSize limit.
-     */
-    createGenerationJobs(
-        model: ModelConfig,
-        params: GenerationJobParams,
-        totalCount: number
-    ): Job[] {
-        const capabilities = model.capabilities || {};
-        const maxBatchSize = capabilities.maxBatchSize || 4;
-        
-        console.log(`[AIService] Creating jobs for ${params.assetName} (${params.assetType}). Total: ${totalCount}, MaxBatch: ${maxBatchSize}`);
+    return jobs;
+  }
 
-        const jobs: Job[] = [];
-        let remaining = totalCount;
+  /**
+   * 创建关键帧生图任务
+   */
+  createKeyframeGenerationJob(params: KeyframeGenerationJobParams): Job {
+    const job: Job = {
+      id:
+        typeof crypto.randomUUID === 'function'
+          ? crypto.randomUUID()
+          : Math.random().toString(36).substring(2) + Date.now().toString(36),
+      projectId: params.projectId,
+      type: 'generate_keyframe_image',
+      status: JobStatus.PENDING,
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+      params: {
+        scriptId: params.scriptId,
+        shotId: params.shotId,
+        keyframeId: params.keyframeId,
+        prompt: params.prompt,
+        userPrompt: params.userPrompt,
+        model: params.modelConfigId,
+        modelConfigId: params.modelConfigId,
+        assetName: params.assetName,
+        referenceImages: params.referenceImages,
+        resolution: params.resolution,
+        aspectRatio: params.aspectRatio,
+        generateCount: 1,
+      },
+    };
 
-        while (remaining > 0) {
-            const currentBatchCount = Math.min(remaining, maxBatchSize);
-            
-            // Check if model supports guidance scale (basic check based on ID convention or capability if added later)
-            // For now, preserving the logic from UI: check if modelId includes 'seededit'
-            const isSeedEdit = model.modelId.includes('seededit');
-            
-            const job: Job = {
-                id: typeof crypto.randomUUID === 'function'
-                    ? crypto.randomUUID()
-                    : Math.random().toString(36).substring(2) + Date.now().toString(36),
-                projectId: params.projectId,
-                type: 'generate_image',
-                status: JobStatus.PENDING,
-                createdAt: Date.now(),
-                updatedAt: Date.now(),
-                params: {
-                    prompt: params.prompt,
-                    userPrompt: params.userPrompt,
-                    model: model.id, // config ID
-                    modelConfigId: model.id, // config ID
-                    modelId: model.modelId, // API model ID
-                    assetName: params.assetName,
-                    assetType: params.assetType,
-                    assetId: params.assetId,
-                    projectId: params.projectId,
-                    referenceImages: params.referenceImages,
-                    aspectRatio: params.aspectRatio,
-                    resolution: params.resolution,
-                    generateCount: currentBatchCount,
-                    style: params.style,
-                    guidanceScale: isSeedEdit ? params.guidanceScale : undefined
-                }
-            };
-            
-            jobs.push(job);
-            remaining -= currentBatchCount;
-        }
+    return job;
+  }
 
-        return jobs;
+  // Helper to get configuration for a specific identifier (strictly by config ID)
+  private async getModelConfig(identifier: string): Promise<ModelConfig | undefined> {
+    const settings = await storageService.loadSettings();
+
+    let config: ModelConfig | undefined;
+
+    // 1. Try to find in loaded settings (user settings + defaults)
+    if (settings && settings.models) {
+      config = settings.models.find(m => m.id === identifier);
     }
 
-    /**
-     * Creates video generation jobs.
-     * Currently video models typically don't support batching in a single request,
-     * so this creates multiple individual jobs.
-     */
-    createVideoGenerationJobs(
-        model: ModelConfig,
-        params: VideoGenerationJobParams,
-        totalCount: number
-    ): Job[] {
-        console.log(`[AIService] Creating video jobs for ${params.assetName} (${params.assetType}). Total: ${totalCount}`);
-
-        const jobs: Job[] = [];
-        
-        for (let i = 0; i < totalCount; i++) {
-            const job: Job = {
-                id: typeof crypto.randomUUID === 'function'
-                    ? crypto.randomUUID()
-                    : Math.random().toString(36).substring(2) + Date.now().toString(36),
-                projectId: params.projectId,
-                type: 'generate_video',
-                status: JobStatus.PENDING,
-                createdAt: Date.now(),
-                updatedAt: Date.now(),
-                params: {
-                    prompt: params.prompt,
-                    userPrompt: params.userPrompt,
-                    model: model.id, // config ID
-                    modelConfigId: model.id, // config ID
-                    modelId: model.modelId, // API model ID
-                    assetName: params.assetName,
-                    assetType: params.assetType,
-                    assetId: params.assetId,
-                    projectId: params.projectId,
-                    duration: params.duration,
-                    ratio: params.ratio,
-                    startImage: params.startImage,
-                    endImage: params.endImage,
-                    referenceImages: params.referenceImages,
-                    extraParams: params.extraParams
-                }
-            };
-            jobs.push(job);
-        }
-
-        return jobs;
+    // 2. Fallback to static lookup if not found in settings (or settings failed to load)
+    if (!config) {
+      config = findModelConfig(identifier);
     }
 
-    /**
-     * 创建关键帧生图任务
-     */
-    createKeyframeGenerationJob(params: KeyframeGenerationJobParams): Job {
-        const job: Job = {
-            id: typeof crypto.randomUUID === 'function'
-                ? crypto.randomUUID()
-                : Math.random().toString(36).substring(2) + Date.now().toString(36),
-            projectId: params.projectId,
-            type: 'generate_keyframe_image',
-            status: JobStatus.PENDING,
-            createdAt: Date.now(),
-            updatedAt: Date.now(),
-            params: {
-                scriptId: params.scriptId,
-                shotId: params.shotId,
-                keyframeId: params.keyframeId,
-                prompt: params.prompt,
-                userPrompt: params.userPrompt,
-                model: params.modelConfigId,
-                modelConfigId: params.modelConfigId,
-                assetName: params.assetName,
-                referenceImages: params.referenceImages,
-                resolution: params.resolution,
-                aspectRatio: params.aspectRatio,
-                generateCount: 1
-            }
-        };
-
-        return job;
+    if (config) {
+      console.log(
+        `[AIService] Resolved model configuration for '${identifier}': ${config.name} (${config.modelId})`
+      );
+    } else {
+      console.warn(`[AIService] Failed to resolve model configuration for '${identifier}'`);
     }
 
-    // Helper to get configuration for a specific identifier (strictly by config ID)
-    private async getModelConfig(identifier: string): Promise<ModelConfig | undefined> {
-        const settings = await storageService.loadSettings();
-        
-        let config: ModelConfig | undefined;
+    return config;
+  }
 
-        // 1. Try to find in loaded settings (user settings + defaults)
-        if (settings && settings.models) {
-            config = settings.models.find(m => m.id === identifier);
-        }
-        
-        // 2. Fallback to static lookup if not found in settings (or settings failed to load)
-        if (!config) {
-            config = findModelConfig(identifier);
-        }
-        
-        if (config) {
-            console.log(`[AIService] Resolved model configuration for '${identifier}': ${config.name} (${config.modelId})`);
-        } else {
-            console.warn(`[AIService] Failed to resolve model configuration for '${identifier}'`);
-        }
-        
-        return config;
+  // Helper to get all available models, optionally filtered
+  async getModels(filter?: {
+    type?: 'image' | 'video' | 'llm';
+    provider?: string;
+  }): Promise<ModelConfig[]> {
+    const settings = await storageService.loadSettings();
+    if (!settings) return [];
+
+    let models = settings.models;
+
+    if (filter) {
+      if (filter.type) {
+        models = models.filter(m => m.type === filter.type);
+      }
+      if (filter.provider) {
+        models = models.filter(m => m.provider === filter.provider);
+      }
     }
 
-    // Helper to get all available models, optionally filtered
-    async getModels(filter?: { type?: 'image' | 'video' | 'llm', provider?: string }): Promise<ModelConfig[]> {
-        const settings = await storageService.loadSettings();
-        if (!settings) return [];
-        
-        let models = settings.models;
+    return models;
+  }
 
-        if (filter) {
-            if (filter.type) {
-                models = models.filter(m => m.type === filter.type);
-            }
-            if (filter.provider) {
-                models = models.filter(m => m.provider === filter.provider);
-            }
-        }
-        
-        return models;
+  async generateImage(
+    prompt: string,
+    modelConfigId: string,
+    referenceImages: string[],
+    aspectRatio?: string,
+    resolution?: string,
+    count: number = 1,
+    guidanceScale?: number,
+    extraParams?: Record<string, any>
+  ): Promise<AIResult> {
+    console.log(
+      `[AIService] Generating image with model config ID: ${modelConfigId}, count: ${count}`
+    );
+
+    try {
+      const config = await this.getModelConfig(modelConfigId);
+      if (!config) {
+        const error = ErrorHandler.handle(`Model configuration not found for ID: ${modelConfigId}`);
+        return { success: false, error: error.message };
+      }
+
+      const provider = this.providers.get(config.provider);
+      if (!provider) {
+        const error = ErrorHandler.handle(`Unsupported provider: ${config.provider}`);
+        return { success: false, error: error.message };
+      }
+
+      const result = await provider.generateImage(
+        prompt,
+        config,
+        referenceImages,
+        aspectRatio,
+        resolution,
+        count,
+        guidanceScale,
+        extraParams
+      );
+
+      // 如果返回失败，转换错误信息
+      if (!result.success && result.error) {
+        const friendlyError = ErrorHandler.handle(result.error);
+        return { ...result, error: friendlyError.message };
+      }
+
+      return result;
+    } catch (error) {
+      const friendlyError = ErrorHandler.handle(error);
+      console.error('[AIService] generateImage error:', error);
+      return { success: false, error: friendlyError.message };
+    }
+  }
+
+  async generateVideo(
+    prompt: string,
+    modelConfigId: string,
+    startImage?: string,
+    endImage?: string,
+    existingTaskId?: string,
+    onTaskId?: (id: string) => void,
+    extraParams?: Record<string, any>
+  ): Promise<AIResult> {
+    console.log(
+      `[AIService] Generating video with model config ID: ${modelConfigId}${existingTaskId ? ` (Resuming taskId: ${existingTaskId})` : ''}`
+    );
+
+    const config = await this.getModelConfig(modelConfigId);
+    if (!config) {
+      return { success: false, error: `Model configuration not found for ID: ${modelConfigId}` };
     }
 
-    async generateImage(prompt: string, modelConfigId: string, referenceImages: string[], aspectRatio?: string, resolution?: string, count: number = 1, guidanceScale?: number, extraParams?: Record<string, any>): Promise<AIResult> {
-        console.log(`[AIService] Generating image with model config ID: ${modelConfigId}, count: ${count}`);
-        
-        try {
-            const config = await this.getModelConfig(modelConfigId);
-            if (!config) {
-                const error = ErrorHandler.handle(`Model configuration not found for ID: ${modelConfigId}`);
-                return { success: false, error: error.message };
-            }
-
-            const provider = this.providers.get(config.provider);
-            if (!provider) {
-                const error = ErrorHandler.handle(`Unsupported provider: ${config.provider}`);
-                return { success: false, error: error.message };
-            }
-            
-            const result = await provider.generateImage(prompt, config, referenceImages, aspectRatio, resolution, count, guidanceScale, extraParams);
-            
-            // 如果返回失败，转换错误信息
-            if (!result.success && result.error) {
-                const friendlyError = ErrorHandler.handle(result.error);
-                return { ...result, error: friendlyError.message };
-            }
-            
-            return result;
-        } catch (error) {
-            const friendlyError = ErrorHandler.handle(error);
-            console.error('[AIService] generateImage error:', error);
-            return { success: false, error: friendlyError.message };
-        }
+    const provider = this.providers.get(config.provider);
+    if (!provider) {
+      return { success: false, error: `Unsupported provider: ${config.provider}` };
     }
 
-    async generateVideo(prompt: string, modelConfigId: string, startImage?: string, endImage?: string, existingTaskId?: string, onTaskId?: (id: string) => void, extraParams?: Record<string, any>): Promise<AIResult> {
-        console.log(`[AIService] Generating video with model config ID: ${modelConfigId}${existingTaskId ? ` (Resuming taskId: ${existingTaskId})` : ''}`);
+    return provider.generateVideo(
+      prompt,
+      config,
+      startImage,
+      endImage,
+      existingTaskId,
+      onTaskId,
+      extraParams
+    );
+  }
 
-        const config = await this.getModelConfig(modelConfigId);
-        if (!config) {
-            return { success: false, error: `Model configuration not found for ID: ${modelConfigId}` };
-        }
+  /**
+   * Generate text using LLM for script parsing
+   * Routes to the correct provider based on config.provider
+   */
+  async generateText(
+    prompt: string,
+    modelConfigId: string,
+    systemPrompt?: string,
+    extraParams?: Record<string, any>
+  ): Promise<AIResult> {
+    console.log(`[AIService] Generating text with model config ID: ${modelConfigId}`);
 
-        const provider = this.providers.get(config.provider);
-        if (!provider) {
-             return { success: false, error: `Unsupported provider: ${config.provider}` };
-        }
-
-        return provider.generateVideo(prompt, config, startImage, endImage, existingTaskId, onTaskId, extraParams);
+    const config = await this.getModelConfig(modelConfigId);
+    if (!config) {
+      return { success: false, error: `Model configuration not found for ID: ${modelConfigId}` };
     }
 
-    /**
-     * Generate text using LLM for script parsing
-     * Routes to the correct provider based on config.provider
-     */
-    async generateText(
-        prompt: string,
-        modelConfigId: string,
-        systemPrompt?: string,
-        extraParams?: Record<string, any>
-    ): Promise<AIResult> {
-        console.log(`[AIService] Generating text with model config ID: ${modelConfigId}`);
-
-        const config = await this.getModelConfig(modelConfigId);
-        if (!config) {
-            return { success: false, error: `Model configuration not found for ID: ${modelConfigId}` };
-        }
-
-        // Get provider based on config.provider (e.g., 'volcengine', 'openai', 'aliyun')
-        const provider = this.providers.get(config.provider);
-        if (!provider) {
-            return { success: false, error: `Unsupported provider: ${config.provider}` };
-        }
-
-        // Check if provider supports generateText
-        if (!provider.generateText) {
-            return { success: false, error: `Provider ${config.provider} does not support text generation` };
-        }
-
-        return provider.generateText(prompt, config, systemPrompt, extraParams);
+    // Get provider based on config.provider (e.g., 'volcengine', 'openai', 'aliyun')
+    const provider = this.providers.get(config.provider);
+    if (!provider) {
+      return { success: false, error: `Unsupported provider: ${config.provider}` };
     }
 
-    /**
-     * Get LLM models for text parsing
-     */
-    async getLLMModels(): Promise<ModelConfig[]> {
-        return this.getModels({ type: 'llm' });
+    // Check if provider supports generateText
+    if (!provider.generateText) {
+      return {
+        success: false,
+        error: `Provider ${config.provider} does not support text generation`,
+      };
     }
+
+    return provider.generateText(prompt, config, systemPrompt, extraParams);
+  }
+
+  /**
+   * Get LLM models for text parsing
+   */
+  async getLLMModels(): Promise<ModelConfig[]> {
+    return this.getModels({ type: 'llm' });
+  }
 }
 
 export const aiService = new AIService();

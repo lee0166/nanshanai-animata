@@ -3,109 +3,134 @@ import { ModelConfig } from '../../../types';
 import { storageService } from '../../storage';
 
 export abstract class BaseProvider implements IAIProvider {
-    abstract id: string;
+  abstract id: string;
 
-    abstract generateImage(prompt: string, config: ModelConfig, referenceImages?: string[], aspectRatio?: string, resolution?: string, count?: number, guidanceScale?: number, extraParams?: Record<string, any>): Promise<AIResult>;
-    abstract generateVideo(prompt: string, config: ModelConfig, startImage?: string, endImage?: string, existingTaskId?: string, onTaskId?: (id: string) => void, extraParams?: Record<string, any>): Promise<AIResult>;
+  abstract generateImage(
+    prompt: string,
+    config: ModelConfig,
+    referenceImages?: string[],
+    aspectRatio?: string,
+    resolution?: string,
+    count?: number,
+    guidanceScale?: number,
+    extraParams?: Record<string, any>
+  ): Promise<AIResult>;
+  abstract generateVideo(
+    prompt: string,
+    config: ModelConfig,
+    startImage?: string,
+    endImage?: string,
+    existingTaskId?: string,
+    onTaskId?: (id: string) => void,
+    extraParams?: Record<string, any>
+  ): Promise<AIResult>;
 
-    validateConfig(config: ModelConfig): boolean {
-        return !!config.apiKey;
+  validateConfig(config: ModelConfig): boolean {
+    return !!config.apiKey;
+  }
+
+  protected getApiKey(config: ModelConfig): string {
+    const key = config.apiKey || process.env.API_KEY;
+    if (!key) {
+      throw new Error(`API Key is missing for model: ${config.name}`);
     }
+    return key;
+  }
 
-    protected getApiKey(config: ModelConfig): string {
-        const key = config.apiKey || process.env.API_KEY;
-        if (!key) {
-            throw new Error(`API Key is missing for model: ${config.name}`);
+  protected async loadBlobAsBase64(urlOrPath: string): Promise<string | null> {
+    if (urlOrPath.startsWith('data:')) return urlOrPath;
+
+    try {
+      let blob: Blob;
+      if (urlOrPath.startsWith('http')) {
+        const res = await this.makeRequest(urlOrPath);
+        blob = await res.blob();
+      } else {
+        const storageUrl = await storageService.getAssetUrl(urlOrPath);
+        if (!storageUrl) return null;
+        const res = await fetch(storageUrl);
+        blob = await res.blob();
+      }
+      return await this.blobToBase64DataUri(blob);
+    } catch (e) {
+      console.error('Failed to load blob as base64', e);
+      return null;
+    }
+  }
+
+  protected blobToBase64DataUri(blob: Blob): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result as string);
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
+  }
+
+  /**
+   * Universal proxy request helper
+   * Routes requests through the Vite proxy in development to avoid CORS issues.
+   */
+  protected async makeRequest(
+    url: string,
+    options: RequestInit = {},
+    timeout: number = 60000
+  ): Promise<Response> {
+    // In development, route through our universal proxy to handle CORS dynamically
+    // Also support localhost in production (e.g. preview mode) if proxy is available
+    const isLocalhost =
+      typeof window !== 'undefined' &&
+      (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
+    const shouldUseProxy = import.meta.env.DEV || isLocalhost;
+
+    console.log(
+      `[BaseProvider] Requesting: ${url}, Mode: ${import.meta.env.DEV ? 'DEV' : 'PROD'}, Localhost: ${isLocalhost}`
+    );
+
+    // Create abort controller for timeout
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => {
+      console.error(`[BaseProvider] Request timeout after ${timeout}ms: ${url}`);
+      controller.abort();
+    }, timeout);
+
+    try {
+      let response: Response;
+
+      if (shouldUseProxy) {
+        const proxyUrl = '/api/universal-proxy';
+        const headers = new Headers(options.headers || {});
+
+        // Check if X-Target-URL is already set (avoid double setting if chained)
+        if (!headers.has('X-Target-URL')) {
+          headers.set('X-Target-URL', url);
         }
-        return key;
-    }
 
-    protected async loadBlobAsBase64(urlOrPath: string): Promise<string | null> {
-         if (urlOrPath.startsWith('data:')) return urlOrPath;
-         
-         try {
-             let blob: Blob;
-             if (urlOrPath.startsWith('http')) {
-                const res = await this.makeRequest(urlOrPath);
-                blob = await res.blob();
-            } else {
-                 const storageUrl = await storageService.getAssetUrl(urlOrPath);
-                 if (!storageUrl) return null;
-                 const res = await fetch(storageUrl);
-                 blob = await res.blob();
-             }
-             return await this.blobToBase64DataUri(blob);
-         } catch (e) {
-             console.error("Failed to load blob as base64", e);
-             return null;
-         }
-    }
-
-    protected blobToBase64DataUri(blob: Blob): Promise<string> {
-        return new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.onloadend = () => resolve(reader.result as string);
-            reader.onerror = reject;
-            reader.readAsDataURL(blob);
+        console.log(`[BaseProvider] Using Proxy: ${proxyUrl} -> ${url}`);
+        response = await fetch(proxyUrl, {
+          ...options,
+          headers,
+          signal: controller.signal,
         });
+      } else {
+        // In production, attempt direct fetch
+        response = await fetch(url, {
+          ...options,
+          signal: controller.signal,
+        });
+      }
+
+      clearTimeout(timeoutId);
+      console.log(`[BaseProvider] Response received: ${response.status} ${response.statusText}`);
+      return response;
+    } catch (error: any) {
+      clearTimeout(timeoutId);
+      if (error.name === 'AbortError') {
+        console.error(`[BaseProvider] Request aborted (timeout): ${url}`);
+        throw new Error(`Request timeout after ${timeout}ms`);
+      }
+      console.error(`[BaseProvider] Request failed: ${url}`, error);
+      throw error;
     }
-
-    /**
-     * Universal proxy request helper
-     * Routes requests through the Vite proxy in development to avoid CORS issues.
-     */
-    protected async makeRequest(url: string, options: RequestInit = {}, timeout: number = 60000): Promise<Response> {
-        // In development, route through our universal proxy to handle CORS dynamically
-        // Also support localhost in production (e.g. preview mode) if proxy is available
-        const isLocalhost = typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
-        const shouldUseProxy = import.meta.env.DEV || isLocalhost;
-
-        console.log(`[BaseProvider] Requesting: ${url}, Mode: ${import.meta.env.DEV ? 'DEV' : 'PROD'}, Localhost: ${isLocalhost}`);
-
-        // Create abort controller for timeout
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => {
-            console.error(`[BaseProvider] Request timeout after ${timeout}ms: ${url}`);
-            controller.abort();
-        }, timeout);
-
-        try {
-            let response: Response;
-
-            if (shouldUseProxy) {
-                const proxyUrl = '/api/universal-proxy';
-                const headers = new Headers(options.headers || {});
-
-                // Check if X-Target-URL is already set (avoid double setting if chained)
-                if (!headers.has('X-Target-URL')) {
-                    headers.set('X-Target-URL', url);
-                }
-
-                console.log(`[BaseProvider] Using Proxy: ${proxyUrl} -> ${url}`);
-                response = await fetch(proxyUrl, {
-                    ...options,
-                    headers,
-                    signal: controller.signal
-                });
-            } else {
-                // In production, attempt direct fetch
-                response = await fetch(url, {
-                    ...options,
-                    signal: controller.signal
-                });
-            }
-
-            clearTimeout(timeoutId);
-            console.log(`[BaseProvider] Response received: ${response.status} ${response.statusText}`);
-            return response;
-        } catch (error: any) {
-            clearTimeout(timeoutId);
-            if (error.name === 'AbortError') {
-                console.error(`[BaseProvider] Request aborted (timeout): ${url}`);
-                throw new Error(`Request timeout after ${timeout}ms`);
-            }
-            console.error(`[BaseProvider] Request failed: ${url}`, error);
-            throw error;
-        }
-    }
+  }
 }

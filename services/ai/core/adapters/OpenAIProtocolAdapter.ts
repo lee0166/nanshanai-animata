@@ -5,7 +5,7 @@ import {
   AdapterError,
   ErrorType,
   ProtocolAdapterFactory,
-} from "./IProtocolAdapter";
+} from './IProtocolAdapter';
 
 /**
  * OpenAI兼容协议适配器
@@ -23,9 +23,9 @@ export class OpenAIProtocolAdapter implements IProtocolAdapter {
    */
   buildRequest(params: AdapterRequestParams): unknown {
     switch (params.operation) {
-      case "chat":
+      case 'chat':
         return this.buildChatRequest(params);
-      case "embeddings":
+      case 'embeddings':
         return this.buildEmbeddingsRequest(params);
       default:
         throw new Error(`Unsupported operation: ${params.operation}`);
@@ -40,14 +40,14 @@ export class OpenAIProtocolAdapter implements IProtocolAdapter {
 
     // 添加系统提示词
     if (params.systemPrompt) {
-      messages.push({ role: "system", content: params.systemPrompt });
+      messages.push({ role: 'system', content: params.systemPrompt });
     }
 
     // 添加消息列表或用户提示词
     if (params.messages && params.messages.length > 0) {
       messages.push(...params.messages);
     } else if (params.prompt) {
-      messages.push({ role: "user", content: params.prompt });
+      messages.push({ role: 'user', content: params.prompt });
     }
 
     const request: Record<string, any> = {
@@ -60,10 +60,8 @@ export class OpenAIProtocolAdapter implements IProtocolAdapter {
 
     // 添加可选参数
     if (params.topP !== undefined) request.top_p = params.topP;
-    if (params.presencePenalty !== undefined)
-      request.presence_penalty = params.presencePenalty;
-    if (params.frequencyPenalty !== undefined)
-      request.frequency_penalty = params.frequencyPenalty;
+    if (params.presencePenalty !== undefined) request.presence_penalty = params.presencePenalty;
+    if (params.frequencyPenalty !== undefined) request.frequency_penalty = params.frequencyPenalty;
 
     // 合并额外参数
     if (params.extraParams) {
@@ -91,11 +89,11 @@ export class OpenAIProtocolAdapter implements IProtocolAdapter {
 
     // 处理错误响应
     if (data.error) {
-      throw new Error(data.error.message || "Unknown error");
+      throw new Error(data.error.message || 'Unknown error');
     }
 
     return {
-      content: data.choices?.[0]?.message?.content || "",
+      content: data.choices?.[0]?.message?.content || '',
       usage: data.usage
         ? {
             promptTokens: data.usage.prompt_tokens,
@@ -115,9 +113,8 @@ export class OpenAIProtocolAdapter implements IProtocolAdapter {
     const err = error as any;
 
     // 提取错误信息
-    const errorMessage =
-      err.error?.message || err.message || String(error);
-    const errorCode = err.error?.code || "unknown_error";
+    const errorMessage = err.error?.message || err.message || String(error);
+    const errorCode = err.error?.code || 'unknown_error';
     const statusCode = err.status || err.statusCode;
 
     return {
@@ -131,24 +128,20 @@ export class OpenAIProtocolAdapter implements IProtocolAdapter {
   /**
    * 分类错误类型
    */
-  private classifyError(
-    statusCode: number | undefined,
-    errorCode: string
-  ): ErrorType {
+  private classifyError(statusCode: number | undefined, errorCode: string): ErrorType {
     // 根据状态码分类
-    if (statusCode === 401) return "auth_error";
-    if (statusCode === 429) return "rate_limit";
-    if (statusCode && statusCode >= 500) return "server_error";
-    if (statusCode && statusCode >= 400) return "request_error";
+    if (statusCode === 401) return 'auth_error';
+    if (statusCode === 429) return 'rate_limit';
+    if (statusCode && statusCode >= 500) return 'server_error';
+    if (statusCode && statusCode >= 400) return 'request_error';
 
     // 根据错误代码分类
-    if (errorCode.includes("auth")) return "auth_error";
-    if (errorCode.includes("rate") || errorCode.includes("limit"))
-      return "rate_limit";
-    if (errorCode.includes("timeout")) return "timeout";
-    if (errorCode.includes("network")) return "network_error";
+    if (errorCode.includes('auth')) return 'auth_error';
+    if (errorCode.includes('rate') || errorCode.includes('limit')) return 'rate_limit';
+    if (errorCode.includes('timeout')) return 'timeout';
+    if (errorCode.includes('network')) return 'network_error';
 
-    return "unknown_error";
+    return 'unknown_error';
   }
 
   /**
@@ -156,7 +149,7 @@ export class OpenAIProtocolAdapter implements IProtocolAdapter {
    */
   getAuthHeaders(apiKey: string): Record<string, string> {
     return {
-      "Content-Type": "application/json",
+      'Content-Type': 'application/json',
       Authorization: `Bearer ${apiKey}`,
     };
   }
@@ -165,12 +158,12 @@ export class OpenAIProtocolAdapter implements IProtocolAdapter {
    * 获取API端点
    */
   getEndpoint(baseUrl: string, operation: string): string {
-    const normalizedBaseUrl = baseUrl.replace(/\/$/, "");
+    const normalizedBaseUrl = baseUrl.replace(/\/$/, '');
 
     const endpoints: Record<string, string> = {
-      chat: "/chat/completions",
-      embeddings: "/embeddings",
-      models: "/models",
+      chat: '/chat/completions',
+      embeddings: '/embeddings',
+      models: '/models',
     };
 
     const path = endpoints[operation];
@@ -185,9 +178,9 @@ export class OpenAIProtocolAdapter implements IProtocolAdapter {
    * 检查是否支持特定操作
    */
   supportsOperation(operation: string): boolean {
-    return ["chat", "embeddings", "models"].includes(operation);
+    return ['chat', 'embeddings', 'models'].includes(operation);
   }
 }
 
 // 注册到工厂
-ProtocolAdapterFactory.register("openai", OpenAIProtocolAdapter);
+ProtocolAdapterFactory.register('openai', OpenAIProtocolAdapter);

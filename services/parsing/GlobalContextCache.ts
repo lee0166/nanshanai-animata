@@ -71,7 +71,7 @@ function simpleHash(content: string): string {
   let hash = 0;
   for (let i = 0; i < content.length; i++) {
     const char = content.charCodeAt(i);
-    hash = ((hash << 5) - hash) + char;
+    hash = (hash << 5) - hash + char;
     hash = hash & hash; // Convert to 32bit integer
   }
   return Math.abs(hash).toString(16).padStart(8, '0');
@@ -129,7 +129,9 @@ export class GlobalContextCache {
     if (cached) {
       this.stats.hits++;
       const hitRate = this.getHitRate();
-      console.log(`[GlobalContextCache] Hit: ${key.slice(0, 16)}... (hit rate: ${hitRate.toFixed(1)}%)`);
+      console.log(
+        `[GlobalContextCache] Hit: ${key.slice(0, 16)}... (hit rate: ${hitRate.toFixed(1)}%)`
+      );
       return cached.context;
     }
 

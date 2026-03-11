@@ -3,6 +3,7 @@
 ## 基于后端日志的深度分析
 
 ### 分析时间
+
 基于日志文件分析
 
 ---
@@ -12,6 +13,7 @@
 ### 问题 1: 迭代优化功能被禁用（关键）
 
 **日志证据**:
+
 ```
 scriptParser.ts:748 [ScriptParser] Iterative refinement disabled
 ```
@@ -20,6 +22,7 @@ scriptParser.ts:748 [ScriptParser] Iterative refinement disabled
 ScriptManager.tsx 中创建 ScriptParser 时，`parserConfig` 对象缺少 `enableIterativeRefinement: true` 配置。
 
 **当前代码** (ScriptManager.tsx:386-398):
+
 ```typescript
 const parserConfig: Partial<ScriptParserConfig> = {
   useSemanticChunking: true,
@@ -28,16 +31,19 @@ const parserConfig: Partial<ScriptParserConfig> = {
   useCache: true,
   cacheTTL: 3600000,
   enableVectorMemory: useVectorMemory,
-  vectorMemoryConfig: useVectorMemory ? {
-    autoEnableThreshold: 50000,
-    chromaDbUrl: 'http://localhost:8000',
-    collectionName: 'script_memory'
-  } : undefined
+  vectorMemoryConfig: useVectorMemory
+    ? {
+        autoEnableThreshold: 50000,
+        chromaDbUrl: 'http://localhost:8000',
+        collectionName: 'script_memory',
+      }
+    : undefined,
   // ❌ 缺少 enableIterativeRefinement: true
 };
 ```
 
 **影响**:
+
 - ❌ IterativeRefinementEngine 未初始化
 - ❌ Refinement 阶段（场景解析后）未执行
 - ❌ ConsistencyChecker 未运行（无角色/场景一致性检查）
@@ -51,14 +57,16 @@ const parserConfig: Partial<ScriptParserConfig> = {
 
 **日志证据**:
 日志中只显示了以下阶段：
+
 ```
 Stage 1: Extract Metadata
-Stage 2: Extract Characters  
+Stage 2: Extract Characters
 Stage 3: Extract Scenes
 Stage 4: Generate Shots
 ```
 
 **预期应该包含**:
+
 ```
 Stage 3.5: Refinement (迭代优化)
 ```
@@ -72,12 +80,14 @@ Stage 3.5: Refinement (迭代优化)
 
 **日志证据**:
 搜索日志中的关键词：
+
 - `consistency` / `Consistency` - 无相关日志
 - `violation` / `Violation` - 无相关日志
 - `Character consistency` - 无相关日志
 - `Scene continuity` - 无相关日志
 
 **预期应该看到**:
+
 ```
 [IterativeRefinementEngine] Found X violations
   [Violation 1] character_inconsistency: ...
@@ -90,10 +100,12 @@ Stage 3.5: Refinement (迭代优化)
 
 **日志证据**:
 搜索日志中的关键词：
+
 - `quality` / `Quality` - 只有 `qualityReport` 相关，无质量评估分数
 - `completeness` / `accuracy` / `consistency` / `usability` - 无相关日志
 
 **预期应该看到**:
+
 ```
 [QualityEvaluator] Quality score: XX
   [completeness] XX/25
@@ -108,11 +120,13 @@ Stage 3.5: Refinement (迭代优化)
 
 **日志证据**:
 搜索日志中的关键词：
+
 - `refinement action` / `RefinementAction` - 无相关日志
 - `applyRefinements` - 无相关日志
 - `auto-fix` / `autoFix` - 无相关日志
 
 **预期应该看到**:
+
 ```
 [RefinementEngine] Generated X refinement actions
 [RefinementEngine] Applied: X, Skipped: X, Failed: X
@@ -129,6 +143,7 @@ Stage 3.5: Refinement (迭代优化)
 **位置**: 第 386-398 行
 
 **修改内容**:
+
 ```typescript
 // 修改前
 const parserConfig: Partial<ScriptParserConfig> = {
@@ -138,11 +153,13 @@ const parserConfig: Partial<ScriptParserConfig> = {
   useCache: true,
   cacheTTL: 3600000,
   enableVectorMemory: useVectorMemory,
-  vectorMemoryConfig: useVectorMemory ? {
-    autoEnableThreshold: 50000,
-    chromaDbUrl: 'http://localhost:8000',
-    collectionName: 'script_memory'
-  } : undefined
+  vectorMemoryConfig: useVectorMemory
+    ? {
+        autoEnableThreshold: 50000,
+        chromaDbUrl: 'http://localhost:8000',
+        collectionName: 'script_memory',
+      }
+    : undefined,
 };
 
 // 修改后
@@ -153,11 +170,13 @@ const parserConfig: Partial<ScriptParserConfig> = {
   useCache: true,
   cacheTTL: 3600000,
   enableVectorMemory: useVectorMemory,
-  vectorMemoryConfig: useVectorMemory ? {
-    autoEnableThreshold: 50000,
-    chromaDbUrl: 'http://localhost:8000',
-    collectionName: 'script_memory'
-  } : undefined,
+  vectorMemoryConfig: useVectorMemory
+    ? {
+        autoEnableThreshold: 50000,
+        chromaDbUrl: 'http://localhost:8000',
+        collectionName: 'script_memory',
+      }
+    : undefined,
   // ✅ 启用迭代优化
   enableIterativeRefinement: true,
   iterativeRefinementConfig: {
@@ -166,8 +185,8 @@ const parserConfig: Partial<ScriptParserConfig> = {
     minImprovementThreshold: 2,
     autoApplySafeRefinements: true,
     confidenceThreshold: 0.7,
-    verboseLogging: true
-  }
+    verboseLogging: true,
+  },
 };
 ```
 
@@ -180,6 +199,7 @@ const parserConfig: Partial<ScriptParserConfig> = {
 **建议**: 在解析设置中添加一个开关，让用户可以选择是否启用迭代优化。
 
 **修改位置**: 在 `useVectorMemory` 状态附近添加：
+
 ```typescript
 // 添加状态
 const [useIterativeRefinement, setUseIterativeRefinement] = useState(true);
@@ -203,11 +223,13 @@ enableIterativeRefinement: useIterativeRefinement,
 ### 控制台日志预期变化
 
 **修复前**:
+
 ```
 [ScriptParser] Iterative refinement disabled
 ```
 
 **修复后**:
+
 ```
 [ScriptParser] Starting iterative refinement...
 [IterativeRefinementEngine] Starting refinement process...
@@ -239,9 +261,11 @@ enableIterativeRefinement: useIterativeRefinement,
 ### UI 预期变化
 
 **修复前**:
+
 - 剧本管理页面不显示质量报告卡片
 
 **修复后**:
+
 - 剧本管理页面显示 `RefinementReportCard` 组件
 - 包含三个标签页：概览、迭代详情、完整报告
 - 显示迭代次数、质量分数改进、统计信息
@@ -251,17 +275,20 @@ enableIterativeRefinement: useIterativeRefinement,
 ## 修复实施步骤
 
 ### 步骤 1: 修改 ScriptManager.tsx
+
 1. 打开 `d:\kemeng\views\ScriptManager.tsx`
 2. 找到第 386-398 行的 `parserConfig` 定义
 3. 添加 `enableIterativeRefinement: true` 和 `iterativeRefinementConfig`
 
 ### 步骤 2: 重启开发服务器
+
 ```bash
 cd d:\kemeng
 npm run dev
 ```
 
 ### 步骤 3: 重新测试
+
 1. 打开 http://localhost:3000/
 2. 创建新项目
 3. 上传测试小说
@@ -273,6 +300,7 @@ npm run dev
 ## 测试验证清单
 
 修复后，控制台日志应包含：
+
 - [ ] `[ScriptParser] IterativeRefinementEngine initialized`
 - [ ] `[ScriptParser] Starting iterative refinement...`
 - [ ] `[IterativeRefinementEngine] Starting refinement process...`
@@ -282,6 +310,7 @@ npm run dev
 - [ ] `[IterativeRefinementEngine] Refinement successful: XX -> XX (+XX)`
 
 UI 应显示：
+
 - [ ] RefinementReportCard 组件
 - [ ] 概览标签页（迭代次数、质量分数、统计信息）
 - [ ] 迭代详情标签页（每次迭代的详细信息）
@@ -292,6 +321,7 @@ UI 应显示：
 ## 如果修复后仍有问题
 
 请提供以下信息：
+
 1. **修改后的 ScriptManager.tsx 代码片段**（parserConfig 部分）
 2. **重新测试后的控制台日志**
 3. **浏览器控制台错误**（如果有）
@@ -301,12 +331,12 @@ UI 应显示：
 
 ## 总结
 
-| 问题 | 严重程度 | 修复方案 | 验证方式 |
-|------|----------|----------|----------|
-| 迭代优化被禁用 | 🔴 严重 | 添加 `enableIterativeRefinement: true` | 查看控制台 refinement 日志 |
-| 无一致性检查 | 🔴 严重 | 同上 | 查看 violations 日志 |
-| 无质量评估 | 🔴 严重 | 同上 | 查看 quality score 日志 |
-| 无自动修正 | 🔴 严重 | 同上 | 查看 refinement actions 日志 |
-| 无 UI 报告 | 🟡 中等 | 同上 | 查看 RefinementReportCard 组件 |
+| 问题           | 严重程度 | 修复方案                               | 验证方式                       |
+| -------------- | -------- | -------------------------------------- | ------------------------------ |
+| 迭代优化被禁用 | 🔴 严重  | 添加 `enableIterativeRefinement: true` | 查看控制台 refinement 日志     |
+| 无一致性检查   | 🔴 严重  | 同上                                   | 查看 violations 日志           |
+| 无质量评估     | 🔴 严重  | 同上                                   | 查看 quality score 日志        |
+| 无自动修正     | 🔴 严重  | 同上                                   | 查看 refinement actions 日志   |
+| 无 UI 报告     | 🟡 中等  | 同上                                   | 查看 RefinementReportCard 组件 |
 
 **核心修复**: 在 ScriptManager.tsx 的 parserConfig 中添加 `enableIterativeRefinement: true`。

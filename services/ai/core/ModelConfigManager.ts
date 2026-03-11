@@ -1,12 +1,12 @@
 /**
  * 模型配置管理器
- * 
+ *
  * 功能：
  * - 运行时动态配置创建
  * - 配置验证
  * - 配置导入导出
  * - 配置版本管理
- * 
+ *
  * @author AI Assistant
  * @version 1.0.0
  */
@@ -95,16 +95,18 @@ export class ModelConfigManager {
     customConfig: Partial<ModelConfig> = {}
   ): ConfigValidationResult & { config?: ModelConfig } {
     const template = this.templateRegistry.getTemplate(templateId);
-    
+
     if (!template) {
       return {
         valid: false,
-        errors: [{
-          field: 'templateId',
-          message: `模板 ${templateId} 不存在`,
-          code: 'TEMPLATE_NOT_FOUND'
-        }],
-        warnings: []
+        errors: [
+          {
+            field: 'templateId',
+            message: `模板 ${templateId} 不存在`,
+            code: 'TEMPLATE_NOT_FOUND',
+          },
+        ],
+        warnings: [],
       };
     }
 
@@ -120,10 +122,10 @@ export class ModelConfigManager {
       enabled: customConfig.enabled ?? true,
       capabilities: {
         ...template.capabilities,
-        ...customConfig.capabilities
+        ...customConfig.capabilities,
       },
       parameters: this.mergeParameters(template.parameters, customConfig.parameters || []),
-      ...template.providerOptions?.additionalConfig
+      ...template.providerOptions?.additionalConfig,
     };
 
     // 合并自定义配置
@@ -132,13 +134,13 @@ export class ModelConfigManager {
       ...customConfig,
       capabilities: {
         ...baseConfig.capabilities,
-        ...customConfig.capabilities
-      }
+        ...customConfig.capabilities,
+      },
     };
 
     // 验证配置
     const validation = this.validateConfig(finalConfig);
-    
+
     if (validation.valid) {
       this.configs.set(finalConfig.id, finalConfig);
       this.saveVersion(finalConfig);
@@ -165,13 +167,13 @@ export class ModelConfigManager {
         textToImage: config.type === 'image',
         imageToVideo: config.type === 'video',
         textToVideo: config.type === 'video',
-        textToText: config.type === 'llm'
+        textToText: config.type === 'llm',
       },
-      parameters: config.parameters || []
+      parameters: config.parameters || [],
     };
 
     const validation = this.validateConfig(finalConfig);
-    
+
     if (validation.valid) {
       this.configs.set(finalConfig.id, finalConfig);
       this.saveVersion(finalConfig);
@@ -193,7 +195,7 @@ export class ModelConfigManager {
       errors.push({
         field: 'name',
         message: '模型名称不能为空',
-        code: 'NAME_REQUIRED'
+        code: 'NAME_REQUIRED',
       });
     }
 
@@ -201,7 +203,7 @@ export class ModelConfigManager {
       errors.push({
         field: 'modelId',
         message: '模型ID不能为空',
-        code: 'MODEL_ID_REQUIRED'
+        code: 'MODEL_ID_REQUIRED',
       });
     }
 
@@ -209,7 +211,7 @@ export class ModelConfigManager {
       errors.push({
         field: 'provider',
         message: 'Provider不能为空',
-        code: 'PROVIDER_REQUIRED'
+        code: 'PROVIDER_REQUIRED',
       });
     }
 
@@ -219,7 +221,7 @@ export class ModelConfigManager {
       warnings.push({
         field: 'apiKey',
         message: 'API密钥为空，请确保通过环境变量配置',
-        suggestion: '设置对应的环境变量或在配置中提供API密钥'
+        suggestion: '设置对应的环境变量或在配置中提供API密钥',
       });
     }
 
@@ -228,7 +230,7 @@ export class ModelConfigManager {
       errors.push({
         field: 'capabilities',
         message: '模型能力配置不能为空',
-        code: 'CAPABILITIES_REQUIRED'
+        code: 'CAPABILITIES_REQUIRED',
       });
     }
 
@@ -245,7 +247,7 @@ export class ModelConfigManager {
     return {
       valid: errors.length === 0,
       errors,
-      warnings
+      warnings,
     };
   }
 
@@ -262,7 +264,7 @@ export class ModelConfigManager {
           warnings.push({
             field: 'baseUrl',
             message: '火山方舟API地址通常包含 volces.com',
-            suggestion: '请确认使用正确的火山方舟接入点地址'
+            suggestion: '请确认使用正确的火山方舟接入点地址',
           });
         }
         break;
@@ -273,7 +275,7 @@ export class ModelConfigManager {
           warnings.push({
             field: 'baseUrl',
             message: '阿里云百炼API地址通常包含 aliyun.com',
-            suggestion: '请确认使用正确的阿里云百炼接入点地址'
+            suggestion: '请确认使用正确的阿里云百炼接入点地址',
           });
         }
         break;
@@ -283,7 +285,7 @@ export class ModelConfigManager {
           warnings.push({
             field: 'baseUrl',
             message: '非官方OpenAI地址，请确认这是兼容OpenAI协议的第三方服务',
-            suggestion: '如果是第三方兼容服务，请确保API格式兼容'
+            suggestion: '如果是第三方兼容服务，请确保API格式兼容',
           });
         }
         break;
@@ -293,13 +295,13 @@ export class ModelConfigManager {
           errors.push({
             field: 'provider',
             message: '魔搭社区API仅用于开发测试，生产环境禁止使用',
-            code: 'DEV_ONLY_PROVIDER_IN_PROD'
+            code: 'DEV_ONLY_PROVIDER_IN_PROD',
           });
         } else {
           warnings.push({
             field: 'provider',
             message: '魔搭社区API仅限开发测试使用，不适合生产环境',
-            suggestion: '生产环境请使用火山方舟、阿里云百炼等商用服务'
+            suggestion: '生产环境请使用火山方舟、阿里云百炼等商用服务',
           });
         }
         break;
@@ -323,7 +325,7 @@ export class ModelConfigManager {
         errors.push({
           field: 'parameters',
           message: '参数名称不能为空',
-          code: 'PARAM_NAME_REQUIRED'
+          code: 'PARAM_NAME_REQUIRED',
         });
       }
 
@@ -333,7 +335,7 @@ export class ModelConfigManager {
           errors.push({
             field: `parameters.${param.name}`,
             message: `参数 ${param.name} 的最小值不能大于最大值`,
-            code: 'PARAM_RANGE_INVALID'
+            code: 'PARAM_RANGE_INVALID',
           });
         }
 
@@ -343,14 +345,14 @@ export class ModelConfigManager {
             warnings.push({
               field: `parameters.${param.name}`,
               message: `参数 ${param.name} 的默认值小于最小值`,
-              suggestion: `建议将默认值设置为 ${param.min} 或更大`
+              suggestion: `建议将默认值设置为 ${param.min} 或更大`,
             });
           }
           if (param.max !== undefined && defaultVal > param.max) {
             warnings.push({
               field: `parameters.${param.name}`,
               message: `参数 ${param.name} 的默认值大于最大值`,
-              suggestion: `建议将默认值设置为 ${param.max} 或更小`
+              suggestion: `建议将默认值设置为 ${param.max} 或更小`,
             });
           }
         }
@@ -361,7 +363,7 @@ export class ModelConfigManager {
         errors.push({
           field: `parameters.${param.name}`,
           message: `选择型参数 ${param.name} 必须提供选项列表`,
-          code: 'PARAM_OPTIONS_REQUIRED'
+          code: 'PARAM_OPTIONS_REQUIRED',
         });
       }
     }
@@ -380,12 +382,14 @@ export class ModelConfigManager {
     if (!existing) {
       return {
         valid: false,
-        errors: [{
-          field: 'configId',
-          message: `配置 ${configId} 不存在`,
-          code: 'CONFIG_NOT_FOUND'
-        }],
-        warnings: []
+        errors: [
+          {
+            field: 'configId',
+            message: `配置 ${configId} 不存在`,
+            code: 'CONFIG_NOT_FOUND',
+          },
+        ],
+        warnings: [],
       };
     }
 
@@ -394,13 +398,13 @@ export class ModelConfigManager {
       ...updates,
       capabilities: {
         ...existing.capabilities,
-        ...updates.capabilities
+        ...updates.capabilities,
       },
-      parameters: updates.parameters || existing.parameters
+      parameters: updates.parameters || existing.parameters,
     };
 
     const validation = this.validateConfig(updated);
-    
+
     if (validation.valid) {
       this.configs.set(configId, updated);
       this.saveVersion(updated);
@@ -460,8 +464,8 @@ export class ModelConfigManager {
    * 导出配置
    */
   exportConfigs(configIds?: string[]): ConfigExportFormat {
-    const configs = configIds 
-      ? configIds.map(id => this.configs.get(id)).filter(Boolean) as ModelConfig[]
+    const configs = configIds
+      ? (configIds.map(id => this.configs.get(id)).filter(Boolean) as ModelConfig[])
       : this.getAllConfigs();
 
     const providers = [...new Set(configs.map(c => c.provider))];
@@ -470,7 +474,7 @@ export class ModelConfigManager {
     // 导出时移除敏感信息
     const sanitizedConfigs = configs.map(c => ({
       ...c,
-      apiKey: c.apiKey ? '***REDACTED***' : ''
+      apiKey: c.apiKey ? '***REDACTED***' : '',
     }));
 
     return {
@@ -480,8 +484,8 @@ export class ModelConfigManager {
       metadata: {
         total: configs.length,
         providers,
-        types
-      }
+        types,
+      },
     };
   }
 
@@ -499,7 +503,7 @@ export class ModelConfigManager {
 
     for (const config of data.configs) {
       // 生成新ID避免冲突
-      const newId = options.prefix 
+      const newId = options.prefix
         ? `${options.prefix}_${config.id}`
         : this.configs.has(config.id) && !options.overwrite
           ? `${config.id}_imported_${Date.now()}`
@@ -509,27 +513,31 @@ export class ModelConfigManager {
         ...config,
         id: newId,
         // 导入的配置默认禁用，需要手动启用
-        enabled: false
+        enabled: false,
       };
 
       const validation = this.validateConfig(configToImport);
-      
+
       if (validation.valid) {
         this.configs.set(newId, configToImport);
         this.saveVersion(configToImport);
         imported++;
       } else {
         failed++;
-        errors.push(...validation.errors.map(e => ({
-          ...e,
-          message: `[${config.name}] ${e.message}`
-        })));
+        errors.push(
+          ...validation.errors.map(e => ({
+            ...e,
+            message: `[${config.name}] ${e.message}`,
+          }))
+        );
       }
 
-      warnings.push(...validation.warnings.map(w => ({
-        ...w,
-        message: `[${config.name}] ${w.message}`
-      })));
+      warnings.push(
+        ...validation.warnings.map(w => ({
+          ...w,
+          message: `[${config.name}] ${w.message}`,
+        }))
+      );
     }
 
     return {
@@ -537,7 +545,7 @@ export class ModelConfigManager {
       errors,
       warnings,
       imported,
-      failed
+      failed,
     };
   }
 
@@ -567,17 +575,22 @@ export class ModelConfigManager {
   /**
    * 克隆配置
    */
-  cloneConfig(configId: string, newName?: string): ConfigValidationResult & { config?: ModelConfig } {
+  cloneConfig(
+    configId: string,
+    newName?: string
+  ): ConfigValidationResult & { config?: ModelConfig } {
     const existing = this.configs.get(configId);
     if (!existing) {
       return {
         valid: false,
-        errors: [{
-          field: 'configId',
-          message: `配置 ${configId} 不存在`,
-          code: 'CONFIG_NOT_FOUND'
-        }],
-        warnings: []
+        errors: [
+          {
+            field: 'configId',
+            message: `配置 ${configId} 不存在`,
+            code: 'CONFIG_NOT_FOUND',
+          },
+        ],
+        warnings: [],
       };
     }
 
@@ -585,11 +598,11 @@ export class ModelConfigManager {
       ...existing,
       id: this.generateConfigId(),
       name: newName || `${existing.name} (副本)`,
-      enabled: false // 克隆的配置默认禁用
+      enabled: false, // 克隆的配置默认禁用
     };
 
     const validation = this.validateConfig(cloned);
-    
+
     if (validation.valid) {
       this.configs.set(cloned.id, cloned);
       this.saveVersion(cloned);
@@ -637,15 +650,15 @@ export class ModelConfigManager {
       version: versions.length + 1,
       updatedAt: new Date().toISOString(),
       changes: changes || ['配置更新'],
-      config: { ...config }
+      config: { ...config },
     };
     versions.push(newVersion);
-    
+
     // 只保留最近20个版本
     if (versions.length > 20) {
       versions.shift();
     }
-    
+
     this.versions.set(config.id, versions);
   }
 
@@ -657,17 +670,17 @@ export class ModelConfigManager {
     customParams: ModelParameter[]
   ): ModelParameter[] {
     const merged = new Map<string, ModelParameter>();
-    
+
     // 先添加模板参数
     for (const param of templateParams) {
       merged.set(param.name, param);
     }
-    
+
     // 覆盖自定义参数
     for (const param of customParams) {
       merged.set(param.name, param);
     }
-    
+
     return Array.from(merged.values());
   }
 

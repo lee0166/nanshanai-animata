@@ -9,21 +9,8 @@
  */
 
 import React from 'react';
-import {
-  Card,
-  CardBody,
-  CardHeader,
-  Chip,
-  Divider,
-  Tooltip,
-} from '@heroui/react';
-import {
-  BookOpen,
-  Target,
-  Lightbulb,
-  Quote,
-  Sparkles,
-} from 'lucide-react';
+import { Card, CardBody, CardHeader, Chip, Divider, Tooltip } from '@heroui/react';
+import { BookOpen, Target, Lightbulb, Quote, Sparkles } from 'lucide-react';
 import type { ScriptMetadata } from '../../types';
 
 interface StoryOverviewCardProps {
@@ -34,19 +21,8 @@ interface StoryOverviewCardProps {
 /**
  * 故事概览卡片组件
  */
-export const StoryOverviewCard: React.FC<StoryOverviewCardProps> = ({
-  metadata,
-  t,
-}) => {
-  const {
-    synopsis,
-    logline,
-    coreConflict,
-    theme,
-    title,
-    genre,
-    tone,
-  } = metadata;
+export const StoryOverviewCard: React.FC<StoryOverviewCardProps> = ({ metadata, t }) => {
+  const { synopsis, logline, coreConflict, theme, title, genre, tone } = metadata;
 
   return (
     <Card className="w-full">

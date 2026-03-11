@@ -36,7 +36,10 @@ import {
   ChevronDown,
   ChevronUp,
 } from 'lucide-react';
-import { IterativeRefinementResult, IterationResult } from '../../services/parsing/refinement/IterativeRefinementEngine';
+import {
+  IterativeRefinementResult,
+  IterationResult,
+} from '../../services/parsing/refinement/IterativeRefinementEngine';
 
 interface RefinementReportCardProps {
   result: IterativeRefinementResult;
@@ -46,18 +49,18 @@ interface RefinementReportCardProps {
 /**
  * 获取状态颜色
  */
-const getStatusColor = (success: boolean): "success" | "warning" | "danger" => {
-  if (success) return "success";
-  return "warning";
+const getStatusColor = (success: boolean): 'success' | 'warning' | 'danger' => {
+  if (success) return 'success';
+  return 'warning';
 };
 
 /**
  * 获取质量等级颜色
  */
-const getScoreColor = (score: number): "success" | "warning" | "danger" => {
-  if (score >= 80) return "success";
-  if (score >= 60) return "warning";
-  return "danger";
+const getScoreColor = (score: number): 'success' | 'warning' | 'danger' => {
+  if (score >= 80) return 'success';
+  if (score >= 60) return 'warning';
+  return 'danger';
 };
 
 /**
@@ -74,9 +77,7 @@ export const RefinementReportCard: React.FC<RefinementReportCardProps> = ({ resu
 
   const toggleIteration = (iteration: number) => {
     setExpandedIterations(prev =>
-      prev.includes(iteration)
-        ? prev.filter(i => i !== iteration)
-        : [...prev, iteration]
+      prev.includes(iteration) ? prev.filter(i => i !== iteration) : [...prev, iteration]
     );
   };
 
@@ -87,34 +88,38 @@ export const RefinementReportCard: React.FC<RefinementReportCardProps> = ({ resu
       <CardHeader className="flex justify-between items-center">
         <div className="flex items-center gap-2">
           <Zap className="w-5 h-5 text-primary" />
-          <h3 className="text-lg font-semibold">{t.scriptParser?.refinementReport || '迭代优化报告'}</h3>
+          <h3 className="text-lg font-semibold">
+            {t.scriptParser?.refinementReport || '迭代优化报告'}
+          </h3>
         </div>
-        <Chip
-          color={getStatusColor(result.success)}
-          variant="flat"
-          size="sm"
-        >
+        <Chip color={getStatusColor(result.success)} variant="flat" size="sm">
           {result.success ? '优化成功' : '优化完成'}
         </Chip>
       </CardHeader>
 
       <CardBody>
-        <Tabs selectedKey={activeTab} onSelectionChange={(key) => setActiveTab(key as string)}>
-          <Tab key="overview" title={
-            <div className="flex items-center gap-1">
-              <BarChart3 className="w-4 h-4" />
-              <span>概览</span>
-            </div>
-          }>
+        <Tabs selectedKey={activeTab} onSelectionChange={key => setActiveTab(key as string)}>
+          <Tab
+            key="overview"
+            title={
+              <div className="flex items-center gap-1">
+                <BarChart3 className="w-4 h-4" />
+                <span>概览</span>
+              </div>
+            }
+          >
             <OverviewTab result={result} t={t} />
           </Tab>
 
-          <Tab key="iterations" title={
-            <div className="flex items-center gap-1">
-              <RotateCcw className="w-4 h-4" />
-              <span>迭代详情</span>
-            </div>
-          }>
+          <Tab
+            key="iterations"
+            title={
+              <div className="flex items-center gap-1">
+                <RotateCcw className="w-4 h-4" />
+                <span>迭代详情</span>
+              </div>
+            }
+          >
             <IterationsTab
               result={result}
               t={t}
@@ -124,12 +129,15 @@ export const RefinementReportCard: React.FC<RefinementReportCardProps> = ({ resu
             />
           </Tab>
 
-          <Tab key="report" title={
-            <div className="flex items-center gap-1">
-              <FileText className="w-4 h-4" />
-              <span>完整报告</span>
-            </div>
-          }>
+          <Tab
+            key="report"
+            title={
+              <div className="flex items-center gap-1">
+                <FileText className="w-4 h-4" />
+                <span>完整报告</span>
+              </div>
+            }
+          >
             <ReportTab result={result} t={t} />
           </Tab>
         </Tabs>
@@ -155,7 +163,9 @@ const OverviewTab: React.FC<{ result: IterativeRefinementResult; t: any }> = ({ 
         <StatCard
           icon={<Clock className="w-5 h-5" />}
           label="执行时间"
-          value={formatDuration(result.iterationResults.reduce((sum, r) => sum + r.executionTime, 0))}
+          value={formatDuration(
+            result.iterationResults.reduce((sum, r) => sum + r.executionTime, 0)
+          )}
           color="secondary"
         />
         <StatCard
@@ -178,11 +188,12 @@ const OverviewTab: React.FC<{ result: IterativeRefinementResult; t: any }> = ({ 
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm font-medium">质量改进</span>
             <Chip
-              color={result.totalQualityImprovement > 0 ? "success" : "default"}
+              color={result.totalQualityImprovement > 0 ? 'success' : 'default'}
               size="sm"
               variant="flat"
             >
-              {result.totalQualityImprovement > 0 ? '+' : ''}{result.totalQualityImprovement.toFixed(2)}
+              {result.totalQualityImprovement > 0 ? '+' : ''}
+              {result.totalQualityImprovement.toFixed(2)}
             </Chip>
           </div>
           <Progress
@@ -201,36 +212,16 @@ const OverviewTab: React.FC<{ result: IterativeRefinementResult; t: any }> = ({ 
 
       {/* 统计信息 */}
       <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-        <StatBadge
-          label="发现违规"
-          value={result.stats.totalViolationsFound}
-          color="warning"
-        />
-        <StatBadge
-          label="生成动作"
-          value={result.stats.totalActionsGenerated}
-          color="primary"
-        />
-        <StatBadge
-          label="应用修正"
-          value={result.stats.totalActionsApplied}
-          color="success"
-        />
-        <StatBadge
-          label="跳过动作"
-          value={result.stats.totalActionsSkipped}
-          color="default"
-        />
+        <StatBadge label="发现违规" value={result.stats.totalViolationsFound} color="warning" />
+        <StatBadge label="生成动作" value={result.stats.totalActionsGenerated} color="primary" />
+        <StatBadge label="应用修正" value={result.stats.totalActionsApplied} color="success" />
+        <StatBadge label="跳过动作" value={result.stats.totalActionsSkipped} color="default" />
         <StatBadge
           label="失败动作"
           value={result.stats.totalActionsFailed}
-          color={result.stats.totalActionsFailed > 0 ? "danger" : "default"}
+          color={result.stats.totalActionsFailed > 0 ? 'danger' : 'default'}
         />
-        <StatBadge
-          label="检查次数"
-          value={result.stats.totalChecks}
-          color="secondary"
-        />
+        <StatBadge label="检查次数" value={result.stats.totalChecks} color="secondary" />
       </div>
     </div>
   );
@@ -248,7 +239,7 @@ const IterationsTab: React.FC<{
 }> = ({ result, t, toggleIteration, isIterationExpanded }) => {
   return (
     <div className="space-y-3 mt-4">
-      {result.iterationResults.map((iteration) => (
+      {result.iterationResults.map(iteration => (
         <IterationCard
           key={iteration.iteration}
           iteration={iteration}
@@ -285,13 +276,11 @@ const StatCard: React.FC<{
   icon: React.ReactNode;
   label: string;
   value: string | number;
-  color: "primary" | "secondary" | "success" | "warning" | "danger" | "default";
+  color: 'primary' | 'secondary' | 'success' | 'warning' | 'danger' | 'default';
 }> = ({ icon, label, value, color }) => (
   <Card className="bg-content2">
     <CardBody className="flex flex-row items-center gap-3 p-3">
-      <div className={`p-2 rounded-lg bg-${color}/10 text-${color}`}>
-        {icon}
-      </div>
+      <div className={`p-2 rounded-lg bg-${color}/10 text-${color}`}>{icon}</div>
       <div>
         <p className="text-xs text-default-500">{label}</p>
         <p className="text-lg font-semibold">{value}</p>
@@ -306,11 +295,13 @@ const StatCard: React.FC<{
 const StatBadge: React.FC<{
   label: string;
   value: number;
-  color: "primary" | "secondary" | "success" | "warning" | "danger" | "default";
+  color: 'primary' | 'secondary' | 'success' | 'warning' | 'danger' | 'default';
 }> = ({ label, value, color }) => (
   <div className="flex items-center justify-between p-2 bg-content2 rounded-lg">
     <span className="text-sm text-default-600">{label}</span>
-    <Badge color={color} variant="flat">{value}</Badge>
+    <Badge color={color} variant="flat">
+      {value}
+    </Badge>
   </div>
 );
 
@@ -332,7 +323,9 @@ const IterationCard: React.FC<{
           onClick={onToggle}
         >
           <div className="flex items-center gap-3">
-            <Badge color="primary" variant="flat">迭代 {iteration.iteration}</Badge>
+            <Badge color="primary" variant="flat">
+              迭代 {iteration.iteration}
+            </Badge>
             <div className="flex items-center gap-2">
               <span className="text-sm text-default-500">质量分数:</span>
               <span className="font-medium">{iteration.qualityScoreBefore.toFixed(1)}</span>
@@ -348,7 +341,9 @@ const IterationCard: React.FC<{
             )}
           </div>
           <div className="flex items-center gap-2">
-            <span className="text-xs text-default-400">{formatDuration(iteration.executionTime)}</span>
+            <span className="text-xs text-default-400">
+              {formatDuration(iteration.executionTime)}
+            </span>
             {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
           </div>
         </div>

@@ -30,7 +30,7 @@ export class VolcengineKeyframeAdapter {
         prompt: keyframe.prompt,
         referenceImages,
         size,
-        modelConfigId
+        modelConfigId,
       });
 
       if (result.success && result.data) {
@@ -43,7 +43,7 @@ export class VolcengineKeyframeAdapter {
           referenceImages: [characterImageBase64, sceneImageBase64].filter(Boolean) as string[],
           createdAt: Date.now(),
           width: result.data.width,
-          height: result.data.height
+          height: result.data.height,
         };
         keyframe.status = 'completed';
       } else {
@@ -82,7 +82,7 @@ export class VolcengineKeyframeAdapter {
     } catch (error) {
       return {
         success: false,
-        error: String(error)
+        error: String(error),
       };
     }
   }
@@ -104,7 +104,7 @@ export class VolcengineKeyframeAdapter {
         keyframe: keyframes[i],
         characterImageBase64: refs.character,
         sceneImageBase64: refs.scene,
-        modelConfigId
+        modelConfigId,
       });
       results.push(result);
       onProgress?.(i + 1, keyframes.length);

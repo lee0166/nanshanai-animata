@@ -1,6 +1,6 @@
 /**
  * Professional Analysis Module - 专业分析模块
- * 
+ *
  * 基于现有解析数据进行专业级分析和可视化展示
  * 零LLM调用，纯数据转换
  */
@@ -74,10 +74,7 @@ export class ProfessionalAnalyzer {
    * @param shots 分镜列表
    * @returns 完整分析结果
    */
-  analyze(
-    metadata: ScriptMetadata,
-    shots: Shot[] = []
-  ): ProfessionalAnalysis {
+  analyze(metadata: ScriptMetadata, shots: Shot[] = []): ProfessionalAnalysis {
     console.log('[ProfessionalAnalyzer] Starting comprehensive analysis...');
 
     // 1. 声音设计分析

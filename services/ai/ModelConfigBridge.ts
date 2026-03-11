@@ -49,7 +49,9 @@ export function initializeBridge(): void {
     }
   }
 
-  console.log(`[ModelConfigBridge] Imported ${imported} models (${skipped} skipped, ${failed} failed)`);
+  console.log(
+    `[ModelConfigBridge] Imported ${imported} models (${skipped} skipped, ${failed} failed)`
+  );
 }
 
 /**
@@ -71,7 +73,7 @@ function convertOldToNew(oldConfig: ModelConfig): Partial<ModelConfig> {
     isDefault: oldConfig.isDefault,
     costPer1KInput: oldConfig.costPer1KInput,
     costPer1KOutput: oldConfig.costPer1KOutput,
-    providerOptions: oldConfig.providerOptions
+    providerOptions: oldConfig.providerOptions,
   };
 }
 

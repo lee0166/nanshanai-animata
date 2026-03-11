@@ -13,13 +13,13 @@ import { ScriptCharacter, ScriptScene, ScriptMetadata } from '../../../types';
 /**
  * 一致性违规类型
  */
-export type ViolationType = 
-  | 'character_inconsistency'    // 角色描述不一致
-  | 'scene_continuity'           // 场景连续性错误
-  | 'visual_style_mismatch'      // 视觉风格不匹配
-  | 'timeline_conflict'          // 时间线冲突
-  | 'logic_error'                // 逻辑错误
-  | 'missing_reference';         // 缺失引用
+export type ViolationType =
+  | 'character_inconsistency' // 角色描述不一致
+  | 'scene_continuity' // 场景连续性错误
+  | 'visual_style_mismatch' // 视觉风格不匹配
+  | 'timeline_conflict' // 时间线冲突
+  | 'logic_error' // 逻辑错误
+  | 'missing_reference'; // 缺失引用
 
 /**
  * 一致性违规严重程度
@@ -127,7 +127,7 @@ const DEFAULT_CONFIG: ConsistencyCheckerConfig = {
   minConfidence: 0.7,
   enableAutoFix: true,
   maxViolations: 50,
-  includeInfo: false
+  includeInfo: false,
 };
 
 /**
@@ -207,17 +207,19 @@ export class ConsistencyChecker {
     enabledRules.sort((a, b) => b.priority - a.priority);
 
     // 并行执行所有规则检查
-    const checkPromises = enabledRules.map(async (rule) => {
+    const checkPromises = enabledRules.map(async rule => {
       try {
         console.log(`[ConsistencyChecker] Running rule: ${rule.name}`);
         const violations = await rule.check(context);
-        
+
         // 过滤低置信度违规
         const filteredViolations = violations.filter(
           v => v.confidence >= this.config.minConfidence
         );
 
-        console.log(`[ConsistencyChecker] Rule ${rule.name} found ${filteredViolations.length} violations`);
+        console.log(
+          `[ConsistencyChecker] Rule ${rule.name} found ${filteredViolations.length} violations`
+        );
         return filteredViolations;
       } catch (error) {
         console.error(`[ConsistencyChecker] Rule ${rule.id} failed:`, error);
@@ -226,7 +228,7 @@ export class ConsistencyChecker {
     });
 
     const results = await Promise.all(checkPromises);
-    
+
     // 合并所有违规
     results.forEach(violations => {
       allViolations.push(...violations);
@@ -255,7 +257,7 @@ export class ConsistencyChecker {
       violations: allViolations,
       violationsByType,
       duration,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     };
   }
 
@@ -312,7 +314,7 @@ export class ConsistencyChecker {
    */
   getAutoFixableViolations(result: ConsistencyCheckResult): ConsistencyViolation[] {
     if (!this.config.enableAutoFix) return [];
-    
+
     return result.violations.filter(v => v.autoFixable && v.suggestion);
   }
 
@@ -322,7 +324,7 @@ export class ConsistencyChecker {
    */
   generateReport(result: ConsistencyCheckResult): string {
     const lines: string[] = [];
-    
+
     lines.push('# 一致性检查报告');
     lines.push('');
     lines.push(`**检查时间**: ${result.timestamp}`);
@@ -334,14 +336,14 @@ export class ConsistencyChecker {
     // 违规统计
     lines.push('## 违规统计');
     lines.push('');
-    
+
     const typeNames: Record<ViolationType, string> = {
       character_inconsistency: '角色不一致',
       scene_continuity: '场景连续性',
       visual_style_mismatch: '视觉风格不匹配',
       timeline_conflict: '时间线冲突',
       logic_error: '逻辑错误',
-      missing_reference: '缺失引用'
+      missing_reference: '缺失引用',
     };
 
     Object.entries(result.violationsByType).forEach(([type, violations]) => {
@@ -355,7 +357,8 @@ export class ConsistencyChecker {
       lines.push('');
 
       result.violations.forEach((v, index) => {
-        const severityEmoji = v.severity === 'error' ? '🔴' : v.severity === 'warning' ? '🟡' : '🔵';
+        const severityEmoji =
+          v.severity === 'error' ? '🔴' : v.severity === 'warning' ? '🟡' : '🔵';
         lines.push(`### ${index + 1}. ${severityEmoji} ${v.message}`);
         lines.push(`- **类型**: ${typeNames[v.type]}`);
         lines.push(`- **严重程度**: ${v.severity}`);

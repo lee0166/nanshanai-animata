@@ -39,7 +39,11 @@ export interface ChunkerOptions {
 export class SemanticChunker {
   // 分隔符规则(按优先级排序)
   private readonly SEPARATORS = [
-    { pattern: /【第[一二三四五六七八九十百千万]+[章回]】/g, type: 'chapter' as const, weight: 100 },
+    {
+      pattern: /【第[一二三四五六七八九十百千万]+[章回]】/g,
+      type: 'chapter' as const,
+      weight: 100,
+    },
     { pattern: /第[一二三四五六七八九十百千万]+章/g, type: 'chapter' as const, weight: 100 },
     { pattern: /Chapter\s+\d+/gi, type: 'chapter' as const, weight: 100 },
     { pattern: /\n{2,}/g, type: 'paragraph' as const, weight: 50 },
@@ -53,7 +57,7 @@ export class SemanticChunker {
       maxTokens: 4000,
       preserveParagraphs: true,
       extractMetadata: false,
-      ...options
+      ...options,
     };
   }
 
@@ -112,7 +116,7 @@ export class SemanticChunker {
         boundaries.push({
           position: match.index + match[0].length,
           type: separator.type,
-          confidence: separator.weight
+          confidence: separator.weight,
         });
       }
     }
@@ -183,8 +187,8 @@ export class SemanticChunker {
         sceneHint: '',
         importance: 5,
         wordCount: content.length,
-        chunkType: this.detectChunkType(content)
-      }
+        chunkType: this.detectChunkType(content),
+      },
     };
   }
 
@@ -234,7 +238,8 @@ export class SemanticChunker {
       chunk.metadata.characters = [...new Set(names.map(n => n.slice(0, -1)))];
 
       // 场景提示（简单的地点词匹配）
-      const locationPattern = /(?:在|于|到|去|来)([\u4e00-\u9fa5]{2,6})(?:里|中|上|下|前|后|内|外|旁|边|处|地方)/g;
+      const locationPattern =
+        /(?:在|于|到|去|来)([\u4e00-\u9fa5]{2,6})(?:里|中|上|下|前|后|内|外|旁|边|处|地方)/g;
       const locations: string[] = [];
       let match;
       while ((match = locationPattern.exec(chunk.content)) !== null) {
@@ -243,7 +248,17 @@ export class SemanticChunker {
       chunk.metadata.sceneHint = locations[0] || '';
 
       // 重要性评分（基于关键词）
-      const importantKeywords = ['冲突', '战斗', '死亡', '爱', '恨', '秘密', '真相', '决战', '转折'];
+      const importantKeywords = [
+        '冲突',
+        '战斗',
+        '死亡',
+        '爱',
+        '恨',
+        '秘密',
+        '真相',
+        '决战',
+        '转折',
+      ];
       const keywordCount = importantKeywords.filter(kw => chunk.content.includes(kw)).length;
       chunk.metadata.importance = Math.min(10, 5 + keywordCount);
     }

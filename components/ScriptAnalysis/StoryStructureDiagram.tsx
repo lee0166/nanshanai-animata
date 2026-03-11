@@ -9,13 +9,7 @@
  */
 
 import React from 'react';
-import {
-  Card,
-  CardBody,
-  CardHeader,
-  Chip,
-  Tooltip,
-} from '@heroui/react';
+import { Card, CardBody, CardHeader, Chip, Tooltip } from '@heroui/react';
 import {
   Layout,
   Play,
@@ -38,10 +32,10 @@ interface StoryStructureDiagramProps {
  */
 const getStructureTypeName = (type: string): string => {
   const names: Record<string, string> = {
-    'three_act': '三幕式结构',
-    'hero_journey': '英雄之旅',
-    'five_act': '五幕式结构',
-    'other': '其他结构',
+    three_act: '三幕式结构',
+    hero_journey: '英雄之旅',
+    five_act: '五幕式结构',
+    other: '其他结构',
   };
   return names[type] || type;
 };
@@ -144,14 +138,10 @@ export const StoryStructureDiagram: React.FC<StoryStructureDiagramProps> = ({
     <Card className="w-full">
       <CardHeader className="flex items-center justify-between pb-2">
         <div className="flex items-center gap-3">
-          <div className="p-2 bg-success/10 rounded-lg">
-            {getStructureTypeIcon(structureType)}
-          </div>
+          <div className="p-2 bg-success/10 rounded-lg">{getStructureTypeIcon(structureType)}</div>
           <div>
             <h3 className="text-lg font-bold">故事结构</h3>
-            <p className="text-sm text-default-500">
-              {getStructureTypeName(structureType)}
-            </p>
+            <p className="text-sm text-default-500">{getStructureTypeName(structureType)}</p>
           </div>
         </div>
         <Chip size="sm" variant="flat" color="success">
@@ -164,13 +154,13 @@ export const StoryStructureDiagram: React.FC<StoryStructureDiagramProps> = ({
         <div className="relative mb-6">
           {/* 时间线背景 */}
           <div className="absolute top-1/2 left-0 right-0 h-1 bg-content3 rounded-full -translate-y-1/2" />
-          
+
           {/* 进度点 */}
           <div className="relative flex justify-between items-center py-4">
             {ACT_CONFIG.map((act, idx) => {
               const content = storyStructure[act.key as keyof StoryStructure] as string;
               const hasContent = !!content;
-              
+
               return (
                 <Tooltip
                   key={act.key}
@@ -178,9 +168,7 @@ export const StoryStructureDiagram: React.FC<StoryStructureDiagramProps> = ({
                     <div className="max-w-xs">
                       <div className="font-medium mb-1">{act.title}</div>
                       <div className="text-xs text-default-400 mb-2">{act.description}</div>
-                      {content && (
-                        <div className="text-sm">{content}</div>
-                      )}
+                      {content && <div className="text-sm">{content}</div>}
                     </div>
                   }
                 >
@@ -199,12 +187,14 @@ export const StoryStructureDiagram: React.FC<StoryStructureDiagramProps> = ({
                       style={{
                         backgroundColor: hasContent ? undefined : 'var(--heroui-colors-content2)',
                         borderColor: hasContent ? `var(--heroui-colors-${act.color})` : undefined,
-                        color: hasContent ? `var(--heroui-colors-${act.color}-foreground)` : undefined,
+                        color: hasContent
+                          ? `var(--heroui-colors-${act.color}-foreground)`
+                          : undefined,
                       }}
                     >
                       {act.icon}
                     </div>
-                    
+
                     {/* 标签 */}
                     <div className="mt-2 text-center">
                       <div className="text-xs font-medium">{act.title}</div>
@@ -219,7 +209,7 @@ export const StoryStructureDiagram: React.FC<StoryStructureDiagramProps> = ({
 
         {/* 详细内容 */}
         <div className="space-y-3">
-          {ACT_CONFIG.map((act) => {
+          {ACT_CONFIG.map(act => {
             const content = storyStructure[act.key as keyof StoryStructure] as string;
             if (!content) return null;
 

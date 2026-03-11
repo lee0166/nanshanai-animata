@@ -35,7 +35,12 @@ import { initializeBridge } from './ModelConfigBridge';
 export interface AIServiceOptions {
   enableHealthCheck?: boolean;
   healthCheckInterval?: number;
-  routingStrategy?: 'round-robin' | 'weighted' | 'least-response-time' | 'health-first' | 'capability-match';
+  routingStrategy?:
+    | 'round-robin'
+    | 'weighted'
+    | 'least-response-time'
+    | 'health-first'
+    | 'capability-match';
   enableDiagnostics?: boolean;
   environment?: string;
 }
@@ -65,7 +70,7 @@ export class AIService {
       healthCheckInterval: 60000,
       routingStrategy: 'health-first',
       enableDiagnostics: true,
-      ...options
+      ...options,
     };
   }
 
@@ -79,7 +84,7 @@ export class AIService {
       loadedProviders: 0,
       loadedModels: 0,
       warnings: [],
-      errors: []
+      errors: [],
     };
 
     try {
@@ -121,7 +126,6 @@ export class AIService {
 
       result.success = true;
       this.initialized = true;
-
     } catch (error) {
       result.errors.push(error instanceof Error ? error.message : 'Initialization failed');
       console.error('[AIService] Initialization failed:', error);
@@ -162,7 +166,7 @@ export class AIService {
       environment: environmentConfigLoader.getCurrentEnvironment(),
       providers: providerPluginManager.getAllProviders().length,
       models: modelConfigManager.getAllConfigs().length,
-      healthyProviders: providerHealthChecker.getHealthyProviders().length
+      healthyProviders: providerHealthChecker.getHealthyProviders().length,
     };
   }
 }
@@ -196,9 +200,8 @@ if (typeof window !== 'undefined') {
     runAutoTests: async () => {
       const { autoTester } = await import('./__tests__/auto-verification');
       return autoTester.runAllTests();
-    }
+    },
   };
-
 }
 
 // 重新导出所有核心模块（方便直接导入）
@@ -210,5 +213,5 @@ export {
   configDiagnostics,
   smartRouter,
   modelTemplateRegistry,
-  initializeBridge
+  initializeBridge,
 };

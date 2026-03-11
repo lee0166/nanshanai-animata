@@ -1,8 +1,8 @@
 /**
  * GlobalContextExtractor - 全局上下文提取服务
- * 
+ *
  * 职责：在metadata阶段提取全局上下文信息，为后续所有解析阶段提供统一的背景知识
- * 
+ *
  * 提取的上下文包括：
  * 1. 故事核心（梗概、冲突、主题）
  * 2. 故事结构（三幕式/英雄之旅）
@@ -10,22 +10,20 @@
  * 4. 时代背景（年代、地点）
  * 5. 情绪曲线（情绪起伏图谱）
  * 6. 一致性规则（跨阶段校验规则）
- * 
+ *
  * @version 1.0.0
  */
 
-import { 
-  llmProvider 
-} from '../ai/providers/LLMProvider';
+import { llmProvider } from '../ai/providers/LLMProvider';
 import { JSONRepair } from './JSONRepair';
 import type { ModelConfig } from '../../types';
-import type { 
-  ScriptMetadata, 
-  StoryStructure, 
-  VisualStyle, 
-  EraContext, 
-  EmotionalPoint, 
-  ConsistencyRules 
+import type {
+  ScriptMetadata,
+  StoryStructure,
+  VisualStyle,
+  EraContext,
+  EmotionalPoint,
+  ConsistencyRules,
 } from '../../types';
 
 /**
@@ -117,7 +115,7 @@ export class GlobalContextExtractor {
     this.config = {
       extractEmotionalArc: true,
       textLengthThreshold: 800,
-      ...extractorConfig
+      ...extractorConfig,
     };
   }
 
@@ -140,7 +138,7 @@ export class GlobalContextExtractor {
   /**
    * 安全地获取字符串值
    * 处理LLM返回的各种类型（字符串、数组、对象）
-   * 
+   *
    * @param value - 任意类型的值
    * @param defaultValue - 默认值
    * @returns 字符串值
@@ -166,12 +164,12 @@ export class GlobalContextExtractor {
 
   /**
    * 提取全局上下文
-   * 
+   *
    * 这是主要入口方法，在metadata阶段调用，为后续所有阶段提供上下文
-   * 
+   *
    * V2 优化：使用单次 LLM 调用替代原来的 3 次调用，减少 60-70% 的耗时
    * 如果单次调用失败，自动回退到原来的并行提取方式
-   * 
+   *
    * @param content - 剧本/小说文本内容
    * @returns 全局上下文对象
    */
@@ -182,30 +180,35 @@ export class GlobalContextExtractor {
     try {
       // V2: 尝试使用单次调用提取所有上下文
       const unifiedContext = await this.extractUnifiedContext(content);
-      
+
       const duration = Date.now() - startTime;
       console.log(`[GlobalContextExtractor] Unified extraction completed in ${duration}ms`);
 
       // 根据配置决定是否提取情绪曲线
-      const shouldExtractEmotional = this.config.extractEmotionalArc !== false 
-        && content.length >= (this.config.textLengthThreshold || 800);
+      const shouldExtractEmotional =
+        this.config.extractEmotionalArc !== false &&
+        content.length >= (this.config.textLengthThreshold || 800);
 
       let emotionalContext: EmotionalContext;
       if (shouldExtractEmotional) {
-        console.log(`[GlobalContextExtractor] Extracting emotional arc (content length: ${content.length} >= threshold: ${this.config.textLengthThreshold})`);
+        console.log(
+          `[GlobalContextExtractor] Extracting emotional arc (content length: ${content.length} >= threshold: ${this.config.textLengthThreshold})`
+        );
         emotionalContext = await this.extractEmotionalArc(content, unifiedContext.story);
       } else {
-        console.log(`[GlobalContextExtractor] Skipping emotional arc extraction (content length: ${content.length}, threshold: ${this.config.textLengthThreshold}, enabled: ${this.config.extractEmotionalArc})`);
+        console.log(
+          `[GlobalContextExtractor] Skipping emotional arc extraction (content length: ${content.length}, threshold: ${this.config.textLengthThreshold}, enabled: ${this.config.extractEmotionalArc})`
+        );
         emotionalContext = {
           overallMood: '',
-          arc: []
+          arc: [],
         };
       }
 
       // 生成一致性规则
       const rules = this.generateConsistencyRules(
-        unifiedContext.story, 
-        unifiedContext.visual, 
+        unifiedContext.story,
+        unifiedContext.visual,
         unifiedContext.era
       );
 
@@ -217,8 +220,11 @@ export class GlobalContextExtractor {
         rules,
       };
     } catch (error) {
-      console.warn('[GlobalContextExtractor] Unified extraction failed, falling back to parallel extraction:', error);
-      
+      console.warn(
+        '[GlobalContextExtractor] Unified extraction failed, falling back to parallel extraction:',
+        error
+      );
+
       // 回退到原来的并行提取方式
       return this.extractParallel(content, startTime);
     }
@@ -287,7 +293,7 @@ ${content.substring(0, 6000)}
       this.modelConfig,
       '你是一个专业的剧本分析助手，擅长从小说/剧本中提取结构化信息。请严格按照要求的JSON格式输出。'
     );
-    
+
     if (!result.success || !result.data) {
       throw new Error('Failed to extract unified context: ' + result.error);
     }
@@ -331,7 +337,7 @@ ${content.substring(0, 6000)}
     // 处理 visual references 兼容
     let referenceFilms: string[] = parsed.visual.referenceFilms || [];
     let referenceDirectors: string[] = parsed.visual.referenceDirectors || [];
-    
+
     if (parsed.visual.references && parsed.visual.references.length > 0) {
       referenceFilms = parsed.visual.references.filter(r => !r.includes('导演'));
       referenceDirectors = parsed.visual.references.filter(r => r.includes('导演'));
@@ -342,14 +348,16 @@ ${content.substring(0, 6000)}
         synopsis: this.safeString(parsed.story.synopsis),
         logline: this.safeString(parsed.story.logline),
         coreConflict: this.safeString(parsed.story.coreConflict),
-        themes: Array.isArray(parsed.story.themes) ? parsed.story.themes.filter((t): t is string => typeof t === 'string') : [],
+        themes: Array.isArray(parsed.story.themes)
+          ? parsed.story.themes.filter((t): t is string => typeof t === 'string')
+          : [],
         structure: parsed.story.structure || this.getDefaultStoryStructure(),
       },
       visual: {
         artDirection: this.safeString(parsed.visual.artDirection),
         artStyle: this.safeString(parsed.visual.artStyle),
-        colorPalette: Array.isArray(parsed.visual.colorPalette) 
-          ? parsed.visual.colorPalette.filter((c): c is string => typeof c === 'string') 
+        colorPalette: Array.isArray(parsed.visual.colorPalette)
+          ? parsed.visual.colorPalette.filter((c): c is string => typeof c === 'string')
           : [],
         colorMood: this.safeString(parsed.visual.colorMood),
         cinematography: this.safeString(parsed.visual.cinematography),
@@ -382,18 +390,23 @@ ${content.substring(0, 6000)}
     const eraContext = await this.extractEraContext(content);
 
     // 4. 根据配置决定是否构建情绪曲线
-    const shouldExtractEmotional = this.config.extractEmotionalArc !== false 
-      && content.length >= (this.config.textLengthThreshold || 800);
-    
+    const shouldExtractEmotional =
+      this.config.extractEmotionalArc !== false &&
+      content.length >= (this.config.textLengthThreshold || 800);
+
     let emotionalContext: EmotionalContext;
     if (shouldExtractEmotional) {
-      console.log(`[GlobalContextExtractor] Parallel extraction: extracting emotional arc (content length: ${content.length})`);
+      console.log(
+        `[GlobalContextExtractor] Parallel extraction: extracting emotional arc (content length: ${content.length})`
+      );
       emotionalContext = await this.extractEmotionalArc(content, storyContext);
     } else {
-      console.log(`[GlobalContextExtractor] Parallel extraction: skipping emotional arc (content length: ${content.length})`);
+      console.log(
+        `[GlobalContextExtractor] Parallel extraction: skipping emotional arc (content length: ${content.length})`
+      );
       emotionalContext = {
         overallMood: '',
-        arc: []
+        arc: [],
       };
     }
 
@@ -414,9 +427,9 @@ ${content.substring(0, 6000)}
 
   /**
    * 提取故事上下文
-   * 
+   *
    * 分析剧本的核心故事要素：梗概、冲突、主题、结构
-   * 
+   *
    * @param content - 剧本内容
    * @returns 故事上下文
    */
@@ -456,7 +469,7 @@ ${content.substring(0, 8000)}
         this.modelConfig,
         '你是一个专业的剧本分析助手，擅长从小说/剧本中提取结构化信息。请严格按照要求的JSON格式输出。'
       );
-      
+
       if (!result.success || !result.data) {
         throw new Error('Failed to extract story context: ' + result.error);
       }
@@ -471,18 +484,21 @@ ${content.substring(0, 8000)}
       }>(result.data);
 
       if (!repairResult.success || !repairResult.data) {
-        console.error('[GlobalContextExtractor] Failed to parse story context:', repairResult.error);
+        console.error(
+          '[GlobalContextExtractor] Failed to parse story context:',
+          repairResult.error
+        );
         throw new Error('Failed to parse story context: ' + repairResult.error);
       }
 
       const parsed = repairResult.data;
-      
+
       return {
         synopsis: this.safeString(parsed.synopsis),
         logline: this.safeString(parsed.logline),
         coreConflict: this.safeString(parsed.coreConflict),
-        themes: Array.isArray(parsed.themes) 
-          ? parsed.themes.filter((t): t is string => typeof t === 'string') 
+        themes: Array.isArray(parsed.themes)
+          ? parsed.themes.filter((t): t is string => typeof t === 'string')
           : [],
         structure: parsed.structure || this.getDefaultStoryStructure(),
       };
@@ -501,9 +517,9 @@ ${content.substring(0, 8000)}
 
   /**
    * 提取视觉上下文
-   * 
+   *
    * 基于故事信息分析视觉风格
-   * 
+   *
    * @param content - 剧本内容
    * @param storyContext - 故事上下文
    * @returns 视觉上下文
@@ -550,7 +566,7 @@ ${content.substring(0, 5000)}
         this.modelConfig,
         '你是一个专业的视觉风格分析助手，擅长从剧本中提取视觉和美术风格信息。请严格按照要求的JSON格式输出。'
       );
-      
+
       if (!result.success || !result.data) {
         throw new Error('Failed to extract visual context: ' + result.error);
       }
@@ -570,26 +586,29 @@ ${content.substring(0, 5000)}
       }>(result.data);
 
       if (!repairResult.success || !repairResult.data) {
-        console.error('[GlobalContextExtractor] Failed to parse visual context:', repairResult.error);
+        console.error(
+          '[GlobalContextExtractor] Failed to parse visual context:',
+          repairResult.error
+        );
         throw new Error('Failed to parse visual context: ' + repairResult.error);
       }
 
       const parsed = repairResult.data;
-      
+
       // 兼容旧格式：如果存在 references 字段，从中提取影片和导演
       let referenceFilms: string[] = parsed.referenceFilms || [];
       let referenceDirectors: string[] = parsed.referenceDirectors || [];
-      
+
       if (parsed.references && parsed.references.length > 0) {
         referenceFilms = parsed.references.filter(r => !r.includes('导演'));
         referenceDirectors = parsed.references.filter(r => r.includes('导演'));
       }
-      
+
       return {
         artDirection: this.safeString(parsed.artDirection),
         artStyle: this.safeString(parsed.artStyle),
-        colorPalette: Array.isArray(parsed.colorPalette) 
-          ? parsed.colorPalette.filter((c): c is string => typeof c === 'string') 
+        colorPalette: Array.isArray(parsed.colorPalette)
+          ? parsed.colorPalette.filter((c): c is string => typeof c === 'string')
           : [],
         colorMood: this.safeString(parsed.colorMood),
         cinematography: this.safeString(parsed.cinematography),
@@ -612,9 +631,9 @@ ${content.substring(0, 5000)}
 
   /**
    * 提取时代背景
-   * 
+   *
    * 分析剧本的时代和地理背景
-   * 
+   *
    * @param content - 剧本内容
    * @returns 时代背景
    */
@@ -646,7 +665,7 @@ ${content.substring(0, 5000)}
         this.modelConfig,
         '你是一个专业的时代背景分析助手，擅长从剧本中提取时代和地理背景信息。请严格按照要求的JSON格式输出。'
       );
-      
+
       if (!result.success || !result.data) {
         throw new Error('Failed to extract era context: ' + result.error);
       }
@@ -666,7 +685,7 @@ ${content.substring(0, 5000)}
       }
 
       const parsed = repairResult.data;
-      
+
       return {
         era: this.safeString(parsed.era, '现代'),
         eraDescription: this.safeString(parsed.eraDescription),
@@ -686,9 +705,9 @@ ${content.substring(0, 5000)}
 
   /**
    * 提取情绪曲线
-   * 
+   *
    * 分析剧本的情绪起伏，构建情绪曲线图谱
-   * 
+   *
    * @param content - 剧本内容
    * @param storyContext - 故事上下文
    * @returns 情绪上下文
@@ -741,7 +760,7 @@ ${content.substring(0, 5000)}
         this.modelConfig,
         '你是一个专业的情绪分析助手，擅长从剧本中提取情绪曲线和情感变化信息。请严格按照要求的JSON格式输出。'
       );
-      
+
       if (!result.success || !result.data) {
         throw new Error('Failed to extract emotional arc: ' + result.error);
       }
@@ -759,12 +778,15 @@ ${content.substring(0, 5000)}
       }>(result.data);
 
       if (!repairResult.success || !repairResult.data) {
-        console.error('[GlobalContextExtractor] Failed to parse emotional arc:', repairResult.error);
+        console.error(
+          '[GlobalContextExtractor] Failed to parse emotional arc:',
+          repairResult.error
+        );
         throw new Error('Failed to parse emotional arc: ' + repairResult.error);
       }
 
       const parsed = repairResult.data;
-      
+
       return {
         overallMood: parsed.overallMood || '',
         arc: parsed.arc || [],
@@ -780,9 +802,9 @@ ${content.substring(0, 5000)}
 
   /**
    * 生成一致性规则
-   * 
+   *
    * 基于提取的上下文生成跨阶段一致性校验规则
-   * 
+   *
    * @param storyContext - 故事上下文
    * @param visualContext - 视觉上下文
    * @param eraContext - 时代上下文
@@ -804,19 +826,31 @@ ${content.substring(0, 5000)}
     const era = this.safeString(eraContext.era).toLowerCase();
     if (era) {
       // 古代背景限制
-      if (era.includes('古代') || era.includes('朝') || era.includes('唐') || era.includes('宋') || era.includes('明') || era.includes('清')) {
+      if (
+        era.includes('古代') ||
+        era.includes('朝') ||
+        era.includes('唐') ||
+        era.includes('宋') ||
+        era.includes('明') ||
+        era.includes('清')
+      ) {
         rules.eraConstraints.push('禁止出现现代科技产品（手机、电脑、汽车等）');
         rules.eraConstraints.push('禁止出现现代服装（西装、牛仔裤等）');
         rules.eraConstraints.push('禁止出现现代建筑（摩天大楼、玻璃幕墙等）');
         rules.forbiddenElements.push('手机', '电脑', '汽车', '飞机', '电梯');
       }
-      
+
       // 民国时期限制
-      if (era.includes('民国') || era.includes('1920') || era.includes('1930') || era.includes('1940')) {
+      if (
+        era.includes('民国') ||
+        era.includes('1920') ||
+        era.includes('1930') ||
+        era.includes('1940')
+      ) {
         rules.eraConstraints.push('禁止出现现代电子产品（智能手机、笔记本电脑等）');
         rules.forbiddenElements.push('智能手机', '笔记本电脑', '互联网');
       }
-      
+
       // 未来背景限制
       if (era.includes('未来') || era.includes('科幻')) {
         rules.styleConstraints.push('允许使用科幻元素，但需保持整体风格统一');
@@ -829,7 +863,7 @@ ${content.substring(0, 5000)}
       if (style.includes('写实') || style.includes('电影感')) {
         rules.styleConstraints.push('保持写实风格，避免过于夸张的表现手法');
       }
-      
+
       if (style.includes('动漫') || style.includes('动画')) {
         rules.styleConstraints.push('保持动漫风格，人物比例和场景设计需符合动漫美学');
       }
@@ -840,9 +874,9 @@ ${content.substring(0, 5000)}
 
   /**
    * 将GlobalContext转换为ScriptMetadata的扩展字段
-   * 
+   *
    * 用于将提取的上下文合并到metadata中
-   * 
+   *
    * @param context - 全局上下文
    * @returns 用于扩展ScriptMetadata的部分字段
    */
@@ -853,10 +887,10 @@ ${content.substring(0, 5000)}
       logline: context.story.logline,
       coreConflict: context.story.coreConflict,
       theme: context.story.themes,
-      
+
       // 故事结构层
       storyStructure: context.story.structure,
-      
+
       // 视觉风格层
       visualStyle: {
         artDirection: context.visual.artDirection,
@@ -867,16 +901,16 @@ ${content.substring(0, 5000)}
         cinematography: context.visual.cinematography,
         lightingStyle: context.visual.lightingStyle,
       },
-      
+
       // 时代背景层
       eraContext: context.era,
-      
+
       // 情绪曲线层
       emotionalArc: context.emotional.arc,
-      
+
       // 一致性规则层
       consistencyRules: context.rules,
-      
+
       // 参考层
       references: {
         films: context.visual.references?.filter(r => !r.includes('导演')) || [],
@@ -888,7 +922,7 @@ ${content.substring(0, 5000)}
 
   /**
    * 获取默认故事结构
-   * 
+   *
    * 当提取失败时返回默认结构
    */
   private getDefaultStoryStructure(): StoryStructure {

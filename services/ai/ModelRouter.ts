@@ -21,15 +21,15 @@ export type TaskType =
   | 'validation';
 
 // 模型能力标签
-export type ModelCapability = 
-  | 'long_context'      // 长上下文 (>100K)
-  | 'cheap'             // 低成本
-  | 'fast'              // 快速响应
-  | 'creative'          // 创意生成
-  | 'accurate'          // 高精度
-  | 'json_mode'         // JSON模式支持
-  | 'chinese'           // 中文优化
-  | 'analysis';         // 分析能力
+export type ModelCapability =
+  | 'long_context' // 长上下文 (>100K)
+  | 'cheap' // 低成本
+  | 'fast' // 快速响应
+  | 'creative' // 创意生成
+  | 'accurate' // 高精度
+  | 'json_mode' // JSON模式支持
+  | 'chinese' // 中文优化
+  | 'analysis'; // 分析能力
 
 // 模型运行时信息（包含价格和用户配置）
 export interface ModelRuntimeInfo {
@@ -37,11 +37,11 @@ export interface ModelRuntimeInfo {
   provider: string;
   maxTokens: number;
   contextWindow: number;
-  costPer1KInput: number;   // 从用户配置读取，有默认值
-  costPer1KOutput: number;  // 从用户配置读取，有默认值
+  costPer1KInput: number; // 从用户配置读取，有默认值
+  costPer1KOutput: number; // 从用户配置读取，有默认值
   capabilities: ModelCapability[];
   rateLimit: number;
-  config: ModelConfig;      // 原始配置引用
+  config: ModelConfig; // 原始配置引用
 }
 
 export interface RoutingDecision {
@@ -75,7 +75,7 @@ interface TaskRequirement {
 // 默认价格（当用户未配置时使用）
 const DEFAULT_COST_PER_1K = {
   input: 0.01,
-  output: 0.03
+  output: 0.03,
 };
 
 export class ModelRouter {
@@ -83,42 +83,42 @@ export class ModelRouter {
 
   // 任务需求配置（与具体模型无关，移除成本限制）
   private taskRequirements: Record<TaskType, TaskRequirement> = {
-    'global_summary': {
+    global_summary: {
       requiredCapabilities: ['long_context'],
       preferredCapabilities: ['chinese', 'creative'],
       minContextWindow: 100000,
-      description: '需要处理长文本，生成长摘要'
+      description: '需要处理长文本，生成长摘要',
     },
-    'entity_extraction': {
+    entity_extraction: {
       requiredCapabilities: ['json_mode'],
       preferredCapabilities: ['cheap', 'fast', 'accurate'],
       minContextWindow: 8000,
-      description: '结构化提取，需要JSON输出'
+      description: '结构化提取，需要JSON输出',
     },
-    'character_analysis': {
+    character_analysis: {
       requiredCapabilities: ['creative'],
       preferredCapabilities: ['accurate', 'chinese'],
       minContextWindow: 16000,
-      description: '创意分析，需要深度理解'
+      description: '创意分析，需要深度理解',
     },
-    'scene_analysis': {
+    scene_analysis: {
       requiredCapabilities: ['creative'],
       preferredCapabilities: ['accurate', 'chinese'],
       minContextWindow: 16000,
-      description: '场景分析，视觉描述'
+      description: '场景分析，视觉描述',
     },
-    'shot_generation': {
+    shot_generation: {
       requiredCapabilities: ['creative'],
       preferredCapabilities: ['accurate'],
       minContextWindow: 8000,
-      description: '分镜生成，创意输出'
+      description: '分镜生成，创意输出',
     },
-    'validation': {
+    validation: {
       requiredCapabilities: ['accurate'],
       preferredCapabilities: ['cheap', 'fast'],
       minContextWindow: 4000,
-      description: '验证检查，需要准确'
-    }
+      description: '验证检查，需要准确',
+    },
   };
 
   /**
@@ -145,7 +145,7 @@ export class ModelRouter {
       costPer1KOutput,
       capabilities,
       rateLimit: 10,
-      config
+      config,
     };
 
     this.modelRuntimes.set(name, runtimeInfo);
@@ -161,7 +161,11 @@ export class ModelRouter {
   /**
    * 自动推断模型能力
    */
-  private inferCapabilities(config: ModelConfig, contextWindow: number, cost: number): ModelCapability[] {
+  private inferCapabilities(
+    config: ModelConfig,
+    contextWindow: number,
+    cost: number
+  ): ModelCapability[] {
     const caps: ModelCapability[] = [];
 
     // 长上下文
@@ -201,7 +205,7 @@ export class ModelRouter {
    * 获取路由决策（基于能力匹配，成本作为提示）
    */
   getRoutingDecision(
-    taskType: TaskType, 
+    taskType: TaskType,
     promptLength: number,
     preferredModel?: string
   ): RoutingDecision {
@@ -214,7 +218,7 @@ export class ModelRouter {
         estimatedCost: cost,
         estimatedTime: 3000,
         reason: '用户指定',
-        alternatives: []
+        alternatives: [],
       };
     }
 
@@ -225,28 +229,29 @@ export class ModelRouter {
     if (scoredModels.length === 0) {
       throw new Error(
         `No suitable model found for task ${taskType}. ` +
-        `Please register a model with required capabilities: ${requirement.requiredCapabilities.join(', ')}`
+          `Please register a model with required capabilities: ${requirement.requiredCapabilities.join(', ')}`
       );
     }
 
     // 选择得分最高的模型
     const bestModel = scoredModels[0];
-    
+
     // 收集备选方案（前3个）
     const alternatives = scoredModels.slice(1, 4).map(m => ({
       model: m.name,
       estimatedCost: this.estimateCost(m.name, promptLength),
-      reason: `匹配度: ${m.score.toFixed(1)}分, 成本: $${m.costPer1K}/1K`
+      reason: `匹配度: ${m.score.toFixed(1)}分, 成本: $${m.costPer1K}/1K`,
     }));
 
     return {
       model: bestModel.name,
       estimatedCost: this.estimateCost(bestModel.name, promptLength),
       estimatedTime: 3000,
-      reason: `匹配能力: ${bestModel.matchedCapabilities.join(', ')}, ` +
-              `成本: $${bestModel.costPer1K}/1K tokens ` +
-              `(输入$${bestModel.inputCost}/1K, 输出$${bestModel.outputCost}/1K)`,
-      alternatives
+      reason:
+        `匹配能力: ${bestModel.matchedCapabilities.join(', ')}, ` +
+        `成本: $${bestModel.costPer1K}/1K tokens ` +
+        `(输入$${bestModel.inputCost}/1K, 输出$${bestModel.outputCost}/1K)`,
+      alternatives,
     };
   }
 
@@ -264,17 +269,13 @@ export class ModelRouter {
     } = {}
   ): Promise<RouteResult> {
     const startTime = Date.now();
-    
+
     // 获取路由决策
-    const decision = this.getRoutingDecision(
-      taskType, 
-      prompt.length,
-      options.preferredModel
-    );
+    const decision = this.getRoutingDecision(taskType, prompt.length, options.preferredModel);
 
     const modelName = decision.model;
     const runtimeInfo = this.modelRuntimes.get(modelName);
-    
+
     if (!runtimeInfo) {
       throw new Error(`Model ${modelName} not found`);
     }
@@ -292,19 +293,19 @@ export class ModelRouter {
 
       const inputTokens = this.estimateTokens(prompt);
       const outputTokens = this.estimateTokens(result.data || '');
-      
+
       // 使用实际价格计算成本
-      const actualCost = (inputTokens / 1000) * runtimeInfo.costPer1KInput +
-                         (outputTokens / 1000) * runtimeInfo.costPer1KOutput;
+      const actualCost =
+        (inputTokens / 1000) * runtimeInfo.costPer1KInput +
+        (outputTokens / 1000) * runtimeInfo.costPer1KOutput;
 
       return {
         content: result.data || '',
         modelUsed: modelName,
         tokensUsed: { input: inputTokens, output: outputTokens },
         cost: actualCost,
-        latency: Date.now() - startTime
+        latency: Date.now() - startTime,
       };
-
     } catch (error) {
       console.error(`[ModelRouter] Model ${modelName} failed:`, error);
       throw error;
@@ -337,7 +338,7 @@ export class ModelRouter {
           modelUsed: 'none',
           tokensUsed: { input: 0, output: 0 },
           cost: 0,
-          latency: 0
+          latency: 0,
         };
       }
     }
@@ -413,7 +414,7 @@ export class ModelRouter {
         matchedCapabilities,
         costPer1K: avgCost,
         inputCost: info.costPer1KInput,
-        outputCost: info.costPer1KOutput
+        outputCost: info.costPer1KOutput,
       });
     }
 
@@ -429,10 +430,13 @@ export class ModelRouter {
     if (!info) return 0;
 
     const inputTokens = this.estimateTokens('x'.repeat(inputLength));
-    const outputTokens = outputLength ? this.estimateTokens('x'.repeat(outputLength)) : info.maxTokens * 0.5;
+    const outputTokens = outputLength
+      ? this.estimateTokens('x'.repeat(outputLength))
+      : info.maxTokens * 0.5;
 
-    return (inputTokens / 1000) * info.costPer1KInput +
-           (outputTokens / 1000) * info.costPer1KOutput;
+    return (
+      (inputTokens / 1000) * info.costPer1KInput + (outputTokens / 1000) * info.costPer1KOutput
+    );
   }
 
   /**
@@ -465,7 +469,7 @@ export class ModelRouter {
     if (this.taskRequirements[taskType]) {
       this.taskRequirements[taskType] = {
         ...this.taskRequirements[taskType],
-        ...requirement
+        ...requirement,
       };
     }
   }

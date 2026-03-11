@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * 下载 ONNX Runtime WASM 文件
- * 
+ *
  * 从多个 CDN 源下载 WASM 文件到 public/ort-wasm/ 目录
  */
 
@@ -22,16 +22,16 @@ const WASM_FILES = [
     sources: [
       'https://cdn.jsdelivr.net/npm/@xenova/transformers@2.17.2/dist/ort-wasm-simd.wasm',
       'https://unpkg.com/@xenova/transformers@2.17.2/dist/ort-wasm-simd.wasm',
-      'https://www.jsdelivr.com/package/npm/@xenova/transformers/files/dist/ort-wasm-simd.wasm'
-    ]
+      'https://www.jsdelivr.com/package/npm/@xenova/transformers/files/dist/ort-wasm-simd.wasm',
+    ],
   },
   {
     name: 'ort-wasm.wasm',
     sources: [
       'https://cdn.jsdelivr.net/npm/@xenova/transformers@2.17.2/dist/ort-wasm.wasm',
-      'https://unpkg.com/@xenova/transformers@2.17.2/dist/ort-wasm.wasm'
-    ]
-  }
+      'https://unpkg.com/@xenova/transformers@2.17.2/dist/ort-wasm.wasm',
+    ],
+  },
 ];
 
 function ensureDir(dir) {
@@ -43,79 +43,87 @@ function ensureDir(dir) {
 function downloadFile(url, dest) {
   return new Promise((resolve, reject) => {
     const file = fs.createWriteStream(dest);
-    
-    https.get(url, {
-      timeout: 30000,
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-      }
-    }, (response) => {
-      if (response.statusCode === 302 || response.statusCode === 301) {
-        file.close();
-        if (fs.existsSync(dest)) fs.unlinkSync(dest);
-        downloadFile(response.headers.location, dest)
-          .then(resolve)
-          .catch(reject);
-        return;
-      }
-      
-      if (response.statusCode !== 200) {
-        file.close();
-        if (fs.existsSync(dest)) fs.unlinkSync(dest);
-        reject(new Error(`HTTP ${response.statusCode}`));
-        return;
-      }
-      
-      const totalSize = parseInt(response.headers['content-length'] || '0', 10);
-      let downloadedSize = 0;
-      
-      response.on('data', (chunk) => {
-        downloadedSize += chunk.length;
-        if (totalSize > 0) {
-          const progress = Math.round((downloadedSize / totalSize) * 100);
-          process.stdout.write(`\r[Download] ${progress}%`);
+
+    https
+      .get(
+        url,
+        {
+          timeout: 30000,
+          headers: {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+          },
+        },
+        response => {
+          if (response.statusCode === 302 || response.statusCode === 301) {
+            file.close();
+            if (fs.existsSync(dest)) fs.unlinkSync(dest);
+            downloadFile(response.headers.location, dest).then(resolve).catch(reject);
+            return;
+          }
+
+          if (response.statusCode !== 200) {
+            file.close();
+            if (fs.existsSync(dest)) fs.unlinkSync(dest);
+            reject(new Error(`HTTP ${response.statusCode}`));
+            return;
+          }
+
+          const totalSize = parseInt(response.headers['content-length'] || '0', 10);
+          let downloadedSize = 0;
+
+          response.on('data', chunk => {
+            downloadedSize += chunk.length;
+            if (totalSize > 0) {
+              const progress = Math.round((downloadedSize / totalSize) * 100);
+              process.stdout.write(`\r[Download] ${progress}%`);
+            }
+          });
+
+          response.pipe(file);
+
+          file.on('finish', () => {
+            file.close();
+            console.log(`\n[Download] Completed`);
+            resolve();
+          });
+
+          file.on('error', err => {
+            file.close();
+            if (fs.existsSync(dest)) fs.unlinkSync(dest);
+            reject(err);
+          });
         }
-      });
-      
-      response.pipe(file);
-      
-      file.on('finish', () => {
-        file.close();
-        console.log(`\n[Download] Completed`);
-        resolve();
-      });
-      
-      file.on('error', (err) => {
+      )
+      .on('error', err => {
         file.close();
         if (fs.existsSync(dest)) fs.unlinkSync(dest);
         reject(err);
+      })
+      .on('timeout', () => {
+        file.close();
+        if (fs.existsSync(dest)) fs.unlinkSync(dest);
+        reject(new Error('Timeout'));
       });
-    }).on('error', (err) => {
-      file.close();
-      if (fs.existsSync(dest)) fs.unlinkSync(dest);
-      reject(err);
-    }).on('timeout', () => {
-      file.close();
-      if (fs.existsSync(dest)) fs.unlinkSync(dest);
-      reject(new Error('Timeout'));
-    });
   });
 }
 
 async function downloadWithFallback(fileInfo) {
   const destPath = path.join(WASM_DIR, fileInfo.name);
-  
+
   // 检查文件是否已存在
   if (fs.existsSync(destPath)) {
     const stats = fs.statSync(destPath);
-    if (stats.size > 1000000) { // 大于 1MB 认为有效
-      console.log(`[Skip] ${fileInfo.name} already exists (${(stats.size / 1024 / 1024).toFixed(2)} MB)`);
+    if (stats.size > 1000000) {
+      // 大于 1MB 认为有效
+      console.log(
+        `[Skip] ${fileInfo.name} already exists (${(stats.size / 1024 / 1024).toFixed(2)} MB)`
+      );
       return true;
     }
   }
-  
+
   console.log(`\n[File] ${fileInfo.name}`);
-  
+
   for (const source of fileInfo.sources) {
     console.log(`[Try] ${source}`);
     try {
@@ -126,7 +134,7 @@ async function downloadWithFallback(fileInfo) {
       continue;
     }
   }
-  
+
   return false;
 }
 
@@ -136,12 +144,12 @@ async function main() {
   console.log('='.repeat(60));
   console.log(`Target Directory: ${WASM_DIR}`);
   console.log('');
-  
+
   ensureDir(WASM_DIR);
-  
+
   let successCount = 0;
   let failCount = 0;
-  
+
   for (const fileInfo of WASM_FILES) {
     const success = await downloadWithFallback(fileInfo);
     if (success) {
@@ -151,14 +159,14 @@ async function main() {
       console.error(`[Error] Failed to download ${fileInfo.name} from all sources`);
     }
   }
-  
+
   console.log('\n' + '='.repeat(60));
   console.log('Download Summary');
   console.log('='.repeat(60));
   console.log(`✅ Success: ${successCount}`);
   console.log(`❌ Failed: ${failCount}`);
   console.log('');
-  
+
   if (failCount === 0) {
     console.log('🎉 All WASM files downloaded successfully!');
     process.exit(0);

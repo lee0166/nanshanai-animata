@@ -29,10 +29,10 @@ export type SceneImportance = 'opening' | 'development' | 'climax' | 'ending';
  * 场景重要性权重配置
  */
 export const SCENE_IMPORTANCE_WEIGHTS: Record<SceneImportance, number> = {
-  opening: 0.8,      // 开场
-  development: 0.6,  // 发展
-  climax: 1.0,       // 高潮
-  ending: 0.7        // 结尾
+  opening: 0.8, // 开场
+  development: 0.6, // 发展
+  climax: 1.0, // 高潮
+  ending: 0.7, // 结尾
 };
 
 /**
@@ -153,23 +153,23 @@ export const PLATFORM_CONFIGS: Record<PlatformType, PlatformConfig> = {
         minWordsPerMinute: 250,
         maxWordsPerMinute: 300,
         recommendedWordsPerMinute: 280,
-        description: '快节奏，适合短剧快节奏剪辑'
+        description: '快节奏，适合短剧快节奏剪辑',
       },
       normal: {
         minWordsPerMinute: 200,
         maxWordsPerMinute: 250,
         recommendedWordsPerMinute: 225,
-        description: '中节奏，平衡叙事与节奏'
+        description: '中节奏，平衡叙事与节奏',
       },
       slow: {
         minWordsPerMinute: 150,
         maxWordsPerMinute: 200,
         recommendedWordsPerMinute: 175,
-        description: '慢节奏，适合情感细腻表达'
-      }
+        description: '慢节奏，适合情感细腻表达',
+      },
     },
     recommendedDurationRange: [180, 300],
-    characteristics: ['竖屏为主', '快节奏', '黄金3秒', '完播率优先']
+    characteristics: ['竖屏为主', '快节奏', '黄金3秒', '完播率优先'],
   },
   kuaishou: {
     name: 'kuaishou',
@@ -179,23 +179,23 @@ export const PLATFORM_CONFIGS: Record<PlatformType, PlatformConfig> = {
         minWordsPerMinute: 240,
         maxWordsPerMinute: 290,
         recommendedWordsPerMinute: 270,
-        description: '快节奏，适合下沉市场'
+        description: '快节奏，适合下沉市场',
       },
       normal: {
         minWordsPerMinute: 190,
         maxWordsPerMinute: 240,
         recommendedWordsPerMinute: 220,
-        description: '中节奏，平衡叙事'
+        description: '中节奏，平衡叙事',
       },
       slow: {
         minWordsPerMinute: 140,
         maxWordsPerMinute: 190,
         recommendedWordsPerMinute: 170,
-        description: '慢节奏，适合剧情深入'
-      }
+        description: '慢节奏，适合剧情深入',
+      },
     },
     recommendedDurationRange: [180, 300],
-    characteristics: ['老铁文化', '真实感', '强互动', '接地气']
+    characteristics: ['老铁文化', '真实感', '强互动', '接地气'],
   },
   bilibili: {
     name: 'bilibili',
@@ -205,23 +205,23 @@ export const PLATFORM_CONFIGS: Record<PlatformType, PlatformConfig> = {
         minWordsPerMinute: 220,
         maxWordsPerMinute: 280,
         recommendedWordsPerMinute: 250,
-        description: '快节奏，适合信息密度高的内容'
+        description: '快节奏，适合信息密度高的内容',
       },
       normal: {
         minWordsPerMinute: 180,
         maxWordsPerMinute: 250,
         recommendedWordsPerMinute: 200,
-        description: '中节奏，适合大多数内容'
+        description: '中节奏，适合大多数内容',
       },
       slow: {
         minWordsPerMinute: 120,
         maxWordsPerMinute: 180,
         recommendedWordsPerMinute: 150,
-        description: '慢节奏，适合深度解析'
-      }
+        description: '慢节奏，适合深度解析',
+      },
     },
     recommendedDurationRange: [240, 600],
-    characteristics: ['横屏为主', '年轻用户', '弹幕文化', '长视频友好']
+    characteristics: ['横屏为主', '年轻用户', '弹幕文化', '长视频友好'],
   },
   premium: {
     name: 'premium',
@@ -231,34 +231,31 @@ export const PLATFORM_CONFIGS: Record<PlatformType, PlatformConfig> = {
         minWordsPerMinute: 200,
         maxWordsPerMinute: 250,
         recommendedWordsPerMinute: 225,
-        description: '精品快节奏，兼顾质量与效率'
+        description: '精品快节奏，兼顾质量与效率',
       },
       normal: {
         minWordsPerMinute: 150,
         maxWordsPerMinute: 200,
         recommendedWordsPerMinute: 175,
-        description: '精品中节奏，注重叙事质量'
+        description: '精品中节奏，注重叙事质量',
       },
       slow: {
         minWordsPerMinute: 120,
         maxWordsPerMinute: 180,
         recommendedWordsPerMinute: 150,
-        description: '精品慢节奏，电影级质感'
-      }
+        description: '精品慢节奏，电影级质感',
+      },
     },
     recommendedDurationRange: [300, 600],
-    characteristics: ['电影级质感', '高制作成本', '精细叙事', '品牌调性']
-  }
+    characteristics: ['电影级质感', '高制作成本', '精细叙事', '品牌调性'],
+  },
 };
 
 /**
  * 默认场景重要性映射函数
  * 根据场景在剧本中的位置自动判断重要性
  */
-export function defaultImportanceMapper(
-  sceneIndex: number,
-  totalScenes: number
-): SceneImportance {
+export function defaultImportanceMapper(sceneIndex: number, totalScenes: number): SceneImportance {
   if (totalScenes <= 0) return 'development';
 
   const ratio = sceneIndex / totalScenes;
@@ -354,7 +351,7 @@ export function calculateBudget(
     customWordsPerMinute,
     importanceMapper = defaultImportanceMapper,
     minShotDuration = 1.5,
-    maxShotDuration = 8
+    maxShotDuration = 8,
   } = options;
 
   // 验证输入
@@ -399,10 +396,7 @@ export function calculateBudget(
     const sceneShots = sceneGroups.get(sceneName)!;
 
     // 计算场景总字数
-    const sceneWordCount = sceneShots.reduce(
-      (sum, shot) => sum + calculateShotWordCount(shot),
-      0
-    );
+    const sceneWordCount = sceneShots.reduce((sum, shot) => sum + calculateShotWordCount(shot), 0);
 
     // 确定场景重要性
     const importance = importanceMapper(i, totalScenes);
@@ -414,7 +408,7 @@ export function calculateBudget(
       shots: sceneShots,
       wordCount: sceneWordCount,
       importance,
-      weight
+      weight,
     });
 
     totalWordCount += sceneWordCount;
@@ -444,9 +438,7 @@ export function calculateBudget(
     const allocatedDuration = targetTotalDuration * combinedRatio;
 
     // 计算每个分镜的平均时长
-    const averageShotDuration = scene.shots.length > 0
-      ? allocatedDuration / scene.shots.length
-      : 0;
+    const averageShotDuration = scene.shots.length > 0 ? allocatedDuration / scene.shots.length : 0;
 
     sceneBudgets.push({
       sceneId: scene.sceneId,
@@ -456,7 +448,7 @@ export function calculateBudget(
       wordCount: scene.wordCount,
       allocatedDuration: Math.round(allocatedDuration * 10) / 10,
       shotCount: scene.shots.length,
-      averageShotDuration: Math.round(averageShotDuration * 10) / 10
+      averageShotDuration: Math.round(averageShotDuration * 10) / 10,
     });
 
     allocatedTotalDuration += allocatedDuration;
@@ -500,7 +492,7 @@ export function calculateBudget(
     endingDuration: Math.round(endingDuration * 10) / 10,
     recommendedShotCount,
     averageShotDuration: Math.round(averageShotDuration * 10) / 10,
-    generatedAt: Date.now()
+    generatedAt: Date.now(),
   };
 }
 
@@ -554,7 +546,7 @@ export function validateBudget(budget: DurationBudget): {
   return {
     valid: issues.length === 0,
     issues,
-    suggestions
+    suggestions,
   };
 }
 
@@ -593,7 +585,7 @@ export function getPlatformRecommendations(
   return {
     recommendedPace,
     estimatedDuration: [minDuration, maxDuration],
-    recommendedShotCount: [minShots, maxShots]
+    recommendedShotCount: [minShots, maxShots],
   };
 }
 
@@ -621,7 +613,7 @@ export function adjustBudgetToTarget(
   return calculateBudget(shots, {
     ...options,
     targetDuration,
-    customWordsPerMinute: requiredWordsPerMinute
+    customWordsPerMinute: requiredWordsPerMinute,
   });
 }
 
@@ -647,10 +639,18 @@ export function exportBudgetReport(budget: DurationBudget): string {
   lines.push('');
 
   lines.push(`【重要性时长分配】`);
-  lines.push(`开场: ${budget.openingDuration} 秒 (${((budget.openingDuration / budget.totalDuration) * 100).toFixed(1)}%)`);
-  lines.push(`发展: ${budget.developmentDuration} 秒 (${((budget.developmentDuration / budget.totalDuration) * 100).toFixed(1)}%)`);
-  lines.push(`高潮: ${budget.climaxDuration} 秒 (${((budget.climaxDuration / budget.totalDuration) * 100).toFixed(1)}%)`);
-  lines.push(`结尾: ${budget.endingDuration} 秒 (${((budget.endingDuration / budget.totalDuration) * 100).toFixed(1)}%)`);
+  lines.push(
+    `开场: ${budget.openingDuration} 秒 (${((budget.openingDuration / budget.totalDuration) * 100).toFixed(1)}%)`
+  );
+  lines.push(
+    `发展: ${budget.developmentDuration} 秒 (${((budget.developmentDuration / budget.totalDuration) * 100).toFixed(1)}%)`
+  );
+  lines.push(
+    `高潮: ${budget.climaxDuration} 秒 (${((budget.climaxDuration / budget.totalDuration) * 100).toFixed(1)}%)`
+  );
+  lines.push(
+    `结尾: ${budget.endingDuration} 秒 (${((budget.endingDuration / budget.totalDuration) * 100).toFixed(1)}%)`
+  );
   lines.push('');
 
   lines.push(`【场景详细分配】`);
@@ -698,5 +698,5 @@ export default {
   calculateShotWordCount,
   defaultImportanceMapper,
   PLATFORM_CONFIGS,
-  SCENE_IMPORTANCE_WEIGHTS
+  SCENE_IMPORTANCE_WEIGHTS,
 };

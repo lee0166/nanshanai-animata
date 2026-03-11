@@ -88,7 +88,7 @@ export class ConfigDiagnostics {
     // 火山方舟诊断规则
     this.rules.push({
       provider: 'volcengine',
-      check: (config) => {
+      check: config => {
         const issues: DiagnosticIssue[] = [];
 
         // 检查API地址格式
@@ -102,7 +102,7 @@ export class ConfigDiagnostics {
             configId: config.id,
             configName: config.name,
             suggestion: '火山方舟API地址通常格式为: https://ark.cn-beijing.volces.com/api/v3/',
-            autoFixable: false
+            autoFixable: false,
           });
         }
 
@@ -117,22 +117,26 @@ export class ConfigDiagnostics {
             configId: config.id,
             configName: config.name,
             suggestion: '火山方舟API密钥通常以 "sk-" 开头',
-            autoFixable: false
+            autoFixable: false,
           });
         }
 
         return issues;
-      }
+      },
     });
 
     // 阿里云百炼诊断规则
     this.rules.push({
       provider: 'aliyun',
-      check: (config) => {
+      check: config => {
         const issues: DiagnosticIssue[] = [];
 
         // 检查API地址
-        if (config.baseUrl && !config.baseUrl.includes('aliyun.com') && !config.baseUrl.includes('aliyuncs.com')) {
+        if (
+          config.baseUrl &&
+          !config.baseUrl.includes('aliyun.com') &&
+          !config.baseUrl.includes('aliyuncs.com')
+        ) {
           issues.push({
             id: `ali_url_${config.id}`,
             severity: 'warning',
@@ -142,18 +146,18 @@ export class ConfigDiagnostics {
             configId: config.id,
             configName: config.name,
             suggestion: '阿里云百炼API地址通常包含 aliyun.com 或 aliyuncs.com',
-            autoFixable: false
+            autoFixable: false,
           });
         }
 
         return issues;
-      }
+      },
     });
 
     // OpenAI诊断规则
     this.rules.push({
       provider: 'openai',
-      check: (config) => {
+      check: config => {
         const issues: DiagnosticIssue[] = [];
 
         // 检查是否为第三方兼容服务
@@ -167,18 +171,18 @@ export class ConfigDiagnostics {
             configId: config.id,
             configName: config.name,
             suggestion: '请确保第三方服务完全兼容OpenAI API格式',
-            autoFixable: false
+            autoFixable: false,
           });
         }
 
         return issues;
-      }
+      },
     });
 
     // 魔搭社区诊断规则
     this.rules.push({
       provider: 'modelscope',
-      check: (config) => {
+      check: config => {
         const issues: DiagnosticIssue[] = [];
 
         if (environmentConfigLoader.isProduction()) {
@@ -191,7 +195,7 @@ export class ConfigDiagnostics {
             configId: config.id,
             configName: config.name,
             suggestion: '请迁移到火山方舟、阿里云百炼等商用服务',
-            autoFixable: false
+            autoFixable: false,
           });
         } else {
           issues.push({
@@ -203,12 +207,12 @@ export class ConfigDiagnostics {
             configId: config.id,
             configName: config.name,
             suggestion: '生产环境请使用商用API服务',
-            autoFixable: false
+            autoFixable: false,
           });
         }
 
         return issues;
-      }
+      },
     });
   }
 
@@ -252,7 +256,7 @@ export class ConfigDiagnostics {
         code: 'NAME_EMPTY',
         configId: config.id,
         configName: config.name || '未命名',
-        autoFixable: false
+        autoFixable: false,
       });
     }
 
@@ -266,7 +270,7 @@ export class ConfigDiagnostics {
         code: 'MODEL_ID_EMPTY',
         configId: config.id,
         configName: config.name,
-        autoFixable: false
+        autoFixable: false,
       });
     }
 
@@ -280,7 +284,7 @@ export class ConfigDiagnostics {
         code: 'PROVIDER_EMPTY',
         configId: config.id,
         configName: config.name,
-        autoFixable: false
+        autoFixable: false,
       });
     }
 
@@ -295,7 +299,7 @@ export class ConfigDiagnostics {
         configId: config.id,
         configName: config.name,
         suggestion: '请配置API密钥，或确保通过环境变量提供',
-        autoFixable: false
+        autoFixable: false,
       });
     }
 
@@ -310,7 +314,7 @@ export class ConfigDiagnostics {
         configId: config.id,
         configName: config.name,
         suggestion: '部分Provider需要配置API地址',
-        autoFixable: false
+        autoFixable: false,
       });
     }
 
@@ -334,8 +338,8 @@ export class ConfigDiagnostics {
         configName: config.name,
         autoFixable: true,
         fix: () => ({
-          capabilities: this.inferCapabilities(config.type)
-        })
+          capabilities: this.inferCapabilities(config.type),
+        }),
       });
       return issues;
     }
@@ -357,8 +361,8 @@ export class ConfigDiagnostics {
             suggestion: '建议启用 textToImage 或 imageToImage 能力',
             autoFixable: true,
             fix: () => ({
-              capabilities: { ...caps, textToImage: true }
-            })
+              capabilities: { ...caps, textToImage: true },
+            }),
           });
         }
         break;
@@ -376,8 +380,8 @@ export class ConfigDiagnostics {
             suggestion: '建议启用 imageToVideo 或 textToVideo 能力',
             autoFixable: true,
             fix: () => ({
-              capabilities: { ...caps, imageToVideo: true }
-            })
+              capabilities: { ...caps, imageToVideo: true },
+            }),
           });
         }
         break;
@@ -395,8 +399,8 @@ export class ConfigDiagnostics {
             suggestion: '建议启用 textToText 能力',
             autoFixable: true,
             fix: () => ({
-              capabilities: { ...caps, textToText: true }
-            })
+              capabilities: { ...caps, textToText: true },
+            }),
           });
         }
         break;
@@ -424,7 +428,7 @@ export class ConfigDiagnostics {
           code: 'PARAM_NAME_EMPTY',
           configId: config.id,
           configName: config.name,
-          autoFixable: false
+          autoFixable: false,
         });
       }
 
@@ -444,8 +448,8 @@ export class ConfigDiagnostics {
             fix: () => ({
               parameters: config.parameters?.map(p =>
                 p.name === param.name ? { ...p, min: param.max, max: param.min } : p
-              )
-            })
+              ),
+            }),
           });
         }
       }
@@ -461,7 +465,7 @@ export class ConfigDiagnostics {
           configId: config.id,
           configName: config.name,
           suggestion: '为选择型参数添加选项列表',
-          autoFixable: false
+          autoFixable: false,
         });
       }
     }
@@ -491,9 +495,9 @@ export class ConfigDiagnostics {
         errors: allIssues.filter(i => i.severity === 'error').length,
         warnings: allIssues.filter(i => i.severity === 'warning').length,
         infos: allIssues.filter(i => i.severity === 'info').length,
-        autoFixable: allIssues.filter(i => i.autoFixable).length
+        autoFixable: allIssues.filter(i => i.autoFixable).length,
       },
-      recommendations
+      recommendations,
     };
   }
 
@@ -540,7 +544,7 @@ export class ConfigDiagnostics {
       fixed: 0,
       failed: 0,
       skipped: 0,
-      details: []
+      details: [],
     };
 
     for (const issue of issuesToFix) {
@@ -559,7 +563,7 @@ export class ConfigDiagnostics {
         result.details.push({
           issueId: issue.id,
           success: false,
-          error: error instanceof Error ? error.message : '修复失败'
+          error: error instanceof Error ? error.message : '修复失败',
         });
       }
     }
@@ -602,7 +606,7 @@ export class ConfigDiagnostics {
       .filter(i => i.autoFixable)
       .map(i => ({
         issue: i,
-        action: this.getFixActionDescription(i)
+        action: this.getFixActionDescription(i),
       }));
   }
 

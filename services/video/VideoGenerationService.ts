@@ -31,19 +31,19 @@ export class VideoGenerationService {
   async generateVideo(params: VideoGenerationParams): Promise<VideoGenerationResult> {
     try {
       const { keyframes, prompt, modelConfigId, projectId } = params;
-      
+
       console.log('[VideoGenerationService] Starting video generation...');
       console.log(`[VideoGenerationService] Keyframes count: ${keyframes.length}`);
-      
+
       // 根据关键帧数量确定生成模式
       let result: VideoGenerationResult;
-      
+
       if (keyframes.length === 1) {
         // 单帧：首帧生成视频
         result = await this.generateFromStartFrame({
           startFrame: keyframes[0],
           prompt,
-          modelConfigId
+          modelConfigId,
         });
       } else if (keyframes.length >= 2) {
         // 双帧或以上：使用首尾帧生成视频
@@ -51,27 +51,27 @@ export class VideoGenerationService {
           startFrame: keyframes.find(k => k.frameType === 'start') || keyframes[0],
           endFrame: keyframes.find(k => k.frameType === 'end') || keyframes[keyframes.length - 1],
           prompt,
-          modelConfigId
+          modelConfigId,
         });
       } else {
         return {
           success: false,
-          error: '关键帧数量不足，至少需要1个关键帧'
+          error: '关键帧数量不足，至少需要1个关键帧',
         };
       }
-      
+
       // 如果生成成功，下载并保存视频
       if (result.success && result.videoUrl) {
         const localPath = await this.downloadAndSaveVideo(result.videoUrl, projectId);
         return { ...result, localPath };
       }
-      
+
       return result;
     } catch (error) {
       console.error('[VideoGenerationService] Video generation failed:', error);
       return {
         success: false,
-        error: String(error)
+        error: String(error),
       };
     }
   }
@@ -86,14 +86,14 @@ export class VideoGenerationService {
     modelConfigId: string;
   }): Promise<VideoGenerationResult> {
     console.log('[VideoGenerationService] Mode: Start Frame Only');
-    
+
     try {
       // 获取首帧图片
       const startImage = await this.getKeyframeImageBase64(params.startFrame);
       if (!startImage) {
         return { success: false, error: '首帧图片不存在' };
       }
-      
+
       // 调用AI服务生成视频
       // 注意：当前接口只支持 startImage 和 endImage，单帧时endImage不传
       const result = await aiService.generateVideo(
@@ -105,22 +105,22 @@ export class VideoGenerationService {
         undefined, // onTaskId
         {} // extraParams
       );
-      
+
       if (result?.success && result.data?.url) {
         return {
           success: true,
-          videoUrl: result.data.url
+          videoUrl: result.data.url,
         };
       }
-      
+
       return {
         success: false,
-        error: result?.error || '视频生成失败'
+        error: result?.error || '视频生成失败',
       };
     } catch (error) {
       return {
         success: false,
-        error: `首帧视频生成失败: ${error}`
+        error: `首帧视频生成失败: ${error}`,
       };
     }
   }
@@ -136,16 +136,16 @@ export class VideoGenerationService {
     modelConfigId: string;
   }): Promise<VideoGenerationResult> {
     console.log('[VideoGenerationService] Mode: Start + End Frames');
-    
+
     try {
       // 获取首尾帧图片
       const startImage = await this.getKeyframeImageBase64(params.startFrame);
       const endImage = await this.getKeyframeImageBase64(params.endFrame);
-      
+
       if (!startImage) {
         return { success: false, error: '首帧图片不存在' };
       }
-      
+
       // 调用AI服务生成视频
       const result = await aiService.generateVideo(
         params.prompt,
@@ -156,22 +156,22 @@ export class VideoGenerationService {
         undefined, // onTaskId
         {} // extraParams
       );
-      
+
       if (result?.success && result.data?.url) {
         return {
           success: true,
-          videoUrl: result.data.url
+          videoUrl: result.data.url,
         };
       }
-      
+
       return {
         success: false,
-        error: result?.error || '视频生成失败'
+        error: result?.error || '视频生成失败',
       };
     } catch (error) {
       return {
         success: false,
-        error: `首尾帧视频生成失败: ${error}`
+        error: `首尾帧视频生成失败: ${error}`,
       };
     }
   }
@@ -182,19 +182,20 @@ export class VideoGenerationService {
   private async getKeyframeImageBase64(keyframe: Keyframe): Promise<string | null> {
     try {
       // 优先使用当前选中的图片
-      const currentImage = keyframe.generatedImages?.find(img => img.id === keyframe.currentImageId) ||
-                          keyframe.generatedImage;
-      
+      const currentImage =
+        keyframe.generatedImages?.find(img => img.id === keyframe.currentImageId) ||
+        keyframe.generatedImage;
+
       if (!currentImage?.path) {
         return null;
       }
-      
+
       // 读取文件并转为base64
       const file = await storageService.getFile(currentImage.path);
       if (!file) {
         return null;
       }
-      
+
       const arrayBuffer = await file.arrayBuffer();
       const uint8Array = new Uint8Array(arrayBuffer);
       let binary = '';
@@ -202,7 +203,7 @@ export class VideoGenerationService {
         binary += String.fromCharCode(uint8Array[i]);
       }
       const base64 = btoa(binary);
-      
+
       // 检测图片格式
       const ext = currentImage.path.split('.').pop()?.toLowerCase() || 'png';
       return `data:image/${ext};base64,${base64}`;
@@ -218,7 +219,7 @@ export class VideoGenerationService {
   private async downloadAndSaveVideo(videoUrl: string, projectId: string): Promise<string> {
     try {
       console.log('[VideoGenerationService] Downloading video:', videoUrl);
-      
+
       // 下载视频
       let blob: Blob;
       try {
@@ -234,17 +235,17 @@ export class VideoGenerationService {
         if (!directRes.ok) throw new Error(`Direct fetch failed: ${directRes.statusText}`);
         blob = await directRes.blob();
       }
-      
+
       // 生成文件名
       const timestamp = Date.now();
       const random = Math.random().toString(36).substring(2, 8);
       const filename = `${timestamp}_${random}.mp4`;
       const path = `projects/${projectId}/videos/${filename}`;
-      
+
       // 保存到本地
       await storageService.saveBinaryFile(path, blob);
       console.log('[VideoGenerationService] Video saved to:', path);
-      
+
       return path;
     } catch (error) {
       console.error('[VideoGenerationService] Failed to download video:', error);

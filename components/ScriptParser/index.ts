@@ -1,6 +1,6 @@
 /**
  * Script Parser Components
- * 
+ *
  * Components for importing and parsing scripts/novels into structured data
  * for automatic storyboard generation.
  */

@@ -1,11 +1,11 @@
-import { heroui } from "@heroui/react";
+import { heroui } from '@heroui/react';
 
 /** @type {import('tailwindcss').Config} */
 export default {
   content: [
-    "./index.html",
-    "./**/*.{js,ts,jsx,tsx}",
-    "./node_modules/@heroui/theme/dist/**/*.{js,ts,jsx,tsx}",
+    './index.html',
+    './**/*.{js,ts,jsx,tsx}',
+    './node_modules/@heroui/theme/dist/**/*.{js,ts,jsx,tsx}',
   ],
   darkMode: 'class',
   theme: {
@@ -51,70 +51,72 @@ export default {
           800: '#1e40af',
           900: '#1e3a8a',
           950: '#172554',
-        }
-      }
+        },
+      },
     },
   },
-  plugins: [heroui({
-    themes: {
-      light: {
-        colors: {
-          background: "#ffffff",
-          foreground: "#1f2937",
-          primary: {
-            50: '#fff7ed',
-            100: '#ffedd5',
-            200: '#fed7aa',
-            300: '#fdba74',
-            400: '#fb923c',
-            500: '#f97316',
-            600: '#ea580c',
-            700: '#c2410c',
-            800: '#9a3412',
-            900: '#7c2d12',
-            DEFAULT: "#ea580c",
-            foreground: "#FFFFFF",
+  plugins: [
+    heroui({
+      themes: {
+        light: {
+          colors: {
+            background: '#ffffff',
+            foreground: '#1f2937',
+            primary: {
+              50: '#fff7ed',
+              100: '#ffedd5',
+              200: '#fed7aa',
+              300: '#fdba74',
+              400: '#fb923c',
+              500: '#f97316',
+              600: '#ea580c',
+              700: '#c2410c',
+              800: '#9a3412',
+              900: '#7c2d12',
+              DEFAULT: '#ea580c',
+              foreground: '#FFFFFF',
+            },
+            secondary: {
+              DEFAULT: '#71717a',
+              foreground: '#FFFFFF',
+            },
+            content1: '#f9fafb',
+            content2: '#f3f4f6',
+            content3: '#e5e7eb',
+            content4: '#d1d5db',
+            focus: '#f97316',
           },
-          secondary: {
-            DEFAULT: "#71717a",
-            foreground: "#FFFFFF",
+        },
+        dark: {
+          colors: {
+            background: '#050505',
+            foreground: '#ECEDEE',
+            primary: {
+              50: '#fff7ed',
+              100: '#ffedd5',
+              200: '#fed7aa',
+              300: '#fdba74',
+              400: '#fb923c',
+              500: '#f97316',
+              600: '#ea580c',
+              700: '#c2410c',
+              800: '#9a3412',
+              900: '#7c2d12',
+              DEFAULT: '#ea580c',
+              foreground: '#FFFFFF',
+            },
+            secondary: {
+              DEFAULT: '#71717a',
+              foreground: '#FFFFFF',
+            },
+            content1: '#18181b',
+            content2: '#27272a',
+            content3: '#3f3f46',
+            content4: '#52525b',
+            focus: '#f97316',
           },
-          content1: "#f9fafb",
-          content2: "#f3f4f6",
-          content3: "#e5e7eb",
-          content4: "#d1d5db",
-          focus: "#f97316",
-        }
+        },
       },
-      dark: {
-        colors: {
-          background: "#050505",
-          foreground: "#ECEDEE",
-          primary: {
-            50: '#fff7ed',
-            100: '#ffedd5',
-            200: '#fed7aa',
-            300: '#fdba74',
-            400: '#fb923c',
-            500: '#f97316',
-            600: '#ea580c',
-            700: '#c2410c',
-            800: '#9a3412',
-            900: '#7c2d12',
-            DEFAULT: "#ea580c",
-            foreground: "#FFFFFF",
-          },
-          secondary: {
-            DEFAULT: "#71717a",
-            foreground: "#FFFFFF",
-          },
-          content1: "#18181b",
-          content2: "#27272a",
-          content3: "#3f3f46",
-          content4: "#52525b",
-          focus: "#f97316",
-        }
-      }
-    }
-  })],
-}
+    }),
+  ],
+};

@@ -1,9 +1,9 @@
 /**
  * JSON Repair Utility
- * 
+ *
  * 自动修复LLM返回的各种JSON格式错误
  * 基于文档《融合方案_实施细节与代码示例》第4.4节
- * 
+ *
  * @module services/parsing/JSONRepair
  * @version 1.0.0
  */
@@ -43,7 +43,7 @@ export class JSONRepair {
       return {
         success: true,
         data: JSON.parse(jsonStr) as T,
-        repairAttempts
+        repairAttempts,
       };
     } catch (e) {
       // 继续尝试修复
@@ -57,7 +57,7 @@ export class JSONRepair {
         return {
           success: true,
           data: JSON.parse(fixed) as T,
-          repairAttempts
+          repairAttempts,
         };
       } catch (e) {
         // 继续尝试
@@ -72,7 +72,7 @@ export class JSONRepair {
         return {
           success: true,
           data: JSON.parse(aggressivelyFixed) as T,
-          repairAttempts
+          repairAttempts,
         };
       } catch (e) {
         // 继续尝试
@@ -87,7 +87,7 @@ export class JSONRepair {
         return {
           success: true,
           data: JSON.parse(partial) as T,
-          repairAttempts
+          repairAttempts,
         };
       } catch (e) {
         // 失败
@@ -98,7 +98,7 @@ export class JSONRepair {
     return {
       success: false,
       error: `Failed to parse JSON after ${repairAttempts.length} repair attempts. Last attempt: ${aggressivelyFixed.substring(0, 200)}...`,
-      repairAttempts
+      repairAttempts,
     };
   }
 
@@ -106,54 +106,58 @@ export class JSONRepair {
    * 修复常见JSON错误
    */
   private static fixCommonErrors(str: string): string {
-    return str
-      // 移除尾随逗号
-      .replace(/,\s*([}\]])/g, '$1')
-      // 修复单引号作为键引号 (例如 'name': value)
-      .replace(/'([^']+)'\s*:/g, '"$1":')
-      // 修复单引号作为字符串值 (例如: 'value')
-      .replace(/:\s*'([^']*)'/g, ': "$1"')
-      // 修复未加引号的键（但不在字符串值中）
-      .replace(/(\w+):\s*("|'|\[|\{|\d|true|false|null)/g, '"$1":$2')
-      // 修复中文引号
-      .replace(/[""]/g, '"')
-      // 修复转义的中文引号
-      .replace(/\\[""]/g, '\\"')
-      // 修复多余的逗号
-      .replace(/,+/g, ',')
-      // 修复缺少的逗号（在某些简单情况下）
-      .replace(/}\s*{/g, '},{')
-      .replace(/]\s*\[/g, '],[')
-      // 修复undefined值
-      .replace(/:\s*undefined\s*([,}])/g, ':null$1')
-      // 修复函数值
-      .replace(/:\s*function\s*\([^)]*\)\s*\{[^}]*\}/g, ':null');
+    return (
+      str
+        // 移除尾随逗号
+        .replace(/,\s*([}\]])/g, '$1')
+        // 修复单引号作为键引号 (例如 'name': value)
+        .replace(/'([^']+)'\s*:/g, '"$1":')
+        // 修复单引号作为字符串值 (例如: 'value')
+        .replace(/:\s*'([^']*)'/g, ': "$1"')
+        // 修复未加引号的键（但不在字符串值中）
+        .replace(/(\w+):\s*("|'|\[|\{|\d|true|false|null)/g, '"$1":$2')
+        // 修复中文引号
+        .replace(/[""]/g, '"')
+        // 修复转义的中文引号
+        .replace(/\\[""]/g, '\\"')
+        // 修复多余的逗号
+        .replace(/,+/g, ',')
+        // 修复缺少的逗号（在某些简单情况下）
+        .replace(/}\s*{/g, '},{')
+        .replace(/]\s*\[/g, '],[')
+        // 修复undefined值
+        .replace(/:\s*undefined\s*([,}])/g, ':null$1')
+        // 修复函数值
+        .replace(/:\s*function\s*\([^)]*\)\s*\{[^}]*\}/g, ':null')
+    );
   }
 
   /**
    * 激进修复策略
    */
   private static fixAggressively(str: string): string {
-    return str
-      // 移除所有非JSON内容（在JSON结构外的内容）
-      .replace(/^[^{\[]+/, '')
-      .replace(/[^}\]]+$/, '')
-      // 修复嵌套引号问题
-      .replace(/"([^"]*)"([^"]*)"([^"]*)"/g, (match, p1, p2, p3) => {
-        // 如果中间部分包含冒号，可能是键值对，保留结构
-        if (p2.includes(':')) {
-          return `"${p1}"${p2.replace(/"/g, '\\"')}"${p3}"`;
-        }
-        return match;
-      })
-      // 修复Unicode转义序列
-      .replace(/\\u([0-9a-fA-F]{4})/g, (match, hex) => {
-        try {
-          return String.fromCharCode(parseInt(hex, 16));
-        } catch {
+    return (
+      str
+        // 移除所有非JSON内容（在JSON结构外的内容）
+        .replace(/^[^{\[]+/, '')
+        .replace(/[^}\]]+$/, '')
+        // 修复嵌套引号问题
+        .replace(/"([^"]*)"([^"]*)"([^"]*)"/g, (match, p1, p2, p3) => {
+          // 如果中间部分包含冒号，可能是键值对，保留结构
+          if (p2.includes(':')) {
+            return `"${p1}"${p2.replace(/"/g, '\\"')}"${p3}"`;
+          }
           return match;
-        }
-      });
+        })
+        // 修复Unicode转义序列
+        .replace(/\\u([0-9a-fA-F]{4})/g, (match, hex) => {
+          try {
+            return String.fromCharCode(parseInt(hex, 16));
+          } catch {
+            return match;
+          }
+        })
+    );
   }
 
   /**
@@ -191,11 +195,7 @@ export class JSONRepair {
   /**
    * 使用栈匹配括号
    */
-  private static findMatchingBrackets(
-    str: string, 
-    open: string, 
-    close: string
-  ): string | null {
+  private static findMatchingBrackets(str: string, open: string, close: string): string | null {
     let count = 0;
     let start = -1;
     let inString = false;
@@ -242,7 +242,7 @@ export class JSONRepair {
    * 验证JSON结构是否符合预期
    */
   static validateStructure<T>(
-    data: any, 
+    data: any,
     requiredFields: (keyof T)[]
   ): { valid: boolean; missingFields: string[] } {
     const missingFields: string[] = [];
@@ -255,7 +255,131 @@ export class JSONRepair {
 
     return {
       valid: missingFields.length === 0,
-      missingFields
+      missingFields,
     };
   }
+
+  /**
+   * Schema-aware字段类型修复
+   * 根据Schema定义自动转换字段类型
+   *
+   * @param data 原始数据对象
+   * @param fieldTypes 字段类型映射
+   * @returns 修复后的数据对象
+   */
+  static repairBySchema(
+    data: Record<string, unknown>,
+    fieldTypes: Record<string, 'array' | 'object' | 'string' | 'number' | 'boolean'>
+  ): Record<string, unknown> {
+    const repaired: Record<string, unknown> = { ...data };
+    const conversions: string[] = [];
+
+    for (const [field, expectedType] of Object.entries(fieldTypes)) {
+      if (!(field in repaired)) continue;
+
+      const value = repaired[field];
+      const actualType = Array.isArray(value) ? 'array' : typeof value;
+
+      if (actualType === expectedType) continue;
+
+      // 执行类型转换
+      switch (expectedType) {
+        case 'array':
+          if (typeof value === 'string') {
+            repaired[field] = value
+              .split(/[,，;；]/)
+              .map(s => s.trim())
+              .filter(Boolean);
+            conversions.push(`${field}: string→array`);
+          } else if (value === null || value === undefined) {
+            repaired[field] = [];
+            conversions.push(`${field}: null→array`);
+          }
+          break;
+
+        case 'object':
+          if (typeof value === 'string') {
+            // 尝试解析为JSON，失败则包装为description对象
+            try {
+              const parsed = JSON.parse(value);
+              repaired[field] = parsed;
+              conversions.push(`${field}: string→object(JSON)`);
+            } catch {
+              repaired[field] = { description: value, content: value };
+              conversions.push(`${field}: string→object(wrapped)`);
+            }
+          } else if (value === null || value === undefined) {
+            repaired[field] = {};
+            conversions.push(`${field}: null→object`);
+          }
+          break;
+
+        case 'string':
+          if (value !== null && value !== undefined) {
+            repaired[field] = String(value);
+            conversions.push(`${field}: ${actualType}→string`);
+          }
+          break;
+
+        case 'number':
+          if (typeof value === 'string') {
+            const num = parseFloat(value);
+            if (!isNaN(num)) {
+              repaired[field] = num;
+              conversions.push(`${field}: string→number`);
+            }
+          }
+          break;
+
+        case 'boolean':
+          if (typeof value === 'string') {
+            const lower = value.toLowerCase();
+            if (lower === 'true' || lower === 'yes' || lower === '1') {
+              repaired[field] = true;
+              conversions.push(`${field}: string→boolean(true)`);
+            } else if (lower === 'false' || lower === 'no' || lower === '0') {
+              repaired[field] = false;
+              conversions.push(`${field}: string→boolean(false)`);
+            }
+          }
+          break;
+      }
+    }
+
+    if (conversions.length > 0) {
+      console.log('[JSONRepair] Schema-aware conversions:', conversions.join(', '));
+    }
+
+    return repaired;
+  }
+
+  /**
+   * 预定义的ScriptMetadata字段类型映射
+   * 用于修复常见的LLM输出格式问题
+   */
+  static readonly SCRIPT_METADATA_FIELD_TYPES: Record<
+    string,
+    'array' | 'object' | 'string' | 'number' | 'boolean'
+  > = {
+    // 基础字段
+    title: 'string',
+    wordCount: 'number',
+    estimatedDuration: 'string',
+    characterCount: 'number',
+    characterNames: 'array',
+    sceneCount: 'number',
+    sceneNames: 'array',
+    chapterCount: 'number',
+    genre: 'string',
+    tone: 'string',
+
+    // 扩展字段（这些是常见的格式问题字段）
+    theme: 'array',
+    storyStructure: 'object',
+    visualStyle: 'object',
+    eraContext: 'object',
+    emotionalArc: 'array',
+    consistencyRules: 'object',
+    references: 'object',
+  };
 }
