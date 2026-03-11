@@ -1824,9 +1824,12 @@ export class ScriptParser {
       // Phase 3.2 Task 6: Record success to circuit breaker
       this.circuitBreaker?.recordSuccess();
 
+      // Record API call and token usage to performance monitor
+      const totalTokens = result.metadata?.usage?.total_tokens || 0;
+      this.performanceMonitor?.recordApiCall(totalTokens);
+
       // Phase 3.3 Task 8: Record token usage to budget monitor
       if (this.tokenBudgetMonitor && result.metadata?.usage) {
-        const totalTokens = result.metadata.usage.total_tokens || 0;
         this.tokenBudgetMonitor.recordUsage(totalTokens);
         console.log(
           `[ScriptParser] Token usage recorded: ${totalTokens} tokens (total: ${this.tokenBudgetMonitor.getUsedTokens()}/${this.tokenBudgetMonitor.getBudgetLimit()})`
@@ -1878,7 +1881,14 @@ export class ScriptParser {
       if (result.repairAttempts.length > 0) {
         console.log(`[ScriptParser] JSON repaired using: ${result.repairAttempts.join(' -> ')}`);
       }
-      return result.data;
+
+      // 应用结构规范化（处理 array→object, wrapper解包等）
+      const normalizedData = JSONRepair.normalizeStructure(result.data);
+      if (normalizedData !== result.data) {
+        console.log('[ScriptParser] JSON structure normalized');
+      }
+
+      return normalizedData as T;
     }
 
     console.error('[ScriptParser] Failed to parse JSON:', result.error);
@@ -4688,6 +4698,11 @@ ${content}
     console.log(
       `[ScriptParser] Using ${strategySelection.strategy.toUpperCase()} PATH (${strategySelection.reason})`
     );
+
+    // V2: 性能监控 - 初始化并开始会话
+    const wordCount = this.countWords(content);
+    this.performanceMonitor?.startSession(wordCount);
+    console.log(`[ScriptParser] PerformanceMonitor session started: ${wordCount} words`);
 
     // V2: 性能监控 - 记录总耗时
     const totalStartTime = Date.now();
