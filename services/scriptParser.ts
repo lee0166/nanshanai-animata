@@ -28,6 +28,7 @@ import {
 } from '../types';
 import { storageService } from './storage';
 import { JSONRepair } from './parsing/JSONRepair';
+import { createTokenOptimizer, TokenOptimizer } from './parsing/TokenOptimizer';
 import { SemanticChunker, SemanticChunk } from './parsing/SemanticChunker';
 import { ShortDramaRules, RuleContext, RuleViolation } from './parsing/ShortDramaRules';
 import { MultiLevelCache } from './parsing/MultiLevelCache';
@@ -1206,6 +1207,8 @@ export class ScriptParser {
   private tokenBudgetMonitor: TokenBudgetMonitor | null = null;
   /** Shot event emitter for real-time event notifications */
   private shotEventEmitter: ShotEventEmitter | null = null;
+  /** Token optimizer for dynamic token allocation */
+  private tokenOptimizer: TokenOptimizer | null = null;
 
   /**
    * Creates a new script parser instance
@@ -1285,6 +1288,10 @@ export class ScriptParser {
 
     // Initialize token budget monitor and shot event emitter
     this.initializeTokenBudgetAndEventEmitter();
+
+    // Initialize token optimizer for dynamic token allocation
+    this.tokenOptimizer = createTokenOptimizer();
+    console.log('[ScriptParser] TokenOptimizer initialized');
 
     // Initialize dynamic timeout calculator for intelligent timeout calculation
     this.initializeDynamicTimeoutCalculator();
@@ -1725,6 +1732,18 @@ export class ScriptParser {
         ? (this.dynamicTimeoutCalculator?.getTimeout() ?? taskConfig.timeout)
         : 180000;
 
+    // Token 优化：动态计算 maxTokens
+    let maxTokens: number = taskConfig.maxTokens;
+    if (this.tokenOptimizer) {
+      try {
+        const calculation = this.tokenOptimizer.calculateTokens(prompt, taskType);
+        maxTokens = calculation.tokens;
+        console.log(`[ScriptParser] TokenOptimizer calculated: ${maxTokens} tokens (vs fixed ${taskConfig.maxTokens})`);
+      } catch (error) {
+        console.warn(`[ScriptParser] TokenOptimizer failed, using fixed ${taskConfig.maxTokens}`);
+      }
+    }
+
     console.log(`[ScriptParser] callLLM called for ${taskType}, retryCount: ${retryCount}`);
 
     // Phase 3.2 Task 6: Check circuit breaker before making API call
@@ -1745,7 +1764,7 @@ export class ScriptParser {
 
     console.log(`[ScriptParser] API URL: ${this.apiUrl}`);
     console.log(`[ScriptParser] Model: ${this.model}`);
-    console.log(`[ScriptParser] Max Tokens: ${taskConfig.maxTokens}`);
+    console.log(`[ScriptParser] Max Tokens: ${maxTokens} (dynamic: ${this.tokenOptimizer ? 'enabled' : 'disabled'})`);
     console.log(
       `[ScriptParser] Timeout: ${timeout}ms (dynamic: ${retryCount === 0 && this.dynamicTimeoutCalculator ? 'enabled' : 'fixed'})`
     );
@@ -1772,7 +1791,7 @@ export class ScriptParser {
           supportsTextOutput: true,
           supportsImageOutput: false,
           supportsVideoOutput: false,
-          maxTokens: taskConfig.maxTokens,
+          maxTokens: maxTokens, // 使用动态计算的 maxTokens
           maxInputTokens: 8000,
         },
       };
