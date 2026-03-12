@@ -3894,6 +3894,10 @@ ${chunkContent.substring(0, 4000)}
     console.log(`[ScriptParser] ========== Ultra-Short Text Single-Pass Parsing ==========`);
     console.log(`[ScriptParser] Content length: ${content.length} characters (threshold: <500)`);
 
+    // Fix: Initialize performance monitor for ultra-short path
+    this.performanceMonitor.startSession(content.length);
+    this.performanceMonitor.startStage('metadata');
+
     const state: ScriptParseState = {
       stage: 'metadata',
       progress: 10,
