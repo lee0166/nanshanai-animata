@@ -3844,6 +3844,16 @@ ${chunkContent.substring(0, 4000)}
         );
         this.qualityReport = report;
         state.qualityReport = report;
+
+        // Generate and save performance report
+        const perfReport = this.performanceMonitor?.generateReport();
+        if (perfReport) {
+          state.performanceReport = perfReport;
+          console.log('[ScriptParser] Performance report saved to state:', {
+            totalDuration: perfReport.totalDuration,
+            apiCallCount: perfReport.apiCallCount,
+          });
+        }
       }
 
       state.stage = 'completed';
@@ -4057,6 +4067,16 @@ ${content}
         );
         this.qualityReport = report;
         state.qualityReport = report;
+
+        // Generate and save performance report
+        const perfReport = this.performanceMonitor?.generateReport();
+        if (perfReport) {
+          state.performanceReport = perfReport;
+          console.log('[ScriptParser] Performance report saved to state:', {
+            totalDuration: perfReport.totalDuration,
+            apiCallCount: perfReport.apiCallCount,
+          });
+        }
       }
 
       state.stage = 'completed';
@@ -4222,6 +4242,16 @@ ${content}
         );
         this.qualityReport = report;
         state.qualityReport = report;
+
+        // Generate and save performance report
+        const perfReport = this.performanceMonitor?.generateReport();
+        if (perfReport) {
+          state.performanceReport = perfReport;
+          console.log('[ScriptParser] Performance report saved to state:', {
+            totalDuration: perfReport.totalDuration,
+            apiCallCount: perfReport.apiCallCount,
+          });
+        }
       }
 
       state.stage = 'completed';
@@ -4574,6 +4604,16 @@ ${content}
         );
         this.qualityReport = report;
         state.qualityReport = report;
+
+        // Generate and save performance report
+        const perfReport = this.performanceMonitor?.generateReport();
+        if (perfReport) {
+          state.performanceReport = perfReport;
+          console.log('[ScriptParser] Performance report saved to state:', {
+            totalDuration: perfReport.totalDuration,
+            apiCallCount: perfReport.apiCallCount,
+          });
+        }
       }
 
       state.stage = 'completed';
@@ -5152,11 +5192,14 @@ ${content}
       // Save quality report to state for persistence
       if (this.qualityReport) {
         state.qualityReport = this.qualityReport;
-        console.log('[ScriptParser] ========== Saving to State ==========');
-        console.log('[ScriptParser] state.qualityReport set:', !!state.qualityReport);
-        console.log('[ScriptParser] state.qualityReport.score:', state.qualityReport?.score);
-      } else {
-        console.warn('[ScriptParser] No quality report to save!');
+      }
+
+      // Save performance report to state for persistence
+      if (this.performanceMonitor) {
+        const perfReport = this.performanceMonitor.generateReport();
+        if (perfReport) {
+          state.performanceReport = perfReport;
+        }
       }
 
       onProgress?.('completed', 100, '解析完成！');

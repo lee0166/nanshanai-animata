@@ -361,6 +361,7 @@ export interface ScriptParseState {
   currentChunkIndex?: number;
   totalChunks?: number;
   qualityReport?: QualityReport;
+  performanceReport?: any; // Performance report from PerformanceMonitor
   refinementResult?: any; // Iterative refinement result
   durationBudget?: any; // Duration budget from BudgetPlanner
 }

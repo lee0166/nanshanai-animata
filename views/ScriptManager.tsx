@@ -33,7 +33,7 @@ import { QualityReport } from '../services/scriptParser';
 import { DetailedQualityReport } from '../services/parsing/QualityAnalyzer';
 import QualityReportCard from '../components/ScriptParser/QualityReportCard';
 import { CreativeIntentModal } from '../components/CreativeIntentModal';
-import { PerformanceReport } from '../components/ScriptParser/PerformanceReport';
+import PerformanceReportCard from '../components/ScriptParser/PerformanceReportCard';
 import { PerformanceReport as PerformanceReportType } from '../services/parsing/PerformanceMonitor';
 
 // Professional Analysis Components
@@ -81,6 +81,7 @@ import {
   Sparkles,
   Clock,
   Clapperboard,
+  Award,
 } from 'lucide-react';
 
 interface ScriptManagerProps {
@@ -122,7 +123,6 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({
 
   // Performance report state
   const [performanceReport, setPerformanceReport] = useState<PerformanceReportType | null>(null);
-  const [showPerformanceReport, setShowPerformanceReport] = useState(false);
 
   // Delete confirmation modal
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -217,8 +217,28 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({
         setQualityReport(null);
         console.log('[ScriptManager] No quality report in parseState, setting to null');
       }
+
+      // Restore performance report
+      console.log(
+        '[ScriptManager] performanceReport exists:',
+        !!currentScript?.parseState?.performanceReport
+      );
+
+      if (currentScript.parseState.performanceReport) {
+        setPerformanceReport(currentScript.parseState.performanceReport);
+        console.log('[ScriptManager] Restoring performance report:', {
+          totalDuration: currentScript.parseState.performanceReport.totalDuration,
+          apiCallCount: currentScript.parseState.performanceReport.apiCallCount,
+          type: typeof currentScript.parseState.performanceReport,
+        });
+        console.log('[ScriptManager] ========== Performance Report Restored ==========');
+      } else {
+        setPerformanceReport(null);
+        console.log('[ScriptManager] No performance report in parseState, setting to null');
+      }
     } else {
       setQualityReport(null);
+      setPerformanceReport(null);
     }
   }, [currentScript]);
 
@@ -907,26 +927,6 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({
                   >
                     <Card>
                       <CardBody className="space-y-6">
-                        {/* 性能报告按钮 */}
-                        <div className="flex justify-end">
-                          <Button
-                            size="sm"
-                            variant="flat"
-                            color="primary"
-                            startContent={<Clock className="w-4 h-4" />}
-                            onPress={() => {
-                              if (performanceReport) {
-                                setShowPerformanceReport(true);
-                              } else {
-                                showToast('暂无性能报告', 'info');
-                              }
-                            }}
-                            isDisabled={!performanceReport}
-                          >
-                            📊 性能分析报告
-                          </Button>
-                        </div>
-
                         {/* 2.0: 项目概览 - 移除分镜数量预估，显示实际解析结果 */}
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                           <Card className="bg-primary/5">
@@ -981,7 +981,8 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({
                         {/* Story Structure */}
                         {currentScript.parseState.metadata?.storyStructure && (
                           <StoryStructureDiagram
-                            structure={currentScript.parseState.metadata.storyStructure}
+                            storyStructure={currentScript.parseState.metadata.storyStructure}
+                            t={t}
                           />
                         )}
                       </CardBody>
@@ -1103,7 +1104,12 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({
                         </div>
                       }
                     >
-                      <QualityReportCard report={qualityReport} />
+                      {/* 质量报告驾驶舱布局（整合性能统计） */}
+                      <QualityReportCard
+                        report={qualityReport}
+                        performanceReport={performanceReport}
+                        t={t}
+                      />
                     </Tab>
                   )}
                 </Tabs>
@@ -1219,14 +1225,6 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({
         creativeIntent={creativeIntent}
         onIntentChange={setCreativeIntent}
       />
-
-      {/* Performance Report Modal */}
-      {performanceReport && (
-        <PerformanceReport
-          report={performanceReport}
-          onClose={() => setShowPerformanceReport(false)}
-        />
-      )}
     </div>
   );
 };
