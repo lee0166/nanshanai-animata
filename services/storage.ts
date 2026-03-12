@@ -15,6 +15,7 @@ import { DEFAULT_SETTINGS } from '../config/settings';
 import { DEFAULT_MODELS, COMMON_IMAGE_PARAMS, COMMON_VOLC_VIDEO_PARAMS } from '../config/models';
 import { extractMp4Fps } from './metadata';
 import { VIDEO_EXTENSIONS, IMAGE_EXTENSIONS, isVideoFile, getFileType } from './fileUtils';
+import { createMultiLayerCache, MultiLayerCache } from './cache/MultiLayerCache';
 
 // Helper to serialize/deserialize data
 const IDB_KEY_DIR_HANDLE = 'avss_dir_handle';
@@ -48,6 +49,17 @@ export class StorageService {
   private useOpfs: boolean = false;
   private isFsResponsive: boolean = true; // Circuit breaker flag
   private locks: Map<string, Promise<void>> = new Map();
+  private cache: MultiLayerCache;
+
+  constructor() {
+    // 初始化多层缓存（settings 缓存 5 分钟）
+    this.cache = createMultiLayerCache({
+      enableL1: true,
+      enableL2: true,
+      defaultTTL: 5 * 60 * 1000, // 5 分钟
+      maxL1Items: 100,
+    });
+  }
 
   // Simple mutex lock to prevent race conditions on file operations
   private async lock<T>(key: string, fn: () => Promise<T>): Promise<T> {
@@ -984,45 +996,66 @@ export class StorageService {
       isDefault: m.isDefault,
     }));
 
-    await this.writeJson('settings.json', { ...settings, models: prunedModels });
+    const settingsData = { ...settings, models: prunedModels };
+
+    // 写入文件系统
+    await this.writeJson('settings.json', settingsData);
+
+    // 更新缓存（同时更新 L1 和 L2）
+    await this.cache.set('settings.json', settingsData);
+
+    console.log(`[Storage] Settings saved and cache updated`);
   }
 
   async loadSettings(): Promise<AppSettings | null> {
-    const settings = await this.readJson<AppSettings>('settings.json');
-    if (!settings) {
-      // Fallback to sandbox preference from localStorage if file read fails
-      try {
-        const saved = localStorage.getItem('avss_use_sandbox');
-        if (saved === 'true') {
-          return { ...DEFAULT_SETTINGS, useSandbox: true };
-        }
-      } catch (e) {}
-      return null;
-    }
-
-    // "Rehydrate" models: Merge stored instance data with code-defined ModelConfig
-    if (settings.models && Array.isArray(settings.models)) {
-      // The AppContext and UI expect full ModelConfig objects at runtime
-      (settings as any).models = settings.models.map(instance => {
-        // If has templateId, merge with template
-        if (instance.templateId) {
-          const template = DEFAULT_MODELS.find(dm => dm.id === instance.templateId);
-          if (template) {
-            return {
-              ...template,
-              ...instance,
-            };
+    // 使用多层缓存
+    const settings = await this.cache.get<AppSettings>('settings.json', async () => {
+      // L3 加载器：从文件系统读取
+      const startTime = Date.now();
+      const settings = await this.readJson<AppSettings>('settings.json');
+      const loadTime = Date.now() - startTime;
+      
+      if (loadTime > 50) {
+        console.log(`[Storage] L3 load: settings.json (${loadTime}ms)`);
+      }
+      
+      if (!settings) {
+        // Fallback to sandbox preference from localStorage if file read fails
+        try {
+          const saved = localStorage.getItem('avss_use_sandbox');
+          if (saved === 'true') {
+            return { ...DEFAULT_SETTINGS, useSandbox: true };
           }
-        }
+        } catch (e) {}
+        return null;
+      }
 
-        // Custom model: ensure complete structure
-        return {
-          ...instance,
-          capabilities: { maxBatchSize: 1, supportsReferenceImage: false },
-          parameters: instance.type === 'image' ? COMMON_IMAGE_PARAMS : COMMON_VOLC_VIDEO_PARAMS,
-        };
-      });
-    }
+      // "Rehydrate" models: Merge stored instance data with code-defined ModelConfig
+      if (settings.models && Array.isArray(settings.models)) {
+        // The AppContext and UI expect full ModelConfig objects at runtime
+        (settings as any).models = settings.models.map(instance => {
+          // If has templateId, merge with template
+          if (instance.templateId) {
+            const template = DEFAULT_MODELS.find(dm => dm.id === instance.templateId);
+            if (template) {
+              return {
+                ...template,
+                ...instance,
+              };
+            }
+          }
+
+          // Custom model: ensure complete structure
+          return {
+            ...instance,
+            capabilities: { maxBatchSize: 1, supportsReferenceImage: false },
+            parameters: instance.type === 'image' ? COMMON_IMAGE_PARAMS : COMMON_VOLC_VIDEO_PARAMS,
+          };
+        });
+      }
+
+      return settings;
+    });
 
     return settings;
   }
