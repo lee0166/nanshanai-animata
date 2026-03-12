@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { PageLoader } from '../PageLoader';
+import '@testing-library/jest-dom';
 
 describe('PageLoader', () => {
   it('should render with default message', () => {
