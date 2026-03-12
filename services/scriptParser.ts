@@ -2949,7 +2949,7 @@ ${chunkContent.substring(0, 4000)}
     const response = await this.callLLM(prompt, 'character');
     console.log(`[ScriptParser] Batch response received, length: ${response.length} characters`);
 
-    const characters = this.extractJSON<ScriptCharacter[]>(response);
+    const characters = this.extractJSON<ScriptCharacter[]>(response, true);
     console.log(`[ScriptParser] Parsed ${characters.length} characters from batch response`);
 
     // Validate and ensure all characters have required fields
@@ -3152,7 +3152,7 @@ ${chunkContent.substring(0, 4000)}
     const response = await this.callLLM(prompt, 'scene');
     console.log(`[ScriptParser] Batch response received, length: ${response.length} characters`);
 
-    const scenes = this.extractJSON<ScriptScene[]>(response);
+    const scenes = this.extractJSON<ScriptScene[]>(response, true);
     console.log(`[ScriptParser] Parsed ${scenes.length} scenes from batch response`);
 
     // Validate and ensure all scenes have required fields
@@ -3594,7 +3594,10 @@ ${chunkContent.substring(0, 4000)}
     console.log(`[ScriptParser] Batch response received, length: ${response.length} characters`);
 
     // Parse JSON response (may be array or object with shots field)
-    const parsedData = this.extractJSON<Shot[] | { project_info?: any; shots: Shot[] }>(response);
+    const parsedData = this.extractJSON<Shot[] | { project_info?: any; shots: Shot[] }>(
+      response,
+      true
+    );
 
     // Handle both array format and object format
     let shots: Shot[];
@@ -3706,7 +3709,7 @@ ${chunkContent.substring(0, 4000)}
     const response = await this.callLLM(prompt, 'shots');
     console.log(`[ScriptParser] LLM response received, length: ${response.length} characters`);
 
-    const shots = this.extractJSON<Shot[]>(response);
+    const shots = this.extractJSON<Shot[]>(response, true);
     console.log(`[ScriptParser] Generated ${shots.length} shots`);
 
     shots.slice(0, 3).forEach((shot, i) => {
