@@ -3906,37 +3906,46 @@ ${chunkContent.substring(0, 4000)}
     try {
       onProgress?.('metadata', 10, '正在分析剧本内容...');
 
-      // 构建简化版Prompt
+      // 构建简化版 Prompt
       const prompt = `分析以下短剧本，提取所有必要信息：
 
 剧本内容：
 ${content}
 
-请以JSON格式返回以下信息：
+请以 JSON 格式返回以下信息：
 {
   "title": "剧本标题（如果没有合适的，请根据内容生成）",
-  "synopsis": "剧情简介（50字以内）",
+  "synopsis": "剧情简介（50 字以内）",
+  "visualStyle": {
+    "style": "视觉风格（电影质感/古装剧/现代剧/悬疑剧等）",
+    "colorTone": "色调（暖色调/冷色调/暗色调/高饱和度等）",
+    "lighting": "灯光风格（自然光/戏剧光/柔光/硬光/低调光等）",
+    "atmosphere": "氛围（紧张/轻松/压抑/浪漫/神秘等）"
+  },
   "characters": [
     {
       "name": "角色姓名",
-      "description": "角色描述（外貌、性格等）",
+      "description": "角色描述（外貌、性格、身份等）",
       "role": "主角/配角/反派"
     }
   ],
   "scenes": [
     {
       "name": "场景名称",
-      "description": "场景描述",
+      "description": "场景描述（环境、布局等）",
       "timeOfDay": "时间（早晨/中午/傍晚/夜晚）",
+      "location": "地点类型（室内/室外/具体场所）",
       "characters": ["场景中出现的角色姓名"]
     }
   ],
   "shots": [
     {
       "sceneName": "所属场景名称",
-      "description": "分镜描述（镜头内容、动作等）",
-      "shotType": "景别（close-up/medium/long等）",
-      "characters": ["分镜中出现的角色"]
+      "description": "分镜描述（镜头内容、动作、表情等）",
+      "shotType": "景别（close-up/medium/long/wide 等）",
+      "cameraAngle": "拍摄角度（eye-level/high-angle/low-angle 等，可选）",
+      "characters": ["分镜中出现的角色"],
+      "mood": "情绪氛围（紧张/平静/激动等，可选）"
     }
   ]
 }
@@ -3944,7 +3953,8 @@ ${content}
 注意：
 1. 如果剧本内容很短，角色和场景可能很少，这是正常的
 2. 分镜应该覆盖剧本中的所有关键动作和对话
-3. 确保所有JSON字段都正确填写`;
+3. 视觉风格应该根据剧本内容推断，即使内容简短也要尽量填写
+4. 确保所有 JSON 字段都正确填写，不要留空`;
 
       // 单次API调用获取所有信息
       const startTime = Date.now();
