@@ -221,7 +221,9 @@ const PerformanceStatsCard: React.FC<{
       <div className="grid grid-cols-3 gap-2">
         <div className="text-center">
           <div className="text-xs text-default-400">总耗时</div>
-          <div className="text-sm font-bold text-foreground">{Math.round(report.totalDuration)}ms</div>
+          <div className="text-sm font-bold text-foreground">
+            {Math.round(report.totalDuration)}ms
+          </div>
         </div>
         <div className="text-center">
           <div className="text-xs text-default-400">API 调用</div>
@@ -229,7 +231,9 @@ const PerformanceStatsCard: React.FC<{
         </div>
         <div className="text-center">
           <div className="text-xs text-default-400">Token</div>
-          <div className="text-sm font-bold text-foreground">{Math.round(report.totalTokensUsed / 1000)}k</div>
+          <div className="text-sm font-bold text-foreground">
+            {Math.round(report.totalTokensUsed / 1000)}k
+          </div>
         </div>
       </div>
     </div>
@@ -243,7 +247,7 @@ const IssuesAccordion: React.FC<{
   dimensionScores: DimensionScore[];
 }> = ({ dimensionScores }) => {
   const lowScoreDimensions = dimensionScores.filter(dim => dim.score < 80 && dim.issues.length > 0);
-  
+
   if (lowScoreDimensions.length === 0) {
     return (
       <div className="flex items-center justify-center py-8 text-default-400">
@@ -360,11 +364,7 @@ export const QualityReportCard: React.FC<QualityReportCardProps> = ({
 
         {/* Row 2: 问题统计 + 性能统计 */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
-          <IssueStatsCard
-            critical={criticalCount}
-            warning={warningCount}
-            info={infoCount}
-          />
+          <IssueStatsCard critical={criticalCount} warning={warningCount} info={infoCount} />
           {performanceReport && <PerformanceStatsCard report={performanceReport} />}
         </div>
 

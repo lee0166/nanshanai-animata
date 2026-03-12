@@ -11,7 +11,7 @@ describe('DynamicTimeoutCalculator', () => {
   beforeEach(() => {
     calculator = new DynamicTimeoutCalculator({
       historySize: 5,
-      safetyFactor: 2.5,
+      baseSafetyFactor: 2.0,
       minTimeout: 60000,
       maxTimeout: 300000,
       defaultTimeout: 90000,
@@ -111,11 +111,11 @@ describe('DynamicTimeoutCalculator', () => {
 
   describe('配置管理', () => {
     it('应该能更新配置', () => {
-      calculator.updateConfig({ historySize: 10, safetyFactor: 3.0 });
+      calculator.updateConfig({ historySize: 10, baseSafetyFactor: 3.0 });
 
       const config = calculator.getConfig();
       expect(config.historySize).toBe(10);
-      expect(config.safetyFactor).toBe(3.0);
+      expect(config.baseSafetyFactor).toBe(3.0);
     });
 
     it('应该能部分更新配置', () => {

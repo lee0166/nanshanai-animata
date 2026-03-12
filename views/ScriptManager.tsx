@@ -501,8 +501,9 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({
 
       // 2.0: 添加解析超时检测
       const parseStartTime = Date.now();
-      const TIMEOUT_WARNING = 60000; // 60秒后显示警告
-      const timeoutWarningShown = false;
+      const TIMEOUT_WARNING = 60000; // 60 秒后显示警告
+      const LONG_WAIT_WARNING = 90000; // 90 秒后显示特殊等待提示
+      let longWaitWarningShown = false;
 
       const onProgress: ParseProgressCallback = (stage, progress, message, details) => {
         // Note: Removed isMountedRef check to fix progress not updating in React StrictMode
@@ -560,6 +561,12 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({
           setParseStage(`${displayMessage} (${timeInfo}，模型响应较慢，请耐心等待...)`);
         } else {
           setParseStage(displayMessage);
+        }
+
+        // 90 秒后显示特殊等待提示（降低用户焦虑）
+        if (elapsed > LONG_WAIT_WARNING && !longWaitWarningShown && stage !== 'completed' && stage !== 'error') {
+          showToast('正在处理大量数据，请稍候...（预计还需几分钟）', 'info');
+          longWaitWarningShown = true;
         }
       };
 
