@@ -377,6 +377,12 @@ export const CharacterMapping: React.FC<CharacterMappingProps> = ({
 
                 {/* Character Info */}
                 <div className="space-y-2 text-sm mb-3">
+                  {char.description && (
+                    <p className="text-default-600 leading-relaxed">
+                      <span className="font-medium">描述：</span>
+                      {char.description}
+                    </p>
+                  )}
                   {char.identity && (
                     <p className="text-default-600">
                       <span className="font-medium">身份：</span>

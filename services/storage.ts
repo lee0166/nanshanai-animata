@@ -1014,11 +1014,11 @@ export class StorageService {
       const startTime = Date.now();
       const settings = await this.readJson<AppSettings>('settings.json');
       const loadTime = Date.now() - startTime;
-      
+
       if (loadTime > 50) {
         console.log(`[Storage] L3 load: settings.json (${loadTime}ms)`);
       }
-      
+
       if (!settings) {
         // Fallback to sandbox preference from localStorage if file read fails
         try {

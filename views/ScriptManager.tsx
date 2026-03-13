@@ -564,7 +564,12 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({
         }
 
         // 90 秒后显示特殊等待提示（降低用户焦虑）
-        if (elapsed > LONG_WAIT_WARNING && !longWaitWarningShown && stage !== 'completed' && stage !== 'error') {
+        if (
+          elapsed > LONG_WAIT_WARNING &&
+          !longWaitWarningShown &&
+          stage !== 'completed' &&
+          stage !== 'error'
+        ) {
           showToast('正在处理大量数据，请稍候...（预计还需几分钟）', 'info');
           longWaitWarningShown = true;
         }

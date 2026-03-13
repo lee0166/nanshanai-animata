@@ -72,13 +72,13 @@ export interface CacheStats {
 export class MultiLayerCache {
   /** L1 内存缓存 */
   private l1Cache: Map<string, CacheItem<any>> = new Map();
-  
+
   /** L2 IndexedDB 数据库 */
   private l2DB: IDBDatabase | null = null;
-  
+
   /** 配置 */
   private config: Required<CacheConfig>;
-  
+
   /** 统计 */
   private stats: CacheStats = {
     l1Hits: 0,
@@ -144,9 +144,9 @@ export class MultiLayerCache {
 
   /**
    * 从缓存获取数据
-   * 
+   *
    * 读取策略：L1 → L2 → L3
-   * 
+   *
    * @param key - 缓存键
    * @param l3Loader - L3 加载函数（如果 L1/L2 未命中时调用）
    * @returns 缓存数据或 null
@@ -200,9 +200,9 @@ export class MultiLayerCache {
 
   /**
    * 设置缓存
-   * 
+   *
    * 写入策略：L1 + L2 + L3
-   * 
+   *
    * @param key - 缓存键
    * @param data - 数据
    * @param ttl - TTL（毫秒），可选
@@ -310,11 +310,14 @@ export class MultiLayerCache {
       try {
         const transaction = this.l2DB.transaction([MultiLayerCache.STORE_NAME], 'readwrite');
         const store = transaction.objectStore(MultiLayerCache.STORE_NAME);
-        const request = store.put({
-          data,
-          timestamp: Date.now(),
-          ttl,
-        }, key);
+        const request = store.put(
+          {
+            data,
+            timestamp: Date.now(),
+            ttl,
+          },
+          key
+        );
 
         request.onsuccess = () => {
           resolve();

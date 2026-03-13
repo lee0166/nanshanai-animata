@@ -342,6 +342,22 @@ export class QualityAnalyzer {
       } else if (scenes.length > 0 && shots.length > 0) {
         details.push(`所有场景都有分镜覆盖`);
       }
+
+      // 新增：检查分镜数量是否足够
+      const minRequiredShots = Math.max(6, scenes.length * 3); // 至少 6 个或每个场景 3 个
+      if (shots.length < minRequiredShots) {
+        issues.push({
+          type: 'error',
+          message: '分镜数量严重不足',
+          context: `当前分镜数：${shots.length}，最少需要：${minRequiredShots}个`,
+          suggestion: '补充生成分镜，确保覆盖所有关键情节',
+          autoFixable: false,
+        });
+        score -= Math.min(25, (minRequiredShots - shots.length) * 5);
+        details.push(`分镜数量：${shots.length}/${minRequiredShots}（不足）`);
+      } else {
+        details.push(`分镜数量充足：${shots.length}个`);
+      }
     }
 
     return {

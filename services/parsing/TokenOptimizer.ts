@@ -28,7 +28,13 @@
 /**
  * 任务类型
  */
-export type TaskType = 'metadata' | 'character' | 'scene' | 'shots' | 'plot-analysis' | 'globalContext';
+export type TaskType =
+  | 'metadata'
+  | 'character'
+  | 'scene'
+  | 'shots'
+  | 'plot-analysis'
+  | 'globalContext';
 
 /**
  * Token 计算配置
@@ -149,7 +155,9 @@ export class TokenOptimizer {
     console.log(`[TokenOptimizer] Token calculation:`);
     console.log(`  - Task type: ${taskType}`);
     console.log(`  - Content length: ${contentLength} chars`);
-    console.log(`  - Base tokens: ${config.baseTokens} + (${contentLength} × ${config.tokensPerChar}) = ${rawTokens}`);
+    console.log(
+      `  - Base tokens: ${config.baseTokens} + (${contentLength} × ${config.tokensPerChar}) = ${rawTokens}`
+    );
     console.log(`  - Safety margin: ${config.safetyMargin * 100}% (${safetyTokens} tokens)`);
     console.log(`  - Raw total: ${totalTokens}`);
     console.log(`  - Clamped: [${config.minTokens}, ${config.maxTokens}] → ${clampedTokens}`);
@@ -211,7 +219,11 @@ export class TokenOptimizer {
    * @param oldFixedTokens - 旧的固定 Token 数
    * @returns 节省的 Token 数量和百分比
    */
-  estimateSavings(content: string, taskType: TaskType, oldFixedTokens: number): {
+  estimateSavings(
+    content: string,
+    taskType: TaskType,
+    oldFixedTokens: number
+  ): {
     savedTokens: number;
     savedPercentage: number;
     newTokens: number;

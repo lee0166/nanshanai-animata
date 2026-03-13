@@ -187,7 +187,7 @@ export class PerformanceMonitor {
    */
   generateReport(): PerformanceReport {
     const endTime = Date.now();
-    
+
     // Fix: If startTime is 0 (not initialized), use current time as reference
     // This prevents huge duration values when startSession wasn't called
     const actualStartTime = this.startTime > 0 ? this.startTime : endTime;
