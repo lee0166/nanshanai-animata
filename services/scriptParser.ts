@@ -3963,7 +3963,18 @@ ${content}
       "name": "角色姓名，例如：'沈清辞'",
       "description": "必须填写！角色描述（外貌、性格、身份等），至少 20 字，例如：'聪慧过人，行事低调，断案精准，蛰伏十年的复仇者，外表文弱内心坚韧'",
       "role": "必须填写！主角/配角/反派三选一",
+      "gender": "必须填写！性别（male/female/unknown）",
+      "age": "必须填写！年龄段（青年/中年/老年）",
+      "identity": "必须填写！身份/职业（如：书生/官员/侠客）",
       "personality": ["必须填写！性格特征数组（2-4 个），例如：['聪慧', '低调', '坚韧', '复仇心强']"],
+      "appearance": {
+        "face": "必须填写！面容描述（如：面容清秀，眼神深邃）",
+        "hair": "必须填写！发型描述（如：黑色长发束冠）",
+        "clothing": "必须填写！服装描述（如：青色布衣长衫）",
+        "build": "必须填写！体型描述（如：身形偏瘦）",
+        "height": "可选！身高描述（如：中等身材）"
+      },
+      "signatureItems": ["可选！标志性物品数组"],
       "visualPrompt": "必须填写！视觉描述（用于 AI 生图），包含外貌、服装、发型等，例如：'年轻书生，黑色长发束冠，面容清秀，眼神深邃，身着青色长衫，腰间挂玉佩'"
     }
   ],
@@ -3971,10 +3982,28 @@ ${content}
   "scenes": [
     {
       "name": "场景名称，例如：'朝堂'",
-      "description": "必须填写！场景描述（环境、布局等），至少 30 字，例如：'金銮殿上，文武百官分列两侧，气氛庄严肃穆，阳光透过窗户洒在龙椅上'",
+      "description": "必须填写！场景描述（纯环境，至少 30 字），例如：'金銮殿上，文武百官分列两侧，气氛庄严肃穆，阳光透过窗户洒在龙椅上'",
       "timeOfDay": "必须填写！时间（早晨/中午/傍晚/夜晚/不特定）",
-      "location": "必须填写！地点类型（室内/室外/具体场所）",
+      "locationType": "必须填写！地点类型（interior/exterior/unknown）",
+      "environment": {
+        "architecture": "必须填写！建筑风格（如：古代宫殿建筑，飞檐斗拱）",
+        "furnishings": ["必须填写！陈设物品数组（如：龙椅、金砖地面、高窗）"],
+        "lighting": "必须填写！光线条件（如：自然光从高窗射入）",
+        "colorTone": "必须填写！色调氛围（如：金碧辉煌，红黄主色调）"
+      },
+      "visualPrompt": "可选！视觉描述（用于 AI 生图）",
       "characters": ["场景中出现的角色姓名"]
+    }
+  ],
+  
+  "items": [
+    {
+      "name": "道具名称，例如：'沈家玉佩'",
+      "description": "必须填写！道具描述（50 字以内），例如：'沈家传家宝，青玉质地，雕刻精美，象征家族荣耀'",
+      "category": "必须填写！类别（weapon/tool/jewelry/document/creature/animal/other）",
+      "owner": "可选！所属角色",
+      "importance": "必须填写！重要性（major/minor）",
+      "visualPrompt": "必须填写！视觉描述（用于 AI 生图）"
     }
   ],
   
@@ -3983,11 +4012,16 @@ ${content}
       "sceneName": "所属场景名称",
       "description": "必须填写！分镜描述（镜头内容、动作、表情等），至少 30 字，例如：'沈清辞跪在大殿中央，双手高举证据，神情坚定，目光如炬地直视皇上'",
       "shotType": "必须填写！景别（close-up/medium/long/wide 等）",
-      "cameraAngle": "可选！拍摄角度（eye-level/high-angle/low-angle 等）",
+      "cameraAngle": "必须填写！拍摄角度（eye-level/high-angle/low-angle/dutch-angle/overhead 等）",
+      "cameraMovement": "可选！运镜方式（static/pan/tilt/zoom/dolly/handheld 等）",
+      "duration": "可选！时长（秒）",
       "characters": ["分镜中出现的角色"],
-      "mood": "可选！情绪氛围（紧张/平静/激动等）"
+      "mood": "必须填写！情绪氛围（紧张/平静/激动/阴险/悬疑等）"
     }
-  ]
+  ],
+  
+  "genre": "必须填写！故事类型（古装/现代/科幻/悬疑/言情/武侠等）",
+  "tone": "必须填写！整体基调（喜剧/悲剧/正剧/荒诞等）"
 }
 
 📋 完整示例输出：
@@ -4196,16 +4230,34 @@ ${content}
         tags: [],
       }));
 
-      // 构建scenes
+      // 构建 scenes
       state.scenes = (parsedData.scenes || []).map((scene: any, index: number) => ({
         id: crypto.randomUUID(),
         name: scene.name || `场景${index + 1}`,
         description: scene.description || '',
         timeOfDay: scene.timeOfDay || 'day',
         locationType: scene.locationType || 'unknown',
+        environment: scene.environment || {
+          architecture: '',
+          furnishings: [],
+          lighting: '',
+          colorTone: '',
+        },
+        visualPrompt: scene.visualPrompt || '',
         characters: scene.characters || [],
         duration: 0,
         emotionalTone: 'neutral',
+      }));
+
+      // 构建 items（新增）
+      state.items = (parsedData.items || []).map((item: any, index: number) => ({
+        id: crypto.randomUUID(),
+        name: item.name || `道具${index + 1}`,
+        description: item.description || '',
+        category: item.category || 'other',
+        owner: item.owner || '',
+        importance: item.importance || 'minor',
+        visualPrompt: item.visualPrompt || '',
       }));
 
       onProgress?.('shots', 70, '正在生成分镜...');

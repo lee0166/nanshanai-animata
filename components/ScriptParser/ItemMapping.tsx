@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { ScriptItem, ItemAsset, AssetType, ItemType } from '../../types';
 import { storageService } from '../../services/storage';
+import { ItemPromptBuilder } from '../../services/promptBuilder';
 import { useApp } from '../../contexts/context';
 import { useToast } from '../../contexts/ToastContext';
 import {
@@ -98,13 +99,15 @@ export const ItemMapping: React.FC<ItemMappingProps> = ({
   // Handle creating new item asset from script item
   // 纯创建逻辑 - 只创建资产，不更新状态
   const createItemAsset = async (scriptItem: ScriptItem): Promise<string> => {
+    const generatedPrompt = ItemPromptBuilder.build(scriptItem);
+
     const newItem: ItemAsset = {
       id: `item_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
       projectId,
       scriptId, // 关联当前剧本
       type: AssetType.ITEM,
       name: scriptItem.name,
-      prompt: scriptItem.visualPrompt || `${scriptItem.name}的物品设定`,
+      prompt: generatedPrompt,
       itemType: categoryToItemType[scriptItem.category] || ItemType.PROP,
       createdAt: Date.now(),
       updatedAt: Date.now(),

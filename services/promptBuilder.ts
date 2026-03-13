@@ -1,4 +1,4 @@
-import { ScriptCharacter, ScriptScene } from '../types';
+import { ScriptCharacter, ScriptScene, ScriptItem } from '../types';
 
 /**
  * 角色提示词构建器
@@ -42,30 +42,40 @@ export class CharacterPromptBuilder {
   static build(character: ScriptCharacter): string {
     const parts: string[] = [];
 
-    // 1. 基础外貌信息
+    // 1. 优先使用 appearance 字段（结构化数据）
     const app = character.appearance;
-    if (app.face) parts.push(app.face);
-    if (app.hair) parts.push(app.hair);
-    if (app.clothing) parts.push(app.clothing);
-    if (app.build) parts.push(app.build);
-    if (app.height) parts.push(app.height);
+    if (app?.face) parts.push(app.face);
+    if (app?.hair) parts.push(app.hair);
+    if (app?.clothing) parts.push(app.clothing);
+    if (app?.build) parts.push(app.build);
+    if (app?.height) parts.push(app.height);
 
-    // 2. 固有物品（过滤临时物品）
+    // 2. 如果 appearance 为空，使用 visualPrompt（自然语言描述）
+    if (parts.length === 0 && character.visualPrompt) {
+      parts.push(character.visualPrompt);
+    }
+
+    // 3. 如果仍然为空，使用 description（备用）
+    if (parts.length === 0 && character.description) {
+      parts.push(character.description);
+    }
+
+    // 4. 固有物品（过滤临时物品）
     const permanentItems = this.filterPermanentItems(character.signatureItems);
     if (permanentItems.length > 0) {
       parts.push(`随身物品：${permanentItems.join('、')}`);
     }
 
-    // 3. 智能补充脚部描述（针对全身图）
+    // 5. 智能补充脚部描述（针对全身图）
     if (!this.hasFootwearDescription(parts)) {
-      const footwear = this.inferFootwear(app.clothing);
+      const footwear = this.inferFootwear(app?.clothing);
       if (footwear) parts.push(footwear);
     }
 
-    // 4. 组装最终提示词
+    // 6. 组装最终提示词
     let prompt = parts.join('，');
 
-    // 5. 添加全身图要求
+    // 7. 添加全身图要求
     prompt += '，全身图，三视图（正面、侧面、背面），纯白背景';
 
     return prompt;
@@ -285,7 +295,7 @@ export class ScenePromptBuilder {
   static build(scene: ScriptScene): string {
     const parts: string[] = [];
 
-    // 1. 基础环境描述
+    // 1. 优先使用 environment 字段（结构化数据）
     const env = scene.environment;
     if (env?.architecture) parts.push(env.architecture);
 
@@ -305,29 +315,23 @@ export class ScenePromptBuilder {
     if (scene.timeOfDay) parts.push(scene.timeOfDay);
     if (scene.weather) parts.push(scene.weather);
 
-    // 5. 多层级过滤描述
-    let cleanDescription = scene.description || '';
-
-    // 5.1 过滤人物动作
-    cleanDescription = this.removeCharacterActions(cleanDescription);
-
-    // 5.2 过滤剧情描述
-    cleanDescription = this.removePlotDescriptions(cleanDescription);
-
-    // 5.3 过滤人名（使用characters数组）
-    if (scene.characters?.length) {
-      cleanDescription = this.removeCharacterNames(cleanDescription, scene.characters);
+    // 5. 如果 environment 为空，使用 description（过滤后）
+    if (!env || Object.keys(env).length === 0) {
+      let cleanDescription = scene.description || '';
+      cleanDescription = this.removeCharacterActions(cleanDescription);
+      cleanDescription = this.removePlotDescriptions(cleanDescription);
+      if (cleanDescription) parts.push(cleanDescription);
     }
 
-    // 5.4 过滤介词引导的人物相关短语
-    cleanDescription = this.removeCharacterPhrases(cleanDescription);
+    // 6. 如果仍然为空，使用 visualPrompt（备用）
+    if (parts.length === 0 && scene.visualPrompt) {
+      parts.push(scene.visualPrompt);
+    }
 
-    if (cleanDescription) parts.push(cleanDescription);
-
-    // 6. 组装最终提示词
+    // 7. 组装最终提示词
     let prompt = parts.join('，');
 
-    // 7. 添加场景图要求
+    // 8. 添加场景图要求
     prompt += '，场景设定图，无人物，适合作为影视背景';
 
     return prompt;
@@ -530,5 +534,66 @@ export class ScenePromptBuilder {
     cleaned = cleaned.replace(/^[，。；\s]+|[，。；\s]+$/g, '');
 
     return cleaned.trim();
+  }
+}
+
+/**
+ * 物品提示词构建器
+ * 根据结构化数据智能组装物品生图提示词
+ */
+export class ItemPromptBuilder {
+  /**
+   * 构建物品生图提示词
+   * @param item 剧本物品数据
+   * @returns 物品设定图提示词
+   */
+  static build(item: ScriptItem): string {
+    const parts: string[] = [];
+
+    // 1. 基础描述
+    if (item.description) {
+      parts.push(item.description);
+    }
+
+    // 2. 类别特征
+    if (item.category) {
+      const categoryPrompt = this.getCategoryPrompt(item.category);
+      if (categoryPrompt) parts.push(categoryPrompt);
+    }
+
+    // 3. 所属角色
+    if (item.owner) {
+      parts.push(`属于${item.owner}`);
+    }
+
+    // 4. 重要性标识
+    if (item.importance === 'major') {
+      parts.push('重要道具，细节精致');
+    }
+
+    // 5. 组装提示词
+    let prompt = parts.join('，');
+
+    // 6. 添加拍摄要求
+    prompt += '，道具设定图，纯白背景，三视图展示';
+
+    return prompt;
+  }
+
+  /**
+   * 根据类别生成特征描述
+   */
+  private static getCategoryPrompt(category: string): string {
+    const categoryPrompts: Record<string, string> = {
+      weapon: '古代兵器，金属质感，工艺精良',
+      tool: '实用工具，功能性强，细节清晰',
+      jewelry: '精美饰品，珠宝镶嵌，光泽亮丽',
+      document: '古代文书，纸质泛黄，字迹清晰',
+      creature: '灵兽宠物，生动可爱，毛发清晰',
+      animal: '动物坐骑，体型健壮，毛发蓬松',
+      other: '特殊物品，造型独特，细节丰富',
+    };
+
+    return categoryPrompts[category] || '';
   }
 }
