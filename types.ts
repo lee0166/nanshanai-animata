@@ -650,6 +650,7 @@ export interface ScriptCharacter {
   }>;
   visualPrompt: string;
   mappedAssetId?: string; // Link to existing CharacterAsset
+  role?: '主角' | '配角' | '反派';
 }
 
 export interface ScriptScene {
@@ -780,6 +781,9 @@ export interface Shot {
 
   // 影视风格（该分镜采用的风格）
   style?: FilmStyle;
+
+  // 情绪氛围
+  mood?: string;
 
   // 生成状态
   mappedFragmentId?: string; // 关联视频片段

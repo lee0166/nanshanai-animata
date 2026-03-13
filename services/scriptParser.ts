@@ -1738,7 +1738,9 @@ export class ScriptParser {
       try {
         const calculation = this.tokenOptimizer.calculateTokens(prompt, taskType);
         maxTokens = calculation.tokens;
-        console.log(`[ScriptParser] TokenOptimizer calculated: ${maxTokens} tokens (vs fixed ${taskConfig.maxTokens})`);
+        console.log(
+          `[ScriptParser] TokenOptimizer calculated: ${maxTokens} tokens (vs fixed ${taskConfig.maxTokens})`
+        );
       } catch (error) {
         console.warn(`[ScriptParser] TokenOptimizer failed, using fixed ${taskConfig.maxTokens}`);
       }
@@ -1764,7 +1766,9 @@ export class ScriptParser {
 
     console.log(`[ScriptParser] API URL: ${this.apiUrl}`);
     console.log(`[ScriptParser] Model: ${this.model}`);
-    console.log(`[ScriptParser] Max Tokens: ${maxTokens} (dynamic: ${this.tokenOptimizer ? 'enabled' : 'disabled'})`);
+    console.log(
+      `[ScriptParser] Max Tokens: ${maxTokens} (dynamic: ${this.tokenOptimizer ? 'enabled' : 'disabled'})`
+    );
     console.log(
       `[ScriptParser] Timeout: ${timeout}ms (dynamic: ${retryCount === 0 && this.dynamicTimeoutCalculator ? 'enabled' : 'fixed'})`
     );
@@ -3925,55 +3929,170 @@ ${chunkContent.substring(0, 4000)}
     try {
       onProgress?.('metadata', 10, '正在分析剧本内容...');
 
-      // 构建简化版 Prompt
+      // 构建增强版 Prompt - 强调必填字段并提供示例
       const prompt = `分析以下短剧本，提取所有必要信息：
 
 剧本内容：
 ${content}
 
+⚠️ 重要提示：
+1. 以下所有字段都是必填的，不能留空！
+2. 如果某些信息原文没有明确描述，请根据剧情合理推断
+3. 不要省略任何字段，即使内容简短也要尽量填写完整
+4. **分镜数量要求**：必须生成至少 6-8 个分镜，确保覆盖所有关键情节！
+5. **角色信息要求**：每个角色必须有详细的 description（外貌、性格、身份）和 role（主角/配角/反派）！
+6. **视觉风格要求**：visualStyle 的所有 4 个字段都必须填写完整！
+
 请以 JSON 格式返回以下信息：
 {
   "title": "剧本标题（如果没有合适的，请根据内容生成）",
   "synopsis": "剧情简介（50 字以内）",
+  
   "visualStyle": {
-    "style": "视觉风格（电影质感/古装剧/现代剧/悬疑剧等）",
-    "colorTone": "色调（暖色调/冷色调/暗色调/高饱和度等）",
-    "lighting": "灯光风格（自然光/戏剧光/柔光/硬光/低调光等）",
-    "atmosphere": "氛围（紧张/轻松/压抑/浪漫/神秘等）"
+    "artStyle": "必须填写！艺术风格，例如：'古装权谋剧'、'现代都市剧'、'悬疑推理剧'",
+    "artDirection": "必须填写！美术指导，例如：'写实电影感'、'精致古风'、'简约现代'",
+    "artStyleDescription": "必须填写！风格描述（30-50 字），例如：'追求电影级质感，注重光影对比，营造紧张压抑的权谋氛围'",
+    "colorPalette": "必须填写！主色调数组（3-5 个十六进制颜色），例如：['#8B0000', '#2F4F4F', '#DAA520']",
+    "colorMood": "必须填写！色彩情绪，例如：'暖色调偏暗'、'冷峻压抑'、'复古怀旧'",
+    "cinematography": "必须填写！摄影风格，例如：'电影感构图'、'手持纪实'、'稳定器流畅'",
+    "lightingStyle": "必须填写！光影风格，例如：'自然光与室内光结合'、'戏剧光'、'柔光'"
   },
+  
   "characters": [
     {
-      "name": "角色姓名",
-      "description": "角色描述（外貌、性格、身份等）",
-      "role": "主角/配角/反派"
+      "name": "角色姓名，例如：'沈清辞'",
+      "description": "必须填写！角色描述（外貌、性格、身份等），至少 20 字，例如：'聪慧过人，行事低调，断案精准，蛰伏十年的复仇者，外表文弱内心坚韧'",
+      "role": "必须填写！主角/配角/反派三选一",
+      "personality": ["必须填写！性格特征数组（2-4 个），例如：['聪慧', '低调', '坚韧', '复仇心强']"],
+      "visualPrompt": "必须填写！视觉描述（用于 AI 生图），包含外貌、服装、发型等，例如：'年轻书生，黑色长发束冠，面容清秀，眼神深邃，身着青色长衫，腰间挂玉佩'"
     }
   ],
+  
   "scenes": [
     {
-      "name": "场景名称",
-      "description": "场景描述（环境、布局等）",
-      "timeOfDay": "时间（早晨/中午/傍晚/夜晚）",
-      "location": "地点类型（室内/室外/具体场所）",
+      "name": "场景名称，例如：'朝堂'",
+      "description": "必须填写！场景描述（环境、布局等），至少 30 字，例如：'金銮殿上，文武百官分列两侧，气氛庄严肃穆，阳光透过窗户洒在龙椅上'",
+      "timeOfDay": "必须填写！时间（早晨/中午/傍晚/夜晚/不特定）",
+      "location": "必须填写！地点类型（室内/室外/具体场所）",
       "characters": ["场景中出现的角色姓名"]
     }
   ],
+  
   "shots": [
     {
       "sceneName": "所属场景名称",
-      "description": "分镜描述（镜头内容、动作、表情等）",
-      "shotType": "景别（close-up/medium/long/wide 等）",
-      "cameraAngle": "拍摄角度（eye-level/high-angle/low-angle 等，可选）",
+      "description": "必须填写！分镜描述（镜头内容、动作、表情等），至少 30 字，例如：'沈清辞跪在大殿中央，双手高举证据，神情坚定，目光如炬地直视皇上'",
+      "shotType": "必须填写！景别（close-up/medium/long/wide 等）",
+      "cameraAngle": "可选！拍摄角度（eye-level/high-angle/low-angle 等）",
       "characters": ["分镜中出现的角色"],
-      "mood": "情绪氛围（紧张/平静/激动等，可选）"
+      "mood": "可选！情绪氛围（紧张/平静/激动等）"
     }
   ]
 }
 
-注意：
-1. 如果剧本内容很短，角色和场景可能很少，这是正常的
-2. 分镜应该覆盖剧本中的所有关键动作和对话
-3. 视觉风格应该根据剧本内容推断，即使内容简短也要尽量填写
-4. 确保所有 JSON 字段都正确填写，不要留空`;
+📋 完整示例输出：
+{
+  "title": "青衫御史",
+  "synopsis": "沈清辞家族被灭后隐姓埋名十年，入京复仇，揭露丞相阴谋，洗清家族冤案，终成御史中丞。",
+  "visualStyle": {
+    "artStyle": "古装权谋剧",
+    "artDirection": "写实电影感，注重历史细节还原",
+    "artStyleDescription": "追求电影级质感，注重光影对比和构图美感，营造紧张压抑的权谋氛围，同时保持古风雅致",
+    "colorPalette": ["#8B0000", "#2F4F4F", "#DAA520", "#000000"],
+    "colorMood": "暖色调偏暗，沉稳厚重",
+    "cinematography": "电影感构图，多用手持摄影增强紧张感",
+    "lightingStyle": "自然光与室内光结合，侧光突出人物轮廓"
+  },
+  "characters": [
+    {
+      "name": "沈清辞",
+      "description": "聪慧过人，行事低调，断案精准，蛰伏十年的复仇者，外表文弱内心坚韧，眉宇间透着不屈的意志",
+      "role": "主角",
+      "personality": ["聪慧", "低调", "坚韧", "复仇心强"],
+      "visualPrompt": "年轻书生，黑色长发束冠，面容清秀，眼神深邃藏恨意，身着青色布衣长衫，腰间挂玉佩，身形偏瘦"
+    },
+    {
+      "name": "萧景渊",
+      "description": "丞相之子，多疑狠辣，善于权谋，对苏砚身份产生怀疑并屡次试探，眼神阴鸷",
+      "role": "反派",
+      "personality": ["多疑", "狠辣", "善于权谋", "阴险"],
+      "visualPrompt": "青年贵族，黑色长发金冠，面容俊美但眼神阴鸷，身着华贵紫色锦袍，腰系玉带，气质高傲"
+    },
+    {
+      "name": "吏部尚书",
+      "description": "赏识苏砚的才能，为人正直，被萧景渊设计陷害，年约五旬，胡须花白",
+      "role": "配角",
+      "personality": ["正直", "赏识人才", "慈祥"],
+      "visualPrompt": "中老年官员，花白胡须，面容慈祥带威严，身着红色官服，头戴官帽，手持笏板"
+    },
+    {
+      "name": "皇上",
+      "description": "威严果断，听闻证据后震怒，下令彻查丞相一党，身着龙袍，不怒自威",
+      "role": "配角",
+      "personality": ["威严", "果断", "公正"],
+      "visualPrompt": "中年帝王，黑色长发金龙冠，面容威严，身着明黄龙袍，端坐龙椅，不怒自威"
+    }
+  ],
+  "scenes": [
+    {
+      "name": "朝堂",
+      "description": "金銮殿上，文武百官分列两侧，气氛庄严肃穆，阳光透过窗户洒在龙椅上，金砖铺地",
+      "timeOfDay": "早晨",
+      "location": "室内",
+      "characters": ["沈清辞", "萧景渊", "皇上", "吏部尚书"]
+    },
+    {
+      "name": "吏部",
+      "description": "吏部衙门，沈清辞办公之处，简洁朴素，书架上摆满卷宗，窗外竹影婆娑",
+      "timeOfDay": "白天",
+      "location": "室内",
+      "characters": ["沈清辞", "吏部尚书"]
+    }
+  ],
+  "shots": [
+    {
+      "sceneName": "朝堂",
+      "description": "沈清辞跪在大殿中央，双手高举证据，神情坚定，目光如炬地直视皇上",
+      "shotType": "medium",
+      "cameraAngle": "eye-level",
+      "characters": ["沈清辞"],
+      "mood": "紧张"
+    },
+    {
+      "sceneName": "朝堂",
+      "description": "皇上端坐龙椅，面色凝重，审视着下方的证据，手指轻叩扶手",
+      "shotType": "close-up",
+      "cameraAngle": "low-angle",
+      "characters": ["皇上"],
+      "mood": "威严"
+    },
+    {
+      "sceneName": "朝堂",
+      "description": "萧景渊站在一旁，脸色阴沉，眼神闪烁，暗中观察局势变化",
+      "shotType": "medium",
+      "cameraAngle": "eye-level",
+      "characters": ["萧景渊"],
+      "mood": "阴险"
+    },
+    {
+      "sceneName": "朝堂",
+      "description": "文武百官窃窃私语，有人震惊，有人愤怒，有人幸灾乐祸",
+      "shotType": "long",
+      "cameraAngle": "high-angle",
+      "characters": [],
+      "mood": "骚动"
+    }
+  ]
+}
+
+⚠️ 再次强调：
+1. 所有字段必须填写，不能留空！
+2. visualStyle 的 4 个字段都要填写
+3. characters 的 description 必须至少 20 字，role 必须填写
+4. scenes 的 description 必须至少 30 字
+5. shots 必须至少 6 个，每个 description 至少 30 字，确保覆盖所有关键情节
+6. 如果原文信息不足，请根据剧情合理推断
+7. 确保 JSON 格式正确，可以被解析`;
 
       // 单次API调用获取所有信息
       const startTime = Date.now();
@@ -4000,24 +4119,34 @@ ${content}
 
       console.log(`[ScriptParser] Single-pass LLM call completed in ${duration}ms`);
 
-      // 解析JSON响应
+      // DEBUG: 打印完整响应
+      console.log('[DEBUG] LLM 完整响应:', response);
+      console.log('[DEBUG] Response length:', response.length);
+
+      // 解析 JSON 响应
       let parsedData: any;
       try {
         // 尝试直接解析
         parsedData = JSON.parse(response);
+
+        // DEBUG: 打印解析后的数据
+        console.log('[DEBUG] parsedData:', JSON.stringify(parsedData, null, 2));
+        console.log('[DEBUG] visualStyle:', parsedData.visualStyle);
+        console.log('[DEBUG] characters count:', parsedData.characters?.length);
+        console.log('[DEBUG] shots count:', parsedData.shots?.length);
       } catch (e) {
-        // 尝试从markdown代码块中提取JSON
+        // 尝试从 markdown 代码块中提取 JSON
         const jsonMatch = response.match(/```(?:json)?\s*([\s\S]*?)\s*```/);
         if (jsonMatch) {
           parsedData = JSON.parse(jsonMatch[1]);
         } else {
-          throw new Error('无法解析LLM响应为JSON格式');
+          throw new Error('无法解析 LLM 响应为 JSON 格式');
         }
       }
 
       onProgress?.('metadata', 40, '正在处理解析结果...');
 
-      // 构建metadata
+      // 构建 metadata
       state.metadata = {
         title: parsedData.title || '未命名剧本',
         synopsis: parsedData.synopsis || '',
@@ -4028,25 +4157,41 @@ ${content}
         chapterCount: parsedData.chapters?.length || 1,
         characterCount: parsedData.characters?.length || 0,
         sceneCount: parsedData.scenes?.length || 0,
-        estimatedDuration: String(parsedData.shots?.length * 3 || 0), // 每个分镜约3秒
+        estimatedDuration: String(parsedData.shots?.length * 3 || 0), // 每个分镜约 3 秒
         characterNames: parsedData.characters?.map((c: any) => c.name) || [],
         sceneNames: parsedData.scenes?.map((s: any) => s.name) || [],
         keyProps: parsedData.keyProps || [],
         themes: parsedData.themes || [],
+        // 提取视觉风格信息（超短文本路径新增）
+        visualStyle: parsedData.visualStyle ?? {
+          artDirection: '',
+          artStyle: '',
+          artStyleDescription: '',
+          colorPalette: [],
+          colorMood: '',
+          cinematography: '',
+          lightingStyle: '',
+        },
       };
 
-      // 构建characters
+      // 构建 characters
       state.characters = (parsedData.characters || []).map((char: any, index: number) => ({
         id: crypto.randomUUID(),
         name: char.name || `角色${index + 1}`,
         description: char.description || '',
         role: char.role || '配角',
+        gender: char.gender || 'unknown',
+        age: char.age || '',
+        identity: char.identity || '',
+        personality: char.personality || [],
+        visualPrompt: char.visualPrompt || '',
+        signatureItems: char.signatureItems || [],
         appearance: {
-          height: '',
-          build: '',
-          face: '',
-          hair: '',
-          clothing: '',
+          height: char.appearance?.height || '',
+          build: char.appearance?.build || '',
+          face: char.appearance?.face || '',
+          hair: char.appearance?.hair || '',
+          clothing: char.appearance?.clothing || '',
         },
         tags: [],
       }));
@@ -4057,7 +4202,7 @@ ${content}
         name: scene.name || `场景${index + 1}`,
         description: scene.description || '',
         timeOfDay: scene.timeOfDay || 'day',
-        locationType: 'interior',
+        locationType: scene.locationType || 'unknown',
         characters: scene.characters || [],
         duration: 0,
         emotionalTone: 'neutral',
@@ -4071,9 +4216,11 @@ ${content}
         sceneName: shot.sceneName || '',
         sequence: index + 1,
         shotType: shot.shotType || 'medium',
-        cameraMovement: 'static',
-        duration: 3,
+        cameraMovement: shot.cameraMovement || 'static',
+        duration: shot.duration || 3,
         description: shot.description || '',
+        cameraAngle: shot.cameraAngle || 'eye_level',
+        mood: shot.mood || '',
         characters: shot.characters || [],
         assets: {
           characterIds: shot.characters || [],
