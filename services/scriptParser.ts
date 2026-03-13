@@ -55,6 +55,7 @@ import { SceneContextExtractor } from './parsing/SceneContextExtractor';
 import { DynamicBatchSizer } from './parsing/DynamicBatchSizer';
 import { DynamicTimeoutCalculator } from './parsing/DynamicTimeoutCalculator';
 import { CircuitBreaker } from './parsing/CircuitBreaker';
+import { logger } from './logger';
 import {
   IterativeRefinementEngine,
   IterativeRefinementConfig,
