@@ -287,28 +287,52 @@ npm run preview
 nanshanai-animata/
 ├── components/           # React 组件
 │   ├── ProjectDetail/   # 项目详情相关组件
+│   │   ├── Character/   # 角色详情
+│   │   ├── Scene/       # 场景详情
+│   │   ├── Item/        # 物品详情
+│   │   ├── Fragment/    # 片段详情
+│   │   └── Shared/      # 共享组件
 │   ├── ScriptParser/    # 剧本解析组件
+│   ├── ScriptAnalysis/  # 剧本分析组件
+│   ├── DurationBudget/  # 时长预算组件
 │   ├── Layout.tsx       # 布局组件
-│   └── JobMonitor.tsx   # 任务监控组件
+│   ├── JobMonitor.tsx   # 任务监控组件
+│   └── ...
 ├── views/               # 页面视图
 │   ├── Dashboard.tsx    # 项目仪表盘
 │   ├── ProjectDetail.tsx # 项目详情
 │   ├── ScriptManager.tsx # 剧本管理
 │   ├── ShotManager.tsx  # 分镜管理
 │   ├── Settings.tsx     # 设置页面
-│   └── Tasks.tsx        # 任务列表
+│   ├── Tasks.tsx        # 任务列表
+│   └── TimelineEditor.tsx # 时间线编辑器
 ├── services/            # 核心服务
 │   ├── ai/             # AI 提供商适配
 │   │   ├── providers/  # 各提供商实现
-│   │   └── ModelRouter.ts # 模型路由
+│   │   ├── core/       # 核心适配器
+│   │   └── adapters/   # 协议适配器
 │   ├── parsing/        # 剧本解析引擎
+│   │   ├── consistency/# 一致性检查
+│   │   ├── quality/    # 质量评估
+│   │   └── refinement/ # 迭代优化
 │   ├── keyframe/       # 关键帧服务
+│   ├── cache/          # 多层缓存系统
+│   ├── editing/        # 时间线编辑
+│   ├── events/         # 事件系统
+│   ├── asset/          # 资产管理
+│   ├── video/          # 视频生成
 │   ├── aiService.ts    # AI 服务调度
 │   ├── queue.ts        # 任务队列
 │   ├── storage.ts      # 存储服务
-│   └── scriptParser.ts # 剧本解析
+│   ├── scriptParser.ts # 剧本解析
+│   ├── promptBuilder.ts # 提示词构建
+│   └── logger.ts       # 日志系统
 ├── contexts/           # React Context
 ├── config/             # 配置文件
+├── scripts/            # 工具脚本
+├── utils/              # 工具函数
+├── types/              # 类型定义
+├── src/                # 附加源代码
 ├── public/             # 静态资源
 ├── types.ts            # TypeScript 类型定义
 └── locales.ts          # 国际化配置
@@ -318,7 +342,7 @@ nanshanai-animata/
 
 ## 🧠 智能记忆功能（可选）
 
-> **重要提示**：智能记忆是**可选增强功能**，不下载模型文件项目仍可**完整运行**。仅在解析长篇小说时建议开启。
+> **重要提示**：智能记忆是**可选增强功能**，不启用时项目仍可**完整运行**。仅在解析长篇小说时建议开启。
 
 **智能记忆** 通过向量数据库存储语义信息，提升长篇小说（>5万字）的角色一致性和场景连贯性。
 
@@ -333,20 +357,26 @@ nanshanai-animata/
 
 ### 快速判断
 
-- **不需要下载**：短篇剧本、快速测试、演示项目
-- **建议下载**：长篇小说、复杂角色关系、多场景叙事
+- **不需要启用**：短篇剧本、快速测试、演示项目
+- **建议启用**：长篇小说、复杂角色关系、多场景叙事
 
 ### 环境要求
 
 如决定使用智能记忆，需满足以下条件：
 
-1. **预下载 AI 模型**（一次性，约 80MB）
+1. **Python 环境** - 安装 Python 3.11+
 
+2. **安装 ChromaDB 依赖**
+   ```bash
+   pip install chromadb
+   ```
+
+3. **预下载 AI 模型**（一次性，约 80MB）
    ```bash
    npm run download-model
    ```
 
-2. **启动 ChromaDB 服务**（每次使用）
+4. **启动 ChromaDB 服务**（每次使用）
    ```bash
    npm run chroma
    ```
@@ -360,18 +390,18 @@ nanshanai-animata/
 | 场景提取     | ✅ 支持     | ✅ 更连贯    |
 | 分镜生成     | ✅ 支持     | ✅ 支持      |
 | 跨章节一致性 | ⚪ 一般     | ✅ 优秀      |
-| 需要模型文件 | ❌ 不需要   | ✅ 需要      |
+| 需要额外设置 | ❌ 不需要   | ✅ 需要      |
 
 ### 常见问题
 
-**Q: 不下载模型能用吗？**  
-A: **完全可以**。不下载模型文件，所有核心功能（剧本解析、角色/场景/分镜提取）都正常使用。智能记忆只是可选增强。
+**Q: 不启用智能记忆能用吗？**  
+A: **完全可以**。不启用时，所有核心功能（剧本解析、角色/场景/分镜提取）都正常使用。智能记忆只是可选增强。
 
-**Q: 什么时候建议下载？**  
-A: 当你需要解析 **5万字以上的长篇小说**，或希望提升 **角色一致性** 时建议下载。
+**Q: 什么时候建议启用？**  
+A: 当你需要解析 **5万字以上的长篇小说**，或希望提升 **角色一致性** 时建议启用。
 
-**Q: 下载后不想用了怎么办？**  
-A: 直接关闭智能记忆开关即可，无需删除模型文件。模型文件不影响其他功能。
+**Q: 启用后不想用了怎么办？**  
+A: 直接关闭智能记忆开关即可。已生成的向量数据不影响其他功能。
 
 **Q: 如何检查模型更新？**  
 A: 运行 `npm run check-model-update` 检查。Embedding 模型更新频率低，建议每隔几个月检查一次。
