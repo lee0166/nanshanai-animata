@@ -58,6 +58,7 @@ metadata.json
 # ChromaDB数据
 data/chroma_db/
 data/models/
+.venv-chroma/
 
 # 测试数据
 test_data/
