@@ -762,6 +762,11 @@ description字段必须满足以下条件：
 
 5. 每个分镜必须标注style字段（short-drama/film/custom）
 
+6. 叙事节点绑定要求：
+   - 每个分镜必须标注narrativeNode字段，说明该分镜属于哪个叙事节点（如act1、act2a、midpoint、climax、act3等）
+   - 每个分镜必须标注preShotId字段，指向前一个分镜的ID（第一个分镜可以为空或null）
+   - 每个分镜必须标注nextShotId字段，指向后一个分镜的ID（最后一个分镜可以为空或null）
+
 【影视级分镜字段】
 {
   "sceneName": "场景名称",
@@ -795,7 +800,10 @@ description字段必须满足以下条件：
         "expression": "表情"
       }
     ]
-  }
+  },
+  "narrativeNode": "act1",
+  "preShotId": null,
+  "nextShotId": "shot-002"
 }
 
 【景别选项】
@@ -864,6 +872,10 @@ eye_level(平视), high_angle(俯拍), low_angle(仰拍), dutch_angle(倾斜), o
 2. 景别选项：extreme_long(极远景), long(远景), full(全景), medium(中景), close_up(近景), extreme_close_up(极近景)
 3. 运镜选项：static(固定), push(推), pull(拉), pan(摇), tilt(升降), track(移), crane(升降)
 4. 每个场景生成5-15个镜头
+5. 叙事节点绑定要求：
+   - 每个分镜必须标注narrativeNode字段，说明该分镜属于哪个叙事节点（如act1、act2a、midpoint、climax、act3等）
+   - 每个分镜必须标注preShotId字段，指向前一个分镜的ID（第一个分镜可以为空或null）
+   - 每个分镜必须标注nextShotId字段，指向后一个分镜的ID（最后一个分镜可以为空或null）
 
 请严格按以下JSON数组格式输出：
 [
@@ -875,7 +887,10 @@ eye_level(平视), high_angle(俯拍), low_angle(仰拍), dutch_angle(倾斜), o
     "dialogue": "台词（可选）",
     "sound": "音效（可选）",
     "duration": 3,
-    "characters": ["角色名"]
+    "characters": ["角色名"],
+    "narrativeNode": "act1",
+    "preShotId": null,
+    "nextShotId": "shot-002"
   }
 ]
 `,

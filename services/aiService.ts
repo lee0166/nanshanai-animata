@@ -385,6 +385,112 @@ export class AIService {
   async getLLMModels(): Promise<ModelConfig[]> {
     return this.getModels({ type: 'llm' });
   }
+
+  /**
+   * 任务类型到关键词的映射
+   */
+  private taskTypeKeywords: Record<string, string[]> = {
+    character: ['角色', 'character', '角色设计', '角色解析', '角色图生成'],
+    scene: ['场景', 'scene', '场景设计', '场景解析', '场景图生成'],
+    item: ['道具', 'item', '物品', '道具设计', '道具图生成'],
+    shot: ['分镜', 'shot', '分镜生成', '分镜图生成', '关键帧', '影视级分镜图'],
+    metadata: ['元数据', 'metadata', '元数据提取', '文本理解', '结构化输出'],
+    script_parsing: ['剧本解析', 'script', '剧本解析', '全局上下文提取', '文本理解', '结构化输出'],
+  };
+
+  /**
+   * 自动选择最优模型
+   * @param taskType 任务类型
+   * @param modelType 模型类型
+   * @returns 评分最高的模型
+   */
+  async autoSelectModel(
+    taskType: 'character' | 'scene' | 'item' | 'shot' | 'metadata' | 'script_parsing',
+    modelType: 'image' | 'video' | 'llm'
+  ): Promise<ModelConfig> {
+    const models = await this.getModels({ type: modelType });
+
+    if (models.length === 0) {
+      throw new Error(`No ${modelType} models available`);
+    }
+
+    const taskKeywords = this.taskTypeKeywords[taskType] || [];
+
+    let bestModel: ModelConfig = models[0];
+    let highestScore = -Infinity;
+
+    for (const model of models) {
+      const score = this.calculateModelScore(model, taskKeywords);
+      if (score > highestScore) {
+        highestScore = score;
+        bestModel = model;
+      }
+    }
+
+    console.log(
+      `[AIService] Auto-selected model for ${taskType}/${modelType}: ${bestModel.name} (score: ${highestScore})`
+    );
+
+    return bestModel;
+  }
+
+  /**
+   * 计算模型与任务的匹配分数
+   * @param model 模型配置
+   * @param taskKeywords 任务关键词
+   * @returns 匹配分数
+   */
+  private calculateModelScore(model: ModelConfig, taskKeywords: string[]): number {
+    let score = 0;
+    const capabilities = model.capabilities || {};
+    const strengths = capabilities.strength || [];
+    const bestFor = capabilities.bestFor || [];
+
+    for (const keyword of taskKeywords) {
+      const keywordLower = keyword.toLowerCase();
+
+      for (const strength of strengths) {
+        if (strength.toLowerCase().includes(keywordLower)) {
+          score += 10;
+        }
+      }
+
+      for (const best of bestFor) {
+        if (best.toLowerCase().includes(keywordLower)) {
+          score += 15;
+        }
+      }
+    }
+
+    if (model.isDefault) {
+      score += 5;
+    }
+
+    if (model.enabled === false) {
+      score -= 100;
+    }
+
+    return score;
+  }
+
+  /**
+   * 获取所有模型并进行筛选
+   * @param filter 筛选条件
+   * @returns 筛选后的模型列表
+   */
+  async getFilteredModels(filter?: {
+    type?: 'image' | 'video' | 'llm';
+    provider?: string;
+    enabled?: boolean;
+  }): Promise<ModelConfig[]> {
+    let models = await this.getModels(filter);
+
+    if (filter?.enabled !== undefined) {
+      models = models.filter(m => m.enabled === filter.enabled);
+    }
+
+    return models;
+  }
 }
 
 export const aiService = new AIService();

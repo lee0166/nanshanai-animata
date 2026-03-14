@@ -207,6 +207,8 @@ export const DEFAULT_MODELS: ModelConfig[] = [
       maxPixels: 16777216,
       minAspectRatio: 0.0625,
       maxAspectRatio: 16,
+      strength: ['高质量图像生成', '角色设计', '场景设计', '概念艺术'],
+      bestFor: ['角色图生成', '场景图生成', '高质量概念图', '影视级分镜图'],
     },
     providerOptions: { volcengine: { strategy: 'seedream-4' } },
     parameters: [
@@ -251,6 +253,8 @@ export const DEFAULT_MODELS: ModelConfig[] = [
       maxPixels: 16777216,
       minAspectRatio: 0.0625,
       maxAspectRatio: 16,
+      strength: ['高质量图像生成', '角色设计', '场景设计', '概念艺术'],
+      bestFor: ['角色图生成', '场景图生成', '概念图', '分镜图'],
     },
     providerOptions: { volcengine: { strategy: 'seedream-4' } },
     parameters: [
@@ -295,6 +299,8 @@ export const DEFAULT_MODELS: ModelConfig[] = [
       defaultResolution: '1K',
       minPixels: 262144,
       maxPixels: 4194304,
+      strength: ['文本到图像生成', '快速生图', '基础设计'],
+      bestFor: ['快速概念图', '简单角色图', '基础场景图'],
     },
     providerOptions: {
       volcengine: { strategy: 'seedream-3', disableSequential: true },
@@ -347,6 +353,8 @@ export const DEFAULT_MODELS: ModelConfig[] = [
       requiresImageInput: false, // Text-to-Image supported
       supportedResolutions: ['1080p', '2K', '4K'],
       defaultResolution: '1080p',
+      strength: ['高质量图像生成', '角色设计', '场景设计', '图生图'],
+      bestFor: ['角色图生成', '场景图生成', '图生图优化', '概念艺术'],
     },
     parameters: [
       ...COMMON_IMAGE_PARAMS,
@@ -392,6 +400,8 @@ export const DEFAULT_MODELS: ModelConfig[] = [
       requiresImageInput: true, // Reference-to-Image only
       supportedResolutions: ['1080p'],
       defaultResolution: '1080p',
+      strength: ['图生图优化', '角色一致性保持', '场景优化'],
+      bestFor: ['图生图改进', '角色一致性', '场景细节增强'],
     },
     parameters: [
       ...COMMON_IMAGE_PARAMS,
@@ -434,6 +444,8 @@ export const DEFAULT_MODELS: ModelConfig[] = [
       supportedGenerationTypes: ['text_to_video', 'first_last_frame', 'multi_ref'],
       requiresImageInput: false,
       supportsAudioGeneration: true,
+      strength: ['快速视频生成', '多参考视频', '音频生成', '首尾帧控制'],
+      bestFor: ['快速视频片段', '多参考视频生成', '分镜视频化', '音频视频'],
     },
     parameters: [
       ...COMMON_VIDU_PARAMS,
@@ -489,6 +501,8 @@ export const DEFAULT_MODELS: ModelConfig[] = [
       maxReferenceImages: 7,
       supportedGenerationTypes: ['text_to_video', 'multi_ref'],
       requiresImageInput: false,
+      strength: ['标准视频生成', '多参考视频', '文本到视频'],
+      bestFor: ['标准视频片段', '多参考视频', '分镜视频化'],
     },
     parameters: [
       ...COMMON_VIDU_PARAMS,
@@ -539,6 +553,8 @@ export const DEFAULT_MODELS: ModelConfig[] = [
       supportedGenerationTypes: ['first_last_frame'],
       requiresImageInput: true,
       supportsAudioGeneration: true,
+      strength: ['高质量视频生成', '首尾帧控制', '细节增强', '音频生成'],
+      bestFor: ['高质量视频片段', '关键帧动画', '分镜视频化', '音频视频'],
     },
     parameters: [
       ...COMMON_VIDU_PARAMS,
@@ -593,6 +609,8 @@ export const DEFAULT_MODELS: ModelConfig[] = [
       supportedGenerationTypes: ['first_last_frame'],
       requiresImageInput: true,
       supportsAudioGeneration: true,
+      strength: ['平衡视频生成', '首尾帧控制', '速度与质量平衡', '音频生成'],
+      bestFor: ['平衡视频片段', '关键帧动画', '分镜视频化', '快速预览'],
     },
     parameters: [
       ...COMMON_VIDU_PARAMS,
@@ -647,6 +665,8 @@ export const DEFAULT_MODELS: ModelConfig[] = [
       supportedGenerationTypes: ['first_last_frame'],
       requiresImageInput: true,
       supportsAudioGeneration: true,
+      strength: ['经济型视频生成', '快速生成', '首尾帧控制', '音频生成'],
+      bestFor: ['经济型视频片段', '快速预览', '分镜视频化'],
     },
     parameters: [
       ...COMMON_VIDU_PARAMS,
@@ -700,6 +720,8 @@ export const DEFAULT_MODELS: ModelConfig[] = [
       supportedGenerationTypes: ['first_last_frame'],
       requiresImageInput: true,
       supportsAudioGeneration: true,
+      strength: ['经典视频生成', '丰富细节', '首尾帧控制', '音频生成'],
+      bestFor: ['经典视频风格', '丰富细节视频', '关键帧动画', '分镜视频化'],
     },
     parameters: [
       ...COMMON_VIDU_PARAMS,
@@ -747,6 +769,8 @@ export const DEFAULT_MODELS: ModelConfig[] = [
       supportedGenerationTypes: ['text_to_video', 'first_last_frame', 'multi_ref'],
       requiresImageInput: false,
       supportsAudioGeneration: true,
+      strength: ['稳定视频生成', '多参考视频', '音频生成', '首尾帧控制'],
+      bestFor: ['稳定视频片段', '多参考视频', '分镜视频化', '音频视频'],
     },
     parameters: [
       ...COMMON_VIDU_PARAMS,
@@ -794,6 +818,8 @@ export const DEFAULT_MODELS: ModelConfig[] = [
       supportsEndFrame: true,
       supportsAudioGeneration: true,
       supportedGenerationTypes: ['text_to_video', 'first_last_frame'],
+      strength: ['高质量视频生成', '文本到视频', '首尾帧控制', '音频生成'],
+      bestFor: ['高质量视频片段', '文本到视频', '分镜视频化', '音频视频'],
     },
     parameters: [
       ...COMMON_VOLC_VIDEO_PARAMS,
@@ -838,6 +864,8 @@ export const DEFAULT_MODELS: ModelConfig[] = [
       supportsStartFrame: true,
       supportsEndFrame: true,
       supportedGenerationTypes: ['text_to_video', 'first_last_frame'],
+      strength: ['专业视频生成', '文本到视频', '首尾帧控制'],
+      bestFor: ['专业视频片段', '文本到视频', '分镜视频化'],
     },
     parameters: [
       ...COMMON_VOLC_VIDEO_PARAMS,
@@ -874,6 +902,8 @@ export const DEFAULT_MODELS: ModelConfig[] = [
       supportsStartFrame: true,
       supportsEndFrame: false,
       supportedGenerationTypes: ['text_to_video', 'first_last_frame'],
+      strength: ['快速视频生成', '文本到视频', '首帧控制'],
+      bestFor: ['快速视频片段', '文本到视频', '分镜视频化', '快速预览'],
     },
     parameters: [
       ...COMMON_VOLC_VIDEO_PARAMS,
@@ -914,6 +944,8 @@ export const DEFAULT_MODELS: ModelConfig[] = [
       maxReferenceImages: 10,
       requiresImageInput: true,
       supportedGenerationTypes: ['first_last_frame', 'multi_ref'],
+      strength: ['图生视频', '多参考视频', '首帧控制'],
+      bestFor: ['图生视频', '多参考视频', '分镜视频化', '关键帧动画'],
     },
     parameters: [
       ...COMMON_VOLC_VIDEO_PARAMS,
@@ -967,6 +999,8 @@ export const DEFAULT_MODELS: ModelConfig[] = [
       maxPixels: 4194304,
       minAspectRatio: 0.0625,
       maxAspectRatio: 16,
+      strength: ['高质量图像生成', '角色设计', '场景设计', '图生图'],
+      bestFor: ['角色图生成', '场景图生成', '概念艺术', '图生图优化'],
     },
     parameters: [
       {
@@ -1016,6 +1050,8 @@ export const DEFAULT_MODELS: ModelConfig[] = [
       maxContextLength: 128000,
       supportsStreaming: true,
       supportsJsonMode: true,
+      strength: ['剧本解析', '文本理解', '结构化输出', '多模态理解'],
+      bestFor: ['剧本解析', '元数据提取', '分镜生成', '角色解析', '场景解析'],
     },
     apiUrl: 'https://api.openai.com/v1',
     parameters: [
@@ -1049,6 +1085,8 @@ export const DEFAULT_MODELS: ModelConfig[] = [
       maxContextLength: 128000,
       supportsStreaming: true,
       supportsJsonMode: true,
+      strength: ['快速剧本解析', '文本理解', '结构化输出', '成本优化'],
+      bestFor: ['快速剧本解析', '元数据提取', '角色解析', '场景解析'],
     },
     apiUrl: 'https://api.openai.com/v1',
     parameters: [
@@ -1082,6 +1120,8 @@ export const DEFAULT_MODELS: ModelConfig[] = [
     capabilities: {
       maxContextLength: 32000,
       supportsStreaming: true,
+      strength: ['剧本解析', '文本理解', '结构化输出', '中文优化'],
+      bestFor: ['剧本解析', '元数据提取', '分镜生成', '角色解析', '场景解析'],
     },
     apiUrl: 'https://dashscope.aliyuncs.com/compatible-mode/v1',
     parameters: [
@@ -1114,6 +1154,8 @@ export const DEFAULT_MODELS: ModelConfig[] = [
     capabilities: {
       maxContextLength: 32000,
       supportsStreaming: true,
+      strength: ['剧本解析', '文本理解', '结构化输出', '平衡性能'],
+      bestFor: ['剧本解析', '元数据提取', '角色解析', '场景解析'],
     },
     apiUrl: 'https://dashscope.aliyuncs.com/compatible-mode/v1',
     parameters: [
@@ -1146,6 +1188,8 @@ export const DEFAULT_MODELS: ModelConfig[] = [
     capabilities: {
       maxContextLength: 8000,
       supportsStreaming: true,
+      strength: ['快速剧本解析', '文本理解', '结构化输出', '成本优化'],
+      bestFor: ['快速剧本解析', '元数据提取', '简单角色解析', '简单场景解析'],
     },
     apiUrl: 'https://dashscope.aliyuncs.com/compatible-mode/v1',
     parameters: [
@@ -1182,6 +1226,8 @@ export const DEFAULT_MODELS: ModelConfig[] = [
       supportsReferenceImage: false,
       supportedGenerationTypes: ['first_last_frame'],
       requiresImageInput: true,
+      strength: ['图生视频', '首尾帧控制', '高质量视频生成'],
+      bestFor: ['图生视频', '关键帧动画', '分镜视频化'],
     },
     apiUrl: 'https://dashscope.aliyuncs.com/compatible-mode/v1',
     parameters: [
@@ -1232,6 +1278,8 @@ export const DEFAULT_MODELS: ModelConfig[] = [
       supportsReferenceImage: false,
       supportedGenerationTypes: ['text_to_video'],
       requiresImageInput: false,
+      strength: ['文本到视频', '高质量视频生成'],
+      bestFor: ['文本到视频', '分镜视频化', '概念视频生成'],
     },
     apiUrl: 'https://dashscope.aliyuncs.com/compatible-mode/v1',
     parameters: [
@@ -1280,6 +1328,8 @@ export const DEFAULT_MODELS: ModelConfig[] = [
     capabilities: {
       maxContextLength: 32000,
       supportsStreaming: true,
+      strength: ['剧本解析', '文本理解', '结构化输出', '开源模型'],
+      bestFor: ['剧本解析', '元数据提取', '角色解析', '场景解析'],
     },
     apiUrl: 'https://api-inference.modelscope.cn/v1',
     parameters: [
@@ -1313,6 +1363,8 @@ export const DEFAULT_MODELS: ModelConfig[] = [
     capabilities: {
       maxContextLength: 32000,
       supportsStreaming: true,
+      strength: ['剧本解析', '文本理解', '结构化输出', '中文优化'],
+      bestFor: ['剧本解析', '元数据提取', '分镜生成', '角色解析', '场景解析'],
     },
     apiUrl: 'https://ark.cn-beijing.volces.com/api/v3',
     parameters: [
@@ -1345,6 +1397,8 @@ export const DEFAULT_MODELS: ModelConfig[] = [
     capabilities: {
       maxContextLength: 32000,
       supportsStreaming: true,
+      strength: ['快速剧本解析', '文本理解', '结构化输出', '成本优化'],
+      bestFor: ['快速剧本解析', '元数据提取', '角色解析', '场景解析'],
     },
     apiUrl: 'https://ark.cn-beijing.volces.com/api/v3',
     parameters: [
@@ -1378,6 +1432,8 @@ export const DEFAULT_MODELS: ModelConfig[] = [
     capabilities: {
       maxContextLength: 256000,
       supportsStreaming: true,
+      strength: ['剧本解析', '文本理解', '结构化输出', '多模态理解', '超长上下文'],
+      bestFor: ['剧本解析', '元数据提取', '分镜生成', '角色解析', '场景解析', '全局上下文提取'],
     },
     apiUrl: 'https://ark.cn-beijing.volces.com/api/v3',
     parameters: [
@@ -1410,6 +1466,8 @@ export const DEFAULT_MODELS: ModelConfig[] = [
     capabilities: {
       maxContextLength: 256000,
       supportsStreaming: true,
+      strength: ['剧本解析', '文本理解', '结构化输出', '多模态理解', '超长上下文'],
+      bestFor: ['剧本解析', '元数据提取', '分镜生成', '角色解析', '场景解析'],
     },
     apiUrl: 'https://ark.cn-beijing.volces.com/api/v3',
     parameters: [
@@ -1442,6 +1500,8 @@ export const DEFAULT_MODELS: ModelConfig[] = [
     capabilities: {
       maxContextLength: 256000,
       supportsStreaming: true,
+      strength: ['剧本解析', '文本理解', '结构化输出', '超长上下文', '成本优化'],
+      bestFor: ['剧本解析', '元数据提取', '角色解析', '场景解析'],
     },
     apiUrl: 'https://ark.cn-beijing.volces.com/api/v3',
     parameters: [
@@ -1474,6 +1534,8 @@ export const DEFAULT_MODELS: ModelConfig[] = [
     capabilities: {
       maxContextLength: 256000,
       supportsStreaming: true,
+      strength: ['快速剧本解析', '文本理解', '结构化输出', '超长上下文', '快速响应'],
+      bestFor: ['快速剧本解析', '元数据提取', '角色解析', '场景解析'],
     },
     apiUrl: 'https://ark.cn-beijing.volces.com/api/v3',
     parameters: [
@@ -1506,6 +1568,8 @@ export const DEFAULT_MODELS: ModelConfig[] = [
     capabilities: {
       maxContextLength: 256000,
       supportsStreaming: true,
+      strength: ['剧本解析', '文本理解', '结构化输出', '视觉理解', '多模态'],
+      bestFor: ['剧本解析', '元数据提取', '视觉内容分析', '角色解析', '场景解析'],
     },
     apiUrl: 'https://ark.cn-beijing.volces.com/api/v3',
     parameters: [
@@ -1538,6 +1602,8 @@ export const DEFAULT_MODELS: ModelConfig[] = [
     capabilities: {
       maxContextLength: 256000,
       supportsStreaming: true,
+      strength: ['剧本解析', '文本理解', '结构化输出', '编程能力', '超长上下文'],
+      bestFor: ['剧本解析', '元数据提取', '角色解析', '场景解析', '代码生成'],
     },
     apiUrl: 'https://ark.cn-beijing.volces.com/api/v3',
     parameters: [
@@ -1571,6 +1637,8 @@ export const DEFAULT_MODELS: ModelConfig[] = [
     capabilities: {
       maxContextLength: 128000,
       supportsStreaming: true,
+      strength: ['剧本解析', '文本理解', '结构化输出', '推理能力'],
+      bestFor: ['剧本解析', '元数据提取', '分镜生成', '角色解析', '场景解析'],
     },
     apiUrl: 'https://ark.cn-beijing.volces.com/api/v3',
     providerOptions: { enableThinking: false },
@@ -1604,6 +1672,8 @@ export const DEFAULT_MODELS: ModelConfig[] = [
     capabilities: {
       maxContextLength: 128000,
       supportsStreaming: true,
+      strength: ['剧本解析', '文本理解', '结构化输出', '推理能力'],
+      bestFor: ['剧本解析', '元数据提取', '分镜生成', '角色解析', '场景解析'],
     },
     apiUrl: 'https://ark.cn-beijing.volces.com/api/v3',
     providerOptions: { enableThinking: false },
@@ -1637,6 +1707,8 @@ export const DEFAULT_MODELS: ModelConfig[] = [
     capabilities: {
       maxContextLength: 128000,
       supportsStreaming: true,
+      strength: ['剧本解析', '文本理解', '结构化输出', '深度推理', '思考能力'],
+      bestFor: ['剧本解析', '元数据提取', '复杂分镜生成', '深度角色解析', '场景解析'],
     },
     apiUrl: 'https://ark.cn-beijing.volces.com/api/v3',
     providerOptions: { enableThinking: false },
@@ -1671,6 +1743,8 @@ export const DEFAULT_MODELS: ModelConfig[] = [
     capabilities: {
       maxContextLength: 256000,
       supportsStreaming: true,
+      strength: ['剧本解析', '文本理解', '结构化输出', '超长上下文'],
+      bestFor: ['剧本解析', '元数据提取', '分镜生成', '角色解析', '场景解析', '全局上下文提取'],
     },
     apiUrl: 'https://ark.cn-beijing.volces.com/api/v3',
     parameters: [
@@ -1703,6 +1777,8 @@ export const DEFAULT_MODELS: ModelConfig[] = [
     capabilities: {
       maxContextLength: 256000,
       supportsStreaming: true,
+      strength: ['剧本解析', '文本理解', '结构化输出', '深度推理', '思考能力'],
+      bestFor: ['剧本解析', '元数据提取', '复杂分镜生成', '深度角色解析', '场景解析'],
     },
     apiUrl: 'https://ark.cn-beijing.volces.com/api/v3',
     providerOptions: { enableThinking: false },
@@ -1737,6 +1813,8 @@ export const DEFAULT_MODELS: ModelConfig[] = [
     capabilities: {
       maxContextLength: 200000,
       supportsStreaming: true,
+      strength: ['剧本解析', '文本理解', '结构化输出', '超长上下文'],
+      bestFor: ['剧本解析', '元数据提取', '分镜生成', '角色解析', '场景解析'],
     },
     apiUrl: 'https://ark.cn-beijing.volces.com/api/v3',
     parameters: [
@@ -1770,6 +1848,8 @@ export const DEFAULT_MODELS: ModelConfig[] = [
     capabilities: {
       maxContextLength: 128000,
       supportsStreaming: true,
+      strength: ['剧本解析', '文本理解', '结构化输出'],
+      bestFor: ['剧本解析', '元数据提取', '角色解析', '场景解析'],
     },
     apiUrl: 'https://api.example.com/v1',
     parameters: [

@@ -205,6 +205,9 @@ export interface ModelCapabilities {
   textToVideo?: boolean;
   imageToVideo?: boolean;
   textToText?: boolean;
+  // 模型能力标注
+  strength?: string[]; // 模型擅长的场景
+  bestFor?: string[]; // 模型的最佳使用场景
 }
 
 export interface ModelParameter {
@@ -784,6 +787,11 @@ export interface Shot {
 
   // 情绪氛围
   mood?: string;
+
+  // 叙事节点与连贯性
+  narrativeNode?: string;
+  preShotId?: string;
+  nextShotId?: string;
 
   // 生成状态
   mappedFragmentId?: string; // 关联视频片段

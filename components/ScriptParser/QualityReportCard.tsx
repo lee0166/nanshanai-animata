@@ -29,6 +29,8 @@ import {
   Box,
   Film,
   Lightbulb,
+  Globe,
+  BookOpen,
 } from 'lucide-react';
 import {
   DetailedQualityReport,
@@ -54,6 +56,8 @@ const getDimensionName = (dimension: QualityDimension): string => {
     [QualityDimension.CONSISTENCY]: '一致性',
     [QualityDimension.USABILITY]: '可用性',
     [QualityDimension.DRAMATIC]: '戏剧性',
+    [QualityDimension.SPATIAL_TEMPORAL]: '时空逻辑',
+    [QualityDimension.NARRATIVE_LOGIC]: '叙事逻辑',
   };
   return names[dimension] || dimension;
 };
@@ -68,6 +72,8 @@ const getDimensionIcon = (dimension: QualityDimension) => {
     [QualityDimension.CONSISTENCY]: <Activity className="w-4 h-4" />,
     [QualityDimension.USABILITY]: <Zap className="w-4 h-4" />,
     [QualityDimension.DRAMATIC]: <Award className="w-4 h-4" />,
+    [QualityDimension.SPATIAL_TEMPORAL]: <Globe className="w-4 h-4" />,
+    [QualityDimension.NARRATIVE_LOGIC]: <BookOpen className="w-4 h-4" />,
   };
   return icons[dimension] || <Info className="w-4 h-4" />;
 };

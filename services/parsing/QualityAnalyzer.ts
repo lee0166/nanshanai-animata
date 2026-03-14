@@ -27,6 +27,8 @@ export enum QualityDimension {
   CONSISTENCY = 'consistency', // 一致性
   USABILITY = 'usability', // 可用性
   DRAMATIC = 'dramatic', // 戏剧性
+  SPATIAL_TEMPORAL = 'spatial_temporal', // 时空逻辑
+  NARRATIVE_LOGIC = 'narrative_logic', // 叙事逻辑
 }
 
 /**
@@ -153,6 +155,8 @@ export class QualityAnalyzer {
     const consistencyScore = this.analyzeConsistency(characters, scenes, shots);
     const usabilityScore = this.analyzeUsability(characters, scenes, shots);
     const dramaticScore = this.analyzeDramaticQuality(scenes, characters);
+    const spatialTemporalScore = this.analyzeSpatialTemporal(scenes, shots);
+    const narrativeLogicScore = this.analyzeNarrativeLogic(shots, scenes);
 
     const dimensionScores = [
       completenessScore,
@@ -160,6 +164,8 @@ export class QualityAnalyzer {
       consistencyScore,
       usabilityScore,
       dramaticScore,
+      spatialTemporalScore,
+      narrativeLogicScore,
     ];
 
     // 计算总分（加权平均）
@@ -701,6 +707,232 @@ export class QualityAnalyzer {
       score: result.score,
       weight: 0.15,
       details: result.suggestions,
+      issues,
+    };
+  }
+
+  /**
+   * 分析空间逻辑和跨场景过渡
+   */
+  private analyzeSpatialTemporal(scenes: ScriptScene[], shots: Shot[]): DimensionScore {
+    const issues: QualityIssue[] = [];
+    const details: string[] = [];
+    let score = 100;
+
+    // 按 sceneId 将分镜分组
+    const shotsByScene = new Map<string, Shot[]>();
+    shots.forEach(shot => {
+      if (shot.sceneId) {
+        if (!shotsByScene.has(shot.sceneId)) {
+          shotsByScene.set(shot.sceneId, []);
+        }
+        shotsByScene.get(shot.sceneId)!.push(shot);
+      }
+    });
+
+    // 对每个场景的分镜进行排序和检查
+    shotsByScene.forEach((sceneShots, sceneId) => {
+      const sortedShots = [...sceneShots].sort((a, b) => a.sequence - b.sequence);
+      const scene = scenes.find(s => s.id === sceneId);
+      const sceneName = scene?.name || sceneId;
+
+      details.push(`场景"${sceneName}"有 ${sortedShots.length} 个分镜`);
+
+      // 检查空间顺序一致性
+      for (let i = 0; i < sortedShots.length - 1; i++) {
+        const currentShot = sortedShots[i];
+        const nextShot = sortedShots[i + 1];
+
+        // 简单检查：景别的跳跃是否过大
+        const shotTypeOrder = [
+          'extreme_long',
+          'long',
+          'full',
+          'medium',
+          'close_up',
+          'extreme_close_up',
+        ];
+        const currentIndex = shotTypeOrder.indexOf(currentShot.shotType);
+        const nextIndex = shotTypeOrder.indexOf(nextShot.shotType);
+        const jump = Math.abs(currentIndex - nextIndex);
+
+        if (jump >= 4) {
+          issues.push({
+            type: 'warning',
+            message: '景别跳跃过大，可能影响空间连贯性',
+            target: `分镜#${currentShot.sequence} → #${nextShot.sequence}`,
+            targetId: `${currentShot.id}_${nextShot.id}`,
+            targetType: 'shot',
+            context: `当前景别: ${currentShot.shotType}, 下一个景别: ${nextShot.shotType}`,
+            suggestion: '在两个景别之间添加过渡分镜以保持空间连贯性',
+            autoFixable: false,
+          });
+          score -= 2;
+        }
+      }
+    });
+
+    // 检查跨场景过渡
+    if (shots.length > 1) {
+      const sortedShots = [...shots].sort((a, b) => a.sequence - b.sequence);
+
+      for (let i = 0; i < sortedShots.length - 1; i++) {
+        const currentShot = sortedShots[i];
+        const nextShot = sortedShots[i + 1];
+
+        if (currentShot.sceneId && nextShot.sceneId && currentShot.sceneId !== nextShot.sceneId) {
+          // 检查是否有叙事节点标记
+          if (!currentShot.nextShotId || !nextShot.preShotId) {
+            issues.push({
+              type: 'info',
+              message: '跨场景过渡缺少连贯性标记',
+              target: `分镜#${currentShot.sequence} → #${nextShot.sequence}`,
+              targetId: `${currentShot.id}_${nextShot.id}`,
+              targetType: 'shot',
+              context: '建议为跨场景分镜添加过渡关系标记',
+              suggestion: '为跨场景分镜设置 nextShotId 和 preShotId 以明确过渡关系',
+              autoFixable: false,
+            });
+          }
+        }
+      }
+    }
+
+    if (issues.length === 0) {
+      details.push('空间逻辑和跨场景过渡检查通过');
+    }
+
+    return {
+      dimension: QualityDimension.SPATIAL_TEMPORAL,
+      score: Math.max(0, score),
+      weight: 0.15,
+      details,
+      issues,
+    };
+  }
+
+  /**
+   * 分析叙事逻辑和角色行为
+   */
+  private analyzeNarrativeLogic(shots: Shot[], scenes: ScriptScene[]): DimensionScore {
+    const issues: QualityIssue[] = [];
+    const details: string[] = [];
+    let score = 100;
+
+    // 按 sequence 排序分镜
+    const sortedShots = [...shots].sort((a, b) => a.sequence - b.sequence);
+
+    // 检查叙事节点绑定
+    const shotsWithoutNarrativeNode = sortedShots.filter(shot => !shot.narrativeNode);
+    if (shotsWithoutNarrativeNode.length > 0) {
+      const percentage = Math.round((shotsWithoutNarrativeNode.length / sortedShots.length) * 100);
+      issues.push({
+        type: 'warning',
+        message: `${percentage}%的分镜缺少叙事节点绑定`,
+        context: `共 ${shotsWithoutNarrativeNode.length} 个分镜未绑定叙事节点`,
+        suggestion: '为每个分镜添加 narrativeNode 字段以绑定到叙事结构',
+        autoFixable: false,
+      });
+      score -= Math.min(15, shotsWithoutNarrativeNode.length * 2);
+    } else {
+      details.push('所有分镜都已绑定叙事节点');
+    }
+
+    // 检查叙事节点顺序
+    const narrativeNodeOrder: Record<string, number> = {
+      act1: 1,
+      act2a: 2,
+      midpoint: 3,
+      act2b: 4,
+      climax: 5,
+      act3: 6,
+    };
+
+    let lastNodeIndex = -1;
+    for (let i = 0; i < sortedShots.length; i++) {
+      const shot = sortedShots[i];
+      if (shot.narrativeNode && narrativeNodeOrder[shot.narrativeNode] !== undefined) {
+        const currentNodeIndex = narrativeNodeOrder[shot.narrativeNode];
+        if (currentNodeIndex < lastNodeIndex) {
+          issues.push({
+            type: 'error',
+            message: '叙事节点顺序异常',
+            target: `分镜#${shot.sequence}`,
+            targetId: shot.id,
+            targetType: 'shot',
+            context: `叙事节点 ${shot.narrativeNode} 出现在较早的叙事节点之后`,
+            suggestion: '调整分镜顺序以符合叙事结构',
+            autoFixable: false,
+          });
+          score -= 5;
+        }
+        lastNodeIndex = currentNodeIndex;
+      }
+    }
+
+    // 检查角色连贯性
+    const characterAppearances = new Map<string, number[]>();
+    sortedShots.forEach(shot => {
+      shot.characters.forEach(charName => {
+        if (!characterAppearances.has(charName)) {
+          characterAppearances.set(charName, []);
+        }
+        characterAppearances.get(charName)!.push(shot.sequence);
+      });
+    });
+
+    characterAppearances.forEach((sequences, charName) => {
+      details.push(`角色"${charName}"出现在 ${sequences.length} 个分镜中`);
+    });
+
+    // 检查 preShotId 和 nextShotId 的连贯性
+    for (let i = 0; i < sortedShots.length; i++) {
+      const currentShot = sortedShots[i];
+
+      if (i > 0) {
+        const prevShot = sortedShots[i - 1];
+        if (currentShot.preShotId && currentShot.preShotId !== prevShot.id) {
+          issues.push({
+            type: 'warning',
+            message: '分镜的前置关系不匹配',
+            target: `分镜#${currentShot.sequence}`,
+            targetId: currentShot.id,
+            targetType: 'shot',
+            context: `preShotId 指向 ${currentShot.preShotId}，但前一个分镜是 ${prevShot.id}`,
+            suggestion: '检查并修正分镜的 preShotId',
+            autoFixable: false,
+          });
+          score -= 2;
+        }
+      }
+
+      if (i < sortedShots.length - 1) {
+        const nextShot = sortedShots[i + 1];
+        if (currentShot.nextShotId && currentShot.nextShotId !== nextShot.id) {
+          issues.push({
+            type: 'warning',
+            message: '分镜的后置关系不匹配',
+            target: `分镜#${currentShot.sequence}`,
+            targetId: currentShot.id,
+            targetType: 'shot',
+            context: `nextShotId 指向 ${currentShot.nextShotId}，但下一个分镜是 ${nextShot.id}`,
+            suggestion: '检查并修正分镜的 nextShotId',
+            autoFixable: false,
+          });
+          score -= 2;
+        }
+      }
+    }
+
+    if (issues.length === 0) {
+      details.push('叙事逻辑和角色行为检查通过');
+    }
+
+    return {
+      dimension: QualityDimension.NARRATIVE_LOGIC,
+      score: Math.max(0, score),
+      weight: 0.15,
+      details,
       issues,
     };
   }
