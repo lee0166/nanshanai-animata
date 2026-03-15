@@ -59,6 +59,7 @@ import {
   ModalFooter,
   useDisclosure,
 } from '@heroui/react';
+import { providerAliasMapper } from '../services/ai/core/ProviderAliasMapper';
 
 const Settings: React.FC = () => {
   const {
@@ -1350,20 +1351,31 @@ const Settings: React.FC = () => {
                   {isCustomModel && (
                     <div className="space-y-6">
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800">
-                        <Input
-                          label="Provider"
+                        <Select
+                          label="提供商"
                           labelPlacement="outside"
-                          placeholder="e.g., modelscope, openai, volcengine"
-                          value={customModel.provider}
-                          onValueChange={v => setCustomModel({ ...customModel, provider: v })}
+                          placeholder="选择 AI 提供商"
+                          selectedKeys={customModel.provider ? [customModel.provider] : []}
+                          onSelectionChange={keys => {
+                            const val = Array.from(keys)[0] as string;
+                            if (val) {
+                              setCustomModel({ ...customModel, provider: val });
+                            }
+                          }}
                           variant="bordered"
                           radius="lg"
                           size="lg"
                           classNames={{
                             label: 'text-sm font-medium text-slate-700 dark:text-slate-300 mb-2',
-                            input: 'text-[15px]',
+                            value: 'text-[15px]',
                           }}
-                        />
+                        >
+                          {providerAliasMapper.getSupportedAliases().map(option => (
+                            <SelectItem key={option.value} value={option.value}>
+                              {option.label}
+                            </SelectItem>
+                          ))}
+                        </Select>
                         <Input
                           label="Model ID"
                           labelPlacement="outside"

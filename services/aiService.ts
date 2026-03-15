@@ -7,6 +7,7 @@ import { ViduProvider } from './ai/providers/ViduProvider';
 import { ModelscopeProvider } from './ai/providers/ModelscopeProvider';
 import { LLMProvider } from './ai/providers/LLMProvider';
 import { ErrorHandler, UserFriendlyError } from './errorHandler';
+import { providerAliasMapper } from './ai/core/ProviderAliasMapper';
 
 export type { UserFriendlyError };
 
@@ -280,9 +281,10 @@ export class AIService {
         return { success: false, error: error.message };
       }
 
-      const provider = this.providers.get(config.provider);
+      const mappedProvider = providerAliasMapper.map(config.provider);
+      const provider = this.providers.get(mappedProvider);
       if (!provider) {
-        const error = ErrorHandler.handle(`Unsupported provider: ${config.provider}`);
+        const error = ErrorHandler.handle(`Unsupported provider: ${config.provider} (mapped to: ${mappedProvider})`);
         return { success: false, error: error.message };
       }
 
@@ -329,9 +331,10 @@ export class AIService {
       return { success: false, error: `Model configuration not found for ID: ${modelConfigId}` };
     }
 
-    const provider = this.providers.get(config.provider);
+    const mappedProvider = providerAliasMapper.map(config.provider);
+    const provider = this.providers.get(mappedProvider);
     if (!provider) {
-      return { success: false, error: `Unsupported provider: ${config.provider}` };
+      return { success: false, error: `Unsupported provider: ${config.provider} (mapped to: ${mappedProvider})` };
     }
 
     return provider.generateVideo(
@@ -362,10 +365,10 @@ export class AIService {
       return { success: false, error: `Model configuration not found for ID: ${modelConfigId}` };
     }
 
-    // Get provider based on config.provider (e.g., 'volcengine', 'openai', 'aliyun')
-    const provider = this.providers.get(config.provider);
+    const mappedProvider = providerAliasMapper.map(config.provider);
+    const provider = this.providers.get(mappedProvider);
     if (!provider) {
-      return { success: false, error: `Unsupported provider: ${config.provider}` };
+      return { success: false, error: `Unsupported provider: ${config.provider} (mapped to: ${mappedProvider})` };
     }
 
     // Check if provider supports generateText
