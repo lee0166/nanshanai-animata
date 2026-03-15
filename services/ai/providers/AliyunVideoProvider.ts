@@ -15,14 +15,14 @@ import { ModelConfig } from '../../../types';
 import { storageService } from '../../storage';
 
 /**
- * 阿里百炼视频生成 Provider
+ * 阿里云通义万相视频生成 Provider
  * 支持通义万相 Wan2.5 系列视频生成模型
  *
  * API文档: https://help.aliyun.com/document_detail/2865005.html
  */
 export class AliyunVideoProvider implements IProvider {
-  readonly id = 'aliyun-video';
-  readonly name = '阿里百炼视频';
+  readonly id = 'aliyun-qianwen-video';
+  readonly name = '阿里云通义万相';
   readonly supportedTypes: ('image' | 'video' | 'llm')[] = ['video'];
   readonly defaultProtocol = 'aliyun' as const;
 

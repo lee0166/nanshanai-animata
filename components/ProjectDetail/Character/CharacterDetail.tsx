@@ -231,7 +231,7 @@ const CharacterDetail: React.FC<CharacterDetailProps> = ({ asset, onUpdate, proj
     setPrompt(asset.prompt || '');
 
     let initialModelConfigId = asset.metadata?.modelConfigId || asset.metadata?.modelId;
-    const imageModels = settings.models.filter(m => m.type === 'image');
+    const imageModels = settings.models.filter(m => m.type === 'image' && (m.enabled ?? true));
 
     if (initialModelConfigId && !settings.models.some(m => m.id === initialModelConfigId)) {
       initialModelConfigId = imageModels[0]?.id || '';

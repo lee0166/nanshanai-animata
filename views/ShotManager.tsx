@@ -302,7 +302,7 @@ export const ShotManager: React.FC<ShotManagerProps> = ({
     setReferenceImageOverride({}); // 重置参考图覆盖
 
     // 切换模式后，自动选择第一个可用模型
-    const imageModels = settings.models.filter(m => m.type === 'image');
+    const imageModels = settings.models.filter(m => m.type === 'image' && (m.enabled ?? true));
     const filtered = imageModels.filter(model => {
       // 优先使用模型配置中的 capabilities
       const supportsRef = model.capabilities?.supportsReferenceImage ?? true;
@@ -582,15 +582,15 @@ export const ShotManager: React.FC<ShotManagerProps> = ({
 
   // 获取用户配置的模型
   const availableLLMModels = useMemo(() => {
-    return settings.models.filter(m => m.type === 'llm');
+    return settings.models.filter(m => m.type === 'llm' && (m.enabled ?? true));
   }, [settings.models]);
 
   const availableImageModels = useMemo(() => {
-    return settings.models.filter(m => m.type === 'image');
+    return settings.models.filter(m => m.type === 'image' && (m.enabled ?? true));
   }, [settings.models]);
 
   const availableVideoModels = useMemo(() => {
-    return settings.models.filter(m => m.type === 'video');
+    return settings.models.filter(m => m.type === 'video' && (m.enabled ?? true));
   }, [settings.models]);
 
   // 获取模型能力的辅助函数

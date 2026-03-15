@@ -117,11 +117,11 @@ export const ShotList: React.FC<ShotListProps> = ({
 
   // 获取用户已配置的模型
   const availableLLMModels = useMemo(() => {
-    return settings.models.filter(m => m.type === 'llm');
+    return settings.models.filter(m => m.type === 'llm' && (m.enabled ?? true));
   }, [settings.models]);
 
   const availableImageModels = useMemo(() => {
-    return settings.models.filter(m => m.type === 'image');
+    return settings.models.filter(m => m.type === 'image' && (m.enabled ?? true));
   }, [settings.models]);
 
   // 加载项目资产（严格按scriptId过滤，只加载当前剧本的资产）

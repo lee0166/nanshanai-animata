@@ -1110,11 +1110,11 @@ export const DEFAULT_MODELS: ModelConfig[] = [
       },
     ],
   },
-  // 阿里云 - 通义千问
+  // 阿里云通义千问（灵积平台）
   {
-    id: 'aliyun-qwen-max',
+    id: 'aliyun-qianwen-qwen-max',
     name: '通义千问 Max',
-    provider: 'aliyun',
+    provider: 'aliyun-qianwen',
     modelId: 'qwen-max',
     type: 'llm',
     capabilities: {
@@ -1146,9 +1146,9 @@ export const DEFAULT_MODELS: ModelConfig[] = [
     ],
   },
   {
-    id: 'aliyun-qwen-plus',
+    id: 'aliyun-qianwen-qwen-plus',
     name: '通义千问 Plus',
-    provider: 'aliyun',
+    provider: 'aliyun-qianwen',
     modelId: 'qwen-plus',
     type: 'llm',
     capabilities: {
@@ -1180,9 +1180,9 @@ export const DEFAULT_MODELS: ModelConfig[] = [
     ],
   },
   {
-    id: 'aliyun-qwen-turbo',
+    id: 'aliyun-qianwen-qwen-turbo',
     name: '通义千问 Turbo',
-    provider: 'aliyun',
+    provider: 'aliyun-qianwen',
     modelId: 'qwen-turbo',
     type: 'llm',
     capabilities: {
@@ -1213,11 +1213,11 @@ export const DEFAULT_MODELS: ModelConfig[] = [
       },
     ],
   },
-  // 阿里云 - 通义万相视频生成
+  // 阿里云通义万相视频生成
   {
-    id: 'aliyun-wan2.5-i2v',
+    id: 'aliyun-qianwen-wan2.5-i2v',
     name: '通义万相 Wan2.5-I2V',
-    provider: 'aliyun',
+    provider: 'aliyun-qianwen-video',
     modelId: 'wanx2.5-i2v-plus',
     type: 'video',
     capabilities: {
@@ -1229,7 +1229,7 @@ export const DEFAULT_MODELS: ModelConfig[] = [
       strength: ['图生视频', '首尾帧控制', '高质量视频生成'],
       bestFor: ['图生视频', '关键帧动画', '分镜视频化'],
     },
-    apiUrl: 'https://dashscope.aliyuncs.com/compatible-mode/v1',
+    apiUrl: 'https://dashscope.aliyuncs.com/api/v1',
     parameters: [
       {
         name: 'aspectRatio',
@@ -1267,9 +1267,9 @@ export const DEFAULT_MODELS: ModelConfig[] = [
     ],
   },
   {
-    id: 'aliyun-wan2.5-t2v',
+    id: 'aliyun-qianwen-wan2.5-t2v',
     name: '通义万相 Wan2.5-T2V',
-    provider: 'aliyun',
+    provider: 'aliyun-qianwen-video',
     modelId: 'wanx2.5-t2v-plus',
     type: 'video',
     capabilities: {
@@ -1281,7 +1281,7 @@ export const DEFAULT_MODELS: ModelConfig[] = [
       strength: ['文本到视频', '高质量视频生成'],
       bestFor: ['文本到视频', '分镜视频化', '概念视频生成'],
     },
-    apiUrl: 'https://dashscope.aliyuncs.com/compatible-mode/v1',
+    apiUrl: 'https://dashscope.aliyuncs.com/api/v1',
     parameters: [
       {
         name: 'aspectRatio',
@@ -1315,6 +1315,75 @@ export const DEFAULT_MODELS: ModelConfig[] = [
           { label: '720P', value: '720p' },
         ],
         defaultValue: '720p',
+      },
+    ],
+  },
+  // 阿里云百炼
+  {
+    id: 'aliyun-bailian-qwen-max',
+    name: '百炼 Qwen-Max',
+    provider: 'aliyun-bailian',
+    modelId: 'qwen-max',
+    type: 'llm',
+    capabilities: {
+      maxContextLength: 32000,
+      supportsStreaming: true,
+      strength: ['剧本解析', '文本理解', '结构化输出', '中文优化'],
+      bestFor: ['剧本解析', '元数据提取', '分镜生成', '角色解析', '场景解析'],
+    },
+    apiUrl: 'https://bailian.console.aliyun.com/api/v1',
+    parameters: [
+      {
+        name: 'temperature',
+        label: 'Temperature',
+        type: 'number',
+        defaultValue: 0.3,
+        min: 0,
+        max: 2,
+        step: 0.1,
+      },
+      {
+        name: 'maxTokens',
+        label: 'Max Tokens',
+        type: 'number',
+        defaultValue: 4000,
+        min: 100,
+        max: 8000,
+        step: 100,
+      },
+    ],
+  },
+  {
+    id: 'aliyun-bailian-qwen-plus',
+    name: '百炼 Qwen-Plus',
+    provider: 'aliyun-bailian',
+    modelId: 'qwen-plus',
+    type: 'llm',
+    capabilities: {
+      maxContextLength: 32000,
+      supportsStreaming: true,
+      strength: ['剧本解析', '文本理解', '结构化输出', '平衡性能'],
+      bestFor: ['剧本解析', '元数据提取', '角色解析', '场景解析'],
+    },
+    apiUrl: 'https://bailian.console.aliyun.com/api/v1',
+    parameters: [
+      {
+        name: 'temperature',
+        label: 'Temperature',
+        type: 'number',
+        defaultValue: 0.3,
+        min: 0,
+        max: 2,
+        step: 0.1,
+      },
+      {
+        name: 'maxTokens',
+        label: 'Max Tokens',
+        type: 'number',
+        defaultValue: 4000,
+        min: 100,
+        max: 8000,
+        step: 100,
       },
     ],
   },

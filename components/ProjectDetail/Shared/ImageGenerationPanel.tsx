@@ -144,7 +144,7 @@ export const ImageGenerationPanel: React.FC<ImageGenerationPanelProps> = ({
           }}
         >
           {settings.models
-            .filter(m => m.type === 'image')
+            .filter(m => m.type === 'image' && (m.enabled ?? true))
             .map(model => (
               <SelectItem key={model.id} textValue={model.name}>
                 {model.name}

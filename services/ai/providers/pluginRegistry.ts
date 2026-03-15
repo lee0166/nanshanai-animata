@@ -25,13 +25,19 @@ export async function registerAllProviders(): Promise<void> {
       metadata: { environment: 'all', priority: 100 },
     },
 
-    // 阿里百炼
+    // 阿里云通义千问（灵积平台）
     {
-      provider: new OpenAICompatibleProviderPlugin('aliyun', '阿里百炼'),
+      provider: new OpenAICompatibleProviderPlugin('aliyun-qianwen', '阿里云通义千问'),
       metadata: { environment: 'all', priority: 100 },
     },
 
-    // 阿里百炼视频生成
+    // 阿里云百炼
+    {
+      provider: new OpenAICompatibleProviderPlugin('aliyun-bailian', '阿里云百炼'),
+      metadata: { environment: 'all', priority: 100 },
+    },
+
+    // 阿里云通义万相视频生成
     {
       provider: new AliyunVideoProvider(),
       metadata: { environment: 'all', priority: 100 },

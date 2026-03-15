@@ -688,7 +688,7 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({
 
   // 2.0: 获取可用的LLM模型列表
   const getAvailableModels = useCallback((): ModelConfig[] => {
-    return settings.models.filter(m => m.type === 'llm' && m.apiKey);
+    return settings.models.filter(m => m.type === 'llm' && m.apiKey && (m.enabled ?? true));
   }, [settings.models]);
 
   // 2.0: 获取选中的模型（支持用户选择）

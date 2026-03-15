@@ -17,12 +17,12 @@ const ALIAS_MAP: Record<string, string> = {
   'minimax': 'llm',
   'mini-max': 'llm',
   'minimax-abab': 'llm',
-  'openai': 'llm',
-  'open-ai': 'llm',
-  'gpt': 'llm',
-  'gpt-4': 'llm',
-  'gpt-4o': 'llm',
-  'gpt-4o-mini': 'llm',
+  'openai': 'openai',
+  'open-ai': 'openai',
+  'gpt': 'openai',
+  'gpt-4': 'openai',
+  'gpt-4o': 'openai',
+  'gpt-4o-mini': 'openai',
   'anthropic': 'llm',
   'claude': 'llm',
   'claude-3': 'llm',
@@ -36,16 +36,26 @@ const ALIAS_MAP: Record<string, string> = {
   'modelscope': 'modelscope',
   'model_scope': 'modelscope',
   '魔搭': 'modelscope',
-  'aliyun': 'volcengine',
-  '阿里云': 'volcengine',
-  'qwen': 'volcengine',
-  '通义千问': 'volcengine',
-  'deepseek': 'llm',
-  'deep-seek': 'llm',
-  'zhipu': 'llm',
-  '智谱': 'llm',
-  'glm': 'llm',
-  'glm-4': 'llm',
+  'aliyun-qianwen': 'aliyun-qianwen',
+  '阿里云通义千问': 'aliyun-qianwen',
+  '通义千问': 'aliyun-qianwen',
+  'qwen': 'aliyun-qianwen',
+  'aliyun-qianwen-video': 'aliyun-qianwen-video',
+  '阿里云通义万相': 'aliyun-qianwen-video',
+  '通义万相': 'aliyun-qianwen-video',
+  'wanx': 'aliyun-qianwen-video',
+  'aliyun-bailian': 'aliyun-bailian',
+  '阿里云百炼': 'aliyun-bailian',
+  '百炼': 'aliyun-bailian',
+  'bailian': 'aliyun-bailian',
+  'deepseek': 'deepseek',
+  'deep-seek': 'deepseek',
+  'kimi': 'kimi',
+  '月之暗面': 'kimi',
+  'zhipu': 'zhipu',
+  '智谱': 'zhipu',
+  'glm': 'zhipu',
+  'glm-4': 'zhipu',
 };
 
 /**
@@ -113,7 +123,11 @@ export class ProviderAliasMapper {
     }
 
     // 4. 如果是已有的 Provider ID，直接返回（向后兼容）
-    const existingProviders = ['llm', 'volcengine', 'vidu', 'modelscope'];
+    const existingProviders = [
+      'llm', 'volcengine', 'vidu', 'modelscope', 
+      'openai', 'aliyun-qianwen', 'aliyun-qianwen-video', 
+      'aliyun-bailian', 'deepseek', 'kimi', 'zhipu'
+    ];
     if (existingProviders.includes(input.toLowerCase())) {
       console.log(`[ProviderAliasMapper] Existing provider: "${input}"`);
       return input.toLowerCase();
@@ -129,12 +143,14 @@ export class ProviderAliasMapper {
    */
   public getSupportedAliases(): Array<{ label: string; value: string; provider: string }> {
     return [
-      { label: '硅基流动 (Volcengine)', value: 'volcengine', provider: 'volcengine' },
-      { label: 'MiniMax (OpenAI 兼容)', value: 'minimax', provider: 'llm' },
-      { label: 'OpenAI (官方)', value: 'openai', provider: 'llm' },
-      { label: 'Anthropic Claude', value: 'anthropic', provider: 'llm' },
-      { label: 'DeepSeek', value: 'deepseek', provider: 'llm' },
-      { label: '智谱 GLM', value: 'zhipu', provider: 'llm' },
+      { label: 'Volcengine (火山引擎)', value: 'volcengine', provider: 'volcengine' },
+      { label: 'OpenAI (官方)', value: 'openai', provider: 'openai' },
+      { label: '阿里云通义千问', value: 'aliyun-qianwen', provider: 'aliyun-qianwen' },
+      { label: '阿里云通义万相', value: 'aliyun-qianwen-video', provider: 'aliyun-qianwen-video' },
+      { label: '阿里云百炼', value: 'aliyun-bailian', provider: 'aliyun-bailian' },
+      { label: 'DeepSeek', value: 'deepseek', provider: 'deepseek' },
+      { label: 'Kimi (月之暗面)', value: 'kimi', provider: 'kimi' },
+      { label: '智谱 GLM', value: 'zhipu', provider: 'zhipu' },
       { label: 'Vidu', value: 'vidu', provider: 'vidu' },
       { label: 'ModelScope (魔搭)', value: 'modelscope', provider: 'modelscope' },
     ];

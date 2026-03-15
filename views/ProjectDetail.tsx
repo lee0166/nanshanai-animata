@@ -107,7 +107,7 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({
 
   useEffect(() => {
     const type = activeTab === AssetType.VIDEO_SEGMENT ? 'video' : 'image';
-    const models = settings.models.filter(m => m.type === type);
+    const models = settings.models.filter(m => m.type === type && (m.enabled ?? true));
     if (models.length > 0) {
       setSelectedModelId(models[0].id);
     } else {
@@ -321,7 +321,7 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({
     );
 
   const filteredModels = settings.models.filter(m =>
-    activeTab === AssetType.VIDEO_SEGMENT ? m.type === 'video' : m.type === 'image'
+    (activeTab === AssetType.VIDEO_SEGMENT ? m.type === 'video' : m.type === 'image') && (m.enabled ?? true)
   );
 
   const activeTabSingular = t.project[activeTab as keyof typeof t.project] || activeTab;

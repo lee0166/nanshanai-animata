@@ -239,7 +239,7 @@ const FragmentDetail: FC<FragmentDetailProps> = ({ asset, onUpdate, projectId })
 
   // Task 2: Model list should always be visible.
   // We NO LONGER filter available models for the list.
-  const allVideoModels = settings.models.filter(m => m.type === 'video');
+  const allVideoModels = settings.models.filter(m => m.type === 'video' && (m.enabled ?? true));
 
   // Helper to check if a model is valid for current inputs (for disabling generation button or showing warning)
   const isModelCompatibleWithInputs = (m: any) => {
@@ -274,7 +274,7 @@ const FragmentDetail: FC<FragmentDetailProps> = ({ asset, onUpdate, projectId })
 
     // Set initial image model for popup
     if (!imgGenModelId) {
-      const imgModels = settings.models.filter(m => m.type === 'image');
+      const imgModels = settings.models.filter(m => m.type === 'image' && (m.enabled ?? true));
       if (imgModels.length > 0) {
         setImgGenModelId(imgModels[0].id);
       }
