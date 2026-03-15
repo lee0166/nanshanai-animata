@@ -10,7 +10,7 @@
  * @version 1.0.0
  */
 
-import type { ModelConfig } from '../../types';
+import type { ModelConfig, AppSettings } from '../../types';
 import { DEFAULT_MODELS, findModelConfig as oldFindModelConfig } from '../../config/models';
 import { modelConfigManager } from './core/ModelConfigManager';
 import { environmentConfigLoader } from './core/EnvironmentConfigLoader';
@@ -146,6 +146,65 @@ export function importModelConfigs(jsonString: string): boolean {
     console.error('[ModelConfigBridge] Import failed:', error);
     return false;
   }
+}
+
+/**
+ * 从旧系统 settings.models 转换到新系统 ModelConfig[]
+ */
+export function fromLegacySettings(legacyModels: ModelConfig[]): ModelConfig[] {
+  return legacyModels.map(model => convertOldToNew(model) as ModelConfig);
+}
+
+/**
+ * 从新系统 ModelConfig[] 转换到旧系统 settings.models 格式
+ */
+export function toLegacySettings(newModels: ModelConfig[]): ModelConfig[] {
+  return newModels.map(model => ({
+    ...model,
+    apiUrl: model.baseUrl || model.apiUrl,
+  }));
+}
+
+/**
+ * 同步新旧系统数据
+ * 确保两边数据一致
+ */
+export function sync(legacySettings?: AppSettings): {
+  synced: boolean;
+  newConfigs: ModelConfig[];
+  legacyConfigs: ModelConfig[];
+} {
+  const newConfigs = modelConfigManager.getAllConfigs();
+  const legacyConfigs = legacySettings?.models || DEFAULT_MODELS;
+
+  // 如果新系统为空，从旧系统导入
+  if (newConfigs.length === 0 && legacyConfigs.length > 0) {
+    const converted = fromLegacySettings(legacyConfigs);
+    for (const config of converted) {
+      modelConfigManager.createCustom(config);
+    }
+    return {
+      synced: true,
+      newConfigs: modelConfigManager.getAllConfigs(),
+      legacyConfigs,
+    };
+  }
+
+  // 如果旧系统为空，从新系统导出
+  if (legacyConfigs.length === 0 && newConfigs.length > 0) {
+    return {
+      synced: true,
+      newConfigs,
+      legacyConfigs: toLegacySettings(newConfigs),
+    };
+  }
+
+  // 两边都有数据，保持原样（新系统优先）
+  return {
+    synced: true,
+    newConfigs,
+    legacyConfigs,
+  };
 }
 
 // 导出新系统的功能（方便使用）

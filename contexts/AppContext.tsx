@@ -4,6 +4,8 @@ import { DEFAULT_SETTINGS } from '../config/settings';
 import { storageService } from '../services/storage';
 import { translations } from '../locales';
 import { AppContext } from './context';
+import { modelConfigManager } from '../services/ai/core/ModelConfigManager';
+import { fromLegacySettings } from '../services/ai/ModelConfigBridge';
 
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [settings, setSettings] = useState<AppSettings>(DEFAULT_SETTINGS);
@@ -82,6 +84,18 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         merged.useSandbox = storageService.isOpfs();
 
         setSettings(merged);
+
+        // 同步到 ModelConfigManager（渐进式迁移）
+        try {
+          modelConfigManager.clear();
+          const converted = fromLegacySettings(merged.models);
+          for (const config of converted) {
+            modelConfigManager.createCustom(config);
+          }
+          console.log('[ModelConfigManager] Synced', converted.length, 'models from settings');
+        } catch (e) {
+          console.warn('[ModelConfigManager] Sync failed:', e);
+        }
       } else {
         setWorkspaceName(await storageService.getWorkspaceName());
       }
