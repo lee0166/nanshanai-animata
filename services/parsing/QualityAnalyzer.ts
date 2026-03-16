@@ -5,7 +5,7 @@
  * 包括：完整性、准确性、一致性、可用性等维度
  *
  * @module services/parsing/QualityAnalyzer
- * @version 1.0.0
+ * @version 2.0.0 - 支持外部配置
  */
 
 import {
@@ -17,6 +17,8 @@ import {
   QualityReport,
 } from '../../types';
 import { ShortDramaRules, RuleContext, RuleViolation } from './ShortDramaRules';
+import type { QualityRulesConfig } from './QualityRulesConfig';
+import { getQualityRulesConfig, getQualityRulesLoader } from './QualityRulesLoader';
 
 /**
  * 质量维度枚举
@@ -113,11 +115,95 @@ const DEFAULT_CONFIG: QualityAnalyzerConfig = {
  */
 export class QualityAnalyzer {
   private config: QualityAnalyzerConfig;
+  private rulesConfig: QualityRulesConfig | null = null;
   private dramaRules: ShortDramaRules;
 
   constructor(config: Partial<QualityAnalyzerConfig> = {}) {
     this.config = { ...DEFAULT_CONFIG, ...config };
     this.dramaRules = new ShortDramaRules();
+  }
+
+  /**
+   * 初始化并加载外部配置
+   */
+  async initialize(): Promise<void> {
+    this.rulesConfig = await getQualityRulesConfig();
+    console.log('[QualityAnalyzer] Initialized with config version:', this.rulesConfig.version);
+  }
+
+  /**
+   * 获取配置（优先使用外部配置，否则使用默认配置）
+   */
+  private getRulesConfig(): QualityRulesConfig {
+    if (this.rulesConfig) {
+      return this.rulesConfig;
+    }
+    // 尝试同步获取
+    const syncConfig = getQualityRulesLoader().getConfigSync();
+    if (syncConfig) {
+      this.rulesConfig = syncConfig;
+      return syncConfig;
+    }
+    // 返回默认配置
+    return null as any; // 会在使用时检查
+  }
+
+  /**
+   * 获取维度权重（从外部配置）
+   */
+  private getDimensionWeight(dimension: QualityDimension): number {
+    const config = this.getRulesConfig();
+    if (!config) {
+      // 回退到硬编码权重
+      const fallbackWeights: Record<QualityDimension, number> = {
+        [QualityDimension.NARRATIVE_LOGIC]: 0.25,
+        [QualityDimension.DRAMATIC]: 0.20,
+        [QualityDimension.COMPLETENESS]: 0.20,
+        [QualityDimension.ACCURACY]: 0.15,
+        [QualityDimension.CONSISTENCY]: 0.15,
+        [QualityDimension.USABILITY]: 0.10,
+        [QualityDimension.SPATIAL_TEMPORAL]: 0.10,
+      };
+      return fallbackWeights[dimension];
+    }
+
+    const weightMap: Record<QualityDimension, string> = {
+      [QualityDimension.NARRATIVE_LOGIC]: 'narrativeLogic',
+      [QualityDimension.DRAMATIC]: 'dramatic',
+      [QualityDimension.COMPLETENESS]: 'completeness',
+      [QualityDimension.ACCURACY]: 'accuracy',
+      [QualityDimension.CONSISTENCY]: 'consistency',
+      [QualityDimension.USABILITY]: 'usability',
+      [QualityDimension.SPATIAL_TEMPORAL]: 'spatialTemporal',
+    };
+
+    const weightConfig = config.weights[weightMap[dimension]];
+    return weightConfig?.value ?? 0.15;
+  }
+
+  /**
+   * 获取阈值（从外部配置）
+   */
+  private getThreshold(key: string): number {
+    const config = this.getRulesConfig();
+    if (!config) {
+      // 回退到默认配置
+      const fallbackThresholds: Record<string, number> = {
+        characterDescriptionLength: 20,
+        sceneDescriptionLength: 30,
+        minShotsPerScene: 3,
+        maxShotsPerScene: 20,
+        minShotsTotal: 6,
+        shotDurationMin: 1,
+        shotDurationMax: 60,
+        narrativeLogicCollapseThreshold: 40,
+        completenessMaxWhenNarrativeCollapsed: 70,
+      };
+      return fallbackThresholds[key] ?? 0;
+    }
+
+    const thresholdConfig = config.thresholds[key];
+    return thresholdConfig?.value ?? 0;
   }
 
   /**
@@ -213,7 +299,7 @@ export class QualityAnalyzer {
       stage,
       emotionalArcExtracted,
       skippedFeatures,
-      weightVersion: 'v2.0', // 权重版本标识
+      weightVersion: this.getRulesConfig()?.version ?? 'v2.0', // 从配置获取版本标识
     };
   }
 
@@ -374,7 +460,7 @@ export class QualityAnalyzer {
     return {
       dimension: QualityDimension.COMPLETENESS,
       score: Math.max(0, score),
-      weight: 0.20,
+      weight: this.getDimensionWeight(QualityDimension.COMPLETENESS),
       details,
       issues,
     };
@@ -459,7 +545,7 @@ export class QualityAnalyzer {
     return {
       dimension: QualityDimension.ACCURACY,
       score: Math.max(0, score),
-      weight: 0.15,
+      weight: this.getDimensionWeight(QualityDimension.ACCURACY),
       details,
       issues,
     };
@@ -575,7 +661,7 @@ export class QualityAnalyzer {
     return {
       dimension: QualityDimension.CONSISTENCY,
       score: Math.max(0, score),
-      weight: 0.15,
+      weight: this.getDimensionWeight(QualityDimension.CONSISTENCY),
       details,
       issues,
     };
@@ -681,7 +767,7 @@ export class QualityAnalyzer {
     return {
       dimension: QualityDimension.USABILITY,
       score: Math.max(0, score),
-      weight: 0.10,
+      weight: this.getDimensionWeight(QualityDimension.USABILITY),
       details,
       issues,
     };
@@ -710,7 +796,7 @@ export class QualityAnalyzer {
     return {
       dimension: QualityDimension.DRAMATIC,
       score: result.score,
-      weight: 0.20,
+      weight: this.getDimensionWeight(QualityDimension.DRAMATIC),
       details: result.suggestions,
       issues,
     };
@@ -810,7 +896,7 @@ export class QualityAnalyzer {
     return {
       dimension: QualityDimension.SPATIAL_TEMPORAL,
       score: Math.max(0, score),
-      weight: 0.10,
+      weight: this.getDimensionWeight(QualityDimension.SPATIAL_TEMPORAL),
       details,
       issues,
     };
@@ -947,7 +1033,7 @@ export class QualityAnalyzer {
     return {
       dimension: QualityDimension.NARRATIVE_LOGIC,
       score: Math.max(0, score),
-      weight: 0.25,
+      weight: this.getDimensionWeight(QualityDimension.NARRATIVE_LOGIC),
       details,
       issues,
     };
@@ -999,10 +1085,15 @@ export class QualityAnalyzer {
     const completeness = scores.find(d => d.dimension === QualityDimension.COMPLETENESS);
     const consistency = scores.find(d => d.dimension === QualityDimension.CONSISTENCY);
 
-    // 规则1：叙事逻辑严重崩溃时，完整性不应超过70分
-    // 阈值从30调整为40，与新的权重体系匹配
-    if (narrativeLogic && narrativeLogic.score < 40 && completeness && completeness.score > 70) {
-      completeness.score = 70;
+    // 从配置获取阈值
+    const narrativeCollapseThreshold = this.getThreshold('narrativeLogicCollapseThreshold');
+    const completenessMaxWhenCollapsed = this.getThreshold('completenessMaxWhenNarrativeCollapsed');
+    const consistencyMaxWhenCollapsed = this.getThreshold('consistencyMaxWhenNarrativeCollapsed');
+    const usabilityMaxWhenCompletenessLow = this.getThreshold('usabilityMaxWhenCompletenessLow');
+
+    // 规则1：叙事逻辑严重崩溃时，完整性不应超过阈值
+    if (narrativeLogic && narrativeLogic.score < narrativeCollapseThreshold && completeness && completeness.score > completenessMaxWhenCollapsed) {
+      completeness.score = completenessMaxWhenCollapsed;
       completeness.issues.push({
         type: 'warning',
         message: '叙事逻辑存在严重问题，影响整体完整性评估',
@@ -1012,10 +1103,9 @@ export class QualityAnalyzer {
       });
     }
 
-    // 规则2：叙事逻辑严重崩溃时，一致性不应超过60分
-    // 阈值从30调整为40，与新的权重体系匹配
-    if (narrativeLogic && narrativeLogic.score < 40 && consistency && consistency.score > 60) {
-      consistency.score = Math.min(consistency.score, 60);
+    // 规则2：叙事逻辑严重崩溃时，一致性不应超过阈值
+    if (narrativeLogic && narrativeLogic.score < narrativeCollapseThreshold && consistency && consistency.score > consistencyMaxWhenCollapsed) {
+      consistency.score = Math.min(consistency.score, consistencyMaxWhenCollapsed);
       if (!consistency.issues.some(i => i.message.includes('叙事逻辑'))) {
         consistency.issues.push({
           type: 'warning',
@@ -1027,10 +1117,10 @@ export class QualityAnalyzer {
       }
     }
 
-    // 规则3：完整性低于50分时，可用性不应超过70分
+    // 规则3：完整性低于50分时，可用性不应超过阈值
     const usability = scores.find(d => d.dimension === QualityDimension.USABILITY);
-    if (completeness && completeness.score < 50 && usability && usability.score > 70) {
-      usability.score = Math.min(usability.score, 70);
+    if (completeness && completeness.score < 50 && usability && usability.score > usabilityMaxWhenCompletenessLow) {
+      usability.score = Math.min(usability.score, usabilityMaxWhenCompletenessLow);
     }
 
     return scores;

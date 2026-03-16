@@ -3906,6 +3906,9 @@ ${chunkContent.substring(0, 4000)}
       `[ScriptParser] skipGlobalContextForFastPath: ${this.parserConfig.skipGlobalContextForFastPath}`
     );
 
+    // Fix: Initialize performance monitor for short script path
+    this.performanceMonitor?.startSession(content.length);
+
     // Initialize scene context extractor for RAG-based text extraction
     this.initializeSceneContextExtractor();
     // Initialize dynamic batch sizer for adaptive batch size control
@@ -4494,6 +4497,9 @@ ${content}
   ): Promise<ScriptParseState> {
     console.log(`[ScriptParser] ========== Short Text Fast Path (Optimized) ==========`);
     console.log(`[ScriptParser] Content length: ${content.length} characters`);
+
+    // Fix: Initialize performance monitor for fast path
+    this.performanceMonitor?.startSession(content.length);
 
     // Initialize scene context extractor for RAG-based text extraction
     this.initializeSceneContextExtractor();
