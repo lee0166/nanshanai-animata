@@ -2,6 +2,7 @@
  * 质量评估规则编辑器
  *
  * 提供可视化界面编辑质量评估的权重和阈值配置
+ * 采用Tab切换设计，与模型管理页面保持一致
  */
 
 import React, { useState, useEffect, useCallback } from 'react';
@@ -12,11 +13,10 @@ import {
   Button,
   Slider,
   Input,
-  Divider,
   Chip,
   Tooltip,
-  Accordion,
-  AccordionItem,
+  Tabs,
+  Tab,
 } from '@heroui/react';
 import {
   Settings2,
@@ -26,6 +26,8 @@ import {
   AlertTriangle,
   Info,
   CheckCircle,
+  SlidersHorizontal,
+  Gauge,
 } from 'lucide-react';
 import type { QualityRulesConfig, WeightConfig, ThresholdConfig } from '../../services/parsing/QualityRulesConfig';
 import { DEFAULT_QUALITY_RULES } from '../../services/parsing/QualityRulesConfig';
@@ -66,6 +68,7 @@ export const QualityRulesEditor: React.FC<QualityRulesEditorProps> = ({ t }) => 
   const [hasChanges, setHasChanges] = useState(false);
   const [weightSum, setWeightSum] = useState(1.0);
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
+  const [activeTab, setActiveTab] = useState<'weights' | 'thresholds'>('weights');
 
   // 加载配置
   useEffect(() => {
@@ -211,15 +214,20 @@ export const QualityRulesEditor: React.FC<QualityRulesEditorProps> = ({ t }) => 
   }
 
   return (
-    <div className="space-y-6">
-      {/* 头部信息 */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-xl font-black uppercase tracking-widest text-white flex items-center gap-2">
-            <Settings2 className="w-5 h-5 text-primary" />
-            质量评估规则
-          </h2>
-          <p className="text-sm text-slate-400 mt-1">
+    <Card
+      className="border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden"
+      radius="lg"
+    >
+      {/* CardHeader - 统一设计：标题 + 操作按钮 */}
+      <CardHeader className="px-6 pt-6 pb-3 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div className="flex flex-col items-start gap-1">
+          <div className="flex items-center gap-2 text-primary">
+            <Settings2 className="w-5 h-5" />
+            <h2 className="text-xl font-black uppercase tracking-widest">
+              质量评估规则
+            </h2>
+          </div>
+          <p className="text-sm text-slate-400 font-bold uppercase tracking-widest">
             版本: {config.version} | 最后更新: {config.lastUpdated}
           </p>
         </div>
@@ -259,185 +267,195 @@ export const QualityRulesEditor: React.FC<QualityRulesEditorProps> = ({ t }) => 
           >
             恢复默认
           </Button>
+          <Button
+            onPress={handleSave}
+            color={saveStatus === 'saved' ? 'success' : saveStatus === 'error' ? 'danger' : 'primary'}
+            variant="shadow"
+            size="sm"
+            isLoading={saveStatus === 'saving'}
+            startContent={
+              saveStatus === 'saved' ? (
+                <CheckCircle className="w-4 h-4" />
+              ) : saveStatus === 'error' ? (
+                <AlertTriangle className="w-4 h-4" />
+              ) : (
+                <Settings2 className="w-4 h-4" />
+              )
+            }
+            isDisabled={!hasChanges || Math.abs(weightSum - 1.0) > 0.01}
+            className="font-black uppercase tracking-widest"
+          >
+            {saveStatus === 'saved'
+              ? '已保存'
+              : saveStatus === 'error'
+                ? '失败'
+                : saveStatus === 'saving'
+                  ? '保存中...'
+                  : '保存'}
+          </Button>
         </div>
-      </div>
+      </CardHeader>
 
       {/* 权重总和警告 */}
       {Math.abs(weightSum - 1.0) > 0.01 && (
-        <Card className="border-warning bg-warning-50">
-          <CardBody className="flex flex-row items-center gap-3 py-3">
+        <div className="px-6 pb-3">
+          <div className="flex items-center gap-3 p-3 bg-warning-50 border border-warning-200 rounded-lg">
             <AlertTriangle className="w-5 h-5 text-warning flex-shrink-0" />
             <div className="text-sm text-warning-700">
               <span className="font-medium">权重总和异常：</span>
               当前总和为 {(weightSum * 100).toFixed(0)}%，建议调整为100%以保证评分准确性
             </div>
-          </CardBody>
-        </Card>
+          </div>
+        </div>
       )}
 
-      {/* 权重配置 */}
-      <Card className="border border-slate-200 dark:border-slate-800">
-        <CardHeader className="px-6 pt-6 pb-3">
-          <div className="flex items-center justify-between w-full">
-            <div>
-              <h3 className="text-lg font-black uppercase tracking-widest text-white">
-                维度权重配置
-              </h3>
-              <p className="text-sm text-slate-400 mt-1">
-                调整各维度在综合评分中的占比，总和应为100%
-              </p>
-            </div>
-            <Chip
-              color={Math.abs(weightSum - 1.0) < 0.01 ? 'success' : 'warning'}
-              variant="flat"
-              size="lg"
-            >
-              总和: {(weightSum * 100).toFixed(0)}%
-            </Chip>
-          </div>
-        </CardHeader>
-        <CardBody className="px-6 pb-6 space-y-6">
-          {(Object.entries(config.weights) as [string, WeightConfig][]).map(([key, weight]) => (
-            <div key={key} className="space-y-2">
+      {/* Tab 切换区域 */}
+      <CardBody className="px-4 pb-6 pt-3">
+        <Tabs
+          selectedKey={activeTab}
+          onSelectionChange={key => setActiveTab(key as 'weights' | 'thresholds')}
+          variant="underlined"
+          color="primary"
+          classNames={{
+            tabList: 'gap-6 w-full border-b border-slate-200 dark:border-slate-800',
+            cursor: 'w-full bg-primary',
+            tab: 'max-w-fit px-2 h-12 font-black uppercase tracking-widest text-sm',
+            tabContent: 'group-data-[selected=true]:text-primary',
+          }}
+        >
+          {/* 权重配置 Tab */}
+          <Tab
+            key="weights"
+            title={
+              <div className="flex items-center gap-2">
+                <SlidersHorizontal className="w-4 h-4" />
+                <span>维度权重</span>
+                <Chip size="sm" variant="flat" color={Math.abs(weightSum - 1.0) < 0.01 ? 'success' : 'warning'}>
+                  {(weightSum * 100).toFixed(0)}%
+                </Chip>
+              </div>
+            }
+          >
+            <div className="pt-6 space-y-6">
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <span className="font-medium text-white">
-                    {dimensionNames[key] || key}
-                  </span>
-                  <Tooltip content={weight.rationale}>
-                    <Info className="w-4 h-4 text-slate-500 cursor-help" />
-                  </Tooltip>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Chip size="sm" variant="flat" color="primary">
-                    {(weight.value * 100).toFixed(0)}%
-                  </Chip>
-                  <span className="text-xs text-slate-500">
-                    ({(weight.range[0] * 100).toFixed(0)}% - {(weight.range[1] * 100).toFixed(0)}%)
-                  </span>
+                <div>
+                  <h3 className="text-lg font-black uppercase tracking-widest text-white">
+                    维度权重配置
+                  </h3>
+                  <p className="text-sm text-slate-400 mt-1">
+                    调整各维度在综合评分中的占比，总和应为100%
+                  </p>
                 </div>
               </div>
-              <Slider
-                value={weight.value}
-                onChange={v => handleWeightChange(key, v as number)}
-                minValue={weight.range[0]}
-                maxValue={weight.range[1]}
-                step={0.01}
-                size="md"
-                color="primary"
-                showTooltip
-                tooltipValueFormatOptions={{ style: 'percent' }}
-              />
-              <p className="text-xs text-slate-500">{weight.description}</p>
-            </div>
-          ))}
-        </CardBody>
-      </Card>
 
-      {/* 阈值配置 */}
-      <Card className="border border-slate-200 dark:border-slate-800">
-        <CardHeader className="px-6 pt-6 pb-3">
-          <div>
-            <h3 className="text-lg font-black uppercase tracking-widest text-white">
-              阈值配置
-            </h3>
-            <p className="text-sm text-slate-400 mt-1">
-              设置质量评估的各项阈值标准
-            </p>
-          </div>
-        </CardHeader>
-        <CardBody className="px-6 pb-6">
-          <Accordion variant="splitted" motionProps={{}}>
-            <AccordionItem
-              key="thresholds"
-              textValue="阈值配置"
-              title={
-                <span className="font-medium text-white">
-                  展开阈值配置 ({Object.keys(config.thresholds).length} 项)
-                </span>
-              }
-            >
-              <div className="space-y-4 pt-4">
-                {(Object.entries(config.thresholds) as [string, ThresholdConfig][]).map(([key, threshold]) => (
-                  <div key={key} className="flex items-start gap-4 p-4 bg-slate-900 rounded-xl">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-2">
-                        <span className="font-medium text-white">
-                          {thresholdNames[key] || key}
-                        </span>
-                        <Tooltip content={threshold.rationale}>
-                          <Info className="w-4 h-4 text-slate-500 cursor-help" />
-                        </Tooltip>
-                      </div>
-                      <p className="text-xs text-slate-400 mb-3">{threshold.description}</p>
-                      <div className="flex items-center gap-4">
-                        <Input
-                          type="number"
-                          value={threshold.value.toString()}
-                          onChange={e =>
-                            handleThresholdChange(key, parseInt(e.target.value) || 0)
-                          }
-                          min={threshold.range[0]}
-                          max={threshold.range[1]}
-                          className="w-24"
-                          size="sm"
-                        />
-                        <Slider
-                          value={threshold.value}
-                          onChange={v => handleThresholdChange(key, v as number)}
-                          minValue={threshold.range[0]}
-                          maxValue={threshold.range[1]}
-                          step={1}
-                          className="flex-1"
-                          size="sm"
-                          color="secondary"
-                        />
-                        <span className="text-xs text-slate-500 w-24 text-right">
-                          {threshold.range[0]} - {threshold.range[1]}
-                        </span>
-                      </div>
+              {(Object.entries(config.weights) as [string, WeightConfig][]).map(([key, weight]) => (
+                <div key={key} className="space-y-2 p-4 bg-slate-900 rounded-xl">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="font-medium text-white">
+                        {dimensionNames[key] || key}
+                      </span>
+                      <Tooltip content={weight.rationale}>
+                        <Info className="w-4 h-4 text-slate-500 cursor-help" />
+                      </Tooltip>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Chip size="sm" variant="flat" color="primary">
+                        {(weight.value * 100).toFixed(0)}%
+                      </Chip>
+                      <span className="text-xs text-slate-500">
+                        ({(weight.range[0] * 100).toFixed(0)}% - {(weight.range[1] * 100).toFixed(0)}%)
+                      </span>
                     </div>
                   </div>
-                ))}
-              </div>
-            </AccordionItem>
-          </Accordion>
-        </CardBody>
-      </Card>
+                  <Slider
+                    value={weight.value}
+                    onChange={v => handleWeightChange(key, v as number)}
+                    minValue={weight.range[0]}
+                    maxValue={weight.range[1]}
+                    step={0.01}
+                    size="md"
+                    color="primary"
+                    showTooltip
+                    tooltipValueFormatOptions={{ style: 'percent' }}
+                  />
+                  <p className="text-xs text-slate-500">{weight.description}</p>
+                </div>
+              ))}
+            </div>
+          </Tab>
 
-      {/* 保存按钮 - 添加底部间距确保可见 */}
-      <div className="flex justify-end gap-3 pb-20">
-        {hasChanges && (
-          <span className="text-sm text-slate-400 self-center">有未保存的更改</span>
-        )}
-        <Button
-          color={saveStatus === 'saved' ? 'success' : saveStatus === 'error' ? 'danger' : 'primary'}
-          variant="shadow"
-          size="lg"
-          isLoading={saveStatus === 'saving'}
-          startContent={
-            saveStatus === 'saved' ? (
-              <CheckCircle className="w-5 h-5" />
-            ) : saveStatus === 'error' ? (
-              <AlertTriangle className="w-5 h-5" />
-            ) : (
-              <Settings2 className="w-5 h-5" />
-            )
-          }
-          onPress={handleSave}
-          isDisabled={!hasChanges || Math.abs(weightSum - 1.0) > 0.01}
-          className="font-black uppercase tracking-widest"
-        >
-          {saveStatus === 'saved'
-            ? '已保存'
-            : saveStatus === 'error'
-              ? '保存失败'
-              : saveStatus === 'saving'
-                ? '保存中...'
-                : '保存配置'}
-        </Button>
-      </div>
-    </div>
+          {/* 阈值配置 Tab */}
+          <Tab
+            key="thresholds"
+            title={
+              <div className="flex items-center gap-2">
+                <Gauge className="w-4 h-4" />
+                <span>阈值配置</span>
+                <Chip size="sm" variant="flat" color="default">
+                  {Object.keys(config.thresholds).length} 项
+                </Chip>
+              </div>
+            }
+          >
+            <div className="pt-6 space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-lg font-black uppercase tracking-widest text-white">
+                    阈值配置
+                  </h3>
+                  <p className="text-sm text-slate-400 mt-1">
+                    设置质量评估的各项阈值标准
+                  </p>
+                </div>
+              </div>
+
+              {(Object.entries(config.thresholds) as [string, ThresholdConfig][]).map(([key, threshold]) => (
+                <div key={key} className="flex items-start gap-4 p-4 bg-slate-900 rounded-xl">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="font-medium text-white">
+                        {thresholdNames[key] || key}
+                      </span>
+                      <Tooltip content={threshold.rationale}>
+                        <Info className="w-4 h-4 text-slate-500 cursor-help" />
+                      </Tooltip>
+                    </div>
+                    <p className="text-xs text-slate-400 mb-3">{threshold.description}</p>
+                    <div className="flex items-center gap-4">
+                      <Input
+                        type="number"
+                        value={threshold.value.toString()}
+                        onChange={e =>
+                          handleThresholdChange(key, parseInt(e.target.value) || 0)
+                        }
+                        min={threshold.range[0]}
+                        max={threshold.range[1]}
+                        className="w-24"
+                        size="sm"
+                      />
+                      <Slider
+                        value={threshold.value}
+                        onChange={v => handleThresholdChange(key, v as number)}
+                        minValue={threshold.range[0]}
+                        maxValue={threshold.range[1]}
+                        step={1}
+                        className="flex-1"
+                        size="sm"
+                        color="secondary"
+                      />
+                      <span className="text-xs text-slate-500 w-24 text-right">
+                        {threshold.range[0]} - {threshold.range[1]}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </Tab>
+        </Tabs>
+      </CardBody>
+    </Card>
   );
 };
 
