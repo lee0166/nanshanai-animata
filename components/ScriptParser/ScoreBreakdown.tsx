@@ -1,4 +1,5 @@
 import React from 'react';
+import { AlertTriangle } from 'lucide-react';
 import { DimensionScore, QualityDimension } from '../../services/parsing/QualityAnalyzer';
 
 interface ScoreBreakdownProps {
@@ -51,8 +52,27 @@ export const ScoreBreakdown: React.FC<ScoreBreakdownProps> = ({
     0
   );
 
+  // 判断是否为v2.0版本（权重调整后的版本）
+  const isV2 = weightVersion === 'v2.0';
+
   return (
     <div className="bg-content2/50 rounded-lg p-4 space-y-3">
+      {/* 评分体系升级说明 */}
+      {isV2 && (
+        <div className="bg-warning-50 border border-warning-200 rounded-lg p-3">
+          <div className="flex items-start gap-2">
+            <AlertTriangle className="w-4 h-4 text-warning flex-shrink-0 mt-0.5" />
+            <div className="text-sm">
+              <p className="font-medium text-warning-700">评分体系已升级至 v2.0</p>
+              <p className="text-warning-600 mt-1">
+                新体系更关注叙事质量和戏剧性。您的剧本数据完整性良好，
+                但叙事结构需要优化。这是正常的评估调整，不代表剧本变差。
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* 标题和版本 */}
       <div className="flex items-center justify-between border-b border-content3 pb-2">
         <span className="text-sm font-medium">评分计算详情</span>

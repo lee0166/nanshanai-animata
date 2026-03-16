@@ -13,7 +13,8 @@
 
 import { ScriptCharacter, ScriptScene, ScriptMetadata } from '../../../types';
 import { ConsistencyViolation, ViolationType } from '../consistency/ConsistencyChecker';
-import { QualityScore, QualityDimension } from '../quality/QualityEvaluator';
+import { QualityScore } from '../quality/QualityEvaluator';
+import { QualityDimension } from '../QualityAnalyzer';
 
 /**
  * 修正操作类型
@@ -168,14 +169,66 @@ export class RefinementEngine {
     const completenessActions = this.generateCompletenessActions(context);
     actions.push(...completenessActions);
 
-    // 按置信度排序
-    actions.sort((a, b) => b.confidence - a.confidence);
+    // 根据权重优先级和置信度排序
+    // 权重优先级：narrativeLogic > dramatic > completeness > accuracy > consistency > usability > spatialTemporal
+    const priorityMap: Record<string, number> = {
+      'narrativeLogic': 7,
+      'dramatic': 6,
+      'completeness': 5,
+      'accuracy': 4,
+      'consistency': 3,
+      'usability': 2,
+      'spatialTemporal': 1,
+    };
+
+    actions.sort((a, b) => {
+      // 首先按权重优先级排序（如果可以从action推断出维度）
+      const priorityA = this.inferDimensionPriority(a, priorityMap);
+      const priorityB = this.inferDimensionPriority(b, priorityMap);
+      if (priorityA !== priorityB) {
+        return priorityB - priorityA;
+      }
+      // 其次按置信度排序
+      return b.confidence - a.confidence;
+    });
 
     // 限制数量
     const limitedActions = actions.slice(0, this.config.maxRefinements);
 
     console.log(`[RefinementEngine] Generated ${limitedActions.length} refinement actions`);
     return limitedActions;
+  }
+
+  /**
+   * 推断action的维度优先级
+   * @private
+   */
+  private inferDimensionPriority(action: RefinementAction, priorityMap: Record<string, number>): number {
+    // 根据action的id或description推断所属维度
+    const id = action.id.toLowerCase();
+    const desc = action.description.toLowerCase();
+
+    if (id.includes('narrative') || desc.includes('叙事') || desc.includes('出场') || desc.includes('节点')) {
+      return priorityMap['narrativeLogic'] || 1;
+    }
+    if (id.includes('dramatic') || desc.includes('戏剧') || desc.includes('冲突') || desc.includes('反派')) {
+      return priorityMap['dramatic'] || 1;
+    }
+    if (id.includes('completeness') || desc.includes('完整')) {
+      return priorityMap['completeness'] || 1;
+    }
+    if (id.includes('accuracy') || desc.includes('准确')) {
+      return priorityMap['accuracy'] || 1;
+    }
+    if (id.includes('consistency') || desc.includes('一致')) {
+      return priorityMap['consistency'] || 1;
+    }
+    if (id.includes('usability') || desc.includes('可用')) {
+      return priorityMap['usability'] || 1;
+    }
+
+    // 默认优先级
+    return 1;
   }
 
   /**
@@ -388,16 +441,18 @@ export class RefinementEngine {
     for (const score of context.qualityScores) {
       if (score.score >= 80) continue; // 跳过高分维度
 
-      switch (score.dimension) {
-        case 'completeness':
-          actions.push(...this.handleCompletenessIssues(context));
-          break;
-        case 'accuracy':
-          actions.push(...this.handleAccuracyIssues(context));
-          break;
-        case 'usability':
-          actions.push(...this.handleUsabilityIssues(context));
-          break;
+      // 使用字符串比较，因为QualityDimension类型可能来自不同的定义
+      const dimension = score.dimension as string;
+      if (dimension === 'completeness') {
+        actions.push(...this.handleCompletenessIssues(context));
+      } else if (dimension === 'accuracy') {
+        actions.push(...this.handleAccuracyIssues(context));
+      } else if (dimension === 'usability') {
+        actions.push(...this.handleUsabilityIssues(context));
+      } else if (dimension === 'narrative_logic' || dimension === 'narrativeLogic') {
+        actions.push(...this.handleNarrativeLogicIssues(context));
+      } else if (dimension === 'dramatic') {
+        actions.push(...this.handleDramaticIssues(context));
       }
     }
 
@@ -488,6 +543,152 @@ export class RefinementEngine {
           requiresConfirmation: false,
         });
       }
+    }
+
+    return actions;
+  }
+
+  /**
+   * 处理叙事逻辑问题（新增）
+   * @private
+   */
+  private handleNarrativeLogicIssues(context: RefinementContext): RefinementAction[] {
+    const actions: RefinementAction[] = [];
+
+    // 1. 检查场景是否有叙事节点绑定（使用类型断言，因为ScriptScene可能有扩展属性）
+    for (const scene of context.scenes) {
+      const sceneWithNarrative = scene as ScriptScene & { narrativeNode?: string };
+      if (!sceneWithNarrative.narrativeNode) {
+        actions.push({
+          id: `refine-scene-narrative-${scene.id}`,
+          type: 'add_description',
+          targetType: 'scene',
+          targetId: scene.id || '',
+          description: `为场景 "${scene.name}" 添加叙事节点绑定（如：act1, midpoint, climax）`,
+          proposedValue: '根据场景在故事中的位置推断叙事节点',
+          confidence: 0.75,
+          autoSafe: false,
+          requiresConfirmation: true,
+        });
+      }
+    }
+
+    // 2. 检查角色是否有足够的出场场景
+    for (const character of context.characters) {
+      const appearanceCount = context.scenes.filter(s =>
+        s.characters?.includes(character.id || '')
+      ).length;
+
+      if (appearanceCount === 0 && context.characters.length > 1) {
+        actions.push({
+          id: `refine-char-narrative-${character.id}`,
+          type: 'fix_reference',
+          targetType: 'character',
+          targetId: character.id || '',
+          description: `角色 "${character.name}" 已定义但未在任何场景中出场，建议添加出场场景或移除`,
+          proposedValue: `在关键场景中添加 "${character.name}" 的出场`,
+          confidence: 0.8,
+          autoSafe: false,
+          requiresConfirmation: true,
+        });
+      }
+    }
+
+    // 3. 检查场景顺序是否合理（使用类型断言）
+    const scenesWithSequence = context.scenes as (ScriptScene & { sequence?: number; preSceneId?: string })[];
+    const sortedScenes = [...scenesWithSequence].sort((a, b) => (a.sequence || 0) - (b.sequence || 0));
+    for (let i = 1; i < sortedScenes.length; i++) {
+      const prevScene = sortedScenes[i - 1];
+      const currScene = sortedScenes[i];
+
+      // 检查场景间是否有逻辑关联
+      if (!currScene.preSceneId && !currScene.description?.includes(prevScene.name)) {
+        actions.push({
+          id: `refine-scene-continuity-${currScene.id}`,
+          type: 'add_description',
+          targetType: 'scene',
+          targetId: currScene.id || '',
+          description: `场景 "${currScene.name}" 与前场景 "${prevScene.name}" 缺乏逻辑关联，建议添加过渡`,
+          proposedValue: `添加与前场景的关联描述，如：承接${prevScene.name}的情节...`,
+          confidence: 0.6,
+          autoSafe: false,
+          requiresConfirmation: true,
+        });
+      }
+    }
+
+    return actions;
+  }
+
+  /**
+   * 处理戏剧性问题（新增）
+   * @private
+   */
+  private handleDramaticIssues(context: RefinementContext): RefinementAction[] {
+    const actions: RefinementAction[] = [];
+
+    // 1. 检查是否有足够的冲突场景
+    const conflictKeywords = ['冲突', '对抗', '争执', '战斗', '危机', '困境', '挑战'];
+    const conflictScenes = context.scenes.filter(scene =>
+      conflictKeywords.some(keyword =>
+        scene.description?.includes(keyword) || scene.name?.includes(keyword)
+      )
+    );
+
+    if (conflictScenes.length < 2 && context.scenes.length > 3) {
+      actions.push({
+        id: 'refine-dramatic-conflict',
+        type: 'add_description',
+        targetType: 'metadata',
+        targetId: 'metadata',
+        description: '剧本冲突场景较少，建议增加戏剧冲突以提升张力',
+        proposedValue: '在关键转折点添加冲突场景，如：角色间的对抗、内心的挣扎、外部的危机等',
+        confidence: 0.7,
+        autoSafe: false,
+        requiresConfirmation: true,
+      });
+    }
+
+    // 2. 检查角色间是否有对立关系
+    const protagonist = context.characters.find(c =>
+      c.description?.includes('主角') || c.description?.includes('主人公')
+    ) || context.characters[0];
+
+    const antagonist = context.characters.find(c =>
+      c.description?.includes('反派') || c.description?.includes('敌人') || c.description?.includes('对手')
+    );
+
+    if (!antagonist && context.characters.length >= 2) {
+      actions.push({
+        id: 'refine-dramatic-antagonist',
+        type: 'add_description',
+        targetType: 'metadata',
+        targetId: 'metadata',
+        description: '剧本缺少明确的反派/对手角色，建议添加以形成戏剧冲突',
+        proposedValue: `可以设置一个与 "${protagonist?.name}" 对立的角色，形成明确的冲突关系`,
+        confidence: 0.65,
+        autoSafe: false,
+        requiresConfirmation: true,
+      });
+    }
+
+    // 3. 检查场景情绪变化
+    const emotionalScenes = context.scenes.filter(s =>
+      s.description?.match(/(愤怒|悲伤|喜悦|恐惧|惊讶|紧张|兴奋)/)
+    );
+
+    if (emotionalScenes.length < 2 && context.scenes.length > 3) {
+      actions.push({
+        id: 'refine-dramatic-emotion',
+        type: 'add_description',
+        targetType: 'metadata',
+        targetId: 'metadata',
+        description: '剧本情绪变化较少，建议增加情绪起伏以增强戏剧性',
+        proposedValue: '在关键场景中添加情绪标签，如：愤怒的对抗、悲伤的告别、喜悦的重逢等',
+        confidence: 0.6,
+        autoSafe: false,
+        requiresConfirmation: true,
+      });
     }
 
     return actions;
