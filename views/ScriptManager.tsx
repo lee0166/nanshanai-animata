@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import {
   Script,
   ScriptParseState,
@@ -14,6 +15,7 @@ import {
   AssetType,
   ModelConfig,
   CreativeIntent,
+  ParseStage,
 } from '../types';
 import { storageService } from '../services/storage';
 import {
@@ -29,6 +31,7 @@ import { CharacterMapping } from '../components/ScriptParser/CharacterMapping';
 import { SceneMapping } from '../components/ScriptParser/SceneMapping';
 import { ItemMapping } from '../components/ScriptParser/ItemMapping';
 import { ShotList } from '../components/ScriptParser/ShotList';
+import { ScriptParseProgress } from '../components/ScriptParser/ScriptParseProgress';
 import { QualityReport } from '../services/scriptParser';
 import { DetailedQualityReport } from '../services/parsing/QualityAnalyzer';
 import QualityReportCard from '../components/ScriptParser/QualityReportCard';
@@ -82,6 +85,8 @@ import {
   Clock,
   Clapperboard,
   Award,
+  Eye,
+  Loader2,
 } from 'lucide-react';
 
 interface ScriptManagerProps {
@@ -105,6 +110,8 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({
   const [isParsing, setIsParsing] = useState(false);
   const [parseProgress, setParseProgress] = useState(0);
   const [parseStage, setParseStage] = useState<string>('');
+  const [parseStageKey, setParseStageKey] = useState<ParseStage>('idle');
+  const [parseStageProgress, setParseStageProgress] = useState(0);
   const [activeParseButton, setActiveParseButton] = useState<string | null>(null);
   const [parseDetails, setParseDetails] = useState<{
     currentScene?: number;
@@ -113,7 +120,15 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({
     totalBatches?: number;
     elapsedTime?: number;
     estimatedRemainingTime?: number;
+    subTaskInfo?: {
+      current: number;
+      total: number;
+      currentName?: string;
+    };
   }>({});
+
+  // 后台解析状态追踪
+  const [isBackgroundParsing, setIsBackgroundParsing] = useState(false);
 
   // 2.0: 模型选择状态
   const [selectedModelId, setSelectedModelId] = useState<string>('');
@@ -509,6 +524,18 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({
         // Note: Removed isMountedRef check to fix progress not updating in React StrictMode
         // StrictMode causes double mounting/unmounting which breaks the ref
         setParseProgress(progress);
+        setParseStageKey(stage);
+
+        // Calculate stage progress from details if available
+        const stageProg =
+          details?.currentStageProgress ||
+          (details?.completedStages?.length && details?.pendingStages?.length
+            ? (details.completedStages.length /
+                (details.completedStages.length + details.pendingStages.length + 1)) *
+              100
+            : 0);
+        setParseStageProgress(stageProg);
+
         const stageNames: Record<string, string> = {
           metadata: '正在分析创作意图...',
           characters: '正在设计角色...',
@@ -528,10 +555,14 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({
           estimatedRemainingTime = Math.floor(((elapsed / progress) * remainingProgress) / 1000);
         }
 
+        // Extract subTaskInfo from details if available
+        const subTaskInfo = details?.subTaskInfo;
+
         setParseDetails({
           ...details,
           elapsedTime: elapsed,
           estimatedRemainingTime,
+          subTaskInfo,
         });
 
         let displayMessage = baseMessage;
@@ -646,6 +677,7 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({
     } finally {
       // Note: Removed isMountedRef check to fix React StrictMode issues
       setIsParsing(false);
+      setIsBackgroundParsing(false);
       setActiveParseButton(null);
     }
   };
@@ -871,58 +903,29 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({
               </div>
 
               {/* Parse Progress */}
-              {isParsing && (
-                <Card>
-                  <CardBody className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <span className="font-medium">{parseStage}</span>
-                      <span className="text-sm text-slate-500">{parseProgress}%</span>
-                    </div>
-
-                    <Progress
-                      value={parseProgress}
-                      className="w-full"
-                      aria-label={`解析进度: ${parseProgress}%`}
-                    />
-
-                    {/* Detailed Progress Info */}
-                    {(parseDetails.currentScene ||
-                      parseDetails.totalScenes ||
-                      parseDetails.estimatedRemainingTime) && (
-                      <div className="grid grid-cols-2 md:grid-cols-3 gap-2 text-sm">
-                        {parseDetails.totalScenes && (
-                          <div className="flex items-center gap-1 text-slate-500">
-                            <MapPin className="w-3 h-3" />
-                            <span>
-                              {parseDetails.currentScene || 0}/{parseDetails.totalScenes} 场景
-                            </span>
-                          </div>
-                        )}
-
-                        {parseDetails.totalBatches && (
-                          <div className="flex items-center gap-1 text-slate-500">
-                            <Box className="w-3 h-3" />
-                            <span>
-                              {parseDetails.currentBatch || 0}/{parseDetails.totalBatches} 批次
-                            </span>
-                          </div>
-                        )}
-
-                        {parseDetails.estimatedRemainingTime &&
-                          parseDetails.estimatedRemainingTime > 0 && (
-                            <div className="flex items-center gap-1 text-slate-500">
-                              <Clock className="w-3 h-3" />
-                              <span>
-                                预计还需 {Math.floor(parseDetails.estimatedRemainingTime / 60)}分
-                                {parseDetails.estimatedRemainingTime % 60}秒
-                              </span>
-                            </div>
-                          )}
-                      </div>
-                    )}
-                  </CardBody>
-                </Card>
-              )}
+              {/* New Enhanced Progress Component */}
+              <ScriptParseProgress
+                isOpen={isParsing}
+                currentStage={parseStageKey}
+                progress={parseProgress}
+                stageProgress={parseStageProgress}
+                message={parseStage}
+                elapsedTime={parseDetails.elapsedTime}
+                estimatedRemainingTime={parseDetails.estimatedRemainingTime}
+                subTaskInfo={parseDetails.subTaskInfo}
+                canCancel={true}
+                onCancel={() => {
+                  // Cancel parsing logic here
+                  setIsParsing(false);
+                  showToast('解析已取消', 'warning');
+                }}
+                onBackground={() => {
+                  // 隐藏解析弹窗，但保持解析在后台运行
+                  setIsParsing(false);
+                  setIsBackgroundParsing(true);
+                  showToast('解析将在后台继续运行，点击悬浮按钮可查看进度', 'info');
+                }}
+              />
 
               {/* Parse Results Tabs */}
               {currentScript.parseState?.stage === 'completed' && (
@@ -1237,6 +1240,32 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({
         creativeIntent={creativeIntent}
         onIntentChange={setCreativeIntent}
       />
+
+      {/* 后台解析指示器 */}
+      {isBackgroundParsing && !isParsing && (
+        <motion.div
+          initial={{ opacity: 0, y: 20, scale: 0.9 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          exit={{ opacity: 0, y: 20, scale: 0.9 }}
+          className="fixed bottom-6 right-6 z-50"
+        >
+          <Button
+            color="primary"
+            className="shadow-lg hover:shadow-xl transition-shadow"
+            startContent={<Loader2 className="w-4 h-4 animate-spin" />}
+            endContent={<Eye className="w-4 h-4" />}
+            onPress={() => {
+              setIsParsing(true);
+              setIsBackgroundParsing(false);
+            }}
+          >
+            <div className="flex flex-col items-start">
+              <span className="text-sm font-medium">解析进行中</span>
+              <span className="text-xs opacity-80">{Math.round(parseProgress)}% - 点击查看</span>
+            </div>
+          </Button>
+        </motion.div>
+      )}
     </div>
   );
 };

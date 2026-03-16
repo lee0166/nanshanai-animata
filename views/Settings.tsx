@@ -437,10 +437,8 @@ const Settings: React.FC = () => {
   };
 
   const toggleModelSelection = (modelId: string) => {
-    setSelectedModelIds(prev => 
-      prev.includes(modelId) 
-        ? prev.filter(id => id !== modelId)
-        : [...prev, modelId]
+    setSelectedModelIds(prev =>
+      prev.includes(modelId) ? prev.filter(id => id !== modelId) : [...prev, modelId]
     );
   };
 
@@ -649,9 +647,7 @@ const Settings: React.FC = () => {
         <CardHeader className="px-6 pt-6 pb-3 flex flex-col items-start gap-1">
           <div className="flex items-center gap-2 text-primary">
             <Database className="w-5 h-5" />
-            <h2 className="text-xl font-black uppercase tracking-widest">
-              {t.settings.workspace}
-            </h2>
+            <h2 className="text-xl font-black uppercase tracking-widest">{t.settings.workspace}</h2>
           </div>
           <p className="text-sm text-slate-400 font-bold uppercase tracking-widest">
             {t.settings.workspaceDesc}
@@ -953,9 +949,7 @@ const Settings: React.FC = () => {
           onPress={handleSave}
           color="primary"
           variant="shadow"
-          startContent={
-            saved ? <CheckCircle className="w-5 h-5" /> : <Save className="w-5 h-5" />
-          }
+          startContent={saved ? <CheckCircle className="w-5 h-5" /> : <Save className="w-5 h-5" />}
           className="font-black text-[14px] uppercase tracking-widest h-11 px-6 rounded-xl"
         >
           {saved ? t.common?.saved || '已保存' : t.common?.save || '保存'}
@@ -1086,8 +1080,7 @@ const Settings: React.FC = () => {
                     {t.settings.durationBudget?.useProductionPrompt || '启用生产级Prompt'}
                   </label>
                   <p className="text-[11px] text-slate-400 font-medium">
-                    {t.settings.durationBudget?.useProductionPromptDesc ||
-                      '使用更专业的提示词模板'}
+                    {t.settings.durationBudget?.useProductionPromptDesc || '使用更专业的提示词模板'}
                   </p>
                 </div>
               </div>
@@ -1158,7 +1151,7 @@ const Settings: React.FC = () => {
           <div className="flex items-center gap-2 text-primary">
             <Cpu className="w-5 h-5" />
             <h2 className="text-xl font-black uppercase tracking-widest">
-              {t.settings.modelConfig}
+              {t.settings.modelConfigTitle}
             </h2>
           </div>
           <p className="text-sm text-slate-400 font-bold uppercase tracking-widest">
@@ -1285,7 +1278,8 @@ const Settings: React.FC = () => {
                 placeholder="排序方式"
                 selectedKeys={[sortBy]}
                 onSelectionChange={keys =>
-                  setSortBy(Array.from(keys)[0] as 'name' | 'type' | 'recent')}
+                  setSortBy(Array.from(keys)[0] as 'name' | 'type' | 'recent')
+                }
                 size="sm"
                 variant="bordered"
                 radius="lg"
@@ -1386,30 +1380,15 @@ const Settings: React.FC = () => {
                 </Select>
               </div>
 
-              <div className="flex items-center gap-4 pt-2 pb-2">
-                <Switch
-                  isSelected={isCustomModel}
-                  onValueChange={setIsCustomModel}
-                  size="md"
-                  color="primary"
-                />
-                <div className="flex flex-col">
-                  <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                    自定义模型
-                  </span>
-                  <span className="text-xs text-slate-500 dark:text-slate-400">
-                    添加任意模型，不受预设列表限制
-                  </span>
-                </div>
-              </div>
-
-              {isCustomModel && (
+              {selectedProvider === 'custom' && (
                 <div className="space-y-6">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800">
                     <Select
-                      label="提供商"
+                      label={t.settings.modelConfig?.apiProtocolType || 'API协议类型'}
                       labelPlacement="outside"
-                      placeholder="选择 AI 提供商"
+                      placeholder={
+                        t.settings.modelConfig?.selectApiProtocolPlaceholder || '选择 API 协议类型'
+                      }
                       selectedKeys={customModel.provider ? [customModel.provider] : []}
                       onSelectionChange={keys => {
                         const val = Array.from(keys)[0] as string;
@@ -1432,9 +1411,9 @@ const Settings: React.FC = () => {
                       ))}
                     </Select>
                     <Input
-                      label="Model ID"
+                      label={t.settings.modelIdOnly}
                       labelPlacement="outside"
-                      placeholder="e.g., deepseek-v3-1-terminus"
+                      placeholder={t.settings.modelConfig?.modelIdPlaceholder}
                       value={customModel.modelId}
                       onValueChange={v => setCustomModel({ ...customModel, modelId: v })}
                       variant="bordered"
@@ -1447,9 +1426,9 @@ const Settings: React.FC = () => {
                       }}
                     />
                     <Input
-                      label="API URL (可选)"
+                      label={t.settings.modelConfig?.apiUrlLabel}
                       labelPlacement="outside"
-                      placeholder="e.g., https://ark.cn-beijing.volces.com/api/v3"
+                      placeholder={t.settings.modelConfig?.apiUrlPlaceholder}
                       value={customModel.apiUrl}
                       onValueChange={v => setCustomModel({ ...customModel, apiUrl: v })}
                       variant="bordered"
@@ -1470,17 +1449,18 @@ const Settings: React.FC = () => {
                         onClick={() => setShowAdvancedOptions(!showAdvancedOptions)}
                       >
                         <span className="font-black uppercase tracking-widest text-[13px]">
-                          {showAdvancedOptions ? '▼' : '▶'} 高级选项
+                          {showAdvancedOptions ? '▼' : '▶'}{' '}
+                          {t.settings.modelConfig?.advancedOptions}
                         </span>
                         <span className="text-xs text-slate-400">
-                          配置温度、Token限制等参数
+                          {t.settings.modelConfig?.advancedOptionsDesc}
                         </span>
                       </div>
 
                       {showAdvancedOptions && (
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 p-6 bg-primary/10 dark:bg-primary/20 rounded-xl">
                           <Input
-                            label="Temperature"
+                            label={t.settings.modelConfig?.temperature}
                             labelPlacement="outside"
                             type="number"
                             placeholder="0.3"
@@ -1501,7 +1481,7 @@ const Settings: React.FC = () => {
                             }}
                           />
                           <Input
-                            label="Max Tokens"
+                            label={t.settings.modelConfig?.maxTokens}
                             labelPlacement="outside"
                             type="number"
                             placeholder="32000"
@@ -1532,9 +1512,11 @@ const Settings: React.FC = () => {
                             />
                             <div className="flex flex-col">
                               <span className="font-black uppercase tracking-widest text-[13px] text-slate-500">
-                                启用思考
+                                {t.settings.modelConfig?.enableThinking}
                               </span>
-                              <span className="text-xs text-slate-400">enable_thinking</span>
+                              <span className="text-xs text-slate-400">
+                                {t.settings.modelConfig?.enableThinkingDesc}
+                              </span>
                             </div>
                           </div>
                         </div>
@@ -1544,13 +1526,15 @@ const Settings: React.FC = () => {
                         <div className="mt-4 pt-4 border-t border-primary/20">
                           <div className="flex items-center gap-2 mb-4">
                             <span className="font-black uppercase tracking-widest text-[13px] text-slate-500">
-                              价格配置（可选）
+                              {t.settings.modelConfig?.priceConfig}
                             </span>
-                            <span className="text-xs text-slate-400">用于成本估算，不配置则使用默认值</span>
+                            <span className="text-xs text-slate-400">
+                              {t.settings.modelConfig?.priceConfigDesc}
+                            </span>
                           </div>
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6 bg-primary/10 dark:bg-primary/20 rounded-xl">
                             <Input
-                              label="输入价格 ($/1K tokens)"
+                              label={t.settings.modelConfig?.costPer1KInput}
                               labelPlacement="outside"
                               type="number"
                               placeholder="0.01"
@@ -1573,7 +1557,7 @@ const Settings: React.FC = () => {
                               }}
                             />
                             <Input
-                              label="输出价格 ($/1K tokens)"
+                              label={t.settings.modelConfig?.costPer1KOutput}
                               labelPlacement="outside"
                               type="number"
                               placeholder="0.03"
@@ -1614,10 +1598,10 @@ const Settings: React.FC = () => {
                         />
                         <div className="flex flex-col">
                           <span className="font-black uppercase tracking-widest text-[15px] text-slate-500">
-                            支持参考图生图
+                            {t.settings.modelConfig?.supportsReferenceImage}
                           </span>
                           <span className="text-xs text-slate-400">
-                            该模型是否支持使用参考图片生成
+                            {t.settings.modelConfig?.supportsReferenceImageDesc}
                           </span>
                         </div>
                       </div>
@@ -1625,7 +1609,7 @@ const Settings: React.FC = () => {
                       {customModel.supportsReferenceImage && (
                         <div className="pl-14">
                           <Input
-                            label="最大参考图数量"
+                            label={t.settings.modelConfig?.maxReferenceImages}
                             labelPlacement="outside"
                             type="number"
                             placeholder="5"
@@ -1652,7 +1636,7 @@ const Settings: React.FC = () => {
                 </div>
               )}
 
-              {!isCustomModel && (
+              {selectedProvider && selectedProvider !== 'custom' && (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <Select
                     label={t.settings.provider}
@@ -1673,25 +1657,29 @@ const Settings: React.FC = () => {
                       value: 'text-[15px]',
                     }}
                   >
+                    <SelectItem key="custom" value="custom">
+                      {t.settings.modelConfig?.providers?.custom || '自定义...'}
+                    </SelectItem>
                     {availableProviders.map(p => (
                       <SelectItem key={p} value={p}>
-                      {p === 'volcengine'
-                        ? 'Volcengine (火山引擎)'
-                        : p === 'vidu'
-                          ? 'Vidu'
-                          : p === 'openai'
-                            ? 'OpenAI'
-                            : p === 'aliyun-qianwen'
-                              ? '阿里云通义千问'
-                              : p === 'aliyun-qianwen-video'
-                                ? '阿里云通义万相'
-                                : p === 'aliyun-bailian'
-                                  ? '阿里云百炼'
-                                  : p === 'modelscope'
-                                    ? '魔搭社区'
-                                    : p}
-                    </SelectItem>))}
-                </Select>
+                        {p === 'volcengine'
+                          ? 'Volcengine (火山引擎)'
+                          : p === 'vidu'
+                            ? 'Vidu'
+                            : p === 'openai'
+                              ? 'OpenAI'
+                              : p === 'aliyun-qianwen'
+                                ? '阿里云通义千问'
+                                : p === 'aliyun-qianwen-video'
+                                  ? '阿里云通义万相'
+                                  : p === 'aliyun-bailian'
+                                    ? '阿里云百炼'
+                                    : p === 'modelscope'
+                                      ? '魔搭社区'
+                                      : p}
+                      </SelectItem>
+                    ))}
+                  </Select>
 
                   <Select
                     label={t.settings.baseModel}
@@ -1711,8 +1699,7 @@ const Settings: React.FC = () => {
                     radius="lg"
                     size="lg"
                     classNames={{
-                      label:
-                        'font-black uppercase tracking-widest text-[15px] mb-2 text-slate-500',
+                      label: 'font-black uppercase tracking-widest text-[15px] mb-2 text-slate-500',
                       value: 'font-medium text-[15px]',
                     }}
                   >
@@ -1737,8 +1724,7 @@ const Settings: React.FC = () => {
                   radius="lg"
                   size="lg"
                   classNames={{
-                    label:
-                      'font-black uppercase tracking-widest text-[15px] mb-2 text-slate-500',
+                    label: 'font-black uppercase tracking-widest text-[15px] mb-2 text-slate-500',
                     input: 'font-medium text-[15px]',
                   }}
                 />
@@ -1754,10 +1740,10 @@ const Settings: React.FC = () => {
                 </Button>
                 <Button
                   color="primary"
-                  onPress={isCustomModel ? handleAddCustomModel : handleAddModel}
+                  onPress={selectedProvider === 'custom' ? handleAddCustomModel : handleAddModel}
                   isDisabled={
                     !selectedType ||
-                    (isCustomModel ? !customModel.modelId : !selectedBaseModelId)
+                    (selectedProvider === 'custom' ? !customModel.modelId : !selectedBaseModelId)
                   }
                   className="font-black text-[14px] uppercase tracking-widest px-8 h-11 rounded-xl shadow-lg shadow-primary/30"
                 >
@@ -1782,8 +1768,10 @@ const Settings: React.FC = () => {
             <TableColumn width={40}>
               <input
                 type="checkbox"
-                checked={selectedModelIds.length === filteredModels.length && filteredModels.length > 0}
-                onChange={(e) => {
+                checked={
+                  selectedModelIds.length === filteredModels.length && filteredModels.length > 0
+                }
+                onChange={e => {
                   if (e.target.checked) {
                     setSelectedModelIds(filteredModels.map(m => m.id));
                   } else {
@@ -1824,7 +1812,7 @@ const Settings: React.FC = () => {
                     isSelected={model.enabled ?? true}
                     onValueChange={() => toggleModelEnabled(model.id)}
                     size="sm"
-                    color={model.enabled ?? true ? 'success' : 'default'}
+                    color={(model.enabled ?? true) ? 'success' : 'default'}
                   />
                 </TableCell>
                 <TableCell>
@@ -1886,8 +1874,7 @@ const Settings: React.FC = () => {
                 <TableCell>
                   {model.type === 'llm' && (
                     <div className="text-xs text-slate-500">
-                      {model.costPer1KInput !== undefined ||
-                      model.costPer1KOutput !== undefined ? (
+                      {model.costPer1KInput !== undefined || model.costPer1KOutput !== undefined ? (
                         <div className="flex flex-col gap-1">
                           {model.costPer1KInput !== undefined && (
                             <span>输入: ${model.costPer1KInput.toFixed(3)}</span>
@@ -1993,7 +1980,7 @@ const Settings: React.FC = () => {
         </div>
 
         <nav className="space-y-1">
-          {navItems.map((item) => {
+          {navItems.map(item => {
             const Icon = item.icon;
             const isActive = activeNav === item.id;
             return (
@@ -2007,9 +1994,7 @@ const Settings: React.FC = () => {
                 }`}
               >
                 <Icon className="w-5 h-5" />
-                <span className="font-black text-sm uppercase tracking-widest">
-                  {item.label}
-                </span>
+                <span className="font-black text-sm uppercase tracking-widest">{item.label}</span>
               </button>
             );
           })}
@@ -2067,9 +2052,9 @@ const Settings: React.FC = () => {
           </ModalHeader>
           <ModalBody className="space-y-4">
             <Input
-              label="模型名称"
+              label={t.settings.modelName}
               labelPlacement="outside"
-              placeholder="输入模型名称"
+              placeholder={t.settings.modelConfig?.customModelPlaceholder}
               value={editFormData.name}
               onValueChange={val => setEditFormData({ ...editFormData, name: val })}
               variant="bordered"
@@ -2081,9 +2066,9 @@ const Settings: React.FC = () => {
               }}
             />
             <Input
-              label="Model ID"
+              label={t.settings.modelIdOnly}
               labelPlacement="outside"
-              placeholder="输入模型ID，如：Qwen/Qwen3-8B"
+              placeholder={t.settings.modelConfig?.modelIdPlaceholder}
               value={editFormData.modelId}
               onValueChange={val => setEditFormData({ ...editFormData, modelId: val })}
               variant="bordered"
@@ -2097,9 +2082,9 @@ const Settings: React.FC = () => {
               }}
             />
             <Input
-              label="API Key"
+              label={t.settings.apiKey}
               labelPlacement="outside"
-              placeholder="输入API Key"
+              placeholder="Enter API Key for this model"
               type="password"
               value={editFormData.apiKey}
               onValueChange={val => setEditFormData({ ...editFormData, apiKey: val })}
@@ -2112,9 +2097,9 @@ const Settings: React.FC = () => {
               }}
             />
             <Input
-              label="API URL (可选)"
+              label={t.settings.modelConfig?.apiUrlLabel}
               labelPlacement="outside"
-              placeholder="https://api.example.com/v1"
+              placeholder={t.settings.modelConfig?.apiUrlPlaceholder}
               value={editFormData.apiUrl}
               onValueChange={val => setEditFormData({ ...editFormData, apiUrl: val })}
               variant="bordered"
@@ -2129,7 +2114,7 @@ const Settings: React.FC = () => {
               <>
                 <div className="grid grid-cols-2 gap-4">
                   <Input
-                    label="Temperature"
+                    label={t.settings.modelConfig?.temperature}
                     labelPlacement="outside"
                     type="number"
                     placeholder="0.3"
@@ -2149,7 +2134,7 @@ const Settings: React.FC = () => {
                     }}
                   />
                   <Input
-                    label="Max Tokens"
+                    label={t.settings.modelConfig?.maxTokens}
                     labelPlacement="outside"
                     type="number"
                     placeholder="4000"
@@ -2174,13 +2159,15 @@ const Settings: React.FC = () => {
                 <div className="mt-4 pt-4 border-t border-primary/20">
                   <div className="flex items-center gap-2 mb-3">
                     <span className="font-black uppercase tracking-widest text-[13px] text-slate-500">
-                      价格配置（可选）
+                      {t.settings.modelConfig?.priceConfig}
                     </span>
-                    <span className="text-xs text-slate-400">用于成本估算</span>
+                    <span className="text-xs text-slate-400">
+                      {t.settings.modelConfig?.priceConfigDesc}
+                    </span>
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <Input
-                      label="输入价格 ($/1K tokens)"
+                      label={t.settings.modelConfig?.costPer1KInput}
                       labelPlacement="outside"
                       type="number"
                       placeholder="0.01"
@@ -2203,7 +2190,7 @@ const Settings: React.FC = () => {
                       }}
                     />
                     <Input
-                      label="输出价格 ($/1K tokens)"
+                      label={t.settings.modelConfig?.costPer1KOutput}
                       labelPlacement="outside"
                       type="number"
                       placeholder="0.03"

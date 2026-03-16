@@ -76,6 +76,7 @@ import {
 import { PerformanceMonitor, PerformanceReport } from './parsing/PerformanceMonitor';
 import { TokenBudgetMonitor } from './parsing/TokenBudgetMonitor';
 import { ShotEventEmitter } from './events/ShotEventEmitter';
+import { ProgressTracker } from './parsing/ProgressTracker';
 
 /**
  * Script Parser Configuration Interface
@@ -972,6 +973,16 @@ export interface ParseProgressCallback {
       currentBatch?: number;
       totalBatches?: number;
       elapsedTime?: number;
+      estimatedRemainingTime?: number;
+      currentStageProgress?: number;
+      completedStages?: ParseStage[];
+      pendingStages?: ParseStage[];
+      subTaskInfo?: {
+        current: number;
+        total: number;
+        currentName?: string;
+      };
+      confidence?: number;
     }
   ): void;
 }
@@ -1225,6 +1236,8 @@ export class ScriptParser {
   private shotEventEmitter: ShotEventEmitter | null = null;
   /** Token optimizer for dynamic token allocation */
   private tokenOptimizer: TokenOptimizer | null = null;
+  /** Progress tracker for detailed progress reporting */
+  private progressTracker: ProgressTracker | null = null;
 
   /**
    * Creates a new script parser instance
@@ -5534,6 +5547,66 @@ ${content}
   // Use parseScript with appropriate strategy instead
   // Note: parseStage method has been removed in v2
   // All parsing now goes through parseScript with automatic strategy selection
+
+  /**
+   * Parse script with enhanced progress tracking using ProgressTracker
+   * This method wraps the original parseScript with fine-grained progress reporting
+   */
+  async parseScriptWithEnhancedProgress(
+    scriptId: string,
+    projectId: string,
+    content: string,
+    onProgress?: ParseProgressCallback,
+    resumeFromState?: ScriptParseState
+  ): Promise<ScriptParseState> {
+    const { ProgressTracker } = await import('./parsing/ProgressTracker');
+
+    // Create progress tracker
+    const progressTracker = new ProgressTracker(content.length, {
+      enableTimeEstimation: true,
+      enableSmoothAnimation: true,
+    });
+
+    // Start tracking
+    progressTracker.start((stage, progress, message, details) => {
+      // Forward to original callback with enhanced details
+      onProgress?.(stage, progress, message, details);
+    });
+
+    try {
+      // Create a wrapper callback that updates ProgressTracker
+      const enhancedCallback: ParseProgressCallback = (stage, progress, message, details) => {
+        // Update progress tracker based on stage
+        if (stage !== progressTracker.getCurrentStage()) {
+          progressTracker.startStage(stage);
+        }
+
+        // Convert overall progress to stage progress
+        const stageProgress = progress / 100;
+        progressTracker.updateStageProgress(stage, stageProgress, message);
+
+        // Forward to original callback
+        onProgress?.(stage, progress, message, details);
+      };
+
+      // Call original parseScript with enhanced callback
+      const result = await this.parseScript(
+        scriptId,
+        projectId,
+        content,
+        enhancedCallback,
+        resumeFromState
+      );
+
+      // Complete tracking
+      progressTracker.complete();
+
+      return result;
+    } catch (error) {
+      progressTracker.reportError(error instanceof Error ? error.message : 'Unknown error');
+      throw error;
+    }
+  }
 }
 
 // Export singleton instance creator

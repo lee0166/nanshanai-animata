@@ -284,7 +284,9 @@ export class AIService {
       const mappedProvider = providerAliasMapper.map(config.provider);
       const provider = this.providers.get(mappedProvider);
       if (!provider) {
-        const error = ErrorHandler.handle(`Unsupported provider: ${config.provider} (mapped to: ${mappedProvider})`);
+        const error = ErrorHandler.handle(
+          `Unsupported provider: ${config.provider} (mapped to: ${mappedProvider})`
+        );
         return { success: false, error: error.message };
       }
 
@@ -334,7 +336,10 @@ export class AIService {
     const mappedProvider = providerAliasMapper.map(config.provider);
     const provider = this.providers.get(mappedProvider);
     if (!provider) {
-      return { success: false, error: `Unsupported provider: ${config.provider} (mapped to: ${mappedProvider})` };
+      return {
+        success: false,
+        error: `Unsupported provider: ${config.provider} (mapped to: ${mappedProvider})`,
+      };
     }
 
     return provider.generateVideo(
@@ -368,7 +373,10 @@ export class AIService {
     const mappedProvider = providerAliasMapper.map(config.provider);
     const provider = this.providers.get(mappedProvider);
     if (!provider) {
-      return { success: false, error: `Unsupported provider: ${config.provider} (mapped to: ${mappedProvider})` };
+      return {
+        success: false,
+        error: `Unsupported provider: ${config.provider} (mapped to: ${mappedProvider})`,
+      };
     }
 
     // Check if provider supports generateText

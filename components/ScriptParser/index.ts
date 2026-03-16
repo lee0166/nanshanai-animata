@@ -9,3 +9,4 @@ export { CharacterMapping } from './CharacterMapping';
 export { SceneMapping } from './SceneMapping';
 export { ShotList } from './ShotList';
 export { ShotToFragment } from './ShotToFragment';
+export { ScriptParseProgress, type ScriptParseProgressProps } from './ScriptParseProgress';

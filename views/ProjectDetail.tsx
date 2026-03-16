@@ -320,8 +320,10 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({
       </div>
     );
 
-  const filteredModels = settings.models.filter(m =>
-    (activeTab === AssetType.VIDEO_SEGMENT ? m.type === 'video' : m.type === 'image') && (m.enabled ?? true)
+  const filteredModels = settings.models.filter(
+    m =>
+      (activeTab === AssetType.VIDEO_SEGMENT ? m.type === 'video' : m.type === 'image') &&
+      (m.enabled ?? true)
   );
 
   const activeTabSingular = t.project[activeTab as keyof typeof t.project] || activeTab;
