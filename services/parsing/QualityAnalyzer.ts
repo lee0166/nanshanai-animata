@@ -158,7 +158,7 @@ export class QualityAnalyzer {
     const spatialTemporalScore = this.analyzeSpatialTemporal(scenes, shots);
     const narrativeLogicScore = this.analyzeNarrativeLogic(shots, scenes);
 
-    const dimensionScores = [
+    let dimensionScores = [
       completenessScore,
       accuracyScore,
       consistencyScore,
@@ -167,6 +167,9 @@ export class QualityAnalyzer {
       spatialTemporalScore,
       narrativeLogicScore,
     ];
+
+    // 应用维度间一致性校验
+    dimensionScores = this.applyDimensionConsistencyCheck(dimensionScores);
 
     // 计算总分（加权平均）
     const totalWeight = dimensionScores.reduce((sum, d) => sum + d.weight, 0);
@@ -819,6 +822,9 @@ export class QualityAnalyzer {
     const details: string[] = [];
     let score = 100;
 
+    // 问题指纹集合，用于去重
+    const issueFingerprints = new Set<string>();
+
     // 按 sequence 排序分镜
     const sortedShots = [...shots].sort((a, b) => a.sequence - b.sequence);
 
@@ -849,24 +855,32 @@ export class QualityAnalyzer {
     };
 
     let lastNodeIndex = -1;
+    let lastValidNode: string | null = null;
     for (let i = 0; i < sortedShots.length; i++) {
       const shot = sortedShots[i];
       if (shot.narrativeNode && narrativeNodeOrder[shot.narrativeNode] !== undefined) {
         const currentNodeIndex = narrativeNodeOrder[shot.narrativeNode];
         if (currentNodeIndex < lastNodeIndex) {
-          issues.push({
-            type: 'error',
-            message: '叙事节点顺序异常',
-            target: `分镜#${shot.sequence}`,
-            targetId: shot.id,
-            targetType: 'shot',
-            context: `叙事节点 ${shot.narrativeNode} 出现在较早的叙事节点之后`,
-            suggestion: '调整分镜顺序以符合叙事结构',
-            autoFixable: false,
-          });
-          score -= 5;
+          // 生成问题指纹：基于问题类型+当前节点+期望节点
+          const fingerprint = `narrative_order_${shot.narrativeNode}_${lastValidNode}`;
+
+          if (!issueFingerprints.has(fingerprint)) {
+            issueFingerprints.add(fingerprint);
+            issues.push({
+              type: 'error',
+              message: `叙事节点顺序异常：${shot.narrativeNode} 出现在 ${lastValidNode} 之后`,
+              target: `分镜#${shot.sequence}`,
+              targetId: shot.id,
+              targetType: 'shot',
+              context: `期望顺序: ${lastValidNode} → ${shot.narrativeNode}，但实际顺序相反`,
+              suggestion: '调整分镜顺序以符合叙事结构（三幕式：act1 → act2a → midpoint → act2b → climax → act3）',
+              autoFixable: false,
+            });
+            score -= 5;
+          }
         }
         lastNodeIndex = currentNodeIndex;
+        lastValidNode = shot.narrativeNode;
       }
     }
 
@@ -969,6 +983,53 @@ export class QualityAnalyzer {
       charactersWithDescription,
       charactersWithoutDescription: characters.length - charactersWithDescription,
     };
+  }
+
+  /**
+   * 应用维度间一致性校验
+   * 解决评分维度间的逻辑矛盾问题
+   */
+  private applyDimensionConsistencyCheck(dimensionScores: DimensionScore[]): DimensionScore[] {
+    const scores = [...dimensionScores];
+
+    // 获取各维度分数
+    const narrativeLogic = scores.find(d => d.dimension === QualityDimension.NARRATIVE_LOGIC);
+    const completeness = scores.find(d => d.dimension === QualityDimension.COMPLETENESS);
+    const consistency = scores.find(d => d.dimension === QualityDimension.CONSISTENCY);
+
+    // 规则1：叙事逻辑严重崩溃时，完整性不应超过70分
+    if (narrativeLogic && narrativeLogic.score < 30 && completeness && completeness.score > 70) {
+      completeness.score = 70;
+      completeness.issues.push({
+        type: 'warning',
+        message: '叙事逻辑存在严重问题，影响整体完整性评估',
+        context: `叙事逻辑得分仅 ${narrativeLogic.score} 分，存在 ${narrativeLogic.issues.length} 个问题`,
+        suggestion: '优先修复叙事节点顺序问题，再评估完整性',
+        autoFixable: false,
+      });
+    }
+
+    // 规则2：叙事逻辑严重崩溃时，一致性不应超过60分
+    if (narrativeLogic && narrativeLogic.score < 30 && consistency && consistency.score > 60) {
+      consistency.score = Math.min(consistency.score, 60);
+      if (!consistency.issues.some(i => i.message.includes('叙事逻辑'))) {
+        consistency.issues.push({
+          type: 'warning',
+          message: '叙事逻辑问题影响内容一致性',
+          context: `叙事结构混乱导致内容一致性受损`,
+          suggestion: '修复叙事节点顺序以提升一致性',
+          autoFixable: false,
+        });
+      }
+    }
+
+    // 规则3：完整性低于50分时，可用性不应超过70分
+    const usability = scores.find(d => d.dimension === QualityDimension.USABILITY);
+    if (completeness && completeness.score < 50 && usability && usability.score > 70) {
+      usability.score = Math.min(usability.score, 70);
+    }
+
+    return scores;
   }
 
   /**

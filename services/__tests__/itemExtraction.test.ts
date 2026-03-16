@@ -145,11 +145,13 @@ describe('Phase 1: Item Extraction Optimization', () => {
   let parser: ScriptParser;
 
   beforeEach(() => {
-    parser = new ScriptParser({
-      apiKey: 'test-api-key',
-      apiUrl: 'http://test-api.com',
-      modelName: 'test-model',
-    });
+    parser = new ScriptParser(
+      'test-api-key',
+      'http://test-api.com',
+      'test-model',
+      'volcengine',
+      {}
+    );
   });
 
   describe('extractItemsLightweight', () => {

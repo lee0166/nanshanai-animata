@@ -80,12 +80,13 @@ const getDimensionIcon = (dimension: QualityDimension) => {
 
 /**
  * 获取评分颜色
+ * 标准：≥90 优秀(绿)，≥75 良好(蓝)，≥60 及格(黄)，<60 不及格(红)
  */
 const getScoreColor = (score: number): string => {
-  if (score >= 80) return 'text-success';
-  if (score >= 60) return 'text-primary';
-  if (score >= 40) return 'text-warning';
-  return 'text-danger';
+  if (score >= 90) return 'text-success'; // 优秀
+  if (score >= 75) return 'text-primary'; // 良好
+  if (score >= 60) return 'text-warning'; // 及格
+  return 'text-danger'; // 不及格
 };
 
 /**
@@ -122,9 +123,9 @@ const CoreMetricsCards: React.FC<{
   };
 
   const getScoreColor = (score: number): string => {
-    if (score >= 80) return 'text-success';
-    if (score >= 60) return 'text-primary';
-    if (score >= 40) return 'text-warning';
+    if (score >= 90) return 'text-success';
+    if (score >= 75) return 'text-primary';
+    if (score >= 60) return 'text-warning';
     return 'text-danger';
   };
 
@@ -144,7 +145,7 @@ const CoreMetricsCards: React.FC<{
     </div>
   );
 
-  // 维度卡片
+  // 维度卡片 - 显示所有维度（桌面端优先，所有卡片一行显示）
   const dimensionCards = dimensionScores.map(dim => {
     const color = getScoreColor(dim.score);
     return (
@@ -163,8 +164,9 @@ const CoreMetricsCards: React.FC<{
     );
   });
 
+  // 桌面端所有8个卡片一行显示（综合+7个维度）
   return (
-    <div className="grid grid-cols-3 md:grid-cols-6 gap-2 mb-4">
+    <div className="grid grid-cols-8 gap-2 mb-4">
       {overallCard}
       {dimensionCards}
     </div>
@@ -213,6 +215,26 @@ const IssueStatsCard: React.FC<{
 };
 
 /**
+ * 格式化时长显示
+ * 将毫秒转换为易读的格式：3分16秒
+ */
+const formatDuration = (ms: number): string => {
+  if (ms < 1000) return `${Math.round(ms)}ms`;
+  if (ms < 60000) return `${Math.round(ms / 1000)}秒`;
+  const mins = Math.floor(ms / 60000);
+  const secs = Math.round((ms % 60000) / 1000);
+  return `${mins}分${secs}秒`;
+};
+
+/**
+ * 格式化Token数量
+ */
+const formatTokens = (tokens: number): string => {
+  if (tokens < 1000) return `${tokens}`;
+  return `${Math.round(tokens / 1000).toLocaleString('zh-CN')}k`;
+};
+
+/**
  * 性能统计卡片
  */
 const PerformanceStatsCard: React.FC<{
@@ -228,17 +250,19 @@ const PerformanceStatsCard: React.FC<{
         <div className="text-center">
           <div className="text-xs text-default-400">总耗时</div>
           <div className="text-sm font-bold text-foreground">
-            {Math.round(report.totalDuration)}ms
+            {formatDuration(report.totalDuration)}
           </div>
         </div>
         <div className="text-center">
           <div className="text-xs text-default-400">API 调用</div>
-          <div className="text-sm font-bold text-foreground">{report.apiCallCount}</div>
+          <div className="text-sm font-bold text-foreground">
+            {report.apiCallCount.toLocaleString('zh-CN')}
+          </div>
         </div>
         <div className="text-center">
           <div className="text-xs text-default-400">Token</div>
           <div className="text-sm font-bold text-foreground">
-            {Math.round(report.totalTokensUsed / 1000)}k
+            {formatTokens(report.totalTokensUsed)}
           </div>
         </div>
       </div>
@@ -336,7 +360,7 @@ export const QualityReportCard: React.FC<QualityReportCardProps> = ({
   t,
   performanceReport,
 }) => {
-  // 统计各类型问题数量
+  // 统计各类型问题数量（统一使用 severity 口径）
   const { criticalCount, warningCount, infoCount, totalIssues } = useMemo(() => {
     let critical = 0;
     let warning = 0;
@@ -344,8 +368,16 @@ export const QualityReportCard: React.FC<QualityReportCardProps> = ({
 
     report.dimensionScores.forEach(dim => {
       dim.issues.forEach(issue => {
-        if (issue.type === 'error') critical++;
-        else if (issue.type === 'warning') warning++;
+        // 统一映射：critical/error → 严重, warning → 警告, info → 提示
+        const severity =
+          issue.type === 'critical' || issue.type === 'error'
+            ? 'critical'
+            : issue.type === 'warning'
+              ? 'warning'
+              : 'info';
+
+        if (severity === 'critical') critical++;
+        else if (severity === 'warning') warning++;
         else info++;
       });
     });
