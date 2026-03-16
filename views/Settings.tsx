@@ -29,8 +29,10 @@ import {
   Eye,
   EyeOff,
   X,
+  Settings2,
 } from 'lucide-react';
 import { storageService } from '../services/storage';
+import { QualityRulesEditor } from '../components/Settings/QualityRulesEditor';
 import {
   Card,
   CardHeader,
@@ -85,7 +87,7 @@ const Settings: React.FC = () => {
   const [sortBy, setSortBy] = useState<'name' | 'type' | 'recent'>('name');
   const [visibleApiKeys, setVisibleApiKeys] = useState<Record<string, boolean>>({});
   const [selectedModelIds, setSelectedModelIds] = useState<string[]>([]);
-  const [activeNav, setActiveNav] = useState<'general' | 'duration' | 'models'>('general');
+  const [activeNav, setActiveNav] = useState<'general' | 'duration' | 'models' | 'quality'>('general');
 
   // Duration Budget Configuration State
   const [durationBudgetConfig, setDurationBudgetConfig] = useState({
@@ -636,6 +638,7 @@ const Settings: React.FC = () => {
     { id: 'general', label: '通用设置', icon: SettingsIcon },
     { id: 'duration', label: '时长预算', icon: Clock },
     { id: 'models', label: '模型管理', icon: Cpu },
+    { id: 'quality', label: '质量评估', icon: Settings2 },
   ];
 
   const renderGeneral = () => (
@@ -644,14 +647,25 @@ const Settings: React.FC = () => {
         className="border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden"
         radius="lg"
       >
-        <CardHeader className="px-6 pt-6 pb-3 flex flex-col items-start gap-1">
-          <div className="flex items-center gap-2 text-primary">
-            <Database className="w-5 h-5" />
-            <h2 className="text-xl font-black uppercase tracking-widest">{t.settings.workspace}</h2>
+        <CardHeader className="px-6 pt-6 pb-3 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div className="flex flex-col items-start gap-1">
+            <div className="flex items-center gap-2 text-primary">
+              <Database className="w-5 h-5" />
+              <h2 className="text-xl font-black uppercase tracking-widest">{t.settings.workspace}</h2>
+            </div>
+            <p className="text-sm text-slate-400 font-bold uppercase tracking-widest">
+              {t.settings.workspaceDesc}
+            </p>
           </div>
-          <p className="text-sm text-slate-400 font-bold uppercase tracking-widest">
-            {t.settings.workspaceDesc}
-          </p>
+          <Button
+            onPress={handleSave}
+            color="primary"
+            variant="shadow"
+            startContent={saved ? <CheckCircle className="w-5 h-5" /> : <Save className="w-5 h-5" />}
+            className="font-black text-[14px] uppercase tracking-widest h-11 px-6 rounded-xl"
+          >
+            {saved ? t.common?.saved || '已保存' : t.common?.save || '保存'}
+          </Button>
         </CardHeader>
         <CardBody className="px-4 pb-4 pt-3 space-y-4">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-4 bg-slate-50 dark:bg-slate-950 rounded-xl border border-slate-100 dark:border-slate-900">
@@ -2000,27 +2014,15 @@ const Settings: React.FC = () => {
           })}
         </nav>
 
-        {/* Save Button */}
-        <div className="mt-auto pt-8">
-          <Button
-            onPress={handleSave}
-            color="primary"
-            variant="shadow"
-            startContent={
-              saved ? <CheckCircle className="w-5 h-5" /> : <Save className="w-5 h-5" />
-            }
-            className="w-full font-black text-[14px] uppercase tracking-widest h-11 px-6 rounded-xl"
-          >
-            {saved ? t.common?.saved || '已保存' : t.common?.save || '保存'}
-          </Button>
-        </div>
+
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 overflow-y-auto p-6 md:p-10">
+      <div className="flex-1 overflow-y-auto p-6 md:p-10 pb-20">
         {activeNav === 'general' && renderGeneral()}
         {activeNav === 'duration' && renderDuration()}
         {activeNav === 'models' && renderModels()}
+        {activeNav === 'quality' && <QualityRulesEditor t={t} />}
       </div>
 
       {/* Modals */}

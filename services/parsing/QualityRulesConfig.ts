@@ -186,7 +186,7 @@ export const DEFAULT_QUALITY_RULES: QualityRulesConfig = {
       priority: '高',
     },
     completeness: {
-      value: 0.20,
+      value: 0.15,
       description: '完整性权重',
       rationale: '完整性确保剧本信息齐全',
       adjustable: true,
@@ -210,7 +210,7 @@ export const DEFAULT_QUALITY_RULES: QualityRulesConfig = {
       priority: '中',
     },
     usability: {
-      value: 0.10,
+      value: 0.05,
       description: '可用性权重',
       rationale: '可用性评估生成友好度',
       adjustable: true,
@@ -218,7 +218,7 @@ export const DEFAULT_QUALITY_RULES: QualityRulesConfig = {
       priority: '低',
     },
     spatialTemporal: {
-      value: 0.10,
+      value: 0.05,
       description: '时空逻辑权重',
       rationale: '时空逻辑确保视听语言正确',
       adjustable: true,
