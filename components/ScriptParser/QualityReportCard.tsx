@@ -363,6 +363,7 @@ const IssuesAccordion: React.FC<{
     <Accordion variant="splitted" defaultExpandedKeys={['low-score']} motionProps={{}}>
       <AccordionItem
         key="low-score"
+        textValue={`低分维度详情 (${lowScoreDimensions.length})`}
         title={
           <div className="flex items-center gap-2">
             <AlertTriangle className="w-4 h-4 text-warning" />
