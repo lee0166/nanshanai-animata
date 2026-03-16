@@ -34,7 +34,8 @@ export type TaskType =
   | 'scene'
   | 'shots'
   | 'plot-analysis'
-  | 'globalContext';
+  | 'globalContext'
+  | 'item';
 
 /**
  * Token 计算配置
@@ -115,6 +116,13 @@ export class TokenOptimizer {
       minTokens: 3000,
       maxTokens: 7000,
       safetyMargin: 0.18,
+    },
+    item: {
+      baseTokens: 400,
+      tokensPerChar: 1.4,
+      minTokens: 2000,
+      maxTokens: 5000,
+      safetyMargin: 0.2,
     },
   };
 

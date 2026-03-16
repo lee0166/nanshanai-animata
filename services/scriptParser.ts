@@ -382,6 +382,11 @@ const TASK_CONFIG = {
     timeout: 60000,
     description: '剧情分析',
   },
+  item: {
+    maxTokens: 3000,
+    timeout: 45000,
+    description: '道具提取',
+  },
 } as const;
 
 type TaskType = keyof typeof TASK_CONFIG;
@@ -668,6 +673,36 @@ description字段必须满足以下条件：
 1. 只提取对剧情有重要作用的道具
 2. 普通物品（如桌椅、衣服）不需要提取
 3. 必须返回JSON数组
+`,
+
+  /**
+   * Phase 1: 轻量级道具提取Prompt
+   * 用于快速提取道具，在30秒超时内完成
+   */
+  itemsBatchLightweight: `
+请基于以下剧本内容，提取重要道具/物品。
+
+【剧本内容】
+{content}
+
+【提取要求】
+1. 只提取对剧情有明显作用的道具（武器、工具、饰品、文档、生物等）
+2. 普通物品（桌椅、衣服等）不需要提取
+3. 每个道具包含：名称、描述、分类、所属角色（如有）
+
+【输出格式】
+[
+  {
+    "name": "道具名称",
+    "description": "简短描述，30字以内",
+    "category": "weapon/tool/jewelry/document/creature/animal/other",
+    "owner": "所属角色名（可选）"
+  }
+]
+
+【重要提示】
+- 必须返回JSON数组，即使没有道具也返回空数组[]
+- 限时任务，请在简洁和完整之间平衡
 `,
 
   plotAnalysis: `
@@ -3027,6 +3062,75 @@ ${chunkContent.substring(0, 4000)}
   }
 
   /**
+   * Phase 1: 轻量级道具提取
+   * 在现有超时机制内完成，失败时返回空数组不阻断流程
+   * @param content - 剧本内容
+   * @param characters - 已提取的角色列表（用于上下文）
+   * @param timeout - 超时时间（默认30秒）
+   * @returns 提取的道具列表
+   */
+  private async extractItemsLightweight(
+    content: string,
+    characters: ScriptCharacter[],
+    timeout: number = 30000
+  ): Promise<ScriptItem[]> {
+    const startTime = Date.now();
+    console.log('[ScriptParser] Phase 1: Starting lightweight item extraction');
+
+    try {
+      // 使用轻量级Prompt
+      const prompt = PROMPTS.itemsBatchLightweight.replace('{content}', content.substring(0, 8000));
+
+      // 复用现有API调用机制（带超时控制）
+      const response = await this.callLLMWithTimeout(prompt, { timeout });
+
+      console.log(`[ScriptParser] Item extraction response received in ${Date.now() - startTime}ms`);
+
+      // 解析JSON
+      const items = this.extractJSON<ScriptItem[]>(response, true);
+
+      console.log(`[ScriptParser] Parsed ${items.length} items from response`);
+
+      // 简单后处理
+      const processedItems = items.map((item: any, index: number) => ({
+        id: crypto.randomUUID(),
+        name: item.name || `道具${index + 1}`,
+        description: item.description || '',
+        category: item.category || 'other',
+        owner: item.owner || '',
+        importance: (item.importance as 'major' | 'minor') || 'minor',
+        visualPrompt: item.description || '',
+      }));
+
+      console.log(`[ScriptParser] Phase 1: Extracted ${processedItems.length} items successfully`);
+      return processedItems;
+
+    } catch (error) {
+      console.warn('[ScriptParser] Phase 1: Items extraction failed or timeout:', error);
+      // 降级策略：返回空数组，不阻断流程
+      return [];
+    }
+  }
+
+  /**
+   * 带超时的LLM调用（复用现有机制）
+   * @param prompt - Prompt内容
+   * @param options - 选项，包含timeout
+   * @returns LLM响应
+   */
+  private async callLLMWithTimeout(
+    prompt: string,
+    options: { timeout: number }
+  ): Promise<string> {
+    return Promise.race([
+      this.callLLM(prompt, 'item'),
+      new Promise<never>((_, reject) =>
+        setTimeout(() => reject(new Error('Item extraction timeout')), options.timeout)
+      )
+    ]);
+  }
+
+  /**
    * Extract single character with global context injection
    */
   async extractCharacterWithContext(
@@ -3849,6 +3953,20 @@ ${chunkContent.substring(0, 4000)}
       }
       state.progress = 75;
 
+      // Step 3.5: Phase 1 - Lightweight item extraction (新增)
+      try {
+        onProgress?.('items', 55, '正在提取道具...');
+        state.items = await this.extractItemsLightweight(
+          content,
+          state.characters || [],
+          30000 // 30秒超时
+        );
+        console.log(`[ScriptParser] Fast path: Extracted ${state.items.length} items`);
+      } catch (e) {
+        console.warn('[ScriptParser] Fast path: Items extraction failed, continuing without items:', e);
+        state.items = [];
+      }
+
       // Step 4: Generate shots for all scenes in ONE API call (fast path optimization)
       if (state.scenes.length > 0) {
         onProgress?.('shots', 75, '正在批量生成分镜...');
@@ -4442,6 +4560,20 @@ ${content}
 
       state.progress = 70;
 
+      // Step 2.5: Phase 1 - Lightweight item extraction (新增)
+      try {
+        onProgress?.('items', 55, '正在提取道具...');
+        state.items = await this.extractItemsLightweight(
+          content,
+          state.characters || [],
+          30000 // 30秒超时
+        );
+        console.log(`[ScriptParser] Fast path optimized: Extracted ${state.items.length} items`);
+      } catch (e) {
+        console.warn('[ScriptParser] Fast path optimized: Items extraction failed, continuing without items:', e);
+        state.items = [];
+      }
+
       // Step 3: 分镜生成（串行，依赖角色和场景结果）
       if (state.scenes.length > 0) {
         onProgress?.('shots', 70, '正在批量生成分镜...');
@@ -4742,6 +4874,20 @@ ${content}
         `[ScriptParser] Final character list: ${allCharacters.map(c => c.name).join(', ')}`
       );
       console.log(`[ScriptParser] Final scene list: ${allScenes.map(s => s.name).join(', ')}`);
+
+      // Step 3.5: Phase 1 - Lightweight item extraction (新增)
+      try {
+        onProgress?.('items', 55, '正在提取道具...');
+        state.items = await this.extractItemsLightweight(
+          content,
+          state.characters || [],
+          30000 // 30秒超时
+        );
+        console.log(`[ScriptParser] Chunked path: Extracted ${state.items.length} items`);
+      } catch (e) {
+        console.warn('[ScriptParser] Chunked path: Items extraction failed, continuing without items:', e);
+        state.items = [];
+      }
 
       // Step 4: Generate shots in batches
       const shotGenStartTime = Date.now();
@@ -5157,6 +5303,20 @@ ${content}
 
       this.currentScenes = scenes;
       this.currentCharacters = characters;
+
+      // Step 3.4: Phase 1 - Lightweight item extraction (新增)
+      try {
+        onProgress?.('items', 55, '正在提取道具...');
+        state.items = await this.extractItemsLightweight(
+          content,
+          state.characters || [],
+          30000 // 30秒超时
+        );
+        console.log(`[ScriptParser] Standard path: Extracted ${state.items.length} items`);
+      } catch (e) {
+        console.warn('[ScriptParser] Standard path: Items extraction failed, continuing without items:', e);
+        state.items = [];
+      }
 
       // Stage 3.5: Iterative Refinement (optional optimization)
       if (this.parserConfig.enableIterativeRefinement && this.iterativeRefinementEngine) {
