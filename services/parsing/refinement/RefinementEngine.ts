@@ -161,13 +161,21 @@ export class RefinementEngine {
     const violationActions = this.generateViolationBasedActions(context);
     actions.push(...violationActions);
 
-    // 2. 基于质量评分生成修正
+    // 2. 基于质量评分生成修正（4维度：completeness, accuracy, consistency, usability）
     const qualityActions = this.generateQualityBasedActions(context);
     actions.push(...qualityActions);
 
     // 3. 基于完整性检查生成修正
     const completenessActions = this.generateCompletenessActions(context);
     actions.push(...completenessActions);
+
+    // 4. 基于叙事逻辑生成修正（新增 - 7维度体系）
+    const narrativeActions = this.handleNarrativeLogicIssues(context);
+    actions.push(...narrativeActions);
+
+    // 5. 基于戏剧性生成修正（新增 - 7维度体系）
+    const dramaticActions = this.handleDramaticIssues(context);
+    actions.push(...dramaticActions);
 
     // 根据权重优先级和置信度排序
     // 权重优先级：narrativeLogic > dramatic > completeness > accuracy > consistency > usability > spatialTemporal
