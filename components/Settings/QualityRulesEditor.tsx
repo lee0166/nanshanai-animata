@@ -3,6 +3,7 @@
  *
  * 提供可视化界面编辑质量评估的权重和阈值配置
  * 采用Tab切换设计，与模型管理页面保持一致
+ * 优化版：紧凑、高级、精致
  */
 
 import React, { useState, useEffect, useCallback } from 'react';
@@ -37,28 +38,28 @@ interface QualityRulesEditorProps {
   t: any;
 }
 
-// 维度名称映射
-const dimensionNames: Record<string, string> = {
-  narrativeLogic: '叙事逻辑',
-  dramatic: '戏剧性',
-  completeness: '完整性',
-  accuracy: '准确性',
-  consistency: '一致性',
-  usability: '可用性',
-  spatialTemporal: '时空逻辑',
+// 维度配置 - 包含图标颜色
+const dimensionConfig: Record<string, { name: string; color: string; desc: string }> = {
+  narrativeLogic: { name: '叙事逻辑', color: '#f97316', desc: '故事通顺度' },
+  dramatic: { name: '戏剧性', color: '#ef4444', desc: '吸引力张力' },
+  completeness: { name: '完整性', color: '#22c55e', desc: '信息齐全度' },
+  accuracy: { name: '准确性', color: '#3b82f6', desc: '数据格式正确' },
+  consistency: { name: '一致性', color: '#a855f7', desc: '逻辑自洽性' },
+  usability: { name: '可用性', color: '#06b6d4', desc: '生成友好度' },
+  spatialTemporal: { name: '时空逻辑', color: '#f59e0b', desc: '视听语言' },
 };
 
 // 阈值名称映射
 const thresholdNames: Record<string, string> = {
   characterDescriptionLength: '角色描述最小字数',
   sceneDescriptionLength: '场景描述最小字数',
-  minShotsPerScene: '每场景最少分镜数',
-  maxShotsPerScene: '每场景最多分镜数',
+  minShotsPerScene: '每场景最少分镜',
+  maxShotsPerScene: '每场景最多分镜',
   minShotsTotal: '总分镜数最小值',
-  shotDurationMin: '分镜最短时长（秒）',
-  shotDurationMax: '分镜最长时长（秒）',
-  narrativeLogicCollapseThreshold: '叙事逻辑崩溃阈值',
-  completenessMaxWhenNarrativeCollapsed: '叙事崩溃时完整性最高分',
+  shotDurationMin: '分镜最短时长(秒)',
+  shotDurationMax: '分镜最长时长(秒)',
+  narrativeLogicCollapseThreshold: '叙事崩溃阈值',
+  completenessMaxWhenNarrativeCollapsed: '叙事崩溃时完整性上限',
 };
 
 export const QualityRulesEditor: React.FC<QualityRulesEditorProps> = ({ t }) => {
@@ -189,7 +190,6 @@ export const QualityRulesEditor: React.FC<QualityRulesEditorProps> = ({ t }) => 
     reader.onload = async e => {
       try {
         const imported = JSON.parse(e.target?.result as string) as QualityRulesConfig;
-        // 验证配置
         if (!imported.version || !imported.weights || !imported.thresholds) {
           alert('无效的配置文件格式');
           return;
@@ -202,7 +202,7 @@ export const QualityRulesEditor: React.FC<QualityRulesEditorProps> = ({ t }) => 
       }
     };
     reader.readAsText(file);
-    event.target.value = ''; // Reset input
+    event.target.value = '';
   };
 
   if (isLoading) {
@@ -214,240 +214,187 @@ export const QualityRulesEditor: React.FC<QualityRulesEditorProps> = ({ t }) => 
   }
 
   return (
-    <Card
-      className="border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden"
-      radius="lg"
-    >
-      {/* CardHeader - 统一设计：标题 + 操作按钮 */}
-      <CardHeader className="px-6 pt-6 pb-3 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <div className="flex flex-col items-start gap-1">
-          <div className="flex items-center gap-2 text-primary">
-            <Settings2 className="w-5 h-5" />
-            <h2 className="text-xl font-black uppercase tracking-widest">
-              质量评估规则
-            </h2>
+    <Card className="border border-slate-800 bg-[#0a0a0a] overflow-hidden" radius="lg">
+      {/* Header - 极简风格 */}
+      <CardHeader className="px-6 py-4 border-b border-slate-800 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center border border-primary/20">
+            <Settings2 className="w-5 h-5 text-primary" />
           </div>
-          <p className="text-sm text-slate-400 font-bold uppercase tracking-widest">
-            版本: {config.version} | 最后更新: {config.lastUpdated}
-          </p>
+          <div>
+            <h2 className="text-lg font-bold text-white">质量评估规则</h2>
+            <p className="text-xs text-slate-500">
+              v{config.version} · {config.lastUpdated}
+            </p>
+          </div>
         </div>
+        
         <div className="flex items-center gap-2">
-          <input
-            type="file"
-            accept=".json"
-            onChange={handleImport}
-            className="hidden"
-            id="import-config"
-          />
+          <input type="file" accept=".json" onChange={handleImport} className="hidden" id="import-config" />
           <label htmlFor="import-config">
-            <Button
-              as="span"
-              variant="flat"
-              size="sm"
-              startContent={<Upload className="w-4 h-4" />}
-              className="cursor-pointer"
-            >
-              导入
+            <Button as="span" variant="light" size="sm" className="text-slate-400 hover:text-white">
+              <Upload className="w-4 h-4" />
             </Button>
           </label>
-          <Button
-            variant="flat"
-            size="sm"
-            startContent={<Download className="w-4 h-4" />}
-            onPress={handleExport}
-          >
-            导出
+          <Button variant="light" size="sm" onPress={handleExport} className="text-slate-400 hover:text-white">
+            <Download className="w-4 h-4" />
           </Button>
-          <Button
-            variant="flat"
-            size="sm"
-            color="warning"
-            startContent={<RotateCcw className="w-4 h-4" />}
-            onPress={handleReset}
-          >
-            恢复默认
+          <Button variant="light" size="sm" color="danger" onPress={handleReset} className="text-slate-400 hover:text-danger">
+            <RotateCcw className="w-4 h-4" />
           </Button>
           <Button
             onPress={handleSave}
-            color={saveStatus === 'saved' ? 'success' : saveStatus === 'error' ? 'danger' : 'primary'}
-            variant="shadow"
+            color={saveStatus === 'saved' ? 'success' : 'primary'}
+            variant={saveStatus === 'saved' ? 'flat' : 'solid'}
             size="sm"
             isLoading={saveStatus === 'saving'}
-            startContent={
-              saveStatus === 'saved' ? (
-                <CheckCircle className="w-4 h-4" />
-              ) : saveStatus === 'error' ? (
-                <AlertTriangle className="w-4 h-4" />
-              ) : (
-                <Settings2 className="w-4 h-4" />
-              )
-            }
             isDisabled={!hasChanges || Math.abs(weightSum - 1.0) > 0.01}
-            className="font-black uppercase tracking-widest"
+            className="font-medium"
           >
-            {saveStatus === 'saved'
-              ? '已保存'
-              : saveStatus === 'error'
-                ? '失败'
-                : saveStatus === 'saving'
-                  ? '保存中...'
-                  : '保存'}
+            {saveStatus === 'saved' ? <CheckCircle className="w-4 h-4" /> : '保存'}
           </Button>
         </div>
       </CardHeader>
 
-      {/* 权重总和警告 */}
+      {/* 权重警告 */}
       {Math.abs(weightSum - 1.0) > 0.01 && (
-        <div className="px-6 pb-3">
-          <div className="flex items-center gap-3 p-3 bg-warning-50 border border-warning-200 rounded-lg">
-            <AlertTriangle className="w-5 h-5 text-warning flex-shrink-0" />
-            <div className="text-sm text-warning-700">
-              <span className="font-medium">权重总和异常：</span>
-              当前总和为 {(weightSum * 100).toFixed(0)}%，建议调整为100%以保证评分准确性
-            </div>
+        <div className="px-6 py-2 bg-warning/10 border-b border-warning/20">
+          <div className="flex items-center gap-2 text-warning text-xs">
+            <AlertTriangle className="w-4 h-4" />
+            <span>权重总和 {(weightSum * 100).toFixed(0)}%，需调整为100%</span>
           </div>
         </div>
       )}
 
-      {/* Tab 切换区域 */}
-      <CardBody className="px-4 pb-6 pt-3">
+      {/* Tabs */}
+      <CardBody className="p-0">
         <Tabs
           selectedKey={activeTab}
           onSelectionChange={key => setActiveTab(key as 'weights' | 'thresholds')}
-          variant="underlined"
-          color="primary"
+          variant="light"
           classNames={{
-            tabList: 'gap-6 w-full border-b border-slate-200 dark:border-slate-800',
-            cursor: 'w-full bg-primary',
-            tab: 'max-w-fit px-2 h-12 font-black uppercase tracking-widest text-sm',
-            tabContent: 'group-data-[selected=true]:text-primary',
+            tabList: 'px-6 py-2 gap-1 border-b border-slate-800 bg-transparent',
+            tab: 'px-4 py-2 text-sm font-medium text-slate-500 data-[selected=true]:text-white data-[selected=true]:bg-slate-800 rounded-lg',
+            cursor: 'hidden',
+            panel: 'p-6',
           }}
         >
-          {/* 权重配置 Tab */}
+          {/* 权重配置 Tab - 紧凑网格 */}
           <Tab
             key="weights"
             title={
               <div className="flex items-center gap-2">
                 <SlidersHorizontal className="w-4 h-4" />
-                <span>维度权重</span>
-                <Chip size="sm" variant="flat" color={Math.abs(weightSum - 1.0) < 0.01 ? 'success' : 'warning'}>
+                <span>权重</span>
+                <span className={`text-xs ${Math.abs(weightSum - 1.0) < 0.01 ? 'text-success' : 'text-warning'}`}>
                   {(weightSum * 100).toFixed(0)}%
-                </Chip>
+                </span>
               </div>
             }
           >
-            <div className="pt-6 space-y-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h3 className="text-lg font-black uppercase tracking-widest text-white">
-                    维度权重配置
-                  </h3>
-                  <p className="text-sm text-slate-400 mt-1">
-                    调整各维度在综合评分中的占比，总和应为100%
-                  </p>
-                </div>
-              </div>
-
-              {(Object.entries(config.weights) as [string, WeightConfig][]).map(([key, weight]) => (
-                <div key={key} className="space-y-2 p-4 bg-slate-900 rounded-xl">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <span className="font-medium text-white">
-                        {dimensionNames[key] || key}
-                      </span>
-                      <Tooltip content={weight.rationale}>
-                        <Info className="w-4 h-4 text-slate-500 cursor-help" />
-                      </Tooltip>
+            <div className="space-y-3">
+              {(Object.entries(config.weights) as [string, WeightConfig][]).map(([key, weight]) => {
+                const dim = dimensionConfig[key];
+                return (
+                  <div key={key} className="group flex items-center gap-4 p-3 rounded-xl bg-slate-900/50 hover:bg-slate-800/50 transition-colors">
+                    {/* 左侧：图标+名称 */}
+                    <div className="flex items-center gap-3 w-32 flex-shrink-0">
+                      <div 
+                        className="w-2 h-8 rounded-full" 
+                        style={{ backgroundColor: dim?.color || '#666' }}
+                      />
+                      <div>
+                        <div className="text-sm font-medium text-white">{dim?.name || key}</div>
+                        <div className="text-[10px] text-slate-500">{dim?.desc}</div>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <Chip size="sm" variant="flat" color="primary">
-                        {(weight.value * 100).toFixed(0)}%
-                      </Chip>
-                      <span className="text-xs text-slate-500">
-                        ({(weight.range[0] * 100).toFixed(0)}% - {(weight.range[1] * 100).toFixed(0)}%)
-                      </span>
+
+                    {/* 中间：滑块 */}
+                    <div className="flex-1 min-w-0">
+                      <Slider
+                        value={weight.value}
+                        onChange={v => handleWeightChange(key, v as number)}
+                        minValue={weight.range[0]}
+                        maxValue={weight.range[1]}
+                        step={0.01}
+                        size="sm"
+                        color="primary"
+                        classNames={{
+                          track: 'h-1.5 bg-slate-700',
+                          filler: 'bg-gradient-to-r from-primary/50 to-primary',
+                          thumb: 'w-4 h-4 bg-white border-2 border-primary',
+                        }}
+                      />
+                    </div>
+
+                    {/* 右侧：数值 */}
+                    <div className="flex items-center gap-2 w-24 flex-shrink-0 justify-end">
+                      <span className="text-lg font-bold text-white">{(weight.value * 100).toFixed(0)}</span>
+                      <span className="text-xs text-slate-500">%</span>
                     </div>
                   </div>
-                  <Slider
-                    value={weight.value}
-                    onChange={v => handleWeightChange(key, v as number)}
-                    minValue={weight.range[0]}
-                    maxValue={weight.range[1]}
-                    step={0.01}
-                    size="md"
-                    color="primary"
-                    showTooltip
-                    tooltipValueFormatOptions={{ style: 'percent' }}
-                  />
-                  <p className="text-xs text-slate-500">{weight.description}</p>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </Tab>
 
-          {/* 阈值配置 Tab */}
+          {/* 阈值配置 Tab - 紧凑列表 */}
           <Tab
             key="thresholds"
             title={
               <div className="flex items-center gap-2">
                 <Gauge className="w-4 h-4" />
-                <span>阈值配置</span>
-                <Chip size="sm" variant="flat" color="default">
-                  {Object.keys(config.thresholds).length} 项
-                </Chip>
+                <span>阈值</span>
+                <span className="text-xs text-slate-500">{Object.keys(config.thresholds).length}</span>
               </div>
             }
           >
-            <div className="pt-6 space-y-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h3 className="text-lg font-black uppercase tracking-widest text-white">
-                    阈值配置
-                  </h3>
-                  <p className="text-sm text-slate-400 mt-1">
-                    设置质量评估的各项阈值标准
-                  </p>
-                </div>
-              </div>
-
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
               {(Object.entries(config.thresholds) as [string, ThresholdConfig][]).map(([key, threshold]) => (
-                <div key={key} className="flex items-start gap-4 p-4 bg-slate-900 rounded-xl">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-2">
-                      <span className="font-medium text-white">
-                        {thresholdNames[key] || key}
-                      </span>
-                      <Tooltip content={threshold.rationale}>
-                        <Info className="w-4 h-4 text-slate-500 cursor-help" />
-                      </Tooltip>
-                    </div>
-                    <p className="text-xs text-slate-400 mb-3">{threshold.description}</p>
-                    <div className="flex items-center gap-4">
-                      <Input
-                        type="number"
-                        value={threshold.value.toString()}
-                        onChange={e =>
-                          handleThresholdChange(key, parseInt(e.target.value) || 0)
-                        }
-                        min={threshold.range[0]}
-                        max={threshold.range[1]}
-                        className="w-24"
-                        size="sm"
-                      />
+                <div key={key} className="p-4 rounded-xl bg-slate-900/50 hover:bg-slate-800/50 transition-colors">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm font-medium text-white truncate" title={thresholdNames[key] || key}>
+                      {thresholdNames[key] || key}
+                    </span>
+                    <Tooltip content={threshold.rationale}>
+                      <Info className="w-3.5 h-3.5 text-slate-600 hover:text-slate-400 cursor-help" />
+                    </Tooltip>
+                  </div>
+                  
+                  <div className="flex items-center gap-3">
+                    <Input
+                      type="number"
+                      value={threshold.value.toString()}
+                      onChange={e => handleThresholdChange(key, parseInt(e.target.value) || 0)}
+                      min={threshold.range[0]}
+                      max={threshold.range[1]}
+                      classNames={{
+                        input: 'text-center font-bold text-white',
+                        inputWrapper: 'bg-slate-800 border-slate-700 h-9 w-16',
+                      }}
+                      size="sm"
+                    />
+                    <div className="flex-1">
                       <Slider
                         value={threshold.value}
                         onChange={v => handleThresholdChange(key, v as number)}
                         minValue={threshold.range[0]}
                         maxValue={threshold.range[1]}
                         step={1}
-                        className="flex-1"
                         size="sm"
                         color="secondary"
+                        classNames={{
+                          track: 'h-1 bg-slate-700',
+                          filler: 'bg-secondary',
+                          thumb: 'w-3 h-3 bg-white',
+                        }}
                       />
-                      <span className="text-xs text-slate-500 w-24 text-right">
-                        {threshold.range[0]} - {threshold.range[1]}
-                      </span>
                     </div>
+                  </div>
+                  
+                  <div className="flex justify-between mt-2 text-[10px] text-slate-600">
+                    <span>{threshold.range[0]}</span>
+                    <span>{threshold.range[1]}</span>
                   </div>
                 </div>
               ))}
