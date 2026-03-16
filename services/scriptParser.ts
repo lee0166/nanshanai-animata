@@ -5306,7 +5306,13 @@ ${content}
         if (remainingScenes.length <= BASE_BATCH_SIZE) {
           // Small batch: use single API call
           console.log(`[ScriptParser] Using single API call for ${remainingScenes.length} scenes`);
-          onProgress?.('shots', 75, `正在批量生成分镜 (${remainingScenes.length} 场景)...`);
+          onProgress?.('shots', 75, `正在批量生成分镜 (${remainingScenes.length} 场景)...`, {
+            currentScene: 1,
+            totalScenes: remainingScenes.length,
+            currentBatch: 1,
+            totalBatches: 1,
+            currentStageProgress: 50,
+          });
 
           try {
             const newShots = await this.generateAllShotsWithContext(content, remainingScenes);
@@ -5360,10 +5366,22 @@ ${content}
             console.log(
               `[ScriptParser] Processing batch ${batchNum}/${totalBatches}: ${batch.length} scenes`
             );
+
+            // Calculate current stage progress based on batch progress
+            const batchProgress = (batchNum / totalBatches) * 100;
+            const currentStageProgress = Math.min(95, Math.round(batchProgress));
+
             onProgress?.(
               'shots',
               70 + (i / remainingScenes.length) * 25,
-              `正在生成分镜 (批次 ${batchNum}/${totalBatches})...`
+              `正在生成分镜 (批次 ${batchNum}/${totalBatches})...`,
+              {
+                currentScene: Math.min(i + 1, remainingScenes.length),
+                totalScenes: remainingScenes.length,
+                currentBatch: batchNum,
+                totalBatches: totalBatches,
+                currentStageProgress: currentStageProgress,
+              }
             );
 
             try {

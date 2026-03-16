@@ -527,13 +527,34 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({
         setParseStageKey(stage);
 
         // Calculate stage progress from details if available
-        const stageProg =
-          details?.currentStageProgress ||
-          (details?.completedStages?.length && details?.pendingStages?.length
-            ? (details.completedStages.length /
-                (details.completedStages.length + details.pendingStages.length + 1)) *
-              100
-            : 0);
+        // Priority 1: Use currentStageProgress if provided (most accurate)
+        // Priority 2: Calculate from completed/pending stages
+        // Priority 3: Estimate from overall progress within stage range
+        let stageProg = 0;
+
+        if (details?.currentStageProgress !== undefined && details.currentStageProgress > 0) {
+          // Use provided stage progress
+          stageProg = details.currentStageProgress;
+        } else if (details?.completedStages?.length || details?.pendingStages?.length) {
+          // Calculate from stage completion status
+          const completed = details.completedStages?.length || 0;
+          const pending = details.pendingStages?.length || 0;
+          const total = completed + pending + 1; // +1 for current stage
+          stageProg = Math.round((completed / total) * 100);
+        } else {
+          // Fallback: estimate based on overall progress within stage
+          // Map overall progress (70-95) to stage progress (0-100) for shots stage
+          if (stage === 'shots' && progress >= 70 && progress <= 95) {
+            stageProg = Math.round(((progress - 70) / 25) * 100);
+          } else if (stage === 'characters' && progress >= 25 && progress <= 35) {
+            stageProg = Math.round(((progress - 25) / 10) * 100);
+          } else if (stage === 'scenes' && progress >= 35 && progress <= 70) {
+            stageProg = Math.round(((progress - 35) / 35) * 100);
+          } else if (stage === 'metadata' && progress >= 10 && progress <= 20) {
+            stageProg = Math.round(((progress - 10) / 10) * 100);
+          }
+        }
+
         setParseStageProgress(stageProg);
 
         const stageNames: Record<string, string> = {
