@@ -35,6 +35,7 @@ commit-msg.txt
 commit.sh
 start-dev.ps1
 liucheng.html
+zhanshi.html
 控制台日志.txt
 CLAUDE.md
 CHARACTER_GENERATION_GUIDE.md
@@ -43,6 +44,16 @@ VIDEO_MODEL_PARAMS_GUIDE.md
 小说解析流程文档.md
 小说转短剧解析系统_融合优化方案_v2.0.md
 融合方案_实施细节与代码示例*.md
+
+# 项目分析和优化文档（保留在本地）
+优化可行性分析报告.md
+分镜生成详细说明.md
+南山 AI Animata 项目落地式优化方案.md
+大模型配置功能优化分析报告_第二版.md
+大模型配置功能优化大纲_短中长期.md
+大模型配置功能说明文档.md
+模型配置管理专项优化方案.md
+项目深度分析报告.md
 
 # 开发文档目录
 docs/
