@@ -1,6 +1,6 @@
-# 🎬 Nanshan AI Animata (南山 AI 短剧版)
+# 🎬 Kmeng AI Animata
 
-> **专为创作者打造的本地优先 (Local-First) AI 视频创作工作台**
+> **专为创作者打造的本地优先 (Local-First) AI 影视资产生成平台**
 
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![React](https://img.shields.io/badge/React-19.2-blue)](https://react.dev/)
@@ -12,18 +12,20 @@
 
 ## 📖 项目简介
 
-**Nanshan AI Animata** 是一款开源的 AI 影视资产生成平台，旨在将您的本地电脑转化为专业的数字片场。
+**Kmeng AI Animata** 是一款开源的 AI 影视资产生成平台，旨在将您的本地电脑转化为专业的数字片场。
 
 它采用 **Local-First（本地优先）** 架构，通过浏览器的 File System Access API 直接读写本地文件，无需上传素材至云端，最大程度保障数据隐私。项目深度集成了 **火山引擎 (Doubao/SeedEdit/HiDream)**、**Vidu** 和 **ModelScope** 等前沿大模型，提供从剧本解析、角色/场景设计到关键帧生成的完整影视制作工作流。
 
 ### 🌟 核心亮点
 
 - 🏠 **完全本地运行** - 无需后端服务器，数据存储在本地浏览器
-- 🎭 **智能剧本解析** - AI 自动提取角色、场景、分镜，支持断点续传
+- 🎭 **智能剧本解析** - AI 自动提取角色、场景、分镜，支持进度追踪和后台运行
 - 🎨 **多风格角色设计** - 8 种预设风格，支持角色一致性控制
 - 🎬 **关键帧工作流** - 分镜自动拆分为关键帧，支持参考图生图
 - 🤖 **多 AI 提供商** - 支持火山引擎、Vidu、ModelScope，可自定义模型
 - ⚡ **高效任务队列** - 并发控制、失败重试、实时状态监控
+- 📊 **智能进度追踪** - 多阶段进度展示，时间预估，平滑动画
+- 💰 **智能时长预算** - 自动计算剧本时长，支持多平台适配
 
 ---
 
@@ -33,13 +35,14 @@
 
 导入小说文本，AI 自动解析角色、场景和分镜，快速构建完整的视觉叙事框架。
 
-- **智能解析引擎** - 基于 LLM 的 4 阶段解析流程（元数据 → 角色 → 场景 → 分镜）
+- **智能解析引擎** - 基于 LLM 的多阶段解析流程（元数据 → 角色 → 场景 → 物品 → 分镜 → 优化）
 - **语义分块** - 智能识别章节/场景边界，优化长文本处理
 - **批量提取** - 单次 API 调用提取所有角色/场景信息
 - **断点续传** - 支持从任意阶段恢复解析，避免重复调用
 - **多模型支持** - 可配置 DeepSeek、Kimi、Qwen、Doubao 等 LLM 模型
-- **字段完整性** - ✨ 新增 v1.2.0：完整提取角色年龄、性别、身份、外貌等字段
-- **智能 fallback** - ✨ 新增 v1.2.0：提示词生成多层降级策略，确保字段缺失时仍能生成合格提示词
+- **进度追踪** - 实时显示解析进度，支持后台运行和恢复查看
+- **时间预估** - 智能预估剩余时间，消除等待焦虑
+- **质量报告** - 生成详细的解析质量评估报告
 
 ### 🎨 角色设计 (Character Design)
 
@@ -66,7 +69,6 @@
 - **类型丰富** - 支持武器、装备、家具、食物等多种类型
 - **风格匹配** - 自动适配项目整体美术风格
 - **辅助创作** - 生成的物品可作为视频生成的参考素材
-- **智能提示词生成** - ✨ 新增 v1.2.0：ItemPromptBuilder 自动生成完整物品描述
 
 ### 🎬 分镜管理 (Shot Management)
 
@@ -77,6 +79,7 @@
 - **参考图管理** - 自动关联角色和场景资产作为参考图
 - **生图模式** - 支持文生图和参考图生图两种模式
 - **历史图片** - 横向滚动浏览历史生成结果，支持切换和删除
+- **分镜转片段** - 一键将分镜转换为视频片段
 
 ### 🎥 视频生成 (Video Generation)
 
@@ -88,6 +91,24 @@
 - **文生视频 (Text-to-Video)** - 通过文字描述直接生成动态视频片段
 - **运镜控制** - 支持推拉摇移等运镜参数调节
 
+### 💰 时长预算 (Duration Budget)
+
+智能计算剧本时长，支持多平台适配和自定义配置。
+
+- **平台模板** - 内置抖音、快手、YouTube Shorts 等平台时长限制
+- **智能计算** - 基于字数、场景复杂度自动估算时长
+- **依赖图谱** - 可视化展示分镜间的依赖关系
+- **配置引擎** - 支持自定义时长规则和约束条件
+
+### 📊 剧本分析 (Script Analysis)
+
+深度分析剧本结构，提供可视化洞察。
+
+- **故事结构图** - 展示剧本的三幕结构、情节点分布
+- **情感弧线** - 可视化角色情感变化曲线
+- **视觉风格分析** - 自动识别剧本的视觉风格倾向
+- **故事概览** - 生成剧本核心要素摘要
+
 ### 📂 智能资产管理 (Asset Management)
 
 像管理本地文件一样管理 AI 资产，告别混乱的素材库。
@@ -96,6 +117,7 @@
 - **可视化画廊** - 瀑布流式素材浏览，支持快速预览
 - **元数据追踪** - 自动保存生成时的提示词和参数
 - **批量操作** - 支持批量删除、移动资产
+- **资源选择器** - 便捷的资源浏览和选择界面
 
 ### ⚙️ 灵活的模型配置
 
@@ -105,16 +127,17 @@
 - **自定义模型** - 可手动添加任意模型 ID，灵活适配最新模型
 - **参数配置** - 支持 Temperature、Max Tokens、enable_thinking 等高级参数
 - **模型管理** - 支持编辑、删除、启用/禁用模型配置
+- **能力检测** - 自动检测模型能力（文生图、图生图、文生视频、图生视频）
+- **智能路由** - 根据任务类型自动选择最优模型
 
 ### ⚡ 性能优化系统
 
-✨ **v1.2.0 新增** - 全方位性能优化，提升用户体验
-
 - **Token 优化器** - 动态计算最优 Token 限制，节省约 80% Token 消耗
 - **多层缓存系统** - 智能缓存常用数据，减少重复 API 调用
-- **智能超时管理** - 动态计算超时时间，90 秒等待提示避免用户焦虑
+- **智能超时管理** - 动态计算超时时间，避免用户焦虑
 - **动态批量大小** - 根据上下文长度自动调整批量大小
 - **分级日志系统** - 开发/生产环境自动适配，减少生产环境日志噪音
+- **熔断机制** - API 失败时自动熔断保护，避免资源浪费
 
 ---
 
@@ -125,12 +148,17 @@
 │                      前端应用层 (React 19)                       │
 ├─────────────────────────────────────────────────────────────────┤
 │  Dashboard │ ProjectDetail │ ScriptManager │ ShotManager        │
+│  TimelineEditor │ Tasks │ Settings                             │
 ├─────────────────────────────────────────────────────────────────┤
 │                      核心服务层                                  │
 │  AIService │ JobQueue │ StorageService │ ScriptParser          │
+│  ProgressTracker │ SmoothProgressAnimator │ TimeEstimator       │
+│  PerformanceMonitor │ QualityAnalyzer │ TokenOptimizer         │
+│  DurationBudget │ SceneContextExtractor │ SemanticChunker      │
 ├─────────────────────────────────────────────────────────────────┤
 │                      AI 提供商适配层                             │
-│  Volcengine │ Vidu │ ModelScope │ LLMProvider                  │
+│  Volcengine │ Vidu │ ModelScope │ LLMProvider │ AliyunVideo    │
+│  ModelCapabilityManager │ ProviderAliasMapper │ SmartRouter     │
 ├─────────────────────────────────────────────────────────────────┤
 │                      数据存储层                                  │
 │  OPFS (主存储) │ IndexedDB (备用) │ File System API            │
@@ -148,7 +176,8 @@
 | [Tailwind CSS](https://tailwindcss.com/)        | 4.1.18   | 原子化 CSS               |
 | [Framer Motion](https://www.framer.com/motion/) | 12.23.26 | 动画库                   |
 | [React Router](https://reactrouter.com/)        | 7.11.0   | 路由管理                 |
-| [Vitest](https://vitest.dev/)                   | 3.x      | 单元测试                 |
+| [Vitest](https://vitest.dev/)                   | 4.0.18   | 单元测试                 |
+| [Zod](https://zod.dev/)                         | 3.25.76  | 运行时类型校验           |
 
 ---
 
@@ -215,11 +244,10 @@ npm run preview
 
 1. 进入 **剧本管理** 页面
 2. 点击 **导入剧本**，选择小说文本文件 (.txt/.docx/.pdf)
-3. 选择解析格式（标准剧本/短剧格式）
+3. 配置创作意图（可选）
 4. 点击 **开始解析**
-5. 等待 AI 完成 4 阶段解析（元数据 → 角色 → 场景 → 分镜）
-
-> **提示**：项目已内置语义分块和上下文继承机制，无需额外配置即可处理长篇小说。
+5. 实时查看解析进度，支持隐藏窗口后台运行
+6. 点击悬浮按钮可随时恢复查看进度
 
 ### 第四步：筹备美术资产
 
@@ -266,6 +294,7 @@ npm run preview
 | -------- | -------- | -------------- |
 | Vidu 1.5 | Vidu     | 高质量图生视频 |
 | 火山视频 | 火山引擎 | 支持首尾帧控制 |
+| 阿里云视频 | 阿里云 | 视频生成服务 |
 
 ### 文本生成 (LLM)
 
@@ -282,131 +311,163 @@ npm run preview
 
 ```
 nanshanai-animata/
-├── components/           # React 组件
-│   ├── ProjectDetail/   # 项目详情相关组件
-│   │   ├── Character/   # 角色详情
-│   │   ├── Scene/       # 场景详情
-│   │   ├── Item/        # 物品详情
-│   │   ├── Fragment/    # 片段详情
-│   │   └── Shared/      # 共享组件
-│   ├── ScriptParser/    # 剧本解析组件
-│   ├── ScriptAnalysis/  # 剧本分析组件
-│   ├── DurationBudget/  # 时长预算组件
-│   ├── Layout.tsx       # 布局组件
-│   ├── JobMonitor.tsx   # 任务监控组件
+├── components/              # React 组件
+│   ├── ProjectDetail/      # 项目详情相关组件
+│   │   ├── Character/      # 角色详情
+│   │   ├── Scene/          # 场景详情
+│   │   ├── Item/           # 物品详情
+│   │   ├── Fragment/       # 片段详情
+│   │   ├── Resource/       # 资源管理
+│   │   └── Shared/         # 共享组件
+│   │       ├── StyleSelector.tsx
+│   │       ├── DynamicModelParameters.tsx
+│   │       └── ImageGenerationPanel.tsx
+│   ├── ScriptParser/       # 剧本解析组件
+│   │   ├── ScriptParseProgress.tsx   # 解析进度展示
+│   │   ├── ShotList.tsx    # 分镜列表
+│   │   ├── QualityReportCard.tsx     # 质量报告
+│   │   ├── PerformanceReport.tsx     # 性能报告
+│   │   ├── CharacterMapping.tsx      # 角色映射
+│   │   ├── SceneMapping.tsx          # 场景映射
+│   │   ├── ItemMapping.tsx           # 物品映射
+│   │   └── ShotToFragment.tsx        # 分镜转片段
+│   ├── ScriptAnalysis/     # 剧本分析组件
+│   │   ├── StoryStructureDiagram.tsx # 故事结构图
+│   │   ├── EmotionalArcChart.tsx     # 情感弧线
+│   │   ├── VisualStyleCard.tsx       # 视觉风格
+│   │   └── StoryOverviewCard.tsx     # 故事概览
+│   ├── DurationBudget/     # 时长预算组件
+│   │   ├── DurationBudgetStatusPanel.tsx
+│   │   ├── DurationBudgetDependencyGraph.tsx
+│   │   ├── PlatformTemplateSelector.tsx
+│   │   └── SmartConfigEngine.tsx
+│   ├── Layout.tsx          # 布局组件
+│   ├── JobMonitor.tsx      # 任务监控组件
+│   ├── WelcomeView.tsx     # 欢迎页面
+│   ├── AssetList.tsx       # 资产列表
 │   └── ...
-├── views/               # 页面视图
-│   ├── Dashboard.tsx    # 项目仪表盘
-│   ├── ProjectDetail.tsx # 项目详情
-│   ├── ScriptManager.tsx # 剧本管理
-│   ├── ShotManager.tsx  # 分镜管理
-│   ├── Settings.tsx     # 设置页面
-│   ├── Tasks.tsx        # 任务列表
-│   └── TimelineEditor.tsx # 时间线编辑器
-├── services/            # 核心服务
-│   ├── ai/             # AI 提供商适配
-│   │   ├── providers/  # 各提供商实现
-│   │   ├── core/       # 核心适配器
-│   │   └── adapters/   # 协议适配器
-│   ├── parsing/        # 剧本解析引擎
-│   │   ├── consistency/# 一致性检查
-│   │   ├── quality/    # 质量评估
-│   │   └── refinement/ # 迭代优化
-│   ├── keyframe/       # 关键帧服务
-│   ├── cache/          # 多层缓存系统
-│   ├── editing/        # 时间线编辑
-│   ├── events/         # 事件系统
-│   ├── asset/          # 资产管理
-│   ├── video/          # 视频生成
-│   ├── aiService.ts    # AI 服务调度
-│   ├── queue.ts        # 任务队列
-│   ├── storage.ts      # 存储服务
-│   ├── scriptParser.ts # 剧本解析
-│   ├── promptBuilder.ts # 提示词构建
-│   └── logger.ts       # 日志系统
-├── contexts/           # React Context
-├── config/             # 配置文件
-├── scripts/            # 工具脚本
-├── utils/              # 工具函数
-├── types/              # 类型定义
-├── src/                # 附加源代码
-├── public/             # 静态资源
-├── types.ts            # TypeScript 类型定义
-└── locales.ts          # 国际化配置
+├── views/                  # 页面视图
+│   ├── Dashboard.tsx       # 项目仪表盘
+│   ├── ProjectDetail.tsx   # 项目详情
+│   ├── ScriptManager.tsx   # 剧本管理
+│   ├── ShotManager.tsx     # 分镜管理
+│   ├── TimelineEditor.tsx  # 时间线编辑器
+│   ├── Tasks.tsx           # 任务管理
+│   └── Settings.tsx        # 设置页面
+├── services/               # 核心服务
+│   ├── ai/                 # AI 提供商适配
+│   │   ├── providers/      # 各提供商实现
+│   │   │   ├── VolcengineProvider.ts
+│   │   │   ├── ViduProvider.ts
+│   │   │   ├── ModelscopeProvider.ts
+│   │   │   ├── LLMProvider.ts
+│   │   │   └── AliyunVideoProvider.ts
+│   │   ├── core/           # 核心适配器
+│   │   │   ├── ModelCapabilityManager.ts
+│   │   │   ├── ProviderAliasMapper.ts
+│   │   │   ├── SmartRouter.ts
+│   │   │   ├── ProviderHealthChecker.ts
+│   │   │   └── ModelConfigManager.ts
+│   │   └── types.ts
+│   ├── parsing/            # 剧本解析引擎
+│   │   ├── ProgressTracker.ts
+│   │   ├── SmoothProgressAnimator.ts
+│   │   ├── TimeEstimator.ts
+│   │   ├── ProgressTrackerConfig.ts
+│   │   ├── QualityAnalyzer.ts
+│   │   ├── TokenOptimizer.ts
+│   │   ├── PerformanceMonitor.ts
+│   │   ├── SemanticChunker.ts
+│   │   ├── SceneContextExtractor.ts
+│   │   ├── GlobalContextExtractor.ts
+│   │   ├── DynamicBatchSizer.ts
+│   │   ├── DynamicTimeoutCalculator.ts
+│   │   ├── CircuitBreaker.ts
+│   │   ├── TokenBudgetMonitor.ts
+│   │   ├── BudgetPlanner.ts
+│   │   ├── DurationStrategy.ts
+│   │   ├── EmbeddingService.ts
+│   │   ├── ParseStrategySelector.ts
+│   │   ├── ParsingSchemas.ts
+│   │   ├── JSONRepair.ts
+│   │   ├── ShortDramaRules.ts
+│   │   ├── quality/        # 质量评估
+│   │   │   └── QualityEvaluator.ts
+│   │   ├── refinement/     # 优化引擎
+│   │   │   ├── RefinementEngine.ts
+│   │   │   └── IterativeRefinementEngine.ts
+│   │   ├── consistency/    # 一致性检查
+│   │   │   ├── ConsistencyChecker.ts
+│   │   │   └── rules/
+│   │   │       ├── CharacterRules.ts
+│   │   │       ├── SceneRules.ts
+│   │   │       └── VisualRules.ts
+│   │   └── __tests__/      # 单元测试
+│   │       ├── ProgressTracker.test.ts
+│   │       ├── DynamicTimeoutCalculator.test.ts
+│   │       ├── SceneContextExtractor.test.ts
+│   │       └── DynamicBatchSizer.test.ts
+│   ├── keyframe/           # 关键帧服务
+│   │   ├── KeyframeService.ts
+│   │   ├── KeyframeEngine.ts
+│   │   └── VolcengineKeyframeAdapter.ts
+│   ├── video/              # 视频服务
+│   │   └── VideoGenerationService.ts
+│   ├── cache/              # 多层缓存系统
+│   │   └── MultiLayerCache.ts
+│   ├── editing/            # 编辑服务
+│   │   └── TimelineService.ts
+│   ├── asset/              # 资产管理
+│   │   └── AssetReuseService.ts
+│   ├── events/             # 事件系统
+│   │   └── ShotEventEmitter.ts
+│   ├── aiService.ts        # AI 服务主入口
+│   ├── scriptParser.ts     # 剧本解析主入口
+│   ├── storage.ts          # 存储服务
+│   ├── queue.ts            # 任务队列
+│   ├── prompt.ts           # 提示词模板
+│   ├── promptBuilder.ts    # 提示词构建器
+│   ├── textCleaner.ts      # 文本清洗
+│   ├── logger.ts           # 日志服务
+│   ├── fileUtils.ts        # 文件工具
+│   ├── metadata.ts         # 元数据管理
+│   ├── modelUtils.ts       # 模型工具
+│   └── errorHandler.ts     # 错误处理
+├── config/                 # 配置文件
+│   ├── models.ts           # 模型配置
+│   └── modelTemplates.ts   # 模型模板
+├── contexts/               # React Context
+├── utils/                  # 工具函数
+├── types.ts                # 类型定义
+├── locales.ts              # 国际化翻译
+├── public/                 # 静态资源
+│   └── styles/             # 风格预览图
+└── ...
 ```
 
 ---
 
-## 🧠 智能记忆功能（已移除）
-
-> **⚠️ 重要提示**：智能记忆功能已于 **2026-03-07 完全移除**。
->
-> 移除原因：ChromaDB 依赖 Python 后端，与纯前端架构不符，且增加了用户使用门槛。
->
-> **当前状态**：项目采用 **语义分块 + 上下文继承** 机制替代，无需任何额外配置。
-
-### 替代方案
-
-项目现在使用以下机制确保长篇小说的一致性：
-
-| 机制               | 说明                  | 效果           |
-| ------------------ | --------------------- | -------------- |
-| **语义分块**       | 智能识别章节/场景边界 | 优化长文本处理 |
-| **上下文继承**     | 前500字作为上下文传递 | 保持连贯性     |
-| **全局上下文提取** | 提取剧本整体信息      | 增强一致性     |
-| **多层缓存**       | 智能缓存常用数据      | 提升性能       |
-
-### 是否需要额外配置？
-
-**不需要！** 所有优化机制已内置，开箱即用：
-
-- ✅ 无需安装 Python
-- ✅ 无需安装 ChromaDB
-- ✅ 无需下载额外模型
-- ✅ 无需启动额外服务
-
-### 功能对比（移除前后）
-
-| 功能         | 移除前（ChromaDB） | 移除后（当前） |
-| ------------ | ------------------ | -------------- |
-| 剧本解析     | ✅ 支持            | ✅ 支持        |
-| 角色提取     | ✅ 支持            | ✅ 支持        |
-| 场景提取     | ✅ 支持            | ✅ 支持        |
-| 分镜生成     | ✅ 支持            | ✅ 支持        |
-| 跨章节一致性 | ✅ 优秀            | ✅ 良好        |
-| 需要额外设置 | ✅ 需要            | ❌ 不需要      |
-| 架构复杂度   | 高（需Python后端） | 低（纯前端）   |
-
-### 常见问题
-
-**Q: 智能记忆功能还能用吗？**  
-A: **不能**。该功能已于 2026-03-07 完全移除，相关代码和依赖已清理。
-
-**Q: 移除后影响使用吗？**  
-A: **不影响**。所有核心功能（剧本解析、角色/场景/分镜提取）正常使用，通过语义分块和上下文继承机制保持一致性。
-
-**Q: 之前安装的 ChromaDB 需要卸载吗？**  
-A: **建议卸载**。运行 `pip uninstall chromadb` 清理不再使用的依赖。
-
-**Q: 如何提升长篇小说的一致性？**  
-A: 使用 **语义分块** 和 **上下文继承** 机制，无需额外配置。如需更强的一致性，建议分段解析或使用全局上下文提取功能。
-
----
-
-## �� 测试
+## 🧪 测试
 
 ```bash
 # 运行单元测试
 npm test
 
 # 运行测试并生成覆盖率报告
-npm run coverage
+npm run test:coverage
+
+# 运行测试 UI
+npm run test:ui
 ```
 
-测试覆盖要求:
+测试覆盖:
 
 - 服务层函数覆盖率 > 80%
-- 组件渲染测试（无报错即可）
+- 组件渲染测试
+- 剧本解析进度追踪测试
+- 动态超时计算器测试
+- 场景上下文提取测试
+- 动态批量大小的测试
 
 ---
 
@@ -420,6 +481,9 @@ npm run coverage
 - 服务使用 camelCase 命名
 - 所有 HeroUI Select 组件必须提供 label 或 aria-label
 - 禁止提交包含 API 密钥的代码
+- 使用 TypeScript 严格模式
+- 遵循 ESLint 规则
+- 使用 Prettier 格式化代码
 
 ### 提交规范
 
@@ -433,56 +497,66 @@ test: 测试相关
 chore: 构建/工具相关
 ```
 
+### 代码检查
+
+```bash
+# 检查代码
+npm run lint
+
+# 自动修复代码
+npm run lint:fix
+
+# 格式化代码
+npm run format
+
+# 检查代码格式
+npm run format:check
+
+# 类型检查
+npm run type-check
+```
+
 ---
 
 ## 📝 更新日志
 
-### v1.2.1 (2026-03-13)
+### v1.3.0 (2026-03-16)
 
-**📚 文档同步更新**
+**🎯 剧本解析进度展示优化**
 
-- ✅ **README 修正** - 更新"智能记忆功能"说明，标注该功能已于 2026-03-07 移除
-- ✅ **移除过时说明** - 删除 ChromaDB 安装和配置相关说明
-- ✅ **更新使用指南** - 简化剧本导入步骤，移除智能记忆配置说明
-- ✅ **Skill 流程更新** - 将 README 同步纳入优化同步流程
-
----
+- ✅ **进度追踪系统** - 新增 ProgressTracker 核心类，支持多阶段进度追踪
+- ✅ **平滑动画器** - 新增 SmoothProgressAnimator，消除 API 等待期停滞感
+- ✅ **时间预估器** - 新增 TimeEstimator，智能预估剩余时间
+- ✅ **进度展示组件** - 新增 ScriptParseProgress，支持阶段指示器和时间预估
+- ✅ **后台解析支持** - 支持隐藏弹窗后台运行，可随时恢复查看进度
+- ✅ **UX 优化** - 优化"后台运行"文案，消除用户感知模糊
+- ✅ **可访问性修复** - 为 Progress 组件添加 aria-label 属性
+- ✅ **单元测试** - 新增 13 个测试，覆盖 ProgressTracker 核心功能
 
 ### v1.2.0 (2026-03-13)
 
 **🎯 小说解析系统完整性修复**
 
-- ✅ **字段完整性修复** - 超短/短篇小说解析现在提取完整字段（年龄、性别、身份、外貌等）
-- ✅ **提示词生成器增强** - CharacterPromptBuilder 和 ScenePromptBuilder 添加多层 fallback 机制
-- ✅ **物品提示词生成器** - 新增 ItemPromptBuilder，自动生成完整物品描述
+- ✅ **字段完整性修复** - 超短/短篇小说解析现在提取完整字段
+- ✅ **提示词生成器增强** - 多层 fallback 机制
+- ✅ **物品提示词生成器** - 新增 ItemPromptBuilder
 - ✅ **导演工作台完善** - 剧情、整体基调标签不再空白
-- ✅ **角色编辑完善** - 年龄、性别、身份字段完整显示
-- ✅ **性能优化** - 超短文本路径 Token 节省约 80%，解析时间优化至 53 秒
+- ✅ **性能优化** - Token 节省约 80%，解析时间优化
 
 **⚡ 性能优化系统**
 
 - ✅ **Token 优化器** - 动态计算最优 Token 限制
 - ✅ **多层缓存系统** - 智能缓存常用数据
-- ✅ **智能超时管理** - 动态计算超时时间，90 秒等待提示
+- ✅ **智能超时管理** - 动态计算超时时间
 - ✅ **动态批量大小** - 根据上下文长度自动调整
-- ✅ **分级日志系统** - 开发/生产环境自动适配
-
-**🔧 代码质量提升**
-
-- ✅ 新增 logger.ts 日志工具模块
-- ✅ 移除详细调试日志，保留关键监控日志
-- ✅ 系统性代码清理，无冗余文件和代码
-- ✅ 完整的 TypeScript 类型定义
 
 ### v1.1.0 (2026-03-03)
 
 - 📚 深度项目复盘与文档更新
-- 🔧 文本清洗系统性重构（v3.0）
+- 🔧 文本清洗系统性重构
 - 🎬 关键帧工作流增强
 - 📊 质量报告Tab集成
-- 🤖 40+ AI模型配置（LLM/图像/视频）
-- 🐛 批量创建竞态条件修复
-- 📖 全局状态文档建立
+- 🤖 40+ AI模型配置
 
 ### v1.0.0 (2025-02)
 
@@ -491,7 +565,6 @@ chore: 构建/工具相关
 - 📝 智能剧本解析引擎
 - 🎬 关键帧工作流
 - 🤖 多 AI 提供商支持
-- ⚡ 任务队列和并发控制
 
 ---
 
@@ -511,5 +584,5 @@ chore: 构建/工具相关
 ---
 
 <p align="center">
-  Made with ❤️ by Nanshan AI Team
+  Made with ❤️ by Kmeng AI Team
 </p>
