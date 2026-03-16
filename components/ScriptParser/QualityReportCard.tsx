@@ -9,7 +9,7 @@
  */
 
 import React, { useState, useMemo } from 'react';
-import { Card, CardBody, Chip, Accordion, AccordionItem } from '@heroui/react';
+import { Card, CardBody, Chip, Accordion, AccordionItem, Button } from '@heroui/react';
 import {
   CheckCircle2,
   AlertCircle,
@@ -31,6 +31,7 @@ import {
   Lightbulb,
   Globe,
   BookOpen,
+  ChevronDown,
 } from 'lucide-react';
 import {
   DetailedQualityReport,
@@ -39,6 +40,7 @@ import {
   QualityIssue,
 } from '../../services/parsing/QualityAnalyzer';
 import { PerformanceReport as PerformanceReportType } from '../../services/parsing/PerformanceMonitor';
+import { ScoreBreakdown } from './ScoreBreakdown';
 
 interface QualityReportCardProps {
   report: DetailedQualityReport;
@@ -271,12 +273,79 @@ const PerformanceStatsCard: React.FC<{
 };
 
 /**
+ * 可展开的问题项组件
+ */
+const IssueItem: React.FC<{
+  issue: QualityIssue;
+}> = ({ issue }) => {
+  const [expanded, setExpanded] = useState(false);
+  const hasDetails = issue.context || issue.suggestion;
+
+  return (
+    <div
+      className={`p-2 rounded text-xs transition-all ${
+        issue.type === 'error'
+          ? 'bg-danger-50 text-danger'
+          : issue.type === 'warning'
+            ? 'bg-warning-50 text-warning'
+            : 'bg-primary-50 text-primary'
+      } ${hasDetails ? 'cursor-pointer hover:opacity-80' : ''}`}
+      onClick={() => hasDetails && setExpanded(!expanded)}
+    >
+      <div className="flex items-start gap-1.5">
+        {issue.type === 'error' ? (
+          <AlertCircle className="w-3 h-3 flex-shrink-0 mt-0.5" />
+        ) : issue.type === 'warning' ? (
+          <AlertTriangle className="w-3 h-3 flex-shrink-0 mt-0.5" />
+        ) : (
+          <Info className="w-3 h-3 flex-shrink-0 mt-0.5" />
+        )}
+        <span className="flex-1">{issue.message}</span>
+        {hasDetails && (
+          <ChevronDown
+            className={`w-3 h-3 flex-shrink-0 transition-transform ${expanded ? 'rotate-180' : ''}`}
+          />
+        )}
+      </div>
+
+      {expanded && hasDetails && (
+        <div className="mt-2 pl-4 space-y-1 text-default-600">
+          {issue.context && (
+            <div>
+              <span className="font-medium">上下文：</span>
+              {issue.context}
+            </div>
+          )}
+          {issue.suggestion && (
+            <div>
+              <span className="font-medium">建议：</span>
+              {issue.suggestion}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+};
+
+/**
  * 问题详情折叠面板
  */
 const IssuesAccordion: React.FC<{
   dimensionScores: DimensionScore[];
 }> = ({ dimensionScores }) => {
   const lowScoreDimensions = dimensionScores.filter(dim => dim.score < 80 && dim.issues.length > 0);
+  const [expandedDimensions, setExpandedDimensions] = useState<Set<string>>(new Set());
+
+  const toggleDimension = (dimension: string) => {
+    const newSet = new Set(expandedDimensions);
+    if (newSet.has(dimension)) {
+      newSet.delete(dimension);
+    } else {
+      newSet.add(dimension);
+    }
+    setExpandedDimensions(newSet);
+  };
 
   if (lowScoreDimensions.length === 0) {
     return (
@@ -302,50 +371,51 @@ const IssuesAccordion: React.FC<{
         }
       >
         <div className="space-y-4 py-2">
-          {lowScoreDimensions.map(dim => (
-            <div key={dim.dimension} className="space-y-2">
-              <div className="flex items-center gap-2 text-sm">
-                {getDimensionIcon(dim.dimension)}
-                <span className="font-medium">{getDimensionName(dim.dimension)}</span>
-                <Chip size="sm" color={getScoreColor(dim.score) as any} variant="flat">
-                  {dim.score}分
-                </Chip>
-                <Chip size="sm" variant="flat">
-                  {dim.issues.length}个问题
-                </Chip>
+          {lowScoreDimensions.map(dim => {
+            const isExpanded = expandedDimensions.has(dim.dimension);
+            const displayIssues = isExpanded ? dim.issues : dim.issues.slice(0, 3);
+            const remainingCount = dim.issues.length - 3;
+
+            return (
+              <div key={dim.dimension} className="space-y-2">
+                <div className="flex items-center gap-2 text-sm">
+                  {getDimensionIcon(dim.dimension)}
+                  <span className="font-medium">{getDimensionName(dim.dimension)}</span>
+                  <Chip size="sm" color={getScoreColor(dim.score) as any} variant="flat">
+                    {dim.score}分
+                  </Chip>
+                  <Chip size="sm" variant="flat">
+                    {dim.issues.length}个问题
+                  </Chip>
+                </div>
+                <div className="space-y-2 pl-6">
+                  {displayIssues.map((issue, idx) => (
+                    <IssueItem key={idx} issue={issue} />
+                  ))}
+                  {!isExpanded && remainingCount > 0 && (
+                    <Button
+                      size="sm"
+                      variant="light"
+                      className="text-xs"
+                      onClick={() => toggleDimension(dim.dimension)}
+                    >
+                      还有 {remainingCount} 个问题，点击展开
+                    </Button>
+                  )}
+                  {isExpanded && dim.issues.length > 3 && (
+                    <Button
+                      size="sm"
+                      variant="light"
+                      className="text-xs"
+                      onClick={() => toggleDimension(dim.dimension)}
+                    >
+                      收起
+                    </Button>
+                  )}
+                </div>
               </div>
-              <div className="space-y-2 pl-6">
-                {dim.issues.slice(0, 3).map((issue, idx) => (
-                  <div
-                    key={idx}
-                    className={`p-2 rounded text-xs ${
-                      issue.type === 'error'
-                        ? 'bg-danger-50 text-danger'
-                        : issue.type === 'warning'
-                          ? 'bg-warning-50 text-warning'
-                          : 'bg-primary-50 text-primary'
-                    }`}
-                  >
-                    <div className="flex items-start gap-1.5">
-                      {issue.type === 'error' ? (
-                        <AlertCircle className="w-3 h-3 flex-shrink-0 mt-0.5" />
-                      ) : issue.type === 'warning' ? (
-                        <AlertTriangle className="w-3 h-3 flex-shrink-0 mt-0.5" />
-                      ) : (
-                        <Info className="w-3 h-3 flex-shrink-0 mt-0.5" />
-                      )}
-                      <span>{issue.message}</span>
-                    </div>
-                  </div>
-                ))}
-                {dim.issues.length > 3 && (
-                  <div className="text-xs text-default-400 pl-1.5">
-                    还有 {dim.issues.length - 3} 个问题...
-                  </div>
-                )}
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </AccordionItem>
     </Accordion>
@@ -406,7 +476,16 @@ export const QualityReportCard: React.FC<QualityReportCardProps> = ({
           {performanceReport && <PerformanceStatsCard report={performanceReport} />}
         </div>
 
-        {/* Row 3: 可折叠的质量维度详情 */}
+        {/* Row 3: 评分计算详情 */}
+        <div className="mb-4">
+          <ScoreBreakdown
+            dimensionScores={report.dimensionScores}
+            totalScore={report.score}
+            weightVersion={report.weightVersion || 'v1.0'}
+          />
+        </div>
+
+        {/* Row 4: 可折叠的质量维度详情 */}
         <div className="border-t border-content3 pt-4">
           <h5 className="font-medium text-sm flex items-center gap-2 mb-3 px-1">
             <BarChart3 className="w-4 h-4 text-primary" />

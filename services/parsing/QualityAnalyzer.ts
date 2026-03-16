@@ -66,6 +66,7 @@ export interface DetailedQualityReport extends QualityReport {
   statistics: QualityStatistics; // 统计信息
   recommendations: string[]; // 优化建议（按优先级排序）
   stage: 'metadata' | 'characters' | 'scenes' | 'shots' | 'completed';
+  weightVersion: string; // 权重版本标识，如 "v2.0"
 }
 
 /**
@@ -212,6 +213,7 @@ export class QualityAnalyzer {
       stage,
       emotionalArcExtracted,
       skippedFeatures,
+      weightVersion: 'v2.0', // 权重版本标识
     };
   }
 
@@ -372,7 +374,7 @@ export class QualityAnalyzer {
     return {
       dimension: QualityDimension.COMPLETENESS,
       score: Math.max(0, score),
-      weight: 0.25,
+      weight: 0.20,
       details,
       issues,
     };
@@ -457,7 +459,7 @@ export class QualityAnalyzer {
     return {
       dimension: QualityDimension.ACCURACY,
       score: Math.max(0, score),
-      weight: 0.2,
+      weight: 0.15,
       details,
       issues,
     };
@@ -573,7 +575,7 @@ export class QualityAnalyzer {
     return {
       dimension: QualityDimension.CONSISTENCY,
       score: Math.max(0, score),
-      weight: 0.2,
+      weight: 0.15,
       details,
       issues,
     };
@@ -679,7 +681,7 @@ export class QualityAnalyzer {
     return {
       dimension: QualityDimension.USABILITY,
       score: Math.max(0, score),
-      weight: 0.2,
+      weight: 0.10,
       details,
       issues,
     };
@@ -708,7 +710,7 @@ export class QualityAnalyzer {
     return {
       dimension: QualityDimension.DRAMATIC,
       score: result.score,
-      weight: 0.15,
+      weight: 0.20,
       details: result.suggestions,
       issues,
     };
@@ -808,7 +810,7 @@ export class QualityAnalyzer {
     return {
       dimension: QualityDimension.SPATIAL_TEMPORAL,
       score: Math.max(0, score),
-      weight: 0.15,
+      weight: 0.10,
       details,
       issues,
     };
@@ -945,7 +947,7 @@ export class QualityAnalyzer {
     return {
       dimension: QualityDimension.NARRATIVE_LOGIC,
       score: Math.max(0, score),
-      weight: 0.15,
+      weight: 0.25,
       details,
       issues,
     };
@@ -998,7 +1000,8 @@ export class QualityAnalyzer {
     const consistency = scores.find(d => d.dimension === QualityDimension.CONSISTENCY);
 
     // 规则1：叙事逻辑严重崩溃时，完整性不应超过70分
-    if (narrativeLogic && narrativeLogic.score < 30 && completeness && completeness.score > 70) {
+    // 阈值从30调整为40，与新的权重体系匹配
+    if (narrativeLogic && narrativeLogic.score < 40 && completeness && completeness.score > 70) {
       completeness.score = 70;
       completeness.issues.push({
         type: 'warning',
@@ -1010,7 +1013,8 @@ export class QualityAnalyzer {
     }
 
     // 规则2：叙事逻辑严重崩溃时，一致性不应超过60分
-    if (narrativeLogic && narrativeLogic.score < 30 && consistency && consistency.score > 60) {
+    // 阈值从30调整为40，与新的权重体系匹配
+    if (narrativeLogic && narrativeLogic.score < 40 && consistency && consistency.score > 60) {
       consistency.score = Math.min(consistency.score, 60);
       if (!consistency.issues.some(i => i.message.includes('叙事逻辑'))) {
         consistency.issues.push({
