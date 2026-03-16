@@ -3,7 +3,7 @@
  *
  * 提供可视化界面编辑质量评估的权重和阈值配置
  * 采用Tab切换设计，支持深色/浅色主题
- * 统一视觉风格：紧凑、精致、主题适配
+ * 优化版：图标统一、按钮直观、主题适配
  */
 
 import React, { useState, useEffect, useCallback } from 'react';
@@ -28,6 +28,15 @@ import {
   CheckCircle,
   SlidersHorizontal,
   Gauge,
+  User,
+  MapPin,
+  Camera,
+  Film,
+  BarChart3,
+  Timer,
+  Clock,
+  AlertOctagon,
+  TrendingDown,
 } from 'lucide-react';
 import type { QualityRulesConfig, WeightConfig, ThresholdConfig } from '../../services/parsing/QualityRulesConfig';
 import { DEFAULT_QUALITY_RULES } from '../../services/parsing/QualityRulesConfig';
@@ -83,17 +92,17 @@ const dimensionConfig: Record<string, { name: string; color: string; lightColor:
   },
 };
 
-// 阈值配置 - 统一使用蓝色系，主题适配
-const thresholdConfig: Record<string, { name: string; icon: string; desc: string }> = {
-  characterDescriptionLength: { name: '角色描述最小字数', icon: '👤', desc: '角色生成所需最少信息' },
-  sceneDescriptionLength: { name: '场景描述最小字数', icon: '🎬', desc: '场景环境氛围描述' },
-  minShotsPerScene: { name: '每场景最少分镜', icon: '📷', desc: '基本叙事镜头覆盖' },
-  maxShotsPerScene: { name: '每场景最多分镜', icon: '🎞️', desc: '防止节奏拖沓' },
-  minShotsTotal: { name: '总分镜数最小值', icon: '📊', desc: '短剧基本叙事需求' },
-  shotDurationMin: { name: '分镜最短时长', icon: '⏱️', desc: '观众感知下限(秒)' },
-  shotDurationMax: { name: '分镜最长时长', icon: '⏳', desc: '避免拖沓上限(秒)' },
-  narrativeLogicCollapseThreshold: { name: '叙事崩溃阈值', icon: '⚠️', desc: '严重问题判定线' },
-  completenessMaxWhenNarrativeCollapsed: { name: '叙事崩溃时完整性上限', icon: '📉', desc: '一致性保护机制' },
+// 阈值配置 - 使用Lucide图标，主题适配
+const thresholdConfig: Record<string, { name: string; icon: React.ElementType; desc: string }> = {
+  characterDescriptionLength: { name: '角色描述最小字数', icon: User, desc: '角色生成所需最少信息' },
+  sceneDescriptionLength: { name: '场景描述最小字数', icon: MapPin, desc: '场景环境氛围描述' },
+  minShotsPerScene: { name: '每场景最少分镜', icon: Camera, desc: '基本叙事镜头覆盖' },
+  maxShotsPerScene: { name: '每场景最多分镜', icon: Film, desc: '防止节奏拖沓' },
+  minShotsTotal: { name: '总分镜数最小值', icon: BarChart3, desc: '短剧基本叙事需求' },
+  shotDurationMin: { name: '分镜最短时长', icon: Timer, desc: '观众感知下限(秒)' },
+  shotDurationMax: { name: '分镜最长时长', icon: Clock, desc: '避免拖沓上限(秒)' },
+  narrativeLogicCollapseThreshold: { name: '叙事崩溃阈值', icon: AlertOctagon, desc: '严重问题判定线' },
+  completenessMaxWhenNarrativeCollapsed: { name: '叙事崩溃时完整性上限', icon: TrendingDown, desc: '一致性保护机制' },
 };
 
 export const QualityRulesEditor: React.FC<QualityRulesEditorProps> = ({ t }) => {
@@ -249,8 +258,8 @@ export const QualityRulesEditor: React.FC<QualityRulesEditorProps> = ({ t }) => 
 
   return (
     <Card className="border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 overflow-hidden shadow-sm" radius="lg">
-      {/* Header - 主题适配 */}
-      <CardHeader className="px-6 py-4 border-b border-slate-200 dark:border-slate-800 flex flex-col md:flex-row md:items-center md:justify-between gap-3 bg-slate-50/50 dark:bg-slate-900/50">
+      {/* Header - 优化按钮设计 */}
+      <CardHeader className="px-6 py-4 border-b border-slate-200 dark:border-slate-800 flex flex-col md:flex-row md:items-center md:justify-between gap-3 bg-slate-50 dark:bg-slate-900">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center border border-primary/20">
             <Settings2 className="w-5 h-5 text-primary" />
@@ -266,31 +275,50 @@ export const QualityRulesEditor: React.FC<QualityRulesEditorProps> = ({ t }) => 
         <div className="flex items-center gap-2">
           <input type="file" accept=".json" onChange={handleImport} className="hidden" id="import-config" />
           <label htmlFor="import-config">
-            <Button as="span" variant="light" size="sm" className="text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white">
-              <Upload className="w-4 h-4" />
+            <Button 
+              as="span" 
+              variant="flat" 
+              size="sm" 
+              startContent={<Upload className="w-4 h-4" />}
+              className="text-slate-700 dark:text-slate-300"
+            >
+              导入
             </Button>
           </label>
-          <Button variant="light" size="sm" onPress={handleExport} className="text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white">
-            <Download className="w-4 h-4" />
+          <Button 
+            variant="flat" 
+            size="sm" 
+            startContent={<Download className="w-4 h-4" />}
+            onPress={handleExport}
+            className="text-slate-700 dark:text-slate-300"
+          >
+            导出
           </Button>
-          <Button variant="light" size="sm" onPress={handleReset} className="text-slate-600 dark:text-slate-400 hover:text-danger">
-            <RotateCcw className="w-4 h-4" />
+          <Button 
+            variant="flat" 
+            size="sm" 
+            startContent={<RotateCcw className="w-4 h-4" />}
+            onPress={handleReset}
+            className="text-slate-700 dark:text-slate-300"
+          >
+            重置
           </Button>
           <Button
             onPress={handleSave}
             color={saveStatus === 'saved' ? 'success' : 'primary'}
             variant={saveStatus === 'saved' ? 'flat' : 'solid'}
             size="sm"
+            startContent={saveStatus === 'saved' ? <CheckCircle className="w-4 h-4" /> : undefined}
             isLoading={saveStatus === 'saving'}
             isDisabled={!hasChanges || Math.abs(weightSum - 1.0) > 0.01}
             className="font-medium"
           >
-            {saveStatus === 'saved' ? <CheckCircle className="w-4 h-4" /> : '保存'}
+            {saveStatus === 'saved' ? '已保存' : '保存'}
           </Button>
         </div>
       </CardHeader>
 
-      {/* 权重警告 - 主题适配 */}
+      {/* 权重警告 */}
       {Math.abs(weightSum - 1.0) > 0.01 && (
         <div className="px-6 py-2 bg-warning/10 dark:bg-warning/20 border-b border-warning/20">
           <div className="flex items-center gap-2 text-warning text-xs">
@@ -300,7 +328,7 @@ export const QualityRulesEditor: React.FC<QualityRulesEditorProps> = ({ t }) => 
         </div>
       )}
 
-      {/* Tabs - 主题适配 */}
+      {/* Tabs */}
       <CardBody className="p-0">
         <Tabs
           selectedKey={activeTab}
@@ -308,7 +336,7 @@ export const QualityRulesEditor: React.FC<QualityRulesEditorProps> = ({ t }) => 
           variant="light"
           classNames={{
             tabList: 'px-6 py-2 gap-1 border-b border-slate-200 dark:border-slate-800 bg-transparent',
-            tab: 'px-4 py-2 text-sm font-medium text-slate-500 dark:text-slate-400 data-[selected=true]:text-slate-900 dark:data-[selected=true]:text-white data-[selected=true]:bg-slate-100 dark:data-[selected=true]:bg-slate-800 rounded-lg transition-colors',
+            tab: 'px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-400 data-[selected=true]:text-slate-900 dark:data-[selected=true]:text-white data-[selected=true]:bg-slate-100 dark:data-[selected=true]:bg-slate-800 rounded-lg transition-colors',
             cursor: 'hidden',
             panel: 'p-6',
           }}
@@ -372,7 +400,7 @@ export const QualityRulesEditor: React.FC<QualityRulesEditorProps> = ({ t }) => 
             </div>
           </Tab>
 
-          {/* 阈值配置 Tab - 重新设计为单行布局 */}
+          {/* 阈值配置 Tab - 使用Lucide图标 */}
           <Tab
             key="thresholds"
             title={
@@ -386,12 +414,13 @@ export const QualityRulesEditor: React.FC<QualityRulesEditorProps> = ({ t }) => 
             <div className="space-y-2">
               {(Object.entries(config.thresholds) as [string, ThresholdConfig][]).map(([key, threshold]) => {
                 const thresh = thresholdConfig[key];
+                const IconComponent = thresh?.icon || Settings2;
                 return (
                   <div key={key} className="group flex items-center gap-4 p-3 rounded-xl bg-slate-100 dark:bg-slate-900/50 hover:bg-slate-200 dark:hover:bg-slate-800/50 transition-colors">
-                    {/* 左侧：图标+名称 */}
-                    <div className="flex items-center gap-3 w-48 flex-shrink-0">
-                      <div className="w-8 h-8 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-lg">
-                        {thresh?.icon || '⚙️'}
+                    {/* 左侧：Lucide图标+名称 */}
+                    <div className="flex items-center gap-3 w-44 flex-shrink-0">
+                      <div className="w-8 h-8 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
+                        <IconComponent className="w-4 h-4 text-blue-600 dark:text-blue-400" />
                       </div>
                       <div>
                         <div className="text-sm font-semibold text-slate-900 dark:text-white truncate" title={thresh?.name || key}>
@@ -425,7 +454,7 @@ export const QualityRulesEditor: React.FC<QualityRulesEditorProps> = ({ t }) => 
                     </div>
 
                     {/* 右侧：数值输入 */}
-                    <div className="flex items-center gap-2 w-24 flex-shrink-0 justify-end">
+                    <div className="flex items-center gap-2 w-20 flex-shrink-0 justify-end">
                       <Input
                         type="number"
                         value={threshold.value.toString()}
@@ -434,13 +463,10 @@ export const QualityRulesEditor: React.FC<QualityRulesEditorProps> = ({ t }) => 
                         max={threshold.range[1]}
                         classNames={{
                           input: 'text-center font-bold text-slate-900 dark:text-white',
-                          inputWrapper: 'bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-600 h-10 w-20',
+                          inputWrapper: 'bg-slate-50 dark:bg-slate-800 border-slate-300 dark:border-slate-600 h-9 w-16',
                         }}
                         size="sm"
                       />
-                      <span className="text-xs text-slate-400 dark:text-slate-500">
-                        {threshold.range[0]}-{threshold.range[1]}
-                      </span>
                     </div>
                   </div>
                 );
