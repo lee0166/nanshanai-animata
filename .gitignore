@@ -7,10 +7,21 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+# Dependencies
 node_modules
+
+# Build outputs
 dist
 dist-ssr
+build/
+
+# Local environment
 *.local
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
 
 # Editor directories and files
 .vscode/*
@@ -23,13 +34,16 @@ dist-ssr
 *.sln
 *.sw?
 
-package-lock.json
+# IDE and development tools
 .trae
 dev
 
-build/
+# Dependency lock files (optional, uncomment if needed)
+# package-lock.json
+# yarn.lock
+# pnpm-lock.yaml
 
-# 开发辅助文件
+# Development auxiliary files
 ANALYSIS_REPORT.md
 commit-msg.txt
 commit.sh
@@ -45,7 +59,7 @@ VIDEO_MODEL_PARAMS_GUIDE.md
 小说转短剧解析系统_融合优化方案_v2.0.md
 融合方案_实施细节与代码示例*.md
 
-# 项目分析和优化文档（保留在本地）
+# Project analysis and optimization documents (keep local)
 优化可行性分析报告.md
 分镜生成详细说明.md
 南山 AI Animata 项目落地式优化方案.md
@@ -55,21 +69,25 @@ VIDEO_MODEL_PARAMS_GUIDE.md
 模型配置管理专项优化方案.md
 项目深度分析报告.md
 
-# 开发文档目录
+# Documentation directory
 docs/
 
-# 隐私/敏感文件
+# Privacy/sensitive files
 settings-instruction.txt
 metadata.json
 
-# 备份文件
+# Backup files
 *.backup
 *.bak
 
-# ChromaDB数据
+# Database and model data
 data/chroma_db/
 data/models/
 .venv-chroma/
 
-# 测试数据
+# Test data
 test_data/
+
+# Large binary files (consider moving to CDN or download scripts)
+# public/models/
+# public/ort-wasm/

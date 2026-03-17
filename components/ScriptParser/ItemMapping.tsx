@@ -86,6 +86,8 @@ export const ItemMapping: React.FC<ItemMappingProps> = ({
   const { showToast } = useToast();
   const [selectedItem, setSelectedItem] = useState<ScriptItem | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [creatingItems, setCreatingItems] = useState<Set<string>>(new Set());
 
   // Handle mapping script item to existing asset
   const handleMapItem = (scriptItem: ScriptItem, assetId: string) => {
@@ -118,6 +120,12 @@ export const ItemMapping: React.FC<ItemMappingProps> = ({
   };
 
   const handleCreateItem = async (scriptItem: ScriptItem) => {
+    // 防止重复创建
+    if (creatingItems.has(scriptItem.name) || scriptItem.mappedAssetId) {
+      return;
+    }
+
+    setCreatingItems(prev => new Set(prev).add(scriptItem.name));
     try {
       // 1. 创建资产（不更新状态）
       const assetId = await createItemAsset(scriptItem);
@@ -126,25 +134,48 @@ export const ItemMapping: React.FC<ItemMappingProps> = ({
       const updated = scriptItems.map(i =>
         i.name === scriptItem.name ? { ...i, mappedAssetId: assetId } : i
       );
+
+      // 3. 持久化到存储
+      await storageService.updateScriptParseState(scriptId, projectId, parseState => ({
+        ...parseState,
+        items: updated,
+      }));
+
+      // 4. 更新UI状态
       onItemsUpdate(updated);
 
-      // 3. 通知父组件刷新
+      // 5. 通知父组件刷新
       onItemCreated?.();
 
       showToast(`物品 "${scriptItem.name}" 创建成功`, 'success');
     } catch (error: any) {
       showToast(`创建失败: ${error.message}`, 'error');
+    } finally {
+      setCreatingItems(prev => {
+        const next = new Set(prev);
+        next.delete(scriptItem.name);
+        return next;
+      });
     }
   };
 
   // 批量创建物品 - 彻底修复竞态条件
   const handleBatchCreateItems = async () => {
-    const unmapped = scriptItems.filter(i => !i.mappedAssetId);
+    // 过滤掉已关联和正在创建中的物品
+    const unmapped = scriptItems.filter(
+      i => !i.mappedAssetId && !creatingItems.has(i.name)
+    );
     if (unmapped.length === 0) {
       showToast('所有道具已关联', 'info');
       return;
     }
 
+    // 防止重复批量创建
+    if (isGenerating) {
+      return;
+    }
+
+    setIsGenerating(true);
     console.log(`[ItemMapping] ========== 开始批量创建物品 ==========`);
     console.log(`[ItemMapping] 待创建物品数量: ${unmapped.length}`);
     console.log(`[ItemMapping] 物品列表: ${unmapped.map(i => i.name).join(', ')}`);
@@ -157,6 +188,11 @@ export const ItemMapping: React.FC<ItemMappingProps> = ({
       // 第一步：串行创建所有资产（不更新状态）
       for (let i = 0; i < unmapped.length; i++) {
         const item = unmapped[i];
+        // 双重检查：跳过正在创建中的物品
+        if (creatingItems.has(item.name)) {
+          console.log(`[ItemMapping] 跳过正在创建中的物品: ${item.name}`);
+          continue;
+        }
         console.log(`[ItemMapping] [${i + 1}/${unmapped.length}] 创建物品: ${item.name}`);
         try {
           const assetId = await createItemAsset(item); // 只创建，不更新状态
@@ -181,6 +217,13 @@ export const ItemMapping: React.FC<ItemMappingProps> = ({
           const mapping = createdMappings.find(m => m.name === i.name);
           return mapping ? { ...i, mappedAssetId: mapping.assetId } : i;
         });
+
+        // 持久化到存储
+        await storageService.updateScriptParseState(scriptId, projectId, parseState => ({
+          ...parseState,
+          items: updated,
+        }));
+
         onItemsUpdate(updated); // 关键：只更新一次
         onItemCreated?.();
 
@@ -199,6 +242,7 @@ export const ItemMapping: React.FC<ItemMappingProps> = ({
       console.error('[ItemMapping] 批量创建道具失败:', error);
       showToast('批量创建失败', 'error');
     } finally {
+      setIsGenerating(false);
       console.log(`[ItemMapping] ========== 批量创建物品结束 ==========`);
     }
   };
@@ -233,6 +277,8 @@ export const ItemMapping: React.FC<ItemMappingProps> = ({
           size="sm"
           startContent={<Plus size={16} />}
           onPress={handleBatchCreateItems}
+          isLoading={isGenerating}
+          isDisabled={isGenerating}
         >
           批量创建未关联道具
         </Button>
@@ -294,14 +340,14 @@ export const ItemMapping: React.FC<ItemMappingProps> = ({
                 </div>
 
                 {/* Mapping Controls */}
-                <div className="space-y-2">
+                <div className="flex gap-2">
                   <Select
-                    aria-label="关联到现有物品"
-                    label="关联到现有物品"
-                    placeholder="选择现有物品或留空"
+                    aria-label="关联物品"
+                    placeholder="选择物品"
                     selectedKeys={item.mappedAssetId ? new Set([item.mappedAssetId]) : new Set()}
                     onChange={e => handleMapItem(item, e.target.value)}
                     size="sm"
+                    className={item.mappedAssetId ? 'flex-1' : 'w-1/3'}
                   >
                     <SelectItem key="" value="">
                       不关联
@@ -313,32 +359,32 @@ export const ItemMapping: React.FC<ItemMappingProps> = ({
                     ))}
                   </Select>
 
-                  <div className="flex gap-2">
-                    {!item.mappedAssetId && (
-                      <Button
-                        size="sm"
-                        color="primary"
-                        variant="flat"
-                        startContent={<Plus size={14} />}
-                        onPress={() => handleCreateItem(item)}
-                        className="flex-1"
-                      >
-                        创建物品
-                      </Button>
-                    )}
+                  {!item.mappedAssetId && (
                     <Button
                       size="sm"
+                      color="primary"
                       variant="flat"
-                      startContent={<Edit2 size={14} />}
-                      onPress={() => {
-                        setSelectedItem(item);
-                        setIsEditModalOpen(true);
-                      }}
-                      className="flex-1"
+                      startContent={<Plus size={14} />}
+                      onPress={() => handleCreateItem(item)}
+                      isLoading={creatingItems.has(item.name)}
+                      isDisabled={creatingItems.has(item.name)}
+                      className="w-1/3"
                     >
-                      编辑
+                      创建
                     </Button>
-                  </div>
+                  )}
+                  <Button
+                    size="sm"
+                    variant="flat"
+                    startContent={<Edit2 size={14} />}
+                    onPress={() => {
+                      setSelectedItem(item);
+                      setIsEditModalOpen(true);
+                    }}
+                    className={item.mappedAssetId ? 'flex-1' : 'w-1/3'}
+                  >
+                    编辑
+                  </Button>
                 </div>
               </CardBody>
             </Card>

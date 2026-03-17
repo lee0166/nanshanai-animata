@@ -313,6 +313,42 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({
     }
   };
 
+  // 处理角色映射更新
+  const handleCharactersUpdate = (updatedCharacters: ScriptCharacter[]) => {
+    if (!currentScript) return;
+    setCurrentScript({
+      ...currentScript,
+      parseState: {
+        ...currentScript.parseState,
+        characters: updatedCharacters,
+      },
+    });
+  };
+
+  // 处理场景映射更新
+  const handleScenesUpdate = (updatedScenes: ScriptScene[]) => {
+    if (!currentScript) return;
+    setCurrentScript({
+      ...currentScript,
+      parseState: {
+        ...currentScript.parseState,
+        scenes: updatedScenes,
+      },
+    });
+  };
+
+  // 处理物品映射更新
+  const handleItemsUpdate = (updatedItems: ScriptItem[]) => {
+    if (!currentScript) return;
+    setCurrentScript({
+      ...currentScript,
+      parseState: {
+        ...currentScript.parseState,
+        items: updatedItems,
+      },
+    });
+  };
+
   // 2.0: 文件上传处理 - 支持多种文档格式
   const handleFileUpload = useCallback(
     async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -1044,7 +1080,7 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({
                       scriptCharacters={currentScript.parseState.characters || []}
                       existingCharacters={existingCharacters}
                       projectId={projectId!}
-                      onCharactersUpdate={() => {}}
+                      onCharactersUpdate={handleCharactersUpdate}
                       onCharacterCreated={loadExistingAssets}
                     />
                   </Tab>
@@ -1067,7 +1103,7 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({
                       scriptScenes={currentScript.parseState.scenes || []}
                       existingScenes={existingScenes}
                       projectId={projectId!}
-                      onScenesUpdate={() => {}}
+                      onScenesUpdate={handleScenesUpdate}
                       onSceneCreated={loadExistingAssets}
                     />
                   </Tab>
@@ -1090,7 +1126,7 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({
                       scriptItems={currentScript.parseState.items || []}
                       existingItems={existingItems}
                       projectId={projectId!}
-                      onItemsUpdate={() => {}}
+                      onItemsUpdate={handleItemsUpdate}
                       onItemCreated={loadExistingAssets}
                     />
                   </Tab>

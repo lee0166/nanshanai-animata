@@ -21,7 +21,7 @@ import {
   Input,
   Chip,
 } from '@heroui/react';
-import { User, Link2, Plus, Edit2, Wand2, CheckCircle2 } from 'lucide-react';
+import { User, Link2, Plus, Edit2, CheckCircle2 } from 'lucide-react';
 import { ImageGenerationPanel } from '../ProjectDetail/Shared/ImageGenerationPanel';
 
 interface CharacterMappingProps {
@@ -46,6 +46,7 @@ export const CharacterMapping: React.FC<CharacterMappingProps> = ({
   const [selectedCharacter, setSelectedCharacter] = useState<ScriptCharacter | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [creatingCharacters, setCreatingCharacters] = useState<Set<string>>(new Set());
 
   // Handle mapping script character to existing asset
   const handleMapCharacter = (scriptChar: ScriptCharacter, assetId: string) => {
@@ -96,6 +97,12 @@ export const CharacterMapping: React.FC<CharacterMappingProps> = ({
 
   // Handle creating new character asset from script character
   const handleCreateCharacter = async (scriptChar: ScriptCharacter) => {
+    // 防止重复创建
+    if (creatingCharacters.has(scriptChar.name) || scriptChar.mappedAssetId) {
+      return;
+    }
+
+    setCreatingCharacters(prev => new Set(prev).add(scriptChar.name));
     try {
       // 1. 创建资产（不更新状态）
       const assetId = await createCharacterAsset(scriptChar);
@@ -104,20 +111,37 @@ export const CharacterMapping: React.FC<CharacterMappingProps> = ({
       const updated = scriptCharacters.map(c =>
         c.name === scriptChar.name ? { ...c, mappedAssetId: assetId } : c
       );
+
+      // 3. 持久化到存储
+      await storageService.updateScriptParseState(scriptId, projectId, parseState => ({
+        ...parseState,
+        characters: updated,
+      }));
+
+      // 4. 更新UI状态
       onCharactersUpdate(updated);
 
-      // 3. 通知父组件刷新
+      // 5. 通知父组件刷新
       onCharacterCreated?.();
 
       showToast(`角色 "${scriptChar.name}" 创建成功`, 'success');
     } catch (error: any) {
       showToast(`创建失败: ${error.message}`, 'error');
+    } finally {
+      setCreatingCharacters(prev => {
+        const next = new Set(prev);
+        next.delete(scriptChar.name);
+        return next;
+      });
     }
   };
 
   // 批量创建角色 - 彻底修复竞态条件
   const handleBatchCreateCharacters = async () => {
-    const unmapped = scriptCharacters.filter(c => !c.mappedAssetId);
+    // 过滤掉已关联和正在创建中的角色
+    const unmapped = scriptCharacters.filter(
+      c => !c.mappedAssetId && !creatingCharacters.has(c.name)
+    );
     if (unmapped.length === 0) {
       showToast('所有角色已关联', 'info');
       return;
@@ -136,6 +160,11 @@ export const CharacterMapping: React.FC<CharacterMappingProps> = ({
       // 第一步：串行创建所有资产（不更新状态）
       for (let i = 0; i < unmapped.length; i++) {
         const char = unmapped[i];
+        // 双重检查：跳过正在创建中的角色
+        if (creatingCharacters.has(char.name)) {
+          console.log(`[CharacterMapping] 跳过正在创建中的角色: ${char.name}`);
+          continue;
+        }
         console.log(`[CharacterMapping] [${i + 1}/${unmapped.length}] 创建角色: ${char.name}`);
         try {
           const assetId = await createCharacterAsset(char); // 只创建，不更新状态
@@ -160,6 +189,13 @@ export const CharacterMapping: React.FC<CharacterMappingProps> = ({
           const mapping = createdMappings.find(m => m.name === c.name);
           return mapping ? { ...c, mappedAssetId: mapping.assetId } : c;
         });
+
+        // 持久化到存储
+        await storageService.updateScriptParseState(scriptId, projectId, parseState => ({
+          ...parseState,
+          characters: updated,
+        }));
+
         onCharactersUpdate(updated); // 关键：只更新一次
         onCharacterCreated?.();
 
@@ -186,34 +222,6 @@ export const CharacterMapping: React.FC<CharacterMappingProps> = ({
     onCharactersUpdate(updatedList);
     setIsEditModalOpen(false);
     showToast('角色信息已更新', 'success');
-  };
-
-  // Generate character image
-  const handleGenerateImage = async (scriptChar: ScriptCharacter) => {
-    if (!scriptChar.mappedAssetId) {
-      showToast('请先创建或关联角色', 'warning');
-      return;
-    }
-
-    setIsGenerating(true);
-    try {
-      const asset = (await storageService.getAsset(
-        scriptChar.mappedAssetId,
-        projectId
-      )) as CharacterAsset;
-      if (!asset) {
-        showToast('角色资源不存在', 'error');
-        return;
-      }
-
-      // Open character detail for generation
-      // This would typically navigate to CharacterDetail or open a modal
-      showToast('请在角色详情页生成图像', 'info');
-    } catch (error: any) {
-      showToast(error.message, 'error');
-    } finally {
-      setIsGenerating(false);
-    }
   };
 
   // Get mapped asset info
@@ -404,13 +412,14 @@ export const CharacterMapping: React.FC<CharacterMappingProps> = ({
                 </div>
 
                 {/* Mapping Controls */}
-                <div className="space-y-2">
+                <div className="flex gap-2">
                   <Select
-                    label="关联到现有角色"
-                    placeholder="选择现有角色或留空"
+                    aria-label="关联角色"
+                    placeholder="选择角色"
                     selectedKeys={char.mappedAssetId ? new Set([char.mappedAssetId]) : new Set()}
                     onChange={e => handleMapCharacter(char, e.target.value)}
                     size="sm"
+                    className={char.mappedAssetId ? 'flex-1' : 'w-1/3'}
                   >
                     <SelectItem key="" value="">
                       不关联
@@ -422,44 +431,32 @@ export const CharacterMapping: React.FC<CharacterMappingProps> = ({
                     ))}
                   </Select>
 
-                  <div className="flex gap-2">
-                    {!char.mappedAssetId && (
-                      <Button
-                        size="sm"
-                        color="primary"
-                        variant="flat"
-                        startContent={<Plus size={14} />}
-                        onPress={() => handleCreateCharacter(char)}
-                        className="flex-1"
-                      >
-                        创建角色
-                      </Button>
-                    )}
+                  {!char.mappedAssetId && (
                     <Button
                       size="sm"
+                      color="primary"
                       variant="flat"
-                      startContent={<Edit2 size={14} />}
-                      onPress={() => {
-                        setSelectedCharacter(char);
-                        setIsEditModalOpen(true);
-                      }}
-                      className="flex-1"
+                      startContent={<Plus size={14} />}
+                      onPress={() => handleCreateCharacter(char)}
+                      isLoading={creatingCharacters.has(char.name)}
+                      isDisabled={creatingCharacters.has(char.name)}
+                      className="w-1/3"
                     >
-                      编辑
+                      创建
                     </Button>
-                    {char.mappedAssetId && (
-                      <Button
-                        size="sm"
-                        variant="flat"
-                        color="secondary"
-                        startContent={<Wand2 size={14} />}
-                        onPress={() => handleGenerateImage(char)}
-                        isLoading={isGenerating}
-                      >
-                        生图
-                      </Button>
-                    )}
-                  </div>
+                  )}
+                  <Button
+                    size="sm"
+                    variant="flat"
+                    startContent={<Edit2 size={14} />}
+                    onPress={() => {
+                      setSelectedCharacter(char);
+                      setIsEditModalOpen(true);
+                    }}
+                    className={char.mappedAssetId ? 'flex-1' : 'w-1/3'}
+                  >
+                    编辑
+                  </Button>
                 </div>
               </CardBody>
             </Card>

@@ -44,6 +44,8 @@ export const SceneMapping: React.FC<SceneMappingProps> = ({
   const [selectedScene, setSelectedScene] = useState<ScriptScene | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [viewMode, setViewMode] = useState<'grid' | 'timeline'>('grid');
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [creatingScenes, setCreatingScenes] = useState<Set<string>>(new Set());
 
   // Handle mapping script scene to existing asset
   const handleMapScene = (scriptScene: ScriptScene, assetId: string) => {
@@ -85,6 +87,12 @@ export const SceneMapping: React.FC<SceneMappingProps> = ({
 
   // Handle creating new scene asset from script scene
   const handleCreateScene = async (scriptScene: ScriptScene) => {
+    // 防止重复创建
+    if (creatingScenes.has(scriptScene.name) || scriptScene.mappedAssetId) {
+      return;
+    }
+
+    setCreatingScenes(prev => new Set(prev).add(scriptScene.name));
     try {
       // 1. 创建资产（不更新状态）
       const assetId = await createSceneAsset(scriptScene);
@@ -93,25 +101,48 @@ export const SceneMapping: React.FC<SceneMappingProps> = ({
       const updated = scriptScenes.map(s =>
         s.name === scriptScene.name ? { ...s, mappedAssetId: assetId } : s
       );
+
+      // 3. 持久化到存储
+      await storageService.updateScriptParseState(scriptId, projectId, parseState => ({
+        ...parseState,
+        scenes: updated,
+      }));
+
+      // 4. 更新UI状态
       onScenesUpdate(updated);
 
-      // 3. 通知父组件刷新
+      // 5. 通知父组件刷新
       onSceneCreated?.();
 
       showToast(`场景 "${scriptScene.name}" 创建成功`, 'success');
     } catch (error: any) {
       showToast(`创建失败: ${error.message}`, 'error');
+    } finally {
+      setCreatingScenes(prev => {
+        const next = new Set(prev);
+        next.delete(scriptScene.name);
+        return next;
+      });
     }
   };
 
   // 批量创建场景 - 彻底修复竞态条件
   const handleBatchCreateScenes = async () => {
-    const unmapped = scriptScenes.filter(s => !s.mappedAssetId);
+    // 过滤掉已关联和正在创建中的场景
+    const unmapped = scriptScenes.filter(
+      s => !s.mappedAssetId && !creatingScenes.has(s.name)
+    );
     if (unmapped.length === 0) {
       showToast('所有场景已关联', 'info');
       return;
     }
 
+    // 防止重复批量创建
+    if (isGenerating) {
+      return;
+    }
+
+    setIsGenerating(true);
     console.log(`[SceneMapping] ========== 开始批量创建场景 ==========`);
     console.log(`[SceneMapping] 待创建场景数量: ${unmapped.length}`);
     console.log(`[SceneMapping] 场景列表: ${unmapped.map(s => s.name).join(', ')}`);
@@ -124,6 +155,11 @@ export const SceneMapping: React.FC<SceneMappingProps> = ({
       // 第一步：串行创建所有资产（不更新状态）
       for (let i = 0; i < unmapped.length; i++) {
         const scene = unmapped[i];
+        // 双重检查：跳过正在创建中的场景
+        if (creatingScenes.has(scene.name)) {
+          console.log(`[SceneMapping] 跳过正在创建中的场景: ${scene.name}`);
+          continue;
+        }
         console.log(`[SceneMapping] [${i + 1}/${unmapped.length}] 创建场景: ${scene.name}`);
         try {
           const assetId = await createSceneAsset(scene); // 只创建，不更新状态
@@ -148,6 +184,13 @@ export const SceneMapping: React.FC<SceneMappingProps> = ({
           const mapping = createdMappings.find(m => m.name === s.name);
           return mapping ? { ...s, mappedAssetId: mapping.assetId } : s;
         });
+
+        // 持久化到存储
+        await storageService.updateScriptParseState(scriptId, projectId, parseState => ({
+          ...parseState,
+          scenes: updated,
+        }));
+
         onScenesUpdate(updated); // 关键：只更新一次
         onSceneCreated?.();
 
@@ -166,6 +209,7 @@ export const SceneMapping: React.FC<SceneMappingProps> = ({
       console.error('[SceneMapping] 批量创建场景失败:', error);
       showToast('批量创建失败', 'error');
     } finally {
+      setIsGenerating(false);
       console.log(`[SceneMapping] ========== 批量创建场景结束 ==========`);
     }
   };
@@ -227,6 +271,8 @@ export const SceneMapping: React.FC<SceneMappingProps> = ({
             size="sm"
             startContent={<Plus size={16} />}
             onPress={handleBatchCreateScenes}
+            isLoading={isGenerating}
+            isDisabled={isGenerating}
           >
             批量创建
           </Button>
@@ -310,15 +356,16 @@ export const SceneMapping: React.FC<SceneMappingProps> = ({
                   </div>
 
                   {/* Mapping Controls */}
-                  <div className="space-y-2">
+                  <div className="flex gap-2">
                     <Select
-                      label="关联到现有场景"
-                      placeholder="选择现有场景或留空"
+                      aria-label="关联场景"
+                      placeholder="选择场景"
                       selectedKeys={
                         scene.mappedAssetId ? new Set([scene.mappedAssetId]) : new Set()
                       }
                       onChange={e => handleMapScene(scene, e.target.value)}
                       size="sm"
+                      className={scene.mappedAssetId ? 'flex-1' : 'w-1/3'}
                     >
                       <SelectItem key="" value="">
                         不关联
@@ -330,32 +377,32 @@ export const SceneMapping: React.FC<SceneMappingProps> = ({
                       ))}
                     </Select>
 
-                    <div className="flex gap-2">
-                      {!scene.mappedAssetId && (
-                        <Button
-                          size="sm"
-                          color="primary"
-                          variant="flat"
-                          startContent={<Plus size={14} />}
-                          onPress={() => handleCreateScene(scene)}
-                          className="flex-1"
-                        >
-                          创建场景
-                        </Button>
-                      )}
+                    {!scene.mappedAssetId && (
                       <Button
                         size="sm"
+                        color="primary"
                         variant="flat"
-                        startContent={<Edit2 size={14} />}
-                        onPress={() => {
-                          setSelectedScene(scene);
-                          setIsEditModalOpen(true);
-                        }}
-                        className="flex-1"
+                        startContent={<Plus size={14} />}
+                        onPress={() => handleCreateScene(scene)}
+                        isLoading={creatingScenes.has(scene.name)}
+                        isDisabled={creatingScenes.has(scene.name)}
+                        className="w-1/3"
                       >
-                        编辑
+                        创建
                       </Button>
-                    </div>
+                    )}
+                    <Button
+                      size="sm"
+                      variant="flat"
+                      startContent={<Edit2 size={14} />}
+                      onPress={() => {
+                        setSelectedScene(scene);
+                        setIsEditModalOpen(true);
+                      }}
+                      className={scene.mappedAssetId ? 'flex-1' : 'w-1/3'}
+                    >
+                      编辑
+                    </Button>
                   </div>
                 </CardBody>
               </Card>
@@ -412,6 +459,8 @@ export const SceneMapping: React.FC<SceneMappingProps> = ({
                             variant="flat"
                             startContent={<Plus size={14} />}
                             onPress={() => handleCreateScene(scene)}
+                            isLoading={creatingScenes.has(scene.name)}
+                            isDisabled={creatingScenes.has(scene.name)}
                           >
                             创建
                           </Button>
