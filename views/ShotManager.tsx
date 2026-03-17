@@ -1935,6 +1935,7 @@ export const ShotManager: React.FC<ShotManagerProps> = ({
                 <div>
                   <label className="text-sm font-medium mb-2 block">关键帧数量</label>
                   <Select
+                    aria-label="关键帧数量"
                     label="数量"
                     selectedKeys={[keyframeCount.toString()]}
                     onChange={e => setKeyframeCount(parseInt(e.target.value))}

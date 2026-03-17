@@ -1235,6 +1235,7 @@ const Settings: React.FC = () => {
                 />
               </div>
               <Select
+                aria-label="类型筛选"
                 placeholder="类型筛选"
                 selectedKeys={selectedTypes}
                 onSelectionChange={keys => setSelectedTypes(Array.from(keys) as string[])}
@@ -1259,6 +1260,7 @@ const Settings: React.FC = () => {
               </Select>
               {existingProviders.length > 0 && (
                 <Select
+                  aria-label="提供商筛选"
                   placeholder="提供商筛选"
                   selectedKeys={selectedProviders}
                   onSelectionChange={keys => setSelectedProviders(Array.from(keys) as string[])}
@@ -1289,6 +1291,7 @@ const Settings: React.FC = () => {
                 </Select>
               )}
               <Select
+                aria-label="排序方式"
                 placeholder="排序方式"
                 selectedKeys={[sortBy]}
                 onSelectionChange={keys =>
@@ -1983,14 +1986,14 @@ const Settings: React.FC = () => {
   );
 
   return (
-    <div className="flex h-screen w-full overflow-hidden bg-[#050505]">
+    <div className="flex h-screen w-full overflow-hidden bg-slate-50 dark:bg-[#050505]">
       {/* Sidebar Navigation */}
-      <div className="w-64 flex-shrink-0 border-r border-slate-800 bg-slate-900 p-6">
+      <div className="w-64 flex-shrink-0 border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6">
         <div className="flex flex-col gap-2 mb-8">
-          <h1 className="text-2xl font-black text-white tracking-tighter uppercase">
+          <h1 className="text-2xl font-black text-slate-900 dark:text-white tracking-tighter uppercase">
             {t.settings.title}
           </h1>
-          <p className="text-slate-400 font-medium text-sm">{t.settings.subtitle}</p>
+          <p className="text-slate-500 dark:text-slate-400 font-medium text-sm">{t.settings.subtitle}</p>
         </div>
 
         <nav className="space-y-1">
@@ -2004,7 +2007,7 @@ const Settings: React.FC = () => {
                 className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 ${
                   isActive
                     ? 'bg-primary text-white shadow-lg'
-                    : 'text-slate-400 hover:bg-slate-800 hover:text-white'
+                    : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white'
                 }`}
               >
                 <Icon className="w-5 h-5" />
@@ -2018,7 +2021,7 @@ const Settings: React.FC = () => {
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 overflow-y-auto p-6 md:p-10 pb-20">
+      <div className="flex-1 overflow-y-auto p-6 md:p-10 pb-20 bg-slate-50 dark:bg-[#050505]">
         {activeNav === 'general' && renderGeneral()}
         {activeNav === 'duration' && renderDuration()}
         {activeNav === 'models' && renderModels()}

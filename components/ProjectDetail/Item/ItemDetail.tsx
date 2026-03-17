@@ -672,6 +672,7 @@ const ItemDetail: React.FC<ItemDetailProps> = ({ asset, onUpdate, projectId }) =
                 {t.project.itemTypeLabel}
               </label>
               <Select
+                aria-label={t.project.itemTypeLabel}
                 placeholder={t.project.selectType}
                 selectedKeys={[itemType]}
                 onChange={e => handleItemTypeChange(e.target.value)}

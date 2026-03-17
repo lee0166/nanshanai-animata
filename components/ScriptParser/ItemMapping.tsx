@@ -296,6 +296,7 @@ export const ItemMapping: React.FC<ItemMappingProps> = ({
                 {/* Mapping Controls */}
                 <div className="space-y-2">
                   <Select
+                    aria-label="关联到现有物品"
                     label="关联到现有物品"
                     placeholder="选择现有物品或留空"
                     selectedKeys={item.mappedAssetId ? new Set([item.mappedAssetId]) : new Set()}
@@ -355,6 +356,7 @@ export const ItemMapping: React.FC<ItemMappingProps> = ({
                 <div className="grid grid-cols-2 gap-4">
                   <Input label="道具名称" value={selectedItem.name} isReadOnly />
                   <Select
+                    aria-label="分类"
                     label="分类"
                     selectedKeys={new Set([selectedItem.category])}
                     onChange={e =>
@@ -384,6 +386,7 @@ export const ItemMapping: React.FC<ItemMappingProps> = ({
                     </SelectItem>
                   </Select>
                   <Select
+                    aria-label="重要性"
                     label="重要性"
                     selectedKeys={new Set([selectedItem.importance])}
                     onChange={e =>

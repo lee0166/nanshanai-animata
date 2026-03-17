@@ -767,6 +767,7 @@ export const ShotList: React.FC<ShotListProps> = ({
                     }
                   />
                   <Select
+                    aria-label="景别"
                     label="景别"
                     selectedKeys={new Set([selectedShot.shotType])}
                     onChange={e =>
@@ -780,6 +781,7 @@ export const ShotList: React.FC<ShotListProps> = ({
                     ))}
                   </Select>
                   <Select
+                    aria-label="运镜"
                     label="运镜"
                     selectedKeys={new Set([selectedShot.cameraMovement])}
                     onChange={e =>
@@ -1044,6 +1046,7 @@ export const ShotList: React.FC<ShotListProps> = ({
                     <div>
                       <label className="text-sm font-medium mb-2 block">选择生图模型</label>
                       <Select
+                        aria-label="生图模型"
                         label="生图模型"
                         placeholder={
                           availableImageModels.length > 0
@@ -1155,6 +1158,7 @@ export const ShotList: React.FC<ShotListProps> = ({
                 <div>
                   <label className="text-sm font-medium mb-2 block">选择拆分模型</label>
                   <Select
+                    aria-label="LLM模型"
                     label="LLM模型"
                     placeholder={
                       availableLLMModels.length > 0
@@ -1184,6 +1188,7 @@ export const ShotList: React.FC<ShotListProps> = ({
                 <div>
                   <label className="text-sm font-medium mb-2 block">关键帧数量</label>
                   <Select
+                    aria-label="关键帧数量"
                     label="数量"
                     selectedKeys={[keyframeCount.toString()]}
                     onChange={e => setKeyframeCount(parseInt(e.target.value))}

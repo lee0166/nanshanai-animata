@@ -871,6 +871,7 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({
                   {getAvailableModels().length > 0 && (
                     <Select
                       size="sm"
+                      aria-label="选择模型"
                       label="选择模型"
                       placeholder="选择模型"
                       selectedKeys={selectedModelId ? [selectedModelId] : []}
