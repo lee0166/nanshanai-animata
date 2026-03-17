@@ -294,7 +294,8 @@ export interface Script {
   id: string;
   projectId: string;
   title: string;
-  content: string; // Original text content
+  originalContent: string; // Original text content
+  content: string; // Cleaned text content
   parseState: ScriptParseState;
   createdAt: number;
   updatedAt: number;

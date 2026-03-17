@@ -180,13 +180,13 @@ export class RefinementEngine {
     // 根据权重优先级和置信度排序
     // 权重优先级：narrativeLogic > dramatic > completeness > accuracy > consistency > usability > spatialTemporal
     const priorityMap: Record<string, number> = {
-      'narrativeLogic': 7,
-      'dramatic': 6,
-      'completeness': 5,
-      'accuracy': 4,
-      'consistency': 3,
-      'usability': 2,
-      'spatialTemporal': 1,
+      narrativeLogic: 7,
+      dramatic: 6,
+      completeness: 5,
+      accuracy: 4,
+      consistency: 3,
+      usability: 2,
+      spatialTemporal: 1,
     };
 
     actions.sort((a, b) => {
@@ -211,15 +211,28 @@ export class RefinementEngine {
    * 推断action的维度优先级
    * @private
    */
-  private inferDimensionPriority(action: RefinementAction, priorityMap: Record<string, number>): number {
+  private inferDimensionPriority(
+    action: RefinementAction,
+    priorityMap: Record<string, number>
+  ): number {
     // 根据action的id或description推断所属维度
     const id = action.id.toLowerCase();
     const desc = action.description.toLowerCase();
 
-    if (id.includes('narrative') || desc.includes('叙事') || desc.includes('出场') || desc.includes('节点')) {
+    if (
+      id.includes('narrative') ||
+      desc.includes('叙事') ||
+      desc.includes('出场') ||
+      desc.includes('节点')
+    ) {
       return priorityMap['narrativeLogic'] || 1;
     }
-    if (id.includes('dramatic') || desc.includes('戏剧') || desc.includes('冲突') || desc.includes('反派')) {
+    if (
+      id.includes('dramatic') ||
+      desc.includes('戏剧') ||
+      desc.includes('冲突') ||
+      desc.includes('反派')
+    ) {
       return priorityMap['dramatic'] || 1;
     }
     if (id.includes('completeness') || desc.includes('完整')) {
@@ -603,8 +616,13 @@ export class RefinementEngine {
     }
 
     // 3. 检查场景顺序是否合理（使用类型断言）
-    const scenesWithSequence = context.scenes as (ScriptScene & { sequence?: number; preSceneId?: string })[];
-    const sortedScenes = [...scenesWithSequence].sort((a, b) => (a.sequence || 0) - (b.sequence || 0));
+    const scenesWithSequence = context.scenes as (ScriptScene & {
+      sequence?: number;
+      preSceneId?: string;
+    })[];
+    const sortedScenes = [...scenesWithSequence].sort(
+      (a, b) => (a.sequence || 0) - (b.sequence || 0)
+    );
     for (let i = 1; i < sortedScenes.length; i++) {
       const prevScene = sortedScenes[i - 1];
       const currScene = sortedScenes[i];
@@ -638,8 +656,8 @@ export class RefinementEngine {
     // 1. 检查是否有足够的冲突场景
     const conflictKeywords = ['冲突', '对抗', '争执', '战斗', '危机', '困境', '挑战'];
     const conflictScenes = context.scenes.filter(scene =>
-      conflictKeywords.some(keyword =>
-        scene.description?.includes(keyword) || scene.name?.includes(keyword)
+      conflictKeywords.some(
+        keyword => scene.description?.includes(keyword) || scene.name?.includes(keyword)
       )
     );
 
@@ -658,12 +676,16 @@ export class RefinementEngine {
     }
 
     // 2. 检查角色间是否有对立关系
-    const protagonist = context.characters.find(c =>
-      c.description?.includes('主角') || c.description?.includes('主人公')
-    ) || context.characters[0];
+    const protagonist =
+      context.characters.find(
+        c => c.description?.includes('主角') || c.description?.includes('主人公')
+      ) || context.characters[0];
 
-    const antagonist = context.characters.find(c =>
-      c.description?.includes('反派') || c.description?.includes('敌人') || c.description?.includes('对手')
+    const antagonist = context.characters.find(
+      c =>
+        c.description?.includes('反派') ||
+        c.description?.includes('敌人') ||
+        c.description?.includes('对手')
     );
 
     if (!antagonist && context.characters.length >= 2) {

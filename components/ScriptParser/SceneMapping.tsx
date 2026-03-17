@@ -129,9 +129,7 @@ export const SceneMapping: React.FC<SceneMappingProps> = ({
   // 批量创建场景 - 彻底修复竞态条件
   const handleBatchCreateScenes = async () => {
     // 过滤掉已关联和正在创建中的场景
-    const unmapped = scriptScenes.filter(
-      s => !s.mappedAssetId && !creatingScenes.has(s.name)
-    );
+    const unmapped = scriptScenes.filter(s => !s.mappedAssetId && !creatingScenes.has(s.name));
     if (unmapped.length === 0) {
       showToast('所有场景已关联', 'info');
       return;

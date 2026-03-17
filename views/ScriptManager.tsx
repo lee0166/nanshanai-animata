@@ -154,6 +154,9 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({
   const [scriptTitle, setScriptTitle] = useState('');
   const [scriptContent, setScriptContent] = useState('');
   const [scriptWordCount, setScriptWordCount] = useState(0);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedContent, setEditedContent] = useState('');
+  const [currentView, setCurrentView] = useState<'original' | 'cleaned'>('original');
 
   // Creative Intent Modal - 新的创作意图确认
   const [showCreativeIntent, setShowCreativeIntent] = useState(false);
@@ -401,10 +404,13 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({
         const fileName = file.name.substring(0, file.name.lastIndexOf('.'));
         setScriptTitle(fileName);
         setScriptContent(content);
-        showToast(
-          `文件 "${file.name}" 读取成功（${content.length.toLocaleString()} 字符）`,
-          'success'
-        );
+        // 计算字数
+        const trimmed = content.trim();
+        const chineseChars = (trimmed.match(/[\u4e00-\u9fa5]/g) || []).length;
+        const englishWords = (trimmed.match(/[a-zA-Z]+/g) || []).length;
+        const numbers = (trimmed.match(/\d+/g) || []).length;
+        const wordCount = chineseChars + englishWords + numbers;
+        showToast(`文件 "${file.name}" 读取成功（${wordCount.toLocaleString()} 字）`, 'success');
       } catch (error) {
         console.error('[ScriptManager] Failed to read file:', error);
         showToast('文件读取失败', 'error');
@@ -439,6 +445,7 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({
         id: `script_${Date.now()}`,
         projectId,
         title: scriptTitle.trim(),
+        originalContent: scriptContent.trim(),
         content: scriptContent.trim(),
         createdAt: Date.now(),
         updatedAt: Date.now(),
@@ -666,13 +673,18 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({
       const parseState = await parser.parseScript(
         currentScript.id,
         projectId,
-        currentScript.content,
+        currentScript.originalContent || currentScript.content,
         onProgress,
         resumeFromState
       );
 
       // Note: Removed isMountedRef check to fix React StrictMode issues
-      const updatedScript = { ...currentScript, parseState };
+      const updatedScript = {
+        ...currentScript,
+        parseState,
+        // 更新content为最新的原始内容，确保重新分析时使用正确的数据源
+        content: currentScript.originalContent || currentScript.content,
+      };
       setCurrentScript(updatedScript);
 
       if (parseState.stage === 'completed') {
@@ -711,6 +723,15 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({
           console.log('[ScriptManager] ========== Performance Report Set to State ==========');
         } else {
           console.warn('[ScriptManager] No performance report received from parser!');
+        }
+
+        // 保存更新后的脚本，确保重新分析的结果被持久化
+        try {
+          await storageService.saveScript(updatedScript);
+          console.log('[ScriptManager] Script saved after reanalysis');
+        } catch (error) {
+          console.error('[ScriptManager] Failed to save script after reanalysis:', error);
+          showToast('保存分析结果失败', 'error');
         }
       } else if (parseState.stage === 'error') {
         showToast(`解析失败: ${parseState.error}`, 'error');
@@ -801,13 +822,31 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({
   // Update word count when content changes
   useEffect(() => {
     if (scriptContent) {
-      // 2.0: 简单的字数统计，不再依赖TextCleaner.getTextStats
-      const charCount = scriptContent.length;
-      setScriptWordCount(charCount);
+      // 计算字数（中文字符 + 英文单词 + 数字）
+      const trimmed = scriptContent.trim();
+      if (trimmed) {
+        // Count Chinese characters
+        const chineseChars = (trimmed.match(/[\u4e00-\u9fa5]/g) || []).length;
+        // Count English words (sequences of letters)
+        const englishWords = (trimmed.match(/[a-zA-Z]+/g) || []).length;
+        // Count numbers as words
+        const numbers = (trimmed.match(/\d+/g) || []).length;
+        const wordCount = chineseChars + englishWords + numbers;
+        setScriptWordCount(wordCount);
+      } else {
+        setScriptWordCount(0);
+      }
     } else {
       setScriptWordCount(0);
     }
   }, [scriptContent]);
+
+  // Update edited content when current script changes
+  useEffect(() => {
+    if (currentScript) {
+      setEditedContent(currentScript.originalContent || currentScript.content);
+    }
+  }, [currentScript]);
 
   // Render
   return (
@@ -899,7 +938,14 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({
                 <div>
                   <h3 className="text-2xl font-bold">{currentScript.title}</h3>
                   <p className="text-slate-500 mt-1">
-                    {currentScript.content.length.toLocaleString()} 字符
+                    {(() => {
+                      const trimmed = currentScript.content.trim();
+                      const chineseChars = (trimmed.match(/[\u4e00-\u9fa5]/g) || []).length;
+                      const englishWords = (trimmed.match(/[a-zA-Z]+/g) || []).length;
+                      const numbers = (trimmed.match(/\d+/g) || []).length;
+                      return chineseChars + englishWords + numbers;
+                    })().toLocaleString()}{' '}
+                    字
                   </p>
                 </div>
                 <div className="flex items-center gap-2">
@@ -1062,6 +1108,108 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({
                     </Card>
                   </Tab>
 
+                  {/* Original Text Tab */}
+                  <Tab
+                    key="original-text"
+                    title={
+                      <div className="flex items-center gap-2">
+                        <FileText size={16} />
+                        <span>原文</span>
+                      </div>
+                    }
+                  >
+                    <Card>
+                      <CardBody className="space-y-4">
+                        <div className="flex justify-between items-center">
+                          <div className="flex gap-2">
+                            <Button
+                              variant={currentView === 'original' ? 'solid' : 'light'}
+                              size="sm"
+                              onPress={() => setCurrentView('original')}
+                            >
+                              原始原文
+                            </Button>
+                            <Button
+                              variant={currentView === 'cleaned' ? 'solid' : 'light'}
+                              size="sm"
+                              onPress={() => setCurrentView('cleaned')}
+                            >
+                              清洗后原文
+                            </Button>
+                          </div>
+                          <div className="flex gap-2">
+                            {currentView === 'original' && (
+                              <Button variant="light" size="sm" onPress={() => setIsEditing(true)}>
+                                编辑
+                              </Button>
+                            )}
+                            {isEditing && (
+                              <>
+                                <Button
+                                  variant="light"
+                                  size="sm"
+                                  onPress={() => {
+                                    setIsEditing(false);
+                                    setEditedContent(
+                                      currentScript.originalContent || currentScript.content
+                                    );
+                                  }}
+                                >
+                                  取消
+                                </Button>
+                                <Button
+                                  color="primary"
+                                  size="sm"
+                                  onPress={async () => {
+                                    // 保存编辑后的内容，只修改原始原文
+                                    const updatedScript = {
+                                      ...currentScript,
+                                      originalContent: editedContent,
+                                      updatedAt: Date.now(),
+                                    };
+                                    setCurrentScript(updatedScript);
+                                    // 保存到后端存储
+                                    try {
+                                      await storageService.saveScript(updatedScript);
+                                      showToast('原文已保存', 'success');
+                                    } catch (error) {
+                                      console.error(
+                                        '[ScriptManager] Failed to save script:',
+                                        error
+                                      );
+                                      showToast('保存失败，请重试', 'error');
+                                    }
+                                    setIsEditing(false);
+                                  }}
+                                >
+                                  保存
+                                </Button>
+                              </>
+                            )}
+                          </div>
+                        </div>
+                        {isEditing ? (
+                          <div className="border border-slate-200 dark:border-slate-700 rounded-lg p-4 bg-white dark:bg-slate-800 h-96 overflow-auto">
+                            <textarea
+                              value={editedContent}
+                              onChange={e => setEditedContent(e.target.value)}
+                              className="w-full h-full p-2 border-none outline-none resize-none text-sm"
+                              placeholder="请编辑原文内容..."
+                            />
+                          </div>
+                        ) : (
+                          <div className="border border-slate-200 dark:border-slate-700 rounded-lg p-4 bg-slate-50 dark:bg-slate-800 h-96 overflow-auto">
+                            <pre className="whitespace-pre-wrap text-sm">
+                              {currentView === 'original'
+                                ? currentScript.originalContent || currentScript.content
+                                : currentScript.content}
+                            </pre>
+                          </div>
+                        )}
+                      </CardBody>
+                    </Card>
+                  </Tab>
+
                   {/* Characters Tab */}
                   <Tab
                     key="characters"
@@ -1194,7 +1342,9 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({
                   <CardBody>
                     <h4 className="font-medium mb-3">剧本内容</h4>
                     <div className="bg-slate-100 dark:bg-slate-900 p-4 rounded-lg max-h-96 overflow-y-auto">
-                      <pre className="whitespace-pre-wrap text-sm">{currentScript.content}</pre>
+                      <pre className="whitespace-pre-wrap text-sm">
+                        {currentScript.originalContent || currentScript.content}
+                      </pre>
                     </div>
                   </CardBody>
                 </Card>
@@ -1245,7 +1395,7 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({
               maxRows={20}
             />
             {scriptWordCount > 0 && (
-              <p className="text-sm text-slate-500">{scriptWordCount.toLocaleString()} 字符</p>
+              <p className="text-sm text-slate-500">{scriptWordCount.toLocaleString()} 字</p>
             )}
           </ModalBody>
           <ModalFooter>

@@ -47,10 +47,7 @@ export const ScoreBreakdown: React.FC<ScoreBreakdownProps> = ({
   const sortedScores = [...dimensionScores].sort((a, b) => b.weight - a.weight);
 
   // 计算加权总分（用于验证）
-  const calculatedTotal = sortedScores.reduce(
-    (sum, dim) => sum + dim.score * dim.weight,
-    0
-  );
+  const calculatedTotal = sortedScores.reduce((sum, dim) => sum + dim.score * dim.weight, 0);
 
   // 判断是否为v2.0版本（权重调整后的版本）
   const isV2 = weightVersion === 'v2.0';
@@ -81,20 +78,15 @@ export const ScoreBreakdown: React.FC<ScoreBreakdownProps> = ({
 
       {/* 维度明细 */}
       <div className="space-y-2">
-        {sortedScores.map((dim) => {
+        {sortedScores.map(dim => {
           const weightedScore = dim.score * dim.weight;
           return (
-            <div
-              key={dim.dimension}
-              className="flex items-center justify-between text-sm"
-            >
+            <div key={dim.dimension} className="flex items-center justify-between text-sm">
               <div className="flex items-center gap-2 flex-1">
                 <span className="text-default-600 min-w-[80px]">
                   {getDimensionName(dim.dimension)}
                 </span>
-                <span className={`font-medium ${getScoreColor(dim.score)}`}>
-                  {dim.score}分
-                </span>
+                <span className={`font-medium ${getScoreColor(dim.score)}`}>{dim.score}分</span>
               </div>
               <div className="flex items-center gap-2 text-default-500">
                 <span>× {(dim.weight * 100).toFixed(0)}%</span>
@@ -115,9 +107,7 @@ export const ScoreBreakdown: React.FC<ScoreBreakdownProps> = ({
           <span className="text-xs text-default-400">
             ({calculatedTotal.toFixed(1)} → {totalScore})
           </span>
-          <span className={`text-lg font-bold ${getScoreColor(totalScore)}`}>
-            {totalScore}分
-          </span>
+          <span className={`text-lg font-bold ${getScoreColor(totalScore)}`}>{totalScore}分</span>
         </div>
       </div>
 

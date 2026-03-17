@@ -3084,7 +3084,9 @@ ${chunkContent.substring(0, 4000)}
       // 复用现有API调用机制（带超时控制）
       const response = await this.callLLMWithTimeout(prompt, { timeout });
 
-      console.log(`[ScriptParser] Item extraction response received in ${Date.now() - startTime}ms`);
+      console.log(
+        `[ScriptParser] Item extraction response received in ${Date.now() - startTime}ms`
+      );
 
       // 解析JSON
       const items = this.extractJSON<ScriptItem[]>(response, true);
@@ -3104,7 +3106,6 @@ ${chunkContent.substring(0, 4000)}
 
       console.log(`[ScriptParser] Phase 1: Extracted ${processedItems.length} items successfully`);
       return processedItems;
-
     } catch (error) {
       console.warn('[ScriptParser] Phase 1: Items extraction failed or timeout:', error);
       // 降级策略：返回空数组，不阻断流程
@@ -3118,15 +3119,12 @@ ${chunkContent.substring(0, 4000)}
    * @param options - 选项，包含timeout
    * @returns LLM响应
    */
-  private async callLLMWithTimeout(
-    prompt: string,
-    options: { timeout: number }
-  ): Promise<string> {
+  private async callLLMWithTimeout(prompt: string, options: { timeout: number }): Promise<string> {
     return Promise.race([
       this.callLLM(prompt, 'item'),
       new Promise<never>((_, reject) =>
         setTimeout(() => reject(new Error('Item extraction timeout')), options.timeout)
-      )
+      ),
     ]);
   }
 
@@ -3966,7 +3964,10 @@ ${chunkContent.substring(0, 4000)}
         );
         console.log(`[ScriptParser] Fast path: Extracted ${state.items.length} items`);
       } catch (e) {
-        console.warn('[ScriptParser] Fast path: Items extraction failed, continuing without items:', e);
+        console.warn(
+          '[ScriptParser] Fast path: Items extraction failed, continuing without items:',
+          e
+        );
         state.items = [];
       }
 
@@ -4576,7 +4577,10 @@ ${content}
         );
         console.log(`[ScriptParser] Fast path optimized: Extracted ${state.items.length} items`);
       } catch (e) {
-        console.warn('[ScriptParser] Fast path optimized: Items extraction failed, continuing without items:', e);
+        console.warn(
+          '[ScriptParser] Fast path optimized: Items extraction failed, continuing without items:',
+          e
+        );
         state.items = [];
       }
 
@@ -4891,7 +4895,10 @@ ${content}
         );
         console.log(`[ScriptParser] Chunked path: Extracted ${state.items.length} items`);
       } catch (e) {
-        console.warn('[ScriptParser] Chunked path: Items extraction failed, continuing without items:', e);
+        console.warn(
+          '[ScriptParser] Chunked path: Items extraction failed, continuing without items:',
+          e
+        );
         state.items = [];
       }
 
@@ -5320,7 +5327,10 @@ ${content}
         );
         console.log(`[ScriptParser] Standard path: Extracted ${state.items.length} items`);
       } catch (e) {
-        console.warn('[ScriptParser] Standard path: Items extraction failed, continuing without items:', e);
+        console.warn(
+          '[ScriptParser] Standard path: Items extraction failed, continuing without items:',
+          e
+        );
         state.items = [];
       }
 

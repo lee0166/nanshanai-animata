@@ -1,6 +1,6 @@
 /**
  * Item Extraction Tests - Phase 1
- * 
+ *
  * 测试目标：
  * 1. 验证轻量级道具提取功能正常工作
  * 2. 验证超时降级机制
@@ -17,7 +17,7 @@ const mockLLMResponse = {
   validItems: JSON.stringify([
     { name: '古剑', description: '一把古老的青铜剑', category: 'weapon', owner: '主角' },
     { name: '玉佩', description: '雕龙玉佩', category: 'jewelry', owner: '女主角' },
-    { name: '地图', description: '藏宝图', category: 'document', owner: '' }
+    { name: '地图', description: '藏宝图', category: 'document', owner: '' },
   ]),
   emptyItems: JSON.stringify([]),
   invalidJson: 'invalid json response',
@@ -157,7 +157,9 @@ describe('Phase 1: Item Extraction Optimization', () => {
   describe('extractItemsLightweight', () => {
     it('should extract items from short script successfully', async () => {
       // Mock the LLM call
-      const mockCallLLM = vi.spyOn(parser as any, 'callLLM').mockResolvedValue(mockLLMResponse.validItems);
+      const mockCallLLM = vi
+        .spyOn(parser as any, 'callLLM')
+        .mockResolvedValue(mockLLMResponse.validItems);
 
       const items = await (parser as any).extractItemsLightweight(
         testScripts.shortScript,
@@ -180,16 +182,20 @@ describe('Phase 1: Item Extraction Optimization', () => {
 
       // 验证关键道具被提取
       const itemNames = items.map((i: ScriptItem) => i.name);
-      expect(itemNames.some((name: string) => name.includes('剑') || name.includes('玉佩'))).toBe(true);
+      expect(itemNames.some((name: string) => name.includes('剑') || name.includes('玉佩'))).toBe(
+        true
+      );
 
       mockCallLLM.mockRestore();
     });
 
     it('should return empty array on timeout', async () => {
       // Mock timeout
-      const mockCallLLM = vi.spyOn(parser as any, 'callLLM').mockImplementation(
-        () => new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), 100))
-      );
+      const mockCallLLM = vi
+        .spyOn(parser as any, 'callLLM')
+        .mockImplementation(
+          () => new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), 100))
+        );
 
       const items = await (parser as any).extractItemsLightweight(
         testScripts.shortScript,
@@ -202,7 +208,9 @@ describe('Phase 1: Item Extraction Optimization', () => {
     });
 
     it('should return empty array on invalid JSON response', async () => {
-      const mockCallLLM = vi.spyOn(parser as any, 'callLLM').mockResolvedValue(mockLLMResponse.invalidJson);
+      const mockCallLLM = vi
+        .spyOn(parser as any, 'callLLM')
+        .mockResolvedValue(mockLLMResponse.invalidJson);
 
       const items = await (parser as any).extractItemsLightweight(
         testScripts.shortScript,
@@ -216,13 +224,11 @@ describe('Phase 1: Item Extraction Optimization', () => {
     });
 
     it('should handle empty script gracefully', async () => {
-      const mockCallLLM = vi.spyOn(parser as any, 'callLLM').mockResolvedValue(mockLLMResponse.emptyItems);
+      const mockCallLLM = vi
+        .spyOn(parser as any, 'callLLM')
+        .mockResolvedValue(mockLLMResponse.emptyItems);
 
-      const items = await (parser as any).extractItemsLightweight(
-        '',
-        [],
-        30000
-      );
+      const items = await (parser as any).extractItemsLightweight('', [], 30000);
 
       expect(items).toEqual([]);
       mockCallLLM.mockRestore();
@@ -232,8 +238,10 @@ describe('Phase 1: Item Extraction Optimization', () => {
   describe('Integration with Parsing Paths', () => {
     it('should include items in parse state for Fast Path', async () => {
       // 这个测试验证Fast Path是否包含items字段
-      const mockCallLLM = vi.spyOn(parser as any, 'callLLM').mockResolvedValue(mockLLMResponse.validItems);
-      
+      const mockCallLLM = vi
+        .spyOn(parser as any, 'callLLM')
+        .mockResolvedValue(mockLLMResponse.validItems);
+
       // 使用短剧本触发Fast Path
       const state = await parser.parseScript(
         'test-script-id',
@@ -249,8 +257,10 @@ describe('Phase 1: Item Extraction Optimization', () => {
     });
 
     it('should include items in parse state for Standard Path', async () => {
-      const mockCallLLM = vi.spyOn(parser as any, 'callLLM').mockResolvedValue(mockLLMResponse.validItems);
-      
+      const mockCallLLM = vi
+        .spyOn(parser as any, 'callLLM')
+        .mockResolvedValue(mockLLMResponse.validItems);
+
       // 使用中等长度剧本触发Standard Path
       const state = await parser.parseScript(
         'test-script-id',
@@ -269,7 +279,7 @@ describe('Phase 1: Item Extraction Optimization', () => {
     it('should extract at least 70% of expected items', async () => {
       // 从mediumScript中，我们期望提取：钥匙、地图、怀表、枪（至少4个）
       const expectedItems = ['钥匙', '地图', '怀表', '枪', '日记'];
-      
+
       const mockResponse = JSON.stringify([
         { name: '钥匙', description: '书房钥匙', category: 'tool', owner: '陈老爷' },
         { name: '地图', description: '藏宝地图', category: 'document', owner: '' },
@@ -287,13 +297,15 @@ describe('Phase 1: Item Extraction Optimization', () => {
 
       // 计算提取率
       const extractedNames = items.map((i: ScriptItem) => i.name);
-      const matchedItems = expectedItems.filter(expected => 
+      const matchedItems = expectedItems.filter(expected =>
         extractedNames.some((name: string) => name.includes(expected))
       );
-      
+
       const extractionRate = matchedItems.length / expectedItems.length;
-      console.log(`Extraction rate: ${(extractionRate * 100).toFixed(1)}% (${matchedItems.length}/${expectedItems.length})`);
-      
+      console.log(
+        `Extraction rate: ${(extractionRate * 100).toFixed(1)}% (${matchedItems.length}/${expectedItems.length})`
+      );
+
       expect(extractionRate).toBeGreaterThanOrEqual(0.7); // >70%
 
       mockCallLLM.mockRestore();
@@ -302,16 +314,14 @@ describe('Phase 1: Item Extraction Optimization', () => {
 
   describe('Performance', () => {
     it('should complete extraction within 30 seconds', async () => {
-      const mockCallLLM = vi.spyOn(parser as any, 'callLLM').mockImplementation(
-        () => new Promise(resolve => setTimeout(() => resolve(mockLLMResponse.validItems), 100))
-      );
+      const mockCallLLM = vi
+        .spyOn(parser as any, 'callLLM')
+        .mockImplementation(
+          () => new Promise(resolve => setTimeout(() => resolve(mockLLMResponse.validItems), 100))
+        );
 
       const startTime = Date.now();
-      await (parser as any).extractItemsLightweight(
-        testScripts.mediumScript,
-        [],
-        30000
-      );
+      await (parser as any).extractItemsLightweight(testScripts.mediumScript, [], 30000);
       const duration = Date.now() - startTime;
 
       expect(duration).toBeLessThan(30000);

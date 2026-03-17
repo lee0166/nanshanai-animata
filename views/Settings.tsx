@@ -87,7 +87,9 @@ const Settings: React.FC = () => {
   const [sortBy, setSortBy] = useState<'name' | 'type' | 'recent'>('name');
   const [visibleApiKeys, setVisibleApiKeys] = useState<Record<string, boolean>>({});
   const [selectedModelIds, setSelectedModelIds] = useState<string[]>([]);
-  const [activeNav, setActiveNav] = useState<'general' | 'duration' | 'models' | 'quality'>('general');
+  const [activeNav, setActiveNav] = useState<'general' | 'duration' | 'models' | 'quality'>(
+    'general'
+  );
 
   // Duration Budget Configuration State
   const [durationBudgetConfig, setDurationBudgetConfig] = useState({
@@ -651,7 +653,9 @@ const Settings: React.FC = () => {
           <div className="flex flex-col items-start gap-1">
             <div className="flex items-center gap-2 text-primary">
               <Database className="w-5 h-5" />
-              <h2 className="text-xl font-black uppercase tracking-widest">{t.settings.workspace}</h2>
+              <h2 className="text-xl font-black uppercase tracking-widest">
+                {t.settings.workspace}
+              </h2>
             </div>
             <p className="text-sm text-slate-400 font-bold uppercase tracking-widest">
               {t.settings.workspaceDesc}
@@ -661,7 +665,9 @@ const Settings: React.FC = () => {
             onPress={handleSave}
             color="primary"
             variant="shadow"
-            startContent={saved ? <CheckCircle className="w-5 h-5" /> : <Save className="w-5 h-5" />}
+            startContent={
+              saved ? <CheckCircle className="w-5 h-5" /> : <Save className="w-5 h-5" />
+            }
             className="font-black text-[14px] uppercase tracking-widest h-11 px-6 rounded-xl"
           >
             {saved ? t.common?.saved || '已保存' : t.common?.save || '保存'}
@@ -1993,7 +1999,9 @@ const Settings: React.FC = () => {
           <h1 className="text-2xl font-black text-slate-900 dark:text-white tracking-tighter uppercase">
             {t.settings.title}
           </h1>
-          <p className="text-slate-500 dark:text-slate-400 font-medium text-sm">{t.settings.subtitle}</p>
+          <p className="text-slate-500 dark:text-slate-400 font-medium text-sm">
+            {t.settings.subtitle}
+          </p>
         </div>
 
         <nav className="space-y-1">
@@ -2016,8 +2024,6 @@ const Settings: React.FC = () => {
             );
           })}
         </nav>
-
-
       </div>
 
       {/* Main Content */}

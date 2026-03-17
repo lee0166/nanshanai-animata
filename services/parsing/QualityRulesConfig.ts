@@ -178,11 +178,11 @@ export const DEFAULT_QUALITY_RULES: QualityRulesConfig = {
       priority: '最高',
     },
     dramatic: {
-      value: 0.20,
+      value: 0.2,
       description: '戏剧性权重',
       rationale: '戏剧性决定故事的吸引力',
       adjustable: true,
-      range: [0.10, 0.30],
+      range: [0.1, 0.3],
       priority: '高',
     },
     completeness: {
@@ -190,7 +190,7 @@ export const DEFAULT_QUALITY_RULES: QualityRulesConfig = {
       description: '完整性权重',
       rationale: '完整性确保剧本信息齐全',
       adjustable: true,
-      range: [0.10, 0.30],
+      range: [0.1, 0.3],
       priority: '中',
     },
     accuracy: {
@@ -198,7 +198,7 @@ export const DEFAULT_QUALITY_RULES: QualityRulesConfig = {
       description: '准确性权重',
       rationale: '准确性确保数据格式正确',
       adjustable: true,
-      range: [0.10, 0.25],
+      range: [0.1, 0.25],
       priority: '中',
     },
     consistency: {
@@ -206,7 +206,7 @@ export const DEFAULT_QUALITY_RULES: QualityRulesConfig = {
       description: '一致性权重',
       rationale: '一致性确保剧本内部逻辑自洽',
       adjustable: true,
-      range: [0.10, 0.25],
+      range: [0.1, 0.25],
       priority: '中',
     },
     usability: {
@@ -214,7 +214,7 @@ export const DEFAULT_QUALITY_RULES: QualityRulesConfig = {
       description: '可用性权重',
       rationale: '可用性评估生成友好度',
       adjustable: true,
-      range: [0.05, 0.20],
+      range: [0.05, 0.2],
       priority: '低',
     },
     spatialTemporal: {
@@ -222,7 +222,7 @@ export const DEFAULT_QUALITY_RULES: QualityRulesConfig = {
       description: '时空逻辑权重',
       rationale: '时空逻辑确保视听语言正确',
       adjustable: true,
-      range: [0.05, 0.20],
+      range: [0.05, 0.2],
       priority: '低',
     },
   },

@@ -16,7 +16,10 @@ const STORAGE_KEY = 'quality_rules_config';
  * 配置验证错误
  */
 export class ConfigValidationError extends Error {
-  constructor(message: string, public details?: string[]) {
+  constructor(
+    message: string,
+    public details?: string[]
+  ) {
     super(message);
     this.name = 'ConfigValidationError';
   }

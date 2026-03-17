@@ -162,9 +162,7 @@ export const ItemMapping: React.FC<ItemMappingProps> = ({
   // 批量创建物品 - 彻底修复竞态条件
   const handleBatchCreateItems = async () => {
     // 过滤掉已关联和正在创建中的物品
-    const unmapped = scriptItems.filter(
-      i => !i.mappedAssetId && !creatingItems.has(i.name)
-    );
+    const unmapped = scriptItems.filter(i => !i.mappedAssetId && !creatingItems.has(i.name));
     if (unmapped.length === 0) {
       showToast('所有道具已关联', 'info');
       return;

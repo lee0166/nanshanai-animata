@@ -157,12 +157,12 @@ export class QualityAnalyzer {
       // 回退到硬编码权重
       const fallbackWeights: Record<QualityDimension, number> = {
         [QualityDimension.NARRATIVE_LOGIC]: 0.25,
-        [QualityDimension.DRAMATIC]: 0.20,
-        [QualityDimension.COMPLETENESS]: 0.20,
+        [QualityDimension.DRAMATIC]: 0.2,
+        [QualityDimension.COMPLETENESS]: 0.2,
         [QualityDimension.ACCURACY]: 0.15,
         [QualityDimension.CONSISTENCY]: 0.15,
-        [QualityDimension.USABILITY]: 0.10,
-        [QualityDimension.SPATIAL_TEMPORAL]: 0.10,
+        [QualityDimension.USABILITY]: 0.1,
+        [QualityDimension.SPATIAL_TEMPORAL]: 0.1,
       };
       return fallbackWeights[dimension];
     }
@@ -961,7 +961,8 @@ export class QualityAnalyzer {
               targetId: shot.id,
               targetType: 'shot',
               context: `期望顺序: ${lastValidNode} → ${shot.narrativeNode}，但实际顺序相反`,
-              suggestion: '调整分镜顺序以符合叙事结构（三幕式：act1 → act2a → midpoint → act2b → climax → act3）',
+              suggestion:
+                '调整分镜顺序以符合叙事结构（三幕式：act1 → act2a → midpoint → act2b → climax → act3）',
               autoFixable: false,
             });
             score -= 5;
@@ -1092,7 +1093,12 @@ export class QualityAnalyzer {
     const usabilityMaxWhenCompletenessLow = this.getThreshold('usabilityMaxWhenCompletenessLow');
 
     // 规则1：叙事逻辑严重崩溃时，完整性不应超过阈值
-    if (narrativeLogic && narrativeLogic.score < narrativeCollapseThreshold && completeness && completeness.score > completenessMaxWhenCollapsed) {
+    if (
+      narrativeLogic &&
+      narrativeLogic.score < narrativeCollapseThreshold &&
+      completeness &&
+      completeness.score > completenessMaxWhenCollapsed
+    ) {
       completeness.score = completenessMaxWhenCollapsed;
       completeness.issues.push({
         type: 'warning',
@@ -1104,7 +1110,12 @@ export class QualityAnalyzer {
     }
 
     // 规则2：叙事逻辑严重崩溃时，一致性不应超过阈值
-    if (narrativeLogic && narrativeLogic.score < narrativeCollapseThreshold && consistency && consistency.score > consistencyMaxWhenCollapsed) {
+    if (
+      narrativeLogic &&
+      narrativeLogic.score < narrativeCollapseThreshold &&
+      consistency &&
+      consistency.score > consistencyMaxWhenCollapsed
+    ) {
       consistency.score = Math.min(consistency.score, consistencyMaxWhenCollapsed);
       if (!consistency.issues.some(i => i.message.includes('叙事逻辑'))) {
         consistency.issues.push({
@@ -1119,7 +1130,12 @@ export class QualityAnalyzer {
 
     // 规则3：完整性低于50分时，可用性不应超过阈值
     const usability = scores.find(d => d.dimension === QualityDimension.USABILITY);
-    if (completeness && completeness.score < 50 && usability && usability.score > usabilityMaxWhenCompletenessLow) {
+    if (
+      completeness &&
+      completeness.score < 50 &&
+      usability &&
+      usability.score > usabilityMaxWhenCompletenessLow
+    ) {
       usability.score = Math.min(usability.score, usabilityMaxWhenCompletenessLow);
     }
 

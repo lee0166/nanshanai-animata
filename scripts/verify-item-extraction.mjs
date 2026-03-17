@@ -1,6 +1,6 @@
 /**
  * 验证物品提取功能是否正确集成
- * 
+ *
  * 运行方式: node scripts/verify-item-extraction.mjs
  */
 
@@ -22,20 +22,27 @@ let allChecks = true;
 // 检查1: 轻量级Prompt是否存在
 console.log('✓ 检查1: 轻量级Prompt');
 const hasLightweightPrompt = content.includes('itemsBatchLightweight');
-console.log(`  ${hasLightweightPrompt ? '✅' : '❌'} itemsBatchLightweight Prompt ${hasLightweightPrompt ? '已添加' : '未找到'}`);
+console.log(
+  `  ${hasLightweightPrompt ? '✅' : '❌'} itemsBatchLightweight Prompt ${hasLightweightPrompt ? '已添加' : '未找到'}`
+);
 allChecks = allChecks && hasLightweightPrompt;
 
 // 检查2: 提取函数是否存在
 console.log('\n✓ 检查2: 提取函数');
 const hasExtractFunction = content.includes('extractItemsLightweight');
-console.log(`  ${hasExtractFunction ? '✅' : '❌'} extractItemsLightweight 函数 ${hasExtractFunction ? '已实现' : '未找到'}`);
+console.log(
+  `  ${hasExtractFunction ? '✅' : '❌'} extractItemsLightweight 函数 ${hasExtractFunction ? '已实现' : '未找到'}`
+);
 allChecks = allChecks && hasExtractFunction;
 
 // 检查3: 4个解析路径是否都集成了物品提取
 console.log('\n✓ 检查3: 解析路径集成');
 const paths = [
   { name: 'Fast Path (Legacy)', pattern: /parseShortScript[\s\S]*?extractItemsLightweight/ },
-  { name: 'Fast Path (Optimized)', pattern: /parseShortScriptOptimized[\s\S]*?extractItemsLightweight/ },
+  {
+    name: 'Fast Path (Optimized)',
+    pattern: /parseShortScriptOptimized[\s\S]*?extractItemsLightweight/,
+  },
   { name: 'Chunked Path', pattern: /parseChunkedScript[\s\S]*?extractItemsLightweight/ },
   { name: 'Standard Path', pattern: /async parseScript\([\s\S]*?extractItemsLightweight/ },
 ];
@@ -64,14 +71,18 @@ const tokenOptimizerPath = path.join(__dirname, '..', 'services', 'parsing', 'To
 const tokenOptimizerContent = fs.readFileSync(tokenOptimizerPath, 'utf-8');
 const hasItemTaskType = tokenOptimizerContent.includes("| 'item'");
 const hasItemConfig = tokenOptimizerContent.includes('item: {');
-console.log(`  ${hasItemTaskType ? '✅' : '❌'} item任务类型 ${hasItemTaskType ? '已添加' : '未找到'}`);
+console.log(
+  `  ${hasItemTaskType ? '✅' : '❌'} item任务类型 ${hasItemTaskType ? '已添加' : '未找到'}`
+);
 console.log(`  ${hasItemConfig ? '✅' : '❌'} item配置 ${hasItemConfig ? '已添加' : '未找到'}`);
 allChecks = allChecks && hasItemTaskType && hasItemConfig;
 
 // 检查7: TASK_CONFIG配置
 console.log('\n✓ 检查7: TASK_CONFIG配置');
 const hasTaskConfig = content.includes('item: {');
-console.log(`  ${hasTaskConfig ? '✅' : '❌'} TASK_CONFIG item配置 ${hasTaskConfig ? '已添加' : '未找到'}`);
+console.log(
+  `  ${hasTaskConfig ? '✅' : '❌'} TASK_CONFIG item配置 ${hasTaskConfig ? '已添加' : '未找到'}`
+);
 allChecks = allChecks && hasTaskConfig;
 
 // 总结

@@ -38,7 +38,11 @@ import {
   AlertOctagon,
   TrendingDown,
 } from 'lucide-react';
-import type { QualityRulesConfig, WeightConfig, ThresholdConfig } from '../../services/parsing/QualityRulesConfig';
+import type {
+  QualityRulesConfig,
+  WeightConfig,
+  ThresholdConfig,
+} from '../../services/parsing/QualityRulesConfig';
 import { DEFAULT_QUALITY_RULES } from '../../services/parsing/QualityRulesConfig';
 import { getQualityRulesLoader } from '../../services/parsing/QualityRulesLoader';
 
@@ -47,62 +51,77 @@ interface QualityRulesEditorProps {
 }
 
 // 维度配置 - 主题适配的颜色
-const dimensionConfig: Record<string, { name: string; color: string; lightColor: string; desc: string }> = {
-  narrativeLogic: { 
-    name: '叙事逻辑', 
-    color: '#f97316', 
+const dimensionConfig: Record<
+  string,
+  { name: string; color: string; lightColor: string; desc: string }
+> = {
+  narrativeLogic: {
+    name: '叙事逻辑',
+    color: '#f97316',
     lightColor: '#ea580c',
-    desc: '故事通顺度' 
+    desc: '故事通顺度',
   },
-  dramatic: { 
-    name: '戏剧性', 
-    color: '#ef4444', 
+  dramatic: {
+    name: '戏剧性',
+    color: '#ef4444',
     lightColor: '#dc2626',
-    desc: '吸引力张力' 
+    desc: '吸引力张力',
   },
-  completeness: { 
-    name: '完整性', 
-    color: '#22c55e', 
+  completeness: {
+    name: '完整性',
+    color: '#22c55e',
     lightColor: '#16a34a',
-    desc: '信息齐全度' 
+    desc: '信息齐全度',
   },
-  accuracy: { 
-    name: '准确性', 
-    color: '#3b82f6', 
+  accuracy: {
+    name: '准确性',
+    color: '#3b82f6',
     lightColor: '#2563eb',
-    desc: '数据格式正确' 
+    desc: '数据格式正确',
   },
-  consistency: { 
-    name: '一致性', 
-    color: '#a855f7', 
+  consistency: {
+    name: '一致性',
+    color: '#a855f7',
     lightColor: '#9333ea',
-    desc: '逻辑自洽性' 
+    desc: '逻辑自洽性',
   },
-  usability: { 
-    name: '可用性', 
-    color: '#06b6d4', 
+  usability: {
+    name: '可用性',
+    color: '#06b6d4',
     lightColor: '#0891b2',
-    desc: '生成友好度' 
+    desc: '生成友好度',
   },
-  spatialTemporal: { 
-    name: '时空逻辑', 
-    color: '#f59e0b', 
+  spatialTemporal: {
+    name: '时空逻辑',
+    color: '#f59e0b',
     lightColor: '#d97706',
-    desc: '视听语言' 
+    desc: '视听语言',
   },
 };
 
 // 阈值配置 - 使用Lucide图标，主题适配
 const thresholdConfig: Record<string, { name: string; icon: React.ElementType; desc: string }> = {
-  characterDescriptionLength: { name: '角色描述最小字数', icon: User, desc: '角色生成所需最少信息' },
+  characterDescriptionLength: {
+    name: '角色描述最小字数',
+    icon: User,
+    desc: '角色生成所需最少信息',
+  },
   sceneDescriptionLength: { name: '场景描述最小字数', icon: MapPin, desc: '场景环境氛围描述' },
   minShotsPerScene: { name: '每场景最少分镜', icon: Camera, desc: '基本叙事镜头覆盖' },
   maxShotsPerScene: { name: '每场景最多分镜', icon: Film, desc: '防止节奏拖沓' },
   minShotsTotal: { name: '总分镜数最小值', icon: BarChart3, desc: '短剧基本叙事需求' },
   shotDurationMin: { name: '分镜最短时长', icon: Timer, desc: '观众感知下限(秒)' },
   shotDurationMax: { name: '分镜最长时长', icon: Clock, desc: '避免拖沓上限(秒)' },
-  narrativeLogicCollapseThreshold: { name: '叙事崩溃阈值', icon: AlertOctagon, desc: '严重问题判定线' },
-  completenessMaxWhenNarrativeCollapsed: { name: '叙事崩溃时完整性上限', icon: TrendingDown, desc: '一致性保护机制' },
+  narrativeLogicCollapseThreshold: {
+    name: '叙事崩溃阈值',
+    icon: AlertOctagon,
+    desc: '严重问题判定线',
+  },
+  completenessMaxWhenNarrativeCollapsed: {
+    name: '叙事崩溃时完整性上限',
+    icon: TrendingDown,
+    desc: '一致性保护机制',
+  },
 };
 
 export const QualityRulesEditor: React.FC<QualityRulesEditorProps> = ({ t }) => {
@@ -257,7 +276,10 @@ export const QualityRulesEditor: React.FC<QualityRulesEditorProps> = ({ t }) => 
   }
 
   return (
-    <Card className="border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 overflow-hidden shadow-sm" radius="lg">
+    <Card
+      className="border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 overflow-hidden shadow-sm"
+      radius="lg"
+    >
       {/* Header - 优化按钮设计 */}
       <CardHeader className="px-6 py-4 border-b border-slate-200 dark:border-slate-800 flex flex-col md:flex-row md:items-center md:justify-between gap-3 bg-slate-50 dark:bg-slate-900">
         <div className="flex items-center gap-3">
@@ -271,32 +293,38 @@ export const QualityRulesEditor: React.FC<QualityRulesEditorProps> = ({ t }) => 
             </p>
           </div>
         </div>
-        
+
         <div className="flex items-center gap-2">
-          <input type="file" accept=".json" onChange={handleImport} className="hidden" id="import-config" />
+          <input
+            type="file"
+            accept=".json"
+            onChange={handleImport}
+            className="hidden"
+            id="import-config"
+          />
           <label htmlFor="import-config">
-            <Button 
-              as="span" 
-              variant="flat" 
-              size="sm" 
+            <Button
+              as="span"
+              variant="flat"
+              size="sm"
               startContent={<Upload className="w-4 h-4" />}
               className="text-slate-700 dark:text-slate-300"
             >
               导入
             </Button>
           </label>
-          <Button 
-            variant="flat" 
-            size="sm" 
+          <Button
+            variant="flat"
+            size="sm"
             startContent={<Download className="w-4 h-4" />}
             onPress={handleExport}
             className="text-slate-700 dark:text-slate-300"
           >
             导出
           </Button>
-          <Button 
-            variant="flat" 
-            size="sm" 
+          <Button
+            variant="flat"
+            size="sm"
             startContent={<RotateCcw className="w-4 h-4" />}
             onPress={handleReset}
             className="text-slate-700 dark:text-slate-300"
@@ -335,7 +363,8 @@ export const QualityRulesEditor: React.FC<QualityRulesEditorProps> = ({ t }) => 
           onSelectionChange={key => setActiveTab(key as 'weights' | 'thresholds')}
           variant="light"
           classNames={{
-            tabList: 'px-6 py-2 gap-1 border-b border-slate-200 dark:border-slate-800 bg-transparent',
+            tabList:
+              'px-6 py-2 gap-1 border-b border-slate-200 dark:border-slate-800 bg-transparent',
             tab: 'px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-400 data-[selected=true]:text-slate-900 dark:data-[selected=true]:text-white data-[selected=true]:bg-slate-100 dark:data-[selected=true]:bg-slate-800 rounded-lg transition-colors',
             cursor: 'hidden',
             panel: 'p-6',
@@ -348,7 +377,9 @@ export const QualityRulesEditor: React.FC<QualityRulesEditorProps> = ({ t }) => 
               <div className="flex items-center gap-2">
                 <SlidersHorizontal className="w-4 h-4" />
                 <span>维度权重</span>
-                <span className={`text-xs ${Math.abs(weightSum - 1.0) < 0.01 ? 'text-success' : 'text-warning'}`}>
+                <span
+                  className={`text-xs ${Math.abs(weightSum - 1.0) < 0.01 ? 'text-success' : 'text-warning'}`}
+                >
                   {(weightSum * 100).toFixed(0)}%
                 </span>
               </div>
@@ -358,16 +389,23 @@ export const QualityRulesEditor: React.FC<QualityRulesEditorProps> = ({ t }) => 
               {(Object.entries(config.weights) as [string, WeightConfig][]).map(([key, weight]) => {
                 const dim = dimensionConfig[key];
                 return (
-                  <div key={key} className="group flex items-center gap-4 p-3 rounded-xl bg-slate-100 dark:bg-slate-900/50 hover:bg-slate-200 dark:hover:bg-slate-800/50 transition-colors">
+                  <div
+                    key={key}
+                    className="group flex items-center gap-4 p-3 rounded-xl bg-slate-100 dark:bg-slate-900/50 hover:bg-slate-200 dark:hover:bg-slate-800/50 transition-colors"
+                  >
                     {/* 左侧：彩色标识条+名称 */}
                     <div className="flex items-center gap-3 w-36 flex-shrink-0">
-                      <div 
-                        className="w-1.5 h-10 rounded-full" 
+                      <div
+                        className="w-1.5 h-10 rounded-full"
                         style={{ backgroundColor: dim?.color || '#666' }}
                       />
                       <div>
-                        <div className="text-sm font-semibold text-slate-900 dark:text-white">{dim?.name || key}</div>
-                        <div className="text-[10px] text-slate-500 dark:text-slate-400">{dim?.desc}</div>
+                        <div className="text-sm font-semibold text-slate-900 dark:text-white">
+                          {dim?.name || key}
+                        </div>
+                        <div className="text-[10px] text-slate-500 dark:text-slate-400">
+                          {dim?.desc}
+                        </div>
                       </div>
                     </div>
 
@@ -384,14 +422,17 @@ export const QualityRulesEditor: React.FC<QualityRulesEditorProps> = ({ t }) => 
                         classNames={{
                           track: 'h-2 bg-slate-300 dark:bg-slate-700 rounded-full',
                           filler: 'bg-gradient-to-r from-primary/60 to-primary rounded-full',
-                          thumb: 'w-5 h-5 bg-white dark:bg-slate-200 border-2 border-primary shadow-md',
+                          thumb:
+                            'w-5 h-5 bg-white dark:bg-slate-200 border-2 border-primary shadow-md',
                         }}
                       />
                     </div>
 
                     {/* 右侧：数值 */}
                     <div className="flex items-center gap-1 w-16 flex-shrink-0 justify-end">
-                      <span className="text-xl font-bold text-slate-900 dark:text-white">{(weight.value * 100).toFixed(0)}</span>
+                      <span className="text-xl font-bold text-slate-900 dark:text-white">
+                        {(weight.value * 100).toFixed(0)}
+                      </span>
                       <span className="text-xs text-slate-500 dark:text-slate-400">%</span>
                     </div>
                   </div>
@@ -407,70 +448,83 @@ export const QualityRulesEditor: React.FC<QualityRulesEditorProps> = ({ t }) => 
               <div className="flex items-center gap-2">
                 <Gauge className="w-4 h-4" />
                 <span>阈值配置</span>
-                <span className="text-xs text-slate-500 dark:text-slate-400">{Object.keys(config.thresholds).length}</span>
+                <span className="text-xs text-slate-500 dark:text-slate-400">
+                  {Object.keys(config.thresholds).length}
+                </span>
               </div>
             }
           >
             <div className="space-y-2">
-              {(Object.entries(config.thresholds) as [string, ThresholdConfig][]).map(([key, threshold]) => {
-                const thresh = thresholdConfig[key];
-                const IconComponent = thresh?.icon || Settings2;
-                return (
-                  <div key={key} className="group flex items-center gap-4 p-3 rounded-xl bg-slate-100 dark:bg-slate-900/50 hover:bg-slate-200 dark:hover:bg-slate-800/50 transition-colors">
-                    {/* 左侧：Lucide图标+名称 */}
-                    <div className="flex items-center gap-3 w-44 flex-shrink-0">
-                      <div className="w-8 h-8 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
-                        <IconComponent className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-                      </div>
-                      <div>
-                        <div className="text-sm font-semibold text-slate-900 dark:text-white truncate" title={thresh?.name || key}>
-                          {thresh?.name || key}
+              {(Object.entries(config.thresholds) as [string, ThresholdConfig][]).map(
+                ([key, threshold]) => {
+                  const thresh = thresholdConfig[key];
+                  const IconComponent = thresh?.icon || Settings2;
+                  return (
+                    <div
+                      key={key}
+                      className="group flex items-center gap-4 p-3 rounded-xl bg-slate-100 dark:bg-slate-900/50 hover:bg-slate-200 dark:hover:bg-slate-800/50 transition-colors"
+                    >
+                      {/* 左侧：Lucide图标+名称 */}
+                      <div className="flex items-center gap-3 w-44 flex-shrink-0">
+                        <div className="w-8 h-8 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
+                          <IconComponent className="w-4 h-4 text-blue-600 dark:text-blue-400" />
                         </div>
-                        <Tooltip content={threshold.rationale}>
-                          <div className="text-[10px] text-slate-500 dark:text-slate-400 cursor-help flex items-center gap-1">
-                            {thresh?.desc || threshold.description}
-                            <Info className="w-3 h-3" />
+                        <div>
+                          <div
+                            className="text-sm font-semibold text-slate-900 dark:text-white truncate"
+                            title={thresh?.name || key}
+                          >
+                            {thresh?.name || key}
                           </div>
-                        </Tooltip>
+                          <Tooltip content={threshold.rationale}>
+                            <div className="text-[10px] text-slate-500 dark:text-slate-400 cursor-help flex items-center gap-1">
+                              {thresh?.desc || threshold.description}
+                              <Info className="w-3 h-3" />
+                            </div>
+                          </Tooltip>
+                        </div>
+                      </div>
+
+                      {/* 中间：滑块 */}
+                      <div className="flex-1 min-w-0 px-2">
+                        <Slider
+                          value={threshold.value}
+                          onChange={v => handleThresholdChange(key, v as number)}
+                          minValue={threshold.range[0]}
+                          maxValue={threshold.range[1]}
+                          step={1}
+                          size="sm"
+                          color="secondary"
+                          classNames={{
+                            track: 'h-2 bg-slate-300 dark:bg-slate-700 rounded-full',
+                            filler:
+                              'bg-gradient-to-r from-blue-400 to-blue-600 dark:from-blue-500 dark:to-blue-400 rounded-full',
+                            thumb:
+                              'w-5 h-5 bg-white dark:bg-slate-200 border-2 border-blue-500 shadow-md',
+                          }}
+                        />
+                      </div>
+
+                      {/* 右侧：数值输入 */}
+                      <div className="flex items-center gap-2 w-20 flex-shrink-0 justify-end">
+                        <Input
+                          type="number"
+                          value={threshold.value.toString()}
+                          onChange={e => handleThresholdChange(key, parseInt(e.target.value) || 0)}
+                          min={threshold.range[0]}
+                          max={threshold.range[1]}
+                          classNames={{
+                            input: 'text-center font-bold text-slate-900 dark:text-white',
+                            inputWrapper:
+                              'bg-slate-50 dark:bg-slate-800 border-slate-300 dark:border-slate-600 h-9 w-16',
+                          }}
+                          size="sm"
+                        />
                       </div>
                     </div>
-
-                    {/* 中间：滑块 */}
-                    <div className="flex-1 min-w-0 px-2">
-                      <Slider
-                        value={threshold.value}
-                        onChange={v => handleThresholdChange(key, v as number)}
-                        minValue={threshold.range[0]}
-                        maxValue={threshold.range[1]}
-                        step={1}
-                        size="sm"
-                        color="secondary"
-                        classNames={{
-                          track: 'h-2 bg-slate-300 dark:bg-slate-700 rounded-full',
-                          filler: 'bg-gradient-to-r from-blue-400 to-blue-600 dark:from-blue-500 dark:to-blue-400 rounded-full',
-                          thumb: 'w-5 h-5 bg-white dark:bg-slate-200 border-2 border-blue-500 shadow-md',
-                        }}
-                      />
-                    </div>
-
-                    {/* 右侧：数值输入 */}
-                    <div className="flex items-center gap-2 w-20 flex-shrink-0 justify-end">
-                      <Input
-                        type="number"
-                        value={threshold.value.toString()}
-                        onChange={e => handleThresholdChange(key, parseInt(e.target.value) || 0)}
-                        min={threshold.range[0]}
-                        max={threshold.range[1]}
-                        classNames={{
-                          input: 'text-center font-bold text-slate-900 dark:text-white',
-                          inputWrapper: 'bg-slate-50 dark:bg-slate-800 border-slate-300 dark:border-slate-600 h-9 w-16',
-                        }}
-                        size="sm"
-                      />
-                    </div>
-                  </div>
-                );
-              })}
+                  );
+                }
+              )}
             </div>
           </Tab>
         </Tabs>
