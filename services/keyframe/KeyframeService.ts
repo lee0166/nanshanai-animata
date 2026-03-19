@@ -10,6 +10,32 @@ export interface SplitKeyframesOptions {
   characterAssets?: CharacterAsset[];
   sceneAsset?: Asset;
   modelConfigId?: string; // 用户选择的LLM模型配置ID
+  splitOptions?: {
+    includeCameraMovement?: boolean;
+    includeCharacterDetails?: boolean;
+    includeSceneDetails?: boolean;
+    focusOnAction?: boolean;
+    focusOnEmotion?: boolean;
+  };
+  temperature?: number;
+  maxTokens?: number;
+}
+
+export interface BatchSplitKeyframesOptions {
+  shots: Shot[];
+  keyframeCount: number;
+  projectId: string;
+  modelConfigId?: string;
+  splitOptions?: {
+    includeCameraMovement?: boolean;
+    includeCharacterDetails?: boolean;
+    includeSceneDetails?: boolean;
+    focusOnAction?: boolean;
+    focusOnEmotion?: boolean;
+  };
+  temperature?: number;
+  maxTokens?: number;
+  concurrencyLimit?: number;
 }
 
 export interface GenerateKeyframeImageOptions {
@@ -26,7 +52,7 @@ export class KeyframeService {
    * 拆分关键帧
    */
   async splitKeyframes(options: SplitKeyframesOptions): Promise<Keyframe[]> {
-    const { shot, keyframeCount, characterAssets, sceneAsset, modelConfigId } = options;
+    const { shot, keyframeCount, characterAssets, sceneAsset, modelConfigId, splitOptions, temperature, maxTokens } = options;
 
     console.log(`[KeyframeService] ========== 开始拆分关键帧 ==========`);
     console.log(`[KeyframeService] 分镜ID: ${shot.id}`);
@@ -37,6 +63,46 @@ export class KeyframeService {
     console.log(`[KeyframeService] 角色资产数量: ${characterAssets?.length || 0}`);
     console.log(`[KeyframeService] 场景资产: ${sceneAsset?.name || '无'}`);
     console.log(`[KeyframeService] LLM模型配置ID: ${modelConfigId || '未指定'}`);
+
+    // 检测分镜类型
+    const contentType = keyframeEngine.detectShotType(shot.description, shot.cameraMovement);
+    console.log(`[KeyframeService] 检测到分镜类型: ${contentType}`);
+
+    // 对于静态分镜，根据用户选择的关键帧数量创建多个关键帧
+    if (contentType === 'static') {
+      console.log(`[KeyframeService] 静态分镜，创建 ${keyframeCount} 个关键帧`);
+      const staticKeyframes: Keyframe[] = [];
+      const durationPerFrame = shot.duration / keyframeCount;
+      
+      for (let i = 0; i < keyframeCount; i++) {
+        const staticKeyframe: Keyframe = {
+          id: `kf_${shot.id}_${i + 1}`,
+          sequence: i + 1,
+          frameType: i === 0 ? 'start' : i === keyframeCount - 1 ? 'end' : 'middle',
+          description: `${shot.description}（静态画面）`,
+          prompt: `参考角色图：${characterAssets?.[0]?.id || '无'}，参考场景图：${sceneAsset?.id || '无'}；${shot.shotType}，${sceneAsset?.name || ''}，${characterAssets?.[0]?.name || ''}，静态画面，电影级画质`,
+          duration: durationPerFrame,
+          references: {
+            character: characterAssets?.[0]
+              ? {
+                  id: characterAssets[0].id,
+                  name: characterAssets[0].name,
+                }
+              : undefined,
+            scene: sceneAsset
+              ? {
+                  id: sceneAsset.id,
+                  name: sceneAsset.name,
+                }
+              : undefined,
+          },
+          status: 'pending',
+        };
+        staticKeyframes.push(staticKeyframe);
+      }
+      console.log(`[KeyframeService] 静态分镜关键帧创建完成，共 ${staticKeyframes.length} 个`);
+      return staticKeyframes;
+    }
 
     // 准备参数
     const params: KeyframeSplitParams = {
@@ -55,6 +121,9 @@ export class KeyframeService {
           }
         : undefined,
       modelConfigId, // 透传用户选择的模型配置ID
+      splitOptions,
+      temperature,
+      maxTokens,
     };
 
     console.log(`[KeyframeService] 实际关键帧数量: ${params.keyframeCount}`);
@@ -79,6 +148,65 @@ export class KeyframeService {
     console.log(`[KeyframeService] ========== 关键帧拆分完成 ==========`);
 
     return result.keyframes;
+  }
+
+  /**
+   * 自动处理静态分镜
+   * 为静态分镜自动创建单个关键帧
+   */
+  async autoProcessStaticShot(shot: Shot, projectId: string): Promise<Keyframe[]> {
+    console.log(`[KeyframeService] ========== 自动处理静态分镜 ==========`);
+    console.log(`[KeyframeService] 分镜ID: ${shot.id}`);
+    console.log(`[KeyframeService] 分镜名称: ${shot.sceneName}-镜头${shot.sequence}`);
+    
+    // 检测分镜类型
+    const contentType = keyframeEngine.detectShotType(shot.description, shot.cameraMovement);
+    
+    if (contentType !== 'static') {
+      console.log(`[KeyframeService] 不是静态分镜，跳过自动处理`);
+      return [];
+    }
+
+    // 获取角色和场景资产
+    const assets = await storageService.getAssets(projectId);
+    const characterAssets = shot.characters
+      ?.map(charName => assets.find(a => a.type === 'character' && a.name === charName))
+      .filter((a): a is CharacterAsset => !!a) || [];
+    
+    const sceneAsset = assets.find(a => a.type === 'scene' && a.name === shot.sceneName);
+
+    console.log(`[KeyframeService] 角色资产数量: ${characterAssets.length}`);
+    console.log(`[KeyframeService] 场景资产: ${sceneAsset?.name || '无'}`);
+
+    // 创建静态关键帧
+    const staticKeyframe: Keyframe = {
+      id: `kf_${shot.id}_1`,
+      sequence: 1,
+      frameType: 'start',
+      description: shot.description,
+      prompt: `参考角色图：${characterAssets?.[0]?.id || '无'}，参考场景图：${sceneAsset?.id || '无'}；${shot.shotType}，${sceneAsset?.name || ''}，${characterAssets?.[0]?.name || ''}，静态画面，电影级画质`,
+      duration: shot.duration,
+      references: {
+        character: characterAssets?.[0]
+          ? {
+              id: characterAssets[0].id,
+              name: characterAssets[0].name,
+            }
+          : undefined,
+        scene: sceneAsset
+          ? {
+              id: sceneAsset.id,
+              name: sceneAsset.name,
+            }
+          : undefined,
+      },
+      status: 'pending',
+    };
+
+    console.log(`[KeyframeService] 静态分镜关键帧自动创建完成`);
+    console.log(`[KeyframeService] ========== 自动处理完成 ==========`);
+    
+    return [staticKeyframe];
   }
 
   /**
@@ -172,27 +300,58 @@ export class KeyframeService {
 
   /**
    * 批量生成关键帧图片
+   * 支持并行处理，提高效率
    */
   async batchGenerateImages(
     keyframes: Keyframe[],
     options: Omit<GenerateKeyframeImageOptions, 'keyframe'>,
-    onProgress?: (completed: number, total: number) => void
+    onProgress?: (completed: number, total: number) => void,
+    concurrencyLimit: number = 3 // 默认并发数限制
   ): Promise<Keyframe[]> {
     console.log(`[KeyframeService] ========== 开始批量生成关键帧图片 ==========`);
     console.log(`[KeyframeService] 总关键帧数量: ${keyframes.length}`);
+    console.log(`[KeyframeService] 并发限制: ${concurrencyLimit}`);
 
     const results: Keyframe[] = [];
     const batchStartTime = Date.now();
+    let completedCount = 0;
 
-    for (let i = 0; i < keyframes.length; i++) {
-      console.log(`[KeyframeService] 正在生成第 ${i + 1}/${keyframes.length} 个关键帧...`);
-      const result = await this.generateKeyframeImage({
-        ...options,
-        keyframe: keyframes[i],
-      });
-      results.push(result);
-      onProgress?.(i + 1, keyframes.length);
-      console.log(`[KeyframeService] 第 ${i + 1} 个关键帧生成完成，状态: ${result.status}`);
+    // 并发控制函数
+    const processBatch = async () => {
+      const batchSize = Math.min(concurrencyLimit, keyframes.length - completedCount);
+      
+      if (batchSize <= 0) return [];
+
+      console.log(`[KeyframeService] 开始处理批次，大小: ${batchSize}`);
+      
+      const batchPromises = [];
+      for (let i = 0; i < batchSize; i++) {
+        const index = completedCount + i;
+        const keyframe = keyframes[index];
+        
+        console.log(`[KeyframeService] 正在生成第 ${index + 1}/${keyframes.length} 个关键帧...`);
+        
+        const promise = this.generateKeyframeImage({
+          ...options,
+          keyframe,
+        }).then(result => {
+          console.log(`[KeyframeService] 第 ${index + 1} 个关键帧生成完成，状态: ${result.status}`);
+          completedCount++;
+          onProgress?.(completedCount, keyframes.length);
+          return result;
+        });
+        
+        batchPromises.push(promise);
+      }
+
+      const batchResults = await Promise.all(batchPromises);
+      return batchResults;
+    };
+
+    // 分批处理
+    while (completedCount < keyframes.length) {
+      const batchResults = await processBatch();
+      results.push(...batchResults);
     }
 
     const batchDuration = Date.now() - batchStartTime;
@@ -342,6 +501,106 @@ export class KeyframeService {
   updateKeyframePrompt(keyframe: Keyframe, newPrompt: string): Keyframe {
     keyframe.prompt = newPrompt;
     return keyframe;
+  }
+
+  /**
+   * 批量拆分关键帧
+   * 支持并行处理，提高效率
+   */
+  async batchSplitKeyframes(
+    options: BatchSplitKeyframesOptions,
+    onProgress?: (completed: number, total: number) => void
+  ): Promise<Map<string, Keyframe[]>> {
+    const { shots, keyframeCount, projectId, modelConfigId, splitOptions, temperature, maxTokens, concurrencyLimit = 3 } = options;
+
+    console.log(`[KeyframeService] ========== 开始批量拆分关键帧 ==========`);
+    console.log(`[KeyframeService] 总分镜数量: ${shots.length}`);
+    console.log(`[KeyframeService] 每个分镜关键帧数量: ${keyframeCount}`);
+    console.log(`[KeyframeService] 并发限制: ${concurrencyLimit}`);
+    console.log(`[KeyframeService] LLM模型配置ID: ${modelConfigId || '未指定'}`);
+
+    const results = new Map<string, Keyframe[]>();
+    const batchStartTime = Date.now();
+    let completedCount = 0;
+
+    // 获取所有资产，避免重复调用
+    const allAssets = await storageService.getAssets(projectId);
+
+    // 并发控制函数
+    const processBatch = async () => {
+      const batchSize = Math.min(concurrencyLimit, shots.length - completedCount);
+      
+      if (batchSize <= 0) return [];
+
+      console.log(`[KeyframeService] 开始处理批次，大小: ${batchSize}`);
+      
+      const batchPromises = [];
+      for (let i = 0; i < batchSize; i++) {
+        const index = completedCount + i;
+        const shot = shots[index];
+        
+        console.log(`[KeyframeService] 正在处理第 ${index + 1}/${shots.length} 个分镜...`);
+        console.log(`[KeyframeService] 分镜名称: ${shot.sceneName}-镜头${shot.sequence}`);
+        
+        const promise = (async () => {
+          try {
+            // 获取当前分镜的角色和场景资产
+            const characterAssets = shot.characters
+              ?.map(charName => allAssets.find(a => a.type === 'character' && a.name === charName))
+              .filter((a): a is CharacterAsset => !!a) || [];
+            
+            const sceneAsset = allAssets.find(a => a.type === 'scene' && a.name === shot.sceneName);
+
+            // 调用拆分方法
+            const keyframes = await this.splitKeyframes({
+              shot,
+              keyframeCount,
+              projectId,
+              characterAssets,
+              sceneAsset,
+              modelConfigId,
+              splitOptions,
+              temperature,
+              maxTokens,
+            });
+
+            results.set(shot.id, keyframes);
+            return { shotId: shot.id, success: true };
+          } catch (error) {
+            console.error(`[KeyframeService] 拆分分镜 ${shot.id} 失败:`, error);
+            results.set(shot.id, []);
+            return { shotId: shot.id, success: false, error: String(error) };
+          } finally {
+            completedCount++;
+            onProgress?.(completedCount, shots.length);
+          }
+        })();
+        
+        batchPromises.push(promise);
+      }
+
+      const batchResults = await Promise.all(batchPromises);
+      return batchResults;
+    };
+
+    // 分批处理
+    while (completedCount < shots.length) {
+      await processBatch();
+    }
+
+    const batchDuration = Date.now() - batchStartTime;
+    const successCount = Array.from(results.values()).filter(keyframes => keyframes.length > 0).length;
+    const failedCount = shots.length - successCount;
+
+    console.log(`[KeyframeService] ========== 批量拆分完成 ==========`);
+    console.log(
+      `[KeyframeService] 总耗时: ${batchDuration}ms (${(batchDuration / 1000).toFixed(1)}s)`
+    );
+    console.log(`[KeyframeService] 成功: ${successCount}/${shots.length}`);
+    console.log(`[KeyframeService] 失败: ${failedCount}/${shots.length}`);
+    console.log(`[KeyframeService] ==========================================`);
+
+    return results;
   }
 
   /**

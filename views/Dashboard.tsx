@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Project } from '../types';
 import { storageService } from '../services/storage';
-import { Plus, Trash2, Folder, ExternalLink, AlertTriangle } from 'lucide-react';
+import { Plus, Trash2, Folder, ExternalLink, AlertTriangle, ChevronRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../contexts/context';
 import { useToast } from '../contexts/ToastContext';
@@ -27,6 +27,7 @@ const Dashboard: React.FC = () => {
   const { showToast } = useToast();
   const navigate = useNavigate();
   const [projects, setProjects] = useState<Project[]>([]);
+  const [loading, setLoading] = useState(true);
 
   // Modal Disclosures
   const { isOpen: isCreateOpen, onOpen: onCreateOpen, onClose: onCreateClose } = useDisclosure();
@@ -41,12 +42,33 @@ const Dashboard: React.FC = () => {
   }, []);
 
   const loadProjects = async () => {
-    const data = await storageService.getProjects();
-    setProjects(data);
+    setLoading(true);
+    try {
+      const data = await storageService.getProjects();
+      setProjects(data);
+    } catch (error) {
+      console.error('[DASHBOARD] Failed to load projects:', error);
+      showToast(
+        settings.language === 'zh'
+          ? '加载项目失败，请检查存储权限。'
+          : 'Failed to load projects. Please check storage permissions.',
+        'error'
+      );
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleCreate = async () => {
-    if (!newProjectName) return;
+    if (!newProjectName) {
+      showToast(
+        settings.language === 'zh'
+          ? '请输入项目名称。'
+          : 'Please enter a project name.',
+        'warning'
+      );
+      return;
+    }
 
     try {
       const newProject: Project = {
@@ -66,6 +88,12 @@ const Dashboard: React.FC = () => {
       setNewProjectName('');
       setNewProjectDesc('');
       await loadProjects();
+      showToast(
+        settings.language === 'zh'
+          ? '项目创建成功！'
+          : 'Project created successfully!',
+        'success'
+      );
     } catch (error) {
       console.error('[DASHBOARD] Failed to create project:', error);
       showToast(
@@ -89,8 +117,20 @@ const Dashboard: React.FC = () => {
     try {
       await storageService.deleteProject(projectToDelete);
       await loadProjects();
+      showToast(
+        settings.language === 'zh'
+          ? '项目删除成功！'
+          : 'Project deleted successfully!',
+        'success'
+      );
     } catch (error) {
       console.error('Failed to delete project:', error);
+      showToast(
+        settings.language === 'zh'
+          ? '删除项目失败，请重试。'
+          : 'Failed to delete project. Please try again.',
+        'error'
+      );
     } finally {
       setProjectToDelete(null);
       onDeleteClose();
@@ -104,11 +144,11 @@ const Dashboard: React.FC = () => {
   return (
     <div className="h-full overflow-y-auto p-6 md:p-10 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-200">
       <div className="flex justify-between items-center mb-10 max-w-[1600px] mx-auto">
-        <div>
-          <h1 className="text-4xl font-black mb-2 uppercase tracking-tighter bg-gradient-to-r from-primary to-rose-500 bg-clip-text text-transparent">
+        <div className="animate-fadeIn">
+          <h1 className="text-4xl md:text-5xl font-black mb-2 uppercase tracking-tighter text-primary dark:text-primary">
             {t.dashboard.title}
           </h1>
-          <p className="text-slate-500 dark:text-slate-400 font-medium">{t.dashboard.subtitle}</p>
+          <p className="text-slate-500 dark:text-slate-400 font-medium text-lg">{t.dashboard.subtitle}</p>
         </div>
         <Button
           color="primary"
@@ -116,57 +156,106 @@ const Dashboard: React.FC = () => {
           radius="full"
           startContent={<Plus className="w-5 h-5" />}
           onPress={onCreateOpen}
-          className="font-black uppercase tracking-widest text-xs shadow-2xl shadow-primary/40 active:scale-95 hover:scale-110 hover:shadow-primary/60 transition-all duration-300 ease-out transform-gpu"
+          className="font-black uppercase tracking-widest text-xs shadow-lg shadow-primary/30 active:scale-95 hover:scale-105 hover:shadow-primary/50 transition-all duration-300 ease-out transform-gpu"
         >
           {t.dashboard.newProject}
         </Button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-[1600px] mx-auto">
-        {projects.map(project => (
-          <div
-            key={project.id}
-            onClick={() => handleCardClick(project.id)}
-            className="cursor-pointer"
-          >
-            <Card className="border-none bg-white dark:bg-slate-900/100 backdrop-blur-sm shadow-sm hover:scale-[1.02] transition-all duration-300 group h-full">
-              <CardBody className="p-8">
-                <div className="flex justify-between items-start mb-6">
-                  <div className="p-4 bg-primary/10 dark:bg-primary/20 rounded-2xl text-primary transition-colors group-hover:bg-primary group-hover:text-white">
-                    <Folder className="w-8 h-8" />
-                  </div>
-                  <Tooltip content={t.settings.remove} color="danger">
-                    <Button
-                      isIconOnly
-                      variant="light"
-                      color="danger"
-                      radius="full"
-                      onClick={e => onRequestDelete(e, project.id)}
-                      className="text-slate-400 hover:text-danger opacity-0 group-hover:opacity-100 transition-opacity"
-                    >
-                      <Trash2 className="w-5 h-5" />
-                    </Button>
-                  </Tooltip>
-                </div>
-
-                <h2 className="text-2xl font-black text-slate-800 dark:text-slate-100 group-hover:text-primary transition-colors mb-3">
-                  {project.name}
-                </h2>
-                <p className="text-slate-500 dark:text-slate-400 text-sm line-clamp-2 min-h-[2.5rem] font-medium leading-relaxed">
-                  {project.description || t.dashboard.noDesc}
-                </p>
-              </CardBody>
-              <Divider className="opacity-50" />
-              <CardFooter className="px-8 py-4 flex items-center justify-between">
-                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-slate-600">
-                  {t.dashboard.updated} {new Date(project.updatedAt).toLocaleDateString()}
-                </span>
-                <ExternalLink className="w-4 h-4 text-slate-300 group-hover:text-primary transition-colors" />
-              </CardFooter>
-            </Card>
+      {loading ? (
+        <div className="max-w-[1600px] mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {[1, 2, 3].map(i => (
+              <Card key={i} className="border-none bg-white dark:bg-slate-900/100 backdrop-blur-sm shadow-sm animate-pulse h-64" />
+            ))}
           </div>
-        ))}
-      </div>
+        </div>
+      ) : projects.length === 0 ? (
+        <div className="max-w-[1600px] mx-auto py-20">
+          <div className="bg-white dark:bg-slate-900 rounded-3xl p-10 border border-slate-200 dark:border-slate-700 flex flex-col items-center justify-center text-center shadow-soft">
+            <Folder className="w-16 h-16 text-slate-300 dark:text-slate-500 mb-6" />
+            <h3 className="text-2xl font-black text-slate-900 dark:text-white mb-3">
+              {t.dashboard.emptyStateTitle}
+            </h3>
+            <p className="text-slate-500 dark:text-slate-400 mb-8 max-w-md">
+              {t.dashboard.emptyStateDesc}
+            </p>
+            <Button
+              color="primary"
+              size="lg"
+              radius="full"
+              startContent={<Plus className="w-5 h-5" />}
+              onPress={onCreateOpen}
+              className="font-black uppercase tracking-widest text-xs shadow-lg shadow-primary/30 hover:shadow-primary/50 transition-all duration-300"
+            >
+              {t.dashboard.newProject}
+            </Button>
+          </div>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-[1600px] mx-auto">
+          {projects.map((project, index) => (
+            <div
+              key={project.id}
+              onClick={() => handleCardClick(project.id)}
+              className="cursor-pointer animate-fadeIn"
+              style={{ animationDelay: `${index * 0.1}s` }}
+            >
+              <Card className="border-none bg-white dark:bg-slate-900/100 backdrop-blur-sm shadow-soft hover:shadow-hover hover:scale-[1.02] transition-all duration-300 group h-full">
+                <CardBody className="p-8">
+                  <div className="flex justify-between items-start mb-6">
+                    <div className="p-4 bg-primary/10 dark:bg-primary/20 rounded-2xl text-primary transition-all duration-300 group-hover:bg-primary group-hover:text-white group-hover:shadow-primary">
+                      <Folder className="w-8 h-8" />
+                    </div>
+                    <Tooltip content={t.settings.remove} color="danger">
+                      <Button
+                        isIconOnly
+                        variant="light"
+                        color="danger"
+                        radius="full"
+                        onClick={e => onRequestDelete(e, project.id)}
+                        className="text-slate-400 hover:text-danger opacity-0 group-hover:opacity-100 transition-all duration-300"
+                      >
+                        <Trash2 className="w-5 h-5" />
+                      </Button>
+                    </Tooltip>
+                  </div>
+
+                  <h2 className="text-2xl font-black text-slate-800 dark:text-slate-100 group-hover:text-primary transition-colors mb-3">
+                    {project.name}
+                  </h2>
+                  <p className="text-slate-500 dark:text-slate-400 text-sm line-clamp-2 min-h-[2.5rem] font-medium leading-relaxed mb-4">
+                    {project.description || t.dashboard.noDesc}
+                  </p>
+                  <div className="flex items-center justify-between text-xs text-slate-400 dark:text-slate-600 font-medium">
+                    <span>
+                      {t.dashboard.created} {new Date(project.createdAt).toLocaleDateString()}
+                    </span>
+                    <span>
+                      {t.dashboard.updated} {new Date(project.updatedAt).toLocaleDateString()}
+                    </span>
+                  </div>
+                </CardBody>
+                <Divider className="opacity-50" />
+                <CardFooter className="px-8 py-4 flex items-center justify-between">
+                  <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-slate-600">
+                    {t.dashboard.projectId}: {project.id.substring(0, 8)}...
+                  </span>
+                  <Button
+                    variant="light"
+                    size="sm"
+                    endContent={<ChevronRight className="w-4 h-4" />}
+                    className="text-primary hover:bg-primary/10 transition-colors duration-300"
+                    onPress={() => handleCardClick(project.id)}
+                  >
+                    {t.dashboard.openProject}
+                  </Button>
+                </CardFooter>
+              </Card>
+            </div>
+          ))}
+        </div>
+      )}
 
       {/* CREATE MODAL */}
       <Modal
@@ -177,7 +266,7 @@ const Dashboard: React.FC = () => {
         size="md"
         radius="lg"
         classNames={{
-          base: 'dark:bg-slate-900 border border-slate-200 dark:border-slate-800',
+          base: 'dark:bg-slate-900 border border-slate-200 dark:border-slate-800 animate-fadeIn',
           header: 'border-b-[1px] border-slate-100 dark:border-slate-800 p-6',
           body: 'p-8',
           footer: 'border-t-[1px] border-slate-100 dark:border-slate-800 p-6',
@@ -190,12 +279,15 @@ const Dashboard: React.FC = () => {
                 <h2 className="text-2xl font-black text-slate-900 dark:text-white uppercase tracking-tight">
                   {t.dashboard.createTitle}
                 </h2>
+                <p className="text-slate-500 dark:text-slate-400 text-sm">
+                  {t.dashboard.createDesc}
+                </p>
               </ModalHeader>
               <ModalBody>
                 <div className="space-y-6">
                   <Input
                     label={t.dashboard.nameLabel}
-                    placeholder=" "
+                    placeholder={t.dashboard.namePlaceholder}
                     labelPlacement="outside"
                     variant="bordered"
                     radius="lg"
@@ -204,14 +296,14 @@ const Dashboard: React.FC = () => {
                     value={newProjectName}
                     onValueChange={setNewProjectName}
                     classNames={{
-                      label: 'font-black text-[15px] uppercase tracking-widest text-slate-400 mb-2',
+                      label: 'font-black text-[15px] uppercase tracking-widest text-slate-400 dark:text-slate-300 mb-2',
                       input: 'text-[16px]',
-                      inputWrapper: 'border-2 group-data-[focus=true]:border-primary',
+                      inputWrapper: 'border-2 group-data-[focus=true]:border-primary transition-colors duration-300',
                     }}
                   />
                   <Textarea
                     label={t.dashboard.descLabel}
-                    placeholder=" "
+                    placeholder={t.dashboard.descPlaceholder}
                     labelPlacement="outside"
                     variant="bordered"
                     radius="lg"
@@ -220,21 +312,25 @@ const Dashboard: React.FC = () => {
                     value={newProjectDesc}
                     onValueChange={setNewProjectDesc}
                     classNames={{
-                      label: 'font-black text-[15px] uppercase tracking-widest text-slate-400 mb-2',
+                      label: 'font-black text-[15px] uppercase tracking-widest text-slate-400 dark:text-slate-300 mb-2',
                       input: 'font-medium text-base',
-                      inputWrapper: 'border-2 group-data-[focus=true]:border-primary',
+                      inputWrapper: 'border-2 group-data-[focus=true]:border-primary transition-colors duration-300',
                     }}
                   />
                 </div>
               </ModalBody>
               <ModalFooter>
-                <Button variant="light" onPress={onClose} className="font-bold text-slate-500">
+                <Button 
+                  variant="light" 
+                  onPress={onClose} 
+                  className="font-bold text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors duration-300"
+                >
                   {t.dashboard.cancel}
                 </Button>
                 <Button
                   color="primary"
                   onPress={handleCreate}
-                  className="font-black uppercase tracking-widest text-xs px-8"
+                  className="font-black uppercase tracking-widest text-xs px-8 shadow-lg shadow-primary/30 hover:shadow-primary/50 transition-all duration-300"
                   radius="lg"
                 >
                   {t.dashboard.create}
@@ -254,7 +350,7 @@ const Dashboard: React.FC = () => {
         size="xs"
         radius="lg"
         classNames={{
-          base: 'dark:bg-slate-900 border border-slate-200 dark:border-slate-800',
+          base: 'dark:bg-slate-900 border border-slate-200 dark:border-slate-800 animate-fadeIn',
           body: 'p-8',
         }}
       >
@@ -265,7 +361,7 @@ const Dashboard: React.FC = () => {
                 <AlertTriangle className="w-8 h-8" />
               </div>
               <h3 className="text-xl font-black text-slate-900 dark:text-white mb-2">
-                Delete Project?
+                {t.dashboard.deleteConfirmTitle}
               </h3>
               <p className="text-slate-500 dark:text-slate-400 text-sm mb-8 leading-relaxed">
                 {t.dashboard.confirmDelete}
@@ -275,17 +371,17 @@ const Dashboard: React.FC = () => {
                   fullWidth
                   variant="light"
                   onPress={onClose}
-                  className="font-bold text-slate-500"
+                  className="font-bold text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors duration-300"
                 >
-                  Cancel
+                  {t.dashboard.cancel}
                 </Button>
                 <Button
                   fullWidth
                   color="danger"
                   onPress={confirmDelete}
-                  className="font-bold shadow-lg shadow-danger-500/20"
+                  className="font-bold shadow-lg shadow-danger-500/20 hover:shadow-danger-500/40 transition-all duration-300"
                 >
-                  Delete
+                  {t.dashboard.deleteConfirmAction}
                 </Button>
               </div>
             </ModalBody>

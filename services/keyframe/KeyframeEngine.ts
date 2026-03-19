@@ -7,6 +7,15 @@ export interface KeyframeSplitParams {
   characterAssets?: { id: string; name: string; features?: string }[];
   sceneAsset?: { id: string; name: string; features?: string };
   modelConfigId?: string; // 用户选择的LLM模型配置ID
+  splitOptions?: {
+    includeCameraMovement?: boolean; // 是否包含运镜信息
+    includeCharacterDetails?: boolean; // 是否包含角色细节
+    includeSceneDetails?: boolean; // 是否包含场景细节
+    focusOnAction?: boolean; // 是否专注于动作
+    focusOnEmotion?: boolean; // 是否专注于情感表达
+  };
+  temperature?: number; // LLM生成温度
+  maxTokens?: number; // LLM最大 tokens
 }
 
 export interface KeyframeSplitResult {
@@ -72,6 +81,14 @@ export class KeyframeEngine {
       '靠近',
       '拿起',
       '放下',
+      '说话',
+      '交谈',
+      '表情',
+      'look',
+      'speak',
+      'talk',
+      'express',
+      '表情变化',
     ];
 
     // 检查复杂动态
@@ -137,7 +154,7 @@ export class KeyframeEngine {
    */
   async splitKeyframes(params: KeyframeSplitParams): Promise<KeyframeSplitResult> {
     try {
-      const { shot } = params;
+      const { shot, temperature = 0.7, maxTokens = 2000 } = params;
 
       // Step 1: 自动检测分镜类型
       const contentType = this.detectShotType(shot.description, shot.cameraMovement);
@@ -151,8 +168,8 @@ export class KeyframeEngine {
       const prompt = this.buildSplitPrompt({ ...params, keyframeCount, contentType });
 
       const result = await aiService.generateText(prompt, params.modelConfigId || '', undefined, {
-        temperature: 0.7,
-        maxTokens: 2000,
+        temperature,
+        maxTokens,
       });
 
       if (!result.success || !result.data) {
@@ -185,7 +202,7 @@ export class KeyframeEngine {
   private buildSplitPrompt(
     params: KeyframeSplitParams & { keyframeCount: number; contentType: ShotContentType }
   ): string {
-    const { shot, keyframeCount, contentType, characterAssets, sceneAsset } = params;
+    const { shot, keyframeCount, contentType, characterAssets, sceneAsset, splitOptions } = params;
 
     const characterDesc =
       characterAssets?.map(c => `- ${c.name}${c.features ? `（${c.features}）` : ''}`).join('\n') ||
@@ -214,7 +231,55 @@ export class KeyframeEngine {
         break;
     }
 
+    // 获取运镜指导
+    const movementGuidance = splitOptions?.includeCameraMovement !== false ? this.getMovementGuidance(shot.cameraMovement) : '运镜信息未指定';
+    
+    // 获取叙事结构指导
+    const narrativeStructure = this.getNarrativeStructure(keyframeCount, shot.duration);
+
+    // 构建额外的拆分要求
+    let additionalRequirements = '';
+    if (splitOptions) {
+      if (splitOptions.includeCharacterDetails) {
+        additionalRequirements += '6. 详细描述角色的表情、服装和动作细节\n';
+      }
+      if (splitOptions.includeSceneDetails) {
+        additionalRequirements += '7. 详细描述场景的环境、道具和氛围\n';
+      }
+      if (splitOptions.focusOnAction) {
+        additionalRequirements += '8. 重点突出动作的连贯性和力量感\n';
+      }
+      if (splitOptions.focusOnEmotion) {
+        additionalRequirements += '9. 重点突出角色的情感表达和内心活动\n';
+      }
+    }
+
+    // 构建参考图信息
+    let referenceInfo = '';
+    if (characterAssets && characterAssets.length > 0) {
+      referenceInfo += '【参考角色】\n';
+      characterAssets.forEach((char, index) => {
+        referenceInfo += `角色${index + 1}: ${char.name}${char.features ? `，特征：${char.features}` : ''}\n`;
+      });
+    }
+    if (sceneAsset) {
+      referenceInfo += '【参考场景】\n';
+      referenceInfo += `场景：${sceneAsset.name}${sceneAsset.features ? `，特征：${sceneAsset.features}` : ''}\n`;
+    }
+
     return `你是一位专业的电影分镜师。请将以下分镜描述拆分为${keyframeCount}个连贯的静态关键帧。
+
+【运镜指导】
+${movementGuidance}
+
+【叙事结构】
+${narrativeStructure}
+
+【参考图信息】
+${referenceInfo || '无参考图'}
+
+【连贯性要求】
+相邻关键帧的角色姿态变化应该是渐进的，避免大幅度跳跃。保持场景和角色的一致性，确保动作的流畅过渡。
 
 【分镜信息】
 - 场景：${sceneDesc}
@@ -235,6 +300,7 @@ ${splitRequirement}
 3. 保持角色和场景一致性
 4. 符合${shot.shotType}景别要求
 5. 总时长控制在${shot.duration}秒内
+${additionalRequirements}
 
 【关键帧类型说明】
 - frameType字段必须是以下之一：${frameTypeDesc}
@@ -318,6 +384,55 @@ ${splitRequirement}
       // 返回默认关键帧
       return this.generateDefaultKeyframes(shot, keyframeCount, characterAssets, sceneAsset);
     }
+  }
+
+  /**
+   * 获取运镜指导文本
+   */
+  private getMovementGuidance(movement: CameraMovement): string {
+    const guidanceMap: Record<CameraMovement, string> = {
+      static: '固定镜头：关键帧应该体现角色动作的变化，保持画面构图稳定。',
+      push: '推镜头：关键帧应该体现景别从大到小的变化。第1帧用较大景别（能看到角色全身），第2帧中等景别（腰部以上），第3帧特写（脸部表情）。',
+      pull: '拉镜头：关键帧应该体现景别从小到大的变化。第1帧特写（脸部表情），第2帧中等景别（腰部以上），第3帧较大景别（能看到角色全身）。',
+      pan: '摇镜头：关键帧应该体现画面内容的水平移动。第1帧画面左侧内容，第2帧画面中央内容，第3帧画面右侧内容。',
+      tilt: '升降镜头：关键帧应该体现画面内容的垂直移动。',
+      track: '移镜头：关键帧应该体现空间位置的变化。第1帧角色在画面一侧，第2帧角色在画面中央，第3帧角色在画面另一侧。',
+      crane: '升降镜头：关键帧应该体现大范围的视角变化。',
+      zoom_in: '推镜头：关键帧应该体现景别从大到小的变化。',
+      zoom_out: '拉镜头：关键帧应该体现景别从小到大的变化。',
+      dolly_in: '推镜头：关键帧应该体现景别从大到小的变化。',
+      dolly_out: '拉镜头：关键帧应该体现景别从小到大的变化。'
+    };
+    
+    return guidanceMap[movement] || guidanceMap.static;
+  }
+
+  /**
+   * 获取叙事结构指导
+   */
+  private getNarrativeStructure(count: number, duration: number): string {
+    if (count === 2) {
+      return `生成2个关键帧：
+- 第1帧（动作起点）：${Math.ceil(duration * 0.5)}秒，建立初始姿态
+- 第2帧（动作终点）：${Math.ceil(duration * 0.5)}秒，展示最终姿态`;
+    }
+    
+    if (count === 3) {
+      return `生成3个关键帧：
+- 第1帧（动作起点）：${Math.ceil(duration * 0.4)}秒，建立初始姿态
+- 第2帧（动作顶点/转折）：${Math.ceil(duration * 0.3)}秒，展示最激烈的瞬间或转折点
+- 第3帧（动作终点）：${Math.ceil(duration * 0.3)}秒，展示最终稳定姿态`;
+    }
+    
+    if (count === 4) {
+      return `生成4个关键帧：
+- 第1帧（动作起点）：${Math.ceil(duration * 0.3)}秒，建立初始姿态
+- 第2帧（动作发展）：${Math.ceil(duration * 0.25)}秒，展示动作发展
+- 第3帧（动作顶点）：${Math.ceil(duration * 0.25)}秒，展示最激烈的瞬间
+- 第4帧（动作终点）：${Math.ceil(duration * 0.2)}秒，展示最终稳定姿态`;
+    }
+    
+    return '';
   }
 
   /**

@@ -72,6 +72,10 @@ export interface SoundDesignAnalysis {
     uniqueEffectSounds: number;
     uniqueMusicThemes: number;
   };
+  /** 音频风格 */
+  audioStyle: string;
+  /** 音乐主题 */
+  musicTheme: string;
 }
 
 // ==========================================
@@ -263,22 +267,24 @@ export class SoundDesigner {
    * 分析声音设计
    * @param metadata 剧本元数据（包含 emotionalArc, visualStyle）
    * @param shots 分镜列表（包含 sound 字段）
+   * @param audioStyle 音频风格
+   * @param musicTheme 音乐主题
    * @returns 声音设计分析结果
    */
-  analyze(metadata: ScriptMetadata, shots: Shot[] = []): SoundDesignAnalysis {
+  analyze(metadata: ScriptMetadata, shots: Shot[] = [], audioStyle: string = '默认', musicTheme: string = '默认'): SoundDesignAnalysis {
     console.log('[SoundDesigner] Starting sound design analysis...');
 
     const emotionalArc = metadata.emotionalArc || [];
     const colorMood = metadata.visualStyle?.colorMood || '中性';
 
     // 1. 生成情绪音乐映射
-    const emotionalMusicMap = this.generateEmotionalMusicMap(emotionalArc);
+    const emotionalMusicMap = this.generateEmotionalMusicMap(emotionalArc, audioStyle, musicTheme);
 
     // 2. 分析声音调色板
     const soundPalette = this.analyzeSoundPalette(shots);
 
     // 3. 生成整体音景
-    const overallSoundscape = this.generateOverallSoundscape(emotionalArc, colorMood);
+    const overallSoundscape = this.generateOverallSoundscape(emotionalArc, colorMood, audioStyle, musicTheme);
 
     // 4. 计算统计信息
     const statistics = this.calculateStatistics(shots, soundPalette);
@@ -288,6 +294,8 @@ export class SoundDesigner {
       ambientSounds: soundPalette.ambientSounds.length,
       effectSounds: soundPalette.effectSounds.length,
       musicThemes: soundPalette.musicThemes.length,
+      audioStyle,
+      musicTheme,
     });
 
     return {
@@ -295,19 +303,21 @@ export class SoundDesigner {
       soundPalette,
       overallSoundscape,
       statistics,
+      audioStyle,
+      musicTheme,
     };
   }
 
   /**
    * 生成情绪音乐映射表
    */
-  private generateEmotionalMusicMap(emotionalArc: EmotionalPoint[]): EmotionalMusicMapItem[] {
+  private generateEmotionalMusicMap(emotionalArc: EmotionalPoint[], audioStyle: string, musicTheme: string): EmotionalMusicMapItem[] {
     if (!emotionalArc || emotionalArc.length === 0) {
       return [];
     }
 
     return emotionalArc.map(point => {
-      const suggestedMusic = this.getSuggestedMusicForEmotion(point.emotion);
+      const suggestedMusic = this.getSuggestedMusicForEmotion(point.emotion, audioStyle, musicTheme);
 
       return {
         plotPoint: point.plotPoint,
@@ -323,7 +333,7 @@ export class SoundDesigner {
   /**
    * 根据情绪获取推荐音乐
    */
-  private getSuggestedMusicForEmotion(emotion: string): string {
+  private getSuggestedMusicForEmotion(emotion: string, audioStyle: string, musicTheme: string): string {
     // 标准化情绪名称
     const normalizedEmotion = emotion.toLowerCase().trim();
 
@@ -331,13 +341,33 @@ export class SoundDesigner {
     for (const [key, values] of Object.entries(EMOTION_TO_MUSIC_MAP)) {
       if (normalizedEmotion.includes(key.toLowerCase())) {
         // 随机选择一个音乐风格
-        return values[Math.floor(Math.random() * values.length)];
+        let music = values[Math.floor(Math.random() * values.length)];
+        
+        // 根据音频风格和音乐主题调整推荐
+        if (audioStyle !== '默认') {
+          music += ` (${audioStyle}风格)`;
+        }
+        if (musicTheme !== '默认') {
+          music += ` - ${musicTheme}主题`;
+        }
+        
+        return music;
       }
     }
 
     // 默认音乐
     const defaultMusic = EMOTION_TO_MUSIC_MAP['default'];
-    return defaultMusic[Math.floor(Math.random() * defaultMusic.length)];
+    let music = defaultMusic[Math.floor(Math.random() * defaultMusic.length)];
+    
+    // 根据音频风格和音乐主题调整推荐
+    if (audioStyle !== '默认') {
+      music += ` (${audioStyle}风格)`;
+    }
+    if (musicTheme !== '默认') {
+      music += ` - ${musicTheme}主题`;
+    }
+    
+    return music;
   }
 
   /**
@@ -405,13 +435,23 @@ export class SoundDesigner {
    */
   private generateOverallSoundscape(
     emotionalArc: EmotionalPoint[],
-    colorMood: string
+    colorMood: string,
+    audioStyle: string,
+    musicTheme: string
   ): OverallSoundscape {
     // 计算主导情绪
     const dominantMood = this.calculateDominantMood(emotionalArc);
 
     // 根据色彩情绪推导背景音调
-    const backgroundTone = this.getBackgroundToneFromColorMood(colorMood);
+    let backgroundTone = this.getBackgroundToneFromColorMood(colorMood);
+    
+    // 根据音频风格和音乐主题调整背景音调
+    if (audioStyle !== '默认') {
+      backgroundTone += `，${audioStyle}风格`;
+    }
+    if (musicTheme !== '默认') {
+      backgroundTone += `，${musicTheme}主题`;
+    }
 
     // 计算动态范围
     const dynamicRange = this.calculateDynamicRange(emotionalArc);

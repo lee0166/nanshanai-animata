@@ -4,7 +4,7 @@
  * 展示基于情绪曲线和分镜音效的声音设计方案
  */
 
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   Card,
   CardBody,
@@ -18,8 +18,14 @@ import {
   TableBody,
   TableRow,
   TableCell,
+  Select,
+  SelectItem,
+  Switch,
+  Button,
+  Slider,
+  Textarea,
 } from '@heroui/react';
-import { Music, Volume2, Wind, Zap, BarChart3 } from 'lucide-react';
+import { Music, Volume2, Wind, Zap, BarChart3, Save, Settings, Palette, Edit3 } from 'lucide-react';
 import type { ScriptMetadata, Shot } from '@/types';
 import { soundDesigner, type SoundDesignAnalysis } from '@/src/services/parsing/professional';
 
@@ -29,10 +35,51 @@ interface SoundDesignTabProps {
 }
 
 export const SoundDesignTab: React.FC<SoundDesignTabProps> = ({ metadata, shots }) => {
+  // 状态管理
+  const [audioStyle, setAudioStyle] = useState<string>('默认');
+  const [musicTheme, setMusicTheme] = useState<string>('默认');
+  const [emotionMapping, setEmotionMapping] = useState<string>('');
+  const [isEditing, setIsEditing] = useState<boolean>(false);
+
   // 使用 useMemo 缓存分析结果
   const analysis = useMemo(() => {
-    return soundDesigner.analyze(metadata, shots);
-  }, [metadata, shots]);
+    return soundDesigner.analyze(metadata, shots, audioStyle, musicTheme);
+  }, [metadata, shots, audioStyle, musicTheme]);
+
+  // 音频风格选项
+  const audioStyleOptions = [
+    '默认',
+    '古典',
+    '现代',
+    '电子',
+    '摇滚',
+    '爵士',
+    '民谣',
+    '史诗',
+    ' ambient',
+    '实验',
+  ];
+
+  // 音乐主题选项
+  const musicThemeOptions = [
+    '默认',
+    '冒险',
+    '爱情',
+    '悬疑',
+    '动作',
+    '科幻',
+    '奇幻',
+    '恐怖',
+    '喜剧',
+    '悲剧',
+  ];
+
+  // 保存配置
+  const handleSaveConfig = () => {
+    // 这里可以添加保存配置的逻辑
+    console.log('保存配置:', { audioStyle, musicTheme, emotionMapping });
+    setIsEditing(false);
+  };
 
   // 渲染统计卡片
   const renderStatsCards = () => {
@@ -279,10 +326,92 @@ export const SoundDesignTab: React.FC<SoundDesignTabProps> = ({ metadata, shots 
     );
   };
 
+  // 渲染音频风格设置
+  const renderAudioStyleSettings = () => {
+    return (
+      <Card className="mb-6">
+        <CardHeader className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Settings size={20} className="text-primary" />
+            <h3 className="text-lg font-semibold">音频风格设置</h3>
+          </div>
+          <Button
+            size="sm"
+            variant={isEditing ? "solid" : "bordered"}
+            onClick={() => setIsEditing(!isEditing)}
+            startIcon={isEditing ? <Save size={16} /> : <Edit3 size={16} />}
+          >
+            {isEditing ? '保存' : '编辑'}
+          </Button>
+        </CardHeader>
+        <Divider />
+        <CardBody>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <div htmlFor="audioStyle" className="block mb-2 text-sm font-medium">
+                音频风格
+              </div>
+              <Select
+                id="audioStyle"
+                value={audioStyle}
+                onChange={(e) => setAudioStyle(e.target.value)}
+                disabled={!isEditing}
+              >
+                {audioStyleOptions.map((style) => (
+                  <SelectItem key={style} value={style}>
+                    {style}
+                  </SelectItem>
+                ))}
+              </Select>
+            </div>
+            <div>
+              <div htmlFor="musicTheme" className="block mb-2 text-sm font-medium">
+                音乐主题
+              </div>
+              <Select
+                id="musicTheme"
+                value={musicTheme}
+                onChange={(e) => setMusicTheme(e.target.value)}
+                disabled={!isEditing}
+              >
+                {musicThemeOptions.map((theme) => (
+                  <SelectItem key={theme} value={theme}>
+                    {theme}
+                  </SelectItem>
+                ))}
+              </Select>
+            </div>
+            <div className="md:col-span-2">
+              <div htmlFor="emotionMapping" className="block mb-2 text-sm font-medium">
+                情绪音乐映射配置
+              </div>
+              <Textarea
+                id="emotionMapping"
+                value={emotionMapping}
+                onChange={(e) => setEmotionMapping(e.target.value)}
+                placeholder="在这里配置情绪到音乐的映射规则..."
+                rows={4}
+                disabled={!isEditing}
+              />
+              {!isEditing && emotionMapping && (
+                <p className="mt-2 text-xs text-default-500">
+                  已配置自定义情绪音乐映射规则
+                </p>
+              )}
+            </div>
+          </div>
+        </CardBody>
+      </Card>
+    );
+  };
+
   return (
     <div className="space-y-6">
       {/* 统计卡片 */}
       {renderStatsCards()}
+
+      {/* 音频风格设置 */}
+      {renderAudioStyleSettings()}
 
       {/* 整体音景 */}
       {renderOverallSoundscape()}

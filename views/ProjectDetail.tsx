@@ -22,9 +22,10 @@ import FragmentSidebar from '../components/ProjectDetail/FragmentSidebar';
 import SceneSidebar from '@/components/ProjectDetail/SceneSidebar';
 import ItemSidebar from '@/components/ProjectDetail/ItemSidebar';
 import ScriptManager from './ScriptManager';
-import ShotManager from './ShotManager';
+import { ShotManager } from './ShotManager';
+import VideoAudioManager from './VideoAudioManager';
 import { GenerationParams } from '../components/ProjectDetail/GenerationForm';
-import { ChevronLeft } from 'lucide-react';
+import { ChevronLeft, Plus } from 'lucide-react';
 import {
   Button,
   Input,
@@ -37,6 +38,7 @@ import {
   Spinner,
   Select,
   SelectItem,
+  Badge,
 } from '@heroui/react';
 
 import { useToast } from '../contexts/ToastContext';
@@ -58,6 +60,7 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({
   const { showToast } = useToast();
   const [project, setProject] = useState<Project | null>(null);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
+  const [loading, setLoading] = useState(true);
 
   // UI State
   const [selectedAsset, setSelectedAsset] = useState<Asset | null>(null);
@@ -173,10 +176,21 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({
   }, [id]);
 
   const loadProject = async () => {
-    if (!id) return;
-    const projects = await storageService.getProjects();
-    const p = projects.find(proj => proj.id === id);
-    setProject(p || null);
+    setLoading(true);
+    if (!id) {
+      setLoading(false);
+      return;
+    }
+    try {
+      const projects = await storageService.getProjects();
+      const p = projects.find(proj => proj.id === id);
+      setProject(p || null);
+    } catch (error) {
+      console.error('Failed to load project:', error);
+      showToast(`${t.errors.unknownError}: ${(error as Error).message || ''}`, 'error');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleJobComplete = async (job: Job) => {
@@ -227,44 +241,52 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({
   };
 
   const handleCreateEmptyAsset = async () => {
-    if (!id || !assetName) return;
+    if (!id || !assetName) {
+      showToast(t.errors.requiredField, 'warning');
+      return;
+    }
 
-    const newAsset: Asset = {
-      id:
-        typeof crypto.randomUUID === 'function'
-          ? crypto.randomUUID()
-          : Math.random().toString(36).substring(2, 11),
-      projectId: id,
-      type: activeTab,
-      name: assetName,
-      prompt: '',
-      createdAt: Date.now(),
-      updatedAt: Date.now(),
-    };
+    try {
+      const newAsset: Asset = {
+        id:
+          typeof crypto.randomUUID === 'function'
+            ? crypto.randomUUID()
+            : Math.random().toString(36).substring(2, 11),
+        projectId: id,
+        type: activeTab,
+        name: assetName,
+        prompt: '',
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+      };
 
-    // If we are creating an item and a specific filter is selected, apply it
-    if (activeTab === AssetType.ITEM) {
-      if (itemTypeFilter !== 'all') {
-        (newAsset as any).itemType = itemTypeFilter;
-      } else {
-        (newAsset as any).itemType = ItemType.PROP;
+      // If we are creating an item and a specific filter is selected, apply it
+      if (activeTab === AssetType.ITEM) {
+        if (itemTypeFilter !== 'all') {
+          (newAsset as any).itemType = itemTypeFilter;
+        } else {
+          (newAsset as any).itemType = ItemType.PROP;
+        }
       }
-    }
 
-    // Add scriptId for scene and item assets
-    if ((activeTab === AssetType.SCENE || activeTab === AssetType.ITEM) && newAssetScriptId) {
-      (newAsset as any).scriptId = newAssetScriptId;
-    }
+      // Add scriptId for scene and item assets
+      if ((activeTab === AssetType.SCENE || activeTab === AssetType.ITEM) && newAssetScriptId) {
+        (newAsset as any).scriptId = newAssetScriptId;
+      }
 
-    await storageService.saveAsset(newAsset);
-    setAssetName('');
-    setNewAssetScriptId(''); // Reset script selection
-    onAddClose();
-    setRefreshTrigger(prev => prev + 1);
-    setSelectedAsset(newAsset);
-    // Use specific type name if available
-    const typeName = t.project[activeTab as keyof typeof t.project] || t.project.asset;
-    showToast(`${t.project.create} ${typeName}`, 'success');
+      await storageService.saveAsset(newAsset);
+      setAssetName('');
+      setNewAssetScriptId(''); // Reset script selection
+      onAddClose();
+      setRefreshTrigger(prev => prev + 1);
+      setSelectedAsset(newAsset);
+      // Use specific type name if available
+      const typeName = t.project[activeTab as keyof typeof t.project] || t.project.asset;
+      showToast(`${t.project.create} ${typeName}`, 'success');
+    } catch (error) {
+      console.error('Failed to create asset:', error);
+      showToast(t.errors.unknownError, 'error');
+    }
   };
 
   const handleGenerate = async (genParams: GenerationParams) => {
@@ -308,17 +330,39 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({
       await jobQueue.addJob(job);
     } catch (error: any) {
       console.error('[ProjectDetail] Failed to add job:', error);
-      showToast(error.message || t.errors.generationFailed, 'error');
+      showToast(`${t.errors.generationFailed}: ${error.message || ''}`, 'error');
       setGenerating(false);
     }
   };
 
-  if (!project)
+  if (loading) {
     return (
       <div className="flex items-center justify-center h-full">
         <Spinner size="lg" color="primary" />
       </div>
     );
+  }
+
+  if (!project) {
+    return (
+      <div className="flex flex-col items-center justify-center h-full p-8 text-center">
+        <h2 className="text-2xl font-black mb-4 text-slate-900 dark:text-white">
+          {t.errors.projectNotFound}
+        </h2>
+        <p className="text-slate-500 dark:text-slate-400 mb-8">
+          {t.errors.projectNotFoundDesc}
+        </p>
+        <Button
+          color="primary"
+          radius="full"
+          onPress={() => navigate('/')}
+          className="font-bold"
+        >
+          {t.common.backToDashboard}
+        </Button>
+      </div>
+    );
+  }
 
   const filteredModels = settings.models.filter(
     m =>
@@ -336,109 +380,95 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({
 
   const handleAssetUpdate = async (updatedAsset: Asset, skipSave: boolean = false) => {
     if (!skipSave) {
-      // Prevent duplicate names check (optional, but good to keep if needed)
-      // However, updateAsset is atomic, checking outside might be slightly stale but acceptable for names
-      const assets = await storageService.getAssets(id || '');
-      // 检查重复时考虑scriptId：同剧本同名才视为重复
-      const exists = assets.some(
-        a =>
-          a.type === updatedAsset.type &&
-          a.name === updatedAsset.name &&
-          a.scriptId === updatedAsset.scriptId && // 同剧本才检查重复
-          a.id !== updatedAsset.id
-      );
-      if (exists) {
-        showToast(t.errors?.duplicateName || 'Name already exists', 'error');
+      try {
+        // Prevent duplicate names check (optional, but good to keep if needed)
+        // However, updateAsset is atomic, checking outside might be slightly stale but acceptable for names
+        const assets = await storageService.getAssets(id || '');
+        // 检查重复时考虑scriptId：同剧本同名才视为重复
+        const exists = assets.some(
+          a =>
+            a.type === updatedAsset.type &&
+            a.name === updatedAsset.name &&
+            a.scriptId === updatedAsset.scriptId && // 同剧本才检查重复
+            a.id !== updatedAsset.id
+        );
+        if (exists) {
+          showToast(t.errors?.duplicateName || 'Name already exists', 'error');
+          return;
+        }
+
+        // Use atomic update to merge UI changes with potential background updates (e.g. new images)
+        await storageService.updateAsset(updatedAsset.id, id || '', async currentOnDisk => {
+          // Merge strategy:
+          // 1. Keep UI changes for scalar fields (name, prompt, metadata settings)
+          // 2. Be careful with lists like generatedImages/videos that Queue appends to
+
+          const merged = { ...currentOnDisk, ...updatedAsset };
+
+          // Restore generated lists from disk if they have more items (Queue appended something)
+          // This is a heuristic: Queue only appends. UI only appends (or deletes).
+          // If UI deletes, we trust UI. If Queue appends, we trust Queue.
+
+          const diskImages = (currentOnDisk as CharacterAsset).generatedImages || [];
+          const uiImages = (updatedAsset as CharacterAsset).generatedImages || [];
+
+          // Find images on disk that are NOT in UI
+          const uiIds = new Set(uiImages.map(i => i.id));
+          const newOnDisk = diskImages.filter(i => !uiIds.has(i.id));
+
+          if (newOnDisk.length > 0) {
+            console.log(
+              `[ProjectDetail] Detected ${newOnDisk.length} new images on disk during save. Merging...`
+            );
+
+            // HEURISTIC: Only resurrect images that are VERY RECENT (e.g. created in last 2 minutes).
+            const RECENT_THRESHOLD = 2 * 60 * 1000; // 2 minutes
+            const now = Date.now();
+
+            const imagesToRescue = newOnDisk.filter(
+              img => now - (img.createdAt || 0) < RECENT_THRESHOLD
+            );
+
+            if (imagesToRescue.length > 0) {
+              console.log(
+                `[ProjectDetail] Rescuing ${imagesToRescue.length} recent images that were missing in UI.`
+              );
+              (merged as CharacterAsset).generatedImages = [...uiImages, ...imagesToRescue].sort(
+                (a, b) => (a.createdAt || 0) - (b.createdAt || 0)
+              ); // Keep chronological order
+            }
+          }
+
+          // Same for videos
+          const diskVideos = (currentOnDisk as FragmentAsset).videos || [];
+          const uiVideos = (updatedAsset as FragmentAsset).videos || [];
+          const uiVideoIds = new Set(uiVideos.map(v => v.id));
+          const newVideosOnDisk = diskVideos.filter(v => !uiVideoIds.has(v.id));
+
+          if (newVideosOnDisk.length > 0) {
+            const RECENT_THRESHOLD = 2 * 60 * 1000;
+            const now = Date.now();
+            const videosToRescue = newVideosOnDisk.filter(
+              v => now - (v.createdAt || 0) < RECENT_THRESHOLD
+            );
+
+            if (videosToRescue.length > 0) {
+              console.log(
+                `[ProjectDetail] Rescuing ${videosToRescue.length} recent videos that were missing in UI.`
+              );
+              (merged as FragmentAsset).videos = [...uiVideos, ...videosToRescue].sort(
+                (a, b) => (a.createdAt || 0) - (b.createdAt || 0)
+              );
+            }
+          }
+
+          return merged;
+        });
+      } catch (error) {
+        console.error('Failed to update asset:', error);
+        showToast(t.errors.unknownError, 'error');
         return;
       }
-
-      // Use atomic update to merge UI changes with potential background updates (e.g. new images)
-      await storageService.updateAsset(updatedAsset.id, id || '', async currentOnDisk => {
-        // Merge strategy:
-        // 1. Keep UI changes for scalar fields (name, prompt, metadata settings)
-        // 2. Be careful with lists like generatedImages/videos that Queue appends to
-
-        const merged = { ...currentOnDisk, ...updatedAsset };
-
-        // Restore generated lists from disk if they have more items (Queue appended something)
-        // This is a heuristic: Queue only appends. UI only appends (or deletes).
-        // If UI deletes, we trust UI. If Queue appends, we trust Queue.
-        // Conflict: UI deletes item A, Queue appends item B.
-        // If we use disk list, we lose UI deletion. If we use UI list, we lose Queue append.
-
-        // Safer approach:
-        // Trust UI for everything EXCEPT if we suspect a background update happened that UI missed.
-        // But UI should have reloaded if it caught the event.
-        // The user issue is: UI has old list, Queue wrote new list, UI saves old list -> New items lost.
-
-        const diskImages = (currentOnDisk as CharacterAsset).generatedImages || [];
-        const uiImages = (updatedAsset as CharacterAsset).generatedImages || [];
-
-        // If disk has MORE images than UI, it means Queue added some that UI doesn't know about yet.
-        // We should preserve them.
-        // But what if UI deleted some?
-        // If UI deleted, uiImages.length < diskImages.length could be valid.
-        // But usually deletions are explicit actions that also use onUpdate.
-
-        // Let's look at the IDs.
-        const uiIds = new Set(uiImages.map(i => i.id));
-        const diskIds = new Set(diskImages.map(i => i.id));
-
-        // Find images on disk that are NOT in UI
-        const newOnDisk = diskImages.filter(i => !uiIds.has(i.id));
-
-        if (newOnDisk.length > 0) {
-          console.log(
-            `[ProjectDetail] Detected ${newOnDisk.length} new images on disk during save. Merging...`
-          );
-
-          // HEURISTIC: Only resurrect images that are VERY RECENT (e.g. created in last 2 minutes).
-          // This protects against "Overwrite due to stale UI" (which happens during generation).
-          // It allows "Explicit Deletion" (which usually happens on older images, or at least we accept the risk for very new ones).
-          // If we don't do this, explicit deletions of old images will fail (they will be resurrected).
-
-          const RECENT_THRESHOLD = 2 * 60 * 1000; // 2 minutes
-          const now = Date.now();
-
-          const imagesToRescue = newOnDisk.filter(
-            img => now - (img.createdAt || 0) < RECENT_THRESHOLD
-          );
-
-          if (imagesToRescue.length > 0) {
-            console.log(
-              `[ProjectDetail] Rescuing ${imagesToRescue.length} recent images that were missing in UI.`
-            );
-            (merged as CharacterAsset).generatedImages = [...uiImages, ...imagesToRescue].sort(
-              (a, b) => (a.createdAt || 0) - (b.createdAt || 0)
-            ); // Keep chronological order
-          }
-        }
-
-        // Same for videos
-        const diskVideos = (currentOnDisk as FragmentAsset).videos || [];
-        const uiVideos = (updatedAsset as FragmentAsset).videos || [];
-        const uiVideoIds = new Set(uiVideos.map(v => v.id));
-        const newVideosOnDisk = diskVideos.filter(v => !uiVideoIds.has(v.id));
-
-        if (newVideosOnDisk.length > 0) {
-          const RECENT_THRESHOLD = 2 * 60 * 1000;
-          const now = Date.now();
-          const videosToRescue = newVideosOnDisk.filter(
-            v => now - (v.createdAt || 0) < RECENT_THRESHOLD
-          );
-
-          if (videosToRescue.length > 0) {
-            console.log(
-              `[ProjectDetail] Rescuing ${videosToRescue.length} recent videos that were missing in UI.`
-            );
-            (merged as FragmentAsset).videos = [...uiVideos, ...videosToRescue].sort(
-              (a, b) => (a.createdAt || 0) - (b.createdAt || 0)
-            );
-          }
-        }
-
-        return merged;
-      });
     }
     setSelectedAsset(updatedAsset);
     setRefreshTrigger(prev => prev + 1);
@@ -490,7 +520,13 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({
   if (activeTab === AssetType.SCRIPT) {
     return (
       <div className="h-full bg-slate-50 dark:bg-slate-950">
-        <ScriptManager projectId={id} />
+        <ScriptManager 
+          projectId={id} 
+          onScriptsUpdate={async () => {
+            await loadScripts();
+            setRefreshTrigger(prev => prev + 1);
+          }} 
+        />
       </div>
     );
   }
@@ -504,14 +540,23 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({
     );
   }
 
+  // VIDEO AUDIO MANAGER VIEW
+  if (activeTab === AssetType.VIDEO_AUDIO) {
+    return (
+      <div className="h-full bg-slate-50 dark:bg-slate-950">
+        <VideoAudioManager projectId={id} />
+      </div>
+    );
+  }
+
   // LIST VIEW
   return (
     <div className="h-full flex flex-col overflow-hidden bg-slate-50 dark:bg-slate-950">
       {/* Header */}
-      <div className="px-6 md:px-10 pt-6 pb-2">
-        <div className="max-w-[1600px] mx-auto flex justify-between items-center">
+      <div className="px-6 md:px-10 pt-6 pb-4 animate-fadeIn">
+        <div className="max-w-[1600px] mx-auto flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div className="flex items-center gap-4">
-            <h2 className="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tight">
+            <h2 className="text-2xl font-black text-slate-900 dark:text-white uppercase tracking-tight">
               {activeTabPlural}
             </h2>
 
@@ -523,7 +568,7 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({
               scripts.length > 0 && (
                 <Select
                   aria-label="剧本筛选"
-                  placeholder="选择剧本"
+                  placeholder={scripts.length > 0 ? `全部剧本 (共${scripts.length}个)` : "选择剧本"}
                   selectedKeys={[
                     activeTab === AssetType.CHARACTER
                       ? characterScriptFilter
@@ -537,20 +582,17 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({
                     else if (activeTab === AssetType.SCENE) setSceneScriptFilter(value);
                     else if (activeTab === AssetType.ITEM) setItemScriptFilter(value);
                   }}
-                  className="w-40"
+                  className="w-48"
                   variant="bordered"
                   radius="lg"
                   size="sm"
                   classNames={{
                     value: 'font-bold text-xs',
-                    trigger: 'border-slate-300 dark:border-slate-700 h-8 min-h-unit-8',
+                    trigger: 'border-slate-300 dark:border-slate-700 h-8 min-h-unit-8 hover:border-primary transition-colors duration-300',
                   }}
                 >
                   <SelectItem key="all" value="all" textValue="全部剧本">
-                    全部剧本
-                  </SelectItem>
-                  <SelectItem key="uncategorized" value="uncategorized" textValue="未分类">
-                    未分类
+                    全部剧本 (共{scripts.length}个)
                   </SelectItem>
                   {scripts.map(script => (
                     <SelectItem key={script.id} value={script.id} textValue={script.title}>
@@ -560,6 +602,15 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({
                 </Select>
               )}
           </div>
+          <Button
+            color="primary"
+            radius="full"
+            startContent={<Plus className="w-4 h-4" />}
+            onPress={onAddOpen}
+            className="font-black uppercase tracking-widest text-xs shadow-lg shadow-primary/30 hover:shadow-primary/50 transition-all duration-300 transform hover:scale-105 active:scale-95"
+          >
+            {t.project.create} {activeTabSingular}
+          </Button>
         </div>
       </div>
 
@@ -647,21 +698,24 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({
         size="md"
         radius="lg"
         classNames={{
-          base: 'dark:bg-slate-900 border border-slate-200 dark:border-slate-800',
-          header: 'border-b-[1px] border-slate-100 dark:border-slate-800 p-6',
+          base: 'dark:bg-slate-900 border border-slate-200 dark:border-slate-700 animate-fadeIn',
+          header: 'border-b-[1px] border-slate-200 dark:border-slate-700 p-6',
           body: 'p-8',
-          footer: 'border-t-[1px] border-slate-100 dark:border-slate-800 p-6',
+          footer: 'border-t-[1px] border-slate-200 dark:border-slate-700 p-6',
         }}
       >
         <ModalContent>
           {onClose => (
             <>
-              <ModalHeader className="flex flex-col gap-1">
+              <ModalHeader className="flex flex-col gap-2">
                 <h2 className="text-2xl font-black text-slate-900 dark:text-white uppercase tracking-tight">
                   {t.project.createTitle.replace('{type}', activeTabSingular)}
                 </h2>
+                <p className="text-slate-500 dark:text-slate-400 text-sm">
+                  {t.project.createAssetDesc}
+                </p>
               </ModalHeader>
-              <ModalBody className="flex flex-col gap-4">
+              <ModalBody className="flex flex-col gap-6">
                 <Input
                   label={t.project.nameLabel}
                   placeholder={t.project.namePlaceholder.replace('{type}', activeTabSingular)}
@@ -673,9 +727,9 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({
                   value={assetName}
                   onValueChange={setAssetName}
                   classNames={{
-                    label: 'font-black text-[14px] uppercase tracking-widest text-slate-400 mb-2',
+                    label: 'font-black text-[14px] uppercase tracking-widest text-slate-400 dark:text-slate-300 mb-2',
                     input: 'text-sm',
-                    inputWrapper: 'border-2 group-data-[focus=true]:border-primary',
+                    inputWrapper: 'border-2 group-data-[focus=true]:border-primary transition-colors duration-300',
                   }}
                 />
 
@@ -695,7 +749,7 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({
                         label:
                           'font-black text-[14px] uppercase tracking-widest text-slate-400 mb-2',
                         value: 'text-sm',
-                        trigger: 'border-2',
+                        trigger: 'border-2 group-data-[focus=true]:border-primary transition-colors duration-300',
                       }}
                     >
                       <SelectItem key="" value="" textValue="不关联剧本">
@@ -709,14 +763,18 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({
                     </Select>
                   )}
               </ModalBody>
-              <ModalFooter>
-                <Button variant="light" onPress={onClose} className="font-bold text-slate-500">
+              <ModalFooter className="flex gap-4">
+                <Button 
+                  variant="light" 
+                  onPress={onClose} 
+                  className="font-bold text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors duration-300"
+                >
                   {t.dashboard.cancel}
                 </Button>
                 <Button
                   color="primary"
                   onPress={handleCreateEmptyAsset}
-                  className="font-black uppercase tracking-widest text-xs px-8"
+                  className="font-black uppercase tracking-widest text-xs px-8 shadow-lg shadow-primary/30 hover:shadow-primary/50 transition-all duration-300"
                   radius="lg"
                 >
                   {t.dashboard.create}

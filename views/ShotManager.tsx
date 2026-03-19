@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import {
   Script,
   Shot,
+  Keyframe,
   ScriptScene,
   CharacterAsset,
   Asset,
@@ -30,6 +31,8 @@ import {
   ModalFooter,
   Select,
   SelectItem,
+  Input,
+  Textarea,
 } from '@heroui/react';
 import {
   Camera,
@@ -44,147 +47,220 @@ import {
   Video,
   Play,
   Film as FilmIcon,
+  Plus,
+  Copy,
+  RefreshCw,
+  Trash2,
+  Image as ImageIcon,
 } from 'lucide-react';
-import { keyframeService } from '../services/keyframe';
+import { keyframeService, keyframeEngine } from '../services/keyframe';
 import { videoGenerationService } from '../services/video';
 import { jobQueue } from '../services/queue';
 import { aiService } from '../services/aiService';
 import { DEFAULT_MODELS } from '../config/models';
+import { generateShotNumbers } from '../services/utils/shotNumberGenerator';
 
-// 缩略图滚动组件
-interface ThumbnailScrollerProps {
-  images: GeneratedImage[];
-  currentImageId?: string;
-  imageUrls: Record<string, string>;
-  onSelect: (imageId: string) => void;
-  onDelete: (imageId: string) => void;
+// 分镜项组件
+interface ShotItemProps {
+  shot: Shot;
+  isActive: boolean;
+  onSelect: (shot: Shot) => void;
+  isBatchMode: boolean;
+  isSelected: boolean;
+  onToggleSelection: (shotId: string) => void;
 }
 
-const ThumbnailScroller: React.FC<ThumbnailScrollerProps> = ({
-  images,
-  currentImageId,
-  imageUrls,
-  onSelect,
-  onDelete,
+const ShotItem: React.FC<ShotItemProps> = ({ 
+  shot, 
+  isActive, 
+  onSelect, 
+  isBatchMode, 
+  isSelected, 
+  onToggleSelection 
 }) => {
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
-  const [canScrollLeft, setCanScrollLeft] = useState(false);
-  const [canScrollRight, setCanScrollRight] = useState(false);
-
-  const checkScroll = () => {
-    const container = scrollContainerRef.current;
-    if (container) {
-      setCanScrollLeft(container.scrollLeft > 0);
-      setCanScrollRight(container.scrollLeft < container.scrollWidth - container.clientWidth - 10);
-    }
-  };
-
-  useEffect(() => {
-    checkScroll();
-    const container = scrollContainerRef.current;
-    if (container) {
-      container.addEventListener('scroll', checkScroll);
-      return () => container.removeEventListener('scroll', checkScroll);
-    }
-  }, [images.length]);
-
-  const scroll = (direction: 'left' | 'right') => {
-    const container = scrollContainerRef.current;
-    if (container) {
-      const scrollAmount = direction === 'left' ? -200 : 200;
-      container.scrollBy({ left: scrollAmount, behavior: 'smooth' });
-    }
-  };
-
-  if (!images || images.length === 0) return null;
+  const contentType = keyframeEngine.detectShotType(shot.description, shot.cameraMovement);
+  const hasKeyframes = shot.keyframes && shot.keyframes.length > 0;
+  const hasImages = shot.keyframes?.some(kf => 
+    kf.generatedImages?.length > 0 || kf.generatedImage
+  );
 
   return (
-    <div className="bg-slate-50 dark:bg-slate-800/50 rounded-lg p-3">
-      <div className="flex items-center justify-between mb-2">
-        <div className="text-xs text-slate-500">历史生成记录 ({images.length})</div>
+    <div
+      className={`flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-all duration-200 ${
+        isActive 
+          ? 'bg-slate-800 border border-orange-500' 
+          : isSelected 
+          ? 'bg-slate-800/50 border border-orange-500/50' 
+          : 'hover:bg-slate-800/30 border border-transparent'
+      }`}
+      onClick={() => onSelect(shot)}
+    >
+      {isBatchMode && (
+        <input
+          type="checkbox"
+          checked={isSelected}
+          onChange={(e) => {
+            e.stopPropagation();
+            onToggleSelection(shot.id);
+          }}
+          className="w-4 h-4 rounded border-gray-500 text-orange-500 focus:ring-orange-500"
+        />
+      )}
+      <div className="w-12 h-9 rounded-md bg-slate-700 overflow-hidden flex-shrink-0">
+        {hasImages ? (
+          <div className="w-full h-full bg-slate-600 flex items-center justify-center">
+            <ImageIcon size={16} className="text-slate-400" />
+          </div>
+        ) : (
+          <div className="w-full h-full bg-slate-700 flex items-center justify-center">
+            <Camera size={16} className="text-slate-500" />
+          </div>
+        )}
       </div>
-      <div className="relative flex items-center">
-        {/* 左滑动按钮 */}
-        {canScrollLeft && (
-          <button
-            className="absolute left-0 z-10 w-6 h-6 rounded-full bg-black/50 text-white flex items-center justify-center hover:bg-black/70 transition-colors"
-            onClick={() => scroll('left')}
-          >
-            <ChevronLeft size={14} />
-          </button>
-        )}
-
-        <div
-          ref={scrollContainerRef}
-          className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide flex-1 mx-7"
-          style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-        >
-          {images.map((img, idx) => {
-            const isSelected = img.id === currentImageId;
-            const imgUrl = imageUrls[img.id] || img.path;
-            return (
-              <div
-                key={img.id}
-                className={`relative flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden cursor-pointer border-2 group ${
-                  isSelected ? 'border-primary' : 'border-transparent hover:border-slate-300'
-                }`}
-                onClick={() => onSelect(img.id)}
-              >
-                <img
-                  src={imgUrl}
-                  alt={`生成图片 ${idx + 1}`}
-                  className="w-full h-full object-cover"
-                />
-                {/* 删除按钮 */}
-                <button
-                  className="absolute top-0.5 right-0.5 w-4 h-4 rounded-full bg-red-500 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity text-xs"
-                  onClick={e => {
-                    e.stopPropagation();
-                    onDelete(img.id);
-                  }}
-                >
-                  ×
-                </button>
-              </div>
-            );
-          })}
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center gap-2">
+          <span className="text-xs font-mono font-bold text-orange-500">
+            {shot.shotNumber || shot.sequence}
+          </span>
+          <span className="text-xs font-medium text-slate-300 truncate">
+            {shot.sceneName}
+          </span>
         </div>
-
-        {/* 右滑动按钮 */}
-        {canScrollRight && (
-          <button
-            className="absolute right-0 z-10 w-6 h-6 rounded-full bg-black/50 text-white flex items-center justify-center hover:bg-black/70 transition-colors"
-            onClick={() => scroll('right')}
-          >
-            <ChevronRight size={14} />
-          </button>
-        )}
+        <div className="text-xs text-slate-400 mt-1 truncate">
+          {shot.description}
+        </div>
+        <div className="flex items-center gap-2 mt-1">
+          <span className="text-xs text-slate-500">
+            {shot.duration}s
+          </span>
+          {hasKeyframes ? (
+            <span className="text-xs text-green-400">
+              ✓ {shot.keyframes.length}关键帧
+            </span>
+          ) : (
+            <span className="text-xs text-slate-500">
+              ○ 未拆分
+            </span>
+          )}
+        </div>
       </div>
     </div>
   );
 };
 
-// 分镜状态标签
-const getStatusBadge = (shot: Shot) => {
-  if (shot.keyframes && shot.keyframes.length > 0) {
-    return (
-      <span className="flex items-center gap-1 text-xs text-green-400">
-        <span className="w-2 h-2 rounded-full bg-green-500"></span>
-        {shot.keyframes.length}个关键帧
-      </span>
-    );
-  }
-  return <span className="text-xs text-slate-500">未拆分</span>;
+// 历史图片项组件
+interface HistoryItemProps {
+  image: GeneratedImage;
+  isActive: boolean;
+  imageUrl: string;
+  onSelect: (imageId: string) => void;
+  onDelete: (imageId: string) => void;
+  index: number;
+}
+
+const HistoryItem: React.FC<HistoryItemProps> = ({ 
+  image, 
+  isActive, 
+  imageUrl, 
+  onSelect, 
+  onDelete, 
+  index 
+}) => {
+  return (
+    <div
+      className={`relative w-16 h-12 rounded-md overflow-hidden cursor-pointer border-2 transition-all duration-200 ${
+        isActive ? 'border-orange-500' : 'border-transparent hover:border-slate-600'
+      }`}
+      onClick={() => onSelect(image.id)}
+    >
+      <img 
+        src={imageUrl || image.path} 
+        alt={`历史图片 ${index + 1}`} 
+        className="w-full h-full object-cover"
+      />
+      <div className="absolute top-1 left-1 bg-black/70 text-white text-xs px-1.5 py-0.5 rounded">
+        V{index + 1}
+      </div>
+      <button
+        className="absolute top-1 right-1 w-5 h-5 rounded-full bg-red-500 text-white flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity"
+        onClick={(e) => {
+          e.stopPropagation();
+          onDelete(image.id);
+        }}
+        title="删除图片"
+      >
+        <Trash2 size={12} />
+      </button>
+    </div>
+  );
 };
 
-// 景别标签映射
-const SHOT_TYPE_LABELS: Record<string, string> = {
-  extreme_long: '极远景',
-  long: '远景',
-  full: '全景',
-  medium: '中景',
-  close_up: '近景',
-  extreme_close_up: '特写',
+// 角色项组件
+interface CharacterItemProps {
+  character: string;
+  characterAsset?: CharacterAsset;
+  imageUrl: string;
+}
+
+const CharacterItem: React.FC<CharacterItemProps> = ({ 
+  character, 
+  characterAsset, 
+  imageUrl 
+}) => {
+  return (
+    <div className="flex items-center gap-3 p-3 bg-slate-800 rounded-lg">
+      <div className="w-9 h-9 rounded-full bg-slate-700 overflow-hidden">
+        {imageUrl ? (
+          <img 
+            src={imageUrl} 
+            alt={character} 
+            className="w-full h-full object-cover"
+          />
+        ) : (
+          <div className="w-full h-full bg-slate-700 flex items-center justify-center">
+            <Users size={18} className="text-slate-500" />
+          </div>
+        )}
+      </div>
+      <div className="flex-1">
+        <div className="text-sm font-medium text-white">
+          {character}
+        </div>
+        <div className="text-xs text-slate-400">
+          {characterAsset?.description || '角色'}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// 场景信息组件
+interface SceneInfoProps {
+  sceneName: string;
+  sceneAsset?: Asset;
+  imageUrl: string;
+}
+
+const SceneInfo: React.FC<SceneInfoProps> = ({ 
+  sceneName, 
+  sceneAsset, 
+  imageUrl 
+}) => {
+  return (
+    <div className="flex items-center gap-3 p-3 bg-slate-800 rounded-lg">
+      <div className="w-9 h-9 rounded-md bg-slate-700 flex items-center justify-center text-green-400">
+        <MapPin size={18} />
+      </div>
+      <div className="flex-1">
+        <div className="text-sm font-medium text-white">
+          {sceneName}
+        </div>
+        <div className="text-xs text-slate-400">
+          {sceneAsset?.description || '场景'}
+        </div>
+      </div>
+    </div>
+  );
 };
 
 interface ShotManagerProps {
@@ -207,12 +283,7 @@ export const ShotManager: React.FC<ShotManagerProps> = ({
     setActiveTab?.(AssetType.SHOT);
   }, [setActiveTab]);
 
-  // 从场景名称提取场景号
-  const getSceneNumber = (sceneName: string) => {
-    const match = sceneName.match(/场景(\d+)/);
-    return match ? match[1] : '1';
-  };
-
+  // 状态管理
   const [scripts, setScripts] = useState<Script[]>([]);
   const [selectedScriptId, setSelectedScriptId] = useState<string>('');
   const [selectedShotId, setSelectedShotId] = useState<string>('');
@@ -223,30 +294,36 @@ export const ShotManager: React.FC<ShotManagerProps> = ({
   const [selectedLLMModel, setSelectedLLMModel] = useState<string>('');
   const [keyframeCount, setKeyframeCount] = useState<number>(3);
   const [selectedShotForSplit, setSelectedShotForSplit] = useState<Shot | null>(null);
+  const [splitOptions, setSplitOptions] = useState({
+    includeCameraMovement: true,
+    includeCharacterDetails: true,
+    includeSceneDetails: true,
+    focusOnAction: false,
+    focusOnEmotion: false,
+  });
+  const [temperature, setTemperature] = useState<number>(0.7);
+  const [maxTokens, setMaxTokens] = useState<number>(2000);
   const [selectedImageModel, setSelectedImageModel] = useState<string>('');
   const [selectedResolution, setSelectedResolution] = useState<string>('1K');
   const [selectedAspectRatio, setSelectedAspectRatio] = useState<string>('16:9');
-
-  // 生图模式状态：'text-to-image' | 'reference-to-image'
+  // 批量操作状态
+  const [selectedShots, setSelectedShots] = useState<string[]>([]);
+  const [isBatchMode, setIsBatchMode] = useState(false);
+  const [isGeneratingBatch, setIsGeneratingBatch] = useState(false);
+  const [batchProgress, setBatchProgress] = useState({ completed: 0, total: 0 });
+  const [isSplittingBatch, setIsSplittingBatch] = useState(false);
+  const [batchSplitProgress, setBatchSplitProgress] = useState({ completed: 0, total: 0 });
+  // 生图模式状态
   const [generationMode, setGenerationMode] = useState<'text-to-image' | 'reference-to-image'>(
     'reference-to-image'
   );
-
   // 存储图片URL的缓存
   const [imageUrls, setImageUrls] = useState<Record<string, string>>({});
-
-  // 当前关键帧的参考图覆盖（用于删除参考图功能）
-  const [referenceImageOverride, setReferenceImageOverride] = useState<{
-    character?: boolean;
-    scene?: boolean;
-  }>({});
-
   // 参考图缩略图URL缓存
   const [referenceImageUrls, setReferenceImageUrls] = useState<{
     character?: string;
     scene?: string;
   }>({});
-
   // 视频生成相关状态
   const [selectedVideoModel, setSelectedVideoModel] = useState<string>('');
   const [isGeneratingVideo, setIsGeneratingVideo] = useState(false);
@@ -259,7 +336,6 @@ export const ShotManager: React.FC<ShotManagerProps> = ({
     const staticModel = DEFAULT_MODELS.find(
       m => m.id === selectedImageModel || m.modelId === runtimeModel?.modelId
     );
-    // 合并 runtimeModel 和 staticModel，确保 provider 字段正确
     if (runtimeModel && staticModel) {
       return { ...staticModel, ...runtimeModel, provider: staticModel.provider };
     }
@@ -283,7 +359,6 @@ export const ShotManager: React.FC<ShotManagerProps> = ({
         '4K',
       ];
       if (!supported.includes(selectedResolution)) {
-        // 如果当前尺寸不被支持，切换到默认尺寸
         const defaultRes =
           selectedModelConfig.capabilities?.defaultResolution || supported[0] || '1K';
         setSelectedResolution(defaultRes);
@@ -299,12 +374,10 @@ export const ShotManager: React.FC<ShotManagerProps> = ({
   // 处理生图模式切换
   const handleGenerationModeChange = (mode: 'text-to-image' | 'reference-to-image') => {
     setGenerationMode(mode);
-    setReferenceImageOverride({}); // 重置参考图覆盖
 
     // 切换模式后，自动选择第一个可用模型
     const imageModels = settings.models.filter(m => m.type === 'image' && (m.enabled ?? true));
     const filtered = imageModels.filter(model => {
-      // 优先使用模型配置中的 capabilities
       const supportsRef = model.capabilities?.supportsReferenceImage ?? true;
       return mode === 'reference-to-image' ? supportsRef : !supportsRef;
     });
@@ -316,27 +389,9 @@ export const ShotManager: React.FC<ShotManagerProps> = ({
     }
   };
 
-  // 处理删除参考图
-  const handleRemoveReferenceImage = (type: 'character' | 'scene') => {
-    setReferenceImageOverride(prev => ({
-      ...prev,
-      [type]: true, // 标记为已删除
-    }));
-  };
-
-  // 恢复参考图
-  const handleRestoreReferenceImage = (type: 'character' | 'scene') => {
-    setReferenceImageOverride(prev => ({
-      ...prev,
-      [type]: false, // 取消删除标记
-    }));
-  };
-
   // 计算最终的 size 参数
   const calculateSize = useMemo(() => {
     if (isVolcengineModel) {
-      // 火山模型：使用官方推荐的尺寸映射表
-      // 参考火山文档：https://www.volcengine.com/docs/82379/1541523
       const volcengineSizeMap: Record<string, Record<string, string>> = {
         '1K': {
           '1:1': '1024x1024',
@@ -372,7 +427,6 @@ export const ShotManager: React.FC<ShotManagerProps> = ({
       const resolutionMap = volcengineSizeMap[selectedResolution] || volcengineSizeMap['1K'];
       return resolutionMap[selectedAspectRatio] || resolutionMap['16:9'] || '1280x720';
     } else {
-      // 魔搭模型：直接使用宽高比对应的像素值
       const modelscopeSizeMap: Record<string, string> = {
         '1:1': '1024x1024',
         '4:3': '1152x864',
@@ -390,21 +444,32 @@ export const ShotManager: React.FC<ShotManagerProps> = ({
   // 加载剧本数据
   useEffect(() => {
     const loadScripts = async () => {
+      console.log('开始加载剧本数据');
+      console.log('当前projectId:', projectId);
       if (!projectId) {
+        console.log('projectId为空，跳过加载');
         setIsLoading(false);
         return;
       }
       try {
+        console.log('调用storageService.getScripts获取剧本数据');
         const data = await storageService.getScripts(projectId);
+        console.log('获取到的剧本数据:', data);
+        console.log('剧本数量:', data.length);
         setScripts(data);
-        if (data.length > 0 && !selectedScriptId) {
+        if (data.length > 0) {
+          console.log('设置默认选中的剧本:', data[0].id, data[0].title);
           setSelectedScriptId(data[0].id);
+          setSelectedShotId('');
+        } else {
+          console.log('没有找到剧本数据');
         }
       } catch (error) {
         console.error('加载剧本失败:', error);
         showToast('加载剧本失败', 'error');
       } finally {
         setIsLoading(false);
+        console.log('剧本加载完成');
       }
     };
     loadScripts();
@@ -441,6 +506,12 @@ export const ShotManager: React.FC<ShotManagerProps> = ({
     };
   }, [projectId]);
 
+  // 当剧本变化时重置分镜选择
+  useEffect(() => {
+    setSelectedShotId('');
+    setSelectedKeyframeIndex(0);
+  }, [selectedScriptId]);
+
   // 当前选中的剧本
   const currentScript = useMemo(() => {
     return scripts.find(s => s.id === selectedScriptId);
@@ -448,10 +519,11 @@ export const ShotManager: React.FC<ShotManagerProps> = ({
 
   // 所有分镜
   const allShots = useMemo(() => {
-    return currentScript?.parseState?.shots || [];
+    const shots = currentScript?.parseState?.shots || [];
+    return generateShotNumbers(shots);
   }, [currentScript]);
 
-  // 提取所有图片的唯一标识（id + path）
+  // 提取所有图片的唯一标识
   const getImageIdentifiers = (shots: Shot[]): string[] => {
     const identifiers: string[] = [];
     shots.forEach(shot => {
@@ -474,7 +546,7 @@ export const ShotManager: React.FC<ShotManagerProps> = ({
   // 使用图片标识作为依赖
   const imageIdentifiers = useMemo(() => getImageIdentifiers(allShots), [allShots]);
 
-  // 加载图片URL - 增量加载，不清空现有URL
+  // 加载图片URL - 增量加载
   useEffect(() => {
     const loadImageUrls = async () => {
       const imagesToLoad: { id: string; path: string }[] = [];
@@ -485,9 +557,7 @@ export const ShotManager: React.FC<ShotManagerProps> = ({
           if (kf.generatedImages) {
             kf.generatedImages.forEach(img => {
               if (img.path && !imageUrls[img.id]) {
-                // 只加载还没有 URL 的图片
                 if (img.path.startsWith('http://') || img.path.startsWith('https://')) {
-                  // 远程 URL 直接设置
                   setImageUrls(prev => ({ ...prev, [img.id]: img.path }));
                 } else {
                   imagesToLoad.push({ id: img.id, path: img.path });
@@ -518,7 +588,6 @@ export const ShotManager: React.FC<ShotManagerProps> = ({
     if (allShots.length > 0) {
       loadImageUrls();
     }
-    // 依赖改为 imageIdentifiers，只有图片列表真正变化时才触发
   }, [imageIdentifiers]);
 
   // 当前选中的分镜
@@ -593,50 +662,6 @@ export const ShotManager: React.FC<ShotManagerProps> = ({
     return settings.models.filter(m => m.type === 'video' && (m.enabled ?? true));
   }, [settings.models]);
 
-  // 获取模型能力的辅助函数
-  const getModelCapabilities = useMemo(() => {
-    return (model: ModelConfig) => {
-      // 优先使用模型配置中的 capabilities（用户自定义配置）
-      if (model.capabilities && typeof model.capabilities.supportsReferenceImage === 'boolean') {
-        return {
-          supportsReferenceImage: model.capabilities.supportsReferenceImage,
-          maxReferenceImages: model.capabilities.maxReferenceImages ?? 5,
-        };
-      }
-
-      // 如果模型没有配置 capabilities，尝试从 DEFAULT_MODELS 查找
-      let defaultModel = DEFAULT_MODELS.find(m => m.modelId === model.modelId);
-      if (!defaultModel) {
-        defaultModel = DEFAULT_MODELS.find(m => m.id === model.id);
-      }
-      if (!defaultModel) {
-        defaultModel = DEFAULT_MODELS.find(
-          m => m.provider === model.provider && m.type === model.type
-        );
-      }
-
-      // 返回能力配置，如果找不到则默认支持参考图（为了兼容性）
-      return {
-        supportsReferenceImage: defaultModel?.capabilities?.supportsReferenceImage ?? true,
-        maxReferenceImages: defaultModel?.capabilities?.maxReferenceImages ?? 5,
-      };
-    };
-  }, []);
-
-  // 根据生图模式过滤可用模型
-  const filteredImageModels = useMemo(() => {
-    return availableImageModels.filter(model => {
-      const capabilities = getModelCapabilities(model);
-      const supportsRef = capabilities.supportsReferenceImage ?? true;
-
-      if (generationMode === 'reference-to-image') {
-        return supportsRef; // 参考图模式：只显示支持参考图的模型
-      } else {
-        return !supportsRef; // 文生图模式：只显示不支持参考图的模型
-      }
-    });
-  }, [availableImageModels, generationMode, getModelCapabilities]);
-
   // 打开拆分关键帧弹窗
   const handleOpenSplitModal = (shot: Shot) => {
     if (!projectId || !currentScript) return;
@@ -647,45 +672,234 @@ export const ShotManager: React.FC<ShotManagerProps> = ({
     }
 
     setSelectedShotForSplit(shot);
-    setSelectedLLMModel('');
+    setSelectedLLMModel(availableLLMModels[0].id);
     setKeyframeCount(3);
     setIsSplitModalOpen(true);
   };
 
+  // 自动处理静态分镜
+  const handleAutoProcessStaticShot = async (shot: Shot) => {
+    if (!projectId || !currentScript) return;
+
+    try {
+      // 调用自动处理静态分镜服务
+      const keyframes = await keyframeService.autoProcessStaticShot(shot, projectId);
+      
+      if (keyframes.length === 0) {
+        showToast('该分镜不是静态分镜，无法自动处理', 'info');
+        return;
+      }
+
+      // 更新shot的keyframes
+      const updatedShot = { ...shot, keyframes };
+
+      // 更新剧本数据
+      const updatedShots = allShots.map(s => (s.id === shot.id ? updatedShot : s));
+      const updatedScript = {
+        ...currentScript,
+        parseState: {
+          ...currentScript.parseState,
+          shots: updatedShots,
+        },
+      };
+
+      await storageService.saveScript(updatedScript);
+      setScripts(scripts.map(s => (s.id === updatedScript.id ? updatedScript : s)));
+      showToast('静态分镜自动处理成功', 'success');
+    } catch (error: any) {
+      console.error('[ShotManager] 自动处理静态分镜失败:', error);
+      showToast(`自动处理失败: ${error.message || '未知错误'}`, 'error');
+    }
+  };
+
+  // 批量操作处理函数
+  const toggleBatchMode = () => {
+    setIsBatchMode(!isBatchMode);
+    setSelectedShots([]);
+  };
+
+  const toggleShotSelection = (shotId: string) => {
+    setSelectedShots(prev => {
+      if (prev.includes(shotId)) {
+        return prev.filter(id => id !== shotId);
+      } else {
+        return [...prev, shotId];
+      }
+    });
+  };
+
+  const selectAllShots = () => {
+    setSelectedShots(allShots.map(shot => shot.id));
+  };
+
+  const clearSelection = () => {
+    setSelectedShots([]);
+  };
+
+  // 批量拆分关键帧
+  const handleBatchSplitKeyframes = async () => {
+    if (!projectId || !currentScript) return;
+    if (selectedShots.length === 0) {
+      showToast('请先选择要拆分的分镜', 'error');
+      return;
+    }
+    if (!selectedLLMModel) {
+      showToast('请先选择LLM模型', 'error');
+      return;
+    }
+
+    setIsSplittingBatch(true);
+    setBatchSplitProgress({ completed: 0, total: selectedShots.length });
+    showToast(`开始批量拆分 ${selectedShots.length} 个分镜的关键帧`, 'info');
+
+    try {
+      // 获取选中的分镜
+      const selectedShotsData = allShots.filter(shot => selectedShots.includes(shot.id));
+      
+      // 批量拆分关键帧
+      const results = await keyframeService.batchSplitKeyframes(
+        {
+          shots: selectedShotsData,
+          keyframeCount: keyframeCount,
+          projectId,
+          modelConfigId: selectedLLMModel,
+        },
+        (completed, total) => {
+          setBatchSplitProgress({ completed, total });
+        }
+      );
+
+      // 更新剧本数据
+      const updatedShots = allShots.map(shot => {
+        const keyframes = results.get(shot.id);
+        if (keyframes) {
+          return { ...shot, keyframes };
+        }
+        return shot;
+      });
+
+      const updatedScript = {
+        ...currentScript,
+        parseState: {
+          ...currentScript.parseState,
+          shots: updatedShots,
+        },
+      };
+
+      await storageService.saveScript(updatedScript);
+      setScripts(scripts.map(s => (s.id === updatedScript.id ? updatedScript : s)));
+      
+      const successCount = Array.from(results.values()).filter(keyframes => keyframes.length > 0).length;
+      showToast(`批量拆分完成，成功 ${successCount}/${selectedShots.length} 个分镜`, 'success');
+    } catch (error: any) {
+      console.error('[ShotManager] 批量拆分关键帧失败:', error);
+      showToast(`批量拆分关键帧失败: ${error.message || '未知错误'}`, 'error');
+    } finally {
+      setIsSplittingBatch(false);
+    }
+  };
+
+  // 批量生成关键帧图片
+  const handleBatchGenerate = async () => {
+    if (!projectId || !currentScript) return;
+    if (selectedShots.length === 0) {
+      showToast('请先选择要生成的分镜', 'error');
+      return;
+    }
+    if (!selectedImageModel) {
+      showToast('请先选择生图模型', 'error');
+      return;
+    }
+
+    setIsGeneratingBatch(true);
+    setBatchProgress({ completed: 0, total: selectedShots.length });
+    showToast(`开始批量生成 ${selectedShots.length} 个分镜的关键帧图片`, 'info');
+
+    try {
+      // 获取选中的分镜
+      const selectedShotsData = allShots.filter(shot => selectedShots.includes(shot.id));
+      
+      // 收集所有关键帧
+      const allKeyframes: Keyframe[] = [];
+      selectedShotsData.forEach(shot => {
+        if (shot.keyframes) {
+          allKeyframes.push(...shot.keyframes);
+        }
+      });
+
+      if (allKeyframes.length === 0) {
+        showToast('选中的分镜没有关键帧', 'error');
+        setIsGeneratingBatch(false);
+        return;
+      }
+
+      // 批量生成图片
+      const results = await keyframeService.batchGenerateImages(
+        allKeyframes,
+        {
+          projectId,
+          modelConfigId: selectedImageModel,
+          size: selectedResolution,
+        },
+        (completed, total) => {
+          setBatchProgress({ completed, total });
+        }
+      );
+
+      // 更新剧本数据
+      const updatedShots = allShots.map(shot => {
+        if (selectedShots.includes(shot.id) && shot.keyframes) {
+          const updatedKeyframes = shot.keyframes.map(kf => {
+            const result = results.find(r => r.id === kf.id);
+            return result || kf;
+          });
+          return { ...shot, keyframes: updatedKeyframes };
+        }
+        return shot;
+      });
+
+      const updatedScript = {
+        ...currentScript,
+        parseState: {
+          ...currentScript.parseState,
+          shots: updatedShots,
+        },
+      };
+
+      await storageService.saveScript(updatedScript);
+      setScripts(scripts.map(s => (s.id === updatedScript.id ? updatedScript : s)));
+      
+      const successCount = results.filter(r => r.status === 'completed').length;
+      const failedCount = results.filter(r => r.status === 'failed').length;
+      
+      showToast(`批量生成完成：成功 ${successCount} 个，失败 ${failedCount} 个`, 'success');
+    } catch (error: any) {
+      console.error('[ShotManager] 批量生成失败:', error);
+      showToast(`批量生成失败: ${error.message || '未知错误'}`, 'error');
+    } finally {
+      setIsGeneratingBatch(false);
+      setBatchProgress({ completed: 0, total: 0 });
+    }
+  };
+
   // 确认拆分关键帧
   const confirmSplitKeyframes = async () => {
-    console.log('[ShotManager] 开始拆分关键帧...');
-    console.log('[ShotManager] projectId:', projectId);
-    console.log('[ShotManager] currentScript:', currentScript?.id);
-    console.log('[ShotManager] selectedShotForSplit:', selectedShotForSplit?.id);
-    console.log('[ShotManager] selectedLLMModel:', selectedLLMModel);
-
     if (!projectId || !currentScript || !selectedShotForSplit || !selectedLLMModel) {
-      console.error('[ShotManager] 缺少必要参数:', {
-        projectId,
-        currentScript: !!currentScript,
-        selectedShotForSplit: !!selectedShotForSplit,
-        selectedLLMModel,
-      });
       showToast('缺少必要参数，请检查选择', 'error');
       return;
     }
 
     // 验证模型配置
     const selectedModel = availableLLMModels.find(m => m.id === selectedLLMModel);
-    console.log('[ShotManager] 选择的模型配置:', selectedModel);
     if (!selectedModel) {
-      console.error('[ShotManager] 找不到模型配置:', selectedLLMModel);
       showToast('找不到模型配置，请重新选择模型', 'error');
       return;
     }
     if (!selectedModel.apiKey) {
-      console.error('[ShotManager] 模型未配置 API Key:', selectedModel.id);
       showToast('模型未配置 API Key，请在设置中配置', 'error');
       return;
     }
     if (!selectedModel.modelId) {
-      console.error('[ShotManager] 模型未配置 modelId:', selectedModel.id);
       showToast('模型配置不完整，请在设置中检查', 'error');
       return;
     }
@@ -694,18 +908,10 @@ export const ShotManager: React.FC<ShotManagerProps> = ({
     setSplittingShotId(selectedShotForSplit.id);
 
     try {
-      console.log('[ShotManager] 调用 keyframeService.splitKeyframes...');
-
-      // 获取角色和场景资产用于关键帧拆分（按当前剧本过滤）
+      // 获取角色和场景资产用于关键帧拆分
       const assets = await storageService.getAssets(projectId);
-      // 严格按scriptId过滤：只使用当前剧本的资产
       const currentScriptId = currentScript.id;
       const filteredAssets = assets.filter(a => a.scriptId === currentScriptId);
-      console.log('[ShotManager] 资产过滤:', {
-        totalAssets: assets.length,
-        filteredAssets: filteredAssets.length,
-        currentScriptId,
-      });
 
       const characterAssets =
         selectedShotForSplit.characters
@@ -717,17 +923,6 @@ export const ShotManager: React.FC<ShotManagerProps> = ({
         a => a.type === AssetType.SCENE && a.name === selectedShotForSplit.sceneName
       );
 
-      console.log(
-        '[ShotManager] 拆分关键帧时找到的角色资产:',
-        characterAssets.map(c => ({ id: c.id, name: c.name }))
-      );
-      console.log(
-        '[ShotManager] 拆分关键帧时找到的场景资产:',
-        sceneAsset
-          ? { id: sceneAsset.id, name: sceneAsset.name, scriptId: sceneAsset.scriptId }
-          : null
-      );
-
       const keyframes = await keyframeService.splitKeyframes({
         shot: selectedShotForSplit,
         keyframeCount: keyframeCount,
@@ -735,8 +930,10 @@ export const ShotManager: React.FC<ShotManagerProps> = ({
         modelConfigId: selectedLLMModel,
         characterAssets: characterAssets.length > 0 ? characterAssets : undefined,
         sceneAsset: sceneAsset,
+        splitOptions: splitOptions,
+        temperature: temperature,
+        maxTokens: maxTokens,
       });
-      console.log('[ShotManager] 拆分成功，关键帧数量:', keyframes.length);
 
       // 更新shot的keyframes
       const updatedShot = { ...selectedShotForSplit, keyframes };
@@ -756,7 +953,6 @@ export const ShotManager: React.FC<ShotManagerProps> = ({
       showToast('关键帧拆分成功', 'success');
     } catch (error: any) {
       console.error('[ShotManager] 拆分关键帧失败:', error);
-      console.error('[ShotManager] 错误详情:', error.message, error.stack);
       showToast(`拆分关键帧失败: ${error.message || '未知错误'}`, 'error');
     } finally {
       setSplittingShotId(null);
@@ -796,65 +992,10 @@ export const ShotManager: React.FC<ShotManagerProps> = ({
     await storageService.saveScript(updatedScript);
     setScripts(scripts.map(s => (s.id === updatedScript.id ? updatedScript : s)));
 
-    // 获取参考图（按当前剧本过滤）
+    // 获取参考图
     const assets = await storageService.getAssets(projectId);
-    // 严格按scriptId过滤：只使用当前剧本的资产
     const currentScriptId = currentScript.id;
     const filteredAssets = assets.filter(a => a.scriptId === currentScriptId);
-
-    // 诊断日志：打印 references 信息
-    console.log('[ShotManager] kf.references:', JSON.stringify(kf.references, null, 2));
-    console.log('[ShotManager] 资产过滤:', {
-      totalAssets: assets.length,
-      filteredAssets: filteredAssets.length,
-      currentScriptId,
-    });
-    console.log(
-      '[ShotManager] 当前剧本角色资产:',
-      filteredAssets
-        .filter(a => a.type === AssetType.CHARACTER)
-        .map(a => ({ id: a.id, name: a.name, scriptId: a.scriptId }))
-    );
-    console.log(
-      '[ShotManager] 当前剧本场景资产:',
-      filteredAssets
-        .filter(a => a.type === AssetType.SCENE)
-        .map(a => ({ id: a.id, name: a.name, scriptId: a.scriptId }))
-    );
-
-    // 首先尝试用 name 查找，如果失败则尝试用 id 查找（都在过滤后的资产中查找）
-    let characterAsset: CharacterAsset | undefined;
-    if (kf.references?.character) {
-      // 先用 name 查找
-      characterAsset = filteredAssets.find(
-        a => a.type === AssetType.CHARACTER && a.name === kf.references.character.name
-      ) as CharacterAsset;
-      // 如果失败，用 id 查找
-      if (!characterAsset && kf.references.character.id) {
-        characterAsset = filteredAssets.find(
-          a => a.type === AssetType.CHARACTER && a.id === kf.references.character.id
-        ) as CharacterAsset;
-        console.log('[ShotManager] 用 id 查找角色资产:', !!characterAsset);
-      }
-    }
-
-    let sceneAsset: Asset | undefined;
-    if (kf.references?.scene) {
-      // 先用 name 查找
-      sceneAsset = filteredAssets.find(
-        a => a.type === AssetType.SCENE && a.name === kf.references.scene.name
-      );
-      // 如果失败，用 id 查找
-      if (!sceneAsset && kf.references.scene.id) {
-        sceneAsset = filteredAssets.find(
-          a => a.type === AssetType.SCENE && a.id === kf.references.scene.id
-        );
-        console.log('[ShotManager] 用 id 查找场景资产:', !!sceneAsset);
-      }
-    }
-
-    console.log('[ShotManager] characterAsset found:', !!characterAsset);
-    console.log('[ShotManager] sceneAsset found:', !!sceneAsset);
 
     // 准备参考图 base64
     const referenceImages: string[] = [];
@@ -873,49 +1014,45 @@ export const ShotManager: React.FC<ShotManagerProps> = ({
       return `data:image/${ext};base64,${base64}`;
     };
 
-    // 根据生图模式和用户覆盖设置决定是否使用参考图
-    const useCharacterRef =
-      generationMode === 'reference-to-image' &&
-      !referenceImageOverride.character &&
-      characterAsset?.currentImageId;
-    const useSceneRef =
-      generationMode === 'reference-to-image' &&
-      !referenceImageOverride.scene &&
-      sceneAsset?.filePath;
+    // 构建参考图
+    if (generationMode === 'reference-to-image' && kf.references) {
+      // 角色参考图
+      if (kf.references.character) {
+        const characterAsset = filteredAssets.find(
+          a => a.type === AssetType.CHARACTER && 
+          (a.id === kf.references.character.id || a.name === kf.references.character.name)
+        ) as CharacterAsset;
+        if (characterAsset?.currentImageId) {
+          const charImage = characterAsset.generatedImages?.find(
+            img => img.id === characterAsset.currentImageId
+          );
+          if (charImage?.path) {
+            try {
+              const base64 = await imageToBase64(charImage.path);
+              referenceImages.push(base64);
+            } catch (e) {
+              console.error('读取角色图失败:', e);
+            }
+          }
+        }
+      }
 
-    if (useCharacterRef) {
-      const charImage = characterAsset.generatedImages?.find(
-        img => img.id === characterAsset.currentImageId
-      );
-      if (charImage?.path) {
-        try {
-          const base64 = await imageToBase64(charImage.path);
-          referenceImages.push(base64);
-          console.log('[ShotManager] 已添加角色参考图');
-        } catch (e) {
-          console.error('读取角色图失败:', e);
+      // 场景参考图
+      if (kf.references.scene) {
+        const sceneAsset = filteredAssets.find(
+          a => a.type === AssetType.SCENE && 
+          (a.id === kf.references.scene.id || a.name === kf.references.scene.name)
+        );
+        if (sceneAsset?.filePath) {
+          try {
+            const base64 = await imageToBase64(sceneAsset.filePath);
+            referenceImages.push(base64);
+          } catch (e) {
+            console.error('读取场景图失败:', e);
+          }
         }
       }
     }
-
-    if (useSceneRef) {
-      try {
-        const base64 = await imageToBase64(sceneAsset.filePath);
-        referenceImages.push(base64);
-        console.log('[ShotManager] 已添加场景参考图');
-      } catch (e) {
-        console.error('读取场景图失败:', e);
-      }
-    }
-
-    console.log('[ShotManager] 生图模式:', generationMode);
-    console.log('[ShotManager] 参考图覆盖设置:', referenceImageOverride);
-
-    console.log('[ShotManager] referenceImages count:', referenceImages.length);
-    if (referenceImages.length > 0) {
-      console.log('[ShotManager] first image preview:', referenceImages[0].substring(0, 50));
-    }
-    console.log('[ShotManager] full referenceImages:', referenceImages);
 
     // 创建并提交任务
     const job = aiService.createKeyframeGenerationJob({
@@ -991,7 +1128,7 @@ export const ShotManager: React.FC<ShotManagerProps> = ({
     showToast('开始生成视频，请稍候...', 'info');
 
     try {
-      // 构建视频生成提示词（使用分镜描述）
+      // 构建视频生成提示词
       const videoPrompt = selectedShot.description;
 
       const result = await videoGenerationService.generateVideo({
@@ -1028,24 +1165,74 @@ export const ShotManager: React.FC<ShotManagerProps> = ({
     }
   };
 
-  // 获取分镜类型标签
-  const getShotTypeLabel = (contentType: string) => {
-    switch (contentType) {
-      case 'static':
-        return { label: '静态', color: 'default' as const, icon: Camera };
-      case 'dynamic-simple':
-        return { label: '简单动态', color: 'primary' as const, icon: Play };
-      case 'dynamic-complex':
-        return { label: '复杂动态', color: 'secondary' as const, icon: FilmIcon };
-      default:
-        return { label: '未知', color: 'default' as const, icon: Camera };
-    }
+
+
+  // 处理历史图片选择
+  const handleSelectHistoryImage = (imageId: string) => {
+    if (!selectedShot || !selectedShot.keyframes) return;
+
+    const updatedKeyframes = [...selectedShot.keyframes];
+    updatedKeyframes[selectedKeyframeIndex] = {
+      ...updatedKeyframes[selectedKeyframeIndex],
+      currentImageId: imageId,
+    };
+
+    const updatedShot = { ...selectedShot, keyframes: updatedKeyframes };
+    const updatedShots = allShots.map(s => (s.id === selectedShot.id ? updatedShot : s));
+    const updatedScript = {
+      ...currentScript!,
+      parseState: {
+        ...currentScript!.parseState,
+        shots: updatedShots,
+      },
+    };
+
+    storageService.saveScript(updatedScript);
+    setScripts(scripts.map(s => (s.id === updatedScript.id ? updatedScript : s)));
+  };
+
+  // 处理历史图片删除
+  const handleDeleteHistoryImage = (imageId: string) => {
+    if (!selectedShot || !selectedShot.keyframes) return;
+
+    if (!confirm('确定要删除这张图片吗？')) return;
+
+    const kf = selectedShot.keyframes[selectedKeyframeIndex];
+    if (!kf.generatedImages) return;
+
+    const updatedImages = kf.generatedImages.filter(img => img.id !== imageId);
+    const newCurrentId = updatedImages.length > 0
+      ? kf.currentImageId === imageId
+        ? updatedImages[0].id
+        : kf.currentImageId
+      : undefined;
+
+    const updatedKeyframes = [...selectedShot.keyframes];
+    updatedKeyframes[selectedKeyframeIndex] = {
+      ...kf,
+      generatedImages: updatedImages,
+      currentImageId: newCurrentId,
+      generatedImage: updatedImages.length > 0 ? updatedImages[updatedImages.length - 1] : undefined,
+    };
+
+    const updatedShot = { ...selectedShot, keyframes: updatedKeyframes };
+    const updatedShots = allShots.map(s => (s.id === selectedShot.id ? updatedShot : s));
+    const updatedScript = {
+      ...currentScript!,
+      parseState: {
+        ...currentScript!.parseState,
+        shots: updatedShots,
+      },
+    };
+
+    storageService.saveScript(updatedScript);
+    setScripts(scripts.map(s => (s.id === updatedScript.id ? updatedScript : s)));
   };
 
   if (isLoading) {
     return (
       <div className="h-full flex items-center justify-center">
-        <Progress size="sm" isIndeterminate aria-label="加载中..." />
+        <div className="text-white">加载中...</div>
       </div>
     );
   }
@@ -1053,922 +1240,695 @@ export const ShotManager: React.FC<ShotManagerProps> = ({
   if (!currentScript) {
     return (
       <div className="h-full flex items-center justify-center">
-        <Card>
-          <CardBody className="py-12 text-center">
-            <Film size={48} className="mx-auto text-default-300 mb-4" />
-            <p className="text-default-500">暂无剧本数据</p>
-            <p className="text-xs text-default-400 mt-2">请先在剧本管理中导入并解析剧本</p>
-          </CardBody>
-        </Card>
+        <div className="text-white">暂无剧本数据</div>
       </div>
     );
   }
 
   return (
-    <div className="h-full flex flex-col bg-slate-50 dark:bg-slate-950">
-      {/* 头部 */}
-      <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-xl font-bold text-slate-900 dark:text-white">分镜管理</h1>
-            <p className="text-sm text-slate-500 mt-1">
-              {currentScript.title} · 共 {allShots.length} 个分镜
-            </p>
-          </div>
-          {scripts.length > 1 && (
-            <select
-              value={selectedScriptId}
-              onChange={e => setSelectedScriptId(e.target.value)}
-              className="px-3 py-2 bg-slate-100 dark:bg-slate-800 rounded-lg text-sm"
+    <div className="flex h-full bg-slate-950 text-white">
+      {/* 左侧分镜列表 */}
+      <aside className="w-80 bg-slate-900 border-r border-slate-800 flex flex-col">
+        <div className="p-4 border-b border-slate-800">
+          <div className="mb-3">
+            <label className="text-xs text-slate-400 block mb-1">选择剧本</label>
+            <Select
+              aria-label="选择剧本"
+              selectedKeys={selectedScriptId ? [selectedScriptId] : []}
+              onChange={(e) => setSelectedScriptId(e.target.value)}
+              className="w-full"
             >
               {scripts.map(script => (
-                <option key={script.id} value={script.id}>
+                <SelectItem key={script.id} value={script.id} textValue={script.title}>
                   {script.title}
-                </option>
+                </SelectItem>
               ))}
-            </select>
-          )}
-        </div>
-      </div>
-
-      {/* 主内容区 */}
-      <div className="flex-1 flex overflow-hidden">
-        {/* 左侧：分镜列表 */}
-        <aside className="w-80 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex flex-col">
-          <div className="p-4 border-b border-slate-200 dark:border-slate-800">
-            <h2 className="text-sm font-medium text-slate-700 dark:text-slate-300">分镜列表</h2>
-            <div className="flex gap-3 text-xs mt-2">
-              <span className="flex items-center gap-1 text-slate-500">
-                <span className="w-2 h-2 rounded-full bg-green-500"></span>已拆分
-              </span>
-              <span className="flex items-center gap-1 text-slate-500">
-                <span className="w-2 h-2 rounded-full bg-slate-400"></span>未拆分
+            </Select>
+          </div>
+          <div className="flex items-center justify-between mb-3">
+            <div>
+              <h2 className="text-sm font-semibold text-white">分镜列表</h2>
+              <p className="text-xs text-slate-400">
+                共 {allShots.length} 个分镜
+              </p>
+            </div>
+            <Button
+              size="sm"
+              variant="flat"
+              color={isBatchMode ? "primary" : "default"}
+              onPress={toggleBatchMode}
+              className="text-xs"
+            >
+              {isBatchMode ? '退出批量' : '批量操作'}
+            </Button>
+          </div>
+          
+          {isBatchMode && (
+            <div className="flex gap-2 text-xs mb-3 flex-wrap">
+              <Button
+                size="sm"
+                variant="flat"
+                onPress={selectAllShots}
+                className="text-xs"
+              >
+                全选
+              </Button>
+              <Button
+                size="sm"
+                variant="flat"
+                onPress={clearSelection}
+                className="text-xs"
+              >
+                清空
+              </Button>
+              <Button
+                size="sm"
+                color="primary"
+                onPress={handleBatchSplitKeyframes}
+                isLoading={isSplittingBatch}
+                className="text-xs"
+                isDisabled={selectedShots.length === 0}
+              >
+                批量拆分关键帧
+              </Button>
+              <Button
+                size="sm"
+                color="primary"
+                onPress={handleBatchGenerate}
+                isLoading={isGeneratingBatch}
+                className="text-xs"
+                isDisabled={selectedShots.length === 0}
+              >
+                批量生成图片
+              </Button>
+              <span className="flex items-center gap-1 text-slate-400 text-xs ml-auto">
+                已选择 {selectedShots.length}
               </span>
             </div>
-          </div>
-          <div className="flex-1 overflow-y-auto p-3 space-y-2">
-            {allShots.map(shot => (
-              <div
-                key={shot.id}
-                onClick={() => {
-                  setSelectedShotId(shot.id);
-                  setSelectedKeyframeIndex(0);
-                  setReferenceImageOverride({}); // 切换分镜时重置参考图覆盖
-                }}
-                className={`p-3 rounded-lg border cursor-pointer transition-all ${
-                  selectedShotId === shot.id
-                    ? 'border-primary bg-primary/10 dark:bg-primary/20'
-                    : 'border-slate-200 dark:border-slate-700 hover:border-primary/50'
-                }`}
-              >
-                <div className="flex items-start justify-between mb-2">
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs font-mono text-slate-500">
-                      {getSceneNumber(shot.sceneName)}-{shot.sequence}
+          )}
+        </div>
+        <div className="flex-1 overflow-y-auto p-3 space-y-2">
+          {allShots.map(shot => (
+            <ShotItem
+              key={shot.id}
+              shot={shot}
+              isActive={selectedShotId === shot.id}
+              onSelect={() => {
+                setSelectedShotId(shot.id);
+                setSelectedKeyframeIndex(0);
+              }}
+              isBatchMode={isBatchMode}
+              isSelected={selectedShots.includes(shot.id)}
+              onToggleSelection={toggleShotSelection}
+            />
+          ))}
+        </div>
+      </aside>
+
+      {/* 中央预览区 */}
+      <main className="flex-1 flex flex-col bg-slate-950">
+        {/* 顶部信息栏 */}
+        {selectedShot && (
+          <div className="bg-slate-900 border-b border-slate-800 px-6 py-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center">
+                <div>
+                  <div className="flex items-center gap-3">
+                    <span className="text-2xl font-bold text-orange-500 font-mono">
+                      {selectedShot.sequence}
                     </span>
-                    <Chip size="sm" variant="flat">
-                      {SHOT_TYPE_LABELS[shot.shotType] || shot.shotType}
-                    </Chip>
+                    <h2 className="text-lg font-semibold text-white">
+                      {selectedShot.sceneName}
+                    </h2>
                   </div>
-                  {getStatusBadge(shot)}
-                </div>
-                <p className="text-sm text-slate-700 dark:text-slate-300 line-clamp-2 mb-2">
-                  {shot.description}
-                </p>
-                <div className="flex items-center justify-between text-xs text-slate-500">
-                  <span className="flex items-center gap-1">
-                    <Clock size={12} />
-                    {shot.duration}s
-                  </span>
-                  <span className="flex items-center gap-1">
-                    <Users size={12} />
-                    {shot.characters?.join(', ') || '无角色'}
-                  </span>
+                  <p className="text-sm text-slate-400 mt-1">
+                    {selectedShot.description}
+                  </p>
                 </div>
               </div>
-            ))}
+              <div className="flex items-center gap-3">
+                {selectedShot.keyframes ? (
+                  <Button
+                    size="sm"
+                    variant="flat"
+                    onPress={() => handleOpenSplitModal(selectedShot)}
+                    isLoading={splittingShotId === selectedShot.id}
+                    isDisabled={availableLLMModels.length === 0}
+                    className="text-slate-300 hover:text-white border border-slate-700"
+                  >
+                    重新拆分
+                  </Button>
+                ) : (
+                  <>
+                    <Button
+                      size="sm"
+                      variant="flat"
+                      onPress={() => handleAutoProcessStaticShot(selectedShot)}
+                      isLoading={splittingShotId === selectedShot.id}
+                      className="text-slate-300 hover:text-white border border-slate-700"
+                    >
+                      自动处理静态分镜
+                    </Button>
+                    <Button
+                      size="sm"
+                      color="primary"
+                      onPress={() => handleOpenSplitModal(selectedShot)}
+                      isLoading={splittingShotId === selectedShot.id}
+                      isDisabled={availableLLMModels.length === 0}
+                    >
+                      <Scissors size={16} className="mr-1" />
+                      拆分关键帧
+                    </Button>
+                  </>
+                )}
+              </div>
+            </div>
           </div>
-        </aside>
+        )}
 
-        {/* 右侧：关键帧详情 */}
-        <main className="flex-1 overflow-y-auto bg-slate-50 dark:bg-slate-950 p-6">
+        {/* 预览区域 */}
+        <div className="flex-1 flex items-center justify-center p-4 bg-slate-950 relative">
           {selectedShot ? (
-            <div className="max-w-6xl mx-auto space-y-6">
-              {/* 分镜信息卡片 */}
-              <Card>
-                <CardBody className="p-4">
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="flex items-center gap-3">
-                      <span className="text-2xl font-bold text-slate-900 dark:text-white font-mono">
-                        {String(selectedShot.sequence).padStart(3, '0')}
-                      </span>
-                      <div>
-                        <h2 className="font-semibold text-slate-900 dark:text-white">
-                          {selectedShot.sceneName}
-                        </h2>
-                        <p className="text-sm text-slate-500">{selectedShot.description}</p>
-                      </div>
-                    </div>
-                    {selectedShot.keyframes ? (
-                      <div className="flex items-center gap-2">
-                        <Chip color="success" variant="flat">
-                          <span className="flex items-center gap-1">
-                            <Scissors size={14} />
-                            已拆分
-                          </span>
-                        </Chip>
-                        <Button
-                          size="sm"
-                          variant="flat"
-                          onPress={() => handleOpenSplitModal(selectedShot)}
-                          isLoading={splittingShotId === selectedShot.id}
-                        >
-                          重新拆分
-                        </Button>
-                      </div>
-                    ) : (
-                      <Button
-                        color="primary"
-                        size="sm"
-                        onPress={() => handleOpenSplitModal(selectedShot)}
-                        isLoading={splittingShotId === selectedShot.id}
-                        isDisabled={availableLLMModels.length === 0}
-                      >
-                        <Scissors size={16} className="mr-1" />
-                        拆分关键帧
-                      </Button>
-                    )}
-                  </div>
-                  <div className="flex gap-4 text-xs text-slate-500 flex-wrap">
-                    <span className="flex items-center gap-1">
-                      <Camera size={14} />
-                      {SHOT_TYPE_LABELS[selectedShot.shotType] || selectedShot.shotType}
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <Clock size={14} />
-                      {selectedShot.duration}秒
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <MapPin size={14} />
-                      {selectedShot.sceneName}
-                    </span>
-                    {selectedShot.contentType && (
-                      <Chip
-                        size="sm"
-                        variant="flat"
-                        color={getShotTypeLabel(selectedShot.contentType).color}
-                      >
-                        {(() => {
-                          const typeInfo = getShotTypeLabel(selectedShot.contentType);
-                          const Icon = typeInfo.icon;
-                          return (
-                            <span className="flex items-center gap-1">
-                              <Icon size={12} />
-                              {typeInfo.label}
-                            </span>
-                          );
-                        })()}
-                      </Chip>
-                    )}
-                  </div>
-                </CardBody>
-              </Card>
+            selectedShot.keyframes && selectedShot.keyframes.length > 0 ? (
+              <div className="w-full max-w-5xl mx-auto">
+                <div className="relative">
+                  {/* 关键帧图片预览 */}
+                  <div className="aspect-video bg-slate-900 rounded-lg overflow-hidden relative">
+                    {(() => {
+                      const kf = selectedShot.keyframes[selectedKeyframeIndex];
+                      const currentImage = kf.generatedImages?.find(img => img.id === kf.currentImageId) || kf.generatedImage;
+                      const imageUrl = currentImage ? imageUrls[currentImage.id] || currentImage.path : null;
 
-              {/* 关键帧内容 */}
-              {selectedShot.keyframes && selectedShot.keyframes.length > 0 ? (
-                <>
+                      if (currentImage && imageUrl) {
+                        return (
+                          <img
+                            src={imageUrl}
+                            alt="关键帧预览"
+                            className="w-full h-full object-cover"
+                          />
+                        );
+                      } else {
+                        return (
+                          <div className="w-full h-full flex items-center justify-center bg-slate-800">
+                            <Camera size={48} className="text-slate-600" />
+                          </div>
+                        );
+                      }
+                    })()}
+                    
+                    {/* 关键帧指示器 */}
+                    <div className="absolute top-4 right-4 bg-black/70 backdrop-blur-sm px-3 py-1 rounded-full text-sm font-medium">
+                      关键帧 {selectedKeyframeIndex + 1} / {selectedShot.keyframes.length}
+                    </div>
+                    
+
+                  </div>
+                  
                   {/* 关键帧切换标签 */}
-                  <div className="flex items-center gap-2">
+                  <div className="flex gap-2 mt-4">
                     {selectedShot.keyframes.map((kf, idx) => (
                       <Button
                         key={kf.id}
                         size="sm"
-                        color={selectedKeyframeIndex === idx ? 'primary' : 'default'}
-                        variant={selectedKeyframeIndex === idx ? 'solid' : 'flat'}
-                        onPress={() => {
-                          setSelectedKeyframeIndex(idx);
-                          setReferenceImageOverride({}); // 切换关键帧时重置参考图覆盖
-                        }}
+                        color={selectedKeyframeIndex === idx ? "primary" : "default"}
+                        variant={selectedKeyframeIndex === idx ? "solid" : "flat"}
+                        onPress={() => setSelectedKeyframeIndex(idx)}
+                        className="flex-1"
                       >
                         关键帧 {idx + 1}
-                        <span className="text-xs opacity-70 ml-1">{kf.duration}s</span>
                       </Button>
                     ))}
                   </div>
+                </div>
 
-                  {/* 当前关键帧详情 */}
-                  {selectedShot.keyframes[selectedKeyframeIndex] && (
-                    <Card>
-                      <CardBody className="p-6">
-                        <div className="grid grid-cols-[minmax(0,1.2fr)_minmax(400px,0.8fr)] gap-6">
-                          {/* 左侧：图片和描述 */}
-                          <div className="space-y-4">
-                            {/* 图片预览区 - 显示当前选中的图片 */}
-                            {(() => {
-                              const kf = selectedShot.keyframes[selectedKeyframeIndex];
-                              const currentImage =
-                                kf.generatedImages?.find(img => img.id === kf.currentImageId) ||
-                                kf.generatedImage;
-                              // 获取图片URL（优先使用缓存的URL）
-                              const imageUrl = currentImage
-                                ? imageUrls[currentImage.id] || currentImage.path
-                                : null;
 
-                              return (
-                                <div
-                                  className="aspect-video bg-slate-100 dark:bg-slate-800 rounded-lg flex items-center justify-center relative overflow-hidden cursor-pointer group"
-                                  onClick={() => {
-                                    if (kf.generatedImages && kf.generatedImages.length > 0) {
-                                      const slides = kf.generatedImages.map(img => ({
-                                        src: imageUrls[img.id] || img.path,
-                                      }));
-                                      const currentIdx = kf.generatedImages.findIndex(
-                                        img => img.id === kf.currentImageId
-                                      );
-                                      openPreview(slides, currentIdx >= 0 ? currentIdx : 0);
-                                    } else if (currentImage) {
-                                      openPreview([
-                                        { src: imageUrls[currentImage.id] || currentImage.path },
-                                      ]);
-                                    }
-                                  }}
-                                >
-                                  {currentImage && imageUrl ? (
-                                    <img
-                                      src={imageUrl}
-                                      alt="关键帧"
-                                      className="w-full h-full object-cover rounded-lg"
-                                    />
-                                  ) : (
-                                    <div className="text-center">
-                                      <Camera size={48} className="mx-auto mb-2 text-slate-400" />
-                                      <p className="text-sm text-slate-500">关键帧预览图</p>
-                                      <p className="text-xs text-slate-400 mt-1">
-                                        （通过提示词生成）
-                                      </p>
-                                    </div>
-                                  )}
-                                  <div className="absolute top-2 right-2 bg-black/50 text-white px-2 py-1 rounded text-xs">
-                                    {selectedKeyframeIndex + 1} / {selectedShot.keyframes.length}
-                                  </div>
-                                </div>
-                              );
-                            })()}
-
-                            {/* 历史图片横向滚动 */}
-                            {(() => {
-                              const kf = selectedShot.keyframes[selectedKeyframeIndex];
-                              const hasImages = kf.generatedImages && kf.generatedImages.length > 0;
-
-                              if (!hasImages) return null;
-
-                              const handleDeleteImage = (imgId: string) => {
-                                if (!confirm('确定要删除这张图片吗？')) return;
-
-                                const updatedImages = kf.generatedImages!.filter(
-                                  img => img.id !== imgId
-                                );
-                                const newCurrentId =
-                                  updatedImages.length > 0
-                                    ? kf.currentImageId === imgId
-                                      ? updatedImages[0].id
-                                      : kf.currentImageId
-                                    : undefined;
-
-                                const updatedKeyframes = [...selectedShot.keyframes!];
-                                updatedKeyframes[selectedKeyframeIndex] = {
-                                  ...kf,
-                                  generatedImages: updatedImages,
-                                  currentImageId: newCurrentId,
-                                  generatedImage:
-                                    updatedImages.length > 0
-                                      ? updatedImages[updatedImages.length - 1]
-                                      : undefined,
-                                };
-                                const updatedShot = {
-                                  ...selectedShot,
-                                  keyframes: updatedKeyframes,
-                                };
-                                const updatedShots = allShots.map(s =>
-                                  s.id === selectedShot.id ? updatedShot : s
-                                );
-                                const updatedScript = {
-                                  ...currentScript!,
-                                  parseState: {
-                                    ...currentScript!.parseState,
-                                    shots: updatedShots,
-                                  },
-                                };
-                                storageService.saveScript(updatedScript);
-                                setScripts(
-                                  scripts.map(s => (s.id === updatedScript.id ? updatedScript : s))
-                                );
-                              };
-
-                              const handleSelectImage = (imgId: string) => {
-                                const updatedKeyframes = [...selectedShot.keyframes!];
-                                updatedKeyframes[selectedKeyframeIndex] = {
-                                  ...kf,
-                                  currentImageId: imgId,
-                                };
-                                const updatedShot = {
-                                  ...selectedShot,
-                                  keyframes: updatedKeyframes,
-                                };
-                                const updatedShots = allShots.map(s =>
-                                  s.id === selectedShot.id ? updatedShot : s
-                                );
-                                const updatedScript = {
-                                  ...currentScript!,
-                                  parseState: {
-                                    ...currentScript!.parseState,
-                                    shots: updatedShots,
-                                  },
-                                };
-                                storageService.saveScript(updatedScript);
-                                setScripts(
-                                  scripts.map(s => (s.id === updatedScript.id ? updatedScript : s))
-                                );
-                              };
-
-                              return (
-                                <ThumbnailScroller
-                                  images={kf.generatedImages!}
-                                  currentImageId={kf.currentImageId}
-                                  imageUrls={imageUrls}
-                                  onSelect={handleSelectImage}
-                                  onDelete={handleDeleteImage}
-                                />
-                              );
-                            })()}
-
-                            {/* 静态描述 */}
-                            <div className="bg-slate-50 dark:bg-slate-800/50 rounded-lg p-3">
-                              <div className="text-xs text-slate-500 mb-1">静态画面描述</div>
-                              <p className="text-sm text-slate-700 dark:text-slate-300">
-                                {selectedShot.keyframes[selectedKeyframeIndex].description}
-                              </p>
-                            </div>
-                          </div>
-
-                          {/* 右侧：提示词和操作 */}
-                          <div className="space-y-4">
-                            {/* 关联资产 */}
-                            <div className="bg-slate-50 dark:bg-slate-800/50 rounded-lg p-3">
-                              <div className="text-xs text-slate-500 mb-2">关联资产</div>
-                              <div className="space-y-2">
-                                {selectedShot.characters?.map((char, i) => (
-                                  <div key={i} className="flex items-center gap-2 text-sm">
-                                    <Users size={16} className="text-primary" />
-                                    <span className="text-slate-700 dark:text-slate-300">
-                                      {char}
-                                    </span>
-                                  </div>
-                                ))}
-                                <div className="flex items-center gap-2 text-sm">
-                                  <MapPin size={16} className="text-green-500" />
-                                  <span className="text-slate-700 dark:text-slate-300">
-                                    {selectedShot.sceneName}
-                                  </span>
-                                </div>
-                              </div>
-                            </div>
-
-                            {/* AI提示词 */}
-                            <div className="bg-slate-50 dark:bg-slate-800/50 rounded-lg p-3">
-                              <div className="flex items-center justify-between mb-2">
-                                <div className="text-xs text-slate-500">图生图提示词</div>
-                                <Button
-                                  size="sm"
-                                  variant="flat"
-                                  onPress={() => {
-                                    navigator.clipboard.writeText(
-                                      selectedShot.keyframes![selectedKeyframeIndex].prompt
-                                    );
-                                    showToast('提示词已复制', 'success');
-                                  }}
-                                >
-                                  复制
-                                </Button>
-                              </div>
-                              <textarea
-                                value={selectedShot.keyframes[selectedKeyframeIndex].prompt}
-                                onChange={e =>
-                                  handleUpdatePrompt(selectedKeyframeIndex, e.target.value)
-                                }
-                                className="w-full h-32 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-700 dark:text-slate-300 resize-none focus:outline-none focus:border-primary"
-                              />
-
-                              {/* 生图模式切换标签 */}
-                              <div className="mt-3">
-                                <div className="flex bg-slate-100 dark:bg-slate-800 rounded-lg p-1">
-                                  <button
-                                    className={`flex-1 py-1.5 px-3 text-xs font-medium rounded-md transition-all ${
-                                      generationMode === 'text-to-image'
-                                        ? 'bg-white dark:bg-slate-700 text-primary shadow-sm'
-                                        : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
-                                    }`}
-                                    onClick={() => handleGenerationModeChange('text-to-image')}
-                                  >
-                                    文生图
-                                  </button>
-                                  <button
-                                    className={`flex-1 py-1.5 px-3 text-xs font-medium rounded-md transition-all ${
-                                      generationMode === 'reference-to-image'
-                                        ? 'bg-white dark:bg-slate-700 text-primary shadow-sm'
-                                        : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
-                                    }`}
-                                    onClick={() => handleGenerationModeChange('reference-to-image')}
-                                  >
-                                    参考图生图
-                                  </button>
-                                </div>
-                              </div>
-
-                              {/* 参考图管理区域（仅在参考图生图模式显示） */}
-                              {generationMode === 'reference-to-image' &&
-                                selectedShot.keyframes[selectedKeyframeIndex].references && (
-                                  <div className="mt-3 p-3 bg-slate-50 dark:bg-slate-800/50 rounded-lg">
-                                    <div className="text-xs text-slate-500 mb-2">参考图</div>
-                                    <div className="flex gap-3">
-                                      {/* 角色参考图 */}
-                                      {selectedShot.keyframes[selectedKeyframeIndex].references
-                                        .character &&
-                                        !referenceImageOverride.character && (
-                                          <div className="relative group">
-                                            <div className="w-16 h-16 rounded-lg bg-slate-200 dark:bg-slate-700 flex items-center justify-center overflow-hidden">
-                                              {referenceImageUrls.character ? (
-                                                <img
-                                                  src={referenceImageUrls.character}
-                                                  alt={
-                                                    selectedShot.keyframes[selectedKeyframeIndex]
-                                                      .references.character.name
-                                                  }
-                                                  className="w-full h-full object-cover"
-                                                />
-                                              ) : (
-                                                <span className="text-xs text-slate-500">角色</span>
-                                              )}
-                                            </div>
-                                            <button
-                                              className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-red-500 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-                                              onClick={() =>
-                                                handleRemoveReferenceImage('character')
-                                              }
-                                              title="删除角色参考图"
-                                            >
-                                              ×
-                                            </button>
-                                            <div className="text-xs text-slate-500 mt-1 text-center truncate w-16">
-                                              {
-                                                selectedShot.keyframes[selectedKeyframeIndex]
-                                                  .references.character.name
-                                              }
-                                            </div>
-                                          </div>
-                                        )}
-                                      {referenceImageOverride.character && (
-                                        <div className="relative">
-                                          <div className="w-16 h-16 rounded-lg bg-slate-100 dark:bg-slate-800 border-2 border-dashed border-slate-300 dark:border-slate-600 flex items-center justify-center">
-                                            <span className="text-xs text-slate-400">已删除</span>
-                                          </div>
-                                          <button
-                                            className="mt-1 text-xs text-primary hover:text-primary-700"
-                                            onClick={() => handleRestoreReferenceImage('character')}
-                                          >
-                                            恢复
-                                          </button>
-                                        </div>
-                                      )}
-
-                                      {/* 场景参考图 */}
-                                      {selectedShot.keyframes[selectedKeyframeIndex].references
-                                        .scene &&
-                                        !referenceImageOverride.scene && (
-                                          <div className="relative group">
-                                            <div className="w-16 h-16 rounded-lg bg-slate-200 dark:bg-slate-700 flex items-center justify-center overflow-hidden">
-                                              {referenceImageUrls.scene ? (
-                                                <img
-                                                  src={referenceImageUrls.scene}
-                                                  alt={
-                                                    selectedShot.keyframes[selectedKeyframeIndex]
-                                                      .references.scene.name
-                                                  }
-                                                  className="w-full h-full object-cover"
-                                                />
-                                              ) : (
-                                                <span className="text-xs text-slate-500">场景</span>
-                                              )}
-                                            </div>
-                                            <button
-                                              className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-red-500 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-                                              onClick={() => handleRemoveReferenceImage('scene')}
-                                              title="删除场景参考图"
-                                            >
-                                              ×
-                                            </button>
-                                            <div className="text-xs text-slate-500 mt-1 text-center truncate w-16">
-                                              {
-                                                selectedShot.keyframes[selectedKeyframeIndex]
-                                                  .references.scene.name
-                                              }
-                                            </div>
-                                          </div>
-                                        )}
-                                      {referenceImageOverride.scene && (
-                                        <div className="relative">
-                                          <div className="w-16 h-16 rounded-lg bg-slate-100 dark:bg-slate-800 border-2 border-dashed border-slate-300 dark:border-slate-600 flex items-center justify-center">
-                                            <span className="text-xs text-slate-400">已删除</span>
-                                          </div>
-                                          <button
-                                            className="mt-1 text-xs text-primary hover:text-primary-700"
-                                            onClick={() => handleRestoreReferenceImage('scene')}
-                                          >
-                                            恢复
-                                          </button>
-                                        </div>
-                                      )}
-
-                                      {/* 无参考图提示 */}
-                                      {!selectedShot.keyframes[selectedKeyframeIndex].references
-                                        .character &&
-                                        !selectedShot.keyframes[selectedKeyframeIndex].references
-                                          .scene && (
-                                          <div className="text-xs text-slate-400 py-2">
-                                            该关键帧未关联角色或场景
-                                          </div>
-                                        )}
-                                    </div>
-                                  </div>
-                                )}
-
-                              {/* 选择生图模型 */}
-                              <div className="mt-3">
-                                <label className="text-xs text-slate-500 mb-1 block">
-                                  选择生图模型
-                                  {generationMode === 'reference-to-image' && (
-                                    <span className="text-primary ml-1">(支持参考图)</span>
-                                  )}
-                                  {generationMode === 'text-to-image' && (
-                                    <span className="text-green-500 ml-1">(文生图)</span>
-                                  )}
-                                </label>
-                                <Select
-                                  aria-label="选择生图模型"
-                                  placeholder={
-                                    filteredImageModels.length > 0
-                                      ? '选择用于生成图片的模型'
-                                      : '请先在设置中配置生图模型'
-                                  }
-                                  selectedKeys={selectedImageModel ? [selectedImageModel] : []}
-                                  onChange={e => setSelectedImageModel(e.target.value)}
-                                  isDisabled={filteredImageModels.length === 0}
-                                  size="sm"
-                                  className="w-full"
-                                >
-                                  {filteredImageModels.map(model => (
-                                    <SelectItem key={model.id} value={model.id}>
-                                      {model.name}
-                                    </SelectItem>
-                                  ))}
-                                </Select>
-                                {filteredImageModels.length === 0 && (
-                                  <p className="text-xs text-danger mt-1">
-                                    {generationMode === 'reference-to-image'
-                                      ? '未配置支持参考图的生图模型，请先在设置中添加'
-                                      : '未配置文生图模型，请先在设置中添加'}
-                                  </p>
-                                )}
-                              </div>
-
-                              {/* 火山模型：分辨率选择 */}
-                              {isVolcengineModel && (
-                                <div className="mt-3">
-                                  <label className="text-xs text-slate-500 mb-1 block">
-                                    分辨率
-                                  </label>
-                                  <Select
-                                    aria-label="选择分辨率"
-                                    placeholder="选择分辨率"
-                                    selectedKeys={[selectedResolution]}
-                                    onChange={e => setSelectedResolution(e.target.value)}
-                                    size="sm"
-                                    className="w-full"
-                                  >
-                                    <SelectItem key="1K" value="1K">
-                                      1K
-                                    </SelectItem>
-                                    <SelectItem key="2K" value="2K">
-                                      2K
-                                    </SelectItem>
-                                    <SelectItem key="4K" value="4K">
-                                      4K
-                                    </SelectItem>
-                                  </Select>
-                                </div>
-                              )}
-
-                              {/* 宽高比选择（火山和魔搭都显示） */}
-                              <div className="mt-3">
-                                <label className="text-xs text-slate-500 mb-1 block">宽高比</label>
-                                <Select
-                                  aria-label="选择宽高比"
-                                  placeholder="选择宽高比"
-                                  selectedKeys={[selectedAspectRatio]}
-                                  onChange={e => setSelectedAspectRatio(e.target.value)}
-                                  size="sm"
-                                  className="w-full"
-                                >
-                                  <SelectItem key="1:1" value="1:1">
-                                    1:1
-                                  </SelectItem>
-                                  <SelectItem key="4:3" value="4:3">
-                                    4:3
-                                  </SelectItem>
-                                  <SelectItem key="3:4" value="3:4">
-                                    3:4
-                                  </SelectItem>
-                                  <SelectItem key="16:9" value="16:9">
-                                    16:9
-                                  </SelectItem>
-                                  <SelectItem key="9:16" value="9:16">
-                                    9:16
-                                  </SelectItem>
-                                  <SelectItem key="3:2" value="3:2">
-                                    3:2
-                                  </SelectItem>
-                                  <SelectItem key="2:3" value="2:3">
-                                    2:3
-                                  </SelectItem>
-                                  <SelectItem key="21:9" value="21:9">
-                                    21:9
-                                  </SelectItem>
-                                </Select>
-                                <p className="text-xs text-slate-400 mt-1">
-                                  输出尺寸: {calculateSize}
-                                </p>
-                              </div>
-
-                              <div className="flex gap-2 mt-3">
-                                <Button
-                                  color="primary"
-                                  className="flex-1"
-                                  isDisabled={
-                                    filteredImageModels.length === 0 || !selectedImageModel
-                                  }
-                                  isLoading={
-                                    selectedShot.keyframes[selectedKeyframeIndex].status ===
-                                    'generating'
-                                  }
-                                  onPress={() => handleGenerateImage(selectedKeyframeIndex)}
-                                >
-                                  <Camera size={16} className="mr-2" />
-                                  {generationMode === 'reference-to-image'
-                                    ? '参考图生图'
-                                    : '文生图'}
-                                </Button>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* 视频生成区域 */}
-                        {selectedShot.keyframes && selectedShot.keyframes.length > 0 && (
-                          <div className="mt-6 pt-6 border-t border-slate-200 dark:border-slate-700">
-                            <div className="flex items-center justify-between mb-4">
-                              <div className="flex items-center gap-2">
-                                <Video size={20} className="text-primary" />
-                                <span className="font-medium text-slate-900 dark:text-white">
-                                  视频生成
-                                </span>
-                              </div>
-                              {selectedShot.generatedVideo && (
-                                <Chip color="success" variant="flat" size="sm">
-                                  已生成
-                                </Chip>
-                              )}
-                            </div>
-
-                            {/* 视频预览 */}
-                            {selectedShot.generatedVideo && (
-                              <div className="mb-4">
-                                <video
-                                  src={videoUrl || selectedShot.generatedVideo}
-                                  controls
-                                  className="w-full rounded-lg"
-                                  style={{ maxHeight: '300px' }}
-                                />
-                              </div>
-                            )}
-
-                            {/* 视频生成控制 */}
-                            <div className="bg-slate-50 dark:bg-slate-800/50 rounded-lg p-4">
-                              <div className="mb-3">
-                                <label className="text-xs text-slate-500 mb-1 block">
-                                  选择视频模型
-                                </label>
-                                <Select
-                                  aria-label="选择视频模型"
-                                  placeholder={
-                                    availableVideoModels.length > 0
-                                      ? '选择用于生成视频的模型'
-                                      : '请先在设置中配置视频模型'
-                                  }
-                                  selectedKeys={selectedVideoModel ? [selectedVideoModel] : []}
-                                  onChange={e => setSelectedVideoModel(e.target.value)}
-                                  isDisabled={availableVideoModels.length === 0}
-                                  size="sm"
-                                  className="w-full"
-                                >
-                                  {availableVideoModels.map(model => (
-                                    <SelectItem key={model.id} value={model.id}>
-                                      {model.name}
-                                    </SelectItem>
-                                  ))}
-                                </Select>
-                                {availableVideoModels.length === 0 && (
-                                  <p className="text-xs text-danger mt-1">
-                                    未配置视频生成模型，请先在设置中添加
-                                  </p>
-                                )}
-                              </div>
-
-                              <div className="text-xs text-slate-500 mb-3">
-                                <div className="flex items-center gap-2">
-                                  <span>关键帧数量: {selectedShot.keyframes.length}个</span>
-                                  <span className="text-slate-300">|</span>
-                                  <span>
-                                    推荐时长:{' '}
-                                    {videoGenerationService.getRecommendedDuration(
-                                      selectedShot.contentType
-                                    )}
-                                    秒
-                                  </span>
-                                </div>
-                                <p className="mt-1 text-slate-400">
-                                  {selectedShot.contentType === 'static' &&
-                                    '静态分镜：使用首帧生成视频'}
-                                  {selectedShot.contentType === 'dynamic-simple' &&
-                                    '简单动态：使用首尾帧生成视频'}
-                                  {selectedShot.contentType === 'dynamic-complex' &&
-                                    '复杂动态：使用首尾帧生成视频（中间帧用于参考）'}
-                                </p>
-                              </div>
-
-                              <Button
-                                color="secondary"
-                                className="w-full"
-                                isDisabled={
-                                  availableVideoModels.length === 0 ||
-                                  !selectedVideoModel ||
-                                  isGeneratingVideo
-                                }
-                                isLoading={isGeneratingVideo}
-                                onPress={handleGenerateVideo}
-                              >
-                                <FilmIcon size={16} className="mr-2" />
-                                {selectedShot.generatedVideo ? '重新生成视频' : '生成视频'}
-                              </Button>
-                            </div>
-                          </div>
-                        )}
-                      </CardBody>
-                    </Card>
-                  )}
-                </>
-              ) : (
-                /* 未拆分状态 */
-                <Card>
-                  <CardBody className="p-12 text-center">
-                    <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
-                      <Scissors size={32} className="text-slate-400" />
-                    </div>
-                    <h3 className="text-xl font-semibold text-slate-900 dark:text-white mb-2">
-                      该分镜尚未拆分关键帧
-                    </h3>
-                    <p className="text-slate-500 mb-6 max-w-md mx-auto">
-                      使用AI大模型将此分镜的动态描述拆分为2-4个连贯的静态关键帧，并生成对应的图生图提示词
-                    </p>
-                    <div className="bg-slate-50 dark:bg-slate-800/50 rounded-lg p-4 mb-6 text-left max-w-lg mx-auto">
-                      <div className="text-xs text-slate-500 mb-1">分镜描述</div>
-                      <div className="text-sm text-slate-700 dark:text-slate-300">
-                        {selectedShot.description}
-                      </div>
-                      <div className="mt-3 flex gap-4 text-xs">
-                        <span className="text-slate-500">
-                          角色：{selectedShot.characters?.join(', ') || '无'}
-                        </span>
-                        <span className="text-slate-500">场景：{selectedShot.sceneName}</span>
-                      </div>
-                    </div>
-                    {availableLLMModels.length === 0 ? (
-                      <div className="text-center">
-                        <AlertCircle size={24} className="mx-auto text-warning mb-2" />
-                        <p className="text-sm text-warning">未配置LLM模型，请先在设置中添加</p>
-                      </div>
-                    ) : (
-                      <Button
-                        color="primary"
-                        size="lg"
-                        onPress={() => handleOpenSplitModal(selectedShot)}
-                        isLoading={splittingShotId === selectedShot.id}
-                      >
-                        <Scissors size={18} className="mr-2" />
-                        拆分关键帧
-                      </Button>
-                    )}
-                  </CardBody>
-                </Card>
-              )}
-            </div>
+              </div>
+            ) : (
+              /* 未拆分状态 */
+              <div className="text-center max-w-md">
+                <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-slate-800 flex items-center justify-center">
+                  <Scissors size={32} className="text-slate-500" />
+                </div>
+                <h3 className="text-xl font-semibold text-white mb-3">
+                  该分镜尚未拆分关键帧
+                </h3>
+                <p className="text-slate-400 mb-6">
+                  使用AI大模型将此分镜的动态描述拆分为2-4个连贯的静态关键帧，并生成对应的图生图提示词
+                </p>
+                <div className="bg-slate-800 rounded-lg p-4 mb-6 text-left">
+                  <div className="text-sm text-slate-500 mb-2">分镜描述</div>
+                  <div className="text-sm text-slate-300">
+                    {selectedShot.description}
+                  </div>
+                </div>
+              </div>
+            )
           ) : (
-            <div className="h-full flex items-center justify-center">
-              <p className="text-slate-500">请选择左侧分镜查看详情</p>
+            <div className="text-center">
+              <p className="text-slate-400">请选择左侧分镜查看详情</p>
             </div>
           )}
-        </main>
-      </div>
+        </div>
+
+        {/* 底部历史栏 */}
+        {selectedShot && selectedShot.keyframes && selectedShot.keyframes.length > 0 && (
+          <div className="bg-slate-900 border-t border-slate-800 px-6 py-4">
+            <div className="flex items-center gap-4">
+              <span className="text-xs text-slate-400">历史版本</span>
+              <div className="flex-1 overflow-x-auto flex gap-2 pb-2">
+                {(() => {
+                  const kf = selectedShot.keyframes[selectedKeyframeIndex];
+                  const images = kf.generatedImages || [];
+                  
+                  if (images.length === 0) {
+                    return (
+                      <div className="text-xs text-slate-500">暂无历史图片</div>
+                    );
+                  }
+                  
+                  return images.map((img, index) => (
+                    <HistoryItem
+                      key={img.id}
+                      image={img}
+                      isActive={img.id === kf.currentImageId}
+                      imageUrl={imageUrls[img.id] || img.path}
+                      onSelect={handleSelectHistoryImage}
+                      onDelete={handleDeleteHistoryImage}
+                      index={index}
+                    />
+                  ));
+                })()}
+              </div>
+            </div>
+          </div>
+        )}
+      </main>
+
+      {/* 右侧控制面板 */}
+      <aside className="w-96 bg-slate-900 border-l border-slate-800 flex flex-col overflow-y-auto">
+        {selectedShot && (
+          <>
+            {/* 基本信息 */}
+            <div className="p-4 border-b border-slate-800">
+              <h3 className="text-sm font-semibold text-white mb-3">基本信息</h3>
+              <div className="space-y-2 text-xs text-slate-300">
+                <div className="flex justify-between">
+                  <span className="text-slate-400">时长:</span>
+                  <span>{selectedShot.duration}秒</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-400">景别:</span>
+                  <span>{selectedShot.shotType || '未知'}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-400">机位:</span>
+                  <span>{selectedShot.cameraAngle || '未知'}</span>
+                </div>
+                {selectedShot.mood && (
+                  <div className="flex justify-between">
+                    <span className="text-slate-400">情绪:</span>
+                    <span>{selectedShot.mood}</span>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* 关联角色和场景 */}
+            <div className="p-4 border-b border-slate-800">
+              <h3 className="text-sm font-semibold text-white mb-3">关联资产</h3>
+              <div className="flex gap-4">
+                {/* 关联角色 */}
+                {selectedShot.characters && selectedShot.characters.length > 0 && (
+                  <div className="flex-1">
+                    <h4 className="text-xs text-slate-400 mb-2">角色</h4>
+                    <div className="space-y-3">
+                      {selectedShot.characters.map((character, index) => (
+                        <CharacterItem
+                          key={index}
+                          character={character}
+                          imageUrl=""
+                        />
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* 关联场景 */}
+                <div className="flex-1">
+                  <h4 className="text-xs text-slate-400 mb-2">场景</h4>
+                  <SceneInfo
+                    sceneName={selectedShot.sceneName}
+                    imageUrl=""
+                  />
+                </div>
+              </div>
+            </div>
+
+
+
+            {/* 生图功能 */}
+            {selectedShot.keyframes && selectedShot.keyframes.length > 0 && (
+              <div className="p-4 border-b border-slate-800">
+                <h3 className="text-sm font-semibold text-white mb-3">生图功能</h3>
+                <div className="bg-slate-800 rounded-lg p-3 space-y-3">
+                  <div>
+                    <label className="text-xs text-slate-400 block mb-1">生图模式</label>
+                    <div className="flex gap-2">
+                      <Button
+                        size="sm"
+                        color={generationMode === 'text-to-image' ? "primary" : "default"}
+                        variant={generationMode === 'text-to-image' ? "solid" : "flat"}
+                        onPress={() => handleGenerationModeChange('text-to-image')}
+                        className="flex-1"
+                      >
+                        文生图
+                      </Button>
+                      <Button
+                        size="sm"
+                        color={generationMode === 'reference-to-image' ? "primary" : "default"}
+                        variant={generationMode === 'reference-to-image' ? "solid" : "flat"}
+                        onPress={() => handleGenerationModeChange('reference-to-image')}
+                        className="flex-1"
+                      >
+                        图生图
+                      </Button>
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-xs text-slate-400 block mb-1">提示词</label>
+                    <Textarea
+                      value={selectedShot.keyframes[selectedKeyframeIndex]?.prompt || ''}
+                      onChange={(e) => handleUpdatePrompt(selectedKeyframeIndex, e.target.value)}
+                      className="w-full text-xs h-24 resize-none"
+                      placeholder="输入生图提示词"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs text-slate-400 block mb-1">选择模型</label>
+                    <Select
+                      aria-label="选择生图模型"
+                      selectedKeys={selectedImageModel ? [selectedImageModel] : []}
+                      onChange={(e) => setSelectedImageModel(e.target.value)}
+                      className="w-full"
+                    >
+                      {availableImageModels.map(model => (
+                        <SelectItem key={model.id} value={model.id}>
+                          {model.name}
+                        </SelectItem>
+                      ))}
+                    </Select>
+                  </div>
+                  <div>
+                    <label className="text-xs text-slate-400 block mb-1">分辨率</label>
+                    <Select
+                      aria-label="选择分辨率"
+                      selectedKeys={[selectedResolution]}
+                      onChange={(e) => setSelectedResolution(e.target.value)}
+                      className="w-full"
+                    >
+                      {availableResolutions.map(res => (
+                        <SelectItem key={res} value={res}>
+                          {res}
+                        </SelectItem>
+                      ))}
+                    </Select>
+                  </div>
+                  <div>
+                    <label className="text-xs text-slate-400 block mb-1">宽高比</label>
+                    <Select
+                      aria-label="选择宽高比"
+                      selectedKeys={[selectedAspectRatio]}
+                      onChange={(e) => setSelectedAspectRatio(e.target.value)}
+                      className="w-full"
+                    >
+                      <SelectItem value="1:1">1:1</SelectItem>
+                      <SelectItem value="16:9">16:9</SelectItem>
+                      <SelectItem value="9:16">9:16</SelectItem>
+                      <SelectItem value="4:3">4:3</SelectItem>
+                      <SelectItem value="3:4">3:4</SelectItem>
+                    </Select>
+                  </div>
+                  <Button
+                    size="sm"
+                    color="primary"
+                    onPress={() => handleGenerateImage(selectedKeyframeIndex)}
+                    className="w-full"
+                  >
+                    生成图片
+                  </Button>
+                </div>
+              </div>
+            )}
+
+            {/* 视频生成 */}
+            {selectedShot.keyframes && selectedShot.keyframes.length > 0 && (
+              <div className="p-4 border-b border-slate-800">
+                <h3 className="text-sm font-semibold text-white mb-3">视频生成</h3>
+                <div className="bg-slate-800 rounded-lg p-3">
+                  <div className="mb-3">
+                    <label className="text-xs text-slate-400 block mb-1">选择模型</label>
+                    <Select
+                      aria-label="选择视频生成模型"
+                      selectedKeys={selectedVideoModel ? [selectedVideoModel] : []}
+                      onChange={(e) => setSelectedVideoModel(e.target.value)}
+                      className="w-full"
+                    >
+                      {availableVideoModels.map(model => (
+                        <SelectItem key={model.id} value={model.id}>
+                          {model.name}
+                        </SelectItem>
+                      ))}
+                    </Select>
+                  </div>
+                  <Button
+                    size="sm"
+                    color="primary"
+                    onPress={handleGenerateVideo}
+                    isLoading={isGeneratingVideo}
+                    isDisabled={!selectedVideoModel}
+                    className="w-full"
+                  >
+                    生成视频
+                  </Button>
+                </div>
+              </div>
+            )}
+          </>
+        )}
+      </aside>
 
       {/* 拆分关键帧弹窗 */}
-      <Modal isOpen={isSplitModalOpen} onClose={() => setIsSplitModalOpen(false)} size="sm">
-        <ModalContent>
-          <ModalHeader>拆分关键帧</ModalHeader>
-          <ModalBody>
-            {selectedShotForSplit && (
-              <>
-                <div className="mb-4">
-                  <p className="text-sm font-medium">{selectedShotForSplit.sceneName}</p>
-                  <p className="text-xs text-default-500">镜头 #{selectedShotForSplit.sequence}</p>
-                </div>
-
-                {/* 选择LLM模型 */}
-                <div className="mb-4">
-                  <label className="text-sm font-medium mb-2 block">选择拆分模型</label>
-                  <Select
-                    aria-label="选择LLM模型"
-                    label="LLM模型"
-                    placeholder={
-                      availableLLMModels.length > 0
-                        ? '选择用于拆分关键帧的模型'
-                        : '请先在设置中配置LLM模型'
-                    }
-                    selectedKeys={selectedLLMModel ? [selectedLLMModel] : []}
-                    onChange={e => setSelectedLLMModel(e.target.value)}
-                    isDisabled={availableLLMModels.length === 0}
-                  >
-                    {availableLLMModels.map(model => (
-                      <SelectItem key={model.id} value={model.id}>
-                        {model.name}
-                      </SelectItem>
-                    ))}
-                  </Select>
-                  {availableLLMModels.length === 0 ? (
-                    <p className="text-xs text-danger mt-1">未配置LLM模型，请先在设置中添加模型</p>
-                  ) : (
-                    <p className="text-xs text-default-500 mt-1">
-                      选择不同的模型会影响拆分质量和速度
-                    </p>
-                  )}
-                </div>
-
-                {/* 选择关键帧数量 */}
-                <div>
-                  <label className="text-sm font-medium mb-2 block">关键帧数量</label>
-                  <Select
-                    aria-label="关键帧数量"
-                    label="数量"
-                    selectedKeys={[keyframeCount.toString()]}
-                    onChange={e => setKeyframeCount(parseInt(e.target.value))}
-                  >
-                    <SelectItem key="2" value="2">
-                      2个关键帧
-                    </SelectItem>
-                    <SelectItem key="3" value="3">
-                      3个关键帧（推荐）
-                    </SelectItem>
-                    <SelectItem key="4" value="4">
-                      4个关键帧
-                    </SelectItem>
-                    <SelectItem key="5" value="5">
-                      5个关键帧
-                    </SelectItem>
-                  </Select>
-                </div>
-              </>
-            )}
-          </ModalBody>
-          <ModalFooter>
-            <Button variant="flat" onPress={() => setIsSplitModalOpen(false)}>
-              取消
-            </Button>
-            <Button color="primary" isDisabled={!selectedLLMModel} onPress={confirmSplitKeyframes}>
-              开始拆分
-            </Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
+      <SplitKeyframeModal
+        isOpen={isSplitModalOpen}
+        onClose={() => setIsSplitModalOpen(false)}
+        onConfirm={confirmSplitKeyframes}
+        isLoading={!!splittingShotId}
+        keyframeCount={keyframeCount}
+        setKeyframeCount={setKeyframeCount}
+        selectedLLMModel={selectedLLMModel}
+        setSelectedLLMModel={setSelectedLLMModel}
+        availableLLMModels={availableLLMModels}
+        splitOptions={splitOptions}
+        setSplitOptions={setSplitOptions}
+        temperature={temperature}
+        setTemperature={setTemperature}
+        maxTokens={maxTokens}
+        setMaxTokens={setMaxTokens}
+      />
     </div>
   );
 };
 
-export default ShotManager;
+// 拆分关键帧弹窗
+const SplitKeyframeModal: React.FC<{
+  isOpen: boolean;
+  onClose: () => void;
+  onConfirm: () => void;
+  isLoading: boolean;
+  keyframeCount: number;
+  setKeyframeCount: (count: number) => void;
+  selectedLLMModel: string;
+  setSelectedLLMModel: (modelId: string) => void;
+  availableLLMModels: ModelConfig[];
+  splitOptions: {
+    includeCameraMovement: boolean;
+    includeCharacterDetails: boolean;
+    includeSceneDetails: boolean;
+    focusOnAction: boolean;
+    focusOnEmotion: boolean;
+  };
+  setSplitOptions: (options: any) => void;
+  temperature: number;
+  setTemperature: (temp: number) => void;
+  maxTokens: number;
+  setMaxTokens: (tokens: number) => void;
+}> = ({
+  isOpen,
+  onClose,
+  onConfirm,
+  isLoading,
+  keyframeCount,
+  setKeyframeCount,
+  selectedLLMModel,
+  setSelectedLLMModel,
+  availableLLMModels,
+  splitOptions,
+  setSplitOptions,
+  temperature,
+  setTemperature,
+  maxTokens,
+  setMaxTokens,
+}) => {
+  return (
+    <Modal isOpen={isOpen} onOpenChange={onClose} className="w-full max-w-2xl">
+      <ModalContent className="bg-slate-900 border-slate-800 text-white">
+        <ModalHeader>
+          <h3>拆分关键帧</h3>
+        </ModalHeader>
+        <ModalBody>
+          <div className="space-y-6">
+            <div>
+              <label className="text-sm text-slate-400 block mb-1">选择LLM模型</label>
+              <Select
+                aria-label="选择LLM模型"
+                selectedKeys={selectedLLMModel ? [selectedLLMModel] : []}
+                onChange={(e) => setSelectedLLMModel(e.target.value)}
+                className="w-full"
+              >
+                {availableLLMModels.map(model => (
+                  <SelectItem key={model.id} value={model.id}>
+                    {model.name}
+                  </SelectItem>
+                ))}
+              </Select>
+            </div>
+            
+            <div>
+              <label className="text-sm text-slate-400 block mb-1">关键帧数量</label>
+              <div className="flex items-center gap-2">
+                <Button
+                  size="sm"
+                  variant="flat"
+                  onPress={() => setKeyframeCount(Math.max(2, keyframeCount - 1))}
+                  isDisabled={keyframeCount <= 2}
+                >
+                  -
+                </Button>
+                <span className="text-sm">{keyframeCount}</span>
+                <Button
+                  size="sm"
+                  variant="flat"
+                  onPress={() => setKeyframeCount(Math.min(4, keyframeCount + 1))}
+                  isDisabled={keyframeCount >= 4}
+                >
+                  +
+                </Button>
+              </div>
+              <p className="text-xs text-slate-500 mt-1">推荐2-4个关键帧</p>
+            </div>
+            
+            <div>
+              <label className="text-sm text-slate-400 block mb-2">拆分选项</label>
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    checked={splitOptions.includeCameraMovement}
+                    onChange={(e) => setSplitOptions({ ...splitOptions, includeCameraMovement: e.target.checked })}
+                    className="w-4 h-4 rounded border-gray-500 text-orange-500 focus:ring-orange-500"
+                  />
+                  <label className="text-sm text-slate-300">包含运镜信息</label>
+                </div>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    checked={splitOptions.includeCharacterDetails}
+                    onChange={(e) => setSplitOptions({ ...splitOptions, includeCharacterDetails: e.target.checked })}
+                    className="w-4 h-4 rounded border-gray-500 text-orange-500 focus:ring-orange-500"
+                  />
+                  <label className="text-sm text-slate-300">包含角色细节</label>
+                </div>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    checked={splitOptions.includeSceneDetails}
+                    onChange={(e) => setSplitOptions({ ...splitOptions, includeSceneDetails: e.target.checked })}
+                    className="w-4 h-4 rounded border-gray-500 text-orange-500 focus:ring-orange-500"
+                  />
+                  <label className="text-sm text-slate-300">包含场景细节</label>
+                </div>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    checked={splitOptions.focusOnAction}
+                    onChange={(e) => setSplitOptions({ ...splitOptions, focusOnAction: e.target.checked })}
+                    className="w-4 h-4 rounded border-gray-500 text-orange-500 focus:ring-orange-500"
+                  />
+                  <label className="text-sm text-slate-300">专注于动作</label>
+                </div>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    checked={splitOptions.focusOnEmotion}
+                    onChange={(e) => setSplitOptions({ ...splitOptions, focusOnEmotion: e.target.checked })}
+                    className="w-4 h-4 rounded border-gray-500 text-orange-500 focus:ring-orange-500"
+                  />
+                  <label className="text-sm text-slate-300">专注于情感表达</label>
+                </div>
+              </div>
+            </div>
+            
+            <div>
+              <label className="text-sm text-slate-400 block mb-2">LLM生成参数</label>
+              <div className="space-y-3">
+                <div>
+                  <label className="text-sm text-slate-400 block mb-1">温度 (0.1-1.0)</label>
+                  <input
+                    type="range"
+                    min="0.1"
+                    max="1.0"
+                    step="0.1"
+                    value={temperature}
+                    onChange={(e) => setTemperature(parseFloat(e.target.value))}
+                    className="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer"
+                  />
+                  <div className="flex justify-between text-xs text-slate-500 mt-1">
+                    <span>0.1</span>
+                    <span>{temperature.toFixed(1)}</span>
+                    <span>1.0</span>
+                  </div>
+                </div>
+                <div>
+                  <label className="text-sm text-slate-400 block mb-1">最大 tokens</label>
+                  <input
+                    type="number"
+                    min="1000"
+                    max="5000"
+                    step="500"
+                    value={maxTokens}
+                    onChange={(e) => setMaxTokens(parseInt(e.target.value))}
+                    className="w-full p-2 bg-slate-800 border border-slate-700 rounded text-sm"
+                  />
+                  <p className="text-xs text-slate-500 mt-1">控制生成文本的长度</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </ModalBody>
+        <ModalFooter>
+          <Button variant="flat" onPress={onClose} isDisabled={isLoading}>
+            取消
+          </Button>
+          <Button
+            color="primary"
+            onPress={onConfirm}
+            isLoading={isLoading}
+            isDisabled={!selectedLLMModel}
+          >
+            确认拆分
+          </Button>
+        </ModalFooter>
+      </ModalContent>
+    </Modal>
+  );
+};

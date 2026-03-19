@@ -52,6 +52,7 @@ import {
 import { keyframeService } from '../../services/keyframe';
 import { storageService } from '../../services/storage';
 import { useApp } from '../../contexts/context';
+import { generateShotNumbers } from '../../services/utils/shotNumberGenerator';
 
 interface ShotListProps {
   shots: Shot[];
@@ -165,11 +166,22 @@ export const ShotList: React.FC<ShotListProps> = ({
     return projectAssets.scenes.find(s => s.name === name);
   };
 
+  // 从场景名称提取场景号
+  const getSceneNumber = (sceneName: string) => {
+    const match = sceneName.match(/场景(\d+)/);
+    return match ? match[1] : '1';
+  };
+
+  // 为分镜生成专业编号
+  const shotsWithNumbers = useMemo(() => {
+    return generateShotNumbers(shots);
+  }, [shots]);
+
   // Filter shots by scene
   const filteredShots = useMemo(() => {
-    let result = shots;
+    let result = shotsWithNumbers;
     if (selectedScene !== 'all') {
-      result = shots.filter(s => (s.sceneName || '未分类场景') === selectedScene);
+      result = shotsWithNumbers.filter(s => (s.sceneName || '未分类场景') === selectedScene);
     }
     // Key shots优先显示
     return [...result].sort((a, b) => {
@@ -177,18 +189,12 @@ export const ShotList: React.FC<ShotListProps> = ({
       if (a.layer !== 'key' && b.layer === 'key') return 1;
       return 0;
     });
-  }, [shots, selectedScene]);
-
-  // 从场景名称提取场景号
-  const getSceneNumber = (sceneName: string) => {
-    const match = sceneName.match(/场景(\d+)/);
-    return match ? match[1] : '1';
-  };
+  }, [shotsWithNumbers, selectedScene]);
 
   // Group shots by scene
   const shotsByScene = useMemo(() => {
     const grouped: Record<string, Shot[]> = {};
-    shots.forEach(shot => {
+    shotsWithNumbers.forEach(shot => {
       // 处理 sceneName 为 undefined 或空字符串的情况
       const sceneName = shot.sceneName || '未分类场景';
       if (!grouped[sceneName]) {
@@ -197,19 +203,23 @@ export const ShotList: React.FC<ShotListProps> = ({
       grouped[sceneName].push(shot);
     });
     return grouped;
-  }, [shots]);
+  }, [shotsWithNumbers]);
 
   // Handle update shot
   const handleUpdateShot = (updated: Shot) => {
     const updatedList = shots.map(s => (s.id === updated.id ? updated : s));
-    onShotsUpdate(updatedList);
+    // 重新生成所有分镜的专业编号
+    const updatedListWithNumbers = generateShotNumbers(updatedList);
+    onShotsUpdate(updatedListWithNumbers);
     setIsEditModalOpen(false);
   };
 
   // Handle delete shot
   const handleDeleteShot = (shotId: string) => {
     const updatedList = shots.filter(s => s.id !== shotId);
-    onShotsUpdate(updatedList);
+    // 重新生成所有分镜的专业编号
+    const updatedListWithNumbers = generateShotNumbers(updatedList);
+    onShotsUpdate(updatedListWithNumbers);
     setIsDeleteModalOpen(false);
   };
 
@@ -217,10 +227,19 @@ export const ShotList: React.FC<ShotListProps> = ({
   const handleAddShot = (sceneName: string) => {
     const sceneShots = shots.filter(s => s.sceneName === sceneName);
     const maxSequence = Math.max(...sceneShots.map(s => s.sequence), 0);
+    const newSequence = maxSequence + 1;
+
+    // 生成专业编号
+    const match = sceneName.match(/场景(\d+)/);
+    const sceneNum = match ? parseInt(match[1]) : 1;
+    const sceneNumStr = sceneNum.toString().padStart(2, '0');
+    const shotNumStr = newSequence.toString().padStart(2, '0');
+    const shotNumber = `SC${sceneNumStr}-${shotNumStr}`;
 
     const newShot: Shot = {
       id: `shot_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-      sequence: maxSequence + 1,
+      sequence: newSequence,
+      shotNumber,
       sceneName,
       shotType: 'medium',
       cameraMovement: 'static',
@@ -450,7 +469,7 @@ export const ShotList: React.FC<ShotListProps> = ({
                   </TableCell>
                   <TableCell>
                     <span className="font-mono text-sm">
-                      {getSceneNumber(shot.sceneName)}-{shot.sequence}
+                      {shot.shotNumber || `${getSceneNumber(shot.sceneName)}-${shot.sequence}`}
                     </span>
                   </TableCell>
                   <TableCell>

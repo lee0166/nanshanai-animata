@@ -32,6 +32,8 @@ interface CacheItem<T> {
   timestamp: number;
   /** TTL（毫秒） */
   ttl: number;
+  /** 访问时间戳（用于LRU） */
+  accessTime: number;
 }
 
 /**
@@ -238,6 +240,10 @@ export class MultiLayerCache {
       return null;
     }
 
+    // 更新访问时间（用于LRU）
+    item.accessTime = now;
+    this.l1Cache.set(key, item);
+
     return item.data;
   }
 
@@ -245,18 +251,30 @@ export class MultiLayerCache {
    * 设置 L1 缓存
    */
   private setL1<T>(key: string, data: T, ttl: number): void {
-    // LRU：如果超过最大数量，删除最旧的
+    // LRU：如果超过最大数量，删除最久未访问的
     if (this.l1Cache.size >= this.config.maxL1Items) {
-      const firstKey = this.l1Cache.keys().next().value;
-      if (firstKey) {
-        this.l1Cache.delete(firstKey);
+      let leastRecentlyUsedKey: string | null = null;
+      let oldestAccessTime = Number.MAX_SAFE_INTEGER;
+
+      for (const [cacheKey, item] of this.l1Cache.entries()) {
+        if (item.accessTime < oldestAccessTime) {
+          oldestAccessTime = item.accessTime;
+          leastRecentlyUsedKey = cacheKey;
+        }
+      }
+
+      if (leastRecentlyUsedKey) {
+        this.l1Cache.delete(leastRecentlyUsedKey);
+        console.log(`[MultiLayerCache] L1 evicted: ${leastRecentlyUsedKey}`);
       }
     }
 
+    const now = Date.now();
     this.l1Cache.set(key, {
       data,
-      timestamp: Date.now(),
+      timestamp: now,
       ttl,
+      accessTime: now,
     });
   }
 
@@ -429,6 +447,44 @@ export class MultiLayerCache {
       total: 0,
       hitRate: 0,
     };
+  }
+
+  /**
+   * 批量获取缓存
+   * @param keys - 缓存键数组
+   * @param l3Loader - L3 加载函数（如果 L1/L2 未命中时调用）
+   * @returns 缓存数据映射
+   */
+  async getBatch<T>(keys: string[], l3Loader?: (key: string) => Promise<T>): Promise<Map<string, T | null>> {
+    const results = new Map<string, T | null>();
+    const promises = keys.map(async (key) => {
+      const value = await this.get(key, l3Loader ? () => l3Loader(key) : undefined);
+      results.set(key, value);
+    });
+
+    await Promise.all(promises);
+    return results;
+  }
+
+  /**
+   * 批量设置缓存
+   * @param items - 键值对数组
+   * @param ttl - TTL（毫秒），可选
+   */
+  async setBatch<T>(items: Array<{ key: string; data: T }>, ttl?: number): Promise<void> {
+    const promises = items.map(item => this.set(item.key, item.data, ttl));
+    await Promise.all(promises);
+  }
+
+  /**
+   * 缓存预热
+   * @param items - 键值对数组
+   * @param ttl - TTL（毫秒），可选
+   */
+  async warmup<T>(items: Array<{ key: string; data: T }>, ttl?: number): Promise<void> {
+    console.log(`[MultiLayerCache] Starting warmup with ${items.length} items`);
+    await this.setBatch(items, ttl);
+    console.log(`[MultiLayerCache] Warmup completed`);
   }
 
   /**

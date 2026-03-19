@@ -10,6 +10,7 @@ export enum AssetType {
   SCRIPT = 'script',
   IMAGE = 'image',
   VIDEO = 'video',
+  VIDEO_AUDIO = 'video_audio',
 }
 
 export enum JobStatus {
@@ -17,6 +18,11 @@ export enum JobStatus {
   PROCESSING = 'processing',
   COMPLETED = 'completed',
   FAILED = 'failed',
+  // 审核相关状态
+  NEEDS_REVIEW = 'needs_review',
+  APPROVED = 'approved',
+  REJECTED = 'rejected',
+  IN_REVIEW = 'in_review',
 }
 
 export interface Project {
@@ -169,12 +175,14 @@ export interface Job {
 export type ThemeMode = 'light' | 'dark' | 'system';
 export type Language = 'en' | 'zh';
 export type Environment = 'development' | 'testing' | 'production';
-export type ModelType = 'image' | 'video' | 'llm';
+export type ModelType = 'image' | 'video' | 'llm' | 'audio';
 
 export interface ModelCapabilities {
   supportsImageInput?: boolean;
   supportsVideoInput?: boolean;
   supportsAudioGeneration?: boolean;
+  supportsTextToSpeech?: boolean;
+  supportedLanguages?: string[];
   supportsReferenceImage?: boolean; // Generic reference image support
   supportsStartFrame?: boolean; // For video generation
   supportsEndFrame?: boolean; // For video generation
@@ -243,7 +251,7 @@ export interface ModelConfig {
   name: string;
   provider: string;
   modelId: string;
-  type: 'image' | 'video' | 'llm';
+  type: 'image' | 'video' | 'llm' | 'audio';
   capabilities: ModelCapabilities;
   parameters: ModelParameter[];
   templateId?: string; // Only instances have this, pointing back to the template
@@ -251,6 +259,7 @@ export interface ModelConfig {
   isDefault?: boolean;
   apiUrl?: string;
   baseUrl?: string; // Base URL for API requests
+  apiSecret?: string; // API secret for audio services
   enabled?: boolean; // Whether the model is enabled
   providerOptions?: any;
   // 新增：价格配置（可选，用于成本估算）
@@ -730,6 +739,20 @@ export type FilmStyle =
   | 'custom'; // 自定义：用户指定密度
 
 // 影视级分镜定义
+export interface GeneratedAudio {
+  id: string;
+  name?: string;
+  path: string;
+  prompt: string;
+  userPrompt?: string;
+  modelConfigId: string;
+  modelId: string;
+  metadata?: Record<string, any>;
+  createdAt: number;
+  duration?: number;
+  type: 'dialogue' | 'sound' | 'music';
+}
+
 export interface Shot {
   // 基础信息
   id: string;
@@ -799,6 +822,11 @@ export interface Shot {
   keyframes?: Keyframe[]; // 关键帧列表
   generatedImages?: string[]; // 已生成图片ID
   generatedVideo?: string; // 已生成视频ID
+  generatedAudio?: {
+    dialogue?: string; // 对话音频路径
+    sound?: string; // 音效路径
+    music?: string; // 音乐路径
+  };
   status: 'pending' | 'generating' | 'completed' | 'failed';
 }
 
@@ -830,6 +858,14 @@ export interface TimelineClip {
     type: 'cut' | 'dissolve' | 'fade' | 'wipe';
     duration: number;
   };
+  // 音频属性
+  audioProperties?: {
+    volume: number; // 音量 0-1
+    fadeIn: number; // 淡入时长（秒）
+    fadeOut: number; // 淡出时长（秒）
+  };
+  // 轨道类型
+  trackType: 'video' | 'audio';
 }
 
 // 时间轴项目

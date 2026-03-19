@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kmeng AI Animata - 剧本管理</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        'slate-50': '#fafafa',
+                        'slate-100': '#f4f4f5',
+                        'slate-200': '#e4e4e7',
+                        'slate-300': '#d4d4d8',
+                        'slate-400': '#a1a1aa',
+                        'slate-500': '#71717a',
+                        'slate-600': '#52525b',
+                        'slate-700': '#3f3f46',
+                        'slate-800': '#27272a',
+                        'slate-850': '#202023',
+                        'slate-900': '#18181b',
+                        'slate-950': '#09090b',
+                        'indigo-500': '#3b82f6',
+                        'indigo-600': '#2563eb',
+                        'indigo-700': '#1d4ed8',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #050505;
+            color: #ECEDEE;
+            transition: colors 0.3s;
+        }
+        .dark {
+            background-color: #050505;
+            color: #ECEDEE;
+        }
+        .bg-content1 {
+            background-color: #18181b;
+        }
+        .bg-content2 {
+            background-color: #27272a;
+        }
+        .bg-content3 {
+            background-color: #3f3f46;
+        }
+        .text-foreground {
+            color: #ECEDEE;
+        }
+        .text-primary {
+            color: #3870e7;
+        }
+        .border-content3 {
+            border-color: #3f3f46;
+        }
+        .tab-button {
+            padding: 12px 16px;
+            cursor: pointer;
+            border-bottom: 1px solid #3f3f46;
+        }
+        .tab-button.active {
+            background-color: #3f3f46;
+            border-left: 3px solid #3b82f6;
+        }
+        .script-line {
+            padding: 8px 12px;
+            border-bottom: 1px solid #3f3f46;
+            cursor: pointer;
+        }
+        .script-line:hover {
+            background-color: #3f3f46;
+        }
+        .script-line.selected {
+            background-color: #3b82f6;
+        }
+        .character-item {
+            padding: 8px 12px;
+            border-bottom: 1px solid #3f3f46;
+            cursor: pointer;
+        }
+        .character-item:hover {
+            background-color: #3f3f46;
+        }
+        .scene-item {
+            padding: 8px 12px;
+            border-bottom: 1px solid #3f3f46;
+            cursor: pointer;
+        }
+        .scene-item:hover {
+            background-color: #3f3f46;
+        }
+        .recommendation-card {
+            background-color: #27272a;
+            border-radius: 8px;
+            border: 1px solid #3f3f46;
+            padding: 16px;
+            margin-bottom: 12px;
+        }
+        .recommendation-card:hover {
+            border-color: #3b82f6;
+        }
+    </style>
+</head>
+<body class="dark">
+    <!-- 顶部导航栏 -->
+    <nav class="bg-slate-900 h-16 flex items-center justify-between px-6">
+        <div class="flex items-center">
+            <button class="mr-4 text-slate-400 hover:text-foreground" onclick="window.location.href='index.html'">
+                <i class="fas fa-arrow-left"></i>
+            </button>
+            <h1 class="text-xl font-bold text-foreground">Kmeng AI Animata</h1>
+            <span class="ml-4 text-sm text-slate-400">项目: 科幻小说改编</span>
+        </div>
+        <div class="flex items-center space-x-4">
+            <button class="text-slate-400 hover:text-foreground">
+                <i class="fas fa-moon"></i>
+            </button>
+            <button class="text-slate-400 hover:text-foreground">
+                <i class="fas fa-language"></i>
+            </button>
+            <button class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg">
+                <i class="fas fa-upload mr-2"></i>上传剧本
+            </button>
+        </div>
+    </nav>
+
+    <!-- 主内容区 -->
+    <div class="flex h-[calc(100vh-4rem)]">
+        <!-- 左侧Tab导航 -->
+        <div class="w-64 bg-content1 border-r border-content3">
+            <div class="p-4 border-b border-content3">
+                <h2 class="text-lg font-semibold text-foreground">剧本管理</h2>
+            </div>
+            <div class="tab-button active">
+                <i class="fas fa-file-alt mr-2"></i>剧本内容
+            </div>
+            <div class="tab-button">
+                <i class="fas fa-user mr-2"></i>角色映射
+            </div>
+            <div class="tab-button">
+                <i class="fas fa-map mr-2"></i>场景映射
+            </div>
+            <div class="tab-button">
+                <i class="fas fa-box mr-2"></i>物品映射
+            </div>
+            <div class="tab-button">
+                <i class="fas fa-film mr-2"></i>分镜列表
+            </div>
+            <div class="tab-button">
+                <i class="fas fa-chart-line mr-2"></i>质量报告
+            </div>
+        </div>
+
+        <!-- 中间内容区 -->
+        <div class="flex-1 flex flex-col">
+            <!-- 工具栏 -->
+            <div class="bg-content1 border-b border-content3 p-4">
+                <div class="flex space-x-4">
+                    <h2 class="text-lg font-semibold text-foreground">剧本内容</h2>
+                    <div class="flex-1"></div>
+                    <button class="bg-content2 hover:bg-content3 px-3 py-1 rounded">
+                        <i class="fas fa-edit mr-1"></i>编辑
+                    </button>
+                    <button class="bg-content2 hover:bg-content3 px-3 py-1 rounded">
+                        <i class="fas fa-save mr-1"></i>保存
+                    </button>
+                </div>
+            </div>
+
+            <!-- 剧本内容 -->
+            <div class="flex-1 bg-slate-950 overflow-y-auto p-6">
+                <div class="max-w-3xl mx-auto">
+                    <div class="script-line">
+                        <h3 class="font-bold text-foreground">第1场</h3>
+                        <p class="text-slate-400">太空站内部</p>
+                    </div>
+                    <div class="script-line">
+                        <p class="text-foreground">[镜头缓缓推进，展示太空站的高科技内部结构]</p>
+                    </div>
+                    <div class="script-line selected">
+                        <p class="text-primary font-medium">宇航员 李明</p>
+                        <p class="text-foreground">（对着通讯器）基地，这里是探索者号，我们已经到达预定轨道。</p>
+                    </div>
+                    <div class="script-line">
+                        <p class="text-slate-400">[通讯器传来基地的回应]</p>
+                    </div>
+                    <div class="script-line">
+                        <p class="text-foreground">基地：探索者号，收到。请开始系统检查。</p>
+                    </div>
+                    <div class="script-line">
+                        <p class="text-primary font-medium">宇航员 李明</p>
+                        <p class="text-foreground">明白，正在进行系统检查。</p>
+                    </div>
+                    <div class="script-line">
+                        <p class="text-slate-400">[李明操作控制面板，各种指示灯闪烁]</p>
+                    </div>
+                    <div class="script-line">
+                        <p class="text-primary font-medium">宇航员 李明</p>
+                        <p class="text-foreground">（惊讶）基地，检测到不明信号！</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 右侧智能推荐面板 -->
+        <div class="w-80 bg-content1 border-l border-content3">
+            <div class="p-4 border-b border-content3">
+                <h2 class="text-lg font-semibold text-foreground">智能推荐</h2>
+            </div>
+            <div class="p-4 overflow-y-auto">
+                <div class="recommendation-card">
+                    <div class="flex items-center mb-2">
+                        <i class="fas fa-lightbulb text-yellow-500 mr-2"></i>
+                        <h3 class="font-medium text-foreground">场景建议</h3>
+                    </div>
+                    <p class="text-sm text-slate-400 mb-2">基于当前剧本内容，建议添加太空站外部全景镜头。</p>
+                    <button class="text-xs text-primary hover:underline">应用建议</button>
+                </div>
+                <div class="recommendation-card">
+                    <div class="flex items-center mb-2">
+                        <i class="fas fa-user text-blue-500 mr-2"></i>
+                        <h3 class="font-medium text-foreground">角色映射</h3>
+                    </div>
+                    <p class="text-sm text-slate-400 mb-2">检测到新角色"李明"，建议创建角色资产。</p>
+                    <button class="text-xs text-primary hover:underline">创建角色</button>
+                </div>
+                <div class="recommendation-card">
+                    <div class="flex items-center mb-2">
+                        <i class="fas fa-magic text-purple-500 mr-2"></i>
+                        <h3 class="font-medium text-foreground">AI分析</h3>
+                    </div>
+                    <p class="text-sm text-slate-400 mb-2">剧本情感分析：紧张感 75%，科幻感 85%。</p>
+                    <button class="text-xs text-primary hover:underline">查看详情</button>
+                </div>
+                <div class="recommendation-card">
+                    <div class="flex items-center mb-2">
+                        <i class="fas fa-film text-red-500 mr-2"></i>
+                        <h3 class="font-medium text-foreground">分镜建议</h3>
+                    </div>
+                    <p class="text-sm text-slate-400 mb-2">建议将第1场拆分为3个分镜，增强视觉效果。</p>
+                    <button class="text-xs text-primary hover:underline">生成分镜</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 模拟交互
+        document.querySelectorAll('.tab-button').forEach(tab => {
+            tab.addEventListener('click', function() {
+                document.querySelectorAll('.tab-button').forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+
+        document.querySelectorAll('.script-line').forEach(line => {
+            line.addEventListener('click', function() {
+                document.querySelectorAll('.script-line').forEach(l => l.classList.remove('selected'));
+                this.classList.add('selected');
+            });
+        });
+    </script>
+</body>
+</html>

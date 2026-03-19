@@ -20,6 +20,7 @@ const Tasks = lazy(() => import('./views/Tasks'));
 const ScriptManager = lazy(() => import('./views/ScriptManager'));
 const ShotManager = lazy(() => import('./views/ShotManager'));
 const TimelineEditor = lazy(() => import('./views/TimelineEditor'));
+const VideoAudioManager = lazy(() => import('./views/VideoAudioManager'));
 
 const App: React.FC = () => {
   const { showToast } = useToast();
@@ -97,6 +98,10 @@ const App: React.FC = () => {
               <Route
                 path="/project/:projectId/script/:scriptId/timeline"
                 element={<TimelineEditor />}
+              />
+              <Route
+                path="/project/:projectId/video-audio"
+                element={<VideoAudioManager />}
               />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>

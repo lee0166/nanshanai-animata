@@ -922,8 +922,37 @@ export class StorageService {
     }
   }
 
+  // 音频URL缓存
+  private audioUrlCache: Map<string, { url: string; timestamp: number }> = new Map();
+  private audioUrlCacheTTL = 10 * 60 * 1000; // 缓存有效期：10分钟
+
+  // 清理过期的音频URL缓存
+  private cleanupAudioUrlCache(): void {
+    const now = Date.now();
+    for (const [key, item] of this.audioUrlCache.entries()) {
+      if (now - item.timestamp > this.audioUrlCacheTTL) {
+        // 释放ObjectURL以避免内存泄漏
+        URL.revokeObjectURL(item.url);
+        this.audioUrlCache.delete(key);
+      }
+    }
+  }
+
   async getAssetUrl(relativePath: string): Promise<string> {
     if (!this.directoryHandle || !relativePath) return '';
+    
+    // 清理过期缓存
+    this.cleanupAudioUrlCache();
+    
+    // 检查缓存
+    if (this.audioUrlCache.has(relativePath)) {
+      const cached = this.audioUrlCache.get(relativePath);
+      if (cached) {
+        console.log('[STORAGE] 从缓存获取音频URL:', relativePath);
+        return cached.url;
+      }
+    }
+    
     try {
       const parts = relativePath.split('/');
       let currentDir = this.directoryHandle;
@@ -935,7 +964,15 @@ export class StorageService {
 
       const fileHandle = await currentDir.getFileHandle(parts[parts.length - 1]);
       const file = await fileHandle.getFile();
-      return URL.createObjectURL(file);
+      const url = URL.createObjectURL(file);
+      
+      // 保存到缓存
+      this.audioUrlCache.set(relativePath, {
+        url,
+        timestamp: Date.now()
+      });
+      
+      return url;
     } catch (e: any) {
       // Silently handle NotFoundError as it's common for deleted files
       if (e.name === 'NotFoundError' || e.toString().includes('NotFoundError')) {
@@ -1379,6 +1416,34 @@ export class StorageService {
       scripts[index] = script;
       await this.writeJson(filename, scripts);
     });
+  }
+
+  // --- Review Management ---  
+  
+  async saveReviewItem(reviewItem: any): Promise<void> {
+    const filename = `reviews_${reviewItem.projectId}.json`;
+    return this.lock(filename, async () => {
+      const reviews = await this.getReviewItems(reviewItem.projectId);
+      const index = reviews.findIndex(r => r.id === reviewItem.id);
+      
+      if (index >= 0) {
+        reviews[index] = reviewItem;
+      } else {
+        reviews.push(reviewItem);
+      }
+      
+      await this.writeJson(filename, reviews);
+    });
+  }
+
+  async getReviewItems(projectId: string): Promise<any[]> {
+    const data = await this.readJson<any[]>(`reviews_${projectId}.json`);
+    return data || [];
+  }
+
+  async getReviewItem(reviewId: string, projectId: string): Promise<any | null> {
+    const reviews = await this.getReviewItems(projectId);
+    return reviews.find(r => r.id === reviewId) || null;
   }
 }
 

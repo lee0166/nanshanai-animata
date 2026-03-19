@@ -91,6 +91,26 @@
 - **文生视频 (Text-to-Video)** - 通过文字描述直接生成动态视频片段
 - **运镜控制** - 支持推拉摇移等运镜参数调节
 
+### 🎵 音频生成与管理 (Audio Generation & Management)
+
+为视频添加专业的音频效果，包括对话、音效和背景音乐。
+
+- **音频生成**
+  - **对话生成** - 支持阿里云、百度AI等TTS服务
+  - **音效生成** - 基于场景描述生成环境音效
+  - **音乐生成** - 根据情绪生成背景音乐
+- **音频库管理**
+  - **分类管理** - 音效和音乐按类别组织
+  - **搜索功能** - 支持按关键词和标签搜索
+  - **预览功能** - 实时预览音频效果
+- **音视频同步**
+  - **同步预览** - 音视频同步播放预览
+  - **批量预览** - 批量预览多个音频文件
+- **批量生成**
+  - **批量音频** - 一次性生成多个音频文件
+  - **并发控制** - 智能控制并发数，避免网络拥塞
+  - **实时进度** - 显示批量生成进度
+
 ### 💰 时长预算 (Duration Budget)
 
 智能计算剧本时长，支持多平台适配和自定义配置。
@@ -155,6 +175,7 @@
 │  ProgressTracker │ SmoothProgressAnimator │ TimeEstimator       │
 │  PerformanceMonitor │ QualityAnalyzer │ TokenOptimizer         │
 │  DurationBudget │ SceneContextExtractor │ SemanticChunker      │
+│  AudioService │ VideoGenerationService │ TimelineService      │
 ├─────────────────────────────────────────────────────────────────┤
 │                      AI 提供商适配层                             │
 │  Volcengine │ Vidu │ ModelScope │ LLMProvider │ AliyunVideo    │
@@ -312,6 +333,8 @@ npm run preview
 ```
 nanshanai-animata/
 ├── components/              # React 组件
+│   ├── AudioLibrary/       # 音频库组件
+│   │   └── AudioLibrary.tsx
 │   ├── ProjectDetail/      # 项目详情相关组件
 │   │   ├── Character/      # 角色详情
 │   │   ├── Scene/          # 场景详情
@@ -330,6 +353,7 @@ nanshanai-animata/
 │   │   ├── CharacterMapping.tsx      # 角色映射
 │   │   ├── SceneMapping.tsx          # 场景映射
 │   │   ├── ItemMapping.tsx           # 物品映射
+│   │   ├── SoundDesignTab.tsx        # 音效设计
 │   │   └── ShotToFragment.tsx        # 分镜转片段
 │   ├── ScriptAnalysis/     # 剧本分析组件
 │   │   ├── StoryStructureDiagram.tsx # 故事结构图
@@ -352,6 +376,7 @@ nanshanai-animata/
 │   ├── ScriptManager.tsx   # 剧本管理
 │   ├── ShotManager.tsx     # 分镜管理
 │   ├── TimelineEditor.tsx  # 时间线编辑器
+│   ├── VideoAudioManager.tsx # 音视频管理
 │   ├── Tasks.tsx           # 任务管理
 │   └── Settings.tsx        # 设置页面
 ├── services/               # 核心服务
@@ -422,6 +447,7 @@ nanshanai-animata/
 │   ├── events/             # 事件系统
 │   │   └── ShotEventEmitter.ts
 │   ├── aiService.ts        # AI 服务主入口
+│   ├── audio.ts            # 音频服务
 │   ├── scriptParser.ts     # 剧本解析主入口
 │   ├── storage.ts          # 存储服务
 │   ├── queue.ts            # 任务队列

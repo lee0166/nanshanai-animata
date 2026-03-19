@@ -34,21 +34,22 @@ const WelcomeView: React.FC<WelcomeViewProps> = ({ onConnect }) => {
           <Button
             onPress={reconnectWorkspace}
             color="primary"
-            variant="shadow"
+            variant="solid"
             size="lg"
             radius="lg"
             startContent={<RefreshCw className="w-6 h-6 mr-1" />}
-            className="px-12 py-8 text-xl font-black uppercase tracking-wider shadow-2xl shadow-primary/40 transform transition-all duration-500 hover:scale-110 hover:shadow-primary/60 hover:rotate-1"
+            className="px-12 py-8 text-xl font-black uppercase tracking-wider shadow-2xl shadow-primary/50 bg-primary text-white transition-all duration-500 hover:shadow-primary/70 hover:scale-110 hover:rotate-1 border-2 border-white/30 focus:ring-4 focus:ring-primary/30 focus:outline-none"
           >
             {t.workspace.reconnectButton || '重新连接'}
           </Button>
           <Button
             onPress={onConnect}
-            variant="flat"
+            color="secondary"
+            variant="solid"
             size="md"
             radius="lg"
             startContent={<Folder className="w-5 h-5 mr-1" />}
-            className="px-8 py-4 text-base font-medium"
+            className="px-8 py-4 text-base font-medium shadow-lg shadow-secondary/30"
           >
             {t.workspace.selectNewButton || '选择其他文件夹'}
           </Button>
@@ -57,11 +58,11 @@ const WelcomeView: React.FC<WelcomeViewProps> = ({ onConnect }) => {
         <Button
           onPress={onConnect}
           color="primary"
-          variant="shadow"
+          variant="solid"
           size="lg"
           radius="lg"
           startContent={<FolderOpen className="w-6 h-6 mr-1" />}
-          className="px-12 py-8 text-xl font-black uppercase tracking-wider shadow-2xl shadow-primary/40 transform transition-all duration-500 hover:scale-110 hover:shadow-primary/60 hover:rotate-1"
+          className="px-12 py-8 text-xl font-black uppercase tracking-wider shadow-2xl shadow-primary/50 bg-primary text-white transition-all duration-500 hover:shadow-primary/70 hover:scale-110 hover:rotate-1 border-2 border-white/30 focus:ring-4 focus:ring-primary/30 focus:outline-none"
         >
           {t.workspace.button}
         </Button>

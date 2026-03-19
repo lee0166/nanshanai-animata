@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kmeng AI Animata - 资产管理</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        'slate-50': '#fafafa',
+                        'slate-100': '#f4f4f5',
+                        'slate-200': '#e4e4e7',
+                        'slate-300': '#d4d4d8',
+                        'slate-400': '#a1a1aa',
+                        'slate-500': '#71717a',
+                        'slate-600': '#52525b',
+                        'slate-700': '#3f3f46',
+                        'slate-800': '#27272a',
+                        'slate-850': '#202023',
+                        'slate-900': '#18181b',
+                        'slate-950': '#09090b',
+                        'indigo-500': '#3b82f6',
+                        'indigo-600': '#2563eb',
+                        'indigo-700': '#1d4ed8',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #050505;
+            color: #ECEDEE;
+            transition: colors 0.3s;
+        }
+        .dark {
+            background-color: #050505;
+            color: #ECEDEE;
+        }
+        .bg-content1 {
+            background-color: #18181b;
+        }
+        .bg-content2 {
+            background-color: #27272a;
+        }
+        .bg-content3 {
+            background-color: #3f3f46;
+        }
+        .text-foreground {
+            color: #ECEDEE;
+        }
+        .text-primary {
+            color: #3870e7;
+        }
+        .border-content3 {
+            border-color: #3f3f46;
+        }
+        .asset-card {
+            background-color: #27272a;
+            border-radius: 8px;
+            border: 1px solid #3f3f46;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .asset-card:hover {
+            border-color: #3b82f6;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+        .asset-card.selected {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
+        }
+        .asset-card img {
+            width: 100%;
+            height: 120px;
+            object-fit: cover;
+        }
+        .category-tab {
+            padding: 12px 16px;
+            cursor: pointer;
+            border-bottom: 1px solid #3f3f46;
+        }
+        .category-tab.active {
+            background-color: #3f3f46;
+            border-left: 3px solid #3b82f6;
+        }
+        .batch-toolbar {
+            background-color: #27272a;
+            border-bottom: 1px solid #3f3f46;
+            padding: 12px 16px;
+        }
+    </style>
+</head>
+<body class="dark">
+    <!-- 顶部导航栏 -->
+    <nav class="bg-slate-900 h-16 flex items-center justify-between px-6">
+        <div class="flex items-center">
+            <button class="mr-4 text-slate-400 hover:text-foreground" onclick="window.location.href='index.html'">
+                <i class="fas fa-arrow-left"></i>
+            </button>
+            <h1 class="text-xl font-bold text-foreground">Kmeng AI Animata</h1>
+            <span class="ml-4 text-sm text-slate-400">项目: 科幻小说改编</span>
+        </div>
+        <div class="flex items-center space-x-4">
+            <button class="text-slate-400 hover:text-foreground">
+                <i class="fas fa-moon"></i>
+            </button>
+            <button class="text-slate-400 hover:text-foreground">
+                <i class="fas fa-language"></i>
+            </button>
+            <button class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg">
+                <i class="fas fa-upload mr-2"></i>上传资产
+            </button>
+        </div>
+    </nav>
+
+    <!-- 主内容区 -->
+    <div class="flex h-[calc(100vh-4rem)]">
+        <!-- 左侧分类导航 -->
+        <div class="w-64 bg-content1 border-r border-content3">
+            <div class="p-4 border-b border-content3">
+                <h2 class="text-lg font-semibold text-foreground">资产分类</h2>
+            </div>
+            <div class="category-tab active">
+                <i class="fas fa-images mr-2"></i>所有资产
+            </div>
+            <div class="category-tab">
+                <i class="fas fa-user mr-2"></i>角色
+            </div>
+            <div class="category-tab">
+                <i class="fas fa-map mr-2"></i>场景
+            </div>
+            <div class="category-tab">
+                <i class="fas fa-box mr-2"></i>物品
+            </div>
+            <div class="category-tab">
+                <i class="fas fa-film mr-2"></i>视频片段
+            </div>
+            <div class="category-tab">
+                <i class="fas fa-music mr-2"></i>音频资源
+            </div>
+        </div>
+
+        <!-- 中间内容区 -->
+        <div class="flex-1 flex flex-col">
+            <!-- 批量操作工具栏 -->
+            <div class="batch-toolbar">
+                <div class="flex space-x-4">
+                    <span class="text-sm text-slate-400">已选择 2 项</span>
+                    <button class="bg-content3 hover:bg-slate-600 px-3 py-1 rounded text-sm">
+                        <i class="fas fa-copy mr-1"></i>复制
+                    </button>
+                    <button class="bg-content3 hover:bg-slate-600 px-3 py-1 rounded text-sm">
+                        <i class="fas fa-trash mr-1"></i>删除
+                    </button>
+                    <button class="bg-content3 hover:bg-slate-600 px-3 py-1 rounded text-sm">
+                        <i class="fas fa-folder mr-1"></i>移动到
+                    </button>
+                    <div class="flex-1"></div>
+                    <div class="flex items-center">
+                        <input type="text" placeholder="搜索资产..." class="bg-content3 border border-slate-600 rounded px-3 py-1 text-sm text-foreground">
+                        <button class="ml-2 text-slate-400 hover:text-foreground">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 资产网格 -->
+            <div class="flex-1 bg-slate-950 overflow-y-auto p-6">
+                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                    <!-- 资产卡片 -->
+                    <div class="asset-card selected">
+                        <img src="https://picsum.photos/200/150?random=1" alt="角色1">
+                        <div class="p-3">
+                            <h3 class="text-sm font-medium text-foreground">宇航员 李明</h3>
+                            <p class="text-xs text-slate-400">角色</p>
+                        </div>
+                    </div>
+                    <div class="asset-card selected">
+                        <img src="https://picsum.photos/200/150?random=2" alt="场景1">
+                        <div class="p-3">
+                            <h3 class="text-sm font-medium text-foreground">太空站内部</h3>
+                            <p class="text-xs text-slate-400">场景</p>
+                        </div>
+                    </div>
+                    <div class="asset-card">
+                        <img src="https://picsum.photos/200/150?random=3" alt="场景2">
+                        <div class="p-3">
+                            <h3 class="text-sm font-medium text-foreground">太空站外部</h3>
+                            <p class="text-xs text-slate-400">场景</p>
+                        </div>
+                    </div>
+                    <div class="asset-card">
+                        <img src="https://picsum.photos/200/150?random=4" alt="物品1">
+                        <div class="p-3">
+                            <h3 class="text-sm font-medium text-foreground">通讯器</h3>
+                            <p class="text-xs text-slate-400">物品</p>
+                        </div>
+                    </div>
+                    <div class="asset-card">
+                        <img src="https://picsum.photos/200/150?random=5" alt="视频1">
+                        <div class="p-3">
+                            <h3 class="text-sm font-medium text-foreground">开场场景</h3>
+                            <p class="text-xs text-slate-400">视频片段</p>
+                        </div>
+                    </div>
+                    <div class="asset-card">
+                        <img src="https://picsum.photos/200/150?random=6" alt="音频1">
+                        <div class="p-3">
+                            <h3 class="text-sm font-medium text-foreground">太空背景音</h3>
+                            <p class="text-xs text-slate-400">音频资源</p>
+                        </div>
+                    </div>
+                    <div class="asset-card">
+                        <img src="https://picsum.photos/200/150?random=7" alt="角色2">
+                        <div class="p-3">
+                            <h3 class="text-sm font-medium text-foreground">基地指挥官</h3>
+                            <p class="text-xs text-slate-400">角色</p>
+                        </div>
+                    </div>
+                    <div class="asset-card">
+                        <img src="https://picsum.photos/200/150?random=8" alt="场景3">
+                        <div class="p-3">
+                            <h3 class="text-sm font-medium text-foreground">地球视图</h3>
+                            <p class="text-xs text-slate-400">场景</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 右侧智能推荐面板 -->
+        <div class="w-80 bg-content1 border-l border-content3">
+            <div class="p-4 border-b border-content3">
+                <h2 class="text-lg font-semibold text-foreground">智能推荐</h2>
+            </div>
+            <div class="p-4 overflow-y-auto">
+                <div class="mb-6">
+                    <h3 class="text-sm font-medium text-foreground mb-3">相关资产</h3>
+                    <div class="space-y-3">
+                        <div class="flex items-center p-2 bg-content2 rounded">
+                            <div class="w-12 h-12 bg-slate-700 rounded mr-3 flex items-center justify-center">
+                                <i class="fas fa-user text-slate-400"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-sm text-foreground">宇航员 张伟</h4>
+                                <p class="text-xs text-slate-400">与李明相关</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center p-2 bg-content2 rounded">
+                            <div class="w-12 h-12 bg-slate-700 rounded mr-3 flex items-center justify-center">
+                                <i class="fas fa-map text-slate-400"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-sm text-foreground">太空站控制室</h4>
+                                <p class="text-xs text-slate-400">与太空站内部相关</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="mb-6">
+                    <h3 class="text-sm font-medium text-foreground mb-3">生成建议</h3>
+                    <div class="space-y-3">
+                        <div class="p-3 bg-content2 rounded">
+                            <h4 class="text-sm text-foreground mb-1">建议生成</h4>
+                            <p class="text-xs text-slate-400 mb-2">太空站外部全景</p>
+                            <button class="w-full bg-indigo-600 hover:bg-indigo-700 text-white text-xs px-3 py-1 rounded">
+                                生成
+                            </button>
+                        </div>
+                        <div class="p-3 bg-content2 rounded">
+                            <h4 class="text-sm text-foreground mb-1">建议生成</h4>
+                            <p class="text-xs text-slate-400 mb-2">宇航员太空行走</p>
+                            <button class="w-full bg-indigo-600 hover:bg-indigo-700 text-white text-xs px-3 py-1 rounded">
+                                生成
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 模拟交互
+        document.querySelectorAll('.category-tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                document.querySelectorAll('.category-tab').forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+
+        document.querySelectorAll('.asset-card').forEach(card => {
+            card.addEventListener('click', function() {
+                this.classList.toggle('selected');
+            });
+        });
+    </script>
+</body>
+</html>

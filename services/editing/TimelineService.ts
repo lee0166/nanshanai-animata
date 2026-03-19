@@ -55,6 +55,7 @@ export class TimelineService {
             duration: duration,
             sourcePath: shot.generatedVideo,
             transition: { type: 'cut', duration: 0 },
+            trackType: 'video',
           };
           videoClips.push(clip);
           currentTime += duration;
@@ -248,6 +249,77 @@ export class TimelineService {
       return { success: true, data: timeline };
     } catch (error) {
       console.error('[TimelineService] Delete clip failed:', error);
+      return { success: false, error: String(error) };
+    }
+  }
+
+  /**
+   * 添加轨道
+   */
+  async addTrack(
+    timelineId: string,
+    track: Omit<TimelineTrack, 'id'>
+  ): Promise<TimelineOperationResult> {
+    try {
+      const timeline = await this.getTimeline(timelineId);
+      if (!timeline) {
+        return { success: false, error: '时间轴不存在' };
+      }
+
+      const newTrack: TimelineTrack = {
+        ...track,
+        id: `track_${track.type}_${Date.now()}`,
+      };
+
+      timeline.tracks.push(newTrack);
+      timeline.updatedAt = Date.now();
+
+      await this.saveTimeline(timeline);
+
+      return { success: true, data: timeline };
+    } catch (error) {
+      console.error('[TimelineService] Add track failed:', error);
+      return { success: false, error: String(error) };
+    }
+  }
+
+  /**
+   * 更新片段音频属性
+   */
+  async updateClipAudioProperties(
+    timelineId: string,
+    trackId: string,
+    clipId: string,
+    properties: any
+  ): Promise<TimelineOperationResult> {
+    try {
+      const timeline = await this.getTimeline(timelineId);
+      if (!timeline) {
+        return { success: false, error: '时间轴不存在' };
+      }
+
+      const track = timeline.tracks.find(t => t.id === trackId);
+      if (!track) {
+        return { success: false, error: '轨道不存在' };
+      }
+
+      const clip = track.clips.find(c => c.id === clipId);
+      if (!clip) {
+        return { success: false, error: '片段不存在' };
+      }
+
+      clip.audioProperties = {
+        ...clip.audioProperties,
+        ...properties,
+      };
+
+      timeline.updatedAt = Date.now();
+
+      await this.saveTimeline(timeline);
+
+      return { success: true, data: timeline };
+    } catch (error) {
+      console.error('[TimelineService] Update clip audio properties failed:', error);
       return { success: false, error: String(error) };
     }
   }

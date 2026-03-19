@@ -87,15 +87,18 @@ import {
   Award,
   Eye,
   Loader2,
+  Music,
 } from 'lucide-react';
 
 interface ScriptManagerProps {
   projectId?: string;
   initialTab?: 'scripts' | 'shots';
+  onScriptsUpdate?: () => void;
 }
 
 const ScriptManager: React.FC<ScriptManagerProps> = ({
   projectId: propProjectId,
+  onScriptsUpdate,
   initialTab = 'scripts',
 }) => {
   const { projectId: urlProjectId } = useParams<{ projectId: string }>();
@@ -462,6 +465,8 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({
       setScriptTitle('');
       setScriptContent('');
       showToast('剧本上传成功', 'success');
+      // 通知父组件更新剧本列表
+      onScriptsUpdate?.();
     } catch (error) {
       console.error('[ScriptManager] Failed to upload script:', error);
       showToast('上传剧本失败', 'error');
@@ -852,14 +857,14 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({
   return (
     <div className="flex flex-col h-full">
       {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-slate-200 dark:border-slate-800">
+      <div className="flex items-center justify-between p-4 border-b border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900">
         <div className="flex items-center gap-4">
-          <h2 className="text-xl font-bold flex items-center gap-2">
-            <FileText className="w-5 h-5" />
+          <h2 className="text-xl font-bold flex items-center gap-2 text-slate-900 dark:text-white">
+            <FileText className="w-5 h-5 text-slate-700 dark:text-slate-300" />
             剧本管理
           </h2>
           {scripts.length > 0 && (
-            <Chip size="sm" variant="flat">
+            <Chip size="sm" variant="flat" className="text-slate-700 dark:text-slate-300">
               {scripts.length} 个剧本
             </Chip>
           )}
@@ -1299,6 +1304,22 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({
                       projectId={projectId!}
                       onShotsUpdate={() => {}}
                       viewMode="list"
+                    />
+                  </Tab>
+
+                  {/* Sound Design Tab */}
+                  <Tab
+                    key="sound-design"
+                    title={
+                      <div className="flex items-center gap-2">
+                        <Music size={16} />
+                        <span>声音设计</span>
+                      </div>
+                    }
+                  >
+                    <SoundDesignTab 
+                      metadata={currentScript.parseState.metadata || {}}
+                      shots={currentScript.parseState.shots || []}
                     />
                   </Tab>
 

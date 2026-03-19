@@ -30,6 +30,7 @@ import {
   EyeOff,
   X,
   Settings2,
+  Volume2,
 } from 'lucide-react';
 import { storageService } from '../services/storage';
 import { QualityRulesEditor } from '../components/Settings/QualityRulesEditor';
@@ -90,6 +91,13 @@ const Settings: React.FC = () => {
   const [activeNav, setActiveNav] = useState<'general' | 'duration' | 'models' | 'quality'>(
     'general'
   );
+  
+  // TTS Test State
+  const { isOpen: isTtsTestOpen, onOpen: onTtsTestOpen, onClose: onTtsTestClose } = useDisclosure();
+  const [ttsTestModel, setTtsTestModel] = useState<ModelConfig | null>(null);
+  const [ttsTestText, setTtsTestText] = useState('这是一段测试文本，用于验证TTS服务的音频质量。');
+  const [ttsTestResult, setTtsTestResult] = useState<string>('');
+  const [ttsTestLoading, setTtsTestLoading] = useState(false);
 
   // Duration Budget Configuration State
   const [durationBudgetConfig, setDurationBudgetConfig] = useState({
@@ -129,6 +137,7 @@ const Settings: React.FC = () => {
     name: '',
     modelId: '',
     apiKey: '',
+    apiSecret: '',
     apiUrl: '',
     temperature: 0.3,
     maxTokens: 4000,
@@ -169,11 +178,12 @@ const Settings: React.FC = () => {
   const [showAdd, setShowAdd] = useState(false);
   const [newModelName, setNewModelName] = useState('');
   const [selectedProvider, setSelectedProvider] = useState<
-    'vidu' | 'volcengine' | 'modelscope' | 'openai' | 'aliyun' | 'other' | ''
+    'vidu' | 'volcengine' | 'modelscope' | 'openai' | 'aliyun' | 'aliyun-tts' | 'baidu-tts' | 'other' | ''
   >('');
   const [selectedBaseModelId, setSelectedBaseModelId] = useState('');
   const [newApiKey, setNewApiKey] = useState('');
-  const [selectedType, setSelectedType] = useState<'video' | 'image' | 'llm' | ''>('');
+  const [newApiSecret, setNewApiSecret] = useState('');
+  const [selectedType, setSelectedType] = useState<'video' | 'image' | 'llm' | 'audio' | ''>('');
 
   // Custom Model State
   const [isCustomModel, setIsCustomModel] = useState(false);
@@ -207,13 +217,12 @@ const Settings: React.FC = () => {
 
   // Get available models based on provider and type
   const availableBaseModels = React.useMemo(() => {
-    // 过滤出该 Provider 和 Type 下的基础模型，且过滤掉已经添加过的模型（基于 templateId 或 id）
-    const addedTemplateIds = new Set(settings.models.map(m => m.templateId || m.id));
+    // 过滤出该 Provider 和 Type 下的基础模型
     return DEFAULT_MODELS.filter(
       (m: ModelConfig) =>
-        m.provider === selectedProvider && m.type === selectedType && !addedTemplateIds.has(m.id)
+        m.provider === selectedProvider && m.type === selectedType
     );
-  }, [selectedProvider, selectedType, settings.models]);
+  }, [selectedProvider, selectedType]);
 
   // Filter and sort models
   const filteredModels = React.useMemo(() => {
@@ -287,6 +296,7 @@ const Settings: React.FC = () => {
       templateId: baseModel.id, // Link to template
       name: newModelName,
       apiKey: newApiKey, // User provided key
+      apiSecret: newApiSecret, // User provided secret for audio services
       isDefault: false,
       enabled: true,
     };
@@ -389,7 +399,7 @@ const Settings: React.FC = () => {
       name: newModelName,
       provider: customModel.provider,
       modelId: customModel.modelId,
-      type: selectedType as 'image' | 'video' | 'llm',
+      type: selectedType as 'image' | 'video' | 'llm' | 'audio',
       capabilities,
       parameters:
         selectedType === 'image'
@@ -399,6 +409,7 @@ const Settings: React.FC = () => {
             : llmParams,
       apiUrl: customModel.apiUrl || undefined,
       apiKey: newApiKey,
+      apiSecret: newApiSecret, // User provided secret for audio services
       isDefault: false,
       enabled: true,
       providerOptions,
@@ -477,6 +488,7 @@ const Settings: React.FC = () => {
       name: model.name,
       modelId: model.modelId || '',
       apiKey: model.apiKey || '',
+      apiSecret: model.apiSecret || '',
       apiUrl: model.apiUrl || '',
       temperature: model.parameters?.find(p => p.name === 'temperature')?.defaultValue ?? 0.3,
       maxTokens: model.parameters?.find(p => p.name === 'maxTokens')?.defaultValue ?? 4000,
@@ -513,6 +525,7 @@ const Settings: React.FC = () => {
           name: editFormData.name,
           modelId: editFormData.modelId,
           apiKey: editFormData.apiKey,
+          apiSecret: editFormData.apiSecret,
           apiUrl: editFormData.apiUrl || undefined,
           parameters: updatedParameters,
           // 价格配置
@@ -527,6 +540,37 @@ const Settings: React.FC = () => {
     onEditClose();
     setEditingModel(null);
     showToast('模型配置已更新', 'success');
+  };
+
+  // Handle TTS Test
+  const handleTestTTS = (model: ModelConfig) => {
+    setTtsTestModel(model);
+    setTtsTestText('这是一段测试文本，用于验证TTS服务的音频质量。');
+    setTtsTestResult('');
+    onTtsTestOpen();
+  };
+
+  // Test TTS Service
+  const testTtsService = async () => {
+    if (!ttsTestModel || !ttsTestText) return;
+
+    setTtsTestLoading(true);
+    try {
+      // 这里应该调用音频服务生成语音
+      // 暂时模拟实现
+      console.log('测试TTS服务:', ttsTestModel, ttsTestText);
+      
+      // 模拟生成音频URL
+      setTimeout(() => {
+        setTtsTestResult(`http://localhost:3000/api/tts/test/${Date.now()}`);
+        setTtsTestLoading(false);
+        showToast('TTS测试成功', 'success');
+      }, 1000);
+    } catch (error) {
+      console.error('TTS测试失败:', error);
+      showToast('TTS测试失败，请检查API密钥配置', 'error');
+      setTtsTestLoading(false);
+    }
   };
 
   const truncatePath = (path: string, maxLength = 30) => {
@@ -1263,6 +1307,9 @@ const Settings: React.FC = () => {
                 <SelectItem key="llm" value="llm">
                   文本解析
                 </SelectItem>
+                <SelectItem key="audio" value="audio">
+                  音频服务
+                </SelectItem>
               </Select>
               {existingProviders.length > 0 && (
                 <Select
@@ -1357,7 +1404,8 @@ const Settings: React.FC = () => {
             radius="lg"
           >
             <CardBody className="p-6 space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* 基本配置 */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <Input
                   label={t.settings.modelName}
                   labelPlacement="outside"
@@ -1368,7 +1416,7 @@ const Settings: React.FC = () => {
                   radius="lg"
                   size="lg"
                   classNames={{
-                    label: 'text-sm font-medium text-slate-700 dark:text-slate-300 mb-2',
+                    label: 'text-sm font-medium text-slate-700 dark:text-slate-300 mb-1',
                     input: 'text-[15px]',
                   }}
                 />
@@ -1387,7 +1435,7 @@ const Settings: React.FC = () => {
                   radius="lg"
                   size="lg"
                   classNames={{
-                    label: 'text-sm font-medium text-slate-700 dark:text-slate-300 mb-2',
+                    label: 'text-sm font-medium text-slate-700 dark:text-slate-300 mb-1',
                     value: 'text-[15px]',
                   }}
                 >
@@ -1400,88 +1448,212 @@ const Settings: React.FC = () => {
                   <SelectItem key="llm" value="llm">
                     文本解析 (LLM)
                   </SelectItem>
+                  <SelectItem key="audio" value="audio">
+                    音频服务 (TTS)
+                  </SelectItem>
                 </Select>
               </div>
 
-              {selectedProvider === 'custom' && (
-                <div className="space-y-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800">
+              {/* 模型配置 */}
+              {selectedType && (
+                <div className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <Select
-                      label={t.settings.modelConfig?.apiProtocolType || 'API协议类型'}
+                      label={t.settings.provider}
                       labelPlacement="outside"
-                      placeholder={
-                        t.settings.modelConfig?.selectApiProtocolPlaceholder || '选择 API 协议类型'
-                      }
-                      selectedKeys={customModel.provider ? [customModel.provider] : []}
+                      placeholder="Select provider"
+                      isDisabled={!selectedType}
+                      selectedKeys={selectedProvider ? [selectedProvider] : []}
                       onSelectionChange={keys => {
-                        const val = Array.from(keys)[0] as string;
-                        if (val) {
-                          setCustomModel({ ...customModel, provider: val });
-                        }
+                        const val = Array.from(keys)[0] as any;
+                        setSelectedProvider(val);
+                        setSelectedBaseModelId('');
                       }}
                       variant="bordered"
                       radius="lg"
                       size="lg"
                       classNames={{
-                        label: 'text-sm font-medium text-slate-700 dark:text-slate-300 mb-2',
+                        label: 'text-sm font-medium text-slate-700 dark:text-slate-300 mb-1',
                         value: 'text-[15px]',
                       }}
                     >
-                      {providerAliasMapper.getSupportedAliases().map(option => (
-                        <SelectItem key={option.value} value={option.value}>
-                          {option.label}
+                      <SelectItem key="custom" value="custom">
+                        {t.settings.modelConfig?.providers?.custom || '自定义...'}
+                      </SelectItem>
+                      {availableProviders.map(p => (
+                        <SelectItem key={p} value={p}>
+                          {p === 'volcengine'
+                            ? 'Volcengine (火山引擎)'
+                            : p === 'vidu'
+                              ? 'Vidu'
+                              : p === 'openai'
+                                ? 'OpenAI'
+                                : p === 'aliyun-qianwen'
+                                  ? '阿里云通义千问'
+                                  : p === 'aliyun-qianwen-video'
+                                    ? '阿里云通义万相'
+                                    : p === 'aliyun-bailian'
+                                      ? '阿里云百炼'
+                                      : p === 'modelscope'
+                                        ? '魔搭社区'
+                                        : p}
                         </SelectItem>
                       ))}
                     </Select>
-                    <Input
-                      label={t.settings.modelIdOnly}
-                      labelPlacement="outside"
-                      placeholder={t.settings.modelConfig?.modelIdPlaceholder}
-                      value={customModel.modelId}
-                      onValueChange={v => setCustomModel({ ...customModel, modelId: v })}
-                      variant="bordered"
-                      radius="lg"
-                      size="lg"
-                      classNames={{
-                        label:
-                          'font-black uppercase tracking-widest text-[15px] mb-2 text-slate-500',
-                        input: 'font-medium text-[15px]',
-                      }}
-                    />
-                    <Input
-                      label={t.settings.modelConfig?.apiUrlLabel}
-                      labelPlacement="outside"
-                      placeholder={t.settings.modelConfig?.apiUrlPlaceholder}
-                      value={customModel.apiUrl}
-                      onValueChange={v => setCustomModel({ ...customModel, apiUrl: v })}
-                      variant="bordered"
-                      radius="lg"
-                      size="lg"
-                      classNames={{
-                        label:
-                          'font-black uppercase tracking-widest text-[15px] mb-2 text-slate-500',
-                        input: 'font-medium text-[15px]',
-                      }}
-                    />
+
+                    {selectedProvider && selectedProvider !== 'custom' && (
+                      <Select
+                        label={t.settings.baseModel}
+                        labelPlacement="outside"
+                        placeholder="Select a model"
+                        isDisabled={!selectedProvider}
+                        selectedKeys={selectedBaseModelId ? [selectedBaseModelId] : []}
+                        onSelectionChange={keys => {
+                          const val = Array.from(keys)[0] as string;
+                          setSelectedBaseModelId(val);
+                          if (!newModelName && val) {
+                            const m = DEFAULT_MODELS.find((x: any) => x.id === val);
+                            if (m) setNewModelName(m.name);
+                          }
+                        }}
+                        variant="bordered"
+                        radius="lg"
+                        size="lg"
+                        classNames={{
+                          label: 'text-sm font-medium text-slate-700 dark:text-slate-300 mb-1',
+                          value: 'font-medium text-[15px]',
+                        }}
+                      >
+                        {availableBaseModels.map((m: any) => (
+                          <SelectItem key={m.id} value={m.id} textValue={m.name}>
+                            {m.name}
+                          </SelectItem>
+                        ))}
+                      </Select>
+                    )}
                   </div>
 
-                  {selectedType === 'llm' && (
-                    <div className="space-y-4">
-                      <div
-                        className="flex items-center gap-2 cursor-pointer text-primary"
-                        onClick={() => setShowAdvancedOptions(!showAdvancedOptions)}
-                      >
-                        <span className="font-black uppercase tracking-widest text-[13px]">
-                          {showAdvancedOptions ? '▼' : '▶'}{' '}
-                          {t.settings.modelConfig?.advancedOptions}
-                        </span>
-                        <span className="text-xs text-slate-400">
-                          {t.settings.modelConfig?.advancedOptionsDesc}
-                        </span>
+                  {/* 自定义模型配置 */}
+                  {selectedProvider === 'custom' && (
+                    <div className="p-4 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 space-y-3">
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <Select
+                          label={t.settings.modelConfig?.apiProtocolType || 'API协议类型'}
+                          labelPlacement="outside"
+                          placeholder={
+                            t.settings.modelConfig?.selectApiProtocolPlaceholder || '选择 API 协议类型'
+                          }
+                          selectedKeys={customModel.provider ? [customModel.provider] : []}
+                          onSelectionChange={keys => {
+                            const val = Array.from(keys)[0] as string;
+                            if (val) {
+                              setCustomModel({ ...customModel, provider: val });
+                            }
+                          }}
+                          variant="bordered"
+                          radius="lg"
+                          size="lg"
+                          classNames={{
+                            label: 'text-sm font-medium text-slate-700 dark:text-slate-300 mb-1',
+                            value: 'text-[15px]',
+                          }}
+                        >
+                          {providerAliasMapper.getSupportedAliases().map(option => (
+                            <SelectItem key={option.value} value={option.value}>
+                              {option.label}
+                            </SelectItem>
+                          ))}
+                        </Select>
+                        <Input
+                          label={t.settings.modelIdOnly}
+                          labelPlacement="outside"
+                          placeholder={t.settings.modelConfig?.modelIdPlaceholder}
+                          value={customModel.modelId}
+                          onValueChange={v => setCustomModel({ ...customModel, modelId: v })}
+                          variant="bordered"
+                          radius="lg"
+                          size="lg"
+                          classNames={{
+                            label: 'text-sm font-medium text-slate-700 dark:text-slate-300 mb-1',
+                            input: 'font-medium text-[15px]',
+                          }}
+                        />
+                        <Input
+                          label={t.settings.modelConfig?.apiUrlLabel}
+                          labelPlacement="outside"
+                          placeholder={t.settings.modelConfig?.apiUrlPlaceholder}
+                          value={customModel.apiUrl}
+                          onValueChange={v => setCustomModel({ ...customModel, apiUrl: v })}
+                          variant="bordered"
+                          radius="lg"
+                          size="lg"
+                          classNames={{
+                            label: 'text-sm font-medium text-slate-700 dark:text-slate-300 mb-1',
+                            input: 'font-medium text-[15px]',
+                          }}
+                        />
                       </div>
+                    </div>
+                  )}
+                </div>
+              )}
 
-                      {showAdvancedOptions && (
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 p-6 bg-primary/10 dark:bg-primary/20 rounded-xl">
+              {/* API 配置 */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <Input
+                  label={t.settings.apiKey}
+                  labelPlacement="outside"
+                  placeholder="Enter API Key for this model"
+                  value={newApiKey}
+                  onValueChange={setNewApiKey}
+                  type="password"
+                  variant="bordered"
+                  radius="lg"
+                  size="lg"
+                  classNames={{
+                    label: 'text-sm font-medium text-slate-700 dark:text-slate-300 mb-1',
+                    input: 'font-medium text-[15px]',
+                  }}
+                />
+                {(selectedType === 'audio' || selectedProvider === 'aliyun-tts' || selectedProvider === 'baidu-tts') && (
+                  <Input
+                    label="API Secret"
+                    labelPlacement="outside"
+                    placeholder="Enter API Secret for this model"
+                    value={newApiSecret || ''}
+                    onValueChange={setNewApiSecret}
+                    type="password"
+                    variant="bordered"
+                    radius="lg"
+                    size="lg"
+                    classNames={{
+                      label: 'text-sm font-medium text-slate-700 dark:text-slate-300 mb-1',
+                      input: 'font-medium text-[15px]',
+                    }}
+                  />
+                )}
+              </div>
+
+              {/* 模型类型特定配置 - 移到下方 */}
+              {selectedType === 'llm' && (
+                <div className="space-y-3">
+                  <div
+                    className="flex items-center gap-2 cursor-pointer text-primary p-2 bg-primary/5 dark:bg-primary/10 rounded-lg hover:bg-primary/10 dark:hover:bg-primary/20 transition-colors"
+                    onClick={() => setShowAdvancedOptions(!showAdvancedOptions)}
+                  >
+                    <span className="font-black uppercase tracking-widest text-[12px]">
+                      {showAdvancedOptions ? '▼' : '▶'}{' '}
+                      {t.settings.modelConfig?.advancedOptions}
+                    </span>
+                    <span className="text-xs text-slate-400">
+                      {t.settings.modelConfig?.advancedOptionsDesc}
+                    </span>
+                  </div>
+
+                  {showAdvancedOptions && (
+                    <div className="space-y-3">
+                      <div className="p-4 bg-primary/10 dark:bg-primary/20 rounded-xl">
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                           <Input
                             label={t.settings.modelConfig?.temperature}
                             labelPlacement="outside"
@@ -1498,8 +1670,7 @@ const Settings: React.FC = () => {
                             radius="lg"
                             size="lg"
                             classNames={{
-                              label:
-                                'font-black uppercase tracking-widest text-[15px] mb-2 text-slate-500',
+                              label: 'text-sm font-medium text-slate-700 dark:text-slate-300 mb-1',
                               input: 'font-medium text-[15px]',
                             }}
                           />
@@ -1519,12 +1690,11 @@ const Settings: React.FC = () => {
                             radius="lg"
                             size="lg"
                             classNames={{
-                              label:
-                                'font-black uppercase tracking-widest text-[15px] mb-2 text-slate-500',
+                              label: 'text-sm font-medium text-slate-700 dark:text-slate-300 mb-1',
                               input: 'font-medium text-[15px]',
                             }}
                           />
-                          <div className="flex items-center gap-4 pt-6">
+                          <div className="flex items-center gap-3 pt-5">
                             <Switch
                               isSelected={customModel.enableThinking}
                               onValueChange={v =>
@@ -1534,7 +1704,7 @@ const Settings: React.FC = () => {
                               color="secondary"
                             />
                             <div className="flex flex-col">
-                              <span className="font-black uppercase tracking-widest text-[13px] text-slate-500">
+                              <span className="font-black uppercase tracking-widest text-[12px] text-slate-500">
                                 {t.settings.modelConfig?.enableThinking}
                               </span>
                               <span className="text-xs text-slate-400">
@@ -1543,221 +1713,117 @@ const Settings: React.FC = () => {
                             </div>
                           </div>
                         </div>
-                      )}
-
-                      {showAdvancedOptions && (
-                        <div className="mt-4 pt-4 border-t border-primary/20">
-                          <div className="flex items-center gap-2 mb-4">
-                            <span className="font-black uppercase tracking-widest text-[13px] text-slate-500">
-                              {t.settings.modelConfig?.priceConfig}
-                            </span>
-                            <span className="text-xs text-slate-400">
-                              {t.settings.modelConfig?.priceConfigDesc}
-                            </span>
-                          </div>
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6 bg-primary/10 dark:bg-primary/20 rounded-xl">
-                            <Input
-                              label={t.settings.modelConfig?.costPer1KInput}
-                              labelPlacement="outside"
-                              type="number"
-                              placeholder="0.01"
-                              step="0.001"
-                              min={0}
-                              value={customModel.costPer1KInput?.toString() || ''}
-                              onValueChange={v =>
-                                setCustomModel({
-                                  ...customModel,
-                                  costPer1KInput: v ? parseFloat(v) : undefined,
-                                })
-                              }
-                              variant="bordered"
-                              radius="lg"
-                              size="lg"
-                              classNames={{
-                                label:
-                                  'font-black uppercase tracking-widest text-[15px] mb-2 text-slate-500',
-                                input: 'font-medium text-[15px]',
-                              }}
-                            />
-                            <Input
-                              label={t.settings.modelConfig?.costPer1KOutput}
-                              labelPlacement="outside"
-                              type="number"
-                              placeholder="0.03"
-                              step="0.001"
-                              min={0}
-                              value={customModel.costPer1KOutput?.toString() || ''}
-                              onValueChange={v =>
-                                setCustomModel({
-                                  ...customModel,
-                                  costPer1KOutput: v ? parseFloat(v) : undefined,
-                                })
-                              }
-                              variant="bordered"
-                              radius="lg"
-                              size="lg"
-                              classNames={{
-                                label:
-                                  'font-black uppercase tracking-widest text-[15px] mb-2 text-slate-500',
-                                input: 'font-medium text-[15px]',
-                              }}
-                            />
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  )}
-
-                  {selectedType === 'image' && (
-                    <div className="space-y-4 p-6 bg-primary/10 dark:bg-primary/20 rounded-xl">
-                      <div className="flex items-center gap-4">
-                        <Switch
-                          isSelected={customModel.supportsReferenceImage}
-                          onValueChange={v =>
-                            setCustomModel({ ...customModel, supportsReferenceImage: v })
-                          }
-                          size="lg"
-                          color="secondary"
-                        />
-                        <div className="flex flex-col">
-                          <span className="font-black uppercase tracking-widest text-[15px] text-slate-500">
-                            {t.settings.modelConfig?.supportsReferenceImage}
-                          </span>
-                          <span className="text-xs text-slate-400">
-                            {t.settings.modelConfig?.supportsReferenceImageDesc}
-                          </span>
-                        </div>
                       </div>
 
-                      {customModel.supportsReferenceImage && (
-                        <div className="pl-14">
+                      <div className="p-4 bg-primary/10 dark:bg-primary/20 rounded-xl">
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                           <Input
-                            label={t.settings.modelConfig?.maxReferenceImages}
+                            label={t.settings.modelConfig?.costPer1KInput}
                             labelPlacement="outside"
                             type="number"
-                            placeholder="5"
-                            value={customModel.maxReferenceImages.toString()}
+                            placeholder="0.01"
+                            step="0.001"
+                            min={0}
+                            value={customModel.costPer1KInput?.toString() || ''}
                             onValueChange={v =>
                               setCustomModel({
                                 ...customModel,
-                                maxReferenceImages: parseInt(v) || 5,
+                                costPer1KInput: v ? parseFloat(v) : undefined,
                               })
                             }
                             variant="bordered"
                             radius="lg"
                             size="lg"
                             classNames={{
-                              label:
-                                'font-black uppercase tracking-widest text-[15px] mb-2 text-slate-500',
-                              input: 'font-medium text-[15px] w-32',
+                              label: 'text-sm font-medium text-slate-700 dark:text-slate-300 mb-1',
+                              input: 'font-medium text-[15px]',
+                            }}
+                          />
+                          <Input
+                            label={t.settings.modelConfig?.costPer1KOutput}
+                            labelPlacement="outside"
+                            type="number"
+                            placeholder="0.03"
+                            step="0.001"
+                            min={0}
+                            value={customModel.costPer1KOutput?.toString() || ''}
+                            onValueChange={v =>
+                              setCustomModel({
+                                ...customModel,
+                                costPer1KOutput: v ? parseFloat(v) : undefined,
+                              })
+                            }
+                            variant="bordered"
+                            radius="lg"
+                            size="lg"
+                            classNames={{
+                              label: 'text-sm font-medium text-slate-700 dark:text-slate-300 mb-1',
+                              input: 'font-medium text-[15px]',
                             }}
                           />
                         </div>
-                      )}
+                      </div>
                     </div>
                   )}
                 </div>
               )}
 
-              {selectedProvider && selectedProvider !== 'custom' && (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <Select
-                    label={t.settings.provider}
-                    labelPlacement="outside"
-                    placeholder="Select provider"
-                    isDisabled={!selectedType}
-                    selectedKeys={selectedProvider ? [selectedProvider] : []}
-                    onSelectionChange={keys => {
-                      const val = Array.from(keys)[0] as any;
-                      setSelectedProvider(val);
-                      setSelectedBaseModelId('');
-                    }}
-                    variant="bordered"
-                    radius="lg"
-                    size="lg"
-                    classNames={{
-                      label: 'text-sm font-medium text-slate-700 dark:text-slate-300 mb-2',
-                      value: 'text-[15px]',
-                    }}
-                  >
-                    <SelectItem key="custom" value="custom">
-                      {t.settings.modelConfig?.providers?.custom || '自定义...'}
-                    </SelectItem>
-                    {availableProviders.map(p => (
-                      <SelectItem key={p} value={p}>
-                        {p === 'volcengine'
-                          ? 'Volcengine (火山引擎)'
-                          : p === 'vidu'
-                            ? 'Vidu'
-                            : p === 'openai'
-                              ? 'OpenAI'
-                              : p === 'aliyun-qianwen'
-                                ? '阿里云通义千问'
-                                : p === 'aliyun-qianwen-video'
-                                  ? '阿里云通义万相'
-                                  : p === 'aliyun-bailian'
-                                    ? '阿里云百炼'
-                                    : p === 'modelscope'
-                                      ? '魔搭社区'
-                                      : p}
-                      </SelectItem>
-                    ))}
-                  </Select>
+              {selectedType === 'image' && (
+                <div className="space-y-3">
+                  <div className="p-4 bg-primary/10 dark:bg-primary/20 rounded-xl space-y-3">
+                    <div className="flex items-center gap-3">
+                      <Switch
+                        isSelected={customModel.supportsReferenceImage}
+                        onValueChange={v =>
+                          setCustomModel({ ...customModel, supportsReferenceImage: v })
+                        }
+                        size="lg"
+                        color="secondary"
+                      />
+                      <div className="flex flex-col">
+                        <span className="font-black uppercase tracking-widest text-[12px] text-slate-500">
+                          {t.settings.modelConfig?.supportsReferenceImage}
+                        </span>
+                        <span className="text-xs text-slate-400">
+                          {t.settings.modelConfig?.supportsReferenceImageDesc}
+                        </span>
+                      </div>
+                    </div>
 
-                  <Select
-                    label={t.settings.baseModel}
-                    labelPlacement="outside"
-                    placeholder="Select a model"
-                    isDisabled={!selectedProvider}
-                    selectedKeys={selectedBaseModelId ? [selectedBaseModelId] : []}
-                    onSelectionChange={keys => {
-                      const val = Array.from(keys)[0] as string;
-                      setSelectedBaseModelId(val);
-                      if (!newModelName && val) {
-                        const m = DEFAULT_MODELS.find((x: any) => x.id === val);
-                        if (m) setNewModelName(m.name);
-                      }
-                    }}
-                    variant="bordered"
-                    radius="lg"
-                    size="lg"
-                    classNames={{
-                      label: 'font-black uppercase tracking-widest text-[15px] mb-2 text-slate-500',
-                      value: 'font-medium text-[15px]',
-                    }}
-                  >
-                    {availableBaseModels.map((m: any) => (
-                      <SelectItem key={m.id} value={m.id} textValue={m.name}>
-                        {m.name}
-                      </SelectItem>
-                    ))}
-                  </Select>
+                    {customModel.supportsReferenceImage && (
+                      <div className="pl-12">
+                        <Input
+                          label={t.settings.modelConfig?.maxReferenceImages}
+                          labelPlacement="outside"
+                          type="number"
+                          placeholder="5"
+                          value={customModel.maxReferenceImages.toString()}
+                          onValueChange={v =>
+                            setCustomModel({
+                              ...customModel,
+                              maxReferenceImages: parseInt(v) || 5,
+                            })
+                          }
+                          variant="bordered"
+                          radius="lg"
+                          size="lg"
+                          classNames={{
+                            label: 'text-sm font-medium text-slate-700 dark:text-slate-300 mb-1',
+                            input: 'font-medium text-[15px] w-32',
+                          }}
+                        />
+                      </div>
+                    )}
+                  </div>
                 </div>
               )}
 
-              <div className="grid grid-cols-1">
-                <Input
-                  label={t.settings.apiKey}
-                  labelPlacement="outside"
-                  placeholder="Enter API Key for this model"
-                  value={newApiKey}
-                  onValueChange={setNewApiKey}
-                  type="password"
-                  variant="bordered"
-                  radius="lg"
-                  size="lg"
-                  classNames={{
-                    label: 'font-black uppercase tracking-widest text-[15px] mb-2 text-slate-500',
-                    input: 'font-medium text-[15px]',
-                  }}
-                />
-              </div>
-
-              <div className="flex justify-end gap-3 pt-2">
+              {/* 操作按钮 */}
+              <div className="flex justify-end gap-4 pt-4 border-t border-slate-200 dark:border-slate-800">
                 <Button
                   variant="light"
                   onPress={() => setShowAdd(false)}
-                  className="font-black text-[14px] uppercase tracking-widest px-6 h-11 rounded-xl"
+                  className="font-black text-[14px] uppercase tracking-widest px-6 h-11 rounded-xl hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors"
                 >
                   {t.dashboard.cancel}
                 </Button>
@@ -1768,7 +1834,7 @@ const Settings: React.FC = () => {
                     !selectedType ||
                     (selectedProvider === 'custom' ? !customModel.modelId : !selectedBaseModelId)
                   }
-                  className="font-black text-[14px] uppercase tracking-widest px-8 h-11 rounded-xl shadow-lg shadow-primary/30"
+                  className="font-black text-[14px] uppercase tracking-widest px-8 h-11 rounded-xl shadow-lg shadow-primary/30 hover:shadow-xl hover:shadow-primary/40 transition-all"
                 >
                   {t.settings.add}
                 </Button>
@@ -1859,7 +1925,9 @@ const Settings: React.FC = () => {
                       ? t.settings.modelTypeVideo
                       : model.type === 'llm'
                         ? '文本解析'
-                        : t.settings.modelTypeImage}
+                        : model.type === 'audio'
+                          ? '音频服务'
+                          : t.settings.modelTypeImage}
                   </Chip>
                 </TableCell>
                 <TableCell>
@@ -1891,6 +1959,16 @@ const Settings: React.FC = () => {
                       className="font-medium text-[11px] uppercase tracking-wide px-2.5 h-6"
                     >
                       文本解析
+                    </Chip>
+                  )}
+                  {model.type === 'audio' && (
+                    <Chip
+                      size="sm"
+                      variant="flat"
+                      color="default"
+                      className="font-medium text-[11px] uppercase tracking-wide px-2.5 h-6"
+                    >
+                      语音合成
                     </Chip>
                   )}
                 </TableCell>
@@ -1971,6 +2049,18 @@ const Settings: React.FC = () => {
                     >
                       <Pencil className="w-4 h-4" />
                     </Button>
+                    {model.type === 'audio' && (
+                      <Button
+                        isIconOnly
+                        color="success"
+                        variant="light"
+                        size="sm"
+                        onPress={() => handleTestTTS(model)}
+                        className="opacity-40 hover:opacity-100 transition-opacity"
+                      >
+                        <Volume2 className="w-4 h-4" />
+                      </Button>
+                    )}
                     <Button
                       isIconOnly
                       color="danger"
@@ -2054,6 +2144,70 @@ const Settings: React.FC = () => {
         </ModalContent>
       </Modal>
 
+      {/* TTS Test Modal */}
+      <Modal isOpen={isTtsTestOpen} onClose={onTtsTestClose} size="lg">
+        <ModalContent>
+          <ModalHeader className="flex flex-col gap-1">
+            <span className="text-xl font-bold">测试TTS服务</span>
+            <span className="text-sm text-slate-400">{ttsTestModel?.name}</span>
+          </ModalHeader>
+          <ModalBody className="space-y-4">
+            <div className="space-y-2">
+              <label className="block text-[13px] font-black text-slate-900 dark:text-white uppercase tracking-widest">
+                测试文本
+              </label>
+              <textarea
+                value={ttsTestText}
+                onChange={e => setTtsTestText(e.target.value)}
+                placeholder="请输入测试文本..."
+                rows={4}
+                className="w-full p-3 border border-slate-200 dark:border-slate-800 rounded-lg bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary"
+              />
+            </div>
+            <Button
+              color="primary"
+              variant="shadow"
+              onPress={testTtsService}
+              isLoading={ttsTestLoading}
+              className="w-full"
+            >
+              生成测试音频
+            </Button>
+            {ttsTestResult && (
+              <div className="mt-4 p-4 bg-slate-50 dark:bg-slate-900/50 rounded-lg border border-slate-200 dark:border-slate-800">
+                <h4 className="text-sm font-black uppercase tracking-widest text-slate-500 mb-2">
+                  测试结果
+                </h4>
+                <div className="flex items-center gap-3">
+                  <audio
+                    src={ttsTestResult}
+                    controls
+                    className="flex-1"
+                  />
+                  <Button
+                    variant="light"
+                    size="sm"
+                    onPress={() => {
+                      const link = document.createElement('a');
+                      link.href = ttsTestResult;
+                      link.download = `tts-test-${Date.now()}.mp3`;
+                      link.click();
+                    }}
+                  >
+                    下载
+                  </Button>
+                </div>
+              </div>
+            )}
+          </ModalBody>
+          <ModalFooter>
+            <Button variant="light" onPress={onTtsTestClose}>
+              {t.dashboard.cancel}
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+
       {/* Edit Model Modal */}
       <Modal isOpen={isEditOpen} onClose={onEditClose} size="lg">
         <ModalContent>
@@ -2107,6 +2261,23 @@ const Settings: React.FC = () => {
                 input: 'font-medium text-[15px]',
               }}
             />
+            {(editingModel?.type === 'audio' || editingModel?.provider === 'aliyun-tts' || editingModel?.provider === 'baidu-tts') && (
+              <Input
+                label="API Secret"
+                labelPlacement="outside"
+                placeholder="Enter API Secret for this model"
+                type="password"
+                value={editFormData.apiSecret}
+                onValueChange={val => setEditFormData({ ...editFormData, apiSecret: val })}
+                variant="bordered"
+                radius="lg"
+                size="lg"
+                classNames={{
+                  label: 'font-black uppercase tracking-widest text-[15px] mb-2 text-slate-500',
+                  input: 'font-medium text-[15px]',
+                }}
+              />
+            )}
             <Input
               label={t.settings.modelConfig?.apiUrlLabel}
               labelPlacement="outside"

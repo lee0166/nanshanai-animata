@@ -17,10 +17,16 @@ const AssetPreview: React.FC<AssetPreviewProps> = ({ path, t }) => {
 
   useEffect(() => {
     setLoading(true);
-    storageService.getAssetUrl(path).then(u => {
-      setUrl(u || '');
-      setLoading(false);
-    });
+    storageService.getAssetUrl(path)
+      .then(u => {
+        setUrl(u || '');
+        setLoading(false);
+      })
+      .catch(error => {
+        console.error('Failed to load asset:', error);
+        setUrl('');
+        setLoading(false);
+      });
   }, [path]);
 
   if (loading) return <Spinner size="lg" />;

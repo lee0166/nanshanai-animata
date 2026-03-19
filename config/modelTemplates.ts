@@ -3,7 +3,7 @@ import { ModelCapabilities, ModelParameter } from '../types';
 /**
  * 模型模板类型
  */
-export type ModelType = 'image' | 'video' | 'llm';
+export type ModelType = 'image' | 'video' | 'llm' | 'audio';
 
 /**
  * 环境限制

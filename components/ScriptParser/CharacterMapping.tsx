@@ -231,12 +231,15 @@ export const CharacterMapping: React.FC<CharacterMappingProps> = ({
   };
 
   // Helper to map age string to age group
-  // Supports: "18", "18岁", "十八岁", "young", etc.
-  const mapAgeToGroup = (age?: string): CharacterAsset['ageGroup'] => {
+  // Supports: "18", "18岁", "十八岁", "young", 18, etc.
+  const mapAgeToGroup = (age?: string | number): CharacterAsset['ageGroup'] => {
     if (!age) return 'unknown';
 
+    // Convert number to string if needed
+    const ageStr = typeof age === 'number' ? age.toString() : age;
+    
     // Remove common suffixes and whitespace
-    const cleanAge = age.replace(/[岁\s]/g, '').trim();
+    const cleanAge = ageStr.replace(/[岁\s]/g, '').trim();
 
     // Try to parse as number first
     let ageNum = parseInt(cleanAge);
@@ -292,7 +295,7 @@ export const CharacterMapping: React.FC<CharacterMappingProps> = ({
     }
 
     // Try keyword matching for non-numeric descriptions
-    const lowerAge = age.toLowerCase();
+    const lowerAge = ageStr.toLowerCase();
     if (lowerAge.includes('child') || lowerAge.includes('kid') || lowerAge.includes('少年')) {
       return 'childhood';
     }

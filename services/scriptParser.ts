@@ -77,6 +77,7 @@ import { PerformanceMonitor, PerformanceReport } from './parsing/PerformanceMoni
 import { TokenBudgetMonitor } from './parsing/TokenBudgetMonitor';
 import { ShotEventEmitter } from './events/ShotEventEmitter';
 import { ProgressTracker } from './parsing/ProgressTracker';
+import { generateShotNumbers } from './utils/shotNumberGenerator';
 
 /**
  * Script Parser Configuration Interface
@@ -3977,8 +3978,10 @@ ${chunkContent.substring(0, 4000)}
         try {
           // V3 Optimization: Use generateAllShotsWithContext for single API call
           const allShots = await this.generateAllShotsWithContext(content, state.scenes);
-          state.shots = allShots;
-          console.log(`[ScriptParser] Fast path: Generated ${allShots.length} shots in 1 API call`);
+          // 为分镜生成专业编号
+          const shotsWithNumbers = generateShotNumbers(allShots);
+          state.shots = shotsWithNumbers;
+          console.log(`[ScriptParser] Fast path: Generated ${shotsWithNumbers.length} shots in 1 API call with professional numbering`);
         } catch (e) {
           console.error('[ScriptParser] Batch shots generation failed:', e);
           // Fallback: generate placeholder shots
@@ -5001,8 +5004,10 @@ ${content}
           }
         }
 
-        state.shots = allShots;
-        console.log(`[ScriptParser] Generated ${allShots.length} total shots`);
+        // 为分镜生成专业编号
+        const shotsWithNumbers = generateShotNumbers(allShots);
+        state.shots = shotsWithNumbers;
+        console.log(`[ScriptParser] Generated ${shotsWithNumbers.length} total shots with professional numbering`);
       } else if (existingShots.length > 0) {
         console.log('[ScriptParser] All shots already generated, skipping...');
         onProgress?.('shots', 95, '分镜已存在，跳过...');

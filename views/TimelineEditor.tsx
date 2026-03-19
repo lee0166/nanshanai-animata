@@ -19,6 +19,8 @@ import {
   Tabs,
   Tab,
   Divider,
+  Slider,
+  Switch,
 } from '@heroui/react';
 import {
   Film,
@@ -39,12 +41,16 @@ import {
   Layers,
   Grid3X3,
   List,
+  Volume2,
+  VolumeX,
+  Plus,
+  Music,
 } from 'lucide-react';
 import { useApp } from '../contexts/context';
 import { storageService } from '../services/storage';
 import { timelineService } from '../services/editing';
 import { videoGenerationService } from '../services/video';
-import { Timeline, TimelineClip, Shot, ExportConfig } from '../types';
+import { Timeline, TimelineClip, Shot, ExportConfig, TimelineTrack } from '../types';
 import { useToast } from '../contexts/ToastContext';
 
 // View modes
@@ -71,6 +77,7 @@ export const TimelineEditor: React.FC = () => {
   const [isExporting, setIsExporting] = useState(false);
   const [draggedClipId, setDraggedClipId] = useState<string | null>(null);
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
+  const [selectedTrackId, setSelectedTrackId] = useState<string | null>(null);
 
   // Export config
   const [exportConfig, setExportConfig] = useState<ExportConfig>({
@@ -129,6 +136,11 @@ export const TimelineEditor: React.FC = () => {
     return timeline?.tracks.find(t => t.type === 'video')?.clips || [];
   }, [timeline]);
 
+  // Get audio tracks
+  const audioTracks = useMemo(() => {
+    return timeline?.tracks.filter(t => t.type === 'audio') || [];
+  }, [timeline]);
+
   // Total duration
   const totalDuration = useMemo(() => {
     return timeline?.totalDuration || 0;
@@ -162,11 +174,14 @@ export const TimelineEditor: React.FC = () => {
   };
 
   // Handle drop
-  const handleDrop = async (e: React.DragEvent, targetIndex: number) => {
+  const handleDrop = async (e: React.DragEvent, targetIndex: number, trackId: string) => {
     e.preventDefault();
     if (!draggedClipId || !timeline) return;
 
-    const currentIndex = videoClips.findIndex(c => c.id === draggedClipId);
+    const track = timeline.tracks.find(t => t.id === trackId);
+    if (!track) return;
+
+    const currentIndex = track.clips.findIndex(c => c.id === draggedClipId);
     if (currentIndex === -1 || currentIndex === targetIndex) {
       setDraggedClipId(null);
       setDragOverIndex(null);
@@ -174,18 +189,15 @@ export const TimelineEditor: React.FC = () => {
     }
 
     // Reorder clips
-    const newOrder = [...videoClips.map(c => c.id)];
+    const newOrder = [...track.clips.map(c => c.id)];
     const [removed] = newOrder.splice(currentIndex, 1);
     newOrder.splice(targetIndex, 0, removed);
 
-    const videoTrack = timeline.tracks.find(t => t.type === 'video');
-    if (videoTrack) {
-      const result = await timelineService.reorderClips(timeline.id, videoTrack.id, newOrder);
+    const result = await timelineService.reorderClips(timeline.id, track.id, newOrder);
 
-      if (result.success && result.data) {
-        setTimeline(result.data);
-        showToast('Clip order updated', 'success');
-      }
+    if (result.success && result.data) {
+      setTimeline(result.data);
+      showToast('Clip order updated', 'success');
     }
 
     setDraggedClipId(null);
@@ -193,18 +205,43 @@ export const TimelineEditor: React.FC = () => {
   };
 
   // Handle delete clip
-  const handleDeleteClip = async (clipId: string) => {
+  const handleDeleteClip = async (clipId: string, trackId: string) => {
     if (!timeline) return;
 
-    const videoTrack = timeline.tracks.find(t => t.type === 'video');
-    if (!videoTrack) return;
-
-    const result = await timelineService.deleteClip(timeline.id, videoTrack.id, clipId);
+    const result = await timelineService.deleteClip(timeline.id, trackId, clipId);
 
     if (result.success && result.data) {
       setTimeline(result.data);
       setSelectedClipId(null);
       showToast('Clip deleted', 'success');
+    }
+  };
+
+  // Handle add audio track
+  const handleAddAudioTrack = async () => {
+    if (!timeline) return;
+
+    const result = await timelineService.addTrack(timeline.id, {
+      type: 'audio',
+      name: `Audio Track ${audioTracks.length + 1}`,
+      clips: [],
+    });
+
+    if (result.success && result.data) {
+      setTimeline(result.data);
+      showToast('Audio track added', 'success');
+    }
+  };
+
+  // Handle update clip audio properties
+  const handleUpdateAudioProperties = async (clipId: string, trackId: string, properties: any) => {
+    if (!timeline) return;
+
+    const result = await timelineService.updateClipAudioProperties(timeline.id, trackId, clipId, properties);
+
+    if (result.success && result.data) {
+      setTimeline(result.data);
+      showToast('Audio properties updated', 'success');
     }
   };
 
@@ -376,74 +413,106 @@ export const TimelineEditor: React.FC = () => {
               </div>
 
               {/* Video track */}
-              <div className="relative">
-                <div className="flex items-center gap-2 mb-2">
-                  <Film size={16} className="text-primary" />
-                  <span className="text-sm font-medium">Video Track</span>
-                </div>
-
-                <div
-                  className="relative h-24 bg-[#1E1B4B]/30 rounded-lg overflow-hidden"
-                  style={{ width: Math.max(totalDuration * TIMELINE_SCALE, 800) }}
-                >
-                  {videoClips.map((clip, index) => {
-                    const shot = getShotByClip(clip);
-                    const isSelected = selectedClipId === clip.id;
-                    const isDragOver = dragOverIndex === index;
-
-                    return (
-                      <div
-                        key={clip.id}
-                        draggable
-                        onDragStart={() => handleDragStart(clip.id)}
-                        onDragOver={e => handleDragOver(e, index)}
-                        onDrop={e => handleDrop(e, index)}
-                        onClick={() => handleClipClick(clip.id)}
-                        className={`
-                          absolute top-2 bottom-2 rounded cursor-pointer
-                          transition-all duration-200
-                          ${isSelected ? 'ring-2 ring-primary' : ''}
-                          ${isDragOver ? 'bg-primary/30' : 'bg-[#1E1B4B]'}
-                          hover:bg-[#2d2a5c]
-                        `}
-                        style={{
-                          left: clip.startTime * TIMELINE_SCALE,
-                          width: Math.max(clip.duration * TIMELINE_SCALE - 4, 60),
-                        }}
+              {timeline?.tracks.map((track) => (
+                <div key={track.id} className="relative">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      {track.type === 'video' && <Film size={16} className="text-primary" />}
+                      {track.type === 'audio' && <Music size={16} className="text-green-400" />}
+                      <span className="text-sm font-medium">{track.name}</span>
+                    </div>
+                    {track.type === 'audio' && (
+                      <Button
+                        isIconOnly
+                        size="sm"
+                        variant="light"
+                        onPress={() => setSelectedTrackId(track.id === selectedTrackId ? null : track.id)}
                       >
-                        <div className="flex items-center gap-2 p-2 h-full">
-                          <GripVertical size={16} className="text-gray-500 cursor-grab" />
-                          <div className="flex-1 min-w-0">
-                            <p className="text-xs font-medium truncate">{clip.name}</p>
-                            <p className="text-xs text-gray-500">{formatTime(clip.duration)}</p>
-                          </div>
-                          {isSelected && (
-                            <Button
-                              isIconOnly
-                              size="sm"
-                              variant="light"
-                              color="danger"
-                              onPress={() => {
-                                handleDeleteClip(clip.id);
-                              }}
-                            >
-                              <Trash2 size={14} />
-                            </Button>
-                          )}
-                        </div>
-                      </div>
-                    );
-                  })}
+                        {track.isMuted ? <VolumeX size={14} /> : <Volume2 size={14} />}
+                      </Button>
+                    )}
+                  </div>
 
-                  {/* Playhead */}
                   <div
-                    className="absolute top-0 bottom-0 w-0.5 bg-[#E11D48] z-10"
-                    style={{ left: currentTime * TIMELINE_SCALE }}
+                    className="relative h-24 bg-[#1E1B4B]/30 rounded-lg overflow-hidden"
+                    style={{ width: Math.max(totalDuration * TIMELINE_SCALE, 800) }}
                   >
-                    <div className="absolute -top-1 -left-1.5 w-4 h-4 bg-[#E11D48] rounded-full" />
+                    {track.clips.map((clip, index) => {
+                      const shot = getShotByClip(clip);
+                      const isSelected = selectedClipId === clip.id;
+                      const isDragOver = dragOverIndex === index;
+
+                      return (
+                        <div
+                          key={clip.id}
+                          draggable
+                          onDragStart={() => handleDragStart(clip.id)}
+                          onDragOver={e => handleDragOver(e, index)}
+                          onDrop={e => handleDrop(e, index, track.id)}
+                          onClick={() => handleClipClick(clip.id)}
+                          className={`
+                            absolute top-2 bottom-2 rounded cursor-pointer
+                            transition-all duration-200
+                            ${isSelected ? 'ring-2 ring-primary' : ''}
+                            ${isDragOver ? 'bg-primary/30' : track.type === 'video' ? 'bg-[#1E1B4B]' : 'bg-[#164e32]'}
+                            hover:bg-[#2d2a5c]
+                          `}
+                          style={{
+                            left: clip.startTime * TIMELINE_SCALE,
+                            width: Math.max(clip.duration * TIMELINE_SCALE - 4, 60),
+                          }}
+                        >
+                          <div className="flex items-center gap-2 p-2 h-full">
+                            <GripVertical size={16} className="text-gray-500 cursor-grab" />
+                            <div className="flex-1 min-w-0">
+                              <p className="text-xs font-medium truncate">{clip.name}</p>
+                              <p className="text-xs text-gray-500">{formatTime(clip.duration)}</p>
+                              {track.type === 'audio' && clip.audioProperties && (
+                                <p className="text-xs text-green-400">
+                                  Vol: {Math.round(clip.audioProperties.volume * 100)}%
+                                  {clip.audioProperties.fadeIn > 0 && ` | Fade In: ${clip.audioProperties.fadeIn}s`}
+                                  {clip.audioProperties.fadeOut > 0 && ` | Fade Out: ${clip.audioProperties.fadeOut}s`}
+                                </p>
+                              )}
+                            </div>
+                            {isSelected && (
+                              <Button
+                                isIconOnly
+                                size="sm"
+                                variant="light"
+                                color="danger"
+                                onPress={() => {
+                                  handleDeleteClip(clip.id, track.id);
+                                }}
+                              >
+                                <Trash2 size={14} />
+                              </Button>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+
+                    {/* Playhead */}
+                    <div
+                      className="absolute top-0 bottom-0 w-0.5 bg-[#E11D48] z-10"
+                      style={{ left: currentTime * TIMELINE_SCALE }}
+                    >
+                      <div className="absolute -top-1 -left-1.5 w-4 h-4 bg-[#E11D48] rounded-full" />
+                    </div>
                   </div>
                 </div>
-              </div>
+              ))}
+
+              {/* Add audio track button */}
+              <Button
+                variant="flat"
+                startContent={<Plus size={16} />}
+                onPress={handleAddAudioTrack}
+                className="w-full"
+              >
+                Add Audio Track
+              </Button>
             </div>
           )}
 
@@ -507,7 +576,12 @@ export const TimelineEditor: React.FC = () => {
                           isIconOnly
                           size="sm"
                           variant="light"
-                          onPress={() => handleDeleteClip(clip.id)}
+                          onPress={() => {
+                            const videoTrack = timeline?.tracks.find(t => t.type === 'video');
+                            if (videoTrack) {
+                              handleDeleteClip(clip.id, videoTrack.id);
+                            }
+                          }}
                         >
                           <Trash2 size={16} />
                         </Button>
@@ -524,7 +598,19 @@ export const TimelineEditor: React.FC = () => {
         {selectedClipId && (
           <div className="w-80 border-l border-[#1E1B4B] bg-[#1E1B4B]/30 p-4">
             {(() => {
-              const clip = videoClips.find(c => c.id === selectedClipId);
+              // Find the clip in all tracks
+              let clip: TimelineClip | undefined;
+              let track: TimelineTrack | undefined;
+              
+              for (const t of timeline?.tracks || []) {
+                const foundClip = t.clips.find(c => c.id === selectedClipId);
+                if (foundClip) {
+                  clip = foundClip;
+                  track = t;
+                  break;
+                }
+              }
+              
               const shot = clip ? getShotByClip(clip) : null;
 
               if (!clip || !shot) return null;
@@ -544,16 +630,98 @@ export const TimelineEditor: React.FC = () => {
                   </div>
 
                   <div>
-                    <label className="text-xs text-gray-500">Shot Type</label>
+                    <label className="text-xs text-gray-500">Track Type</label>
                     <Chip size="sm" className="mt-1">
-                      {shot.shotType}
+                      {track?.type === 'video' ? 'Video' : 'Audio'}
                     </Chip>
                   </div>
 
-                  <div>
-                    <label className="text-xs text-gray-500">Camera Movement</label>
-                    <p className="text-sm">{shot.cameraMovement}</p>
-                  </div>
+                  {track?.type === 'video' && (
+                    <>
+                      <div>
+                        <label className="text-xs text-gray-500">Shot Type</label>
+                        <Chip size="sm" className="mt-1">
+                          {shot.shotType}
+                        </Chip>
+                      </div>
+
+                      <div>
+                        <label className="text-xs text-gray-500">Camera Movement</label>
+                        <p className="text-sm">{shot.cameraMovement}</p>
+                      </div>
+                    </>
+                  )}
+
+                  {/* Audio properties */}
+                  {(track?.type === 'audio' || (track?.type === 'video' && clip.audioProperties)) && (
+                    <div className="space-y-4">
+                      <Divider />
+                      <h4 className="font-medium text-sm">Audio Properties</h4>
+                      
+                      <div>
+                        <div className="flex justify-between items-center mb-1">
+                          <label className="text-xs text-gray-500">Volume</label>
+                          <span className="text-xs text-gray-500">
+                            {Math.round((clip.audioProperties?.volume || 1) * 100)}%
+                          </span>
+                        </div>
+                        <Slider
+                          value={clip.audioProperties?.volume || 1}
+                          min={0}
+                          max={1}
+                          step={0.01}
+                          onChange={(value) => {
+                            handleUpdateAudioProperties(clip.id, track!.id, {
+                              ...clip.audioProperties,
+                              volume: value
+                            });
+                          }}
+                        />
+                      </div>
+
+                      <div>
+                        <div className="flex justify-between items-center mb-1">
+                          <label className="text-xs text-gray-500">Fade In</label>
+                          <span className="text-xs text-gray-500">
+                            {clip.audioProperties?.fadeIn || 0}s
+                          </span>
+                        </div>
+                        <Slider
+                          value={clip.audioProperties?.fadeIn || 0}
+                          min={0}
+                          max={5}
+                          step={0.1}
+                          onChange={(value) => {
+                            handleUpdateAudioProperties(clip.id, track!.id, {
+                              ...clip.audioProperties,
+                              fadeIn: value
+                            });
+                          }}
+                        />
+                      </div>
+
+                      <div>
+                        <div className="flex justify-between items-center mb-1">
+                          <label className="text-xs text-gray-500">Fade Out</label>
+                          <span className="text-xs text-gray-500">
+                            {clip.audioProperties?.fadeOut || 0}s
+                          </span>
+                        </div>
+                        <Slider
+                          value={clip.audioProperties?.fadeOut || 0}
+                          min={0}
+                          max={5}
+                          step={0.1}
+                          onChange={(value) => {
+                            handleUpdateAudioProperties(clip.id, track!.id, {
+                              ...clip.audioProperties,
+                              fadeOut: value
+                            });
+                          }}
+                        />
+                      </div>
+                    </div>
+                  )}
 
                   <Divider />
 
