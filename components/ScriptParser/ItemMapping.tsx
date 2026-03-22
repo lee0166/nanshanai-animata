@@ -342,7 +342,11 @@ export const ItemMapping: React.FC<ItemMappingProps> = ({
                   <Select
                     aria-label="关联物品"
                     placeholder="选择物品"
-                    selectedKeys={item.mappedAssetId ? new Set([item.mappedAssetId]) : new Set()}
+                    selectedKeys={
+                      item.mappedAssetId && existingItems.some(i => i.id === item.mappedAssetId)
+                        ? new Set([item.mappedAssetId])
+                        : new Set()
+                    }
                     onChange={e => handleMapItem(item, e.target.value)}
                     size="sm"
                     className={item.mappedAssetId ? 'flex-1' : 'w-1/3'}

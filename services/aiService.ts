@@ -52,6 +52,7 @@ export interface KeyframeGenerationJobParams {
   referenceImages?: string[];
   resolution?: string;
   aspectRatio?: string;
+  negativePrompt?: string;
 }
 
 export class AIService {
@@ -204,6 +205,7 @@ export class AIService {
         referenceImages: params.referenceImages,
         resolution: params.resolution,
         aspectRatio: params.aspectRatio,
+        negativePrompt: params.negativePrompt,
         generateCount: 1,
       },
     };
@@ -268,7 +270,8 @@ export class AIService {
     resolution?: string,
     count: number = 1,
     guidanceScale?: number,
-    extraParams?: Record<string, any>
+    extraParams?: Record<string, any>,
+    negativePrompt?: string
   ): Promise<AIResult> {
     console.log(
       `[AIService] Generating image with model config ID: ${modelConfigId}, count: ${count}`
@@ -298,7 +301,8 @@ export class AIService {
         resolution,
         count,
         guidanceScale,
-        extraParams
+        extraParams,
+        negativePrompt
       );
 
       // 如果返回失败，转换错误信息

@@ -3981,7 +3981,9 @@ ${chunkContent.substring(0, 4000)}
           // 为分镜生成专业编号
           const shotsWithNumbers = generateShotNumbers(allShots);
           state.shots = shotsWithNumbers;
-          console.log(`[ScriptParser] Fast path: Generated ${shotsWithNumbers.length} shots in 1 API call with professional numbering`);
+          console.log(
+            `[ScriptParser] Fast path: Generated ${shotsWithNumbers.length} shots in 1 API call with professional numbering`
+          );
         } catch (e) {
           console.error('[ScriptParser] Batch shots generation failed:', e);
           // Fallback: generate placeholder shots
@@ -5007,7 +5009,9 @@ ${content}
         // 为分镜生成专业编号
         const shotsWithNumbers = generateShotNumbers(allShots);
         state.shots = shotsWithNumbers;
-        console.log(`[ScriptParser] Generated ${shotsWithNumbers.length} total shots with professional numbering`);
+        console.log(
+          `[ScriptParser] Generated ${shotsWithNumbers.length} total shots with professional numbering`
+        );
       } else if (existingShots.length > 0) {
         console.log('[ScriptParser] All shots already generated, skipping...');
         onProgress?.('shots', 95, '分镜已存在，跳过...');

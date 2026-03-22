@@ -62,9 +62,7 @@ const Dashboard: React.FC = () => {
   const handleCreate = async () => {
     if (!newProjectName) {
       showToast(
-        settings.language === 'zh'
-          ? '请输入项目名称。'
-          : 'Please enter a project name.',
+        settings.language === 'zh' ? '请输入项目名称。' : 'Please enter a project name.',
         'warning'
       );
       return;
@@ -89,9 +87,7 @@ const Dashboard: React.FC = () => {
       setNewProjectDesc('');
       await loadProjects();
       showToast(
-        settings.language === 'zh'
-          ? '项目创建成功！'
-          : 'Project created successfully!',
+        settings.language === 'zh' ? '项目创建成功！' : 'Project created successfully!',
         'success'
       );
     } catch (error) {
@@ -118,9 +114,7 @@ const Dashboard: React.FC = () => {
       await storageService.deleteProject(projectToDelete);
       await loadProjects();
       showToast(
-        settings.language === 'zh'
-          ? '项目删除成功！'
-          : 'Project deleted successfully!',
+        settings.language === 'zh' ? '项目删除成功！' : 'Project deleted successfully!',
         'success'
       );
     } catch (error) {
@@ -148,7 +142,9 @@ const Dashboard: React.FC = () => {
           <h1 className="text-4xl md:text-5xl font-black mb-2 uppercase tracking-tighter text-primary dark:text-primary">
             {t.dashboard.title}
           </h1>
-          <p className="text-slate-500 dark:text-slate-400 font-medium text-lg">{t.dashboard.subtitle}</p>
+          <p className="text-slate-500 dark:text-slate-400 font-medium text-lg">
+            {t.dashboard.subtitle}
+          </p>
         </div>
         <Button
           color="primary"
@@ -166,7 +162,10 @@ const Dashboard: React.FC = () => {
         <div className="max-w-[1600px] mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {[1, 2, 3].map(i => (
-              <Card key={i} className="border-none bg-white dark:bg-slate-900/100 backdrop-blur-sm shadow-sm animate-pulse h-64" />
+              <Card
+                key={i}
+                className="border-none bg-white dark:bg-slate-900/100 backdrop-blur-sm shadow-sm animate-pulse h-64"
+              />
             ))}
           </div>
         </div>
@@ -296,9 +295,11 @@ const Dashboard: React.FC = () => {
                     value={newProjectName}
                     onValueChange={setNewProjectName}
                     classNames={{
-                      label: 'font-black text-[15px] uppercase tracking-widest text-slate-400 dark:text-slate-300 mb-2',
+                      label:
+                        'font-black text-[15px] uppercase tracking-widest text-slate-400 dark:text-slate-300 mb-2',
                       input: 'text-[16px]',
-                      inputWrapper: 'border-2 group-data-[focus=true]:border-primary transition-colors duration-300',
+                      inputWrapper:
+                        'border-2 group-data-[focus=true]:border-primary transition-colors duration-300',
                     }}
                   />
                   <Textarea
@@ -312,17 +313,19 @@ const Dashboard: React.FC = () => {
                     value={newProjectDesc}
                     onValueChange={setNewProjectDesc}
                     classNames={{
-                      label: 'font-black text-[15px] uppercase tracking-widest text-slate-400 dark:text-slate-300 mb-2',
+                      label:
+                        'font-black text-[15px] uppercase tracking-widest text-slate-400 dark:text-slate-300 mb-2',
                       input: 'font-medium text-base',
-                      inputWrapper: 'border-2 group-data-[focus=true]:border-primary transition-colors duration-300',
+                      inputWrapper:
+                        'border-2 group-data-[focus=true]:border-primary transition-colors duration-300',
                     }}
                   />
                 </div>
               </ModalBody>
               <ModalFooter>
-                <Button 
-                  variant="light" 
-                  onPress={onClose} 
+                <Button
+                  variant="light"
+                  onPress={onClose}
                   className="font-bold text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors duration-300"
                 >
                   {t.dashboard.cancel}

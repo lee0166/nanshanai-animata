@@ -2,7 +2,14 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { videoGenerationService } from '../services/video/VideoGenerationService';
 import { audioService, SoundEffect, MusicTrack } from '../services/audio';
-import { Keyframe, GeneratedVideo, GeneratedAudio, ModelConfig, JobStatus, AssetType } from '../types';
+import {
+  Keyframe,
+  GeneratedVideo,
+  GeneratedAudio,
+  ModelConfig,
+  JobStatus,
+  AssetType,
+} from '../types';
 import { storageService } from '../services/storage';
 import AudioLibrary from '../components/AudioLibrary/AudioLibrary';
 
@@ -33,7 +40,7 @@ const VideoAudioManager: React.FC<VideoAudioManagerProps> = ({ projectId: propPr
   const { projectId: paramProjectId } = useParams<{ projectId: string }>();
   const projectId = propProjectId || paramProjectId;
   const navigate = useNavigate();
-  
+
   // 状态管理
   const [keyframes, setKeyframes] = useState<Keyframe[]>([]);
   const [videos, setVideos] = useState<GeneratedVideo[]>([]);
@@ -57,11 +64,11 @@ const VideoAudioManager: React.FC<VideoAudioManagerProps> = ({ projectId: propPr
   // 音频库状态
   const [showAudioLibrary, setShowAudioLibrary] = useState(false);
   const [libraryAudio, setLibraryAudio] = useState<SoundEffect | MusicTrack | null>(null);
-  
+
   // 引用
   const videoRef = useRef<HTMLVideoElement>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
-  
+
   // 加载模型配置
   useEffect(() => {
     const loadModelConfigs = async () => {
@@ -127,11 +134,11 @@ const VideoAudioManager: React.FC<VideoAudioManagerProps> = ({ projectId: propPr
     };
     loadModelConfigs();
   }, []);
-  
+
   // 加载项目的视频和音频资产
   useEffect(() => {
     if (!projectId) return;
-    
+
     const loadAssets = async () => {
       try {
         // 这里应该从存储服务加载视频和音频资产
@@ -171,16 +178,16 @@ const VideoAudioManager: React.FC<VideoAudioManagerProps> = ({ projectId: propPr
     };
     loadAssets();
   }, [projectId]);
-  
+
   // 生成视频
   const generateVideo = async () => {
     if (!projectId || !videoPrompt || keyframes.length === 0) {
       alert('请输入视频提示词并添加关键帧');
       return;
     }
-    
+
     setIsGenerating(true);
-    
+
     const taskId = `task-${Date.now()}`;
     setGenerationTasks(prev => [
       ...prev,
@@ -192,7 +199,7 @@ const VideoAudioManager: React.FC<VideoAudioManagerProps> = ({ projectId: propPr
         progress: 0,
       },
     ]);
-    
+
     try {
       const result = await videoGenerationService.generateVideo({
         keyframes,
@@ -200,7 +207,7 @@ const VideoAudioManager: React.FC<VideoAudioManagerProps> = ({ projectId: propPr
         modelConfigId,
         projectId,
       });
-      
+
       if (result.success && result.localPath) {
         const newVideo: GeneratedVideo = {
           id: `video-${Date.now()}`,
@@ -212,34 +219,40 @@ const VideoAudioManager: React.FC<VideoAudioManagerProps> = ({ projectId: propPr
           createdAt: Date.now(),
           duration: 5, // 暂时使用默认值
         };
-        
+
         setVideos(prev => [...prev, newVideo]);
-        setGenerationTasks(prev => prev.map(task => 
-          task.id === taskId ? { ...task, status: JobStatus.COMPLETED, result: newVideo } : task
-        ));
+        setGenerationTasks(prev =>
+          prev.map(task =>
+            task.id === taskId ? { ...task, status: JobStatus.COMPLETED, result: newVideo } : task
+          )
+        );
       } else {
-        setGenerationTasks(prev => prev.map(task => 
-          task.id === taskId ? { ...task, status: JobStatus.FAILED, error: result.error } : task
-        ));
+        setGenerationTasks(prev =>
+          prev.map(task =>
+            task.id === taskId ? { ...task, status: JobStatus.FAILED, error: result.error } : task
+          )
+        );
       }
     } catch (error) {
-      setGenerationTasks(prev => prev.map(task => 
-        task.id === taskId ? { ...task, status: JobStatus.FAILED, error: String(error) } : task
-      ));
+      setGenerationTasks(prev =>
+        prev.map(task =>
+          task.id === taskId ? { ...task, status: JobStatus.FAILED, error: String(error) } : task
+        )
+      );
     } finally {
       setIsGenerating(false);
     }
   };
-  
+
   // 基于视频生成音频
   const generateAudioFromVideo = async (videoId: string) => {
     if (!projectId || !audioPrompt) {
       alert('请输入音频提示词');
       return;
     }
-    
+
     setIsGenerating(true);
-    
+
     const taskId = `task-${Date.now()}`;
     setGenerationTasks(prev => [
       ...prev,
@@ -251,10 +264,10 @@ const VideoAudioManager: React.FC<VideoAudioManagerProps> = ({ projectId: propPr
         progress: 0,
       },
     ]);
-    
+
     try {
       let audio: GeneratedAudio;
-      
+
       if (audioType === 'dialogue') {
         audio = await audioService.generateSpeech(audioPrompt, {
           modelConfigId,
@@ -271,20 +284,24 @@ const VideoAudioManager: React.FC<VideoAudioManagerProps> = ({ projectId: propPr
           projectId,
         });
       }
-      
+
       setAudios(prev => [...prev, audio]);
-      setGenerationTasks(prev => prev.map(task => 
-        task.id === taskId ? { ...task, status: JobStatus.COMPLETED, result: audio } : task
-      ));
+      setGenerationTasks(prev =>
+        prev.map(task =>
+          task.id === taskId ? { ...task, status: JobStatus.COMPLETED, result: audio } : task
+        )
+      );
     } catch (error) {
-      setGenerationTasks(prev => prev.map(task => 
-        task.id === taskId ? { ...task, status: JobStatus.FAILED, error: String(error) } : task
-      ));
+      setGenerationTasks(prev =>
+        prev.map(task =>
+          task.id === taskId ? { ...task, status: JobStatus.FAILED, error: String(error) } : task
+        )
+      );
     } finally {
       setIsGenerating(false);
     }
   };
-  
+
   // 批量生成相关状态
   const [batchTexts, setBatchTexts] = useState<string>('');
   const [batchAudioType, setBatchAudioType] = useState<'dialogue' | 'sound' | 'music'>('dialogue');
@@ -322,7 +339,7 @@ const VideoAudioManager: React.FC<VideoAudioManagerProps> = ({ projectId: propPr
         },
       ]);
 
-      let batchResults: GeneratedAudio[] = [];
+      const batchResults: GeneratedAudio[] = [];
       const concurrencyLimit = 3; // 降低并发数以避免网络拥塞
       const totalTexts = texts.length;
 
@@ -330,11 +347,11 @@ const VideoAudioManager: React.FC<VideoAudioManagerProps> = ({ projectId: propPr
       for (let i = 0; i < totalTexts; i += concurrencyLimit) {
         const batch = texts.slice(i, i + concurrencyLimit);
         const batchStart = i;
-        
+
         // 并行处理当前批次
         const batchPromises = batch.map((text, batchIndex) => {
           let generatePromise: Promise<GeneratedAudio>;
-          
+
           if (batchAudioType === 'dialogue') {
             generatePromise = audioService.generateSpeech(text, {
               modelConfigId,
@@ -351,22 +368,22 @@ const VideoAudioManager: React.FC<VideoAudioManagerProps> = ({ projectId: propPr
               projectId,
             });
           }
-          
+
           return generatePromise.then(audio => {
             // 实时更新进度
             const completed = batchStart + batchIndex + 1;
             const progress = Math.round((completed / totalTexts) * 100);
             setBatchProgress(progress);
-            
+
             // 更新任务状态
-            setGenerationTasks(prev => prev.map(task => 
-              task.id === taskId ? { ...task, progress } : task
-            ));
-            
+            setGenerationTasks(prev =>
+              prev.map(task => (task.id === taskId ? { ...task, progress } : task))
+            );
+
             return audio;
           });
         });
-        
+
         const batchAudioResults = await Promise.all(batchPromises);
         batchResults.push(...batchAudioResults);
       }
@@ -375,13 +392,17 @@ const VideoAudioManager: React.FC<VideoAudioManagerProps> = ({ projectId: propPr
       setAudios(prev => [...prev, ...batchResults]);
 
       // 更新任务状态
-      setGenerationTasks(prev => prev.map(task => 
-        task.id === taskId ? { 
-          ...task, 
-          status: JobStatus.COMPLETED, 
-          result: { count: batchResults.length } 
-        } : task
-      ));
+      setGenerationTasks(prev =>
+        prev.map(task =>
+          task.id === taskId
+            ? {
+                ...task,
+                status: JobStatus.COMPLETED,
+                result: { count: batchResults.length },
+              }
+            : task
+        )
+      );
 
       alert(`批量生成完成，共生成 ${batchResults.length} 个音频`);
     } catch (error) {
@@ -392,7 +413,7 @@ const VideoAudioManager: React.FC<VideoAudioManagerProps> = ({ projectId: propPr
       setBatchProgress(0);
     }
   };
-  
+
   // 状态管理
   const [loadingPreview, setLoadingPreview] = useState(false);
   const [previewProgress, setPreviewProgress] = useState(0);
@@ -457,12 +478,12 @@ const VideoAudioManager: React.FC<VideoAudioManagerProps> = ({ projectId: propPr
       setCurrentBatchPreviewIndex(prev => prev - 1);
     }
   };
-  
+
   // 处理从音频库选择音频
   const handleSelectLibraryAudio = async (audio: SoundEffect | MusicTrack) => {
     setLibraryAudio(audio);
     setShowAudioLibrary(false);
-    
+
     // 创建GeneratedAudio对象
     const newAudio: GeneratedAudio = {
       id: `audio-${Date.now()}`,
@@ -473,9 +494,9 @@ const VideoAudioManager: React.FC<VideoAudioManagerProps> = ({ projectId: propPr
       modelId: 'library',
       createdAt: Date.now(),
       duration: audio.duration,
-      type: 'category' in audio ? 'sound' : 'music'
+      type: 'category' in audio ? 'sound' : 'music',
     };
-    
+
     setAudios(prev => [...prev, newAudio]);
     setSelectedAudio(newAudio);
   };
@@ -485,27 +506,27 @@ const VideoAudioManager: React.FC<VideoAudioManagerProps> = ({ projectId: propPr
     try {
       setLoadingPreview(true);
       setPreviewProgress(0);
-      
+
       // 并行加载音视频
       const [videoUrl, audioUrl] = await Promise.all([
-        new Promise<string>((resolve) => {
+        new Promise<string>(resolve => {
           storageService.getAssetUrl(video.path).then(url => {
             setPreviewProgress(50);
             resolve(url);
           });
         }),
-        new Promise<string>((resolve) => {
+        new Promise<string>(resolve => {
           storageService.getAssetUrl(audio.path).then(url => {
             setPreviewProgress(100);
             resolve(url);
           });
-        })
+        }),
       ]);
-      
+
       setPreviewVideoUrl(videoUrl);
       setPreviewAudioUrl(audioUrl);
       setIsPreviewing(true);
-      
+
       // 等待预览元素加载完成后同步播放
       setTimeout(() => {
         if (videoRef.current && audioRef.current) {
@@ -521,7 +542,7 @@ const VideoAudioManager: React.FC<VideoAudioManagerProps> = ({ projectId: propPr
       setLoadingPreview(false);
     }
   };
-  
+
   // 添加关键帧
   const addKeyframe = () => {
     const newKeyframe: Keyframe = {
@@ -536,7 +557,7 @@ const VideoAudioManager: React.FC<VideoAudioManagerProps> = ({ projectId: propPr
     };
     setKeyframes(prev => [...prev, newKeyframe]);
   };
-  
+
   // 渲染任务状态
   const renderTaskStatus = (status: JobStatus) => {
     switch (status) {
@@ -552,67 +573,74 @@ const VideoAudioManager: React.FC<VideoAudioManagerProps> = ({ projectId: propPr
         return <span className="text-gray-500">未知</span>;
     }
   };
-  
+
   return (
     <div className="container mx-auto p-4 bg-slate-50 dark:bg-slate-950 min-h-screen">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold text-slate-900 dark:text-white">音视频管理</h1>
-        <button 
+        <button
           onClick={() => navigate('/dashboard')}
           className="px-4 py-2 bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-900 dark:text-white rounded-md transition-colors"
         >
           返回
         </button>
       </div>
-      
+
       {/* 生成控制区 */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
         {/* 视频生成 */}
         <div className="bg-white dark:bg-slate-900 p-4 rounded-lg shadow border border-slate-200 dark:border-slate-800">
           <h2 className="text-xl font-semibold mb-4 text-slate-900 dark:text-white">视频生成</h2>
-          
+
           <div className="mb-4">
             <label className="block mb-2 text-slate-700 dark:text-slate-300">视频提示词</label>
-            <textarea 
+            <textarea
               value={videoPrompt}
-              onChange={(e) => setVideoPrompt(e.target.value)}
+              onChange={e => setVideoPrompt(e.target.value)}
               className="w-full p-2 border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white rounded-md"
               rows={3}
               placeholder="请输入视频描述..."
             />
           </div>
-          
+
           <div className="mb-4">
             <label className="block mb-2 text-slate-700 dark:text-slate-300">模型配置</label>
-            <select 
+            <select
               value={modelConfigId}
-              onChange={(e) => setModelConfigId(e.target.value)}
+              onChange={e => setModelConfigId(e.target.value)}
               className="w-full p-2 border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white rounded-md"
             >
-              {modelConfigs.filter(config => config.type === 'video').map(config => (
-                <option key={config.id} value={config.id}>{config.name}</option>
-              ))}
+              {modelConfigs
+                .filter(config => config.type === 'video')
+                .map(config => (
+                  <option key={config.id} value={config.id}>
+                    {config.name}
+                  </option>
+                ))}
             </select>
           </div>
-          
+
           <div className="mb-4">
             <h3 className="font-medium mb-2 text-slate-700 dark:text-slate-300">关键帧</h3>
             <div className="flex flex-wrap gap-2 mb-2">
               {keyframes.map(keyframe => (
-                <div key={keyframe.id} className="bg-slate-100 dark:bg-slate-800 p-2 rounded-md text-slate-900 dark:text-white">
+                <div
+                  key={keyframe.id}
+                  className="bg-slate-100 dark:bg-slate-800 p-2 rounded-md text-slate-900 dark:text-white"
+                >
                   {keyframe.frameType} 帧
                 </div>
               ))}
             </div>
-            <button 
+            <button
               onClick={addKeyframe}
               className="px-3 py-1 bg-primary text-white rounded-md hover:bg-primary/80 transition-colors"
             >
               添加关键帧
             </button>
           </div>
-          
-          <button 
+
+          <button
             onClick={generateVideo}
             disabled={isGenerating}
             className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:bg-slate-300 dark:disabled:bg-slate-700 transition-colors"
@@ -620,16 +648,16 @@ const VideoAudioManager: React.FC<VideoAudioManagerProps> = ({ projectId: propPr
             {isGenerating ? '生成中...' : '生成视频'}
           </button>
         </div>
-        
+
         {/* 音频生成 */}
         <div className="bg-white dark:bg-slate-900 p-4 rounded-lg shadow border border-slate-200 dark:border-slate-800">
           <h2 className="text-xl font-semibold mb-4 text-slate-900 dark:text-white">音频生成</h2>
-          
+
           <div className="mb-4">
             <label className="block mb-2 text-slate-700 dark:text-slate-300">音频类型</label>
-            <select 
+            <select
               value={audioType}
-              onChange={(e) => setAudioType(e.target.value as 'dialogue' | 'sound' | 'music')}
+              onChange={e => setAudioType(e.target.value as 'dialogue' | 'sound' | 'music')}
               className="w-full p-2 border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white rounded-md"
             >
               <option value="dialogue">对话</option>
@@ -637,40 +665,44 @@ const VideoAudioManager: React.FC<VideoAudioManagerProps> = ({ projectId: propPr
               <option value="music">音乐</option>
             </select>
           </div>
-          
+
           <div className="mb-4">
             <label className="block mb-2 text-slate-700 dark:text-slate-300">音频提示词</label>
-            <textarea 
+            <textarea
               value={audioPrompt}
-              onChange={(e) => setAudioPrompt(e.target.value)}
+              onChange={e => setAudioPrompt(e.target.value)}
               className="w-full p-2 border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white rounded-md"
               rows={3}
               placeholder="请输入音频描述..."
             />
           </div>
-          
+
           <div className="mb-4">
             <label className="block mb-2 text-slate-700 dark:text-slate-300">模型配置</label>
-            <select 
+            <select
               value={modelConfigId}
-              onChange={(e) => setModelConfigId(e.target.value)}
+              onChange={e => setModelConfigId(e.target.value)}
               className="w-full p-2 border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white rounded-md"
             >
-              {modelConfigs.filter(config => config.capabilities.supportsAudioGeneration).map(config => (
-                <option key={config.id} value={config.id}>{config.name}</option>
-              ))}
+              {modelConfigs
+                .filter(config => config.capabilities.supportsAudioGeneration)
+                .map(config => (
+                  <option key={config.id} value={config.id}>
+                    {config.name}
+                  </option>
+                ))}
             </select>
           </div>
-          
+
           <div className="flex gap-2 mb-4">
-            <button 
+            <button
               onClick={() => selectedVideo && generateAudioFromVideo(selectedVideo.id)}
               disabled={isGenerating || !selectedVideo}
               className="flex-1 px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 disabled:bg-slate-300 dark:disabled:bg-slate-700 transition-colors"
             >
               {isGenerating ? '生成中...' : '基于视频生成音频'}
             </button>
-            <button 
+            <button
               onClick={() => setShowAudioLibrary(!showAudioLibrary)}
               className="px-4 py-2 bg-primary text-white rounded-md hover:bg-primary/80 transition-colors"
             >
@@ -679,15 +711,15 @@ const VideoAudioManager: React.FC<VideoAudioManagerProps> = ({ projectId: propPr
           </div>
         </div>
       </div>
-      
+
       {/* 批量生成区域 */}
       <div className="bg-white dark:bg-slate-900 p-4 rounded-lg shadow border border-slate-200 dark:border-slate-800 mb-8">
         <h2 className="text-xl font-semibold mb-4 text-slate-900 dark:text-white">批量音频生成</h2>
         <div className="mb-4">
           <label className="block mb-2 text-slate-700 dark:text-slate-300">音频类型</label>
-          <select 
+          <select
             value={batchAudioType}
-            onChange={(e) => setBatchAudioType(e.target.value as 'dialogue' | 'sound' | 'music')}
+            onChange={e => setBatchAudioType(e.target.value as 'dialogue' | 'sound' | 'music')}
             className="w-full p-2 border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white rounded-md"
           >
             <option value="dialogue">对话</option>
@@ -696,10 +728,12 @@ const VideoAudioManager: React.FC<VideoAudioManagerProps> = ({ projectId: propPr
           </select>
         </div>
         <div className="mb-4">
-          <label className="block mb-2 text-slate-700 dark:text-slate-300">批量文本（每行一个）</label>
-          <textarea 
+          <label className="block mb-2 text-slate-700 dark:text-slate-300">
+            批量文本（每行一个）
+          </label>
+          <textarea
             value={batchTexts}
-            onChange={(e) => setBatchTexts(e.target.value)}
+            onChange={e => setBatchTexts(e.target.value)}
             className="w-full p-2 border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white rounded-md"
             rows={6}
             placeholder="请输入批量生成的文本，每行一个..."
@@ -712,14 +746,14 @@ const VideoAudioManager: React.FC<VideoAudioManagerProps> = ({ projectId: propPr
               <span className="text-sm text-slate-500 dark:text-slate-400">{batchProgress}%</span>
             </div>
             <div className="w-full bg-slate-200 dark:bg-slate-800 rounded-full h-2.5">
-              <div 
-                className="bg-orange-600 h-2.5 rounded-full" 
+              <div
+                className="bg-orange-600 h-2.5 rounded-full"
                 style={{ width: `${batchProgress}%` }}
               ></div>
             </div>
           </div>
         )}
-        <button 
+        <button
           onClick={batchGenerate}
           disabled={isBatchGenerating}
           className="px-6 py-3 bg-orange-600 text-white rounded-md hover:bg-orange-700 disabled:bg-slate-300 dark:disabled:bg-slate-700 transition-colors"
@@ -727,7 +761,7 @@ const VideoAudioManager: React.FC<VideoAudioManagerProps> = ({ projectId: propPr
           {isBatchGenerating ? '生成中...' : '批量生成音频'}
         </button>
       </div>
-      
+
       {/* 资产列表 */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
         {/* 视频列表 */}
@@ -735,19 +769,23 @@ const VideoAudioManager: React.FC<VideoAudioManagerProps> = ({ projectId: propPr
           <h2 className="text-xl font-semibold mb-4 text-slate-900 dark:text-white">视频资产</h2>
           <div className="space-y-4">
             {videos.map(video => (
-              <div 
+              <div
                 key={video.id}
                 className={`p-3 border rounded-md cursor-pointer ${selectedVideo?.id === video.id ? 'border-primary bg-primary/10' : 'border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800'}`}
                 onClick={() => setSelectedVideo(video)}
               >
                 <div className="flex justify-between items-center">
-                  <h3 className="font-medium text-slate-900 dark:text-white">{video.name || `视频 ${video.id}`}</h3>
-                  <span className="text-sm text-slate-500 dark:text-slate-400">{video.duration}秒</span>
+                  <h3 className="font-medium text-slate-900 dark:text-white">
+                    {video.name || `视频 ${video.id}`}
+                  </h3>
+                  <span className="text-sm text-slate-500 dark:text-slate-400">
+                    {video.duration}秒
+                  </span>
                 </div>
                 <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">{video.prompt}</p>
                 <div className="mt-2 flex gap-2">
-                  <button 
-                    onClick={(e) => {
+                  <button
+                    onClick={e => {
                       e.stopPropagation();
                       setSelectedVideo(video);
                     }}
@@ -760,13 +798,13 @@ const VideoAudioManager: React.FC<VideoAudioManagerProps> = ({ projectId: propPr
             ))}
           </div>
         </div>
-        
+
         {/* 音频列表 */}
         <div className="bg-white dark:bg-slate-900 p-4 rounded-lg shadow border border-slate-200 dark:border-slate-800">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-xl font-semibold text-slate-900 dark:text-white">音频资产</h2>
             {selectedAudios.length > 0 && (
-              <button 
+              <button
                 onClick={batchPreviewAudios}
                 disabled={isBatchPreviewing}
                 className="px-4 py-1 bg-primary text-white rounded-md hover:bg-primary/80 disabled:bg-slate-300 dark:disabled:bg-slate-700 transition-colors"
@@ -777,30 +815,34 @@ const VideoAudioManager: React.FC<VideoAudioManagerProps> = ({ projectId: propPr
           </div>
           <div className="space-y-4">
             {audios.map(audio => (
-              <div 
+              <div
                 key={audio.id}
                 className={`p-3 border rounded-md cursor-pointer ${selectedAudio?.id === audio.id ? 'border-green-500 bg-green-50 dark:bg-green-900/20' : 'border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800'}`}
                 onClick={() => setSelectedAudio(audio)}
               >
                 <div className="flex justify-between items-center">
                   <div className="flex items-center gap-2">
-                    <input 
-                      type="checkbox" 
+                    <input
+                      type="checkbox"
                       checked={selectedAudios.some(a => a.id === audio.id)}
-                      onChange={(e) => {
+                      onChange={e => {
                         e.stopPropagation();
                         toggleAudioSelection(audio);
                       }}
                       className="cursor-pointer"
                     />
-                    <h3 className="font-medium text-slate-900 dark:text-white">{audio.name || `音频 ${audio.id}`}</h3>
+                    <h3 className="font-medium text-slate-900 dark:text-white">
+                      {audio.name || `音频 ${audio.id}`}
+                    </h3>
                   </div>
-                  <span className="text-sm text-slate-500 dark:text-slate-400">{audio.duration}秒</span>
+                  <span className="text-sm text-slate-500 dark:text-slate-400">
+                    {audio.duration}秒
+                  </span>
                 </div>
                 <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">{audio.prompt}</p>
                 <div className="mt-2 flex gap-2">
-                  <button 
-                    onClick={(e) => {
+                  <button
+                    onClick={e => {
                       e.stopPropagation();
                       setSelectedAudio(audio);
                     }}
@@ -808,8 +850,8 @@ const VideoAudioManager: React.FC<VideoAudioManagerProps> = ({ projectId: propPr
                   >
                     选择
                   </button>
-                  <button 
-                    onClick={(e) => {
+                  <button
+                    onClick={e => {
                       e.stopPropagation();
                       preloadAudio(audio);
                     }}
@@ -823,45 +865,44 @@ const VideoAudioManager: React.FC<VideoAudioManagerProps> = ({ projectId: propPr
           </div>
         </div>
       </div>
-      
+
       {/* 同步预览 */}
       {selectedVideo && selectedAudio && (
         <div className="bg-white dark:bg-slate-900 p-4 rounded-lg shadow border border-slate-200 dark:border-slate-800 mb-8">
-          <h2 className="text-xl font-semibold mb-4 text-slate-900 dark:text-white">音视频同步预览</h2>
+          <h2 className="text-xl font-semibold mb-4 text-slate-900 dark:text-white">
+            音视频同步预览
+          </h2>
           <div className="flex flex-col items-center">
             <div className="mb-4">
-              <video 
+              <video
                 ref={videoRef}
                 src={previewVideoUrl}
-                width="640" 
+                width="640"
                 height="360"
                 controls
                 className="border border-slate-300 dark:border-slate-700 rounded-md"
               />
             </div>
             <div className="mb-4">
-              <audio 
-                ref={audioRef}
-                src={previewAudioUrl}
-                controls
-                className="w-full"
-              />
+              <audio ref={audioRef} src={previewAudioUrl} controls className="w-full" />
             </div>
             {loadingPreview && (
               <div className="w-full max-w-md mb-4">
                 <div className="flex justify-between mb-1">
                   <span className="text-sm text-slate-500 dark:text-slate-400">加载中...</span>
-                  <span className="text-sm text-slate-500 dark:text-slate-400">{previewProgress}%</span>
+                  <span className="text-sm text-slate-500 dark:text-slate-400">
+                    {previewProgress}%
+                  </span>
                 </div>
                 <div className="w-full bg-slate-200 dark:bg-slate-800 rounded-full h-2.5">
-                  <div 
-                    className="bg-primary h-2.5 rounded-full" 
+                  <div
+                    className="bg-primary h-2.5 rounded-full"
                     style={{ width: `${previewProgress}%` }}
                   ></div>
                 </div>
               </div>
             )}
-            <button 
+            <button
               onClick={() => syncPreview(selectedVideo, selectedAudio)}
               disabled={loadingPreview}
               className="px-4 py-2 bg-primary text-white rounded-md hover:bg-primary/80 disabled:bg-slate-300 dark:disabled:bg-slate-700 transition-colors"
@@ -875,14 +916,12 @@ const VideoAudioManager: React.FC<VideoAudioManagerProps> = ({ projectId: propPr
       {/* 批量音频预览 */}
       {selectedAudios.length > 0 && batchPreviewUrls.length > 0 && (
         <div className="bg-white dark:bg-slate-900 p-4 rounded-lg shadow border border-slate-200 dark:border-slate-800 mb-8">
-          <h2 className="text-xl font-semibold mb-4 text-slate-900 dark:text-white">批量音频预览</h2>
+          <h2 className="text-xl font-semibold mb-4 text-slate-900 dark:text-white">
+            批量音频预览
+          </h2>
           <div className="flex flex-col items-center">
             <div className="mb-4 w-full max-w-md">
-              <audio 
-                src={batchPreviewUrls[currentBatchPreviewIndex]}
-                controls
-                className="w-full"
-              />
+              <audio src={batchPreviewUrls[currentBatchPreviewIndex]} controls className="w-full" />
             </div>
             <div className="mb-4 text-center">
               <span className="text-sm text-slate-500 dark:text-slate-400">
@@ -893,14 +932,14 @@ const VideoAudioManager: React.FC<VideoAudioManagerProps> = ({ projectId: propPr
               </p>
             </div>
             <div className="flex gap-4">
-              <button 
+              <button
                 onClick={playPreviousAudio}
                 disabled={currentBatchPreviewIndex === 0}
                 className="px-4 py-2 bg-slate-200 dark:bg-slate-800 text-slate-900 dark:text-white rounded-md hover:bg-slate-300 dark:hover:bg-slate-700 disabled:bg-slate-300 dark:disabled:bg-slate-700 transition-colors"
               >
                 上一个
               </button>
-              <button 
+              <button
                 onClick={playNextAudio}
                 disabled={currentBatchPreviewIndex === batchPreviewUrls.length - 1}
                 className="px-4 py-2 bg-slate-200 dark:bg-slate-800 text-slate-900 dark:text-white rounded-md hover:bg-slate-300 dark:hover:bg-slate-700 disabled:bg-slate-300 dark:disabled:bg-slate-700 transition-colors"
@@ -911,32 +950,32 @@ const VideoAudioManager: React.FC<VideoAudioManagerProps> = ({ projectId: propPr
           </div>
         </div>
       )}
-      
+
       {/* 任务状态 */}
       <div className="bg-white dark:bg-slate-900 p-4 rounded-lg shadow border border-slate-200 dark:border-slate-800">
         <h2 className="text-xl font-semibold mb-4 text-slate-900 dark:text-white">任务状态</h2>
         <div className="space-y-2">
           {generationTasks.map(task => (
-            <div key={task.id} className="p-3 border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 rounded-md">
+            <div
+              key={task.id}
+              className="p-3 border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 rounded-md"
+            >
               <div className="flex justify-between items-center">
-                <span className="font-medium text-slate-900 dark:text-white">{task.type === 'video' ? '视频生成' : '音频生成'}</span>
+                <span className="font-medium text-slate-900 dark:text-white">
+                  {task.type === 'video' ? '视频生成' : '音频生成'}
+                </span>
                 {renderTaskStatus(task.status)}
               </div>
-              {task.error && (
-                <p className="text-sm text-red-500 mt-1">{task.error}</p>
-              )}
+              {task.error && <p className="text-sm text-red-500 mt-1">{task.error}</p>}
             </div>
           ))}
         </div>
       </div>
-      
+
       {/* 音频库 */}
       {showAudioLibrary && (
         <div className="mt-8">
-          <AudioLibrary 
-            onSelectAudio={handleSelectLibraryAudio}
-            projectId={projectId || ''}
-          />
+          <AudioLibrary onSelectAudio={handleSelectLibraryAudio} projectId={projectId || ''} />
         </div>
       )}
     </div>

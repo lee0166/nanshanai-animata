@@ -99,10 +99,7 @@ const App: React.FC = () => {
                 path="/project/:projectId/script/:scriptId/timeline"
                 element={<TimelineEditor />}
               />
-              <Route
-                path="/project/:projectId/video-audio"
-                element={<VideoAudioManager />}
-              />
+              <Route path="/project/:projectId/video-audio" element={<VideoAudioManager />} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </Suspense>

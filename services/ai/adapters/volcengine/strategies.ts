@@ -3,6 +3,7 @@ import { ModelConfig } from '../../../../types';
 export interface VolcImageRequest {
   model: string;
   prompt: string;
+  negative_prompt?: string;
   image?: string | string[];
   size?: string;
   sequential_image_generation?: 'auto' | 'disabled';
@@ -23,7 +24,8 @@ export interface IVolcengineStrategy {
     size: string,
     count: number,
     guidanceScale?: number,
-    extraParams?: Record<string, any>
+    extraParams?: Record<string, any>,
+    negativePrompt?: string
   ): VolcImageRequest;
 }
 
@@ -58,7 +60,8 @@ export class Seedream4Strategy implements IVolcengineStrategy {
     size: string,
     count: number,
     guidanceScale?: number,
-    extraParams?: Record<string, any>
+    extraParams?: Record<string, any>,
+    negativePrompt?: string
   ): VolcImageRequest {
     const body: VolcImageRequest = {
       model: config.modelId,
@@ -78,6 +81,7 @@ export class Seedream4Strategy implements IVolcengineStrategy {
     }
 
     if (guidanceScale) body.guidance_scale = guidanceScale;
+    if (negativePrompt) body.negative_prompt = negativePrompt;
     if (extraParams) Object.assign(body, extraParams);
 
     return body;
@@ -106,7 +110,8 @@ export class Seedream3Strategy implements IVolcengineStrategy {
     size: string,
     count: number,
     guidanceScale?: number,
-    extraParams?: Record<string, any>
+    extraParams?: Record<string, any>,
+    negativePrompt?: string
   ): VolcImageRequest {
     const body: VolcImageRequest = {
       model: config.modelId,
@@ -139,6 +144,7 @@ export class Seedream3Strategy implements IVolcengineStrategy {
       }
     }
 
+    if (negativePrompt) body.negative_prompt = negativePrompt;
     if (extraParams) Object.assign(body, extraParams);
 
     return body;
@@ -170,7 +176,8 @@ export class DefaultStrategy implements IVolcengineStrategy {
     size: string,
     count: number,
     guidanceScale?: number,
-    extraParams?: Record<string, any>
+    extraParams?: Record<string, any>,
+    negativePrompt?: string
   ): VolcImageRequest {
     const shouldAppend = config.capabilities?.appendCountToPrompt ?? true;
     const body: VolcImageRequest = {
@@ -187,6 +194,7 @@ export class DefaultStrategy implements IVolcengineStrategy {
     if (images.length > 0) {
       body.image = images.length === 1 ? images[0] : images;
     }
+    if (negativePrompt) body.negative_prompt = negativePrompt;
     if (extraParams) Object.assign(body, extraParams);
     return body;
   }

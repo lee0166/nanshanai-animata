@@ -12,15 +12,7 @@ import {
   Divider,
   Spinner,
 } from '@heroui/react';
-import {
-  Music,
-  Volume2,
-  Search,
-  Plus,
-  Trash2,
-  Tag,
-  Filter,
-} from 'lucide-react';
+import { Music, Volume2, Search, Plus, Trash2, Tag, Filter } from 'lucide-react';
 import { audioService, SoundEffect, MusicTrack } from '../../services/audio';
 import { useToast } from '../../contexts/ToastContext';
 
@@ -153,7 +145,7 @@ export const AudioLibrary: React.FC<AudioLibraryProps> = ({ onSelectAudio, proje
           <Tabs
             aria-label="音频类型"
             selectedKey={activeTab}
-            onSelectionChange={(key) => setActiveTab(key as 'sound' | 'music')}
+            onSelectionChange={key => setActiveTab(key as 'sound' | 'music')}
           >
             <Tab key="sound" title="音效" />
             <Tab key="music" title="音乐" />
@@ -168,23 +160,19 @@ export const AudioLibrary: React.FC<AudioLibraryProps> = ({ onSelectAudio, proje
               <Input
                 placeholder="搜索音频..."
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                onChange={e => setSearchQuery(e.target.value)}
                 onPressEnter={handleSearch}
                 className="pl-8"
               />
             </div>
-            <Button
-              size="sm"
-              startContent={<Search size={16} />}
-              onPress={handleSearch}
-            >
+            <Button size="sm" startContent={<Search size={16} />} onPress={handleSearch}>
               搜索
             </Button>
           </div>
 
           {/* 分类过滤 */}
           <div className="flex flex-wrap gap-2 mb-4">
-            {getCategories().map((category) => (
+            {getCategories().map(category => (
               <Chip
                 key={category}
                 selected={selectedCategory === category}
@@ -203,7 +191,7 @@ export const AudioLibrary: React.FC<AudioLibraryProps> = ({ onSelectAudio, proje
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {filteredAudio().map((audio) => (
+              {filteredAudio().map(audio => (
                 <Card
                   key={audio.id}
                   isPressable
@@ -235,7 +223,7 @@ export const AudioLibrary: React.FC<AudioLibraryProps> = ({ onSelectAudio, proje
                         isIconOnly
                         size="sm"
                         color="danger"
-                        onPress={(e) => {
+                        onPress={e => {
                           // e.stopPropagation();
                           handleAudioDelete(audio);
                         }}
@@ -244,7 +232,7 @@ export const AudioLibrary: React.FC<AudioLibraryProps> = ({ onSelectAudio, proje
                       </Button>
                     </div>
                     <div className="mt-3 flex flex-wrap gap-1">
-                      {audio.tags.map((tag) => (
+                      {audio.tags.map(tag => (
                         <Chip key={tag} size="sm" variant="flat" className="text-xs">
                           {tag}
                         </Chip>

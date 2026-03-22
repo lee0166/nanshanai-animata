@@ -17,7 +17,8 @@ const AssetPreview: React.FC<AssetPreviewProps> = ({ path, t }) => {
 
   useEffect(() => {
     setLoading(true);
-    storageService.getAssetUrl(path)
+    storageService
+      .getAssetUrl(path)
       .then(u => {
         setUrl(u || '');
         setLoading(false);

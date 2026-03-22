@@ -36,7 +36,7 @@ export function generateShotNumber(sceneName: string, shotSequence: number): str
 export function generateShotNumbers(shots: Shot[]): Shot[] {
   // 按场景分组
   const shotsByScene: Record<string, Shot[]> = {};
-  
+
   shots.forEach(shot => {
     const sceneName = shot.sceneName || '未分类场景';
     if (!shotsByScene[sceneName]) {
@@ -44,22 +44,22 @@ export function generateShotNumbers(shots: Shot[]): Shot[] {
     }
     shotsByScene[sceneName].push(shot);
   });
-  
+
   // 为每个场景的分镜生成编号
   return shots.map(shot => {
     if (shot.shotNumber) {
       return shot; // 已有编号的分镜保持不变
     }
-    
+
     const sceneName = shot.sceneName || '未分类场景';
     const sceneShots = shotsByScene[sceneName].sort((a, b) => a.sequence - b.sequence);
     const shotIndex = sceneShots.findIndex(s => s.id === shot.id);
-    
+
     if (shotIndex !== -1) {
       const shotNumber = generateShotNumber(sceneName, shot.sequence);
       return { ...shot, shotNumber };
     }
-    
+
     return shot;
   });
 }
@@ -74,10 +74,10 @@ export function generateShotNumberForSingle(shot: Shot, allShots: Shot[]): Shot 
   if (shot.shotNumber) {
     return shot; // 已有编号的分镜保持不变
   }
-  
+
   const sceneName = shot.sceneName || '未分类场景';
   const sceneShots = allShots.filter(s => s.sceneName === sceneName);
   const shotNumber = generateShotNumber(sceneName, shot.sequence);
-  
+
   return { ...shot, shotNumber };
 }

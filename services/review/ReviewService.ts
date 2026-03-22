@@ -27,7 +27,9 @@ export class ReviewService {
   /**
    * 创建审核项
    */
-  async createReviewItem(item: Omit<ReviewItem, 'id' | 'createdAt' | 'updatedAt'>): Promise<ReviewItem> {
+  async createReviewItem(
+    item: Omit<ReviewItem, 'id' | 'createdAt' | 'updatedAt'>
+  ): Promise<ReviewItem> {
     const reviewItem: ReviewItem = {
       ...item,
       id: `review_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`,
@@ -44,8 +46,8 @@ export class ReviewService {
    */
   async getPendingReviews(projectId: string): Promise<ReviewItem[]> {
     const reviews = await storageService.getReviewItems(projectId);
-    return reviews.filter(item => 
-      item.status === JobStatus.NEEDS_REVIEW || item.status === JobStatus.IN_REVIEW
+    return reviews.filter(
+      item => item.status === JobStatus.NEEDS_REVIEW || item.status === JobStatus.IN_REVIEW
     );
   }
 
@@ -118,19 +120,15 @@ export class ReviewService {
    */
   async getReviewHistory(projectId: string): Promise<ReviewItem[]> {
     const reviews = await storageService.getReviewItems(projectId);
-    return reviews.filter(item => 
-      item.status === JobStatus.APPROVED || item.status === JobStatus.REJECTED
+    return reviews.filter(
+      item => item.status === JobStatus.APPROVED || item.status === JobStatus.REJECTED
     );
   }
 
   /**
    * 为分镜创建审核项
    */
-  async createShotReview(
-    shot: Shot,
-    projectId: string,
-    scriptId: string
-  ): Promise<ReviewItem> {
+  async createShotReview(shot: Shot, projectId: string, scriptId: string): Promise<ReviewItem> {
     return this.createReviewItem({
       type: 'shot',
       entityId: shot.id,

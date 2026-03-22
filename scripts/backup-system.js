@@ -8,7 +8,11 @@ import fs from 'fs';
 import path from 'path';
 import { execSync } from 'child_process';
 
-const BACKUP_DIR = path.join(path.dirname(new URL(import.meta.url).pathname).replace(/^\/([A-Z]:)/, '$1'), '..', '.backup');
+const BACKUP_DIR = path.join(
+  path.dirname(new URL(import.meta.url).pathname).replace(/^\/([A-Z]:)/, '$1'),
+  '..',
+  '.backup'
+);
 const EXCLUDE_PATTERNS = [
   'node_modules',
   'dist',
@@ -22,7 +26,7 @@ const EXCLUDE_PATTERNS = [
   'dist/*',
   'build/*',
   '.git/*',
-  '.backup/*'
+  '.backup/*',
 ];
 
 class BackupSystem {
@@ -53,29 +57,29 @@ class BackupSystem {
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
     const backupName = `backup-${timestamp}`;
     const backupPath = path.join(this.backupDir, backupName);
-    
+
     console.log(`Creating backup: ${backupName}`);
-    
+
     try {
       // 创建备份目录
       fs.mkdirSync(backupPath, { recursive: true });
-      
+
       // 复制文件（排除不需要的目录）
       this.copyFiles('.', backupPath);
-      
+
       // 创建备份信息文件
       const backupInfo = {
         timestamp: new Date().toISOString(),
         backupName,
         backupPath,
-        excludePatterns: EXCLUDE_PATTERNS
+        excludePatterns: EXCLUDE_PATTERNS,
       };
-      
+
       fs.writeFileSync(
         path.join(backupPath, 'backup-info.json'),
         JSON.stringify(backupInfo, null, 2)
       );
-      
+
       console.log(`Backup created successfully: ${backupPath}`);
       return backupPath;
     } catch (error) {
@@ -91,19 +95,19 @@ class BackupSystem {
    */
   copyFiles(source, target) {
     const files = fs.readdirSync(source);
-    
+
     files.forEach(file => {
       const sourcePath = path.join(source, file);
       const targetPath = path.join(target, file);
-      
+
       // 检查是否应该排除
       if (this.shouldExclude(file)) {
         console.log(`Excluding: ${sourcePath}`);
         return;
       }
-      
+
       const stat = fs.statSync(sourcePath);
-      
+
       if (stat.isDirectory()) {
         if (!fs.existsSync(targetPath)) {
           fs.mkdirSync(targetPath);
@@ -137,8 +141,9 @@ class BackupSystem {
     if (!fs.existsSync(this.backupDir)) {
       return [];
     }
-    
-    const backups = fs.readdirSync(this.backupDir)
+
+    const backups = fs
+      .readdirSync(this.backupDir)
       .filter(item => {
         const itemPath = path.join(this.backupDir, item);
         return fs.statSync(itemPath).isDirectory();
@@ -156,7 +161,7 @@ class BackupSystem {
         }
       })
       .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-    
+
     return backups;
   }
 
@@ -166,21 +171,21 @@ class BackupSystem {
    */
   rollbackToBackup(backupName) {
     const backupPath = path.join(this.backupDir, backupName);
-    
+
     if (!fs.existsSync(backupPath)) {
       throw new Error(`Backup not found: ${backupName}`);
     }
-    
+
     console.log(`Rolling back to backup: ${backupName}`);
-    
+
     try {
       // 先创建当前状态的临时备份
       const tempBackup = this.createBackup();
       console.log(`Created temporary backup before rollback: ${tempBackup}`);
-      
+
       // 复制备份文件到项目根目录
       this.restoreFiles(backupPath, '.');
-      
+
       console.log(`Rollback completed successfully to: ${backupName}`);
     } catch (error) {
       console.error('Failed to rollback:', error);
@@ -195,18 +200,18 @@ class BackupSystem {
    */
   restoreFiles(source, target) {
     const files = fs.readdirSync(source);
-    
+
     files.forEach(file => {
       const sourcePath = path.join(source, file);
       const targetPath = path.join(target, file);
-      
+
       // 跳过备份信息文件
       if (file === 'backup-info.json') {
         return;
       }
-      
+
       const stat = fs.statSync(sourcePath);
-      
+
       if (stat.isDirectory()) {
         if (!fs.existsSync(targetPath)) {
           fs.mkdirSync(targetPath, { recursive: true });
@@ -229,10 +234,10 @@ class BackupSystem {
    */
   cleanupOldBackups(keepCount = 5) {
     const backups = this.listBackups();
-    
+
     if (backups.length > keepCount) {
       const backupsToDelete = backups.slice(keepCount);
-      
+
       backupsToDelete.forEach(backup => {
         console.log(`Deleting old backup: ${backup.backupName}`);
         try {
@@ -241,7 +246,7 @@ class BackupSystem {
           console.error(`Failed to delete backup ${backup.backupName}:`, error);
         }
       });
-      
+
       console.log(`Cleanup completed. Kept ${keepCount} most recent backups.`);
     }
   }
@@ -269,31 +274,62 @@ class BackupSystem {
 
 // 命令行接口
 if (import.meta.url === `file://${process.argv[1]}`) {
+  console.log('Starting backup system...');
+  console.log('Node version:', process.version);
+  console.log('Current directory:', process.cwd());
+
   const backupSystem = new BackupSystem();
   const command = process.argv[2];
-  
+
+  console.log('Command:', command);
+
   switch (command) {
     case 'create':
-      backupSystem.createBackup();
+      console.log('Creating backup...');
+      try {
+        const backupPath = backupSystem.createBackup();
+        console.log('Backup created successfully:', backupPath);
+      } catch (error) {
+        console.error('Error creating backup:', error);
+      }
       break;
     case 'list':
-      const backups = backupSystem.listBackups();
-      console.log('Available backups:');
-      backups.forEach((backup, index) => {
-        console.log(`${index + 1}. ${backup.backupName} (${backup.timestamp})`);
-      });
+      console.log('Listing backups...');
+      try {
+        const backups = backupSystem.listBackups();
+        console.log('Available backups:');
+        if (backups.length === 0) {
+          console.log('No backups found');
+        } else {
+          backups.forEach((backup, index) => {
+            console.log(`${index + 1}. ${backup.backupName} (${backup.timestamp})`);
+          });
+        }
+      } catch (error) {
+        console.error('Error listing backups:', error);
+      }
       break;
     case 'rollback':
       const backupName = process.argv[3];
       if (backupName) {
-        backupSystem.rollbackToBackup(backupName);
+        console.log('Rolling back to:', backupName);
+        try {
+          backupSystem.rollbackToBackup(backupName);
+        } catch (error) {
+          console.error('Error rolling back:', error);
+        }
       } else {
         console.error('Please specify backup name to rollback to');
       }
       break;
     case 'cleanup':
       const keepCount = process.argv[3] ? parseInt(process.argv[3]) : 5;
-      backupSystem.cleanupOldBackups(keepCount);
+      console.log('Cleaning up old backups, keeping:', keepCount);
+      try {
+        backupSystem.cleanupOldBackups(keepCount);
+      } catch (error) {
+        console.error('Error cleaning up backups:', error);
+      }
       break;
     default:
       console.log('Usage:');
@@ -302,6 +338,8 @@ if (import.meta.url === `file://${process.argv[1]}`) {
       console.log('  node backup-system.js rollback <backup-name> - Rollback to specified backup');
       console.log('  node backup-system.js cleanup [keep-count] - Cleanup old backups');
   }
+
+  console.log('Backup system completed');
 }
 
 export default BackupSystem;

@@ -1,13 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import {
-  Script,
-  Shot,
-  Keyframe,
-  GeneratedImage,
-  JobStatus,
-  AssetType,
-} from '../types';
+import { Script, Shot, Keyframe, GeneratedImage, JobStatus, AssetType } from '../types';
 import { storageService } from '../services/storage';
 import { reviewService } from '../services/review/ReviewService';
 import { useApp } from '../contexts/context';
@@ -116,7 +109,7 @@ export const ReviewManager: React.FC<ReviewManagerProps> = ({
   // 获取审核项的详细信息
   const getReviewDetails = async (review: any) => {
     try {
-      let details = { ...review };
+      const details = { ...review };
 
       // 根据类型加载详细信息
       if (review.type === 'shot') {
@@ -148,7 +141,9 @@ export const ReviewManager: React.FC<ReviewManagerProps> = ({
           if (shot) {
             const keyframe = shot.keyframes?.find((kf: Keyframe) => kf.id === review.keyframeId);
             if (keyframe) {
-              const image = keyframe.generatedImages?.find((img: GeneratedImage) => img.id === review.imageId);
+              const image = keyframe.generatedImages?.find(
+                (img: GeneratedImage) => img.id === review.imageId
+              );
               if (image) {
                 details.image = image;
                 details.keyframe = keyframe;
@@ -255,9 +250,7 @@ export const ReviewManager: React.FC<ReviewManagerProps> = ({
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-xl font-bold text-slate-900 dark:text-white">审核管理</h1>
-            <p className="text-sm text-slate-500 mt-1">
-              管理AI生成内容的审核流程
-            </p>
+            <p className="text-sm text-slate-500 mt-1">管理AI生成内容的审核流程</p>
           </div>
         </div>
       </div>
@@ -266,11 +259,7 @@ export const ReviewManager: React.FC<ReviewManagerProps> = ({
       <div className="flex-1 overflow-auto p-6">
         <div className="max-w-6xl mx-auto">
           {/* 标签切换 */}
-          <Tabs
-            selectedKey={selectedTab}
-            onSelectionChange={setSelectedTab}
-            className="mb-6"
-          >
+          <Tabs selectedKey={selectedTab} onSelectionChange={setSelectedTab} className="mb-6">
             <Tab key="pending" title="待审核" />
             <Tab key="history" title="审核历史" />
           </Tabs>
@@ -282,7 +271,7 @@ export const ReviewManager: React.FC<ReviewManagerProps> = ({
                 <h2 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">
                   待审核项目 ({pendingReviews.length})
                 </h2>
-                
+
                 {pendingReviews.length === 0 ? (
                   <div className="text-center py-12">
                     <CheckCircle2 size={48} className="mx-auto text-green-500 mb-4" />
@@ -300,15 +289,19 @@ export const ReviewManager: React.FC<ReviewManagerProps> = ({
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {pendingReviews.map((review) => (
+                      {pendingReviews.map(review => (
                         <TableRow key={review.id}>
                           <TableCell>
                             <div className="flex items-center gap-2">
                               {getTypeIcon(review.type)}
                               <span className="text-sm font-medium">
-                                {review.type === 'shot' ? '分镜' :
-                                 review.type === 'keyframe' ? '关键帧' :
-                                 review.type === 'image' ? '生成图片' : '视频'}
+                                {review.type === 'shot'
+                                  ? '分镜'
+                                  : review.type === 'keyframe'
+                                    ? '关键帧'
+                                    : review.type === 'image'
+                                      ? '生成图片'
+                                      : '视频'}
                               </span>
                             </div>
                           </TableCell>
@@ -327,9 +320,7 @@ export const ReviewManager: React.FC<ReviewManagerProps> = ({
                               )}
                             </div>
                           </TableCell>
-                          <TableCell>
-                            {getStatusBadge(review.status)}
-                          </TableCell>
+                          <TableCell>{getStatusBadge(review.status)}</TableCell>
                           <TableCell>
                             <div className="text-sm text-slate-500">
                               {new Date(review.createdAt).toLocaleString()}
@@ -361,7 +352,7 @@ export const ReviewManager: React.FC<ReviewManagerProps> = ({
                 <h2 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">
                   审核历史 ({reviewHistory.length})
                 </h2>
-                
+
                 {reviewHistory.length === 0 ? (
                   <div className="text-center py-12">
                     <Clock size={48} className="mx-auto text-slate-400 mb-4" />
@@ -379,15 +370,19 @@ export const ReviewManager: React.FC<ReviewManagerProps> = ({
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {reviewHistory.map((review) => (
+                      {reviewHistory.map(review => (
                         <TableRow key={review.id}>
                           <TableCell>
                             <div className="flex items-center gap-2">
                               {getTypeIcon(review.type)}
                               <span className="text-sm font-medium">
-                                {review.type === 'shot' ? '分镜' :
-                                 review.type === 'keyframe' ? '关键帧' :
-                                 review.type === 'image' ? '生成图片' : '视频'}
+                                {review.type === 'shot'
+                                  ? '分镜'
+                                  : review.type === 'keyframe'
+                                    ? '关键帧'
+                                    : review.type === 'image'
+                                      ? '生成图片'
+                                      : '视频'}
                               </span>
                             </div>
                           </TableCell>
@@ -401,9 +396,7 @@ export const ReviewManager: React.FC<ReviewManagerProps> = ({
                               )}
                             </div>
                           </TableCell>
-                          <TableCell>
-                            {getStatusBadge(review.status)}
-                          </TableCell>
+                          <TableCell>{getStatusBadge(review.status)}</TableCell>
                           <TableCell>
                             <div className="text-sm text-slate-500">
                               {new Date(review.updatedAt).toLocaleString()}
@@ -439,12 +432,16 @@ export const ReviewManager: React.FC<ReviewManagerProps> = ({
                   <div className="flex items-center gap-2 mb-2">
                     {getTypeIcon(selectedReview.type)}
                     <h3 className="font-medium">
-                      {selectedReview.type === 'shot' ? '分镜' :
-                       selectedReview.type === 'keyframe' ? '关键帧' :
-                       selectedReview.type === 'image' ? '生成图片' : '视频'}
+                      {selectedReview.type === 'shot'
+                        ? '分镜'
+                        : selectedReview.type === 'keyframe'
+                          ? '关键帧'
+                          : selectedReview.type === 'image'
+                            ? '生成图片'
+                            : '视频'}
                     </h3>
                   </div>
-                  
+
                   {selectedReview.shot && (
                     <div className="space-y-2 text-sm">
                       <div>
@@ -461,7 +458,7 @@ export const ReviewManager: React.FC<ReviewManagerProps> = ({
                       </div>
                     </div>
                   )}
-                  
+
                   {selectedReview.keyframe && (
                     <div className="space-y-2 text-sm mt-2">
                       <div>
@@ -478,21 +475,21 @@ export const ReviewManager: React.FC<ReviewManagerProps> = ({
                       </div>
                     </div>
                   )}
-                  
+
                   {selectedReview.image && (
                     <div className="mt-4">
                       <div className="font-medium mb-2">生成图片：</div>
                       <div className="rounded-lg overflow-hidden">
-                        <img 
-                          src={selectedReview.image.path} 
-                          alt="生成图片" 
+                        <img
+                          src={selectedReview.image.path}
+                          alt="生成图片"
                           className="w-full h-auto max-h-64 object-contain"
                         />
                       </div>
                     </div>
                   )}
                 </div>
-                
+
                 {/* 审核决定 */}
                 <div>
                   <h3 className="font-medium mb-3">审核决定</h3>
@@ -516,12 +513,14 @@ export const ReviewManager: React.FC<ReviewManagerProps> = ({
                       拒绝
                     </Button>
                   </div>
-                  
+
                   <div>
                     <label className="block text-sm font-medium mb-2">评论</label>
                     <Textarea
                       value={reviewDecision.comments}
-                      onChange={(e) => setReviewDecision({ ...reviewDecision, comments: e.target.value })}
+                      onChange={e =>
+                        setReviewDecision({ ...reviewDecision, comments: e.target.value })
+                      }
                       placeholder="请输入审核评论..."
                       className="min-h-[100px]"
                     />

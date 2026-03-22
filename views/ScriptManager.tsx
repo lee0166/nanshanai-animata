@@ -1317,7 +1317,7 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({
                       </div>
                     }
                   >
-                    <SoundDesignTab 
+                    <SoundDesignTab
                       metadata={currentScript.parseState.metadata || {}}
                       shots={currentScript.parseState.shots || []}
                     />

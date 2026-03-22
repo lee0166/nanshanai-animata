@@ -1,4 +1,4 @@
-import { Shot, Keyframe, CharacterAsset, Asset } from '../../types';
+import { Shot, Keyframe, CharacterAsset, Asset, Script } from '../../types';
 import { keyframeEngine, KeyframeSplitParams } from './KeyframeEngine';
 import { storageService } from '../storage';
 import { aiService } from '../aiService';
@@ -7,6 +7,7 @@ export interface SplitKeyframesOptions {
   shot: Shot;
   keyframeCount: number;
   projectId: string;
+  script?: Script;
   characterAssets?: CharacterAsset[];
   sceneAsset?: Asset;
   modelConfigId?: string; // 用户选择的LLM模型配置ID
@@ -19,12 +20,14 @@ export interface SplitKeyframesOptions {
   };
   temperature?: number;
   maxTokens?: number;
+  negativePrompt?: string;
 }
 
 export interface BatchSplitKeyframesOptions {
   shots: Shot[];
   keyframeCount: number;
   projectId: string;
+  script: Script;
   modelConfigId?: string;
   splitOptions?: {
     includeCameraMovement?: boolean;
@@ -35,6 +38,7 @@ export interface BatchSplitKeyframesOptions {
   };
   temperature?: number;
   maxTokens?: number;
+  negativePrompt?: string;
   concurrencyLimit?: number;
 }
 
@@ -52,8 +56,24 @@ export class KeyframeService {
    * 拆分关键帧
    */
   async splitKeyframes(options: SplitKeyframesOptions): Promise<Keyframe[]> {
-    const { shot, keyframeCount, characterAssets, sceneAsset, modelConfigId, splitOptions, temperature, maxTokens } = options;
+    const {
+      shot,
+      keyframeCount,
+      script,
+      characterAssets,
+      sceneAsset,
+      modelConfigId,
+      splitOptions,
+      temperature,
+      maxTokens,
+      negativePrompt,
+    } = options;
 
+    console.log(`[DEBUG KeyframeService] ========== splitKeyframes 被调用 ==========`);
+    console.log(`[DEBUG KeyframeService] 接收到的 negativePrompt:`, negativePrompt);
+    console.log(`[DEBUG KeyframeService] 接收到的 script:`, script);
+    console.log(`[DEBUG KeyframeService] script 中的 visualStyle:`, script?.parseState?.metadata?.visualStyle);
+    
     console.log(`[KeyframeService] ========== 开始拆分关键帧 ==========`);
     console.log(`[KeyframeService] 分镜ID: ${shot.id}`);
     console.log(`[KeyframeService] 分镜名称: ${shot.sceneName}-镜头${shot.sequence}`);
@@ -73,14 +93,68 @@ export class KeyframeService {
       console.log(`[KeyframeService] 静态分镜，创建 ${keyframeCount} 个关键帧`);
       const staticKeyframes: Keyframe[] = [];
       const durationPerFrame = shot.duration / keyframeCount;
-      
+
       for (let i = 0; i < keyframeCount; i++) {
+        const frameType = i === 0 ? 'start' : i === keyframeCount - 1 ? 'end' : 'middle';
+        const progress = (i + 1) / keyframeCount;
+        
+        let promptSuffix = '';
+        let descriptionSuffix = '';
+        
+        if (frameType === 'start') {
+          promptSuffix = ', opening scene, full view, soft lighting, emphasize atmosphere';
+          descriptionSuffix = '（开场画面）';
+        } else if (frameType === 'end') {
+          promptSuffix = ', closing scene, close-up shot, profound artistic conception, leave aftertaste';
+          descriptionSuffix = '（收尾画面）';
+        } else {
+          const middleFrameCount = keyframeCount - 2;
+          const middleFrameIndex = i;
+          if (middleFrameCount === 1) {
+            promptSuffix = ', middle transition scene, medium shot, detail showcase';
+            descriptionSuffix = '（中间过渡）';
+          } else {
+            const middleProgress = (middleFrameIndex) / (middleFrameCount + 1);
+            if (middleProgress < 0.5) {
+              promptSuffix = ', developing scene, medium close-up, plot advancement';
+              descriptionSuffix = '（发展中画面）';
+            } else {
+              promptSuffix = ', pre-climax scene, close-up shot, emotional buildup';
+              descriptionSuffix = '（高潮前画面）';
+            }
+          }
+        }
+
+        const visualStyle = script?.parseState?.metadata?.visualStyle;
+        const stylePrompts: string[] = [];
+        if (visualStyle?.artStyle) stylePrompts.push(visualStyle.artStyle);
+        if (visualStyle?.cinematography) stylePrompts.push(visualStyle.cinematography);
+        if (visualStyle?.colorPalette && Array.isArray(visualStyle.colorPalette)) {
+          visualStyle.colorPalette.forEach(color => {
+            if (color) stylePrompts.push(color);
+          });
+        }
+        
+        console.log(`[DEBUG KeyframeService] 静态分镜 - visualStyle:`, visualStyle);
+        console.log(`[DEBUG KeyframeService] 静态分镜 - stylePrompts:`, stylePrompts);
+        console.log(`[DEBUG KeyframeService] 静态分镜 - negativePrompt:`, negativePrompt);
+        
+        const promptParts = [
+          'masterpiece, 8k, ultra detailed, best quality',
+          ...stylePrompts,
+          shot.shotType,
+          sceneAsset?.name,
+          characterAssets?.[0]?.name,
+          'static scene'
+        ].filter(Boolean);
+        
         const staticKeyframe: Keyframe = {
           id: `kf_${shot.id}_${i + 1}`,
           sequence: i + 1,
-          frameType: i === 0 ? 'start' : i === keyframeCount - 1 ? 'end' : 'middle',
-          description: `${shot.description}（静态画面）`,
-          prompt: `参考角色图：${characterAssets?.[0]?.id || '无'}，参考场景图：${sceneAsset?.id || '无'}；${shot.shotType}，${sceneAsset?.name || ''}，${characterAssets?.[0]?.name || ''}，静态画面，电影级画质`,
+          frameType,
+          description: `${shot.description}${descriptionSuffix}`,
+          prompt: `${promptParts.join(', ')}${promptSuffix}`,
+          negativePrompt,
           duration: durationPerFrame,
           references: {
             character: characterAssets?.[0]
@@ -98,9 +172,12 @@ export class KeyframeService {
           },
           status: 'pending',
         };
+        
+        console.log(`[DEBUG KeyframeService] 创建的静态关键帧 ${i + 1}:`, staticKeyframe);
         staticKeyframes.push(staticKeyframe);
       }
       console.log(`[KeyframeService] 静态分镜关键帧创建完成，共 ${staticKeyframes.length} 个`);
+      console.log(`[DEBUG KeyframeService] 最终返回的关键帧数组:`, staticKeyframes);
       return staticKeyframes;
     }
 
@@ -108,6 +185,7 @@ export class KeyframeService {
     const params: KeyframeSplitParams = {
       shot,
       keyframeCount: Math.max(2, Math.min(4, keyframeCount)),
+      script,
       characterAssets: characterAssets?.map(c => ({
         id: c.id,
         name: c.name,
@@ -124,6 +202,7 @@ export class KeyframeService {
       splitOptions,
       temperature,
       maxTokens,
+      negativePrompt,
     };
 
     console.log(`[KeyframeService] 实际关键帧数量: ${params.keyframeCount}`);
@@ -158,10 +237,10 @@ export class KeyframeService {
     console.log(`[KeyframeService] ========== 自动处理静态分镜 ==========`);
     console.log(`[KeyframeService] 分镜ID: ${shot.id}`);
     console.log(`[KeyframeService] 分镜名称: ${shot.sceneName}-镜头${shot.sequence}`);
-    
+
     // 检测分镜类型
     const contentType = keyframeEngine.detectShotType(shot.description, shot.cameraMovement);
-    
+
     if (contentType !== 'static') {
       console.log(`[KeyframeService] 不是静态分镜，跳过自动处理`);
       return [];
@@ -169,10 +248,11 @@ export class KeyframeService {
 
     // 获取角色和场景资产
     const assets = await storageService.getAssets(projectId);
-    const characterAssets = shot.characters
-      ?.map(charName => assets.find(a => a.type === 'character' && a.name === charName))
-      .filter((a): a is CharacterAsset => !!a) || [];
-    
+    const characterAssets =
+      shot.characters
+        ?.map(charName => assets.find(a => a.type === 'character' && a.name === charName))
+        .filter((a): a is CharacterAsset => !!a) || [];
+
     const sceneAsset = assets.find(a => a.type === 'scene' && a.name === shot.sceneName);
 
     console.log(`[KeyframeService] 角色资产数量: ${characterAssets.length}`);
@@ -205,7 +285,7 @@ export class KeyframeService {
 
     console.log(`[KeyframeService] 静态分镜关键帧自动创建完成`);
     console.log(`[KeyframeService] ========== 自动处理完成 ==========`);
-    
+
     return [staticKeyframe];
   }
 
@@ -319,18 +399,18 @@ export class KeyframeService {
     // 并发控制函数
     const processBatch = async () => {
       const batchSize = Math.min(concurrencyLimit, keyframes.length - completedCount);
-      
+
       if (batchSize <= 0) return [];
 
       console.log(`[KeyframeService] 开始处理批次，大小: ${batchSize}`);
-      
+
       const batchPromises = [];
       for (let i = 0; i < batchSize; i++) {
         const index = completedCount + i;
         const keyframe = keyframes[index];
-        
+
         console.log(`[KeyframeService] 正在生成第 ${index + 1}/${keyframes.length} 个关键帧...`);
-        
+
         const promise = this.generateKeyframeImage({
           ...options,
           keyframe,
@@ -340,7 +420,7 @@ export class KeyframeService {
           onProgress?.(completedCount, keyframes.length);
           return result;
         });
-        
+
         batchPromises.push(promise);
       }
 
@@ -511,7 +591,18 @@ export class KeyframeService {
     options: BatchSplitKeyframesOptions,
     onProgress?: (completed: number, total: number) => void
   ): Promise<Map<string, Keyframe[]>> {
-    const { shots, keyframeCount, projectId, modelConfigId, splitOptions, temperature, maxTokens, concurrencyLimit = 3 } = options;
+    const {
+      shots,
+      keyframeCount,
+      projectId,
+      script,
+      modelConfigId,
+      splitOptions,
+      temperature,
+      maxTokens,
+      negativePrompt,
+      concurrencyLimit = 3,
+    } = options;
 
     console.log(`[KeyframeService] ========== 开始批量拆分关键帧 ==========`);
     console.log(`[KeyframeService] 总分镜数量: ${shots.length}`);
@@ -529,26 +620,29 @@ export class KeyframeService {
     // 并发控制函数
     const processBatch = async () => {
       const batchSize = Math.min(concurrencyLimit, shots.length - completedCount);
-      
+
       if (batchSize <= 0) return [];
 
       console.log(`[KeyframeService] 开始处理批次，大小: ${batchSize}`);
-      
+
       const batchPromises = [];
       for (let i = 0; i < batchSize; i++) {
         const index = completedCount + i;
         const shot = shots[index];
-        
+
         console.log(`[KeyframeService] 正在处理第 ${index + 1}/${shots.length} 个分镜...`);
         console.log(`[KeyframeService] 分镜名称: ${shot.sceneName}-镜头${shot.sequence}`);
-        
+
         const promise = (async () => {
           try {
             // 获取当前分镜的角色和场景资产
-            const characterAssets = shot.characters
-              ?.map(charName => allAssets.find(a => a.type === 'character' && a.name === charName))
-              .filter((a): a is CharacterAsset => !!a) || [];
-            
+            const characterAssets =
+              shot.characters
+                ?.map(charName =>
+                  allAssets.find(a => a.type === 'character' && a.name === charName)
+                )
+                .filter((a): a is CharacterAsset => !!a) || [];
+
             const sceneAsset = allAssets.find(a => a.type === 'scene' && a.name === shot.sceneName);
 
             // 调用拆分方法
@@ -556,12 +650,14 @@ export class KeyframeService {
               shot,
               keyframeCount,
               projectId,
+              script,
               characterAssets,
               sceneAsset,
               modelConfigId,
               splitOptions,
               temperature,
               maxTokens,
+              negativePrompt,
             });
 
             results.set(shot.id, keyframes);
@@ -575,7 +671,7 @@ export class KeyframeService {
             onProgress?.(completedCount, shots.length);
           }
         })();
-        
+
         batchPromises.push(promise);
       }
 
@@ -589,7 +685,9 @@ export class KeyframeService {
     }
 
     const batchDuration = Date.now() - batchStartTime;
-    const successCount = Array.from(results.values()).filter(keyframes => keyframes.length > 0).length;
+    const successCount = Array.from(results.values()).filter(
+      keyframes => keyframes.length > 0
+    ).length;
     const failedCount = shots.length - successCount;
 
     console.log(`[KeyframeService] ========== 批量拆分完成 ==========`);

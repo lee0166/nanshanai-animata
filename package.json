@@ -28,8 +28,8 @@
     "download-wasm": "node scripts/download-wasm.js",
     "check-model-update": "node scripts/check-model-update.js",
     "chroma": ".venv-chroma\\Scripts\\chroma run --path ./data/chroma_db",
-    "lint": "eslint . --ext .ts,.tsx,.js,.jsx --ignore-pattern 'services/errorHandler.ts'",
-    "lint:fix": "eslint . --ext .ts,.tsx,.js,.jsx --fix --ignore-pattern 'services/errorHandler.ts'",
+    "lint": "eslint . --ext .ts,.tsx,.js,.jsx --ignore-pattern 'services/errorHandler.ts' --ignore-pattern '.backup/'",
+    "lint:fix": "eslint . --ext .ts,.tsx,.js,.jsx --fix --ignore-pattern 'services/errorHandler.ts' --ignore-pattern '.backup/'",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "prepare": "husky"

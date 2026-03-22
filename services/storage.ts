@@ -940,10 +940,10 @@ export class StorageService {
 
   async getAssetUrl(relativePath: string): Promise<string> {
     if (!this.directoryHandle || !relativePath) return '';
-    
+
     // 清理过期缓存
     this.cleanupAudioUrlCache();
-    
+
     // 检查缓存
     if (this.audioUrlCache.has(relativePath)) {
       const cached = this.audioUrlCache.get(relativePath);
@@ -952,7 +952,7 @@ export class StorageService {
         return cached.url;
       }
     }
-    
+
     try {
       const parts = relativePath.split('/');
       let currentDir = this.directoryHandle;
@@ -965,13 +965,13 @@ export class StorageService {
       const fileHandle = await currentDir.getFileHandle(parts[parts.length - 1]);
       const file = await fileHandle.getFile();
       const url = URL.createObjectURL(file);
-      
+
       // 保存到缓存
       this.audioUrlCache.set(relativePath, {
         url,
-        timestamp: Date.now()
+        timestamp: Date.now(),
       });
-      
+
       return url;
     } catch (e: any) {
       // Silently handle NotFoundError as it's common for deleted files
@@ -1418,20 +1418,20 @@ export class StorageService {
     });
   }
 
-  // --- Review Management ---  
-  
+  // --- Review Management ---
+
   async saveReviewItem(reviewItem: any): Promise<void> {
     const filename = `reviews_${reviewItem.projectId}.json`;
     return this.lock(filename, async () => {
       const reviews = await this.getReviewItems(reviewItem.projectId);
       const index = reviews.findIndex(r => r.id === reviewItem.id);
-      
+
       if (index >= 0) {
         reviews[index] = reviewItem;
       } else {
         reviews.push(reviewItem);
       }
-      
+
       await this.writeJson(filename, reviews);
     });
   }

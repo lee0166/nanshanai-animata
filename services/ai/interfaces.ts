@@ -17,7 +17,8 @@ export interface IAIProvider {
     resolution?: string,
     count?: number,
     guidanceScale?: number,
-    extraParams?: Record<string, any>
+    extraParams?: Record<string, any>,
+    negativePrompt?: string
   ): Promise<AIResult>;
   generateVideo(
     prompt: string,

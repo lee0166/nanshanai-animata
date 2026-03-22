@@ -31,6 +31,12 @@ import {
   X,
   Settings2,
   Volume2,
+  ChevronUp,
+  ChevronDown,
+  User,
+  Map,
+  Box,
+  Library,
 } from 'lucide-react';
 import { storageService } from '../services/storage';
 import { QualityRulesEditor } from '../components/Settings/QualityRulesEditor';
@@ -91,7 +97,15 @@ const Settings: React.FC = () => {
   const [activeNav, setActiveNav] = useState<'general' | 'duration' | 'models' | 'quality'>(
     'general'
   );
-  
+
+  // Collapsible state for model types
+  const [expandedTypes, setExpandedTypes] = useState<Record<string, boolean>>({
+    image: true,
+    video: true,
+    llm: true,
+    audio: true,
+  });
+
   // TTS Test State
   const { isOpen: isTtsTestOpen, onOpen: onTtsTestOpen, onClose: onTtsTestClose } = useDisclosure();
   const [ttsTestModel, setTtsTestModel] = useState<ModelConfig | null>(null);
@@ -178,7 +192,15 @@ const Settings: React.FC = () => {
   const [showAdd, setShowAdd] = useState(false);
   const [newModelName, setNewModelName] = useState('');
   const [selectedProvider, setSelectedProvider] = useState<
-    'vidu' | 'volcengine' | 'modelscope' | 'openai' | 'aliyun' | 'aliyun-tts' | 'baidu-tts' | 'other' | ''
+    | 'vidu'
+    | 'volcengine'
+    | 'modelscope'
+    | 'openai'
+    | 'aliyun'
+    | 'aliyun-tts'
+    | 'baidu-tts'
+    | 'other'
+    | ''
   >('');
   const [selectedBaseModelId, setSelectedBaseModelId] = useState('');
   const [newApiKey, setNewApiKey] = useState('');
@@ -219,8 +241,7 @@ const Settings: React.FC = () => {
   const availableBaseModels = React.useMemo(() => {
     // 过滤出该 Provider 和 Type 下的基础模型
     return DEFAULT_MODELS.filter(
-      (m: ModelConfig) =>
-        m.provider === selectedProvider && m.type === selectedType
+      (m: ModelConfig) => m.provider === selectedProvider && m.type === selectedType
     );
   }, [selectedProvider, selectedType]);
 
@@ -468,6 +489,14 @@ const Settings: React.FC = () => {
   const batchEnable = () => batchUpdateModels(true);
   const batchDisable = () => batchUpdateModels(false);
 
+  // Toggle type expanded state
+  const toggleTypeExpanded = (type: string) => {
+    setExpandedTypes(prev => ({
+      ...prev,
+      [type]: !prev[type],
+    }));
+  };
+
   const handleRemoveModel = (id: string) => {
     setModelToDelete(id);
     onConfirmOpen();
@@ -559,7 +588,7 @@ const Settings: React.FC = () => {
       // 这里应该调用音频服务生成语音
       // 暂时模拟实现
       console.log('测试TTS服务:', ttsTestModel, ttsTestText);
-      
+
       // 模拟生成音频URL
       setTimeout(() => {
         setTtsTestResult(`http://localhost:3000/api/tts/test/${Date.now()}`);
@@ -1272,7 +1301,7 @@ const Settings: React.FC = () => {
               <div className="flex-1 relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                 <Input
-                  placeholder="搜索模型名称或 Model ID..."
+                  placeholder="搜索模型名称或模型ID..."
                   value={searchQuery}
                   onValueChange={setSearchQuery}
                   size="sm"
@@ -1409,7 +1438,7 @@ const Settings: React.FC = () => {
                 <Input
                   label={t.settings.modelName}
                   labelPlacement="outside"
-                  placeholder="My Custom Model Config"
+                  placeholder="我的自定义模型配置"
                   value={newModelName}
                   onValueChange={setNewModelName}
                   variant="bordered"
@@ -1423,7 +1452,7 @@ const Settings: React.FC = () => {
                 <Select
                   label={t.settings.modelType}
                   labelPlacement="outside"
-                  placeholder="Select type"
+                  placeholder="选择类型"
                   selectedKeys={selectedType ? [selectedType] : []}
                   onSelectionChange={keys => {
                     const val = Array.from(keys)[0] as any;
@@ -1461,7 +1490,7 @@ const Settings: React.FC = () => {
                     <Select
                       label={t.settings.provider}
                       labelPlacement="outside"
-                      placeholder="Select provider"
+                      placeholder="选择供应商"
                       isDisabled={!selectedType}
                       selectedKeys={selectedProvider ? [selectedProvider] : []}
                       onSelectionChange={keys => {
@@ -1505,7 +1534,7 @@ const Settings: React.FC = () => {
                       <Select
                         label={t.settings.baseModel}
                         labelPlacement="outside"
-                        placeholder="Select a model"
+                        placeholder="选择模型"
                         isDisabled={!selectedProvider}
                         selectedKeys={selectedBaseModelId ? [selectedBaseModelId] : []}
                         onSelectionChange={keys => {
@@ -1541,7 +1570,8 @@ const Settings: React.FC = () => {
                           label={t.settings.modelConfig?.apiProtocolType || 'API协议类型'}
                           labelPlacement="outside"
                           placeholder={
-                            t.settings.modelConfig?.selectApiProtocolPlaceholder || '选择 API 协议类型'
+                            t.settings.modelConfig?.selectApiProtocolPlaceholder ||
+                            '选择 API 协议类型'
                           }
                           selectedKeys={customModel.provider ? [customModel.provider] : []}
                           onSelectionChange={keys => {
@@ -1603,7 +1633,7 @@ const Settings: React.FC = () => {
                 <Input
                   label={t.settings.apiKey}
                   labelPlacement="outside"
-                  placeholder="Enter API Key for this model"
+                  placeholder="输入此模型的API密钥"
                   value={newApiKey}
                   onValueChange={setNewApiKey}
                   type="password"
@@ -1615,11 +1645,13 @@ const Settings: React.FC = () => {
                     input: 'font-medium text-[15px]',
                   }}
                 />
-                {(selectedType === 'audio' || selectedProvider === 'aliyun-tts' || selectedProvider === 'baidu-tts') && (
+                {(selectedType === 'audio' ||
+                  selectedProvider === 'aliyun-tts' ||
+                  selectedProvider === 'baidu-tts') && (
                   <Input
-                    label="API Secret"
+                    label="API密钥"
                     labelPlacement="outside"
-                    placeholder="Enter API Secret for this model"
+                    placeholder="输入此模型的API密钥"
                     value={newApiSecret || ''}
                     onValueChange={setNewApiSecret}
                     type="password"
@@ -1642,8 +1674,7 @@ const Settings: React.FC = () => {
                     onClick={() => setShowAdvancedOptions(!showAdvancedOptions)}
                   >
                     <span className="font-black uppercase tracking-widest text-[12px]">
-                      {showAdvancedOptions ? '▼' : '▶'}{' '}
-                      {t.settings.modelConfig?.advancedOptions}
+                      {showAdvancedOptions ? '▼' : '▶'} {t.settings.modelConfig?.advancedOptions}
                     </span>
                     <span className="text-xs text-slate-400">
                       {t.settings.modelConfig?.advancedOptionsDesc}
@@ -1655,7 +1686,7 @@ const Settings: React.FC = () => {
                       <div className="p-4 bg-primary/10 dark:bg-primary/20 rounded-xl">
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                           <Input
-                            label={t.settings.modelConfig?.temperature}
+                            label={t.settings.modelConfig?.temperature || '温度'}
                             labelPlacement="outside"
                             type="number"
                             placeholder="0.3"
@@ -1675,7 +1706,7 @@ const Settings: React.FC = () => {
                             }}
                           />
                           <Input
-                            label={t.settings.modelConfig?.maxTokens}
+                            label={t.settings.modelConfig?.maxTokens || '最大令牌数'}
                             labelPlacement="outside"
                             type="number"
                             placeholder="32000"
@@ -1705,10 +1736,11 @@ const Settings: React.FC = () => {
                             />
                             <div className="flex flex-col">
                               <span className="font-black uppercase tracking-widest text-[12px] text-slate-500">
-                                {t.settings.modelConfig?.enableThinking}
+                                {t.settings.modelConfig?.enableThinking || '启用思考模式'}
                               </span>
                               <span className="text-xs text-slate-400">
-                                {t.settings.modelConfig?.enableThinkingDesc}
+                                {t.settings.modelConfig?.enableThinkingDesc ||
+                                  '允许模型在回答前进行思考'}
                               </span>
                             </div>
                           </div>
@@ -1718,7 +1750,7 @@ const Settings: React.FC = () => {
                       <div className="p-4 bg-primary/10 dark:bg-primary/20 rounded-xl">
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                           <Input
-                            label={t.settings.modelConfig?.costPer1KInput}
+                            label={t.settings.modelConfig?.costPer1KInput || '每1K输入成本'}
                             labelPlacement="outside"
                             type="number"
                             placeholder="0.01"
@@ -1740,7 +1772,7 @@ const Settings: React.FC = () => {
                             }}
                           />
                           <Input
-                            label={t.settings.modelConfig?.costPer1KOutput}
+                            label={t.settings.modelConfig?.costPer1KOutput || '每1K输出成本'}
                             labelPlacement="outside"
                             type="number"
                             placeholder="0.03"
@@ -1782,10 +1814,11 @@ const Settings: React.FC = () => {
                       />
                       <div className="flex flex-col">
                         <span className="font-black uppercase tracking-widest text-[12px] text-slate-500">
-                          {t.settings.modelConfig?.supportsReferenceImage}
+                          {t.settings.modelConfig?.supportsReferenceImage || '支持参考图'}
                         </span>
                         <span className="text-xs text-slate-400">
-                          {t.settings.modelConfig?.supportsReferenceImageDesc}
+                          {t.settings.modelConfig?.supportsReferenceImageDesc ||
+                            '允许使用参考图片进行生成'}
                         </span>
                       </div>
                     </div>
@@ -1793,7 +1826,7 @@ const Settings: React.FC = () => {
                     {customModel.supportsReferenceImage && (
                       <div className="pl-12">
                         <Input
-                          label={t.settings.modelConfig?.maxReferenceImages}
+                          label={t.settings.modelConfig?.maxReferenceImages || '最大参考图数量'}
                           labelPlacement="outside"
                           type="number"
                           placeholder="5"
@@ -1843,240 +1876,312 @@ const Settings: React.FC = () => {
           </Card>
         )}
 
-        <Table
-          aria-label="Model configurations"
-          variant="simple"
-          classNames={{
-            base: 'overflow-hidden',
-            th: 'bg-transparent text-slate-400 font-black text-xs uppercase tracking-[0.2em] border-b border-slate-100 dark:border-slate-800 py-3 px-4',
-            td: 'py-3 px-4 font-medium text-sm text-slate-600 dark:text-slate-300',
-            tr: 'border-b border-slate-50 dark:border-slate-900/50 last:border-0 hover:bg-slate-100/80 dark:hover:bg-slate-800/60 hover:shadow-[0_0_0_1px_rgba(59,130,246,0.1)] transition-all duration-200 cursor-pointer',
-          }}
-        >
-          <TableHeader>
-            <TableColumn width={40}>
-              <input
-                type="checkbox"
-                checked={
-                  selectedModelIds.length === filteredModels.length && filteredModels.length > 0
-                }
-                onChange={e => {
-                  if (e.target.checked) {
-                    setSelectedModelIds(filteredModels.map(m => m.id));
-                  } else {
-                    setSelectedModelIds([]);
-                  }
-                }}
-                className="w-4 h-4 rounded border-slate-300 dark:border-slate-600 text-primary focus:ring-primary"
-              />
-            </TableColumn>
-            <TableColumn width={80}>状态</TableColumn>
-            <TableColumn>{t.settings.modelName}</TableColumn>
-            <TableColumn>{t.settings.modelType}</TableColumn>
-            <TableColumn>能力</TableColumn>
-            <TableColumn>价格 ($/1K)</TableColumn>
-            <TableColumn>{t.settings.modelIdOnly}</TableColumn>
-            <TableColumn>API Key</TableColumn>
-            <TableColumn align="end">{t.settings.actions}</TableColumn>
-          </TableHeader>
-          <TableBody
-            emptyContent={
-              filteredModels.length === 0 && settings.models.length > 0
-                ? '没有找到匹配的模型'
-                : 'No models configured.'
-            }
-          >
-            {filteredModels.map(model => (
-              <TableRow key={model.id}>
-                <TableCell>
-                  <input
-                    type="checkbox"
-                    checked={selectedModelIds.includes(model.id)}
-                    onChange={() => toggleModelSelection(model.id)}
-                    className="w-4 h-4 rounded border-slate-300 dark:border-slate-600 text-primary focus:ring-primary"
-                  />
-                </TableCell>
-                <TableCell>
-                  <Switch
-                    isSelected={model.enabled ?? true}
-                    onValueChange={() => toggleModelEnabled(model.id)}
-                    size="sm"
-                    color={(model.enabled ?? true) ? 'success' : 'default'}
-                  />
-                </TableCell>
-                <TableCell>
+        {/* Group models by type */}
+        {(() => {
+          const groupedModels = filteredModels.reduce(
+            (groups, model) => {
+              const type = model.type;
+              if (!groups[type]) {
+                groups[type] = [];
+              }
+              groups[type].push(model);
+              return groups;
+            },
+            {} as Record<string, ModelConfig[]>
+          );
+
+          const modelTypes = Object.keys(groupedModels);
+
+          if (modelTypes.length === 0) {
+            return (
+              <div className="text-center py-12">
+                <p className="text-slate-400">
+                  {filteredModels.length === 0 && settings.models.length > 0
+                    ? '没有找到匹配的模型'
+                    : '未配置模型。'}
+                </p>
+              </div>
+            );
+          }
+
+          return modelTypes.map(type => {
+            const models = groupedModels[type];
+            const typeName =
+              type === 'video'
+                ? t.settings.modelTypeVideo
+                : type === 'llm'
+                  ? '文本解析'
+                  : type === 'audio'
+                    ? '音频服务'
+                    : t.settings.modelTypeImage;
+
+            const TypeIcon =
+              type === 'video'
+                ? Film
+                : type === 'llm'
+                  ? User
+                  : type === 'audio'
+                    ? Volume2
+                    : type === 'image'
+                      ? Box
+                      : Library;
+
+            return (
+              <Card key={type} className="mb-4 border border-slate-200 dark:border-slate-800">
+                <CardHeader className="flex justify-between items-center">
                   <div className="flex items-center gap-3">
                     <div
-                      className={`w-2 h-2 rounded-full ${model.type === 'video' ? 'bg-primary' : 'bg-pink-500'}`}
-                    />
-                    <span className="font-black text-slate-900 dark:text-white uppercase tracking-tight">
-                      {model.name}
-                    </span>
-                  </div>
-                </TableCell>
-                <TableCell>
-                  <Chip
-                    size="sm"
-                    variant="flat"
-                    color="secondary"
-                    className="font-medium text-[11px] uppercase tracking-wide px-2.5 h-6"
-                  >
-                    {model.type === 'video'
-                      ? t.settings.modelTypeVideo
-                      : model.type === 'llm'
-                        ? '文本解析'
-                        : model.type === 'audio'
-                          ? '音频服务'
-                          : t.settings.modelTypeImage}
-                  </Chip>
-                </TableCell>
-                <TableCell>
-                  {model.type === 'image' && (
-                    <Chip
-                      size="sm"
-                      variant="flat"
-                      color="default"
-                      className="font-medium text-[11px] uppercase tracking-wide px-2.5 h-6"
+                      className={`p-2 rounded-lg ${type === 'video' ? 'bg-primary/10 text-primary' : 'bg-pink-500/10 text-pink-500'}`}
                     >
-                      {model.capabilities?.supportsReferenceImage ? '支持参考图' : '文生图'}
-                    </Chip>
-                  )}
-                  {model.type === 'video' && (
-                    <Chip
-                      size="sm"
-                      variant="flat"
-                      color="default"
-                      className="font-medium text-[11px] uppercase tracking-wide px-2.5 h-6"
-                    >
-                      视频生成
-                    </Chip>
-                  )}
-                  {model.type === 'llm' && (
-                    <Chip
-                      size="sm"
-                      variant="flat"
-                      color="default"
-                      className="font-medium text-[11px] uppercase tracking-wide px-2.5 h-6"
-                    >
-                      文本解析
-                    </Chip>
-                  )}
-                  {model.type === 'audio' && (
-                    <Chip
-                      size="sm"
-                      variant="flat"
-                      color="default"
-                      className="font-medium text-[11px] uppercase tracking-wide px-2.5 h-6"
-                    >
-                      语音合成
-                    </Chip>
-                  )}
-                </TableCell>
-                <TableCell>
-                  {model.type === 'llm' && (
-                    <div className="text-xs text-slate-500">
-                      {model.costPer1KInput !== undefined || model.costPer1KOutput !== undefined ? (
-                        <div className="flex flex-col gap-1">
-                          {model.costPer1KInput !== undefined && (
-                            <span>输入: ${model.costPer1KInput.toFixed(3)}</span>
-                          )}
-                          {model.costPer1KOutput !== undefined && (
-                            <span>输出: ${model.costPer1KOutput.toFixed(3)}</span>
-                          )}
-                        </div>
-                      ) : (
-                        <span className="text-slate-400">使用默认价格</span>
-                      )}
+                      <TypeIcon className="w-5 h-5" />
                     </div>
-                  )}
-                  {model.type !== 'llm' && <span className="text-slate-400 text-xs">-</span>}
-                </TableCell>
-                <TableCell>
-                  <Input
-                    size="md"
-                    variant="bordered"
-                    value={model.modelId}
-                    isReadOnly
-                    className="max-w-[300px]"
-                    classNames={{
-                      input: 'text-[14px] font-mono',
-                    }}
-                  />
-                </TableCell>
-                <TableCell>
-                  <div className="flex items-center gap-2 max-w-[320px]">
-                    <Input
-                      size="md"
-                      variant="bordered"
-                      type={visibleApiKeys[model.id] ? 'text' : 'password'}
-                      value={model.apiKey}
-                      onValueChange={val => {
-                        const updatedModels = settings.models.map(m =>
-                          m.id === model.id ? { ...m, apiKey: val } : m
-                        );
-                        updateSettings({ ...settings, models: updatedModels });
-                      }}
-                      className="flex-1"
-                      classNames={{
-                        input: 'text-[14px]',
-                      }}
-                    />
-                    <Button
-                      isIconOnly
-                      variant="light"
-                      size="sm"
-                      onPress={() => toggleApiKeyVisibility(model.id)}
-                      className="text-slate-400 hover:text-slate-600"
-                      aria-label={visibleApiKeys[model.id] ? '隐藏 API Key' : '显示 API Key'}
-                    >
-                      {visibleApiKeys[model.id] ? (
-                        <EyeOff className="w-4 h-4" />
-                      ) : (
-                        <Eye className="w-4 h-4" />
-                      )}
-                    </Button>
+                    <div>
+                      <h3 className="font-black uppercase tracking-widest text-slate-700 dark:text-slate-300">
+                        {typeName}
+                      </h3>
+                      <p className="text-xs text-slate-400">{models.length} 个模型</p>
+                    </div>
                   </div>
-                </TableCell>
-                <TableCell>
-                  <div className="flex items-center gap-1">
-                    <Button
-                      isIconOnly
-                      color="primary"
-                      variant="light"
-                      size="sm"
-                      onPress={() => handleEditModel(model)}
-                      className="opacity-40 hover:opacity-100 transition-opacity"
-                    >
-                      <Pencil className="w-4 h-4" />
-                    </Button>
-                    {model.type === 'audio' && (
-                      <Button
-                        isIconOnly
-                        color="success"
-                        variant="light"
-                        size="sm"
-                        onPress={() => handleTestTTS(model)}
-                        className="opacity-40 hover:opacity-100 transition-opacity"
-                      >
-                        <Volume2 className="w-4 h-4" />
-                      </Button>
+                  <Button
+                    isIconOnly
+                    variant="light"
+                    onPress={() => toggleTypeExpanded(type)}
+                    aria-label={expandedTypes[type] ? '收起' : '展开'}
+                    className="transition-transform"
+                  >
+                    {expandedTypes[type] ? (
+                      <ChevronUp className="w-5 h-5" />
+                    ) : (
+                      <ChevronDown className="w-5 h-5" />
                     )}
-                    <Button
-                      isIconOnly
-                      color="danger"
-                      variant="light"
-                      size="sm"
-                      onPress={() => handleRemoveModel(model.id)}
-                      className="opacity-40 hover:opacity-100 transition-opacity"
+                  </Button>
+                </CardHeader>
+                {expandedTypes[type] && (
+                  <CardBody className="p-0">
+                    <Table
+                      aria-label={`${typeName} configurations`}
+                      variant="simple"
+                      classNames={{
+                        base: 'overflow-hidden',
+                        th: 'bg-transparent text-slate-400 font-black text-xs uppercase tracking-[0.2em] border-b border-slate-100 dark:border-slate-800 py-3 px-4',
+                        td: 'py-3 px-4 font-medium text-sm text-slate-600 dark:text-slate-300',
+                        tr: 'border-b border-slate-50 dark:border-slate-900/50 last:border-0 hover:bg-slate-100/80 dark:hover:bg-slate-800/60 hover:shadow-[0_0_0_1px_rgba(59,130,246,0.1)] transition-all duration-200 cursor-pointer',
+                      }}
                     >
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
-                  </div>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+                      <TableHeader>
+                        <TableColumn width={40}>
+                          <input
+                            type="checkbox"
+                            checked={models.every(m => selectedModelIds.includes(m.id))}
+                            onChange={e => {
+                              if (e.target.checked) {
+                                setSelectedModelIds(prev => [...prev, ...models.map(m => m.id)]);
+                              } else {
+                                setSelectedModelIds(prev =>
+                                  prev.filter(id => !models.map(m => m.id).includes(id))
+                                );
+                              }
+                            }}
+                            className="w-4 h-4 rounded border-slate-300 dark:border-slate-600 text-primary focus:ring-primary"
+                          />
+                        </TableColumn>
+                        <TableColumn width={80}>状态</TableColumn>
+                        <TableColumn>{t.settings.modelName}</TableColumn>
+                        <TableColumn>能力</TableColumn>
+                        <TableColumn>价格 ($/1K)</TableColumn>
+                        <TableColumn>{t.settings.modelIdOnly}</TableColumn>
+                        <TableColumn>API Key</TableColumn>
+                        <TableColumn align="end">{t.settings.actions}</TableColumn>
+                      </TableHeader>
+                      <TableBody>
+                        {models.map(model => (
+                          <TableRow key={model.id}>
+                            <TableCell>
+                              <input
+                                type="checkbox"
+                                checked={selectedModelIds.includes(model.id)}
+                                onChange={() => toggleModelSelection(model.id)}
+                                className="w-4 h-4 rounded border-slate-300 dark:border-slate-600 text-primary focus:ring-primary"
+                              />
+                            </TableCell>
+                            <TableCell>
+                              <Switch
+                                isSelected={model.enabled ?? true}
+                                onValueChange={() => toggleModelEnabled(model.id)}
+                                size="sm"
+                                color={(model.enabled ?? true) ? 'success' : 'default'}
+                              />
+                            </TableCell>
+                            <TableCell>
+                              <div className="flex items-center gap-3">
+                                <div
+                                  className={`w-2 h-2 rounded-full ${model.type === 'video' ? 'bg-primary' : 'bg-pink-500'}`}
+                                />
+                                <span className="font-black text-slate-900 dark:text-white uppercase tracking-tight">
+                                  {model.name}
+                                </span>
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              {model.type === 'image' && (
+                                <Chip
+                                  size="sm"
+                                  variant="flat"
+                                  color="default"
+                                  className="font-medium text-[11px] uppercase tracking-wide px-2.5 h-6"
+                                >
+                                  {model.capabilities?.supportsReferenceImage
+                                    ? '支持参考图'
+                                    : '文生图'}
+                                </Chip>
+                              )}
+                              {model.type === 'video' && (
+                                <Chip
+                                  size="sm"
+                                  variant="flat"
+                                  color="default"
+                                  className="font-medium text-[11px] uppercase tracking-wide px-2.5 h-6"
+                                >
+                                  视频生成
+                                </Chip>
+                              )}
+                              {model.type === 'llm' && (
+                                <Chip
+                                  size="sm"
+                                  variant="flat"
+                                  color="default"
+                                  className="font-medium text-[11px] uppercase tracking-wide px-2.5 h-6"
+                                >
+                                  文本解析
+                                </Chip>
+                              )}
+                              {model.type === 'audio' && (
+                                <Chip
+                                  size="sm"
+                                  variant="flat"
+                                  color="default"
+                                  className="font-medium text-[11px] uppercase tracking-wide px-2.5 h-6"
+                                >
+                                  语音合成
+                                </Chip>
+                              )}
+                            </TableCell>
+                            <TableCell>
+                              {model.type === 'llm' && (
+                                <div className="text-xs text-slate-500">
+                                  {model.costPer1KInput !== undefined ||
+                                  model.costPer1KOutput !== undefined ? (
+                                    <div className="flex flex-col gap-1">
+                                      {model.costPer1KInput !== undefined && (
+                                        <span>输入: ${model.costPer1KInput.toFixed(3)}</span>
+                                      )}
+                                      {model.costPer1KOutput !== undefined && (
+                                        <span>输出: ${model.costPer1KOutput.toFixed(3)}</span>
+                                      )}
+                                    </div>
+                                  ) : (
+                                    <span className="text-slate-400">使用默认价格</span>
+                                  )}
+                                </div>
+                              )}
+                              {model.type !== 'llm' && (
+                                <span className="text-slate-400 text-xs">-</span>
+                              )}
+                            </TableCell>
+                            <TableCell>
+                              <Input
+                                size="md"
+                                variant="bordered"
+                                value={model.modelId}
+                                isReadOnly
+                                className="max-w-[300px]"
+                                classNames={{
+                                  input: 'text-[14px] font-mono',
+                                }}
+                              />
+                            </TableCell>
+                            <TableCell>
+                              <div className="flex items-center gap-2 max-w-[320px]">
+                                <Input
+                                  size="md"
+                                  variant="bordered"
+                                  type={visibleApiKeys[model.id] ? 'text' : 'password'}
+                                  value={model.apiKey}
+                                  onValueChange={val => {
+                                    const updatedModels = settings.models.map(m =>
+                                      m.id === model.id ? { ...m, apiKey: val } : m
+                                    );
+                                    updateSettings({ ...settings, models: updatedModels });
+                                  }}
+                                  className="flex-1"
+                                  classNames={{
+                                    input: 'text-[14px]',
+                                  }}
+                                />
+                                <Button
+                                  isIconOnly
+                                  variant="light"
+                                  size="sm"
+                                  onPress={() => toggleApiKeyVisibility(model.id)}
+                                  className="text-slate-400 hover:text-slate-600"
+                                  aria-label={
+                                    visibleApiKeys[model.id] ? '隐藏 API Key' : '显示 API Key'
+                                  }
+                                >
+                                  {visibleApiKeys[model.id] ? (
+                                    <EyeOff className="w-4 h-4" />
+                                  ) : (
+                                    <Eye className="w-4 h-4" />
+                                  )}
+                                </Button>
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <div className="flex items-center gap-1">
+                                <Button
+                                  isIconOnly
+                                  color="primary"
+                                  variant="light"
+                                  size="sm"
+                                  onPress={() => handleEditModel(model)}
+                                  className="opacity-40 hover:opacity-100 transition-opacity"
+                                >
+                                  <Pencil className="w-4 h-4" />
+                                </Button>
+                                {model.type === 'audio' && (
+                                  <Button
+                                    isIconOnly
+                                    color="success"
+                                    variant="light"
+                                    size="sm"
+                                    onPress={() => handleTestTTS(model)}
+                                    className="opacity-40 hover:opacity-100 transition-opacity"
+                                  >
+                                    <Volume2 className="w-4 h-4" />
+                                  </Button>
+                                )}
+                                <Button
+                                  isIconOnly
+                                  color="danger"
+                                  variant="light"
+                                  size="sm"
+                                  onPress={() => handleRemoveModel(model.id)}
+                                  className="opacity-40 hover:opacity-100 transition-opacity"
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </Button>
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </CardBody>
+                )}
+              </Card>
+            );
+          });
+        })()}
       </CardBody>
     </Card>
   );
@@ -2179,11 +2284,7 @@ const Settings: React.FC = () => {
                   测试结果
                 </h4>
                 <div className="flex items-center gap-3">
-                  <audio
-                    src={ttsTestResult}
-                    controls
-                    className="flex-1"
-                  />
+                  <audio src={ttsTestResult} controls className="flex-1" />
                   <Button
                     variant="light"
                     size="sm"
@@ -2261,7 +2362,9 @@ const Settings: React.FC = () => {
                 input: 'font-medium text-[15px]',
               }}
             />
-            {(editingModel?.type === 'audio' || editingModel?.provider === 'aliyun-tts' || editingModel?.provider === 'baidu-tts') && (
+            {(editingModel?.type === 'audio' ||
+              editingModel?.provider === 'aliyun-tts' ||
+              editingModel?.provider === 'baidu-tts') && (
               <Input
                 label="API Secret"
                 labelPlacement="outside"

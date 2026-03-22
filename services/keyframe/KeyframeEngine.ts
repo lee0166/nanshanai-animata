@@ -1,9 +1,10 @@
-import { Shot, Keyframe, ShotType, CameraMovement, ShotContentType, FrameType } from '../../types';
+import { Shot, Keyframe, ShotType, CameraMovement, ShotContentType, FrameType, Script } from '../../types';
 import { aiService } from '../aiService';
 
 export interface KeyframeSplitParams {
   shot: Shot;
   keyframeCount?: number; // 可选，如果不传则自动根据contentType决定
+  script?: Script;
   characterAssets?: { id: string; name: string; features?: string }[];
   sceneAsset?: { id: string; name: string; features?: string };
   modelConfigId?: string; // 用户选择的LLM模型配置ID
@@ -16,6 +17,7 @@ export interface KeyframeSplitParams {
   };
   temperature?: number; // LLM生成温度
   maxTokens?: number; // LLM最大 tokens
+  negativePrompt?: string;
 }
 
 export interface KeyframeSplitResult {
@@ -154,7 +156,7 @@ export class KeyframeEngine {
    */
   async splitKeyframes(params: KeyframeSplitParams): Promise<KeyframeSplitResult> {
     try {
-      const { shot, temperature = 0.7, maxTokens = 2000 } = params;
+      const { shot, temperature = 0.7, maxTokens = 2000, negativePrompt } = params;
 
       // Step 1: 自动检测分镜类型
       const contentType = this.detectShotType(shot.description, shot.cameraMovement);
@@ -182,7 +184,9 @@ export class KeyframeEngine {
         shot,
         keyframeCount,
         params.characterAssets,
-        params.sceneAsset
+        params.sceneAsset,
+        negativePrompt,
+        params.script
       );
 
       return { keyframes, contentType };
@@ -202,7 +206,32 @@ export class KeyframeEngine {
   private buildSplitPrompt(
     params: KeyframeSplitParams & { keyframeCount: number; contentType: ShotContentType }
   ): string {
-    const { shot, keyframeCount, contentType, characterAssets, sceneAsset, splitOptions } = params;
+    const { shot, keyframeCount, contentType, characterAssets, sceneAsset, splitOptions, script, negativePrompt } = params;
+    
+    console.log('[DEBUG KeyframeEngine] ========== buildSplitPrompt 被调用 ==========');
+    console.log('[DEBUG KeyframeEngine] 接收到的 script:', script);
+    console.log('[DEBUG KeyframeEngine] 接收到的 negativePrompt:', negativePrompt);
+    console.log('[DEBUG KeyframeEngine] 接收到的 visualStyle:', script?.parseState?.metadata?.visualStyle);
+    
+    // 读取全局视觉风格
+    const visualStyle = script?.parseState?.metadata?.visualStyle;
+    
+    // 构建视觉风格描述
+    let visualStyleDesc = '';
+    if (visualStyle) {
+      const parts: string[] = [];
+      if (visualStyle.artDirection) parts.push(`美术风格：${visualStyle.artDirection}`);
+      if (visualStyle.artStyle) parts.push(`艺术风格：${visualStyle.artStyle}`);
+      if (visualStyle.colorMood) parts.push(`色彩情绪：${visualStyle.colorMood}`);
+      if (visualStyle.cinematography) parts.push(`摄影风格：${visualStyle.cinematography}`);
+      if (visualStyle.lightingStyle) parts.push(`光影风格：${visualStyle.lightingStyle}`);
+      if (visualStyle.colorPalette && visualStyle.colorPalette.length > 0) {
+        parts.push(`主色调：${visualStyle.colorPalette.join('、')}`);
+      }
+      if (parts.length > 0) {
+        visualStyleDesc = parts.join('，');
+      }
+    }
 
     const characterDesc =
       characterAssets?.map(c => `- ${c.name}${c.features ? `（${c.features}）` : ''}`).join('\n') ||
@@ -211,6 +240,26 @@ export class KeyframeEngine {
     const sceneDesc = sceneAsset
       ? `${sceneAsset.name}${sceneAsset.features ? `（${sceneAsset.features}）` : ''}`
       : '未指定';
+
+    // 构建视觉描述信息
+    let visualDetails = '';
+    if (shot.visualDescription) {
+      if (shot.visualDescription.composition) {
+        visualDetails += `构图：${shot.visualDescription.composition}，`;
+      }
+      if (shot.visualDescription.lighting) {
+        visualDetails += `光影：${shot.visualDescription.lighting}，`;
+      }
+      if (shot.visualDescription.colorPalette) {
+        visualDetails += `色调：${shot.visualDescription.colorPalette}，`;
+      }
+      if (shot.visualDescription.characterPositions) {
+        const positions = shot.visualDescription.characterPositions
+          .map(pos => `${pos.characterId}在${pos.position}，${pos.action}，${pos.expression}`)
+          .join('；');
+        visualDetails += `角色位置：${positions}，`;
+      }
+    }
 
     // 根据分镜类型生成不同的拆分要求
     let splitRequirement = '';
@@ -232,8 +281,11 @@ export class KeyframeEngine {
     }
 
     // 获取运镜指导
-    const movementGuidance = splitOptions?.includeCameraMovement !== false ? this.getMovementGuidance(shot.cameraMovement) : '运镜信息未指定';
-    
+    const movementGuidance =
+      splitOptions?.includeCameraMovement !== false
+        ? this.getMovementGuidance(shot.cameraMovement)
+        : '运镜信息未指定';
+
     // 获取叙事结构指导
     const narrativeStructure = this.getNarrativeStructure(keyframeCount, shot.duration);
 
@@ -267,6 +319,15 @@ export class KeyframeEngine {
       referenceInfo += `场景：${sceneAsset.name}${sceneAsset.features ? `，特征：${sceneAsset.features}` : ''}\n`;
     }
 
+    // 构建视觉风格部分
+    let visualStyleSection = '';
+    if (visualStyleDesc) {
+      visualStyleSection = `【全局视觉风格】
+${visualStyleDesc}
+
+`;
+    }
+
     return `你是一位专业的电影分镜师。请将以下分镜描述拆分为${keyframeCount}个连贯的静态关键帧。
 
 【运镜指导】
@@ -275,7 +336,7 @@ ${movementGuidance}
 【叙事结构】
 ${narrativeStructure}
 
-【参考图信息】
+${visualStyleSection}【参考图信息】
 ${referenceInfo || '无参考图'}
 
 【连贯性要求】
@@ -300,6 +361,10 @@ ${splitRequirement}
 3. 保持角色和场景一致性
 4. 符合${shot.shotType}景别要求
 5. 总时长控制在${shot.duration}秒内
+6. prompt字段使用英文逗号分隔元素
+7. prompt字段必须包含质量标签：masterpiece, 8k, ultra detailed, best quality
+8. prompt字段必须融入全局视觉风格（如果有）
+9. prompt字段不要包含内部数据库ID（如kf_xxx_1）
 ${additionalRequirements}
 
 【关键帧类型说明】
@@ -325,8 +390,8 @@ ${additionalRequirements}
 
 注意：
 - description要描述静态姿态，不能有动态动作词
-- prompt要适配图生图工具，包含参考图关联信息
-- 提示词格式：参考角色图：{角色ID}，参考场景图：{场景ID}；景别，场景，角色（特征），姿态描述，光影风格，电影级画质`;
+- prompt要适配图生图工具，包含质量标签和视觉风格
+- prompt格式示例：masterpiece, 8k, ultra detailed, best quality, [角色描述], [场景描述], [视觉风格], [景别描述], [光影描述]`;
   }
 
   /**
@@ -337,8 +402,14 @@ ${additionalRequirements}
     shot: Shot,
     keyframeCount: number,
     characterAssets?: { id: string; name: string }[],
-    sceneAsset?: { id: string; name: string }
+    sceneAsset?: { id: string; name: string },
+    negativePrompt?: string,
+    script?: Script
   ): Keyframe[] {
+    console.log('[DEBUG KeyframeEngine] ========== parseKeyframesFromResponse 被调用 ==========');
+    console.log('[DEBUG KeyframeEngine] 接收到的 negativePrompt:', negativePrompt);
+    console.log('[DEBUG KeyframeEngine] LLM返回的原始response:', response.substring(0, 500) + '...');
+    
     try {
       // 提取JSON部分
       const jsonMatch = response.match(/\{[\s\S]*\}/);
@@ -347,20 +418,22 @@ ${additionalRequirements}
       }
 
       const data = JSON.parse(jsonMatch[0]);
+      console.log('[DEBUG KeyframeEngine] 解析后的JSON数据:', data);
 
       if (!data.keyframes || !Array.isArray(data.keyframes)) {
         throw new Error('返回数据格式错误');
       }
 
-      return data.keyframes.map((kf: any, index: number) => {
+      const keyframes = data.keyframes.map((kf: any, index: number) => {
         const frameType = kf.frameType || this.getFrameType(index, keyframeCount);
 
-        return {
+        const keyframe = {
           id: `kf_${shot.id}_${index + 1}`,
           sequence: kf.sequence || index + 1,
           frameType: frameType as FrameType,
           description: kf.description || '',
           prompt: kf.prompt || '',
+          negativePrompt,
           duration: kf.duration || Math.ceil(shot.duration / data.keyframes.length),
           references: {
             character: characterAssets?.[0]
@@ -378,11 +451,18 @@ ${additionalRequirements}
           },
           status: 'pending' as const,
         };
+        
+        console.log(`[DEBUG KeyframeEngine] 解析出的关键帧 ${index + 1}:`, keyframe);
+        return keyframe;
       });
+      
+      console.log('[DEBUG KeyframeEngine] 最终返回的关键帧数组:', keyframes);
+      return keyframes;
     } catch (error) {
       console.error('[KeyframeEngine] 解析关键帧失败:', error);
       // 返回默认关键帧
-      return this.generateDefaultKeyframes(shot, keyframeCount, characterAssets, sceneAsset);
+      console.log('[DEBUG KeyframeEngine] 回退到generateDefaultKeyframes');
+      return this.generateDefaultKeyframes(shot, keyframeCount, characterAssets, sceneAsset, negativePrompt, script);
     }
   }
 
@@ -396,14 +476,15 @@ ${additionalRequirements}
       pull: '拉镜头：关键帧应该体现景别从小到大的变化。第1帧特写（脸部表情），第2帧中等景别（腰部以上），第3帧较大景别（能看到角色全身）。',
       pan: '摇镜头：关键帧应该体现画面内容的水平移动。第1帧画面左侧内容，第2帧画面中央内容，第3帧画面右侧内容。',
       tilt: '升降镜头：关键帧应该体现画面内容的垂直移动。',
-      track: '移镜头：关键帧应该体现空间位置的变化。第1帧角色在画面一侧，第2帧角色在画面中央，第3帧角色在画面另一侧。',
+      track:
+        '移镜头：关键帧应该体现空间位置的变化。第1帧角色在画面一侧，第2帧角色在画面中央，第3帧角色在画面另一侧。',
       crane: '升降镜头：关键帧应该体现大范围的视角变化。',
       zoom_in: '推镜头：关键帧应该体现景别从大到小的变化。',
       zoom_out: '拉镜头：关键帧应该体现景别从小到大的变化。',
       dolly_in: '推镜头：关键帧应该体现景别从大到小的变化。',
-      dolly_out: '拉镜头：关键帧应该体现景别从小到大的变化。'
+      dolly_out: '拉镜头：关键帧应该体现景别从小到大的变化。',
     };
-    
+
     return guidanceMap[movement] || guidanceMap.static;
   }
 
@@ -416,14 +497,14 @@ ${additionalRequirements}
 - 第1帧（动作起点）：${Math.ceil(duration * 0.5)}秒，建立初始姿态
 - 第2帧（动作终点）：${Math.ceil(duration * 0.5)}秒，展示最终姿态`;
     }
-    
+
     if (count === 3) {
       return `生成3个关键帧：
 - 第1帧（动作起点）：${Math.ceil(duration * 0.4)}秒，建立初始姿态
 - 第2帧（动作顶点/转折）：${Math.ceil(duration * 0.3)}秒，展示最激烈的瞬间或转折点
 - 第3帧（动作终点）：${Math.ceil(duration * 0.3)}秒，展示最终稳定姿态`;
     }
-    
+
     if (count === 4) {
       return `生成4个关键帧：
 - 第1帧（动作起点）：${Math.ceil(duration * 0.3)}秒，建立初始姿态
@@ -431,7 +512,7 @@ ${additionalRequirements}
 - 第3帧（动作顶点）：${Math.ceil(duration * 0.25)}秒，展示最激烈的瞬间
 - 第4帧（动作终点）：${Math.ceil(duration * 0.2)}秒，展示最终稳定姿态`;
     }
-    
+
     return '';
   }
 
@@ -442,20 +523,78 @@ ${additionalRequirements}
     shot: Shot,
     keyframeCount: number,
     characterAssets?: { id: string; name: string }[],
-    sceneAsset?: { id: string; name: string }
+    sceneAsset?: { id: string; name: string },
+    negativePrompt?: string,
+    script?: Script
   ): Keyframe[] {
     const durationPerFrame = Math.ceil(shot.duration / keyframeCount);
 
+    // 读取全局视觉风格
+    const visualStyle = script?.parseState?.metadata?.visualStyle;
+    const stylePrompts: string[] = [];
+    if (visualStyle?.artStyle) stylePrompts.push(visualStyle.artStyle);
+    if (visualStyle?.cinematography) stylePrompts.push(visualStyle.cinematography);
+    if (visualStyle?.colorPalette && Array.isArray(visualStyle.colorPalette)) {
+      visualStyle.colorPalette.forEach(color => {
+        if (color) stylePrompts.push(color);
+      });
+    }
+
     return Array.from({ length: keyframeCount }, (_, i) => {
       const frameType = this.getFrameType(i, keyframeCount);
-      const typeDesc = frameType === 'start' ? '起始' : frameType === 'end' ? '结束' : '过渡';
+      const progress = (i + 1) / keyframeCount;
+      
+      let typeDesc = '';
+      let promptSuffix = '';
+      let descriptionSuffix = '';
+      
+      if (frameType === 'start') {
+        typeDesc = '起始';
+        promptSuffix = ', opening scene, full shot, soft lighting';
+        descriptionSuffix = '（开场画面）';
+      } else if (frameType === 'end') {
+        typeDesc = '结束';
+        promptSuffix = ', closing scene, close-up, lasting impression';
+        descriptionSuffix = '（收尾画面）';
+      } else {
+        const middleFrameCount = keyframeCount - 2;
+        const middleFrameIndex = i;
+        if (middleFrameCount === 1) {
+          typeDesc = '过渡';
+          promptSuffix = ', transition frame, medium shot, detail focus';
+          descriptionSuffix = '（中间过渡）';
+        } else {
+          const middleProgress = (middleFrameIndex) / (middleFrameCount + 1);
+          if (middleProgress < 0.5) {
+            typeDesc = '发展';
+            promptSuffix = ', developing scene, medium close-up, plot progression';
+            descriptionSuffix = '（发展中画面）';
+          } else {
+            typeDesc = '高潮';
+            promptSuffix = ', climax frame, close-up, emotional build-up';
+            descriptionSuffix = '（高潮前画面）';
+          }
+        }
+      }
 
+      const shotNumber = shot.shotNumber || shot.sequence;
+      
+      const promptParts = [
+        'masterpiece, 8k, ultra detailed, best quality',
+        ...stylePrompts,
+        shot.shotType,
+        sceneAsset?.name,
+        characterAssets?.[0]?.name,
+        `${typeDesc} pose`
+      ].filter(Boolean);
+      
       return {
         id: `kf_${shot.id}_${i + 1}`,
         sequence: i + 1,
         frameType: frameType,
-        description: `${shot.description}（${typeDesc}姿态）`,
-        prompt: `参考角色图：${characterAssets?.[0]?.id || '无'}，参考场景图：${sceneAsset?.id || '无'}；${shot.shotType}，${sceneAsset?.name || ''}，${characterAssets?.[0]?.name || ''}，${typeDesc}姿态，电影级画质`,
+        description: `${shotNumber}-${i + 1} ${shot.description}${descriptionSuffix}`,
+        prompt: `${promptParts.join(', ')}${promptSuffix}`,
+        negativePrompt,
         duration: durationPerFrame,
         references: {
           character: characterAssets?.[0]

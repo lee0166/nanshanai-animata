@@ -817,6 +817,17 @@ export interface Shot {
   preShotId?: string;
   nextShotId?: string;
 
+  // 分镜类型分析和拆分建议
+  analysis?: {
+    type: ShotContentType;
+    confidence: number;
+    recommendation: {
+      keyframeCount: number;
+      focus: string[];
+      notes: string;
+    };
+  };
+
   // 生成状态
   mappedFragmentId?: string; // 关联视频片段
   keyframes?: Keyframe[]; // 关键帧列表
@@ -903,6 +914,7 @@ export interface Keyframe {
   frameType: FrameType; // 关键帧类型：首帧/中间帧/尾帧
   description: string; // 静态画面描述
   prompt: string; // 图生图提示词
+  negativePrompt?: string; // 负面提示词
   duration: number; // 该关键帧时长（秒）
   references: {
     character?: {

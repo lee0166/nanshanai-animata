@@ -237,7 +237,12 @@ export const TimelineEditor: React.FC = () => {
   const handleUpdateAudioProperties = async (clipId: string, trackId: string, properties: any) => {
     if (!timeline) return;
 
-    const result = await timelineService.updateClipAudioProperties(timeline.id, trackId, clipId, properties);
+    const result = await timelineService.updateClipAudioProperties(
+      timeline.id,
+      trackId,
+      clipId,
+      properties
+    );
 
     if (result.success && result.data) {
       setTimeline(result.data);
@@ -413,7 +418,7 @@ export const TimelineEditor: React.FC = () => {
               </div>
 
               {/* Video track */}
-              {timeline?.tracks.map((track) => (
+              {timeline?.tracks.map(track => (
                 <div key={track.id} className="relative">
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-2">
@@ -426,7 +431,9 @@ export const TimelineEditor: React.FC = () => {
                         isIconOnly
                         size="sm"
                         variant="light"
-                        onPress={() => setSelectedTrackId(track.id === selectedTrackId ? null : track.id)}
+                        onPress={() =>
+                          setSelectedTrackId(track.id === selectedTrackId ? null : track.id)
+                        }
                       >
                         {track.isMuted ? <VolumeX size={14} /> : <Volume2 size={14} />}
                       </Button>
@@ -470,8 +477,10 @@ export const TimelineEditor: React.FC = () => {
                               {track.type === 'audio' && clip.audioProperties && (
                                 <p className="text-xs text-green-400">
                                   Vol: {Math.round(clip.audioProperties.volume * 100)}%
-                                  {clip.audioProperties.fadeIn > 0 && ` | Fade In: ${clip.audioProperties.fadeIn}s`}
-                                  {clip.audioProperties.fadeOut > 0 && ` | Fade Out: ${clip.audioProperties.fadeOut}s`}
+                                  {clip.audioProperties.fadeIn > 0 &&
+                                    ` | Fade In: ${clip.audioProperties.fadeIn}s`}
+                                  {clip.audioProperties.fadeOut > 0 &&
+                                    ` | Fade Out: ${clip.audioProperties.fadeOut}s`}
                                 </p>
                               )}
                             </div>
@@ -601,7 +610,7 @@ export const TimelineEditor: React.FC = () => {
               // Find the clip in all tracks
               let clip: TimelineClip | undefined;
               let track: TimelineTrack | undefined;
-              
+
               for (const t of timeline?.tracks || []) {
                 const foundClip = t.clips.find(c => c.id === selectedClipId);
                 if (foundClip) {
@@ -610,7 +619,7 @@ export const TimelineEditor: React.FC = () => {
                   break;
                 }
               }
-              
+
               const shot = clip ? getShotByClip(clip) : null;
 
               if (!clip || !shot) return null;
@@ -653,11 +662,12 @@ export const TimelineEditor: React.FC = () => {
                   )}
 
                   {/* Audio properties */}
-                  {(track?.type === 'audio' || (track?.type === 'video' && clip.audioProperties)) && (
+                  {(track?.type === 'audio' ||
+                    (track?.type === 'video' && clip.audioProperties)) && (
                     <div className="space-y-4">
                       <Divider />
                       <h4 className="font-medium text-sm">Audio Properties</h4>
-                      
+
                       <div>
                         <div className="flex justify-between items-center mb-1">
                           <label className="text-xs text-gray-500">Volume</label>
@@ -670,10 +680,10 @@ export const TimelineEditor: React.FC = () => {
                           min={0}
                           max={1}
                           step={0.01}
-                          onChange={(value) => {
+                          onChange={value => {
                             handleUpdateAudioProperties(clip.id, track!.id, {
                               ...clip.audioProperties,
-                              volume: value
+                              volume: value,
                             });
                           }}
                         />
@@ -691,10 +701,10 @@ export const TimelineEditor: React.FC = () => {
                           min={0}
                           max={5}
                           step={0.1}
-                          onChange={(value) => {
+                          onChange={value => {
                             handleUpdateAudioProperties(clip.id, track!.id, {
                               ...clip.audioProperties,
-                              fadeIn: value
+                              fadeIn: value,
                             });
                           }}
                         />
@@ -712,10 +722,10 @@ export const TimelineEditor: React.FC = () => {
                           min={0}
                           max={5}
                           step={0.1}
-                          onChange={(value) => {
+                          onChange={value => {
                             handleUpdateAudioProperties(clip.id, track!.id, {
                               ...clip.audioProperties,
-                              fadeOut: value
+                              fadeOut: value,
                             });
                           }}
                         />

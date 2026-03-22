@@ -455,9 +455,12 @@ export class MultiLayerCache {
    * @param l3Loader - L3 加载函数（如果 L1/L2 未命中时调用）
    * @returns 缓存数据映射
    */
-  async getBatch<T>(keys: string[], l3Loader?: (key: string) => Promise<T>): Promise<Map<string, T | null>> {
+  async getBatch<T>(
+    keys: string[],
+    l3Loader?: (key: string) => Promise<T>
+  ): Promise<Map<string, T | null>> {
     const results = new Map<string, T | null>();
-    const promises = keys.map(async (key) => {
+    const promises = keys.map(async key => {
       const value = await this.get(key, l3Loader ? () => l3Loader(key) : undefined);
       results.set(key, value);
     });

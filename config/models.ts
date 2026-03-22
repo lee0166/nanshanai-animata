@@ -1963,7 +1963,7 @@ export const DEFAULT_MODELS: ModelConfig[] = [
       },
     ],
   },
-  
+
   // 百度 AI 语音服务
   {
     id: 'baidu-tts',
@@ -2020,7 +2020,7 @@ export const DEFAULT_MODELS: ModelConfig[] = [
       },
     ],
   },
-  
+
   // OpenAI 兼容格式（通用）
   {
     id: 'openai-compatible',

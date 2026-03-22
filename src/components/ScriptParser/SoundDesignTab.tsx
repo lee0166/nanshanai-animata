@@ -337,7 +337,7 @@ export const SoundDesignTab: React.FC<SoundDesignTabProps> = ({ metadata, shots 
           </div>
           <Button
             size="sm"
-            variant={isEditing ? "solid" : "bordered"}
+            variant={isEditing ? 'solid' : 'bordered'}
             onClick={() => setIsEditing(!isEditing)}
             startIcon={isEditing ? <Save size={16} /> : <Edit3 size={16} />}
           >
@@ -354,10 +354,10 @@ export const SoundDesignTab: React.FC<SoundDesignTabProps> = ({ metadata, shots 
               <Select
                 id="audioStyle"
                 value={audioStyle}
-                onChange={(e) => setAudioStyle(e.target.value)}
+                onChange={e => setAudioStyle(e.target.value)}
                 disabled={!isEditing}
               >
-                {audioStyleOptions.map((style) => (
+                {audioStyleOptions.map(style => (
                   <SelectItem key={style} value={style}>
                     {style}
                   </SelectItem>
@@ -371,10 +371,10 @@ export const SoundDesignTab: React.FC<SoundDesignTabProps> = ({ metadata, shots 
               <Select
                 id="musicTheme"
                 value={musicTheme}
-                onChange={(e) => setMusicTheme(e.target.value)}
+                onChange={e => setMusicTheme(e.target.value)}
                 disabled={!isEditing}
               >
-                {musicThemeOptions.map((theme) => (
+                {musicThemeOptions.map(theme => (
                   <SelectItem key={theme} value={theme}>
                     {theme}
                   </SelectItem>
@@ -388,15 +388,13 @@ export const SoundDesignTab: React.FC<SoundDesignTabProps> = ({ metadata, shots 
               <Textarea
                 id="emotionMapping"
                 value={emotionMapping}
-                onChange={(e) => setEmotionMapping(e.target.value)}
+                onChange={e => setEmotionMapping(e.target.value)}
                 placeholder="在这里配置情绪到音乐的映射规则..."
                 rows={4}
                 disabled={!isEditing}
               />
               {!isEditing && emotionMapping && (
-                <p className="mt-2 text-xs text-default-500">
-                  已配置自定义情绪音乐映射规则
-                </p>
+                <p className="mt-2 text-xs text-default-500">已配置自定义情绪音乐映射规则</p>
               )}
             </div>
           </div>

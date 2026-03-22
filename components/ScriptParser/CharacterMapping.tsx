@@ -237,7 +237,7 @@ export const CharacterMapping: React.FC<CharacterMappingProps> = ({
 
     // Convert number to string if needed
     const ageStr = typeof age === 'number' ? age.toString() : age;
-    
+
     // Remove common suffixes and whitespace
     const cleanAge = ageStr.replace(/[岁\s]/g, '').trim();
 
@@ -419,7 +419,11 @@ export const CharacterMapping: React.FC<CharacterMappingProps> = ({
                   <Select
                     aria-label="关联角色"
                     placeholder="选择角色"
-                    selectedKeys={char.mappedAssetId ? new Set([char.mappedAssetId]) : new Set()}
+                    selectedKeys={
+                      char.mappedAssetId && existingCharacters.some(c => c.id === char.mappedAssetId)
+                        ? new Set([char.mappedAssetId])
+                        : new Set()
+                    }
                     onChange={e => handleMapCharacter(char, e.target.value)}
                     size="sm"
                     className={char.mappedAssetId ? 'flex-1' : 'w-1/3'}

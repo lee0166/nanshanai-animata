@@ -359,7 +359,9 @@ export const SceneMapping: React.FC<SceneMappingProps> = ({
                       aria-label="关联场景"
                       placeholder="选择场景"
                       selectedKeys={
-                        scene.mappedAssetId ? new Set([scene.mappedAssetId]) : new Set()
+                        scene.mappedAssetId && existingScenes.some(s => s.id === scene.mappedAssetId)
+                          ? new Set([scene.mappedAssetId])
+                          : new Set()
                       }
                       onChange={e => handleMapScene(scene, e.target.value)}
                       size="sm"

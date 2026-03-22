@@ -658,6 +658,7 @@ export class JobQueue {
       referenceImages,
       resolution,
       aspectRatio,
+      negativePrompt,
     } = job.params;
 
     console.log('[Queue] job.params.referenceImages length:', referenceImages?.length || 0);
@@ -672,7 +673,10 @@ export class JobQueue {
       referenceImages || [],
       aspectRatio,
       resolution,
-      1
+      1,
+      undefined,
+      undefined,
+      negativePrompt
     );
 
     if (!result.success || !result.data) {

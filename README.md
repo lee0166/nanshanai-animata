@@ -1,18 +1,18 @@
-# 🎬 Kmeng AI Animata
+# 🎬 NS AI Animata
 
 > **专为创作者打造的本地优先 (Local-First) AI 影视资产生成平台**
 
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![React](https://img.shields.io/badge/React-19.2-blue)](https://react.dev/)
-[![Vite](https://img.shields.io/badge/Vite-6.2-purple)](https://vitejs.dev/)
-[![TailwindCSS](https://img.shields.io/badge/TailwindCSS-4.1-cyan)](https://tailwindcss.com/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.8-blue)](https://www.typescriptlang.org/)
+[!\[License\](https://img.shields.io/badge/license-MIT-blue.svg null)](LICENSE)
+[!\[React\](https://img.shields.io/badge/React-19.2-blue null)](https://react.dev/)
+[!\[Vite\](https://img.shields.io/badge/Vite-6.2-purple null)](https://vitejs.dev/)
+[!\[TailwindCSS\](https://img.shields.io/badge/TailwindCSS-4.1-cyan null)](https://tailwindcss.com/)
+[!\[TypeScript\](https://img.shields.io/badge/TypeScript-5.8-blue null)](https://www.typescriptlang.org/)
 
 ---
 
 ## 📖 项目简介
 
-**Kmeng AI Animata** 是一款开源的 AI 影视资产生成平台，旨在将您的本地电脑转化为专业的数字片场。
+**NS AI Animata** 是一款开源的 AI 影视资产生成平台，旨在将您的本地电脑转化为专业的数字片场。
 
 它采用 **Local-First（本地优先）** 架构，通过浏览器的 File System Access API 直接读写本地文件，无需上传素材至云端，最大程度保障数据隐私。项目深度集成了 **火山引擎 (Doubao/SeedEdit/HiDream)**、**Vidu** 和 **ModelScope** 等前沿大模型，提供从剧本解析、角色/场景设计到关键帧生成的完整影视制作工作流。
 
@@ -81,7 +81,7 @@
 - **历史图片** - 横向滚动浏览历史生成结果，支持切换和删除
 - **分镜转片段** - 一键将分镜转换为视频片段
 
-### 🎥 视频生成 (Video Generation)
+### 🎥 视频生成 (Video Generation)【开发调试中】
 
 基于 Vidu 和火山引擎模型，提供电影级的视频生成控制能力。
 
@@ -91,7 +91,7 @@
 - **文生视频 (Text-to-Video)** - 通过文字描述直接生成动态视频片段
 - **运镜控制** - 支持推拉摇移等运镜参数调节
 
-### 🎵 音频生成与管理 (Audio Generation & Management)
+### 🎵 音频生成与管理 (Audio Generation & Management)【开发调试中】
 
 为视频添加专业的音频效果，包括对话、音效和背景音乐。
 
@@ -147,6 +147,8 @@
 - **自定义模型** - 可手动添加任意模型 ID，灵活适配最新模型
 - **参数配置** - 支持 Temperature、Max Tokens、enable_thinking 等高级参数
 - **模型管理** - 支持编辑、删除、启用/禁用模型配置
+- **分组展示** - 按类型分组（视频/图像/文本/音频），支持折叠/展开
+- **批量操作** - 支持批量选择模型，一键管理多个模型配置
 - **能力检测** - 自动检测模型能力（文生图、图生图、文生视频、图生视频）
 - **智能路由** - 根据任务类型自动选择最优模型
 
@@ -610,5 +612,5 @@ npm run type-check
 ---
 
 <p align="center">
-  Made with ❤️ by Kmeng AI Team
+  Made with ❤️ by NS/Kmeng AI Team
 </p>

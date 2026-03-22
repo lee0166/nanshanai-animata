@@ -24,7 +24,8 @@ export class ModelscopeProvider extends BaseProvider {
     resolution: string = '1024x1024',
     count: number = 1,
     guidanceScale?: number,
-    extraParams?: Record<string, any>
+    extraParams?: Record<string, any>,
+    negativePrompt?: string
   ): Promise<AIResult> {
     console.log(
       `[ModelscopeProvider] generateImage called with resolution: "${resolution}", model: ${config.modelId}`
@@ -73,6 +74,10 @@ export class ModelscopeProvider extends BaseProvider {
         }
       }
 
+      if (negativePrompt) {
+        body.negative_prompt = negativePrompt;
+      }
+      
       if (extraParams) {
         Object.assign(body, extraParams);
       }

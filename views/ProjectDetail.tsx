@@ -349,15 +349,8 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({
         <h2 className="text-2xl font-black mb-4 text-slate-900 dark:text-white">
           {t.errors.projectNotFound}
         </h2>
-        <p className="text-slate-500 dark:text-slate-400 mb-8">
-          {t.errors.projectNotFoundDesc}
-        </p>
-        <Button
-          color="primary"
-          radius="full"
-          onPress={() => navigate('/')}
-          className="font-bold"
-        >
+        <p className="text-slate-500 dark:text-slate-400 mb-8">{t.errors.projectNotFoundDesc}</p>
+        <Button color="primary" radius="full" onPress={() => navigate('/')} className="font-bold">
           {t.common.backToDashboard}
         </Button>
       </div>
@@ -520,12 +513,12 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({
   if (activeTab === AssetType.SCRIPT) {
     return (
       <div className="h-full bg-slate-50 dark:bg-slate-950">
-        <ScriptManager 
-          projectId={id} 
+        <ScriptManager
+          projectId={id}
           onScriptsUpdate={async () => {
             await loadScripts();
             setRefreshTrigger(prev => prev + 1);
-          }} 
+          }}
         />
       </div>
     );
@@ -568,7 +561,7 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({
               scripts.length > 0 && (
                 <Select
                   aria-label="剧本筛选"
-                  placeholder={scripts.length > 0 ? `全部剧本 (共${scripts.length}个)` : "选择剧本"}
+                  placeholder={scripts.length > 0 ? `全部剧本 (共${scripts.length}个)` : '选择剧本'}
                   selectedKeys={[
                     activeTab === AssetType.CHARACTER
                       ? characterScriptFilter
@@ -588,7 +581,8 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({
                   size="sm"
                   classNames={{
                     value: 'font-bold text-xs',
-                    trigger: 'border-slate-300 dark:border-slate-700 h-8 min-h-unit-8 hover:border-primary transition-colors duration-300',
+                    trigger:
+                      'border-slate-300 dark:border-slate-700 h-8 min-h-unit-8 hover:border-primary transition-colors duration-300',
                   }}
                 >
                   <SelectItem key="all" value="all" textValue="全部剧本">
@@ -727,9 +721,11 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({
                   value={assetName}
                   onValueChange={setAssetName}
                   classNames={{
-                    label: 'font-black text-[14px] uppercase tracking-widest text-slate-400 dark:text-slate-300 mb-2',
+                    label:
+                      'font-black text-[14px] uppercase tracking-widest text-slate-400 dark:text-slate-300 mb-2',
                     input: 'text-sm',
-                    inputWrapper: 'border-2 group-data-[focus=true]:border-primary transition-colors duration-300',
+                    inputWrapper:
+                      'border-2 group-data-[focus=true]:border-primary transition-colors duration-300',
                   }}
                 />
 
@@ -749,7 +745,8 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({
                         label:
                           'font-black text-[14px] uppercase tracking-widest text-slate-400 mb-2',
                         value: 'text-sm',
-                        trigger: 'border-2 group-data-[focus=true]:border-primary transition-colors duration-300',
+                        trigger:
+                          'border-2 group-data-[focus=true]:border-primary transition-colors duration-300',
                       }}
                     >
                       <SelectItem key="" value="" textValue="不关联剧本">
@@ -764,9 +761,9 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({
                   )}
               </ModalBody>
               <ModalFooter className="flex gap-4">
-                <Button 
-                  variant="light" 
-                  onPress={onClose} 
+                <Button
+                  variant="light"
+                  onPress={onClose}
                   className="font-bold text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors duration-300"
                 >
                   {t.dashboard.cancel}

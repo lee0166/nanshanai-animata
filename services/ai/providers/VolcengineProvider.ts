@@ -70,7 +70,8 @@ export class VolcengineProvider extends BaseProvider {
     resolution: string = '2K',
     count: number = 1,
     guidanceScale?: number,
-    extraParams?: Record<string, any>
+    extraParams?: Record<string, any>,
+    negativePrompt?: string
   ): Promise<AIResult> {
     try {
       console.log(`[VolcengineProvider] Generating image. Config ID: ${config.id}`);
@@ -109,7 +110,8 @@ export class VolcengineProvider extends BaseProvider {
         size,
         count,
         guidanceScale,
-        extraParams
+        extraParams,
+        negativePrompt
       );
 
       console.log(

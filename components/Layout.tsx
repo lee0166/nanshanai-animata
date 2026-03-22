@@ -258,7 +258,10 @@ const Layout: React.FC<LayoutProps> = ({
               <h2 className="text-4xl font-black mb-4 text-slate-900 dark:text-white tracking-tighter uppercase animate-slideIn">
                 {t.workspace.selectTitle}
               </h2>
-              <p className="text-slate-500 dark:text-slate-400 mb-10 leading-relaxed text-lg font-medium animate-slideIn" style={{ animationDelay: '0.1s' }}>
+              <p
+                className="text-slate-500 dark:text-slate-400 mb-10 leading-relaxed text-lg font-medium animate-slideIn"
+                style={{ animationDelay: '0.1s' }}
+              >
                 {t.workspace.selectDesc}
               </p>
               <Button
@@ -274,9 +277,7 @@ const Layout: React.FC<LayoutProps> = ({
             </Card>
           </div>
         ) : (
-          <div className="h-full overflow-y-auto">
-            {children}
-          </div>
+          <div className="h-full overflow-y-auto">{children}</div>
         )}
       </main>
     </div>
