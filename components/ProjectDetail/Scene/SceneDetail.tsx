@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { SceneAsset, GeneratedImage, AssetType, Job, JobStatus } from '../../../types';
+import { SceneAsset, GeneratedImage, AssetType, Job, JobStatus, SceneViewType } from '../../../types';
 import { DEFAULT_MODELS } from '../../../config/models';
 import { resolveModelConfig } from '../../../services/modelUtils';
 import { storageService } from '../../../services/storage';
@@ -8,6 +8,7 @@ import { useApp } from '../../../contexts/context';
 import { useToast } from '../../../contexts/ToastContext';
 import { jobQueue } from '../../../services/queue';
 import { aiService } from '../../../services/aiService';
+import { assetReuseService } from '../../../services/asset/AssetReuseService';
 import {
   Input,
   Select,
@@ -27,6 +28,7 @@ import {
   Tabs,
   Tab,
   Slider,
+  Chip,
 } from '@heroui/react';
 import {
   Plus,
@@ -39,6 +41,11 @@ import {
   Upload,
   Eye,
   Wand2,
+  Map,
+  Layers,
+  Camera,
+  ZoomIn,
+  Move,
 } from 'lucide-react';
 import {
   getSceneImagePrompt,
@@ -62,6 +69,9 @@ const SceneDetail: React.FC<SceneDetailProps> = ({ asset, onUpdate, projectId })
   const [generating, setGenerating] = useState(false);
   const [isCheckingJobs, setIsCheckingJobs] = useState(true);
   const [activeJobIds, setActiveJobIds] = useState<Set<string>>(new Set());
+  const [activeTab, setActiveTab] = useState<string>('single');
+  const [generatingViews, setGeneratingViews] = useState<Set<SceneViewType>>(new Set());
+  const [batchGenerating, setBatchGenerating] = useState(false);
 
   // Local state for inputs (to support auto-save on blur)
   const [name, setName] = useState(asset.name);
@@ -75,21 +85,20 @@ const SceneDetail: React.FC<SceneDetailProps> = ({ asset, onUpdate, projectId })
   const [resolution, setResolution] = useState<string>(asset.metadata?.resolution || '2K');
   const [style, setStyle] = useState<string>('');
   const [generateCount, setGenerateCount] = useState<number>(1);
-  const [guidanceScale, setGuidanceScale] = useState<number>(2.5); // Default for seededit
+  const [guidanceScale, setGuidanceScale] = useState<number>(2.5);
 
   // URL Caches
   const [refUrls, setRefUrls] = useState<Record<string, string>>({});
   const [genUrls, setGenUrls] = useState<Record<string, string>>({});
+  const [viewUrls, setViewUrls] = useState<Record<string, string>>({});
 
   // Resolve initial model ID to a valid config ID if possible
   const getInitialModelId = () => {
     const savedId = asset.metadata?.modelId;
     if (!savedId) return '';
 
-    // Check if it's already a valid config ID
     if (settings.models.some(m => m.id === savedId)) return savedId;
 
-    // Check if it's a legacy modelId string
     const matched = settings.models.find(m => m.modelId === savedId);
     if (matched) return matched.id;
 
@@ -98,26 +107,22 @@ const SceneDetail: React.FC<SceneDetailProps> = ({ asset, onUpdate, projectId })
 
   const [modelId, setModelId] = useState(getInitialModelId());
 
-  // Derived state for current model
   const runtimeModel =
     settings.models.find(m => m.id === modelId) ||
     settings.models.find(m => m.type === 'image') ||
     settings.models[0];
 
-  // Find matching static config to augment missing capabilities if runtime settings are stale
   const staticModel = resolveModelConfig(runtimeModel);
 
   const capabilities = {
-    ...staticModel?.capabilities, // Base with static (contains new fields)
-    ...runtimeModel?.capabilities, // Override with runtime (if updated)
-    // Ensure array fields include new options from static config
+    ...staticModel?.capabilities,
+    ...runtimeModel?.capabilities,
     supportedResolutions: Array.from(
       new Set([
         ...(staticModel?.capabilities?.supportedResolutions || []),
         ...(runtimeModel?.capabilities?.supportedResolutions || []),
       ])
     ).filter(Boolean),
-    // Also ensure pixel limits are taken from static if missing in runtime
     minPixels: runtimeModel?.capabilities?.minPixels ?? staticModel?.capabilities?.minPixels,
     maxPixels: runtimeModel?.capabilities?.maxPixels ?? staticModel?.capabilities?.maxPixels,
     minAspectRatio:
@@ -126,10 +131,8 @@ const SceneDetail: React.FC<SceneDetailProps> = ({ asset, onUpdate, projectId })
       runtimeModel?.capabilities?.maxAspectRatio ?? staticModel?.capabilities?.maxAspectRatio,
   };
 
-  // Dynamic Options based on capabilities
   const availableResolutions = capabilities.supportedResolutions || ['2K', '4K'];
 
-  // Filter aspect ratios if constrained
   const allAspectRatios = ['21:9', '16:9', '4:3', '1:1', '3:4', '9:16', '9:21'];
   const availableAspectRatios = allAspectRatios.filter(ratio => {
     if (capabilities.minAspectRatio || capabilities.maxAspectRatio) {
@@ -141,16 +144,13 @@ const SceneDetail: React.FC<SceneDetailProps> = ({ asset, onUpdate, projectId })
     return true;
   });
 
-  // Reset params when model changes if current selection is invalid
   useEffect(() => {
-    // Only auto-correct if not generating to avoid state jumps during process
     if (generating || isCheckingJobs) return;
 
     let needsUpdate = false;
     let newRes = resolution;
     let newRatio = aspectRatio;
 
-    // Check Resolution
     if (!availableResolutions.includes(resolution)) {
       const defaultRes = capabilities.defaultResolution || availableResolutions[0];
       if (defaultRes) {
@@ -159,9 +159,8 @@ const SceneDetail: React.FC<SceneDetailProps> = ({ asset, onUpdate, projectId })
       }
     }
 
-    // Check Aspect Ratio
     if (!availableAspectRatios.includes(aspectRatio)) {
-      const defaultRatio = '16:9'; // Default for scenes is typically wide
+      const defaultRatio = '16:9';
       if (availableAspectRatios.includes(defaultRatio)) {
         newRatio = defaultRatio;
         needsUpdate = true;
@@ -177,7 +176,6 @@ const SceneDetail: React.FC<SceneDetailProps> = ({ asset, onUpdate, projectId })
       );
       setResolution(newRes);
       setAspectRatio(newRatio);
-      // Update metadata to persist correction
       onUpdate({
         ...asset,
         metadata: {
@@ -187,12 +185,9 @@ const SceneDetail: React.FC<SceneDetailProps> = ({ asset, onUpdate, projectId })
         },
       });
     }
-  }, [modelId, capabilities, generating, isCheckingJobs]); // Re-run when model (capabilities) changes
+  }, [modelId, capabilities, generating, isCheckingJobs]);
 
-  // Resources Picker
   const { isOpen: isPickerOpen, onOpen: onPickerOpen, onClose: onPickerClose } = useDisclosure();
-
-  // Delete Confirmation
   const { isOpen: isDeleteOpen, onOpen: onDeleteOpen, onClose: onDeleteClose } = useDisclosure();
   const [imageToDelete, setImageToDelete] = useState<GeneratedImage | null>(null);
 
@@ -206,9 +201,6 @@ const SceneDetail: React.FC<SceneDetailProps> = ({ asset, onUpdate, projectId })
     if (!imageToDelete || !asset.generatedImages) return;
 
     try {
-      // SOFT DELETE: Only remove reference from asset, do NOT delete file
-      // File management is handled in Resource Manager
-
       const newImages = asset.generatedImages.filter(i => i.id !== imageToDelete.id);
 
       const updated = {
@@ -216,17 +208,14 @@ const SceneDetail: React.FC<SceneDetailProps> = ({ asset, onUpdate, projectId })
         generatedImages: newImages,
       };
 
-      // If we deleted the current image, deselect or select another
       if (asset.currentImageId === imageToDelete.id) {
         updated.currentImageId = undefined;
         updated.filePath = undefined;
-        // Optionally select the last one?
         if (newImages.length > 0) {
           const last = newImages[newImages.length - 1];
           updated.currentImageId = last.id;
           updated.filePath = last.path;
 
-          // Also update display params to match new selection
           if (last.metadata?.style) setStyle(last.metadata.style);
           if (last.metadata?.generateCount) setGenerateCount(last.metadata.generateCount);
         }
@@ -243,7 +232,6 @@ const SceneDetail: React.FC<SceneDetailProps> = ({ asset, onUpdate, projectId })
     }
   };
 
-  // Initialize state from asset
   useEffect(() => {
     setGenerating(false);
     setName(asset.name);
@@ -262,9 +250,8 @@ const SceneDetail: React.FC<SceneDetailProps> = ({ asset, onUpdate, projectId })
     setReferenceImages(asset.metadata?.referenceImages || []);
     setAspectRatio(asset.metadata?.aspectRatio || '16:9');
     setResolution(asset.metadata?.resolution || '2K');
-    setGuidanceScale(2.5); // Reset guidance scale on load
+    setGuidanceScale(2.5);
 
-    // Check for active job on mount
     const checkActiveJob = async () => {
       setIsCheckingJobs(true);
       try {
@@ -292,7 +279,6 @@ const SceneDetail: React.FC<SceneDetailProps> = ({ asset, onUpdate, projectId })
     checkActiveJob();
   }, [asset.id, settings.models]);
 
-  // Load URLs for reference images
   useEffect(() => {
     const loadRefUrls = async () => {
       const urls: Record<string, string> = {};
@@ -306,22 +292,18 @@ const SceneDetail: React.FC<SceneDetailProps> = ({ asset, onUpdate, projectId })
     loadRefUrls();
   }, [referenceImages]);
 
-  // Subscribe to job queue to handle completion/failure
   useEffect(() => {
     const unsub = jobQueue.subscribe(async job => {
-      // Only care about jobs for this asset
       if (job.params.assetId === asset.id) {
         if (job.status === JobStatus.COMPLETED || job.status === JobStatus.FAILED) {
           console.log(`[SceneDetail] Job ${job.id} finished with status: ${job.status}`);
 
-          // Update tracking set
           setActiveJobIds(prev => {
             if (!prev.has(job.id)) return prev;
 
             const newSet = new Set(prev);
             newSet.delete(job.id);
 
-            // Update generating state based on remaining jobs
             if (newSet.size === 0) {
               setGenerating(false);
               if (job.status === JobStatus.COMPLETED) {
@@ -334,8 +316,6 @@ const SceneDetail: React.FC<SceneDetailProps> = ({ asset, onUpdate, projectId })
           });
 
           if (job.status === JobStatus.COMPLETED) {
-            // The JobQueue service has already updated the asset with the new image.
-            // We just need to reload the latest state from disk.
             try {
               const updatedAsset = (await storageService.getAsset(
                 asset.id,
@@ -349,11 +329,9 @@ const SceneDetail: React.FC<SceneDetailProps> = ({ asset, onUpdate, projectId })
                 onUpdate(updatedAsset, true);
 
                 if (updatedAsset.generatedImages && updatedAsset.generatedImages.length > 0) {
-                  // Select the latest image (last one in the list)
                   const latestImg =
                     updatedAsset.generatedImages[updatedAsset.generatedImages.length - 1];
 
-                  // Also ensure local state matches
                   setPrompt(latestImg.userPrompt || latestImg.prompt);
                   setReferenceImages(latestImg.referenceImages || []);
                   setAspectRatio(latestImg.metadata?.aspectRatio || '16:9');
@@ -363,7 +341,6 @@ const SceneDetail: React.FC<SceneDetailProps> = ({ asset, onUpdate, projectId })
                   if (latestImg.metadata?.generateCount)
                     setGenerateCount(latestImg.metadata.generateCount);
 
-                  // Map modelId
                   if (
                     latestImg.modelConfigId &&
                     settings.models.some(m => m.id === latestImg.modelConfigId)
@@ -391,7 +368,6 @@ const SceneDetail: React.FC<SceneDetailProps> = ({ asset, onUpdate, projectId })
     return () => unsub();
   }, [asset.id, settings.models]);
 
-  // Load URLs for generated images
   useEffect(() => {
     const loadGenUrls = async () => {
       if (!asset.generatedImages) return;
@@ -410,7 +386,31 @@ const SceneDetail: React.FC<SceneDetailProps> = ({ asset, onUpdate, projectId })
     loadGenUrls();
   }, [asset.generatedImages]);
 
-  // Auto-save handlers
+  useEffect(() => {
+    const loadViewUrls = async () => {
+      const urls: Record<string, string> = {};
+      if (asset.views) {
+        const views = [
+          asset.views.panorama,
+          asset.views.wide,
+          ...(asset.views.detail || []),
+          asset.views.aerial
+        ];
+        for (const view of views) {
+          if (view?.path) {
+            if (view.path.startsWith('remote:')) {
+              urls[view.id] = view.path.substring(7);
+            } else {
+              urls[view.id] = await storageService.getAssetUrl(view.path);
+            }
+          }
+        }
+      }
+      setViewUrls(urls);
+    };
+    loadViewUrls();
+  }, [asset.views]);
+
   const handleSaveInfo = () => {
     if (name !== asset.name) {
       const updated = { ...asset, name };
@@ -418,7 +418,6 @@ const SceneDetail: React.FC<SceneDetailProps> = ({ asset, onUpdate, projectId })
     }
   };
 
-  // Operation Area Handlers
   const handleReferenceSelect = (paths: string[]) => {
     const newRefs = Array.from(new Set([...referenceImages, ...paths]));
     setReferenceImages(newRefs);
@@ -468,7 +467,6 @@ const SceneDetail: React.FC<SceneDetailProps> = ({ asset, onUpdate, projectId })
     onUpdate(updated);
   };
 
-  // Generation
   const handleGenerate = async () => {
     if (!prompt || !modelId) {
       showToast(t.project?.alertFill, 'warning');
@@ -489,13 +487,10 @@ const SceneDetail: React.FC<SceneDetailProps> = ({ asset, onUpdate, projectId })
     setGenerating(true);
     showToast(t.project?.generationStarted, 'info');
 
-    // Apply prompt template for scene generation
     const stylePrompt = getDefaultStylePrompt(style);
-
     const scenePrompt = getSceneImagePrompt(prompt);
     const finalPrompt = `${scenePrompt} ${stylePrompt}`;
 
-    // Save metadata when generating to persist current selection
     const updated = {
       ...asset,
       prompt,
@@ -547,19 +542,13 @@ const SceneDetail: React.FC<SceneDetailProps> = ({ asset, onUpdate, projectId })
     }
   };
 
-  // Image List Actions
   const handleSelectImage = (img: GeneratedImage) => {
-    // Toggle selection
     if (asset.currentImageId === img.id) {
-      // Deselect
       const updated = { ...asset, currentImageId: undefined, filePath: undefined };
       onUpdate(updated);
     } else {
-      // Select
-      // Update asset prompt/model/refs to match this image
       setPrompt(img.userPrompt || img.prompt);
 
-      // Map modelId
       let targetModelId = '';
       if (img.modelConfigId && settings.models.some(m => m.id === img.modelConfigId)) {
         targetModelId = img.modelConfigId;
@@ -584,7 +573,7 @@ const SceneDetail: React.FC<SceneDetailProps> = ({ asset, onUpdate, projectId })
       const updated = {
         ...asset,
         currentImageId: img.id,
-        filePath: img.path, // Set as main asset image
+        filePath: img.path,
         prompt: img.userPrompt || img.prompt,
         metadata: {
           ...asset.metadata,
@@ -598,17 +587,235 @@ const SceneDetail: React.FC<SceneDetailProps> = ({ asset, onUpdate, projectId })
     }
   };
 
+  const handleGenerateView = async (viewType: SceneViewType) => {
+    if (!modelId) {
+      showToast(t.project?.alertFill, 'warning');
+      return;
+    }
+
+    setGeneratingViews(prev => new Set([...prev, viewType]));
+    showToast(`开始生成${getViewLabel(viewType)}视图...`, 'info');
+
+    try {
+      const result = await assetReuseService.generateSceneView({
+        scene: asset,
+        viewType,
+        modelConfigId: modelId,
+        projectId,
+      });
+
+      if (result.success && result.image) {
+        const updatedAsset = (await storageService.getAsset(asset.id, projectId)) as SceneAsset;
+        if (updatedAsset) {
+          const newViews = await assetReuseService.updateSceneViews(
+            updatedAsset,
+            viewType,
+            result.image
+          );
+          
+          const updated = {
+            ...updatedAsset,
+            views: newViews,
+            generatedImages: [
+              ...(updatedAsset.generatedImages || []),
+              result.image
+            ]
+          };
+          
+          onUpdate(updated);
+          showToast(`${getViewLabel(viewType)}视图生成成功!`, 'success');
+        }
+      } else {
+        showToast(result.error || '生成失败', 'error');
+      }
+    } catch (error: any) {
+      console.error('[SceneDetail] Failed to generate view:', error);
+      showToast(error.message || '生成失败', 'error');
+    } finally {
+      setGeneratingViews(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(viewType);
+        return newSet;
+      });
+    }
+  };
+
+  const handleDeleteView = (viewType: SceneViewType, index?: number) => {
+    if (!asset.views) return;
+    
+    const newViews = { ...asset.views };
+    
+    if (viewType === 'detail' && index !== undefined && newViews.detail) {
+      newViews.detail = newViews.detail.filter((_, i) => i !== index);
+    } else {
+      delete newViews[viewType];
+    }
+    
+    const hasViews = Object.keys(newViews).some(key => {
+      if (key === 'detail') return (newViews.detail?.length || 0) > 0;
+      return newViews[key as keyof typeof newViews] !== undefined;
+    });
+    
+    const updated = {
+      ...asset,
+      views: hasViews ? newViews : undefined
+    };
+    
+    onUpdate(updated);
+    showToast(`${getViewLabel(viewType)}视图已删除`, 'success');
+  };
+
+  const handleSetViewAsCurrent = (viewType: SceneViewType, index?: number) => {
+    let viewImage: GeneratedImage | undefined;
+    
+    if (viewType === 'detail' && index !== undefined && asset.views?.detail) {
+      viewImage = asset.views.detail[index];
+    } else {
+      viewImage = asset.views?.[viewType] as GeneratedImage | undefined;
+    }
+    
+    if (!viewImage) return;
+    
+    const updated = {
+      ...asset,
+      currentImageId: viewImage.id,
+      filePath: viewImage.path
+    };
+    
+    onUpdate(updated);
+    showToast(`已将${getViewLabel(viewType)}视图设为当前`, 'success');
+  };
+
+  const getViewLabel = (viewType: SceneViewType): string => {
+    const labels: Record<SceneViewType, string> = {
+      panorama: '全景',
+      wide: '广角',
+      detail: '细节',
+      aerial: '鸟瞰'
+    };
+    return labels[viewType];
+  };
+
+  const getViewIcon = (viewType: SceneViewType) => {
+    switch (viewType) {
+      case 'panorama':
+        return <Move className="w-5 h-5" />;
+      case 'wide':
+        return <Map className="w-5 h-5" />;
+      case 'detail':
+        return <ZoomIn className="w-5 h-5" />;
+      case 'aerial':
+        return <Camera className="w-5 h-5" />;
+    }
+  };
+
+  const viewTypes: SceneViewType[] = ['panorama', 'wide', 'detail', 'aerial'];
+
+  const calculateViewCount = (): number => {
+    if (!asset.views) return 0;
+    let count = 0;
+    if (asset.views.panorama) count++;
+    if (asset.views.wide) count++;
+    count += (asset.views.detail?.length || 0);
+    if (asset.views.aerial) count++;
+    return count;
+  };
+
+  const handleBatchGenerateViews = async () => {
+    if (!modelId) {
+      showToast(t.project?.alertFill, 'warning');
+      return;
+    }
+
+    const missingViews = viewTypes.filter(type => {
+      if (type === 'detail') {
+        return !asset.views?.detail || asset.views.detail.length === 0;
+      }
+      return !asset.views?.[type];
+    });
+    
+    if (missingViews.length === 0) {
+      showToast('所有视角都已生成', 'info');
+      return;
+    }
+
+    setBatchGenerating(true);
+    showToast(`开始批量生成 ${missingViews.length} 个视角...`, 'info');
+
+    let successCount = 0;
+    let failCount = 0;
+
+    try {
+      for (const viewType of missingViews) {
+        setGeneratingViews(prev => new Set([...prev, viewType]));
+        
+        try {
+          const result = await assetReuseService.generateSceneView({
+            scene: asset,
+            viewType,
+            modelConfigId: modelId,
+            projectId,
+          });
+
+          if (result.success && result.image) {
+            const updatedAsset = (await storageService.getAsset(asset.id, projectId)) as SceneAsset;
+            if (updatedAsset) {
+              const newViews = await assetReuseService.updateSceneViews(
+                updatedAsset,
+                viewType,
+                result.image
+              );
+              
+              const updated = {
+                ...updatedAsset,
+                views: newViews,
+                generatedImages: [
+                  ...(updatedAsset.generatedImages || []),
+                  result.image
+                ]
+              };
+              
+              onUpdate(updated);
+              successCount++;
+            }
+          } else {
+            failCount++;
+            console.error(`[SceneDetail] Failed to generate ${viewType} view:`, result.error);
+          }
+        } catch (error) {
+          failCount++;
+          console.error(`[SceneDetail] Error generating ${viewType} view:`, error);
+        } finally {
+          setGeneratingViews(prev => {
+            const newSet = new Set(prev);
+            newSet.delete(viewType);
+            return newSet;
+          });
+        }
+      }
+
+      if (successCount > 0) {
+        showToast(`批量生成完成！成功: ${successCount}, 失败: ${failCount}`, successCount === missingViews.length ? 'success' : 'warning');
+      } else {
+        showToast('批量生成失败', 'error');
+      }
+    } catch (error: any) {
+      console.error('[SceneDetail] Batch generate views failed:', error);
+      showToast(error.message || '批量生成失败', 'error');
+    } finally {
+      setBatchGenerating(false);
+    }
+  };
+
   return (
     <div className="h-full flex flex-row gap-8 w-full overflow-hidden">
-      {/* Left Column - Information & Operations */}
       <div className="w-[520px] flex-shrink-0 flex flex-col gap-8 overflow-y-auto pr-2 pb-10">
-        {/* 1. Basic Information */}
         <div className="flex flex-col gap-6">
           <h3 className="text-sm font-black text-primary/80 dark:text-primary-400 uppercase tracking-widest mb-2">
             {t.project.basicInfo}
           </h3>
           <div className="flex flex-col gap-2">
-            <label className="text-slate-300 font-bold text-base ml-1">{t.project.nameLabel}</label>
+            <label className="text-slate-700 dark:text-slate-300 font-bold text-base ml-1">{t.project.nameLabel}</label>
             <Input
               placeholder={t.project.nameLabel}
               value={name}
@@ -626,7 +833,6 @@ const SceneDetail: React.FC<SceneDetailProps> = ({ asset, onUpdate, projectId })
           </div>
         </div>
 
-        {/* 2. Generation Panel */}
         <div className="flex flex-col gap-4">
           <h3 className="text-sm font-black text-primary/80 dark:text-primary-400 uppercase tracking-widest mb-2">
             {t.project.generationSettings}
@@ -674,122 +880,389 @@ const SceneDetail: React.FC<SceneDetailProps> = ({ asset, onUpdate, projectId })
         </div>
       </div>
 
-      {/* Right Column - Generated Images Grid */}
       <div className="flex-1 flex flex-col overflow-hidden bg-slate-50 dark:bg-slate-900/50 rounded-3xl border border-slate-200 dark:border-slate-800">
-        <div className="p-6 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm">
-          <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100">生成结果</h3>
-          <div className="px-3 py-1 rounded-full bg-slate-200/50 dark:bg-slate-800/50 text-xs font-bold text-slate-600 dark:text-slate-300">
-            图片 ({asset.generatedImages?.length || 0})
-          </div>
-        </div>
-
-        <div className="flex-1 overflow-y-auto p-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-            {asset.generatedImages
-              ?.slice()
-              .reverse()
-              .map(img => {
-                const isSelected = asset.currentImageId === img.id;
-                const url =
-                  genUrls[img.id] ||
-                  (img.path.startsWith('remote:') ? img.path.substring(7) : undefined);
-
-                if (!url) return null;
-
-                return (
-                  <div
-                    key={img.id}
-                    className="relative group cursor-pointer"
-                    onClick={() => handleSelectImage(img)}
-                  >
-                    <Card
-                      className={`aspect-[16/9] border-2 transition-all duration-300 ${isSelected ? 'border-primary shadow-xl scale-[1.02]' : 'border-transparent hover:border-primary/50 hover:shadow-lg'}`}
-                      radius="lg"
-                      shadow="sm"
-                    >
-                      <div className="w-full h-full bg-slate-100 dark:bg-slate-950 flex items-center justify-center overflow-hidden">
-                        <img
-                          src={url}
-                          alt="Generated"
-                          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                        />
-                      </div>
-
-                      {isSelected && (
-                        <div className="absolute top-2 left-2 z-20 bg-primary text-white rounded-full p-1.5 shadow-md ring-2 ring-white dark:ring-slate-900">
-                          <Check className="w-3 h-3" />
-                        </div>
-                      )}
-
-                      <div className="absolute top-2 right-2 z-20 opacity-0 group-hover:opacity-100 transition-all duration-300 flex gap-2 translate-y-[-10px] group-hover:translate-y-0">
-                        <Button
-                          isIconOnly
-                          size="sm"
-                          variant="flat"
-                          aria-label="预览场景"
-                          className="bg-black/60 text-white hover:bg-black/80 backdrop-blur-md rounded-full w-8 h-8"
-                          onClick={e => {
-                            e.stopPropagation();
-                            if (!asset.generatedImages) return;
-
-                            const validItems = asset.generatedImages.filter(i => {
-                              const u =
-                                genUrls[i.id] ||
-                                (i.path.startsWith('remote:') ? i.path.substring(7) : undefined);
-                              return !!u;
-                            });
-
-                            const slides = validItems.map(i => {
-                              const u =
-                                genUrls[i.id] ||
-                                (i.path.startsWith('remote:') ? i.path.substring(7) : '');
-                              const isVideo = isVideoFile(i.path);
-                              if (isVideo) {
-                                return {
-                                  type: 'video' as const,
-                                  sources: [{ src: u, type: getMimeType(i.path) }],
-                                };
-                              }
-                              return { src: u };
-                            });
-
-                            const idx = validItems.findIndex(i => i.id === img.id);
-                            openPreview(slides, idx >= 0 ? idx : 0);
-                          }}
-                        >
-                          <Eye className="w-4 h-4" />
-                        </Button>
-                        <Button
-                          isIconOnly
-                          size="sm"
-                          variant="flat"
-                          aria-label="删除场景"
-                          className="bg-red-500/80 text-white hover:bg-red-600 backdrop-blur-md rounded-full w-8 h-8"
-                          onClick={e => promptDeleteImage(img, e)}
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      </div>
-                    </Card>
-                  </div>
-                );
-              })}
-
-            {(!asset.generatedImages || asset.generatedImages.length === 0) && (
-              <div className="col-span-full h-64 flex flex-col items-center justify-center text-slate-400 border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-3xl bg-slate-50/50 dark:bg-slate-900/50">
-                <div className="p-4 bg-slate-100 dark:bg-slate-800 rounded-full mb-4">
-                  <ImageIcon className="w-8 h-8 opacity-50" />
-                </div>
-                <span className="uppercase tracking-widest text-xs font-black opacity-50">
-                  {t.project?.noGenerations || 'No generations yet'}
-                </span>
+        <Tabs
+          selectedKey={activeTab}
+          onSelectionChange={key => setActiveTab(String(key))}
+          className="px-6 pt-4"
+          classNames={{
+            tabList: 'gap-4 p-1 bg-white/50 dark:bg-slate-800/50 rounded-xl',
+            tab: 'data-[selected=true]:bg-white dark:data-[selected=true]:bg-slate-700 transition-colors duration-200',
+            cursor: 'pointer'
+          }}
+        >
+          <Tab 
+            key="single" 
+            title={
+              <div className="flex items-center gap-2">
+                <ImageIcon className="w-4 h-4" />
+                <span>单图管理</span>
               </div>
-            )}
-          </div>
+            }
+          />
+          <Tab 
+            key="views" 
+            title={
+              <div className="flex items-center gap-2">
+                <Layers className="w-4 h-4" />
+                <span>多视角管理</span>
+              </div>
+            }
+          />
+        </Tabs>
+
+        <div className="flex-1 overflow-hidden">
+          {activeTab === 'single' && (
+            <div className="flex flex-col h-full">
+              <div className="px-6 py-3 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm">
+                <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100">生成结果</h3>
+                <div className="px-3 py-1 rounded-full bg-slate-200/50 dark:bg-slate-800/50 text-xs font-bold text-slate-600 dark:text-slate-300">
+                  图片 ({asset.generatedImages?.length || 0})
+                </div>
+              </div>
+
+              <div className="flex-1 overflow-y-auto p-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+                  {asset.generatedImages
+                    ?.slice()
+                    .reverse()
+                    .map(img => {
+                      const isSelected = asset.currentImageId === img.id;
+                      const url =
+                        genUrls[img.id] ||
+                        (img.path.startsWith('remote:') ? img.path.substring(7) : undefined);
+
+                      if (!url) return null;
+
+                      return (
+                        <div
+                          key={img.id}
+                          className="relative group cursor-pointer"
+                          onClick={() => handleSelectImage(img)}
+                        >
+                          <Card
+                            className={`aspect-[16/9] border-2 transition-all duration-200 ${isSelected ? 'border-primary shadow-xl scale-[1.02]' : 'border-transparent hover:border-primary/50 hover:shadow-lg'}`}
+                            radius="lg"
+                            shadow="sm"
+                          >
+                            <div className="w-full h-full bg-slate-100 dark:bg-slate-950 flex items-center justify-center overflow-hidden">
+                              <img
+                                src={url}
+                                alt="Generated"
+                                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                              />
+                            </div>
+
+                            {isSelected && (
+                              <div className="absolute top-2 left-2 z-20 bg-primary text-white rounded-full p-1.5 shadow-md ring-2 ring-white dark:ring-slate-900">
+                                <Check className="w-3 h-3" />
+                              </div>
+                            )}
+
+                            <div className="absolute top-2 right-2 z-20 opacity-0 group-hover:opacity-100 transition-all duration-200 flex gap-2 translate-y-[-10px] group-hover:translate-y-0">
+                              <Button
+                                isIconOnly
+                                size="sm"
+                                variant="flat"
+                                aria-label="预览场景"
+                                className="bg-black/60 text-white hover:bg-black/80 backdrop-blur-md rounded-full w-8 h-8 cursor-pointer transition-colors duration-200"
+                                onClick={e => {
+                                  e.stopPropagation();
+                                  if (!asset.generatedImages) return;
+
+                                  const validItems = asset.generatedImages.filter(i => {
+                                    const u =
+                                      genUrls[i.id] ||
+                                      (i.path.startsWith('remote:') ? i.path.substring(7) : undefined);
+                                    return !!u;
+                                  });
+
+                                  const slides = validItems.map(i => {
+                                    const u =
+                                      genUrls[i.id] ||
+                                      (i.path.startsWith('remote:') ? i.path.substring(7) : '');
+                                    const isVideo = isVideoFile(i.path);
+                                    if (isVideo) {
+                                      return {
+                                        type: 'video' as const,
+                                        sources: [{ src: u, type: getMimeType(i.path) }],
+                                      };
+                                    }
+                                    return { src: u };
+                                  });
+
+                                  const idx = validItems.findIndex(i => i.id === img.id);
+                                  openPreview(slides, idx >= 0 ? idx : 0);
+                                }}
+                              >
+                                <Eye className="w-4 h-4" />
+                              </Button>
+                              <Button
+                                isIconOnly
+                                size="sm"
+                                variant="flat"
+                                aria-label="删除场景"
+                                className="bg-red-500/80 text-white hover:bg-red-600 backdrop-blur-md rounded-full w-8 h-8 cursor-pointer transition-colors duration-200"
+                                onClick={e => promptDeleteImage(img, e)}
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </Button>
+                            </div>
+                          </Card>
+                        </div>
+                      );
+                    })}
+
+                  {(!asset.generatedImages || asset.generatedImages.length === 0) && (
+                    <div className="col-span-full h-64 flex flex-col items-center justify-center text-slate-400 border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-3xl bg-slate-50/50 dark:bg-slate-900/50">
+                      <div className="p-4 bg-slate-100 dark:bg-slate-800 rounded-full mb-4">
+                        <ImageIcon className="w-8 h-8 opacity-50" />
+                      </div>
+                      <span className="uppercase tracking-widest text-xs font-black opacity-50">
+                        {t.project?.noGenerations || 'No generations yet'}
+                      </span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'views' && (
+            <div className="flex flex-col h-full">
+              <div className="px-6 py-3 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm">
+                <div className="flex items-center gap-4">
+                  <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100">多视角管理</h3>
+                  <div className="px-3 py-1 rounded-full bg-slate-200/50 dark:bg-slate-800/50 text-xs font-bold text-slate-600 dark:text-slate-300">
+                    视图 ({calculateViewCount()}/4+)
+                  </div>
+                </div>
+                <Button
+                  color="primary"
+                  size="sm"
+                  isLoading={batchGenerating}
+                  isDisabled={!modelId || viewTypes.filter(type => {
+                    if (type === 'detail') {
+                      return !asset.views?.detail || asset.views.detail.length === 0;
+                    }
+                    return !asset.views?.[type];
+                  }).length === 0}
+                  className="cursor-pointer transition-colors duration-200"
+                  onPress={handleBatchGenerateViews}
+                  startContent={!batchGenerating && <Wand2 className="w-4 h-4" />}
+                >
+                  {batchGenerating ? '批量生成中...' : '一键生成全部'}
+                </Button>
+              </div>
+
+              <div className="flex-1 overflow-y-auto p-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {viewTypes.map(viewType => {
+                    const isGenerating = generatingViews.has(viewType);
+                    const isDetail = viewType === 'detail';
+                    
+                    if (isDetail) {
+                      const detailImages = asset.views?.detail || [];
+                      return (
+                        <Card
+                          key={viewType}
+                          className="border-2 border-content3 dark:border-content3 transition-all duration-200"
+                          radius="lg"
+                          shadow="sm"
+                        >
+                          <div className="p-4 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center bg-slate-50 dark:bg-slate-900/50">
+                            <div className="flex items-center gap-3">
+                              <div className="p-2 bg-primary/10 dark:bg-primary/20 rounded-lg text-primary">
+                                {getViewIcon(viewType)}
+                              </div>
+                              <div>
+                                <h4 className="font-bold text-slate-900 dark:text-foreground">
+                                  {getViewLabel(viewType)}视图
+                                </h4>
+                                <p className="text-xs text-slate-500 dark:text-slate-400">
+                                  {detailImages.length > 0 ? `${detailImages.length}张图片` : '待生成'}
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="p-4">
+                            <div className="grid grid-cols-2 gap-3 mb-4">
+                              {detailImages.map((img, index) => {
+                                const url = viewUrls[img.id] || 
+                                  (img.path.startsWith('remote:') ? img.path.substring(7) : undefined);
+                                const isCurrent = img.id === asset.currentImageId;
+
+                                return (
+                                  <Card
+                                    key={img.id}
+                                    className={`aspect-[16/9] border-2 transition-all duration-200 cursor-pointer ${isCurrent ? 'border-primary' : 'border-transparent hover:border-primary/50'}`}
+                                    radius="lg"
+                                    shadow="sm"
+                                  >
+                                    {url ? (
+                                      <div className="w-full h-full overflow-hidden">
+                                        <img
+                                          src={url}
+                                          alt={`${getViewLabel(viewType)}视图 ${index + 1}`}
+                                          className="w-full h-full object-cover"
+                                        />
+                                      </div>
+                                    ) : (
+                                      <div className="w-full h-full flex items-center justify-center bg-slate-100 dark:bg-slate-950">
+                                        <Spinner size="sm" />
+                                      </div>
+                                    )}
+                                    {isCurrent && (
+                                      <div className="absolute top-1 left-1 z-10 bg-primary text-white rounded-full p-1">
+                                        <Check className="w-2 h-2" />
+                                      </div>
+                                    )}
+                                    <div className="absolute top-1 right-1 z-10 opacity-0 group-hover:opacity-100 transition-all duration-200 flex gap-1">
+                                      <Button
+                                        isIconOnly
+                                        size="sm"
+                                        variant="flat"
+                                        className="bg-black/60 text-white rounded-full w-6 h-6 min-w-6"
+                                        onPress={() => handleSetViewAsCurrent(viewType, index)}
+                                      >
+                                        <Check className="w-3 h-3" />
+                                      </Button>
+                                      <Button
+                                        isIconOnly
+                                        size="sm"
+                                        variant="flat"
+                                        className="bg-red-500/80 text-white rounded-full w-6 h-6 min-w-6"
+                                        onPress={() => handleDeleteView(viewType, index)}
+                                      >
+                                        <Trash2 className="w-3 h-3" />
+                                      </Button>
+                                    </div>
+                                  </Card>
+                                );
+                              })}
+                            </div>
+                            
+                            <Button
+                              fullWidth
+                              color="primary"
+                              size="sm"
+                              isLoading={isGenerating}
+                              isDisabled={!modelId}
+                              className="cursor-pointer transition-colors duration-200 focus:ring-2 focus:ring-primary"
+                              onPress={() => handleGenerateView(viewType)}
+                              startContent={!isGenerating && <Plus className="w-4 h-4" />}
+                            >
+                              {isGenerating ? '生成中...' : '添加细节图'}
+                            </Button>
+                          </div>
+                        </Card>
+                      );
+                    }
+
+                    const viewImage = asset.views?.[viewType] as GeneratedImage | undefined;
+                    const isCurrent = viewImage?.id === asset.currentImageId;
+                    const url = viewImage ? (
+                      viewUrls[viewImage.id] ||
+                      (viewImage.path.startsWith('remote:') ? viewImage.path.substring(7) : undefined)
+                    ) : undefined;
+
+                    return (
+                      <Card
+                        key={viewType}
+                        className={`border-2 transition-all duration-200 ${isCurrent ? 'border-primary shadow-xl' : 'border-content3 dark:border-content3'}`}
+                        radius="lg"
+                        shadow="sm"
+                      >
+                        <div className="p-4 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center bg-slate-50 dark:bg-slate-900/50">
+                          <div className="flex items-center gap-3">
+                            <div className="p-2 bg-primary/10 dark:bg-primary/20 rounded-lg text-primary">
+                              {getViewIcon(viewType)}
+                            </div>
+                            <div>
+                              <h4 className="font-bold text-slate-900 dark:text-foreground">
+                                {getViewLabel(viewType)}视图
+                              </h4>
+                              <p className="text-xs text-slate-500 dark:text-slate-400">
+                                {viewImage ? '已生成' : '待生成'}
+                              </p>
+                            </div>
+                          </div>
+                          {isCurrent && (
+                            <Chip color="primary" size="sm" variant="flat">
+                              当前主图
+                            </Chip>
+                          )}
+                        </div>
+
+                        <div className="p-4">
+                          <div className="aspect-video bg-slate-100 dark:bg-slate-950 rounded-xl overflow-hidden mb-4">
+                            {url ? (
+                              <img
+                                src={url}
+                                alt={`${getViewLabel(viewType)}视图`}
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              <div className="w-full h-full flex flex-col items-center justify-center text-slate-400">
+                                <Camera className="w-12 h-12 mb-2 opacity-50" />
+                                <span className="text-sm">暂无视图</span>
+                              </div>
+                            )}
+                          </div>
+
+                          <div className="flex gap-2">
+                            {!viewImage ? (
+                              <Button
+                                fullWidth
+                                color="primary"
+                                size="sm"
+                                isLoading={isGenerating}
+                                isDisabled={!modelId}
+                                className="cursor-pointer transition-colors duration-200 focus:ring-2 focus:ring-primary"
+                                onPress={() => handleGenerateView(viewType)}
+                                startContent={!isGenerating && <Wand2 className="w-4 h-4" />}
+                              >
+                                {isGenerating ? '生成中...' : '生成视图'}
+                              </Button>
+                            ) : (
+                              <>
+                                <Button
+                                  fullWidth
+                                  color="success"
+                                  size="sm"
+                                  isDisabled={isCurrent}
+                                  className="cursor-pointer transition-colors duration-200 focus:ring-2 focus:ring-primary"
+                                  onPress={() => handleSetViewAsCurrent(viewType)}
+                                  startContent={<Check className="w-4 h-4" />}
+                                >
+                                  {isCurrent ? '已设为当前' : '设为当前'}
+                                </Button>
+                                <Button
+                                  isIconOnly
+                                  color="danger"
+                                  size="sm"
+                                  variant="flat"
+                                  className="cursor-pointer transition-colors duration-200 focus:ring-2 focus:ring-primary"
+                                  aria-label="删除视图"
+                                  onPress={() => handleDeleteView(viewType)}
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </Button>
+                              </>
+                            )}
+                          </div>
+                        </div>
+                      </Card>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
-      {/* Resource Picker Modal */}
       <ResourcePicker
         isOpen={isPickerOpen}
         onClose={onPickerClose}
@@ -799,7 +1272,6 @@ const SceneDetail: React.FC<SceneDetailProps> = ({ asset, onUpdate, projectId })
         accept="image/*"
       />
 
-      {/* Delete Confirmation Modal */}
       <Modal isOpen={isDeleteOpen} onClose={onDeleteClose} size="sm">
         <ModalContent>
           <ModalBody className="py-6">

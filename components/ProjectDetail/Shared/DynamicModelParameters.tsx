@@ -83,7 +83,7 @@ export const DynamicModelParameters: React.FC<DynamicModelParametersProps> = ({
                 </label>
                 <Select
                   placeholder={label}
-                  selectedKeys={currentValue ? [String(currentValue)] : []}
+                  selectedKeys={currentValue ? new Set([String(currentValue)]) : new Set([])}
                   onChange={e => onChange(key, e.target.value)}
                   variant="bordered"
                   radius="lg"

@@ -1,7 +1,8 @@
-import { Shot, Keyframe, CharacterAsset, Asset, Script } from '../../types';
+import { Shot, Keyframe, CharacterAsset, Asset, Script, CharacterViewAngle, SceneAsset, SceneViewType } from '../../types';
 import { keyframeEngine, KeyframeSplitParams } from './KeyframeEngine';
 import { storageService } from '../storage';
 import { aiService } from '../aiService';
+import { assetReuseService } from '../asset/AssetReuseService';
 
 export interface SplitKeyframesOptions {
   shot: Shot;
@@ -290,8 +291,60 @@ export class KeyframeService {
   }
 
   /**
+   * 根据分镜描述识别角色出镜角度
+   */
+  private detectCharacterViewAngle(description: string): CharacterViewAngle | undefined {
+    const desc = description.toLowerCase();
+    
+    console.log(`[KeyframeService] 分析角色视角，分镜描述: ${desc.substring(0, 50)}...`);
+    
+    if (desc.includes('侧身') || desc.includes('侧面') || desc.includes('profile') || desc.includes('side')) {
+      console.log(`[KeyframeService] 识别到侧面视角`);
+      return 'side';
+    }
+    if (desc.includes('背对') || desc.includes('背面') || desc.includes('back view') || desc.includes('from behind')) {
+      console.log(`[KeyframeService] 识别到背面视角`);
+      return 'back';
+    }
+    if (desc.includes('正面') || desc.includes('facing camera') || desc.includes('front view')) {
+      console.log(`[KeyframeService] 识别到正面视角`);
+      return 'front';
+    }
+    if (desc.includes('四分之三') || desc.includes('three-quarter') || desc.includes('45 degree')) {
+      console.log(`[KeyframeService] 识别到四分之三视角`);
+      return 'three-quarter';
+    }
+    
+    console.log(`[KeyframeService] 未识别到特定视角，使用默认`);
+    return undefined;
+  }
+
+  /**
+   * 根据分镜景别选择场景视角
+   */
+  private selectSceneViewType(shotType: string): SceneViewType | undefined {
+    console.log(`[KeyframeService] 分析场景视角，分镜景别: ${shotType}`);
+    
+    if (shotType === 'extreme_long' || shotType === 'long') {
+      console.log(`[KeyframeService] 大远景/远景，选择全景视角`);
+      return 'panorama';
+    }
+    if (shotType === 'full') {
+      console.log(`[KeyframeService] 全景，选择广角视角`);
+      return 'wide';
+    }
+    if (shotType === 'close_up' || shotType === 'extreme_close_up') {
+      console.log(`[KeyframeService] 近景/特写，选择细节视角`);
+      return 'detail';
+    }
+    
+    console.log(`[KeyframeService] 未选择特定场景视角`);
+    return undefined;
+  }
+
+  /**
    * 生成关键帧图片
-   * 使用火山引擎API，支持多图参考
+   * 使用火山引擎API，支持多图参考，支持视角智能选择
    */
   async generateKeyframeImage(options: GenerateKeyframeImageOptions): Promise<Keyframe> {
     const { keyframe, projectId, characterAsset, sceneAsset, modelConfigId, size = '2K' } = options;
@@ -317,25 +370,40 @@ export class KeyframeService {
       const referenceImages: string[] = [];
       console.log(`[KeyframeService] 准备参考图片...`);
 
-      if (characterAsset?.currentImageId) {
-        const charImage = characterAsset.generatedImages?.find(
-          img => img.id === characterAsset.currentImageId
-        );
+      // 智能选择角色视角
+      if (characterAsset) {
+        const charAsset = characterAsset as CharacterAsset;
+        const preferredAngle = keyframe.description ? this.detectCharacterViewAngle(keyframe.description) : undefined;
+        console.log(`[KeyframeService] 角色视角选择: 优先角度=${preferredAngle}`);
+        
+        const charImage = assetReuseService.getCharacterViewForShot(charAsset, preferredAngle);
+        
         if (charImage?.path) {
-          console.log(`[KeyframeService] 读取角色参考图: ${charImage.path}`);
+          console.log(`[KeyframeService] 读取角色参考图: ${charImage.path} (视角: ${preferredAngle || '默认'})`);
           const base64 = await this.imageToBase64(charImage.path);
           referenceImages.push(base64);
           console.log(`[KeyframeService] 角色参考图转换成功，大小: ${base64.length} 字符`);
         } else {
-          console.log(`[KeyframeService] 角色资产未找到当前图片`);
+          console.log(`[KeyframeService] 角色资产未找到可用图片`);
         }
       }
 
-      if (sceneAsset?.filePath) {
-        console.log(`[KeyframeService] 读取场景参考图: ${sceneAsset.filePath}`);
-        const base64 = await this.imageToBase64(sceneAsset.filePath);
-        referenceImages.push(base64);
-        console.log(`[KeyframeService] 场景参考图转换成功，大小: ${base64.length} 字符`);
+      // 智能选择场景视角
+      if (sceneAsset) {
+        const scnAsset = sceneAsset as SceneAsset;
+        const preferredViewType = (keyframe as any).shotType ? this.selectSceneViewType((keyframe as any).shotType) : undefined;
+        console.log(`[KeyframeService] 场景视角选择: 优先视角=${preferredViewType}`);
+        
+        const sceneImage = assetReuseService.getSceneViewForShot(scnAsset, preferredViewType);
+        
+        if (sceneImage?.path) {
+          console.log(`[KeyframeService] 读取场景参考图: ${sceneImage.path} (视角: ${preferredViewType || '默认'})`);
+          const base64 = await this.imageToBase64(sceneImage.path);
+          referenceImages.push(base64);
+          console.log(`[KeyframeService] 场景参考图转换成功，大小: ${base64.length} 字符`);
+        } else {
+          console.log(`[KeyframeService] 场景资产未找到可用图片`);
+        }
       }
 
       console.log(`[KeyframeService] 参考图片总数: ${referenceImages.length}`);
