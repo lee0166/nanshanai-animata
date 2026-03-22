@@ -1306,11 +1306,6 @@ export const ShotManager: React.FC<ShotManagerProps> = ({
         a => a.type === AssetType.SCENE && a.name === selectedShotForSplit.sceneName
       );
 
-      console.log('[DEBUG ShotManager] ========== 开始调用关键帧拆分 ==========');
-      console.log('[DEBUG ShotManager] 负面提示词:', negativePrompt);
-      console.log('[DEBUG ShotManager] currentScript:', currentScript);
-      console.log('[DEBUG ShotManager] visualStyle:', currentScript?.parseState?.metadata?.visualStyle);
-      
       const keyframes = await keyframeService.splitKeyframes({
         shot: selectedShotForSplit,
         keyframeCount: keyframeCount,
@@ -1323,16 +1318,6 @@ export const ShotManager: React.FC<ShotManagerProps> = ({
         maxTokens: maxTokens,
         negativePrompt: negativePrompt,
         script: currentScript,
-      });
-      
-      console.log('[DEBUG ShotManager] 拆分返回的关键帧:', keyframes);
-      keyframes.forEach((kf, idx) => {
-        console.log(`[DEBUG ShotManager] 关键帧 ${idx + 1}:`, {
-          id: kf.id,
-          prompt: kf.prompt,
-          negativePrompt: kf.negativePrompt,
-          description: kf.description
-        });
       });
 
       // 更新shot的keyframes

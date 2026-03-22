@@ -1,12 +1,12 @@
-import { Shot, Keyframe, ShotType, CameraMovement, ShotContentType, FrameType, Script } from '../../types';
+import { Shot, Keyframe, ShotType, CameraMovement, ShotContentType, FrameType, Script, CharacterAsset, SceneAsset } from '../../types';
 import { aiService } from '../aiService';
 
 export interface KeyframeSplitParams {
   shot: Shot;
   keyframeCount?: number; // 可选，如果不传则自动根据contentType决定
   script?: Script;
-  characterAssets?: { id: string; name: string; features?: string }[];
-  sceneAsset?: { id: string; name: string; features?: string };
+  characterAssets?: CharacterAsset[]; // 完整的角色资产信息
+  sceneAsset?: SceneAsset; // 完整的场景资产信息
   modelConfigId?: string; // 用户选择的LLM模型配置ID
   splitOptions?: {
     includeCameraMovement?: boolean; // 是否包含运镜信息
@@ -201,7 +201,7 @@ export class KeyframeEngine {
   }
 
   /**
-   * 构建拆分提示词
+   * 构建拆分提示词 - 充分利用角色和场景资产的所有信息
    */
   private buildSplitPrompt(
     params: KeyframeSplitParams & { keyframeCount: number; contentType: ShotContentType }
@@ -233,13 +233,54 @@ export class KeyframeEngine {
       }
     }
 
-    const characterDesc =
-      characterAssets?.map(c => `- ${c.name}${c.features ? `（${c.features}）` : ''}`).join('\n') ||
-      '无';
+    // 构建详细的角色描述 - 充分利用所有 CharacterAsset 信息
+    const characterDesc = characterAssets?.map((char, index) => {
+      const charDetails: string[] = [];
+      charDetails.push(`- ${char.name}`);
+      if (char.gender) charDetails.push(`性别：${char.gender === 'male' ? '男' : char.gender === 'female' ? '女' : '不限'}`);
+      if (char.ageGroup) {
+        const ageMap: Record<string, string> = {
+          childhood: '儿童',
+          youth: '青年',
+          middle_aged: '中年',
+          elderly: '老年',
+          unknown: '未知'
+        };
+        charDetails.push(`年龄：${ageMap[char.ageGroup] || char.ageGroup}`);
+      }
+      if (char.prompt) charDetails.push(`角色描述：${char.prompt}`);
+      if (char.metadata?.features) charDetails.push(`特征：${char.metadata.features}`);
+      if (char.views) {
+        const availableViews: string[] = [];
+        if (char.views.front) availableViews.push('正面');
+        if (char.views.side) availableViews.push('侧面');
+        if (char.views.back) availableViews.push('背面');
+        if (char.views.threeQuarter) availableViews.push('四分之三侧面');
+        if (availableViews.length > 0) charDetails.push(`可用视角：${availableViews.join('、')}`);
+      }
+      return charDetails.join('，');
+    }).join('\n') || '无';
 
-    const sceneDesc = sceneAsset
-      ? `${sceneAsset.name}${sceneAsset.features ? `（${sceneAsset.features}）` : ''}`
-      : '未指定';
+    // 构建详细的场景描述 - 充分利用所有 SceneAsset 信息
+    let sceneDesc = '未指定';
+    if (sceneAsset) {
+      const sceneDetails: string[] = [];
+      sceneDetails.push(sceneAsset.name);
+      if (sceneAsset.prompt) sceneDetails.push(`场景描述：${sceneAsset.prompt}`);
+      if (sceneAsset.metadata?.features) sceneDetails.push(`特征：${sceneAsset.metadata.features}`);
+      if (sceneAsset.keyElements && sceneAsset.keyElements.length > 0) {
+        sceneDetails.push(`关键元素：${sceneAsset.keyElements.join('、')}`);
+      }
+      if (sceneAsset.views) {
+        const availableViews: string[] = [];
+        if (sceneAsset.views.panorama) availableViews.push('全景');
+        if (sceneAsset.views.wide) availableViews.push('广角');
+        if (sceneAsset.views.detail && sceneAsset.views.detail.length > 0) availableViews.push('细节');
+        if (sceneAsset.views.aerial) availableViews.push('鸟瞰');
+        if (availableViews.length > 0) sceneDetails.push(`可用视角：${availableViews.join('、')}`);
+      }
+      sceneDesc = sceneDetails.join('，');
+    }
 
     // 构建视觉描述信息
     let visualDetails = '';
@@ -306,17 +347,51 @@ export class KeyframeEngine {
       }
     }
 
-    // 构建参考图信息
+    // 构建详细的参考信息 - 充分利用所有资产信息
     let referenceInfo = '';
     if (characterAssets && characterAssets.length > 0) {
       referenceInfo += '【参考角色】\n';
       characterAssets.forEach((char, index) => {
-        referenceInfo += `角色${index + 1}: ${char.name}${char.features ? `，特征：${char.features}` : ''}\n`;
+        referenceInfo += `角色${index + 1}: ${char.name}\n`;
+        if (char.gender) referenceInfo += `  - 性别: ${char.gender === 'male' ? '男' : char.gender === 'female' ? '女' : '不限'}\n`;
+        if (char.ageGroup) {
+          const ageMap: Record<string, string> = {
+            childhood: '儿童',
+            youth: '青年',
+            middle_aged: '中年',
+            elderly: '老年',
+            unknown: '未知'
+          };
+          referenceInfo += `  - 年龄: ${ageMap[char.ageGroup] || char.ageGroup}\n`;
+        }
+        if (char.prompt) referenceInfo += `  - 描述: ${char.prompt}\n`;
+        if (char.metadata?.features) referenceInfo += `  - 特征: ${char.metadata.features}\n`;
+        if (char.views) {
+          const viewList: string[] = [];
+          if (char.views.front) viewList.push('正面');
+          if (char.views.side) viewList.push('侧面');
+          if (char.views.back) viewList.push('背面');
+          if (char.views.threeQuarter) viewList.push('四分之三侧面');
+          if (viewList.length > 0) referenceInfo += `  - 可用视角: ${viewList.join(', ')}\n`;
+        }
       });
     }
     if (sceneAsset) {
       referenceInfo += '【参考场景】\n';
-      referenceInfo += `场景：${sceneAsset.name}${sceneAsset.features ? `，特征：${sceneAsset.features}` : ''}\n`;
+      referenceInfo += `场景: ${sceneAsset.name}\n`;
+      if (sceneAsset.prompt) referenceInfo += `  - 描述: ${sceneAsset.prompt}\n`;
+      if (sceneAsset.metadata?.features) referenceInfo += `  - 特征: ${sceneAsset.metadata.features}\n`;
+      if (sceneAsset.keyElements && sceneAsset.keyElements.length > 0) {
+        referenceInfo += `  - 关键元素: ${sceneAsset.keyElements.join(', ')}\n`;
+      }
+      if (sceneAsset.views) {
+        const viewList: string[] = [];
+        if (sceneAsset.views.panorama) viewList.push('全景');
+        if (sceneAsset.views.wide) viewList.push('广角');
+        if (sceneAsset.views.detail && sceneAsset.views.detail.length > 0) viewList.push('细节');
+        if (sceneAsset.views.aerial) viewList.push('鸟瞰');
+        if (viewList.length > 0) referenceInfo += `  - 可用视角: ${viewList.join(', ')}\n`;
+      }
     }
 
     // 构建视觉风格部分
@@ -336,8 +411,8 @@ ${movementGuidance}
 【叙事结构】
 ${narrativeStructure}
 
-${visualStyleSection}【参考图信息】
-${referenceInfo || '无参考图'}
+${visualStyleSection}【参考信息】
+${referenceInfo || '无参考信息'}
 
 【连贯性要求】
 相邻关键帧的角色姿态变化应该是渐进的，避免大幅度跳跃。保持场景和角色的一致性，确保动作的流畅过渡。
@@ -358,13 +433,14 @@ ${shot.description}
 ${splitRequirement}
 1. 按动作时间线排序（起始→过渡→结束）
 2. 每个关键帧必须是静态画面，描述具体姿态
-3. 保持角色和场景一致性
+3. 保持角色和场景一致性（严格使用参考角色和场景的特征）
 4. 符合${shot.shotType}景别要求
 5. 总时长控制在${shot.duration}秒内
 6. prompt字段使用英文逗号分隔元素
 7. prompt字段必须包含质量标签：masterpiece, 8k, ultra detailed, best quality
 8. prompt字段必须融入全局视觉风格（如果有）
-9. prompt字段不要包含内部数据库ID（如kf_xxx_1）
+9. prompt字段必须充分利用参考角色和场景的描述信息
+10. prompt字段不要包含内部数据库ID（如kf_xxx_1）
 ${additionalRequirements}
 
 【关键帧类型说明】
@@ -391,7 +467,8 @@ ${additionalRequirements}
 注意：
 - description要描述静态姿态，不能有动态动作词
 - prompt要适配图生图工具，包含质量标签和视觉风格
-- prompt格式示例：masterpiece, 8k, ultra detailed, best quality, [角色描述], [场景描述], [视觉风格], [景别描述], [光影描述]`;
+- prompt必须严格遵循参考角色和场景的描述，确保角色和场景的一致性
+- prompt格式示例：masterpiece, 8k, ultra detailed, best quality, [角色完整描述], [场景完整描述], [视觉风格], [景别描述], [光影描述]`;
   }
 
   /**
@@ -401,8 +478,8 @@ ${additionalRequirements}
     response: string,
     shot: Shot,
     keyframeCount: number,
-    characterAssets?: { id: string; name: string }[],
-    sceneAsset?: { id: string; name: string },
+    characterAssets?: CharacterAsset[],
+    sceneAsset?: SceneAsset,
     negativePrompt?: string,
     script?: Script
   ): Keyframe[] {
@@ -522,8 +599,8 @@ ${additionalRequirements}
   private generateDefaultKeyframes(
     shot: Shot,
     keyframeCount: number,
-    characterAssets?: { id: string; name: string }[],
-    sceneAsset?: { id: string; name: string },
+    characterAssets?: CharacterAsset[],
+    sceneAsset?: SceneAsset,
     negativePrompt?: string,
     script?: Script
   ): Keyframe[] {

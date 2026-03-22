@@ -70,11 +70,6 @@ export class KeyframeService {
       negativePrompt,
     } = options;
 
-    console.log(`[DEBUG KeyframeService] ========== splitKeyframes 被调用 ==========`);
-    console.log(`[DEBUG KeyframeService] 接收到的 negativePrompt:`, negativePrompt);
-    console.log(`[DEBUG KeyframeService] 接收到的 script:`, script);
-    console.log(`[DEBUG KeyframeService] script 中的 visualStyle:`, script?.parseState?.metadata?.visualStyle);
-    
     console.log(`[KeyframeService] ========== 开始拆分关键帧 ==========`);
     console.log(`[KeyframeService] 分镜ID: ${shot.id}`);
     console.log(`[KeyframeService] 分镜名称: ${shot.sceneName}-镜头${shot.sequence}`);
@@ -136,9 +131,7 @@ export class KeyframeService {
           });
         }
         
-        console.log(`[DEBUG KeyframeService] 静态分镜 - visualStyle:`, visualStyle);
-        console.log(`[DEBUG KeyframeService] 静态分镜 - stylePrompts:`, stylePrompts);
-        console.log(`[DEBUG KeyframeService] 静态分镜 - negativePrompt:`, negativePrompt);
+
         
         const promptParts = [
           'masterpiece, 8k, ultra detailed, best quality',
@@ -174,32 +167,20 @@ export class KeyframeService {
           status: 'pending',
         };
         
-        console.log(`[DEBUG KeyframeService] 创建的静态关键帧 ${i + 1}:`, staticKeyframe);
         staticKeyframes.push(staticKeyframe);
       }
       console.log(`[KeyframeService] 静态分镜关键帧创建完成，共 ${staticKeyframes.length} 个`);
-      console.log(`[DEBUG KeyframeService] 最终返回的关键帧数组:`, staticKeyframes);
       return staticKeyframes;
     }
 
-    // 准备参数
+    // 准备参数 - 完整传递所有资产信息
     const params: KeyframeSplitParams = {
       shot,
       keyframeCount: Math.max(2, Math.min(4, keyframeCount)),
       script,
-      characterAssets: characterAssets?.map(c => ({
-        id: c.id,
-        name: c.name,
-        features: c.metadata?.features as string,
-      })),
-      sceneAsset: sceneAsset
-        ? {
-            id: sceneAsset.id,
-            name: sceneAsset.name,
-            features: sceneAsset.metadata?.features as string,
-          }
-        : undefined,
-      modelConfigId, // 透传用户选择的模型配置ID
+      characterAssets,
+      sceneAsset: sceneAsset as SceneAsset | undefined,
+      modelConfigId,
       splitOptions,
       temperature,
       maxTokens,
@@ -296,26 +277,19 @@ export class KeyframeService {
   private detectCharacterViewAngle(description: string): CharacterViewAngle | undefined {
     const desc = description.toLowerCase();
     
-    console.log(`[KeyframeService] 分析角色视角，分镜描述: ${desc.substring(0, 50)}...`);
-    
     if (desc.includes('侧身') || desc.includes('侧面') || desc.includes('profile') || desc.includes('side')) {
-      console.log(`[KeyframeService] 识别到侧面视角`);
       return 'side';
     }
     if (desc.includes('背对') || desc.includes('背面') || desc.includes('back view') || desc.includes('from behind')) {
-      console.log(`[KeyframeService] 识别到背面视角`);
       return 'back';
     }
     if (desc.includes('正面') || desc.includes('facing camera') || desc.includes('front view')) {
-      console.log(`[KeyframeService] 识别到正面视角`);
       return 'front';
     }
     if (desc.includes('四分之三') || desc.includes('three-quarter') || desc.includes('45 degree')) {
-      console.log(`[KeyframeService] 识别到四分之三视角`);
       return 'three-quarter';
     }
     
-    console.log(`[KeyframeService] 未识别到特定视角，使用默认`);
     return undefined;
   }
 
@@ -323,22 +297,16 @@ export class KeyframeService {
    * 根据分镜景别选择场景视角
    */
   private selectSceneViewType(shotType: string): SceneViewType | undefined {
-    console.log(`[KeyframeService] 分析场景视角，分镜景别: ${shotType}`);
-    
     if (shotType === 'extreme_long' || shotType === 'long') {
-      console.log(`[KeyframeService] 大远景/远景，选择全景视角`);
       return 'panorama';
     }
     if (shotType === 'full') {
-      console.log(`[KeyframeService] 全景，选择广角视角`);
       return 'wide';
     }
     if (shotType === 'close_up' || shotType === 'extreme_close_up') {
-      console.log(`[KeyframeService] 近景/特写，选择细节视角`);
       return 'detail';
     }
     
-    console.log(`[KeyframeService] 未选择特定场景视角`);
     return undefined;
   }
 
