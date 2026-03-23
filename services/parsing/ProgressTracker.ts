@@ -72,6 +72,7 @@ export class ProgressTracker {
   private startTime: number = 0;
   private lastEmitTime: number = 0;
   private lastEmittedProgress: number = 0;
+  private lastEmittedMessage: string | undefined;
   private onProgressCallback: ParseProgressCallback | null = null;
   private animator: SmoothProgressAnimator;
   private timeEstimator: TimeEstimator;
@@ -137,6 +138,7 @@ export class ProgressTracker {
    * @param onProgress 进度回调
    */
   start(onProgress: ParseProgressCallback): void {
+    console.log(`[ProgressTracker] start() called, onProgress callback: ${!!onProgress}`);
     this.isTracking = true;
     this.startTime = Date.now();
     this.onProgressCallback = onProgress;
@@ -151,6 +153,7 @@ export class ProgressTracker {
     this.initializeStageStates();
 
     // 立即触发一次回调
+    console.log(`[ProgressTracker] Calling emitProgress('正在初始化...')`);
     this.emitProgress('正在初始化...');
   }
 
@@ -364,29 +367,18 @@ export class ProgressTracker {
   }
 
   /**
-   * 计算并发送进度
+   * 计算并发送进度 - 完全无节流！
    */
   private calculateAndEmitProgress(message?: string): void {
     const newProgress = this.calculateOverallProgress();
+    console.log(`[ProgressTracker] calculateAndEmitProgress: newProgress=${newProgress}%`);
 
-    // 检查是否需要节流
-    const now = Date.now();
-    if (now - this.lastEmitTime < this.config.minUpdateInterval && newProgress < 100) {
-      return;
-    }
-
-    // 检查最小变化阈值
-    if (
-      Math.abs(newProgress - this.lastEmittedProgress) < this.config.minProgressDelta &&
-      newProgress < 100
-    ) {
-      return;
-    }
-
+    // 完全禁用节流！每次都发送更新！
     this.overallProgress = newProgress;
-    this.lastEmitTime = now;
     this.lastEmittedProgress = newProgress;
+    this.lastEmittedMessage = message;
 
+    console.log(`[ProgressTracker] Calling emitProgress(${message})`);
     this.emitProgress(message);
   }
 
@@ -407,23 +399,35 @@ export class ProgressTracker {
   }
 
   /**
-   * 发送进度回调
+   * 发送进度回调 - 完全无节流！
    */
   private emitProgress(message?: string, extraDetails?: Record<string, any>): void {
-    if (!this.onProgressCallback) return;
+    console.log(`[ProgressTracker] emitProgress() called: currentStage=${this.currentStage}, overallProgress=${this.overallProgress}%`);
+    console.log(`[ProgressTracker] onProgressCallback exists: ${!!this.onProgressCallback}`);
+    
+    if (!this.onProgressCallback) {
+      console.log(`[ProgressTracker] No callback registered, skipping emit`);
+      return;
+    }
 
     const details = this.buildProgressDetails();
+    console.log(`[ProgressTracker] Built details:`, details);
+    
     const timeEstimate = this.config.enableTimeEstimation
       ? this.calculateTimeEstimate()
       : undefined;
 
     const finalMessage = message || this.getDefaultMessage();
+    
+    console.log(`[ProgressTracker] Calling onProgressCallback with: stage=${this.currentStage}, progress=${this.overallProgress}%, message=${finalMessage}`);
 
     this.onProgressCallback(this.currentStage, this.overallProgress, finalMessage, {
       ...details,
       ...timeEstimate,
       ...extraDetails,
     });
+    
+    console.log(`[ProgressTracker] onProgressCallback called successfully`);
   }
 
   /**

@@ -145,11 +145,32 @@ export const ImageGenerationPanel: React.FC<ImageGenerationPanelProps> = ({
         >
           {settings.models
             .filter(m => m.type === 'image' && (m.enabled ?? true))
-            .map(model => (
-              <SelectItem key={model.id} textValue={model.name}>
-                {model.name}
-              </SelectItem>
-            ))}
+            .map(model => {
+              const supportsRef = model.capabilities?.supportsReferenceImage;
+              const requiresRef = model.capabilities?.requiresImageInput;
+              return (
+                <SelectItem key={model.id} textValue={model.name}>
+                  <div className="flex items-center gap-2">
+                    <span>{model.name}</span>
+                    {requiresRef && (
+                      <span className="text-xs px-2 py-0.5 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300 rounded-full">
+                        需要参考图
+                      </span>
+                    )}
+                    {supportsRef && !requiresRef && (
+                      <span className="text-xs px-2 py-0.5 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-full">
+                        支持参考图
+                      </span>
+                    )}
+                    {!supportsRef && (
+                      <span className="text-xs px-2 py-0.5 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 rounded-full">
+                        文生图
+                      </span>
+                    )}
+                  </div>
+                </SelectItem>
+              );
+            })}
         </Select>
       </div>
 

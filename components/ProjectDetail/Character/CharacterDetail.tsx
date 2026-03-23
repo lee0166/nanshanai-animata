@@ -33,7 +33,8 @@ import {
   Wand2,
   User,
   Layers,
-  Camera
+  Camera,
+  Info
 } from 'lucide-react';
 import { getRoleImagePrompt, getDefaultStylePrompt } from '../../../services/prompt';
 import ResourcePicker from '../../ResourcePicker';
@@ -57,12 +58,10 @@ const CharacterDetail: React.FC<CharacterDetailProps> = ({ asset, onUpdate, proj
   const [generatingViews, setGeneratingViews] = useState<Set<CharacterViewAngle>>(new Set());
   const [batchGenerating, setBatchGenerating] = useState(false);
 
-  // Local state for inputs (to support auto-save on blur)
   const [name, setName] = useState(asset.name);
   const [gender, setGender] = useState<string>(asset.gender || 'unlimited');
   const [ageGroup, setAgeGroup] = useState<string>(asset.ageGroup || 'unknown');
 
-  // Operation Area State
   const [prompt, setPrompt] = useState(asset.prompt || '');
   const [referenceImages, setReferenceImages] = useState<string[]>(
     asset.metadata?.referenceImages || []
@@ -73,12 +72,10 @@ const CharacterDetail: React.FC<CharacterDetailProps> = ({ asset, onUpdate, proj
   const [generateCount, setGenerateCount] = useState<number>(1);
   const [guidanceScale, setGuidanceScale] = useState<number>(2.5);
 
-  // URL Caches
   const [refUrls, setRefUrls] = useState<Record<string, string>>({});
   const [genUrls, setGenUrls] = useState<Record<string, string>>({});
   const [viewUrls, setViewUrls] = useState<Record<string, string>>({});
 
-  // Resolve initial model ID to a valid config ID if possible
   const getInitialModelId = () => {
     const savedId = asset.metadata?.modelId;
     if (!savedId) return '';
@@ -613,6 +610,7 @@ const CharacterDetail: React.FC<CharacterDetailProps> = ({ asset, onUpdate, proj
         character: asset,
         viewAngle,
         modelConfigId: modelId,
+        modelConfig: runtimeModel,
         projectId,
       });
 
@@ -734,6 +732,7 @@ const CharacterDetail: React.FC<CharacterDetailProps> = ({ asset, onUpdate, proj
             character: asset,
             viewAngle,
             modelConfigId: modelId,
+            modelConfig: runtimeModel,
             projectId,
           });
 
@@ -788,33 +787,37 @@ const CharacterDetail: React.FC<CharacterDetailProps> = ({ asset, onUpdate, proj
   };
 
   return (
-    <div className="h-full flex flex-row gap-8 w-full overflow-hidden">
-      <div className="w-[520px] flex-shrink-0 flex flex-col gap-8 overflow-y-auto pr-2 pb-10">
-        <div className="flex flex-col gap-6">
-          <h3 className="text-sm font-black text-primary/80 dark:text-primary-400 uppercase tracking-widest mb-2">
+    <div className="h-full flex flex-row w-full overflow-hidden">
+      {/* 左侧：基础信息、Tabs、生图参数设置，宽度约500px */}
+      <div className="w-[500px] flex-shrink-0 flex flex-col gap-4 overflow-y-auto p-4 border-r border-slate-200 dark:border-slate-800">
+        {/* 基础信息卡片 */}
+        <div className="bg-content1 rounded-xl border border-content3 p-6 shadow-sm">
+          <h3 className="text-sm font-semibold text-slate-900 dark:text-white flex items-center gap-2 mb-4">
+            <User className="w-4 h-4 text-primary" />
             {t.project.basicInfo}
           </h3>
-          <div className="flex flex-col gap-2">
-            <label className="text-slate-700 dark:text-slate-300 font-bold text-base ml-1">{t.project.nameLabel}</label>
-            <Input
-              placeholder={t.project.nameLabel}
-              value={name}
-              onValueChange={val => setName(val)}
-              onBlur={handleSaveInfo}
-              className="w-full"
-              variant="bordered"
-              radius="lg"
-              isDisabled={generating || isCheckingJobs}
-              classNames={{
-                input: 'font-bold text-sm',
-                inputWrapper: 'border-2 group-data-[focus=true]:border-primary',
-              }}
-            />
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
+          
+          <div className="flex flex-col gap-4">
             <div className="flex flex-col gap-2">
-              <label className="text-slate-700 dark:text-slate-300 font-bold text-base ml-1">
+              <label className="text-slate-700 dark:text-slate-300 font-bold text-sm">{t.project.nameLabel}</label>
+              <Input
+                placeholder={t.project.nameLabel}
+                value={name}
+                onValueChange={val => setName(val)}
+                onBlur={handleSaveInfo}
+                className="w-full"
+                variant="bordered"
+                radius="lg"
+                isDisabled={generating || isCheckingJobs}
+                classNames={{
+                  input: 'font-bold text-sm',
+                  inputWrapper: 'border-2 group-data-[focus=true]:border-primary',
+                }}
+              />
+            </div>
+
+            <div className="flex flex-col gap-2">
+              <label className="text-slate-700 dark:text-slate-300 font-bold text-sm">
                 {t.character.gender}
               </label>
               <Select
@@ -840,7 +843,7 @@ const CharacterDetail: React.FC<CharacterDetailProps> = ({ asset, onUpdate, proj
             </div>
 
             <div className="flex flex-col gap-2">
-              <label className="text-slate-700 dark:text-slate-300 font-bold text-base ml-1">
+              <label className="text-slate-700 dark:text-slate-300 font-bold text-sm">
                 {t.character.ageGroup}
               </label>
               <Select
@@ -867,325 +870,431 @@ const CharacterDetail: React.FC<CharacterDetailProps> = ({ asset, onUpdate, proj
           </div>
         </div>
 
-        <div className="flex flex-col gap-4">
-          <h3 className="text-sm font-black text-primary/80 dark:text-primary-400 uppercase tracking-widest mb-2">
-            {t.project.generationSettings}
-          </h3>
-          <ImageGenerationPanel
-            projectId={projectId}
-            prompt={prompt}
-            onPromptChange={handlePromptChange}
-            onPromptBlur={handlePromptBlur}
-            modelId={modelId}
-            onModelChange={handleModelChange}
-            referenceImages={referenceImages}
-            onReferenceImagesChange={newRefs => {
-              setReferenceImages(newRefs);
-              onUpdate({
-                ...asset,
-                metadata: { ...asset.metadata, referenceImages: newRefs },
-              });
+        {/* Tabs和生图参数设置 */}
+        <div className="bg-content1 rounded-xl border border-content3 p-6 shadow-sm flex-1 flex flex-col">
+          <Tabs
+            selectedKey={activeTab}
+            onSelectionChange={key => setActiveTab(String(key))}
+            className="w-full"
+            classNames={{
+              tabList: 'gap-1 p-1 bg-slate-100 dark:bg-slate-800 rounded-lg',
+              tab: 'data-[selected=true]:bg-white dark:data-[selected=true]:bg-slate-700 transition-colors duration-200',
+              cursor: 'pointer'
             }}
-            aspectRatio={aspectRatio}
-            onAspectRatioChange={val => {
-              setAspectRatio(val);
-              onUpdate({
-                ...asset,
-                metadata: { ...asset.metadata, aspectRatio: val },
-              });
-            }}
-            resolution={resolution}
-            onResolutionChange={val => {
-              setResolution(val);
-              onUpdate({
-                ...asset,
-                metadata: { ...asset.metadata, resolution: val },
-              });
-            }}
-            style={style}
-            onStyleChange={setStyle}
-            count={generateCount}
-            onCountChange={setGenerateCount}
-            guidanceScale={guidanceScale}
-            onGuidanceScaleChange={setGuidanceScale}
-            generating={generating || isCheckingJobs}
-            onGenerate={handleGenerate}
-          />
-        </div>
-      </div>
-
-      <div className="flex-1 flex flex-col overflow-hidden bg-slate-50 dark:bg-slate-900/50 rounded-3xl border border-slate-200 dark:border-slate-800">
-        <Tabs
-          selectedKey={activeTab}
-          onSelectionChange={key => setActiveTab(String(key))}
-          className="px-6 pt-4"
-          classNames={{
-            tabList: 'gap-4 p-1 bg-white/50 dark:bg-slate-800/50 rounded-xl',
-            tab: 'data-[selected=true]:bg-white dark:data-[selected=true]:bg-slate-700 transition-colors duration-200',
-            cursor: 'pointer'
-          }}
-        >
-          <Tab 
-            key="single" 
-            title={
-              <div className="flex items-center gap-2">
-                <ImageIcon className="w-4 h-4" />
-                <span>单图管理</span>
-              </div>
-            }
-          />
-          <Tab 
-            key="views" 
-            title={
-              <div className="flex items-center gap-2">
-                <Layers className="w-4 h-4" />
-                <span>三视图管理</span>
-              </div>
-            }
-          />
-        </Tabs>
-
-        <div className="flex-1 overflow-hidden">
-          {activeTab === 'single' && (
-            <div className="flex flex-col h-full">
-              <div className="px-6 py-3 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm">
-                <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100">生成结果</h3>
-                <div className="px-3 py-1 rounded-full bg-slate-200/50 dark:bg-slate-800/50 text-xs font-bold text-slate-600 dark:text-slate-300">
-                  图片 ({asset.generatedImages?.length || 0})
+          >
+            <Tab 
+              key="single" 
+              title={
+                <div className="flex items-center gap-2">
+                  <ImageIcon className="w-4 h-4" />
+                  <span className="text-sm font-medium">参考图生图</span>
                 </div>
-              </div>
+              }
+            />
+            <Tab 
+              key="views" 
+              title={
+                <div className="flex items-center gap-2">
+                  <Layers className="w-4 h-4" />
+                  <span className="text-sm font-medium">多视角图生成</span>
+                </div>
+              }
+            />
+          </Tabs>
 
-              <div className="flex-1 overflow-y-auto p-6">
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                  {asset.generatedImages
-                    ?.slice()
-                    .reverse()
-                    .map(img => {
-                      const isSelected = asset.currentImageId === img.id;
-                      const url =
-                        genUrls[img.id] ||
-                        (img.path.startsWith('remote:') ? img.path.substring(7) : undefined);
+          <div className="flex-1 overflow-y-auto pt-4">
+            {activeTab === 'single' && (
+              <ImageGenerationPanel
+                projectId={projectId}
+                prompt={prompt}
+                onPromptChange={handlePromptChange}
+                onPromptBlur={handlePromptBlur}
+                modelId={modelId}
+                onModelChange={handleModelChange}
+                referenceImages={referenceImages}
+                onReferenceImagesChange={newRefs => {
+                  setReferenceImages(newRefs);
+                  onUpdate({
+                    ...asset,
+                    metadata: { ...asset.metadata, referenceImages: newRefs },
+                  });
+                }}
+                aspectRatio={aspectRatio}
+                onAspectRatioChange={val => {
+                  setAspectRatio(val);
+                  onUpdate({
+                    ...asset,
+                    metadata: { ...asset.metadata, aspectRatio: val },
+                  });
+                }}
+                resolution={resolution}
+                onResolutionChange={val => {
+                  setResolution(val);
+                  onUpdate({
+                    ...asset,
+                    metadata: { ...asset.metadata, resolution: val },
+                  });
+                }}
+                style={style}
+                onStyleChange={setStyle}
+                count={generateCount}
+                onCountChange={setGenerateCount}
+                guidanceScale={guidanceScale}
+                onGuidanceScaleChange={setGuidanceScale}
+                generating={generating || isCheckingJobs}
+                onGenerate={handleGenerate}
+              />
+            )}
 
-                      if (!url) return null;
-
-                      return (
-                        <div
-                          key={img.id}
-                          className="relative group cursor-pointer"
-                          onClick={() => handleSelectImage(img)}
-                        >
-                          <Card
-                            className={`aspect-[3/4] border-2 transition-all duration-200 ${isSelected ? 'border-primary shadow-xl scale-[1.02]' : 'border-transparent hover:border-primary/50 hover:shadow-lg'}`}
-                            radius="lg"
-                            shadow="sm"
-                          >
-                            <div className="w-full h-full bg-slate-100 dark:bg-slate-950 flex items-center justify-center overflow-hidden">
-                              <img
-                                src={url}
-                                alt="Generated"
-                                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                              />
-                            </div>
-
-                            {isSelected && (
-                              <div className="absolute top-2 left-2 z-20 bg-primary text-white rounded-full p-1.5 shadow-md ring-2 ring-white dark:ring-slate-900">
-                                <Check className="w-3 h-3" />
-                              </div>
-                            )}
-
-                            <div className="absolute top-2 right-2 z-20 opacity-0 group-hover:opacity-100 transition-all duration-200 flex gap-2 translate-y-[-10px] group-hover:translate-y-0">
-                              <Button
-                                isIconOnly
-                                size="sm"
-                                variant="flat"
-                                aria-label="预览图片"
-                                className="bg-black/60 text-white hover:bg-black/80 backdrop-blur-md rounded-full w-8 h-8 cursor-pointer transition-colors duration-200"
-                                onClick={e => {
-                                  e.stopPropagation();
-                                  if (!asset.generatedImages) return;
-
-                                  const validItems = asset.generatedImages.filter(i => {
-                                    const u =
-                                      genUrls[i.id] ||
-                                      (i.path.startsWith('remote:') ? i.path.substring(7) : undefined);
-                                    return !!u;
-                                  });
-
-                                  const slides = validItems.map(i => {
-                                    const u =
-                                      genUrls[i.id] ||
-                                      (i.path.startsWith('remote:') ? i.path.substring(7) : '');
-                                    const isVideo = isVideoFile(i.path);
-                                    if (isVideo) {
-                                      return {
-                                        type: 'video' as const,
-                                        sources: [{ src: u, type: getMimeType(i.path) }],
-                                      };
-                                    }
-                                    return { src: u };
-                                  });
-
-                                  const idx = validItems.findIndex(i => i.id === img.id);
-                                  openPreview(slides, idx >= 0 ? idx : 0);
-                                }}
-                              >
-                                <Eye className="w-4 h-4" />
-                              </Button>
-                              <Button
-                                isIconOnly
-                                size="sm"
-                                variant="flat"
-                                aria-label="删除图片"
-                                className="bg-red-500/80 text-white hover:bg-red-600 backdrop-blur-md rounded-full w-8 h-8 cursor-pointer transition-colors duration-200"
-                                onClick={e => promptDeleteImage(img, e)}
-                              >
-                                <Trash2 className="w-4 h-4" />
-                              </Button>
-                            </div>
-                          </Card>
-                        </div>
-                      );
-                    })}
-
-                  {(!asset.generatedImages || asset.generatedImages.length === 0) && (
-                    <div className="col-span-full h-64 flex flex-col items-center justify-center text-slate-400 border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-3xl bg-slate-50/50 dark:bg-slate-900/50">
-                      <div className="p-4 bg-slate-100 dark:bg-slate-800 rounded-full mb-4">
-                        <ImageIcon className="w-8 h-8 opacity-50" />
-                      </div>
-                      <span className="uppercase tracking-widest text-xs font-black opacity-50">
-                        {t.character.noGenerationsYet}
-                      </span>
+            {activeTab === 'views' && (
+              <div className="flex flex-col gap-4">
+                <Card className="p-4 border-2 border-primary/20 bg-primary/5">
+                  <div className="flex items-start gap-3">
+                    <div className="p-2 bg-primary/10 rounded-lg">
+                      <Info className="w-5 h-5 text-primary" />
                     </div>
-                  )}
-                </div>
-              </div>
-            </div>
-          )}
-
-          {activeTab === 'views' && (
-            <div className="flex flex-col h-full">
-              <div className="px-6 py-3 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm">
-                <div className="flex items-center gap-4">
-                  <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100">三视图管理</h3>
-                  <div className="px-3 py-1 rounded-full bg-slate-200/50 dark:bg-slate-800/50 text-xs font-bold text-slate-600 dark:text-slate-300">
-                    视图 ({Object.values(asset.views || {}).filter(Boolean).length}/4)
+                    <div className="flex-1">
+                      <h4 className="font-bold text-sm text-slate-900 dark:text-slate-100 mb-1">
+                        多视角图生成设置
+                      </h4>
+                      <p className="text-xs text-slate-600 dark:text-slate-400">
+                        您正在使用的模型将同时用于多视角图生成。请确保选择支持图生图的模型。
+                      </p>
+                    </div>
                   </div>
-                </div>
-                <Button
-                  color="primary"
-                  size="sm"
-                  isLoading={batchGenerating}
-                  isDisabled={!modelId || viewAngles.filter(angle => !asset.views?.[angle]).length === 0}
-                  className="cursor-pointer transition-colors duration-200"
-                  onPress={handleBatchGenerateViews}
-                  startContent={!batchGenerating && <Wand2 className="w-4 h-4" />}
-                >
-                  {batchGenerating ? '批量生成中...' : '一键生成全部'}
-                </Button>
-              </div>
+                </Card>
 
-              <div className="flex-1 overflow-y-auto p-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="flex flex-col gap-3">
+                  <label className="text-slate-700 dark:text-slate-300 font-bold text-sm">
+                    选择模型
+                  </label>
+                  <Select
+                    aria-label="选择多视角图生成模型"
+                    placeholder="选择模型"
+                    selectedKeys={[modelId]}
+                    onChange={e => handleModelChange(e.target.value)}
+                    className="w-full"
+                    variant="bordered"
+                    radius="lg"
+                    isDisabled={generating || isCheckingJobs}
+                    classNames={{
+                      value: 'font-bold text-sm',
+                      trigger: 'border-2 data-[focus=true]:border-primary',
+                    }}
+                  >
+                    {settings.models
+                      .filter(m => m.type === 'image' && (m.enabled ?? true))
+                      .map(model => {
+                        const supportsRef = model.capabilities?.supportsReferenceImage;
+                        const requiresRef = model.capabilities?.requiresImageInput;
+                        return (
+                          <SelectItem key={model.id} textValue={model.name}>
+                            <div className="flex items-center gap-2">
+                              <span>{model.name}</span>
+                              {requiresRef && (
+                                <span className="text-xs px-2 py-0.5 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300 rounded-full">
+                                  需要参考图
+                                </span>
+                              )}
+                              {supportsRef && !requiresRef && (
+                                <span className="text-xs px-2 py-0.5 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-full">
+                                  支持参考图
+                                </span>
+                              )}
+                              {!supportsRef && (
+                                <span className="text-xs px-2 py-0.5 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 rounded-full">
+                                  文生图
+                                </span>
+                              )}
+                            </div>
+                          </SelectItem>
+                        );
+                      })}
+                  </Select>
+                </div>
+
+                <div className="pt-2">
+                  <Button
+                    fullWidth
+                    color="primary"
+                    size="md"
+                    isLoading={batchGenerating}
+                    isDisabled={!modelId || viewAngles.filter(angle => !asset.views?.[angle]).length === 0}
+                    className="cursor-pointer transition-colors duration-200"
+                    onPress={handleBatchGenerateViews}
+                    startContent={!batchGenerating && <Wand2 className="w-5 h-5" />}
+                  >
+                    {batchGenerating ? '批量生成中...' : '一键生成全部视图'}
+                  </Button>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3 pt-2">
                   {viewAngles.map(viewAngle => {
                     const viewImage = asset.views?.[viewAngle];
                     const isGenerating = generatingViews.has(viewAngle);
-                    const isCurrent = viewImage?.id === asset.currentImageId;
-                    const url = viewImage ? (
-                      viewUrls[viewImage.id] ||
-                      (viewImage.path.startsWith('remote:') ? viewImage.path.substring(7) : undefined)
-                    ) : undefined;
-
+                    
                     return (
                       <Card
                         key={viewAngle}
-                        className={`border-2 transition-all duration-200 ${isCurrent ? 'border-primary shadow-xl' : 'border-content3 dark:border-content3'}`}
-                        radius="lg"
-                        shadow="sm"
+                        className="border border-slate-200 dark:border-slate-700 overflow-hidden"
                       >
-                        <div className="p-4 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center bg-slate-50 dark:bg-slate-900/50">
-                          <div className="flex items-center gap-3">
-                            <div className="p-2 bg-primary/10 dark:bg-primary/20 rounded-lg text-primary">
+                        <div className="p-3 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50">
+                          <div className="flex items-center gap-2">
+                            <div className="p-1.5 bg-primary/10 rounded-lg text-primary">
                               {getViewIcon(viewAngle)}
                             </div>
-                            <div>
-                              <h4 className="font-bold text-slate-900 dark:text-foreground">
-                                {getViewLabel(viewAngle)}视图
-                              </h4>
-                              <p className="text-xs text-slate-500 dark:text-slate-400">
-                                {viewImage ? '已生成' : '待生成'}
-                              </p>
-                            </div>
+                            <span className="font-bold text-sm text-slate-700 dark:text-slate-200">
+                              {getViewLabel(viewAngle)}
+                            </span>
+                            {viewImage && (
+                              <Chip size="sm" color="success" variant="flat">已生成</Chip>
+                            )}
                           </div>
-                          {isCurrent && (
-                            <Chip color="primary" size="sm" variant="flat">
-                              当前主图
-                            </Chip>
-                          )}
                         </div>
-
-                        <div className="p-4">
-                          <div className="aspect-square bg-slate-100 dark:bg-slate-950 rounded-xl overflow-hidden mb-4">
-                            {url ? (
-                              <img
-                                src={url}
-                                alt={`${getViewLabel(viewAngle)}视图`}
-                                className="w-full h-full object-cover"
-                              />
-                            ) : (
-                              <div className="w-full h-full flex flex-col items-center justify-center text-slate-400">
-                                <Camera className="w-12 h-12 mb-2 opacity-50" />
-                                <span className="text-sm">暂无视图</span>
-                              </div>
-                            )}
-                          </div>
-
-                          <div className="flex gap-2">
-                            {!viewImage ? (
-                              <Button
-                                fullWidth
-                                color="primary"
-                                size="sm"
-                                isLoading={isGenerating}
-                                isDisabled={!modelId}
-                                className="cursor-pointer transition-colors duration-200 focus:ring-2 focus:ring-primary"
-                                onPress={() => handleGenerateView(viewAngle)}
-                                startContent={!isGenerating && <Wand2 className="w-4 h-4" />}
-                              >
-                                {isGenerating ? '生成中...' : '生成视图'}
-                              </Button>
-                            ) : (
-                              <>
-                                <Button
-                                  fullWidth
-                                  color="success"
-                                  size="sm"
-                                  isDisabled={isCurrent}
-                                  className="cursor-pointer transition-colors duration-200 focus:ring-2 focus:ring-primary"
-                                  onPress={() => handleSetViewAsCurrent(viewAngle)}
-                                  startContent={<Check className="w-4 h-4" />}
-                                >
-                                  {isCurrent ? '已设为当前' : '设为当前'}
-                                </Button>
-                                <Button
-                                  isIconOnly
-                                  color="danger"
-                                  size="sm"
-                                  variant="flat"
-                                  className="cursor-pointer transition-colors duration-200 focus:ring-2 focus:ring-primary"
-                                  aria-label="删除视图"
-                                  onPress={() => handleDeleteView(viewAngle)}
-                                >
-                                  <Trash2 className="w-4 h-4" />
-                                </Button>
-                              </>
-                            )}
-                          </div>
+                        <div className="p-3">
+                          <Button
+                            fullWidth
+                            size="sm"
+                            color={viewImage ? 'secondary' : 'primary'}
+                            variant={viewImage ? 'flat' : 'solid'}
+                            isLoading={isGenerating}
+                            isDisabled={!modelId}
+                            onPress={() => viewImage ? handleSetViewAsCurrent(viewAngle) : handleGenerateView(viewAngle)}
+                            startContent={!isGenerating && (viewImage ? <Check className="w-4 h-4" /> : <Wand2 className="w-4 h-4" />)}
+                          >
+                            {isGenerating ? '生成中...' : (viewImage ? '设为当前' : '生成视图')}
+                          </Button>
                         </div>
                       </Card>
                     );
                   })}
                 </div>
               </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* 右侧：预览区和生成结果展示（弹性宽度） */}
+      <div className="flex-1 flex flex-col overflow-hidden">
+        <div className="px-4 py-3 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center bg-slate-50 dark:bg-slate-900/30">
+          <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100">
+            {activeTab === 'single' ? '生成结果' : '多视角图预览'}
+          </h3>
+          <div className="px-3 py-1 rounded-full bg-slate-200/50 dark:bg-slate-800/50 text-xs font-bold text-slate-600 dark:text-slate-300">
+            {activeTab === 'single' 
+              ? `图片 (${asset.generatedImages?.length || 0})`
+              : `视图 (${Object.values(asset.views || {}).filter(Boolean).length}/4)`
+            }
+          </div>
+        </div>
+
+        <div className="flex-1 overflow-y-auto p-4">
+          {activeTab === 'single' && (
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+              {asset.generatedImages
+                ?.slice()
+                .reverse()
+                .map(img => {
+                  const isSelected = asset.currentImageId === img.id;
+                  const url =
+                    genUrls[img.id] ||
+                    (img.path.startsWith('remote:') ? img.path.substring(7) : undefined);
+
+                  if (!url) return null;
+
+                  return (
+                    <div
+                      key={img.id}
+                      className="relative group cursor-pointer"
+                      onClick={() => handleSelectImage(img)}
+                    >
+                      <Card
+                        className={`aspect-[3/4] border-2 transition-all duration-200 ${isSelected ? 'border-primary shadow-xl scale-[1.02]' : 'border-transparent hover:border-primary/50 hover:shadow-lg'}`}
+                        radius="lg"
+                        shadow="sm"
+                      >
+                        <div className="w-full h-full bg-slate-100 dark:bg-slate-950 flex items-center justify-center overflow-hidden">
+                          <img
+                            src={url}
+                            alt="Generated"
+                            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                          />
+                        </div>
+
+                        {isSelected && (
+                          <div className="absolute top-2 left-2 z-20 bg-primary text-white rounded-full p-1.5 shadow-md ring-2 ring-white dark:ring-slate-900">
+                            <Check className="w-3 h-3" />
+                          </div>
+                        )}
+
+                        <div className="absolute top-2 right-2 z-20 opacity-0 group-hover:opacity-100 transition-all duration-200 flex gap-2 translate-y-[-10px] group-hover:translate-y-0">
+                          <Button
+                            isIconOnly
+                            size="sm"
+                            variant="flat"
+                            aria-label="预览图片"
+                            className="bg-black/60 text-white hover:bg-black/80 backdrop-blur-md rounded-full w-8 h-8 cursor-pointer transition-colors duration-200"
+                            onClick={e => {
+                              e.stopPropagation();
+                              if (!asset.generatedImages) return;
+
+                              const validItems = asset.generatedImages.filter(i => {
+                                const u =
+                                  genUrls[i.id] ||
+                                  (i.path.startsWith('remote:') ? i.path.substring(7) : undefined);
+                                return !!u;
+                              });
+
+                              const slides = validItems.map(i => {
+                                const u =
+                                  genUrls[i.id] ||
+                                  (i.path.startsWith('remote:') ? i.path.substring(7) : '');
+                                const isVideo = isVideoFile(i.path);
+                                if (isVideo) {
+                                  return {
+                                    type: 'video' as const,
+                                    sources: [{ src: u, type: getMimeType(i.path) }],
+                                  };
+                                }
+                                return { src: u };
+                              });
+
+                              const idx = validItems.findIndex(i => i.id === img.id);
+                              openPreview(slides, idx >= 0 ? idx : 0);
+                            }}
+                          >
+                            <Eye className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            isIconOnly
+                            size="sm"
+                            variant="flat"
+                            aria-label="删除图片"
+                            className="bg-red-500/80 text-white hover:bg-red-600 backdrop-blur-md rounded-full w-8 h-8 cursor-pointer transition-colors duration-200"
+                            onClick={e => promptDeleteImage(img, e)}
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      </Card>
+                    </div>
+                  );
+                })}
+
+              {(!asset.generatedImages || asset.generatedImages.length === 0) && (
+                <div className="col-span-full h-64 flex flex-col items-center justify-center text-slate-400 border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-3xl bg-slate-50/50 dark:bg-slate-900/50">
+                  <div className="p-4 bg-slate-100 dark:bg-slate-800 rounded-full mb-4">
+                    <ImageIcon className="w-8 h-8 opacity-50" />
+                  </div>
+                  <span className="uppercase tracking-widest text-xs font-black opacity-50">
+                    {t.character.noGenerationsYet}
+                  </span>
+                </div>
+              )}
+            </div>
+          )}
+
+          {activeTab === 'views' && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {viewAngles.map(viewAngle => {
+                const viewImage = asset.views?.[viewAngle];
+                const isGenerating = generatingViews.has(viewAngle);
+                const isCurrent = viewImage?.id === asset.currentImageId;
+                const url = viewImage ? (
+                  viewUrls[viewImage.id] ||
+                  (viewImage.path.startsWith('remote:') ? viewImage.path.substring(7) : undefined)
+                ) : undefined;
+
+                return (
+                  <Card
+                    key={viewAngle}
+                    className={`border-2 transition-all duration-200 ${isCurrent ? 'border-primary shadow-xl' : 'border-content3 dark:border-content3'}`}
+                    radius="lg"
+                    shadow="sm"
+                  >
+                    <div className="p-4 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center bg-slate-50 dark:bg-slate-900/50">
+                      <div className="flex items-center gap-3">
+                        <div className="p-2 bg-primary/10 dark:bg-primary/20 rounded-lg text-primary">
+                          {getViewIcon(viewAngle)}
+                        </div>
+                        <div>
+                          <h4 className="font-bold text-slate-900 dark:text-foreground">
+                            {getViewLabel(viewAngle)}视图
+                          </h4>
+                          <p className="text-xs text-slate-500 dark:text-slate-400">
+                            {viewImage ? '已生成' : '待生成'}
+                          </p>
+                        </div>
+                      </div>
+                      {isCurrent && (
+                        <Chip color="primary" size="sm" variant="flat">
+                          当前主图
+                        </Chip>
+                      )}
+                    </div>
+
+                    <div className="p-4">
+                      <div className="aspect-square bg-slate-100 dark:bg-slate-950 rounded-xl overflow-hidden mb-4">
+                        {url ? (
+                          <img
+                            src={url}
+                            alt={`${getViewLabel(viewAngle)}视图`}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex flex-col items-center justify-center text-slate-400">
+                            <Camera className="w-12 h-12 mb-2 opacity-50" />
+                            <span className="text-sm">暂无视图</span>
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="flex gap-2">
+                        {!viewImage ? (
+                          <Button
+                            fullWidth
+                            color="primary"
+                            size="sm"
+                            isLoading={isGenerating}
+                            isDisabled={!modelId}
+                            className="cursor-pointer transition-colors duration-200 focus:ring-2 focus:ring-primary"
+                            onPress={() => handleGenerateView(viewAngle)}
+                            startContent={!isGenerating && <Wand2 className="w-4 h-4" />}
+                          >
+                            {isGenerating ? '生成中...' : '生成视图'}
+                          </Button>
+                        ) : (
+                          <>
+                            <Button
+                              fullWidth
+                              color="success"
+                              size="sm"
+                              isDisabled={isCurrent}
+                              className="cursor-pointer transition-colors duration-200 focus:ring-2 focus:ring-primary"
+                              onPress={() => handleSetViewAsCurrent(viewAngle)}
+                              startContent={<Check className="w-4 h-4" />}
+                            >
+                              {isCurrent ? '已设为当前' : '设为当前'}
+                            </Button>
+                            <Button
+                              isIconOnly
+                              color="danger"
+                              size="sm"
+                              variant="flat"
+                              className="cursor-pointer transition-colors duration-200 focus:ring-2 focus:ring-primary"
+                              aria-label="删除视图"
+                              onPress={() => handleDeleteView(viewAngle)}
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  </Card>
+                );
+              })}
             </div>
           )}
         </div>

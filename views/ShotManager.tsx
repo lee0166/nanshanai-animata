@@ -7,6 +7,7 @@ import {
   Keyframe,
   ScriptScene,
   CharacterAsset,
+  SceneAsset,
   Asset,
   AssetType,
   ModelConfig,
@@ -643,6 +644,11 @@ export const ShotManager: React.FC<ShotManagerProps> = ({
   const [viewMode, setViewMode] = useState<ViewMode>('shotList');
   // 展开状态管理
   const [expandedShots, setExpandedShots] = useState<Set<string>>(new Set());
+  // 资产选择器状态
+  const [isCharacterSelectorOpen, setIsCharacterSelectorOpen] = useState(false);
+  const [isSceneSelectorOpen, setIsSceneSelectorOpen] = useState(false);
+  // 项目资产列表
+  const [projectAssets, setProjectAssets] = useState<Asset[]>([]);
 
   // 获取当前选择的模型配置
   const selectedModelConfig = useMemo(() => {
@@ -788,6 +794,20 @@ export const ShotManager: React.FC<ShotManagerProps> = ({
       }
     };
     loadScripts();
+  }, [projectId]);
+
+  // 加载项目资产
+  useEffect(() => {
+    const loadAssets = async () => {
+      if (!projectId) return;
+      try {
+        const assets = await storageService.getAssets(projectId);
+        setProjectAssets(assets);
+      } catch (error) {
+        console.error('加载项目资产失败:', error);
+      }
+    };
+    loadAssets();
   }, [projectId]);
 
   // 订阅任务队列更新
@@ -953,6 +973,17 @@ export const ShotManager: React.FC<ShotManagerProps> = ({
   const selectedShot = useMemo(() => {
     return allShots.find(s => s.id === selectedShotId);
   }, [allShots, selectedShotId]);
+
+  // 当选中关键帧变化时，自动设置参考图
+  useEffect(() => {
+    if (selectedShot?.keyframes?.[selectedKeyframeIndex]?.references) {
+      const kfRefs = selectedShot.keyframes[selectedKeyframeIndex].references;
+      setReferences({
+        character: kfRefs.character ? { ...kfRefs.character, weight: 1 } : undefined,
+        scene: kfRefs.scene ? { ...kfRefs.scene, weight: 1 } : undefined,
+      });
+    }
+  }, [selectedShot, selectedKeyframeIndex]);
 
   // 加载参考图缩略图URL
   useEffect(() => {
@@ -1710,6 +1741,138 @@ export const ShotManager: React.FC<ShotManagerProps> = ({
     [selectedShot, currentScript, allShots, scripts, selectedKeyframeIndex]
   );
 
+  // 处理选择角色资产
+  const handleSelectCharacter = useCallback(
+    (asset: CharacterAsset) => {
+      const currentImage = asset.generatedImages?.find(img => img.id === asset.currentImageId) || asset.generatedImages?.[0];
+      setReferences(prev => ({
+        ...prev,
+        character: { id: asset.id, name: asset.name, weight: 1 },
+      }));
+      
+      // 更新关键帧的references
+      if (selectedShot && selectedKeyframeIndex >= 0 && selectedShot.keyframes) {
+        const updatedKeyframes = [...selectedShot.keyframes];
+        updatedKeyframes[selectedKeyframeIndex] = {
+          ...updatedKeyframes[selectedKeyframeIndex],
+          references: {
+            ...updatedKeyframes[selectedKeyframeIndex].references,
+            character: { id: asset.id, name: asset.name },
+          },
+        };
+        const updatedShot = { ...selectedShot, keyframes: updatedKeyframes };
+        const updatedShots = allShots.map(s => (s.id === selectedShot.id ? updatedShot : s));
+        const updatedScript = {
+          ...currentScript,
+          parseState: { ...currentScript.parseState, shots: updatedShots },
+        };
+        storageService.saveScript(updatedScript);
+        setScripts(scripts.map(s => (s.id === updatedScript.id ? updatedScript : s)));
+      }
+
+      // 更新参考图URL
+      if (currentImage?.path) {
+        storageService.getAssetUrl(currentImage.path).then(url => {
+          if (url) {
+            setReferenceImageUrls(prev => ({ ...prev, character: url }));
+          }
+        });
+      }
+    },
+    [selectedShot, selectedKeyframeIndex, allShots, currentScript, scripts]
+  );
+
+  // 处理清除角色选择
+  const handleClearCharacter = useCallback(() => {
+    setReferences(prev => ({ ...prev, character: undefined }));
+    setReferenceImageUrls(prev => ({ ...prev, character: undefined }));
+    
+    // 更新关键帧的references
+    if (selectedShot && selectedKeyframeIndex >= 0 && selectedShot.keyframes) {
+      const updatedKeyframes = [...selectedShot.keyframes];
+      const newReferences = { ...updatedKeyframes[selectedKeyframeIndex].references };
+      delete newReferences.character;
+      updatedKeyframes[selectedKeyframeIndex] = {
+        ...updatedKeyframes[selectedKeyframeIndex],
+        references: newReferences,
+      };
+      const updatedShot = { ...selectedShot, keyframes: updatedKeyframes };
+      const updatedShots = allShots.map(s => (s.id === selectedShot.id ? updatedShot : s));
+      const updatedScript = {
+        ...currentScript,
+        parseState: { ...currentScript.parseState, shots: updatedShots },
+      };
+      storageService.saveScript(updatedScript);
+      setScripts(scripts.map(s => (s.id === updatedScript.id ? updatedScript : s)));
+    }
+  }, [selectedShot, selectedKeyframeIndex, allShots, currentScript, scripts]);
+
+  // 处理选择场景资产
+  const handleSelectScene = useCallback(
+    (asset: SceneAsset) => {
+      const currentImage = asset.generatedImages?.find(img => img.id === asset.currentImageId) || asset.generatedImages?.[0];
+      setReferences(prev => ({
+        ...prev,
+        scene: { id: asset.id, name: asset.name, weight: 1 },
+      }));
+      
+      // 更新关键帧的references
+      if (selectedShot && selectedKeyframeIndex >= 0 && selectedShot.keyframes) {
+        const updatedKeyframes = [...selectedShot.keyframes];
+        updatedKeyframes[selectedKeyframeIndex] = {
+          ...updatedKeyframes[selectedKeyframeIndex],
+          references: {
+            ...updatedKeyframes[selectedKeyframeIndex].references,
+            scene: { id: asset.id, name: asset.name },
+          },
+        };
+        const updatedShot = { ...selectedShot, keyframes: updatedKeyframes };
+        const updatedShots = allShots.map(s => (s.id === selectedShot.id ? updatedShot : s));
+        const updatedScript = {
+          ...currentScript,
+          parseState: { ...currentScript.parseState, shots: updatedShots },
+        };
+        storageService.saveScript(updatedScript);
+        setScripts(scripts.map(s => (s.id === updatedScript.id ? updatedScript : s)));
+      }
+
+      // 更新参考图URL
+      if (currentImage?.path) {
+        storageService.getAssetUrl(currentImage.path).then(url => {
+          if (url) {
+            setReferenceImageUrls(prev => ({ ...prev, scene: url }));
+          }
+        });
+      }
+    },
+    [selectedShot, selectedKeyframeIndex, allShots, currentScript, scripts]
+  );
+
+  // 处理清除场景选择
+  const handleClearScene = useCallback(() => {
+    setReferences(prev => ({ ...prev, scene: undefined }));
+    setReferenceImageUrls(prev => ({ ...prev, scene: undefined }));
+    
+    // 更新关键帧的references
+    if (selectedShot && selectedKeyframeIndex >= 0 && selectedShot.keyframes) {
+      const updatedKeyframes = [...selectedShot.keyframes];
+      const newReferences = { ...updatedKeyframes[selectedKeyframeIndex].references };
+      delete newReferences.scene;
+      updatedKeyframes[selectedKeyframeIndex] = {
+        ...updatedKeyframes[selectedKeyframeIndex],
+        references: newReferences,
+      };
+      const updatedShot = { ...selectedShot, keyframes: updatedKeyframes };
+      const updatedShots = allShots.map(s => (s.id === selectedShot.id ? updatedShot : s));
+      const updatedScript = {
+        ...currentScript,
+        parseState: { ...currentScript.parseState, shots: updatedShots },
+      };
+      storageService.saveScript(updatedScript);
+      setScripts(scripts.map(s => (s.id === updatedScript.id ? updatedScript : s)));
+    }
+  }, [selectedShot, selectedKeyframeIndex, allShots, currentScript, scripts]);
+
   if (isLoading) {
     return (
       <div className="h-full flex items-center justify-center">
@@ -2066,6 +2229,116 @@ export const ShotManager: React.FC<ShotManagerProps> = ({
                           </Button>
                         </div>
                       </div>
+
+                      {/* 参考图管理 - 仅在图生图模式显示 */}
+                      {generationMode === 'reference-to-image' && (
+                        <div className="space-y-4">
+                          <label className="text-xs font-semibold text-slate-600 dark:text-slate-400 block">
+                            参考图管理
+                          </label>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {/* 角色参考图 */}
+                            <div className="bg-content2 rounded-lg border border-content3 p-3">
+                              <div className="flex items-center justify-between mb-2">
+                                <div className="flex items-center gap-2">
+                                  <Users size={14} className="text-primary" />
+                                  <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                                    角色参考图
+                                  </span>
+                                </div>
+                                <Button
+                                  size="sm"
+                                  variant="flat"
+                                  color="primary"
+                                  onPress={() => {
+                                    setIsCharacterSelectorOpen(true);
+                                  }}
+                                  className="text-xs"
+                                >
+                                  {references.character ? '更换' : '选择'}
+                                </Button>
+                              </div>
+                              {references.character ? (
+                                <div className="space-y-2">
+                                  <div className="aspect-video bg-slate-300 dark:bg-slate-700 rounded overflow-hidden">
+                                    {referenceImageUrls.character ? (
+                                      <img
+                                        src={referenceImageUrls.character}
+                                        alt={references.character.name}
+                                        className="w-full h-full object-cover"
+                                      />
+                                    ) : (
+                                      <div className="w-full h-full flex items-center justify-center">
+                                        <Users size={24} className="text-slate-500" />
+                                      </div>
+                                    )}
+                                  </div>
+                                  <div className="text-xs text-slate-600 dark:text-slate-400 truncate">
+                                    {references.character.name}
+                                  </div>
+                                </div>
+                              ) : (
+                                <div className="aspect-video bg-slate-200 dark:bg-slate-800 rounded border-2 border-dashed border-content3 flex items-center justify-center">
+                                  <div className="text-center">
+                                    <Users size={24} className="text-slate-400 mx-auto mb-1" />
+                                    <span className="text-xs text-slate-500">未选择角色</span>
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+
+                            {/* 场景参考图 */}
+                            <div className="bg-content2 rounded-lg border border-content3 p-3">
+                              <div className="flex items-center justify-between mb-2">
+                                <div className="flex items-center gap-2">
+                                  <MapPin size={14} className="text-primary" />
+                                  <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                                    场景参考图
+                                  </span>
+                                </div>
+                                <Button
+                                  size="sm"
+                                  variant="flat"
+                                  color="primary"
+                                  onPress={() => {
+                                    setIsSceneSelectorOpen(true);
+                                  }}
+                                  className="text-xs"
+                                >
+                                  {references.scene ? '更换' : '选择'}
+                                </Button>
+                              </div>
+                              {references.scene ? (
+                                <div className="space-y-2">
+                                  <div className="aspect-video bg-slate-300 dark:bg-slate-700 rounded overflow-hidden">
+                                    {referenceImageUrls.scene ? (
+                                      <img
+                                        src={referenceImageUrls.scene}
+                                        alt={references.scene.name}
+                                        className="w-full h-full object-cover"
+                                      />
+                                    ) : (
+                                      <div className="w-full h-full flex items-center justify-center">
+                                        <MapPin size={24} className="text-slate-500" />
+                                      </div>
+                                    )}
+                                  </div>
+                                  <div className="text-xs text-slate-600 dark:text-slate-400 truncate">
+                                    {references.scene.name}
+                                  </div>
+                                </div>
+                              ) : (
+                                <div className="aspect-video bg-slate-200 dark:bg-slate-800 rounded border-2 border-dashed border-content3 flex items-center justify-center">
+                                  <div className="text-center">
+                                    <MapPin size={24} className="text-slate-400 mx-auto mb-1" />
+                                    <span className="text-xs text-slate-500">未选择场景</span>
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      )}
 
                       {/* 正面提示词 */}
                       <div>
@@ -2656,6 +2929,26 @@ export const ShotManager: React.FC<ShotManagerProps> = ({
         maxTokens={maxTokens}
         setMaxTokens={setMaxTokens}
       />
+
+      {/* 角色资产选择器弹窗 */}
+      <CharacterSelectorModal
+        isOpen={isCharacterSelectorOpen}
+        onClose={() => setIsCharacterSelectorOpen(false)}
+        assets={projectAssets}
+        onSelect={handleSelectCharacter}
+        onClear={handleClearCharacter}
+        currentId={references.character?.id}
+      />
+
+      {/* 场景资产选择器弹窗 */}
+      <SceneSelectorModal
+        isOpen={isSceneSelectorOpen}
+        onClose={() => setIsSceneSelectorOpen(false)}
+        assets={projectAssets}
+        onSelect={handleSelectScene}
+        onClear={handleClearScene}
+        currentId={references.scene?.id}
+      />
     </div>
   );
 };
@@ -2862,6 +3155,154 @@ const SplitKeyframeModal: React.FC<{
             isDisabled={!selectedLLMModel}
           >
             确认拆分
+          </Button>
+        </ModalFooter>
+      </ModalContent>
+    </Modal>
+  );
+};
+
+// 角色资产选择器模态框
+const CharacterSelectorModal: React.FC<{
+  isOpen: boolean;
+  onClose: () => void;
+  assets: Asset[];
+  onSelect: (asset: CharacterAsset) => void;
+  onClear: () => void;
+  currentId?: string;
+}> = ({ isOpen, onClose, assets, onSelect, onClear, currentId }) => {
+  const characterAssets = assets.filter((a): a is CharacterAsset => a.type === AssetType.CHARACTER);
+
+  return (
+    <Modal isOpen={isOpen} onOpenChange={onClose} className="w-full max-w-3xl">
+      <ModalContent className="bg-slate-100 dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white">
+        <ModalHeader>
+          <div className="flex items-center justify-between">
+            <h3>选择角色参考图</h3>
+            <Button size="sm" variant="flat" color="danger" onPress={onClear}>
+              清除选择
+            </Button>
+          </div>
+        </ModalHeader>
+        <ModalBody>
+          {characterAssets.length === 0 ? (
+            <div className="text-center py-8 text-slate-500">
+              暂无角色资产
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+              {characterAssets.map((asset) => {
+                const currentImage = asset.generatedImages?.find(img => img.id === asset.currentImageId) || asset.generatedImages?.[0];
+                return (
+                  <div
+                    key={asset.id}
+                    className={`cursor-pointer rounded-lg border-2 p-3 transition-all ${
+                      currentId === asset.id
+                        ? 'border-primary bg-primary/10'
+                        : 'border-content3 hover:border-slate-400 dark:hover:border-slate-600'
+                    }`}
+                    onClick={() => {
+                      onSelect(asset);
+                      onClose();
+                    }}
+                  >
+                    <div className="aspect-square bg-slate-200 dark:bg-slate-800 rounded overflow-hidden mb-2">
+                      {currentImage?.path ? (
+                        <img
+                          src={currentImage.path}
+                          alt={asset.name}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center">
+                          <Users size={32} className="text-slate-400" />
+                        </div>
+                      )}
+                    </div>
+                    <div className="text-sm font-medium truncate">{asset.name}</div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </ModalBody>
+        <ModalFooter>
+          <Button variant="flat" onPress={onClose}>
+            取消
+          </Button>
+        </ModalFooter>
+      </ModalContent>
+    </Modal>
+  );
+};
+
+// 场景资产选择器模态框
+const SceneSelectorModal: React.FC<{
+  isOpen: boolean;
+  onClose: () => void;
+  assets: Asset[];
+  onSelect: (asset: SceneAsset) => void;
+  onClear: () => void;
+  currentId?: string;
+}> = ({ isOpen, onClose, assets, onSelect, onClear, currentId }) => {
+  const sceneAssets = assets.filter((a): a is SceneAsset => a.type === AssetType.SCENE);
+
+  return (
+    <Modal isOpen={isOpen} onOpenChange={onClose} className="w-full max-w-3xl">
+      <ModalContent className="bg-slate-100 dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white">
+        <ModalHeader>
+          <div className="flex items-center justify-between">
+            <h3>选择场景参考图</h3>
+            <Button size="sm" variant="flat" color="danger" onPress={onClear}>
+              清除选择
+            </Button>
+          </div>
+        </ModalHeader>
+        <ModalBody>
+          {sceneAssets.length === 0 ? (
+            <div className="text-center py-8 text-slate-500">
+              暂无场景资产
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+              {sceneAssets.map((asset) => {
+                const currentImage = asset.generatedImages?.find(img => img.id === asset.currentImageId) || asset.generatedImages?.[0];
+                return (
+                  <div
+                    key={asset.id}
+                    className={`cursor-pointer rounded-lg border-2 p-3 transition-all ${
+                      currentId === asset.id
+                        ? 'border-primary bg-primary/10'
+                        : 'border-content3 hover:border-slate-400 dark:hover:border-slate-600'
+                    }`}
+                    onClick={() => {
+                      onSelect(asset);
+                      onClose();
+                    }}
+                  >
+                    <div className="aspect-video bg-slate-200 dark:bg-slate-800 rounded overflow-hidden mb-2">
+                      {currentImage?.path ? (
+                        <img
+                          src={currentImage.path}
+                          alt={asset.name}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center">
+                          <MapPin size={32} className="text-slate-400" />
+                        </div>
+                      )}
+                    </div>
+                    <div className="text-sm font-medium truncate">{asset.name}</div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </ModalBody>
+        <ModalFooter>
+          <Button variant="flat" onPress={onClose}>
+            取消
           </Button>
         </ModalFooter>
       </ModalContent>

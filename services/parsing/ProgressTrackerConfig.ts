@@ -85,8 +85,8 @@ export const LONG_TEXT_STAGE_WEIGHTS: Record<ParseStage, number> = {
 export const DEFAULT_PROGRESS_TRACKER_CONFIG: ProgressTrackerConfig = {
   stageWeights: DEFAULT_STAGE_WEIGHTS,
   smoothingFactor: 0.3,
-  minUpdateInterval: 100, // 100ms
-  minProgressDelta: 1, // 1%
+  minUpdateInterval: 50, // 50ms - 降低更新间隔
+  minProgressDelta: 0.1, // 0.1% - 大幅降低最小变化阈值
   enableTimeEstimation: true,
   enableSmoothAnimation: true,
   apiWaitEstimate: 10000, // 10秒

@@ -1,12 +1,3 @@
-/**
- * ScriptParseProgress - 剧本解析进度展示组件
- *
- * 提供多阶段步骤条、子任务详情、时间预估等功能
- *
- * @module components/ScriptParser/ScriptParseProgress
- * @version 1.0.0
- */
-
 import React from 'react';
 import { Card, CardBody, Progress, Button } from '@heroui/react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -20,40 +11,27 @@ import {
   Clock,
   CheckCircle,
   Loader2,
-  Circle,
   X,
   Minimize2,
 } from 'lucide-react';
 import type { ParseStage } from '../../types';
 
 export interface ScriptParseProgressProps {
-  /** 是否显示 */
   isOpen: boolean;
-  /** 当前阶段 */
   currentStage: ParseStage;
-  /** 总进度 (0-100) */
   progress: number;
-  /** 阶段进度 (0-100) */
   stageProgress: number;
-  /** 状态消息 */
   message?: string;
-  /** 已耗时 (毫秒) */
   elapsedTime?: number;
-  /** 预估剩余时间 (秒) */
   estimatedRemainingTime?: number;
-  /** 子任务信息 */
   subTaskInfo?: {
     current: number;
     total: number;
     currentName?: string;
   };
-  /** 是否可取消 */
   canCancel?: boolean;
-  /** 取消回调 */
   onCancel?: () => void;
-  /** 最小化回调 */
   onMinimize?: () => void;
-  /** 后台运行回调 */
   onBackground?: () => void;
 }
 
@@ -73,9 +51,6 @@ const STAGES: StageConfig[] = [
   { key: 'refinement', label: '优化', icon: Sparkles, description: '优化解析结果' },
 ];
 
-/**
- * 格式化时间显示
- */
 function formatDuration(ms: number): string {
   if (ms < 1000) return '< 1秒';
   const seconds = Math.floor(ms / 1000);
@@ -91,9 +66,6 @@ function formatDuration(ms: number): string {
   }
 }
 
-/**
- * 阶段指示器组件
- */
 const StageIndicator: React.FC<{
   stages: StageConfig[];
   currentStage: ParseStage;
@@ -114,10 +86,9 @@ const StageIndicator: React.FC<{
               animate={{ scale: isCurrent ? 1.05 : 1 }}
               transition={{ duration: 0.2 }}
             >
-              {/* 阶段圆圈 */}
               <div
                 className={`
-                  w-10 h-10 rounded-full flex items-center justify-center
+                  w-10 h-10 rounded-full flex items-center justify-center       
                   transition-colors duration-300
                   ${isCompleted ? 'bg-success' : ''}
                   ${isCurrent ? 'bg-primary' : ''}
@@ -127,13 +98,12 @@ const StageIndicator: React.FC<{
                 {isCompleted ? (
                   <CheckCircle className="w-5 h-5 text-white" />
                 ) : isCurrent ? (
-                  <Loader2 className="w-5 h-5 text-white animate-spin" />
+                  <Loader2 className="w-5 h-5 text-white animate-spin" />       
                 ) : (
                   <stage.icon className="w-5 h-5 text-slate-400" />
                 )}
               </div>
 
-              {/* 阶段标签 */}
               <span
                 className={`
                   mt-2 text-xs font-medium
@@ -143,24 +113,22 @@ const StageIndicator: React.FC<{
                 {stage.label}
               </span>
 
-              {/* 当前阶段指示器 */}
               {isCurrent && (
                 <motion.div
                   className="absolute -bottom-1 w-1 h-1 bg-primary rounded-full"
                   layoutId="currentStageIndicator"
-                  transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+                  transition={{ type: 'spring', stiffness: 500, damping: 30 }}  
                 />
               )}
             </motion.div>
 
-            {/* 连接线 */}
             {index < stages.length - 1 && (
               <div className="flex-1 h-0.5 mx-2 bg-slate-700 relative overflow-hidden">
                 <motion.div
                   className="absolute inset-y-0 left-0 bg-success"
                   initial={{ width: '0%' }}
                   animate={{
-                    width: isCompleted ? '100%' : isCurrent ? '50%' : '0%',
+                    width: isCompleted ? '100%' : isCurrent ? '50%' : '0%',     
                   }}
                   transition={{ duration: 0.5, ease: 'easeInOut' }}
                 />
@@ -173,9 +141,6 @@ const StageIndicator: React.FC<{
   );
 };
 
-/**
- * 子任务列表组件
- */
 const SubTaskList: React.FC<{
   current: number;
   total: number;
@@ -217,9 +182,6 @@ const SubTaskList: React.FC<{
   );
 };
 
-/**
- * 时间预估组件
- */
 const TimeEstimate: React.FC<{
   elapsedTime?: number;
   estimatedRemainingTime?: number;
@@ -227,7 +189,7 @@ const TimeEstimate: React.FC<{
   if (!elapsedTime) return null;
 
   return (
-    <div className="flex items-center gap-4 mt-4 text-sm text-slate-400">
+    <div className="flex items-center gap-4 mt-4 text-sm text-slate-400">       
       <div className="flex items-center gap-1.5">
         <Clock className="w-4 h-4" />
         <span>已耗时: {formatDuration(elapsedTime)}</span>
@@ -245,10 +207,7 @@ const TimeEstimate: React.FC<{
   );
 };
 
-/**
- * 主组件
- */
-export const ScriptParseProgress: React.FC<ScriptParseProgressProps> = ({
+export const ScriptParseProgress: React.FC<ScriptParseProgressProps> = React.memo(({       
   isOpen,
   currentStage,
   progress,
@@ -262,11 +221,12 @@ export const ScriptParseProgress: React.FC<ScriptParseProgressProps> = ({
   onMinimize,
   onBackground,
 }) => {
+  console.log('[ScriptParseProgress] 渲染:', { isOpen, currentStage, progress, stageProgress, message });
+
   if (!isOpen) return null;
 
-  // 计算已完成阶段
   const completedStages = STAGES.filter((s, index) => {
-    const currentIndex = STAGES.findIndex(st => st.key === currentStage);
+    const currentIndex = STAGES.findIndex(st => st.key === currentStage);       
     return index < currentIndex;
   }).map(s => s.key);
 
@@ -279,9 +239,8 @@ export const ScriptParseProgress: React.FC<ScriptParseProgressProps> = ({
         transition={{ duration: 0.2 }}
         className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
       >
-        <Card className="w-full max-w-2xl bg-slate-900 border-slate-800">
+        <Card className="w-full max-w-2xl bg-white dark:bg-slate-900 border-slate-800">       
           <CardBody className="p-6">
-            {/* 头部 */}
             <div className="flex items-center justify-between mb-6">
               <div>
                 <h3 className="text-lg font-semibold text-foreground">剧本解析</h3>
@@ -289,10 +248,8 @@ export const ScriptParseProgress: React.FC<ScriptParseProgressProps> = ({
               </div>
 
               <div className="flex items-center gap-2">
-                {/* 进度百分比 */}
                 <span className="text-2xl font-bold text-primary">{Math.round(progress)}%</span>
 
-                {/* 操作按钮 */}
                 {onMinimize && (
                   <Button
                     isIconOnly
@@ -319,52 +276,36 @@ export const ScriptParseProgress: React.FC<ScriptParseProgressProps> = ({
               </div>
             </div>
 
-            {/* 阶段指示器 */}
             <StageIndicator
               stages={STAGES}
               currentStage={currentStage}
               completedStages={completedStages}
             />
 
-            {/* 主进度条 */}
             <div className="mb-4">
+              <p className="text-sm font-medium mb-2">总进度: {Math.round(progress)}%</p>
               <Progress
                 value={progress}
+                color="success"
+                size="lg"
                 className="w-full"
-                color="primary"
-                size="md"
-                aria-label="总进度"
-                classNames={{
-                  track: 'bg-slate-700',
-                  indicator: 'bg-primary',
-                }}
               />
             </div>
 
-            {/* 当前阶段进度 */}
-            {currentStage !== 'completed' && currentStage !== 'error' && (
-              <div className="flex items-center gap-3 mb-4">
-                <span className="text-sm text-slate-400">当前阶段:</span>
-                <div className="flex-1">
-                  <Progress
-                    value={stageProgress}
-                    className="w-full"
-                    color="secondary"
-                    size="sm"
-                    aria-label="当前阶段进度"
-                    classNames={{
-                      track: 'bg-slate-800',
-                      indicator: 'bg-secondary',
-                    }}
-                  />
-                </div>
-                <span className="text-sm text-slate-400 w-12 text-right">
-                  {Math.round(stageProgress)}%
-                </span>
+            {currentStage !== 'completed' && currentStage !== 'error' && (      
+              <div className="mb-4">
+                <p className="text-sm font-medium mb-2">
+                  当前阶段 ({currentStage}): {Math.round(stageProgress)}%
+                </p>
+                <Progress
+                  value={stageProgress}
+                  color="warning"
+                  size="md"
+                  className="w-full"
+                />
               </div>
             )}
 
-            {/* 子任务列表 */}
             {subTaskInfo && subTaskInfo.total > 0 && (
               <SubTaskList
                 current={subTaskInfo.current}
@@ -373,13 +314,11 @@ export const ScriptParseProgress: React.FC<ScriptParseProgressProps> = ({
               />
             )}
 
-            {/* 时间预估 */}
             <TimeEstimate
               elapsedTime={elapsedTime}
               estimatedRemainingTime={estimatedRemainingTime}
             />
 
-            {/* 底部操作 */}
             <div className="flex items-center justify-between mt-6 pt-4 border-t border-slate-800">
               <div className="text-xs text-slate-500">
                 {currentStage === 'completed'
@@ -395,7 +334,6 @@ export const ScriptParseProgress: React.FC<ScriptParseProgressProps> = ({
                     variant="flat"
                     size="sm"
                     onPress={onBackground}
-                    title="隐藏弹窗，解析在后台继续运行"
                   >
                     隐藏窗口
                   </Button>
@@ -422,6 +360,17 @@ export const ScriptParseProgress: React.FC<ScriptParseProgressProps> = ({
       </motion.div>
     </AnimatePresence>
   );
-};
+}, (prevProps, nextProps) => {
+  return (
+    prevProps.isOpen === nextProps.isOpen &&
+    prevProps.currentStage === nextProps.currentStage &&
+    prevProps.progress === nextProps.progress &&
+    prevProps.stageProgress === nextProps.stageProgress &&
+    prevProps.message === nextProps.message &&
+    prevProps.elapsedTime === nextProps.elapsedTime &&
+    prevProps.estimatedRemainingTime === nextProps.estimatedRemainingTime &&
+    JSON.stringify(prevProps.subTaskInfo) === JSON.stringify(nextProps.subTaskInfo)
+  );
+});
 
 export default ScriptParseProgress;

@@ -73,10 +73,7 @@ export class CharacterPromptBuilder {
     }
 
     // 6. 组装最终提示词
-    let prompt = parts.join('，');
-
-    // 7. 添加全身图要求
-    prompt += '，全身图，三视图（正面、侧面、背面），纯白背景';
+    const prompt = parts.join('，');
 
     return prompt;
   }
@@ -575,7 +572,7 @@ export class ItemPromptBuilder {
     let prompt = parts.join('，');
 
     // 6. 添加拍摄要求
-    prompt += '，道具设定图，纯白背景，三视图展示';
+    prompt += '，道具设定图，纯白背景';
 
     return prompt;
   }

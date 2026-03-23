@@ -6,6 +6,7 @@ import {
   SceneViewType,
   SceneViews,
   GeneratedImage,
+  ModelConfig,
 } from '../../types';
 import { aiService } from '../aiService';
 import { storageService } from '../storage';
@@ -14,6 +15,7 @@ export interface GenerateCharacterViewParams {
   character: CharacterAsset;
   viewAngle: CharacterViewAngle;
   modelConfigId: string;
+  modelConfig?: ModelConfig;
   projectId: string;
 }
 
@@ -21,6 +23,7 @@ export interface GenerateSceneViewParams {
   scene: SceneAsset;
   viewType: SceneViewType;
   modelConfigId: string;
+  modelConfig?: ModelConfig;
   projectId: string;
 }
 
@@ -41,7 +44,7 @@ export class AssetReuseService {
    */
   async generateCharacterView(params: GenerateCharacterViewParams): Promise<AssetReuseResult> {
     try {
-      const { character, viewAngle, modelConfigId, projectId } = params;
+      const { character, viewAngle, modelConfigId, modelConfig, projectId } = params;
 
       console.log(`[AssetReuseService] Generating character view: ${viewAngle}`);
 
@@ -59,14 +62,34 @@ export class AssetReuseService {
         return { success: false, error: '项目ID不能为空' };
       }
 
-      // 获取参考图（优先使用正面图）
+      // 模型能力检查
+      if (modelConfig) {
+        const capabilities = modelConfig.capabilities || {};
+        if (!capabilities.supportsReferenceImage) {
+          return { 
+            success: false, 
+            error: '当前选择的模型不支持参考图功能，请选择支持图生图的模型' 
+          };
+        }
+        if (capabilities.requiresImageInput && !character.currentImageId && !character.generatedImages?.length) {
+          return { 
+            success: false, 
+            error: '该模型需要参考图才能生成，请先在单图管理中生成一张参考图' 
+          };
+        }
+      }
+
+      // 获取参考图（优先使用正面图，其次是当前选中图）
       const referenceImage =
         character.views?.front ||
         character.generatedImages?.find(img => img.id === character.currentImageId) ||
         character.generatedImages?.[0];
 
       if (!referenceImage) {
-        return { success: false, error: '没有可用的参考图，请先生成角色图' };
+        return { 
+          success: false, 
+          error: '没有可用的参考图，请先在单图管理中生成一张角色正面图作为参考' 
+        };
       }
 
       if (!referenceImage.path) {
@@ -148,7 +171,7 @@ export class AssetReuseService {
    */
   async generateSceneView(params: GenerateSceneViewParams): Promise<AssetReuseResult> {
     try {
-      const { scene, viewType, modelConfigId, projectId } = params;
+      const { scene, viewType, modelConfigId, modelConfig, projectId } = params;
 
       console.log(`[AssetReuseService] Generating scene view: ${viewType}`);
 
@@ -164,6 +187,23 @@ export class AssetReuseService {
       }
       if (!projectId) {
         return { success: false, error: '项目ID不能为空' };
+      }
+
+      // 模型能力检查
+      if (modelConfig) {
+        const capabilities = modelConfig.capabilities || {};
+        if (!capabilities.supportsReferenceImage) {
+          return { 
+            success: false, 
+            error: '当前选择的模型不支持参考图功能，请选择支持图生图的模型' 
+          };
+        }
+        if (capabilities.requiresImageInput && !scene.currentImageId && !scene.generatedImages?.length) {
+          return { 
+            success: false, 
+            error: '该模型需要参考图才能生成，请先在单图管理中生成一张参考图' 
+          };
+        }
       }
 
       // 构建视角提示词

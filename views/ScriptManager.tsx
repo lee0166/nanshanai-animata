@@ -130,6 +130,16 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({
     };
   }>({});
 
+  // 使用ref保存最新状态，解决闭包陷阱
+  const parseProgressRef = useRef(parseProgress);
+  const parseStageProgressRef = useRef(parseStageProgress);
+
+  // 同步状态到ref
+  useEffect(() => {
+    parseProgressRef.current = parseProgress;
+    parseStageProgressRef.current = parseStageProgress;
+  }, [parseProgress, parseStageProgress]);
+
   // 后台解析状态追踪
   const [isBackgroundParsing, setIsBackgroundParsing] = useState(false);
 
@@ -213,6 +223,13 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({
       scripts.map(s => ({ id: s.id, title: s.title }))
     );
   }, [scripts]);
+
+  // =============== 专门调试parseProgress变化！===============
+  useEffect(() => {
+    console.log('[ScriptManager] ========== parseProgress STATE CHANGED ==========');
+    console.log('[ScriptManager] parseProgress:', parseProgress);
+    console.log('[ScriptManager] parseStageProgress:', parseStageProgress);
+  }, [parseProgress, parseStageProgress]);
 
   // Update quality report when script changes
   useEffect(() => {
@@ -569,10 +586,15 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({
       let longWaitWarningShown = false;
 
       const onProgress: ParseProgressCallback = (stage, progress, message, details) => {
-        // Note: Removed isMountedRef check to fix progress not updating in React StrictMode
-        // StrictMode causes double mounting/unmounting which breaks the ref
+        console.log(`[ScriptManager] ============== onProgress CALLED ==============`);
+        console.log(`[ScriptManager] stage=${stage}, progress=${progress}%, message=${message}`);
+        console.log(`[ScriptManager] details:`, details);
+        console.log(`[ScriptManager] BEFORE state - parseProgress: ${parseProgressRef.current}, parseStageProgress: ${parseStageProgressRef.current}`);
+        
         setParseProgress(progress);
         setParseStageKey(stage);
+        console.log(`[ScriptManager] Called setParseProgress(${progress})`);
+        console.log(`[ScriptManager] Called setParseStageKey(${stage})`);
 
         // Calculate stage progress from details if available
         // Priority 1: Use currentStageProgress if provided (most accurate)
@@ -580,15 +602,17 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({
         // Priority 3: Estimate from overall progress within stage range
         let stageProg = 0;
 
-        if (details?.currentStageProgress !== undefined && details.currentStageProgress > 0) {
-          // Use provided stage progress
+        if (details?.currentStageProgress !== undefined) {
+          // 移除 > 0 的限制！即使 0% 也要用！
           stageProg = details.currentStageProgress;
+          console.log(`[ScriptManager] Using provided currentStageProgress: ${stageProg}%`);
         } else if (details?.completedStages?.length || details?.pendingStages?.length) {
           // Calculate from stage completion status
           const completed = details.completedStages?.length || 0;
           const pending = details.pendingStages?.length || 0;
           const total = completed + pending + 1; // +1 for current stage
           stageProg = Math.round((completed / total) * 100);
+          console.log(`[ScriptManager] Calculated stageProg from completed/pending: ${stageProg}%`);
         } else {
           // Fallback: estimate based on overall progress within stage
           // Map overall progress (70-95) to stage progress (0-100) for shots stage
@@ -600,10 +624,18 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({
             stageProg = Math.round(((progress - 35) / 35) * 100);
           } else if (stage === 'metadata' && progress >= 10 && progress <= 20) {
             stageProg = Math.round(((progress - 10) / 10) * 100);
+          } else {
+            // 如果都不匹配，至少给一个基于时间的模拟进度
+            stageProg = Math.min(95, Math.round((Date.now() - parseStartTime) / 1000));
+            console.log(`[ScriptManager] Using time-based fallback stageProg: ${stageProg}%`);
           }
+          console.log(`[ScriptManager] Calculated stageProg from fallback: ${stageProg}%`);
         }
 
+        console.log(`[ScriptManager] FINAL stageProg: ${stageProg}%`);
+        console.log(`[ScriptManager] Calling setParseStageProgress(${stageProg}%)`);
         setParseStageProgress(stageProg);
+        console.log(`[ScriptManager] ========== setParseStageProgress called ==========`);
 
         const stageNames: Record<string, string> = {
           metadata: '正在分析创作意图...',
