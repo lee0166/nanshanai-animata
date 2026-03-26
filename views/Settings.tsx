@@ -100,10 +100,10 @@ const Settings: React.FC = () => {
 
   // Collapsible state for model types
   const [expandedTypes, setExpandedTypes] = useState<Record<string, boolean>>({
-    image: true,
-    video: true,
-    llm: true,
-    audio: true,
+    image: false,
+    video: false,
+    llm: false,
+    audio: false,
   });
 
   // TTS Test State
