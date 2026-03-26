@@ -32,7 +32,12 @@
     "lint:fix": "eslint . --ext .ts,.tsx,.js,.jsx --fix --ignore-pattern 'services/errorHandler.ts' --ignore-pattern '.backup/'",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "prepare": "husky"
+    "prepare": "husky",
+    "safe-point": "git add -A && git commit -m \"安全点: $(date +'%Y-%m-%d %H:%M:%S')\"",
+    "rollback": "git reset --hard HEAD~1",
+    "backup": "node scripts/backup-system.js create",
+    "backup:list": "node scripts/backup-system.js list",
+    "push": "npm run lint:fix && npm run type-check && git push -u origin master"
   },
   "lint-staged": {
     "*.{ts,tsx}": [
