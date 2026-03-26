@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Card, CardBody, Textarea, Button, Chip, Spinner, Tabs, Tab, useDisclosure, Switch } from '@heroui/react';
+import { Card, CardBody, Textarea, Button, Chip, Spinner, Tabs, Tab, useDisclosure, Switch, Modal, ModalContent, ModalHeader, ModalBody } from '@heroui/react';
 import { User, Image as ImageIcon, Eye, Trash2, Settings, Palette, Sparkles, ChevronLeft, ChevronRight, Check, Camera, CheckCircle2, FileText, Music, Mic } from 'lucide-react';
 import { CharacterAsset, GeneratedImage, CharacterViewAngle, AssetType, JobStatus } from '../../../types';
 import { useApp } from '../../../contexts/context';
@@ -71,6 +71,8 @@ export const RedesignedCharacterWorkflow: React.FC<RedesignedCharacterWorkflowPr
   const [activeViewTab, setActiveViewTab] = useState<string>('front');
   const [isBatchMode, setIsBatchMode] = useState<boolean>(true);
   const [stage3Prompt, setStage3Prompt] = useState<string>('');
+  const { isOpen: isBasePromptOpen, onOpen: onOpenBasePrompt, onClose: onCloseBasePrompt } = useDisclosure();
+  const { isOpen: isEnhancementOpen, onOpen: onOpenEnhancement, onClose: onCloseEnhancement } = useDisclosure();
 
   const viewAngleConfigs: Record<CharacterViewAngle, { label: string; defaultPrompt: string }> = {
     front: {
@@ -1171,16 +1173,53 @@ export const RedesignedCharacterWorkflow: React.FC<RedesignedCharacterWorkflowPr
                     关闭批量开关可手动编辑提示词
                   </p>
                 </div>
+              ) : currentStage === 3 ? (
+                <div className="h-full flex flex-col">
+                  {/* 完全像文字的提示词容器 */}
+                  <div className="h-full border-2 border-content3 rounded-xl bg-content1 p-3">
+                    <div className="flex flex-wrap items-center gap-1">
+                      {/* 左侧：角色基础描述标签 */}
+                      <button
+                        type="button"
+                        onClick={onOpenBasePrompt}
+                        className="inline-flex items-center gap-1 px-1.5 py-0.5 bg-content2 hover:bg-content3 text-foreground transition-colors cursor-pointer text-xs"
+                      >
+                        <FileText className="w-3 h-3 text-primary" />
+                        <span>角色</span>
+                      </button>
+                      
+                      {/* 中间：可编辑的视角提示词 - 使用contentEditable */}
+                      <div
+                        contentEditable={!generating}
+                        suppressContentEditableWarning={true}
+                        onInput={(e) => setStage3Prompt((e.target as HTMLElement).innerText)}
+                        className={`font-medium text-xs leading-relaxed text-foreground outline-none min-w-[60px] flex-1 ${!stage3Prompt ? 'text-slate-400' : ''}`}
+                      >
+                        {stage3Prompt || '视角描述'}
+                      </div>
+                      
+                      {/* 右侧：一致性增强标签 */}
+                      <button
+                        type="button"
+                        onClick={onOpenEnhancement}
+                        className="inline-flex items-center gap-1 px-1.5 py-0.5 bg-content2 hover:bg-content3 text-foreground transition-colors cursor-pointer text-xs flex-shrink-0"
+                      >
+                        <FileText className="w-3 h-3 text-primary" />
+                        <span>一致性</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
               ) : (
                 <Textarea
                   placeholder={t.project.promptPlaceholder}
-                  value={currentStage === 3 ? stage3Prompt : getCurrentPrompt()}
-                  onValueChange={currentStage === 3 ? setStage3Prompt : setCurrentPrompt}
+                  value={getCurrentPrompt()}
+                  onValueChange={setCurrentPrompt}
                   variant="bordered"
                   radius="lg"
                   minRows={6}
                   maxRows={8}
-                  isDisabled={generating || (currentStage === 3 && isBatchMode)}
+                  isDisabled={generating}
                   classNames={{
                     input: 'font-medium text-xs leading-relaxed',
                     inputWrapper: 'border border-content3 group-data-[focus=true]:border-primary',
@@ -1219,6 +1258,52 @@ export const RedesignedCharacterWorkflow: React.FC<RedesignedCharacterWorkflowPr
         onClose={onDeleteClose}
         onConfirm={confirmDeleteImage}
       />
+      
+      {/* 角色基础描述详情 Modal */}
+      <Modal isOpen={isBasePromptOpen} onClose={onCloseBasePrompt} size="lg">
+        <ModalContent>
+          {(onClose) => (
+            <>
+              <ModalHeader className="flex flex-col gap-1">
+                <div className="flex items-center gap-2">
+                  <FileText className="w-5 h-5 text-primary" />
+                  <span>角色基础描述</span>
+                </div>
+              </ModalHeader>
+              <ModalBody>
+                <div className="p-2 bg-content2 rounded-lg">
+                  <p className="text-sm text-foreground whitespace-pre-wrap">
+                    {asset.prompt || '暂无角色描述'}
+                  </p>
+                </div>
+              </ModalBody>
+            </>
+          )}
+        </ModalContent>
+      </Modal>
+      
+      {/* 一致性增强详情 Modal */}
+      <Modal isOpen={isEnhancementOpen} onClose={onCloseEnhancement} size="lg">
+        <ModalContent>
+          {(onClose) => (
+            <>
+              <ModalHeader className="flex flex-col gap-1">
+                <div className="flex items-center gap-2">
+                  <Sparkles className="w-5 h-5 text-primary" />
+                  <span>一致性增强</span>
+                </div>
+              </ModalHeader>
+              <ModalBody>
+                <div className="p-2 bg-content2 rounded-lg">
+                  <p className="text-sm text-foreground whitespace-pre-wrap">
+                    same character, consistent appearance, maintaining all facial features, hairstyle, and clothing details
+                  </p>
+                </div>
+              </ModalBody>
+            </>
+          )}
+        </ModalContent>
+      </Modal>
     </div>
   );
 };
