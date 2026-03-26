@@ -289,6 +289,7 @@ export const ScriptParseProgress: React.FC<ScriptParseProgressProps> = React.mem
                 color="success"
                 size="lg"
                 className="w-full"
+                aria-label={`总进度 ${Math.round(progress)}%`}
               />
             </div>
 
@@ -302,6 +303,7 @@ export const ScriptParseProgress: React.FC<ScriptParseProgressProps> = React.mem
                   color="warning"
                   size="md"
                   className="w-full"
+                  aria-label={`当前阶段进度 ${Math.round(stageProgress)}%`}
                 />
               </div>
             )}

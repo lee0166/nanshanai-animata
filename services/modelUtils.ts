@@ -2,6 +2,9 @@ import { ModelConfig, ModelParameter } from '../types';
 import { storageService } from './storage';
 import { DEFAULT_MODELS } from '../config/models';
 
+// 简单的内存缓存用于避免重复计算
+const configCache = new Map<string, ModelConfig>();
+
 /**
  * Standard Unified Keys for AI Model Parameters
  * These keys should be used across the application to refer to common parameters.
@@ -32,6 +35,13 @@ export const UNIFIED_KEYS = {
 };
 
 /**
+ * 生成缓存键
+ */
+const getCacheKey = (runtimeModel: ModelConfig): string => {
+  return `${runtimeModel.id || ''}|${runtimeModel.modelId || ''}|${runtimeModel.provider || ''}|${runtimeModel.templateId || ''}`;
+};
+
+/**
  * Resolve the full static configuration for a runtime model instance.
  * This handles looking up the base definition in DEFAULT_MODELS using id or modelId.
  *
@@ -43,39 +53,50 @@ export const resolveModelConfig = (
 ): ModelConfig | undefined => {
   if (!runtimeModel) return undefined;
 
-  console.log(`[ModelUtils] resolveModelConfig called with:`, {
-    id: runtimeModel.id,
-    modelId: runtimeModel.modelId,
-    provider: runtimeModel.provider,
-  });
+  const cacheKey = getCacheKey(runtimeModel);
+  
+  // 检查缓存
+  if (configCache.has(cacheKey)) {
+    return configCache.get(cacheKey);
+  }
+
+  let result: ModelConfig | undefined;
 
   // 1. Priority: Match by templateId (User instances created from a template)
   if (runtimeModel.templateId) {
     const templateMatch = DEFAULT_MODELS.find(m => m.id === runtimeModel.templateId);
     if (templateMatch) {
-      console.log(`[ModelUtils] Matched by templateId:`, templateMatch.id);
-      return templateMatch;
+      result = templateMatch;
     }
   }
 
   // 2. Try exact match by ID (if user hasn't renamed/copied it yet, or if ID matches)
   // 3. Try match by modelId (the provider's model identifier)
-  const exactMatch = DEFAULT_MODELS.find(
-    m => m.id === runtimeModel.id || m.modelId === runtimeModel.modelId
-  );
-  if (exactMatch) {
-    console.log(`[ModelUtils] Matched by id/modelId:`, exactMatch.id);
-    return exactMatch;
+  if (!result) {
+    const exactMatch = DEFAULT_MODELS.find(
+      m => m.id === runtimeModel.id || m.modelId === runtimeModel.modelId
+    );
+    if (exactMatch) {
+      result = exactMatch;
+    }
   }
 
   // 4. Fallback: match by provider and type (least specific)
-  const fallbackMatch = DEFAULT_MODELS.find(
-    m => m.provider === runtimeModel.provider && m.type === runtimeModel.type
-  );
-  if (fallbackMatch) {
-    console.log(`[ModelUtils] Matched by provider+type fallback:`, fallbackMatch.id);
+  if (!result) {
+    const fallbackMatch = DEFAULT_MODELS.find(
+      m => m.provider === runtimeModel.provider && m.type === runtimeModel.type
+    );
+    if (fallbackMatch) {
+      result = fallbackMatch;
+    }
   }
-  return fallbackMatch;
+
+  // 缓存结果
+  if (result) {
+    configCache.set(cacheKey, result);
+  }
+
+  return result;
 };
 
 /**

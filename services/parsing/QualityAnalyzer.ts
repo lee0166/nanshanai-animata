@@ -19,6 +19,7 @@ import {
 import { ShortDramaRules, RuleContext, RuleViolation } from './ShortDramaRules';
 import type { QualityRulesConfig } from './QualityRulesConfig';
 import { getQualityRulesConfig, getQualityRulesLoader } from './QualityRulesLoader';
+import { safeForEach, safeMap, safeFilter, safeReduce, safeArray } from '../../utils/typeSafe';
 
 /**
  * 质量维度枚举
@@ -269,7 +270,7 @@ export class QualityAnalyzer {
 
     // 合并所有问题
     const allIssues: QualityIssue[] = [];
-    dimensionScores.forEach(d => allIssues.push(...d.issues));
+    safeForEach(dimensionScores, d => allIssues.push(...d.issues));
 
     // 转换为 RuleViolation 格式
     const violations: RuleViolation[] = allIssues.map((issue, idx) => ({
@@ -565,8 +566,8 @@ export class QualityAnalyzer {
 
     // 检查角色名一致性（场景中的角色是否在角色列表中）
     const allSceneCharacters = new Set<string>();
-    scenes.forEach(s => {
-      s.characters?.forEach(c => allSceneCharacters.add(c));
+    safeForEach(scenes, s => {
+      safeForEach(s.characters, c => allSceneCharacters.add(c));
     });
 
     const characterNames = new Set(characters.map(c => c.name));
@@ -602,13 +603,13 @@ export class QualityAnalyzer {
     // 检查重复角色名
     if (this.config.checkDuplicateNames) {
       const nameCounts = new Map<string, number>();
-      characters.forEach(c => {
+      safeForEach(characters, c => {
         nameCounts.set(c.name, (nameCounts.get(c.name) || 0) + 1);
       });
 
       const duplicates = Array.from(nameCounts.entries()).filter(([_, count]) => count > 1);
       if (duplicates.length > 0) {
-        duplicates.forEach(([name, count], idx) => {
+        safeForEach(duplicates, ([name, count], idx) => {
           issues.push({
             type: 'error',
             message: '发现重复角色名',
@@ -812,7 +813,7 @@ export class QualityAnalyzer {
 
     // 按 sceneId 将分镜分组
     const shotsByScene = new Map<string, Shot[]>();
-    shots.forEach(shot => {
+    safeForEach(shots, shot => {
       if (shot.sceneId) {
         if (!shotsByScene.has(shot.sceneId)) {
           shotsByScene.set(shot.sceneId, []);
@@ -822,7 +823,7 @@ export class QualityAnalyzer {
     });
 
     // 对每个场景的分镜进行排序和检查
-    shotsByScene.forEach((sceneShots, sceneId) => {
+    safeForEach(Array.from(shotsByScene.entries()), ([sceneId, sceneShots]) => {
       const sortedShots = [...sceneShots].sort((a, b) => a.sequence - b.sequence);
       const scene = scenes.find(s => s.id === sceneId);
       const sceneName = scene?.name || sceneId;
@@ -975,8 +976,8 @@ export class QualityAnalyzer {
 
     // 检查角色连贯性
     const characterAppearances = new Map<string, number[]>();
-    sortedShots.forEach(shot => {
-      shot.characters.forEach(charName => {
+    safeForEach(sortedShots, shot => {
+      safeForEach(shot.characters, charName => {
         if (!characterAppearances.has(charName)) {
           characterAppearances.set(charName, []);
         }
@@ -984,7 +985,7 @@ export class QualityAnalyzer {
       });
     });
 
-    characterAppearances.forEach((sequences, charName) => {
+    safeForEach(Array.from(characterAppearances.entries()), ([charName, sequences]) => {
       details.push(`角色"${charName}"出现在 ${sequences.length} 个分镜中`);
     });
 

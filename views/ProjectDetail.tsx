@@ -46,12 +46,14 @@ import { useToast } from '../contexts/ToastContext';
 interface ProjectDetailProps {
   activeTab: AssetType;
   setActiveTab: (tab: AssetType) => void;
+  tabClickTrigger?: number;
   onProjectLoaded?: (project: Project | null) => void;
 }
 
 const ProjectDetail: React.FC<ProjectDetailProps> = ({
   activeTab,
-  setActiveTab,
+  setActiveTab: originalSetActiveTab,
+  tabClickTrigger,
   onProjectLoaded,
 }) => {
   const { id } = useParams<{ id: string }>();
@@ -65,6 +67,19 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({
   // UI State
   const [selectedAsset, setSelectedAsset] = useState<Asset | null>(null);
   const [highlightedAssetId, setHighlightedAssetId] = useState<string>('');
+  
+  const setActiveTab = (tab: AssetType) => {
+    if (selectedAsset) {
+      setSelectedAsset(null);
+    }
+    originalSetActiveTab(tab);
+  };
+
+  useEffect(() => {
+    if (selectedAsset) {
+      setSelectedAsset(null);
+    }
+  }, [tabClickTrigger]);
   const [itemTypeFilter, setItemTypeFilter] = useState<string>('all');
   const { isOpen: isAddOpen, onOpen: onAddOpen, onClose: onAddClose } = useDisclosure();
 

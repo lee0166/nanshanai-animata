@@ -109,6 +109,7 @@ export class JobQueue {
                   style: job.params.style,
                   generateCount: job.params.generateCount,
                   guidanceScale: job.params.guidanceScale,
+                  ...job.params.extraParams,
                 },
               };
             })

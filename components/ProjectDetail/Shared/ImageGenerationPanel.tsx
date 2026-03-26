@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Button, Textarea, Select, SelectItem, Input, Slider, useDisclosure } from '@heroui/react';
+import { Button, Textarea, Select, SelectItem, Input, Slider, useDisclosure, Spinner } from '@heroui/react';
 import { Sparkles, Upload, Trash2 } from 'lucide-react';
 import { useApp } from '../../../contexts/context';
 import { DEFAULT_MODELS } from '../../../config/models';
@@ -8,6 +8,7 @@ import { storageService } from '../../../services/storage';
 import { StyleSelector } from './StyleSelector';
 import { DynamicModelParameters } from './DynamicModelParameters';
 import { resolveModelConfig, UNIFIED_KEYS } from '../../../services/modelUtils';
+import { usePreview } from '../../PreviewProvider';
 
 interface ImageGenerationPanelProps {
   projectId: string;
@@ -61,6 +62,7 @@ export const ImageGenerationPanel: React.FC<ImageGenerationPanelProps> = ({
   children,
 }) => {
   const { t, settings } = useApp();
+  const { openPreview } = usePreview();
   const { isOpen: isPickerOpen, onOpen: onPickerOpen, onClose: onPickerClose } = useDisclosure();
   const [refUrls, setRefUrls] = useState<Record<string, string>>({});
 
@@ -196,11 +198,41 @@ export const ImageGenerationPanel: React.FC<ImageGenerationPanelProps> = ({
         />
       </div>
 
-      {/* Reference Images - Removed as per request, replaced with hint */}
-      <div className="bg-primary-50 dark:bg-primary-900/20 p-3 rounded-lg flex gap-2 items-start">
-        <span className="text-xs text-primary-600 dark:text-primary-400 font-medium">
-          {t.project.fragment?.selectedMaterialsHint}
-        </span>
+      {/* Reference Images */}
+      <div className="space-y-2">
+        <label className="text-slate-300 font-bold text-base ml-1">参考图</label>
+        {referenceImages.length > 0 ? (
+          <div className="grid grid-cols-3 gap-2">
+            {referenceImages.map((path, index) => (
+              <div
+                key={index}
+                className="relative aspect-square cursor-pointer hover:opacity-90 transition-opacity"
+                onClick={() => {
+                  const url = refUrls[path] || path;
+                  openPreview([{ src: url, alt: `参考图 ${index + 1}` }], 0);
+                }}
+              >
+                {refUrls[path] ? (
+                  <img
+                    src={refUrls[path]}
+                    alt={`参考图 ${index + 1}`}
+                    className="w-full h-full object-cover rounded-lg border border-content3"
+                  />
+                ) : (
+                  <div className="w-full h-full bg-content2 rounded-lg border border-content3 flex items-center justify-center">
+                    <Spinner size="sm" />
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="bg-primary-50 dark:bg-primary-900/20 p-3 rounded-lg flex gap-2 items-start">
+            <span className="text-xs text-primary-600 dark:text-primary-400 font-medium">
+              {t.project.fragment?.selectedMaterialsHint}
+            </span>
+          </div>
+        )}
       </div>
 
       {/* Style Selection */}

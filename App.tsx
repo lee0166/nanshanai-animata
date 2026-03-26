@@ -27,8 +27,14 @@ const App: React.FC = () => {
   const { reloadSettings, isConnected, isInitializing, isFsResponsive } = useApp();
 
   // Unified State for Project Navigation
-  const [activeTab, setActiveTab] = useState<AssetType>(AssetType.SCRIPT);
+  const [activeTab, setActiveTabState] = useState<AssetType>(AssetType.SCRIPT);
   const [currentProject, setCurrentProject] = useState<Project | null>(null);
+  const [tabClickTrigger, setTabClickTrigger] = useState(0);
+
+  const setActiveTab = (tab: AssetType) => {
+    setActiveTabState(tab);
+    setTabClickTrigger(prev => prev + 1);
+  };
 
   // Auto-load queue when connected and responsive
   useEffect(() => {
@@ -83,6 +89,7 @@ const App: React.FC = () => {
                   <ProjectDetail
                     activeTab={activeTab}
                     setActiveTab={setActiveTab}
+                    tabClickTrigger={tabClickTrigger}
                     onProjectLoaded={setCurrentProject}
                   />
                 }

@@ -15,13 +15,11 @@ import {
   Button,
   Card,
   useDisclosure,
-  Modal,
-  ModalContent,
-  ModalBody,
   Chip,
   Tabs,
   Tab,
 } from '@heroui/react';
+import { DeleteConfirmModal } from '../../Shared/DeleteConfirmModal';
 import {
   Plus,
   X,
@@ -894,29 +892,11 @@ const ItemDetail: React.FC<ItemDetailProps> = ({ asset, onUpdate, projectId }) =
         accept="image/*"
       />
 
-      <Modal isOpen={isDeleteOpen} onClose={onDeleteClose} size="sm">
-        <ModalContent>
-          <ModalBody className="py-6">
-            <div className="flex flex-col items-center gap-4 text-center">
-              <div className="w-12 h-12 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center text-red-500">
-                <Trash2 className="w-6 h-6" />
-              </div>
-              <div>
-                <h3 className="text-lg font-semibold">{t.common.confirmDeleteTitle}</h3>
-                <p className="text-sm text-default-500 mt-1">{t.common.confirmDeleteImageDesc}</p>
-              </div>
-              <div className="flex gap-3 w-full mt-2">
-                <Button fullWidth variant="flat" onPress={onDeleteClose}>
-                  {t.common.cancel}
-                </Button>
-                <Button fullWidth color="danger" onPress={confirmDeleteImage}>
-                  {t.common.delete}
-                </Button>
-              </div>
-            </div>
-          </ModalBody>
-        </ModalContent>
-      </Modal>
+      <DeleteConfirmModal
+        isOpen={isDeleteOpen}
+        onClose={onDeleteClose}
+        onConfirm={confirmDeleteImage}
+      />
     </div>
   );
 };

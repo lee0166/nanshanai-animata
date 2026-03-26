@@ -23,6 +23,7 @@ export interface GenerationJobParams {
   resolution?: string;
   style?: string;
   guidanceScale?: number;
+  extraParams?: Record<string, any>;
 }
 
 export interface VideoGenerationJobParams {
@@ -118,6 +119,7 @@ export class AIService {
           generateCount: currentBatchCount,
           style: params.style,
           guidanceScale: isSeedEdit ? params.guidanceScale : undefined,
+          extraParams: params.extraParams,
         },
       };
 

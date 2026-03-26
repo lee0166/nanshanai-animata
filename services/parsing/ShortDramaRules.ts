@@ -9,6 +9,7 @@
  */
 
 import { ScriptScene, ScriptCharacter } from '../../types';
+import { safeForEach } from '../../utils/typeSafe';
 
 export interface DramaRule {
   id: string;
@@ -99,7 +100,7 @@ export class ShortDramaRules {
         const minConflicts = Math.ceil(targetDuration / 60);
 
         let totalConflicts = 0;
-        context.scenes.forEach((scene, index) => {
+        safeForEach(context.scenes, (scene, index) => {
           const conflicts = this.countConflicts(scene.description);
           totalConflicts += conflicts;
         });
@@ -162,13 +163,13 @@ export class ShortDramaRules {
         const introScenes = context.scenes.slice(0, 3);
         const introCharacters = new Set<string>();
 
-        introScenes.forEach(scene => {
-          scene.characters?.forEach(charName => {
+        safeForEach(introScenes, scene => {
+          safeForEach(scene.characters, charName => {
             introCharacters.add(charName);
           });
         });
 
-        context.characters.forEach(char => {
+        safeForEach(context.characters, char => {
           if (!introCharacters.has(char.name)) {
             violations.push({
               ruleId: 'character_intro',

@@ -9,6 +9,7 @@
  */
 
 import { ScriptCharacter, ScriptScene, ScriptMetadata } from '../../../types';
+import { safeForEach } from '../../../utils/typeSafe';
 
 /**
  * 一致性违规类型
@@ -230,7 +231,7 @@ export class ConsistencyChecker {
     const results = await Promise.all(checkPromises);
 
     // 合并所有违规
-    results.forEach(violations => {
+    safeForEach(results, violations => {
       allViolations.push(...violations);
     });
 
@@ -270,7 +271,7 @@ export class ConsistencyChecker {
   ): Record<ViolationType, ConsistencyViolation[]> {
     const grouped: Partial<Record<ViolationType, ConsistencyViolation[]>> = {};
 
-    violations.forEach(v => {
+    safeForEach(violations, v => {
       if (!grouped[v.type]) {
         grouped[v.type] = [];
       }
@@ -290,7 +291,7 @@ export class ConsistencyChecker {
     // 基础分100，根据违规扣分
     let score = 100;
 
-    violations.forEach(v => {
+    safeForEach(violations, v => {
       const weight = v.confidence;
       switch (v.severity) {
         case 'error':
@@ -346,7 +347,7 @@ export class ConsistencyChecker {
       missing_reference: '缺失引用',
     };
 
-    Object.entries(result.violationsByType).forEach(([type, violations]) => {
+    safeForEach(Object.entries(result.violationsByType), ([type, violations]) => {
       lines.push(`- **${typeNames[type as ViolationType]}**: ${violations.length}个`);
     });
     lines.push('');
@@ -356,7 +357,7 @@ export class ConsistencyChecker {
       lines.push('## 详细违规列表');
       lines.push('');
 
-      result.violations.forEach((v, index) => {
+      safeForEach(result.violations, (v, index) => {
         const severityEmoji =
           v.severity === 'error' ? '🔴' : v.severity === 'warning' ? '🟡' : '🔵';
         lines.push(`### ${index + 1}. ${severityEmoji} ${v.message}`);

@@ -40,7 +40,9 @@ import {
   Tabs,
   Tab,
   Checkbox,
+  useDisclosure,
 } from '@heroui/react';
+import { DeleteConfirmModal } from '../components/Shared/DeleteConfirmModal';
 import {
   Camera,
   Film,
@@ -649,6 +651,9 @@ export const ShotManager: React.FC<ShotManagerProps> = ({
   const [isSceneSelectorOpen, setIsSceneSelectorOpen] = useState(false);
   // 项目资产列表
   const [projectAssets, setProjectAssets] = useState<Asset[]>([]);
+  // 删除确认弹窗状态
+  const { isOpen: isDeleteOpen, onOpen: onDeleteOpen, onClose: onDeleteClose } = useDisclosure();
+  const [imageIdToDelete, setImageIdToDelete] = useState<string | null>(null);
 
   // 获取当前选择的模型配置
   const selectedModelConfig = useMemo(() => {
@@ -1650,48 +1655,71 @@ export const ShotManager: React.FC<ShotManagerProps> = ({
     [selectedShot, selectedKeyframeIndex, allShots, currentScript, scripts]
   );
 
-  // 处理历史图片删除
-  const handleDeleteHistoryImage = useCallback(
+  // 提示删除图片
+  const promptDeleteHistoryImage = useCallback(
     (imageId: string) => {
-      if (!selectedShot || !selectedShot.keyframes || !currentScript) return;
-
-      if (!confirm('确定要删除这张图片吗？')) return;
-
-      const kf = selectedShot.keyframes[selectedKeyframeIndex];
-      if (!kf.generatedImages) return;
-
-      const updatedImages = kf.generatedImages.filter(img => img.id !== imageId);
-      const newCurrentId =
-        updatedImages.length > 0
-          ? kf.currentImageId === imageId
-            ? updatedImages[0].id
-            : kf.currentImageId
-          : undefined;
-
-      const updatedKeyframes = [...selectedShot.keyframes];
-      updatedKeyframes[selectedKeyframeIndex] = {
-        ...kf,
-        generatedImages: updatedImages,
-        currentImageId: newCurrentId,
-        generatedImage:
-          updatedImages.length > 0 ? updatedImages[updatedImages.length - 1] : undefined,
-      };
-
-      const updatedShot = { ...selectedShot, keyframes: updatedKeyframes };
-      const updatedShots = allShots.map(s => (s.id === selectedShot.id ? updatedShot : s));
-      const updatedScript = {
-        ...currentScript,
-        parseState: {
-          ...currentScript.parseState,
-          shots: updatedShots,
-        },
-      };
-
-      storageService.saveScript(updatedScript);
-      setScripts(scripts.map(s => (s.id === updatedScript.id ? updatedScript : s)));
+      setImageIdToDelete(imageId);
+      onDeleteOpen();
     },
-    [selectedShot, selectedKeyframeIndex, allShots, currentScript, scripts]
+    [onDeleteOpen]
   );
+
+  // 确认删除图片
+  const confirmDeleteHistoryImage = useCallback(() => {
+    if (!imageIdToDelete || !selectedShot || !selectedShot.keyframes || !currentScript) {
+      onDeleteClose();
+      setImageIdToDelete(null);
+      return;
+    }
+
+    const kf = selectedShot.keyframes[selectedKeyframeIndex];
+    if (!kf.generatedImages) {
+      onDeleteClose();
+      setImageIdToDelete(null);
+      return;
+    }
+
+    const updatedImages = kf.generatedImages.filter(img => img.id !== imageIdToDelete);
+    const newCurrentId =
+      updatedImages.length > 0
+        ? kf.currentImageId === imageIdToDelete
+          ? updatedImages[0].id
+          : kf.currentImageId
+        : undefined;
+
+    const updatedKeyframes = [...selectedShot.keyframes];
+    updatedKeyframes[selectedKeyframeIndex] = {
+      ...kf,
+      generatedImages: updatedImages,
+      currentImageId: newCurrentId,
+      generatedImage:
+        updatedImages.length > 0 ? updatedImages[updatedImages.length - 1] : undefined,
+    };
+
+    const updatedShot = { ...selectedShot, keyframes: updatedKeyframes };
+    const updatedShots = allShots.map(s => (s.id === selectedShot.id ? updatedShot : s));
+    const updatedScript = {
+      ...currentScript,
+      parseState: {
+        ...currentScript.parseState,
+        shots: updatedShots,
+      },
+    };
+
+    storageService.saveScript(updatedScript);
+    setScripts(scripts.map(s => (s.id === updatedScript.id ? updatedScript : s)));
+    
+    onDeleteClose();
+    setImageIdToDelete(null);
+  }, [
+    imageIdToDelete, 
+    selectedShot, 
+    selectedKeyframeIndex, 
+    allShots, 
+    currentScript, 
+    scripts, 
+    onDeleteClose
+  ]);
 
   // 处理关键帧拖拽排序
   const handleDragEnd = useCallback(
@@ -2152,7 +2180,7 @@ export const ShotManager: React.FC<ShotManagerProps> = ({
                                     isCurrent={img.id === kf.currentImageId}
                                     imageUrl={imageUrls[img.id] || img.path}
                                     onSelect={handleSelectHistoryImage}
-                                    onDelete={handleDeleteHistoryImage}
+                                    onDelete={promptDeleteHistoryImage}
                                   />
                                 ));
                               })()}
@@ -2948,6 +2976,15 @@ export const ShotManager: React.FC<ShotManagerProps> = ({
         onSelect={handleSelectScene}
         onClear={handleClearScene}
         currentId={references.scene?.id}
+      />
+
+      {/* 删除确认弹窗 */}
+      <DeleteConfirmModal
+        isOpen={isDeleteOpen}
+        onClose={onDeleteClose}
+        onConfirm={confirmDeleteHistoryImage}
+        showIcon={false}
+        size="md"
       />
     </div>
   );

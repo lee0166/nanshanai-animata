@@ -17,6 +17,7 @@ export interface GenerateCharacterViewParams {
   modelConfigId: string;
   modelConfig?: ModelConfig;
   projectId: string;
+  customPrompt?: string;
 }
 
 export interface GenerateSceneViewParams {
@@ -44,7 +45,7 @@ export class AssetReuseService {
    */
   async generateCharacterView(params: GenerateCharacterViewParams): Promise<AssetReuseResult> {
     try {
-      const { character, viewAngle, modelConfigId, modelConfig, projectId } = params;
+      const { character, viewAngle, modelConfigId, modelConfig, projectId, customPrompt } = params;
 
       console.log(`[AssetReuseService] Generating character view: ${viewAngle}`);
 
@@ -96,7 +97,7 @@ export class AssetReuseService {
         return { success: false, error: '参考图路径无效' };
       }
 
-      // 构建视角提示词
+      // 构建视角提示词（优先使用自定义提示词）
       const viewPrompts: Record<CharacterViewAngle, string> = {
         front: 'front view, facing camera directly',
         side: 'side view, profile view, facing left',
@@ -104,11 +105,13 @@ export class AssetReuseService {
         'three-quarter': 'three-quarter view, 45 degree angle',
       };
 
+      const viewPrompt = customPrompt || viewPrompts[viewAngle];
+
       // 构建生成提示词
       const basePrompt = character.prompt || '';
       const prompt = basePrompt 
-        ? `${basePrompt}, ${viewPrompts[viewAngle]}, same character, consistent appearance, maintaining all facial features, hairstyle, and clothing details`
-        : `${viewPrompts[viewAngle]}, character design, consistent appearance`;
+        ? `${basePrompt}, ${viewPrompt}, same character, consistent appearance, maintaining all facial features, hairstyle, and clothing details`
+        : `${viewPrompt}, character design, consistent appearance`;
 
       // 读取参考图base64
       let referenceBase64: string;
@@ -151,7 +154,8 @@ export class AssetReuseService {
           imageData,
           projectId,
           prompt,
-          modelConfigId
+          modelConfigId,
+          { viewAngle, stage: 'views' }
         );
       } catch (error) {
         console.error('[AssetReuseService] Failed to save generated image:', error);
@@ -269,7 +273,8 @@ export class AssetReuseService {
           imageData,
           projectId,
           prompt,
-          modelConfigId
+          modelConfigId,
+          { viewType, stage: 'views' }
         );
       } catch (error) {
         console.error('[AssetReuseService] Failed to save generated image:', error);
@@ -381,7 +386,8 @@ export class AssetReuseService {
     imageData: any,
     projectId: string,
     prompt: string,
-    modelConfigId: string
+    modelConfigId: string,
+    metadata?: Record<string, any>
   ): Promise<GeneratedImage> {
     if (!imageData) {
       throw new Error('图片数据不能为空');
@@ -461,6 +467,7 @@ export class AssetReuseService {
       modelConfigId: modelConfigId || '',
       modelId: imageData.modelId || '',
       referenceImages: [],
+      metadata: metadata || {},
       createdAt: Date.now(),
       width: imageData.width || 1024,
       height: imageData.height || 1024,

@@ -5,6 +5,16 @@ import { ModelConfig, ModelParameter } from '../types';
  */
 export const COMMON_IMAGE_PARAMS: ModelParameter[] = [
   {
+    name: 'count',
+    label: 'Count',
+    type: 'number',
+    defaultValue: 1,
+    min: 1,
+    max: 4,
+    step: 1,
+    description: 'Number of images to generate',
+  },
+  {
     name: 'guidanceScale',
     label: 'Guidance Scale',
     type: 'number',
@@ -1003,6 +1013,16 @@ export const DEFAULT_MODELS: ModelConfig[] = [
       bestFor: ['角色图生成', '场景图生成', '概念艺术', '图生图优化'],
     },
     parameters: [
+      {
+        name: 'count',
+        label: 'Count',
+        type: 'number',
+        defaultValue: 1,
+        min: 1,
+        max: 4,
+        step: 1,
+        description: 'Number of images to generate',
+      },
       {
         name: 'resolution',
         label: 'Resolution',

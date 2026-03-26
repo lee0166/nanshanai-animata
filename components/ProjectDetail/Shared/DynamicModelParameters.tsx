@@ -21,7 +21,7 @@ export const DynamicModelParameters: React.FC<DynamicModelParametersProps> = ({
 
   if (!modelConfig) return null;
 
-  const paramKeys = getUnifiedModelParams(modelConfig);
+  const paramKeys = getUnifiedModelParams(modelConfig).filter(key => key !== 'watermark');
 
   // Helper to get translation
   const getLabel = (param: any, key: string) => {
@@ -65,37 +65,37 @@ export const DynamicModelParameters: React.FC<DynamicModelParametersProps> = ({
   };
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {paramKeys.map(key => {
-          const param = getModelParamInfo(modelConfig, key);
-          if (!param) return null;
+    <div className="flex flex-col gap-2.5">
+      {paramKeys.map(key => {
+        const param = getModelParamInfo(modelConfig, key);
+        if (!param) return null;
 
-          const currentValue = values[key] ?? param.defaultValue;
-          const label = getLabel(param, key);
-          const description = getDescription(param, key);
+        const currentValue = values[key] ?? param.defaultValue;
+        const label = getLabel(param, key);
 
-          if (param.type === 'select') {
+        if (param.type === 'select') {
+            const validOptions = param.options || [];
+            const validValues = validOptions.map(opt => String(opt.value));
+            const safeValue = currentValue ? String(currentValue) : '';
+            const isValidValue = validValues.includes(safeValue);
+            const finalSelectedKey = isValidValue ? safeValue : (validValues[0] || '');
+            
             return (
-              <div key={key} className="flex flex-col gap-2 col-span-1">
-                <label className="text-slate-600 dark:text-slate-400 font-bold text-[13px] ml-1">
+              <div key={key} className="space-y-1">
+                <label className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide">
                   {label}
                 </label>
                 <Select
                   placeholder={label}
-                  selectedKeys={currentValue ? new Set([String(currentValue)]) : new Set([])}
+                  selectedKeys={finalSelectedKey ? new Set([finalSelectedKey]) : new Set([])}
                   onChange={e => onChange(key, e.target.value)}
-                  variant="bordered"
-                  radius="lg"
                   isDisabled={disabled}
+                  size="sm"
                   aria-label={label}
-                  classNames={{
-                    value: 'font-bold text-sm',
-                    trigger: 'border-2 data-[focus=true]:border-primary',
-                  }}
+                  classNames={{ trigger: 'h-7 text-[11px] min-h-7' }}
                 >
-                  {(param.options || []).map(opt => (
-                    <SelectItem key={String(opt.value)} textValue={getOptionLabel(opt)}>
+                  {validOptions.map(opt => (
+                    <SelectItem key={String(opt.value)} value={opt.value} classNames={{ base: 'text-[11px]' }}>
                       {getOptionLabel(opt)}
                     </SelectItem>
                   ))}
@@ -103,30 +103,11 @@ export const DynamicModelParameters: React.FC<DynamicModelParametersProps> = ({
               </div>
             );
           } else if (param.type === 'boolean') {
-            return (
-              <div key={key} className="flex flex-col gap-2 col-span-1 md:col-span-2">
-                <div className="flex items-center justify-between px-3 py-2 border rounded-medium border-default-200 hover:border-default-400 transition-colors bg-default-50">
-                  <div className="flex flex-col">
-                    <span className="text-[15px] text-foreground font-bold ml-1">{label}</span>
-                    {description && (
-                      <span className="text-tiny text-foreground-400 ml-1">{description}</span>
-                    )}
-                  </div>
-                  <Switch
-                    size="sm"
-                    isSelected={!!currentValue}
-                    onValueChange={v => onChange(key, v)}
-                    aria-label={label}
-                    isDisabled={disabled}
-                    color="primary"
-                  />
-                </div>
-              </div>
-            );
+            return null;
           } else if (param.type === 'number') {
             return (
-              <div key={key} className="flex flex-col gap-2 col-span-1">
-                <label className="text-slate-600 dark:text-slate-400 font-bold text-[13px] ml-1">
+              <div key={key} className="space-y-1">
+                <label className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide">
                   {label}
                 </label>
                 <Input
@@ -137,43 +118,30 @@ export const DynamicModelParameters: React.FC<DynamicModelParametersProps> = ({
                   min={param.min}
                   max={param.max}
                   step={param.step}
-                  variant="bordered"
-                  radius="lg"
                   isDisabled={disabled}
-                  description={description}
-                  aria-label={label}
-                  classNames={{
-                    input: 'font-bold text-sm',
-                    inputWrapper: 'border-2 group-data-[focus=true]:border-primary',
-                  }}
+                  size="sm"
+                  classNames={{ trigger: 'h-7 text-[11px] min-h-7', inputWrapper: 'h-7 min-h-7' }}
                 />
               </div>
             );
           } else {
             return (
-              <div key={key} className="flex flex-col gap-2 col-span-1">
-                <label className="text-slate-600 dark:text-slate-400 font-bold text-[13px] ml-1">
+              <div key={key} className="space-y-1">
+                <label className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide">
                   {label}
                 </label>
                 <Input
                   placeholder={label}
                   value={String(currentValue || '')}
                   onValueChange={v => onChange(key, v)}
-                  variant="bordered"
-                  radius="lg"
                   isDisabled={disabled}
-                  description={description}
-                  aria-label={label}
-                  classNames={{
-                    input: 'font-bold text-sm',
-                    inputWrapper: 'border-2 group-data-[focus=true]:border-primary',
-                  }}
+                  size="sm"
+                  classNames={{ trigger: 'h-7 text-[11px] min-h-7', inputWrapper: 'h-7 min-h-7' }}
                 />
               </div>
             );
           }
-        })}
-      </div>
+      })}
     </div>
   );
 };

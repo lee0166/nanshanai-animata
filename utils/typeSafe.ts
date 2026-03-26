@@ -167,3 +167,61 @@ export function isValidPositiveNumber(value: unknown): value is number {
 export function isValidArray(value: unknown): boolean {
   return Array.isArray(value) && value.length > 0;
 }
+
+/**
+ * 安全的 forEach，处理 undefined/null
+ * @param arr - 可能为 undefined/null 的数组
+ * @param callback - 回调函数
+ */
+export function safeForEach<T>(
+  arr: T[] | undefined | null,
+  callback: (item: T, index: number) => void
+): void {
+  if (!Array.isArray(arr)) return;
+  arr.forEach(callback);
+}
+
+/**
+ * 安全的 map，处理 undefined/null
+ * @param arr - 可能为 undefined/null 的数组
+ * @param callback - 回调函数
+ * @returns 映射后的数组（或空数组）
+ */
+export function safeMap<T, U>(
+  arr: T[] | undefined | null,
+  callback: (item: T, index: number) => U
+): U[] {
+  if (!Array.isArray(arr)) return [];
+  return arr.map(callback);
+}
+
+/**
+ * 安全的 filter，处理 undefined/null
+ * @param arr - 可能为 undefined/null 的数组
+ * @param callback - 过滤回调
+ * @returns 过滤后的数组（或空数组）
+ */
+export function safeFilter<T>(
+  arr: T[] | undefined | null,
+  callback: (item: T, index: number) => boolean
+): T[] {
+  if (!Array.isArray(arr)) return [];
+  return arr.filter(callback);
+}
+
+/**
+ * 安全的 reduce，处理 undefined/null
+ * @param arr - 可能为 undefined/null 的数组
+ * @param callback - reduce 回调
+ * @param initialValue - 初始值
+ * @returns reduce 结果
+ */
+export function safeReduce<T, U>(
+  arr: T[] | undefined | null,
+  callback: (accumulator: U, item: T, index: number) => U,
+  initialValue: U
+): U {
+  if (!Array.isArray(arr)) return initialValue;
+  return arr.reduce(callback, initialValue);
+}
+

@@ -24,6 +24,7 @@ import {
   ModalFooter,
   useDisclosure,
 } from '@heroui/react';
+import { DeleteConfirmModal } from '../../Shared/DeleteConfirmModal';
 import {
   Filter,
   Trash2,
@@ -702,31 +703,18 @@ const ResourceManager: React.FC<ResourceManagerProps> = ({ projectId, refreshTri
       </Modal>
 
       {/* Delete Modal */}
-      <Modal isOpen={isDeleteOpen} onClose={onDeleteClose}>
-        <ModalContent>
-          <ModalHeader>{t.project.resourceManager.confirmDeleteTitle}</ModalHeader>
-          <ModalBody>
-            <p>{t.project.resourceManager.confirmDeleteDesc}</p>
-            <p className="text-xs text-red-500 mt-2">
-              {t.project.resourceManager.confirmDeleteWarn}
-            </p>
-          </ModalBody>
-          <ModalFooter>
-            <Button variant="light" onPress={onDeleteClose}>
-              {t.project.resourceManager.cancel}
-            </Button>
-            <Button
-              color="danger"
-              onPress={() => {
-                handleDelete();
-                // Detail modal closing is now handled inside handleDelete on success
-              }}
-            >
-              {t.project.resourceManager.deletePermanently}
-            </Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
+      <DeleteConfirmModal
+        isOpen={isDeleteOpen}
+        onClose={onDeleteClose}
+        onConfirm={handleDelete}
+        title={t.project.resourceManager.confirmDeleteTitle}
+        description={t.project.resourceManager.confirmDeleteDesc}
+        warningText={t.project.resourceManager.confirmDeleteWarn}
+        confirmText={t.project.resourceManager.deletePermanently}
+        cancelText={t.project.resourceManager.cancel}
+        showIcon={false}
+        size="md"
+      />
     </div>
   );
 };
