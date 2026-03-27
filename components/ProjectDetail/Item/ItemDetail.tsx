@@ -77,6 +77,7 @@ const ItemDetail: React.FC<ItemDetailProps> = ({ asset, onUpdate, projectId }) =
   const [generatingViews, setGeneratingViews] = useState<Set<ItemViewType>>(new Set());
   const [batchGenerating, setBatchGenerating] = useState(false);
   const [isBatchMode, setIsBatchMode] = useState<boolean>(true);
+  const [viewPrompt, setViewPrompt] = useState<string>('');
   const previewScrollRef = React.useRef<HTMLDivElement>(null);
 
   const [name, setName] = useState(asset.name);
@@ -428,17 +429,35 @@ const ItemDetail: React.FC<ItemDetailProps> = ({ asset, onUpdate, projectId }) =
   }, [asset.views]);
 
   useEffect(() => {
-    if (activeTab === 'views') {
-      const viewImage = asset.views?.[activeViewTab];
-      if (viewImage) {
-        setPrompt(viewImage.userPrompt || viewImage.prompt || '');
+    if (activeTab === 'views' && !isBatchMode) {
+      const savedPrompt = asset.viewPrompts?.[activeViewTab];
+      if (savedPrompt) {
+        setViewPrompt(savedPrompt);
       } else {
-        const basePrompt = asset.prompt || '';
-        const viewPrompt = getViewPrompt(activeViewTab);
-        setPrompt(basePrompt ? `${basePrompt}, ${viewPrompt}` : viewPrompt);
+        setViewPrompt(getViewPrompt(activeViewTab));
       }
     }
-  }, [activeViewTab, activeTab, asset.views, asset.prompt]);
+  }, [activeViewTab, isBatchMode, activeTab]);
+
+  useEffect(() => {
+    if (activeTab !== 'views' || isBatchMode || !viewPrompt) return;
+
+    const timer = setTimeout(() => {
+      const currentSavedPrompt = asset.viewPrompts?.[activeViewTab];
+      if (currentSavedPrompt !== viewPrompt) {
+        const updatedViewPrompts = {
+          ...asset.viewPrompts,
+          [activeViewTab]: viewPrompt
+        };
+        onUpdate({
+          ...asset,
+          viewPrompts: updatedViewPrompts
+        }, true);
+      }
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [viewPrompt, activeViewTab, activeTab, isBatchMode]);
 
   const handleSaveInfo = () => {
     if (name !== asset.name || itemType !== asset.itemType) {
@@ -858,6 +877,17 @@ const ItemDetail: React.FC<ItemDetailProps> = ({ asset, onUpdate, projectId }) =
     };
     return viewPrompts[viewType];
   };
+
+  const fullViewPrompt = React.useMemo(() => {
+    const basePrompt = asset.prompt || '';
+    const viewPromptValue = viewPrompt || getViewPrompt(activeViewTab) || '';
+    const consistencyPrompt = 'same item, consistent appearance, maintaining all shape, color, and material details';
+    
+    if (basePrompt) {
+      return `${basePrompt}, ${viewPromptValue}, ${consistencyPrompt}`;
+    }
+    return `${viewPromptValue}, ${consistencyPrompt}`;
+  }, [asset.prompt, viewPrompt, activeViewTab]);
 
   const getViewIcon = (viewType: ItemViewType) => {
     switch (viewType) {
@@ -1353,14 +1383,35 @@ const ItemDetail: React.FC<ItemDetailProps> = ({ asset, onUpdate, projectId }) =
                 <h4 className="font-semibold text-sm text-foreground">生成提示词</h4>
               </div>
               
-              {/* 右侧：参考图显示 */}
+              {/* 右侧：参考图显示 - 多视角模式优先显示定稿图片 */}
               <div className="flex items-center gap-2">
                 <span className="text-xs font-semibold text-slate-400">参考图</span>
                 <div className="flex gap-2">
                   {(() => {
-                    const referenceImageObjects: GeneratedImage[] = [];
-                    
-                    if (referenceImages.length > 0) {
+                    if (activeTab === 'views' && currentSelectedImage) {
+                      const url = genUrls[currentSelectedImage.id] || (currentSelectedImage.path.startsWith('remote:') ? currentSelectedImage.path.substring(7) : currentSelectedImage.path);
+                      return (
+                        <div
+                          key={currentSelectedImage.id}
+                          className="relative w-10 h-10 cursor-pointer hover:opacity-90 transition-opacity"
+                          onClick={() => {
+                            openPreview([{ src: url, alt: '参考图 1' }], 0);
+                          }}
+                        >
+                          {url ? (
+                            <img
+                              src={url}
+                              alt="参考图 1"
+                              className="w-full h-full object-cover rounded-lg border border-content3"
+                            />
+                          ) : (
+                            <div className="w-full h-full bg-content2 rounded-lg border border-content3 flex items-center justify-center">
+                              <Spinner size="sm" />
+                            </div>
+                          )}
+                        </div>
+                      );
+                    } else if (referenceImages.length > 0) {
                       return (
                         <div className="flex gap-2">
                           {referenceImages.slice(0, 3).map((path, index) => {
@@ -1406,22 +1457,53 @@ const ItemDetail: React.FC<ItemDetailProps> = ({ asset, onUpdate, projectId }) =
             
             {/* 提示词输入区 */}
             <div className="flex-1 min-w-0">
-              <Textarea
-                placeholder={t.project.promptPlaceholder}
-                value={prompt}
-                onValueChange={setPrompt}
-                onBlur={handlePromptBlur}
-                variant="bordered"
-                radius="lg"
-                minRows={6}
-                maxRows={8}
-                isDisabled={generating}
-                classNames={{
-                  input: 'font-medium text-xs leading-relaxed',
-                  inputWrapper: 'border border-content3 group-data-[focus=true]:border-primary',
-                }}
-                className="h-full"
-              />
+              {activeTab === 'views' && isBatchMode ? (
+                <div className="h-full bg-content2 rounded-xl border border-content3 flex items-center justify-center p-4">
+                  <p className="text-xs text-slate-500 dark:text-slate-400 text-center">
+                    批量模式下使用预设视角提示词<br/>
+                    关闭批量开关可手动编辑提示词
+                  </p>
+                </div>
+              ) : activeTab === 'views' ? (
+                <div className="h-full flex flex-col gap-2">
+                  <div className="bg-content2 rounded-lg p-2 border border-content3">
+                    <p className="text-[10px] text-slate-400 mb-1">完整提示词预览：</p>
+                    <p className="text-xs text-foreground whitespace-pre-wrap">{fullViewPrompt}</p>
+                  </div>
+                  <Textarea
+                    placeholder="视角描述（仅编辑这部分）"
+                    value={viewPrompt}
+                    onValueChange={setViewPrompt}
+                    variant="bordered"
+                    radius="lg"
+                    minRows={4}
+                    maxRows={6}
+                    isDisabled={generating}
+                    classNames={{
+                      input: 'font-medium text-xs leading-relaxed',
+                      inputWrapper: 'border border-content3 group-data-[focus=true]:border-primary',
+                    }}
+                    className="flex-1"
+                  />
+                </div>
+              ) : (
+                <Textarea
+                  placeholder={t.project.promptPlaceholder}
+                  value={prompt}
+                  onValueChange={setPrompt}
+                  onBlur={handlePromptBlur}
+                  variant="bordered"
+                  radius="lg"
+                  minRows={6}
+                  maxRows={8}
+                  isDisabled={generating}
+                  classNames={{
+                    input: 'font-medium text-xs leading-relaxed',
+                    inputWrapper: 'border border-content3 group-data-[focus=true]:border-primary',
+                  }}
+                  className="h-full"
+                />
+              )}
             </div>
           </CardBody>
         </Card>
