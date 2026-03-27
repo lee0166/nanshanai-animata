@@ -921,7 +921,18 @@ const ItemDetail: React.FC<ItemDetailProps> = ({ asset, onUpdate, projectId }) =
     return count;
   };
 
-  const currentAllImages = (asset.generatedImages || []);
+  const currentAllImages = activeTab === 'single' 
+    ? (asset.generatedImages || [])
+    : (() => {
+        const viewImages: GeneratedImage[] = [];
+        if (asset.views) {
+          if (asset.views.front) viewImages.push(asset.views.front);
+          if (asset.views.side) viewImages.push(asset.views.side);
+          if (asset.views.top) viewImages.push(asset.views.top);
+          if (asset.views.threeQuarter) viewImages.push(asset.views.threeQuarter);
+        }
+        return viewImages;
+      })();
   const currentSelectedImage = asset.currentImageId 
     ? (asset.generatedImages || []).find(img => img.id === asset.currentImageId)
     : null;
@@ -1185,120 +1196,91 @@ const ItemDetail: React.FC<ItemDetailProps> = ({ asset, onUpdate, projectId }) =
                   </Tabs>
                 )}
               </div>
-              {activeTab === 'single' && (
-                <div className="relative">
-                  {/* 左侧滚动按钮 */}
-                  <button
-                    className="absolute left-0 top-1/2 -translate-y-1/2 w-8 h-8 bg-black/50 text-white rounded-full flex items-center justify-center z-20 hover:bg-black/70 transition-colors"
-                    onClick={handleScrollLeft}
-                    aria-label="向左滚动"
-                  >
-                    <ChevronLeft className="w-4 h-4" />
-                  </button>
-                  
-                  {/* 右侧滚动按钮 */}
-                  <button
-                    className="absolute right-0 top-1/2 -translate-y-1/2 w-8 h-8 bg-black/50 text-white rounded-full flex items-center justify-center z-20 hover:bg-black/70 transition-colors"
-                    onClick={handleScrollRight}
-                    aria-label="向右滚动"
-                  >
-                    <ChevronRight className="w-4 h-4" />
-                  </button>
-                  
-                  <div 
-                    ref={previewScrollRef}
-                    className="flex gap-4 overflow-x-hidden pb-2"
-                    style={{ scrollbarWidth: 'none' }}
-                  >
-                    {currentAllImages.length === 0 ? (
-                      <div className="min-w-[200px] aspect-square bg-content2 rounded-xl border border-dashed border-content3 flex items-center justify-center">
-                        <span className="text-sm text-slate-500">暂无图片</span>
-                      </div>
-                    ) : (
-                      currentAllImages.slice().reverse().map((img) => {
-                        const isSelected = currentSelectedImage?.id === img.id;
-                        return (
-                          <div
-                            key={img.id}
-                            className={`min-w-[200px] max-w-[200px] aspect-square rounded-xl overflow-hidden cursor-pointer relative group transition-all border border-content3 hover:border-primary/50`}
-                          >
-                            <div 
-                              className="w-full h-full overflow-hidden"
-                              onClick={() => handlePreviewImage(img, currentAllImages)}
-                            >
-                              {genUrls[img.id] ? (
-                                <img
-                                  src={genUrls[img.id]}
-                                  alt={img.prompt}
-                                  className="w-full h-full object-cover"
-                                />
-                              ) : (
-                                <div className="w-full h-full bg-content3 flex items-center justify-center">
-                                  <Spinner size="sm" />
-                                </div>
-                              )}
-                            </div>
-                            
-                            {/* 左上角选择框 */}
-                            <button
-                              className={`absolute top-2 left-2 z-10 w-5 h-5 border-2 flex items-center justify-center transition-colors ${
-                                isSelected 
-                                  ? 'border-primary bg-primary' 
-                                  : 'border-slate-200 dark:border-slate-700 bg-black/30 dark:bg-white/10'
-                              }`}
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleSelectImage(img);
-                              }}
-                              aria-label={isSelected ? '取消选择' : '选择图片'}
-                            >
-                              {isSelected && (
-                                <Check className="w-3 h-3 text-white" />
-                              )}
-                            </button>
-
-                            {/* 右上角删除图标 */}
-                            <button
-                              className="absolute top-2 right-2 w-6 h-6 flex items-center justify-center text-slate-400 hover:text-red-500 transition-colors z-10"
-                              onClick={(e) => promptDeleteImage(img, e)}
-                              aria-label="删除图片"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </button>
-                          </div>
-                        );
-                      })
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {activeTab === 'views' && (
-                <div className="relative">
-                  {/* 显示当前选中视角的图片 */}
-                  <div className="aspect-video bg-content2 rounded-xl border border-content3 overflow-hidden">
-                    {(() => {
-                      const viewImage = asset.views?.[activeViewTab];
-                      if (viewImage && viewUrls[viewImage.id]) {
-                        return (
-                          <img
-                            src={viewUrls[viewImage.id]}
-                            alt={getViewLabel(activeViewTab)}
-                            className="w-full h-full object-contain"
-                          />
-                        );
-                      }
+              <div className="relative">
+                {/* 左侧滚动按钮 */}
+                <button
+                  className="absolute left-0 top-1/2 -translate-y-1/2 w-8 h-8 bg-black/50 text-white rounded-full flex items-center justify-center z-20 hover:bg-black/70 transition-colors"
+                  onClick={handleScrollLeft}
+                  aria-label="向左滚动"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                </button>
+                
+                {/* 右侧滚动按钮 */}
+                <button
+                  className="absolute right-0 top-1/2 -translate-y-1/2 w-8 h-8 bg-black/50 text-white rounded-full flex items-center justify-center z-20 hover:bg-black/70 transition-colors"
+                  onClick={handleScrollRight}
+                  aria-label="向右滚动"
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+                
+                <div 
+                  ref={previewScrollRef}
+                  className="flex gap-4 overflow-x-hidden pb-2"
+                  style={{ scrollbarWidth: 'none' }}
+                >
+                  {currentAllImages.length === 0 ? (
+                    <div className="min-w-[200px] aspect-square bg-content2 rounded-xl border border-dashed border-content3 flex items-center justify-center">
+                      <span className="text-sm text-slate-500">暂无图片</span>
+                    </div>
+                  ) : (
+                    (activeTab === 'single' ? currentAllImages.slice().reverse() : currentAllImages).map((img) => {
+                      const isSelected = currentSelectedImage?.id === img.id;
                       return (
-                        <div className="w-full h-full flex flex-col items-center justify-center">
-                          <span className="text-sm text-slate-500">
-                            暂无{getViewLabel(activeViewTab)}视图
-                          </span>
+                        <div
+                          key={img.id}
+                          className={`min-w-[200px] max-w-[200px] aspect-square rounded-xl overflow-hidden cursor-pointer relative group transition-all border border-content3 hover:border-primary/50`}
+                        >
+                          <div 
+                            className="w-full h-full overflow-hidden"
+                            onClick={() => handlePreviewImage(img, currentAllImages)}
+                          >
+                            {genUrls[img.id] ? (
+                              <img
+                                src={genUrls[img.id]}
+                                alt={img.prompt}
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              <div className="w-full h-full bg-content3 flex items-center justify-center">
+                                <Spinner size="sm" />
+                              </div>
+                            )}
+                          </div>
+                          
+                          {/* 左上角选择框 */}
+                          <button
+                            className={`absolute top-2 left-2 z-10 w-5 h-5 border-2 flex items-center justify-center transition-colors ${
+                              isSelected 
+                                ? 'border-primary bg-primary' 
+                                : 'border-slate-200 dark:border-slate-700 bg-black/30 dark:bg-white/10'
+                            }`}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleSelectImage(img);
+                            }}
+                            aria-label={isSelected ? '取消选择' : '选择图片'}
+                          >
+                            {isSelected && (
+                              <Check className="w-3 h-3 text-white" />
+                            )}
+                          </button>
+
+                          {/* 右上角删除图标 */}
+                          <button
+                            className="absolute top-2 right-2 w-6 h-6 flex items-center justify-center text-slate-400 hover:text-red-500 transition-colors z-10"
+                            onClick={(e) => promptDeleteImage(img, e)}
+                            aria-label="删除图片"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
                         </div>
                       );
-                    })()}
-                  </div>
+                    })
+                  )}
                 </div>
-              )}
+              </div>
             </CardBody>
           </Card>
 
