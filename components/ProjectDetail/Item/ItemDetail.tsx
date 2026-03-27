@@ -23,6 +23,7 @@ import {
   Tab,
   Chip,
   ScrollShadow,
+  Switch,
 } from '@heroui/react';
 import { DeleteConfirmModal } from '../../Shared/DeleteConfirmModal';
 import {
@@ -55,6 +56,7 @@ import ResourcePicker from '../../ResourcePicker';
 import { usePreview } from '../../PreviewProvider';
 import { ImageGenerationPanel } from '../Shared/ImageGenerationPanel';
 import { StyleSelector } from '../Shared/StyleSelector';
+import { CompactToolbar } from '../Character/CompactToolbar';
 
 interface ItemDetailProps {
   asset: ItemAsset;
@@ -74,6 +76,7 @@ const ItemDetail: React.FC<ItemDetailProps> = ({ asset, onUpdate, projectId }) =
   const [activeViewTab, setActiveViewTab] = useState<ItemViewType>('front');
   const [generatingViews, setGeneratingViews] = useState<Set<ItemViewType>>(new Set());
   const [batchGenerating, setBatchGenerating] = useState(false);
+  const [isBatchMode, setIsBatchMode] = useState<boolean>(true);
   const previewScrollRef = React.useRef<HTMLDivElement>(null);
 
   const [name, setName] = useState(asset.name);
@@ -1016,127 +1019,110 @@ const ItemDetail: React.FC<ItemDetailProps> = ({ asset, onUpdate, projectId }) =
         )}
 
         {activeTab === 'views' && (
-          <ScrollShadow className="flex-1 p-4">
-            <div className="flex flex-col gap-4">
-              <div className="flex items-start gap-3 p-3 bg-primary/5 rounded-xl border border-primary/20">
-                <div className="p-2 bg-primary/10 rounded-lg">
-                  <Info className="w-5 h-5 text-primary" />
-                </div>
-                <div className="flex-1">
-                  <h4 className="font-bold text-sm text-slate-900 dark:text-slate-100 mb-1">
-                    多视角图生成设置
-                  </h4>
-                  <p className="text-xs text-slate-600 dark:text-slate-400">
-                    您正在使用的模型将同时用于多视角图生成。
-                  </p>
-                </div>
-              </div>
-
-              <div className="space-y-3">
-                <Select
-                  aria-label="选择多视角图生成模型"
-                  placeholder="选择模型"
-                  selectedKeys={[modelId]}
-                  onChange={e => handleModelChange(e.target.value)}
-                  className="w-full"
-                  variant="bordered"
-                  radius="lg"
-                  isDisabled={generating || isCheckingJobs}
-                  classNames={{
-                    value: 'font-bold text-sm',
-                    trigger: 'border-2 group-data-[focus=true]:border-primary',
-                  }}
-                >
-                  {settings.models
-                    .filter(m => m.type === 'image' && (m.enabled ?? true))
-                    .map(model => (
-                      <SelectItem key={model.id} textValue={model.name}>
-                        {model.name}
-                      </SelectItem>
-                    ))}
-                </Select>
-              </div>
-
-              <Button
-                fullWidth
-                color="primary"
-                size="md"
-                isLoading={batchGenerating}
-                isDisabled={!modelId || viewTypes.filter(type => !asset.views?.[type]).length === 0}
-                onPress={handleBatchGenerateViews}
-                startContent={!batchGenerating && <Wand2 className="w-5 h-5" />}
-              >
-                {batchGenerating ? '批量生成中...' : '一键生成全部视角'}
-              </Button>
-
-              <div className="grid grid-cols-2 gap-3">
-                {viewTypes.map(viewType => {
-                  const hasView = !!asset.views?.[viewType];
-                  const isGeneratingView = generatingViews.has(viewType);
-                  
-                  return (
-                    <Card
-                      key={viewType}
-                      className="border border-slate-200 dark:border-slate-700 overflow-hidden"
-                    >
-                      <div className="p-3 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50">
-                        <div className="flex items-center gap-2">
-                          <div className="p-1.5 bg-primary/10 rounded-lg text-primary">
-                            {getViewIcon(viewType)}
-                          </div>
-                          <span className="font-bold text-sm text-slate-700 dark:text-slate-200">
-                            {getViewLabel(viewType)}
-                          </span>
-                          {hasView && (
-                            <Chip size="sm" color="success" variant="flat">
-                              已生成
-                            </Chip>
-                          )}
-                        </div>
-                      </div>
-                      <div className="p-3">
-                        <Button
-                          fullWidth
-                          size="sm"
-                          color={hasView ? 'secondary' : 'primary'}
-                          variant={hasView ? 'flat' : 'solid'}
-                          isLoading={isGeneratingView}
-                          isDisabled={!modelId}
-                          onPress={() => hasView ? handleSetViewAsCurrent(viewType) : handleGenerateView(viewType)}
-                          startContent={!isGeneratingView && (hasView ? <Check className="w-4 h-4" /> : <Wand2 className="w-4 h-4" />)}
-                        >
-                          {isGeneratingView ? '生成中...' : (hasView ? '设为当前' : '生成视角')}
-                        </Button>
-                      </div>
-                    </Card>
-                  );
-                })}
-              </div>
-            </div>
-          </ScrollShadow>
-        )}
-
-        {activeTab === 'single' && (
-          <div className="mt-auto p-4 border-t border-content3 relative z-10">
-            <Button
-              color="default"
-              variant="solid"
+          <>
+            <Tabs
+              selectedKey={activeParamTab}
+              onSelectionChange={setActiveParamTab}
               size="sm"
-              fullWidth
-              isLoading={generating}
-              onPress={handleGenerate}
-              className="font-bold h-10 rounded-xl bg-slate-200 hover:bg-slate-300 text-slate-900 dark:bg-slate-700 dark:hover:bg-slate-600 dark:text-slate-100 shadow-lg"
               classNames={{
-                base: 'bg-slate-200 hover:bg-slate-300 text-slate-900 dark:bg-slate-700 dark:hover:bg-slate-600 dark:text-slate-100',
-                content: 'text-slate-900 dark:text-slate-100',
-                spinner: 'text-slate-900 dark:text-slate-100',
+                tabList: 'gap-2 p-2',
+                tab: 'h-8 min-h-8 px-4 text-xs',
+                cursor: 'rounded-xl',
               }}
-              startContent={!generating && <Sparkles size={16} className="text-slate-900 dark:text-slate-100" />}
             >
-              {generating ? '生成中...' : '开始生成'}
-            </Button>
-          </div>
+              <Tab key="core" title={
+                <div className="flex items-center gap-2">
+                  <Settings className="w-4 h-4" />
+                  <span>参数</span>
+                </div>
+              }>
+                <div className="p-4 space-y-4">
+                  <CompactToolbar
+                    modelId={modelId}
+                    onModelChange={handleModelChange}
+                    aspectRatio={aspectRatio}
+                    onAspectRatioChange={(val) => {
+                      setAspectRatio(val);
+                      onUpdate({
+                        ...asset,
+                        metadata: { ...asset.metadata, aspectRatio: val },
+                      }, true);
+                    }}
+                    resolution={resolution}
+                    onResolutionChange={(val) => {
+                      setResolution(val);
+                      onUpdate({
+                        ...asset,
+                        metadata: { ...asset.metadata, resolution: val },
+                      }, true);
+                    }}
+                    count={generateCount}
+                    onCountChange={setGenerateCount}
+                    guidanceScale={guidanceScale}
+                    onGuidanceScaleChange={setGuidanceScale}
+                    extraParams={extraParams}
+                    onExtraParamsChange={setExtraParams}
+                    generating={generating || isCheckingJobs}
+                  />
+                </div>
+              </Tab>
+              <Tab key="style" title={
+                <div className="flex items-center gap-2">
+                  <Palette className="w-4 h-4" />
+                  <span>风格</span>
+                </div>
+              }>
+                <div className="p-4">
+                  <StyleSelector
+                    value={style}
+                    onChange={setStyle}
+                    disabled={generating}
+                  />
+                </div>
+              </Tab>
+            </Tabs>
+          </>
         )}
+
+        <div className="mt-auto p-4 border-t border-content3 relative z-10">
+          {activeTab === 'views' && (
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-xs font-medium text-slate-500 dark:text-slate-400">
+                批量模式
+              </span>
+              <Switch
+                isSelected={isBatchMode}
+                onValueChange={setIsBatchMode}
+                size="sm"
+                isDisabled={generating}
+              />
+            </div>
+          )}
+          <Button
+            color="default"
+            variant="solid"
+            size="sm"
+            fullWidth
+            isLoading={activeTab === 'single' ? generating : batchGenerating}
+            onPress={activeTab === 'single' ? handleGenerate : (isBatchMode ? handleBatchGenerateViews : () => handleGenerateView(activeViewTab))}
+            className="font-bold h-10 rounded-xl bg-slate-200 hover:bg-slate-300 text-slate-900 dark:bg-slate-700 dark:hover:bg-slate-600 dark:text-slate-100 shadow-lg"
+            classNames={{
+              base: 'bg-slate-200 hover:bg-slate-300 text-slate-900 dark:bg-slate-700 dark:hover:bg-slate-600 dark:text-slate-100',
+              content: 'text-slate-900 dark:text-slate-100',
+              spinner: 'text-slate-900 dark:text-slate-100',
+            }}
+            startContent={!generating && !batchGenerating && <Sparkles size={16} className="text-slate-900 dark:text-slate-100" />}
+          >
+            {activeTab === 'single' 
+              ? (generating ? '生成中...' : '开始生成') 
+              : (batchGenerating 
+                  ? '批量生成中...' 
+                  : (isBatchMode 
+                      ? '批量生成全部视角' 
+                      : `生成${getViewLabel(activeViewTab)}`))
+            }
+          </Button>
+        </div>
       </div>
 
       {/* 中间：预览区域 */}
