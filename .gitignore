@@ -88,6 +88,21 @@ data/models/
 # Test data
 test_data/
 
+# Development tools
+.husky/
+.prettierignore
+.prettierrc
+commitlint.config.js
+commit.sh
+
+# Test files
+__tests__/
+test/
+vitest.config.ts
+
+# Scripts
+scripts/
+
 # Large binary files (consider moving to CDN or download scripts)
-# public/models/
-# public/ort-wasm/
+public/models/
+public/ort-wasm/

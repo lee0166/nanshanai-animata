@@ -1,5 +1,0 @@
-{
-  "name": "AI Video Shorts Studio",
-  "description": "A professional tool for managing and creating AI-generated video shorts using local file storage and Gemini API.",
-  "requestFramePermissions": []
-}
