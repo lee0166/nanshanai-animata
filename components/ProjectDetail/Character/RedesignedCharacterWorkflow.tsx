@@ -93,6 +93,39 @@ export const RedesignedCharacterWorkflow: React.FC<RedesignedCharacterWorkflowPr
     }
   };
 
+  // 计算完整提示词（用于显示）
+  const fullStage3Prompt = useMemo(() => {
+    const basePrompt = asset.prompt || '';
+    const viewPrompt = stage3Prompt || viewAngleConfigs[activeViewTab as CharacterViewAngle]?.defaultPrompt || '';
+    const consistencyPrompt = 'same character, consistent appearance, maintaining all facial features, hairstyle, and clothing details';
+    
+    if (basePrompt) {
+      return `${basePrompt}, ${viewPrompt}, ${consistencyPrompt}`;
+    }
+    return `${viewPrompt}, ${consistencyPrompt}`;
+  }, [asset.prompt, stage3Prompt, activeViewTab]);
+
+  // 防抖保存提示词
+  useEffect(() => {
+    if (currentStage !== 3 || isBatchMode || !stage3Prompt) return;
+
+    const timer = setTimeout(() => {
+      const currentSavedPrompt = asset.viewPrompts?.[activeViewTab as CharacterViewAngle];
+      if (currentSavedPrompt !== stage3Prompt) {
+        const updatedViewPrompts = {
+          ...asset.viewPrompts,
+          [activeViewTab]: stage3Prompt
+        };
+        onUpdate({
+          ...asset,
+          viewPrompts: updatedViewPrompts
+        }, true);
+      }
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [stage3Prompt, activeViewTab, currentStage, isBatchMode]);
+
   const stages = [
     { id: 1, label: t.character.workflow?.stage1 || '面部', icon: User },
     { id: 2, label: t.character.workflow?.stage2 || '全身', icon: User },
@@ -159,6 +192,18 @@ export const RedesignedCharacterWorkflow: React.FC<RedesignedCharacterWorkflowPr
     setStage1Prompt(faceDescription || asset.prompt || '');
     setStage2Prompt(fullBodyDescription || asset.prompt || '');
   }, [asset.id]);
+
+  // 当切换视角时，加载保存的自定义提示词
+  useEffect(() => {
+    if (currentStage === 3 && !isBatchMode) {
+      const savedPrompt = asset.viewPrompts?.[activeViewTab as CharacterViewAngle];
+      if (savedPrompt) {
+        setStage3Prompt(savedPrompt);
+      } else {
+        setStage3Prompt(viewAngleConfigs[activeViewTab as CharacterViewAngle].defaultPrompt);
+      }
+    }
+  }, [activeViewTab, isBatchMode, currentStage]);
 
   useEffect(() => {
     const loadGenUrls = async () => {
@@ -1174,21 +1219,29 @@ export const RedesignedCharacterWorkflow: React.FC<RedesignedCharacterWorkflowPr
                   </p>
                 </div>
               ) : currentStage === 3 ? (
-                <Textarea
-                  placeholder="视角描述"
-                  value={stage3Prompt}
-                  onValueChange={setStage3Prompt}
-                  variant="bordered"
-                  radius="lg"
-                  minRows={6}
-                  maxRows={8}
-                  isDisabled={generating}
-                  classNames={{
-                    input: 'font-medium text-xs leading-relaxed',
-                    inputWrapper: 'border border-content3 group-data-[focus=true]:border-primary',
-                  }}
-                  className="h-full"
-                />
+                <div className="h-full flex flex-col gap-2">
+                  {/* 完整提示词预览（只读） */}
+                  <div className="bg-content2 rounded-lg p-2 border border-content3">
+                    <p className="text-[10px] text-slate-400 mb-1">完整提示词预览：</p>
+                    <p className="text-xs text-foreground whitespace-pre-wrap">{fullStage3Prompt}</p>
+                  </div>
+                  {/* 视角提示词编辑 */}
+                  <Textarea
+                    placeholder="视角描述（仅编辑这部分）"
+                    value={stage3Prompt}
+                    onValueChange={setStage3Prompt}
+                    variant="bordered"
+                    radius="lg"
+                    minRows={4}
+                    maxRows={6}
+                    isDisabled={generating}
+                    classNames={{
+                      input: 'font-medium text-xs leading-relaxed',
+                      inputWrapper: 'border border-content3 group-data-[focus=true]:border-primary',
+                    }}
+                    className="flex-1"
+                  />
+                </div>
               ) : (
                 <Textarea
                   placeholder={t.project.promptPlaceholder}

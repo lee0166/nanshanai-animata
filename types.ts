@@ -87,6 +87,8 @@ export interface CharacterAsset extends Asset {
   currentViewAngle?: CharacterViewAngle;
   // 一致性参考图（用于保持角色一致性）
   referenceImage?: GeneratedImage;
+  // 多视角自定义提示词（按视角保存）
+  viewPrompts?: Record<CharacterViewAngle, string>;
 }
 
 export enum ItemType {

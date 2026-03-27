@@ -574,52 +574,70 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({
               activeTab === AssetType.ITEM) &&
               scripts &&
               scripts.length > 0 && (
-                <Select
-                  aria-label="剧本筛选"
-                  placeholder={scripts.length > 0 ? `全部剧本 (共${scripts.length}个)` : '选择剧本'}
-                  selectedKeys={[
-                    activeTab === AssetType.CHARACTER
-                      ? characterScriptFilter
-                      : activeTab === AssetType.SCENE
-                        ? sceneScriptFilter
-                        : itemScriptFilter,
-                  ]}
-                  onChange={e => {
-                    const value = e.target.value;
-                    if (activeTab === AssetType.CHARACTER) setCharacterScriptFilter(value);
-                    else if (activeTab === AssetType.SCENE) setSceneScriptFilter(value);
-                    else if (activeTab === AssetType.ITEM) setItemScriptFilter(value);
-                  }}
-                  className="w-48"
-                  variant="bordered"
-                  radius="lg"
-                  size="sm"
-                  classNames={{
-                    value: 'font-bold text-xs',
-                    trigger:
-                      'border-slate-300 dark:border-slate-700 h-8 min-h-unit-8 hover:border-primary transition-colors duration-300',
-                  }}
-                >
-                  <SelectItem key="all" value="all" textValue="全部剧本">
-                    全部剧本 (共{scripts.length}个)
-                  </SelectItem>
-                  {scripts.map(script => (
-                    <SelectItem key={script.id} value={script.id} textValue={script.title}>
-                      {script.title}
+                <div className="flex items-center gap-3">
+                  <Select
+                    aria-label="剧本筛选"
+                    placeholder={scripts.length > 0 ? `全部剧本 (共${scripts.length}个)` : '选择剧本'}
+                    selectedKeys={[
+                      activeTab === AssetType.CHARACTER
+                        ? characterScriptFilter
+                        : activeTab === AssetType.SCENE
+                          ? sceneScriptFilter
+                          : itemScriptFilter,
+                    ]}
+                    onChange={e => {
+                      const value = e.target.value;
+                      if (activeTab === AssetType.CHARACTER) setCharacterScriptFilter(value);
+                      else if (activeTab === AssetType.SCENE) setSceneScriptFilter(value);
+                      else if (activeTab === AssetType.ITEM) setItemScriptFilter(value);
+                    }}
+                    className="w-48"
+                    variant="bordered"
+                    radius="lg"
+                    size="sm"
+                    classNames={{
+                      value: 'font-bold text-xs',
+                      trigger:
+                        'border-slate-300 dark:border-slate-700 h-8 min-h-unit-8 hover:border-primary transition-colors duration-300',
+                    }}
+                  >
+                    <SelectItem key="all" value="all" textValue="全部剧本">
+                      全部剧本 (共{scripts.length}个)
                     </SelectItem>
-                  ))}
-                </Select>
+                    {scripts.map(script => (
+                      <SelectItem key={script.id} value={script.id} textValue={script.title}>
+                        {script.title}
+                      </SelectItem>
+                    ))}
+                  </Select>
+                  {/* 新建按钮 - 仅在角色/场景/物品标签页显示 */}
+                  <Button
+                    color="primary"
+                    radius="full"
+                    startContent={<Plus className="w-4 h-4" />}
+                    onPress={onAddOpen}
+                    size="sm"
+                    className="font-bold uppercase tracking-wider text-xs shadow-lg shadow-primary/30 hover:shadow-primary/50 transition-all duration-300 transform hover:scale-105 active:scale-95"
+                  >
+                    {t.project.create} {activeTabSingular}
+                  </Button>
+                </div>
               )}
           </div>
-          <Button
-            color="primary"
-            radius="full"
-            startContent={<Plus className="w-4 h-4" />}
-            onPress={onAddOpen}
-            className="font-black uppercase tracking-widest text-xs shadow-lg shadow-primary/30 hover:shadow-primary/50 transition-all duration-300 transform hover:scale-105 active:scale-95"
-          >
-            {t.project.create} {activeTabSingular}
-          </Button>
+          {/* 新建按钮 - 在其他标签页显示 */}
+          {!(activeTab === AssetType.CHARACTER ||
+              activeTab === AssetType.SCENE ||
+              activeTab === AssetType.ITEM) && (
+            <Button
+              color="primary"
+              radius="full"
+              startContent={<Plus className="w-4 h-4" />}
+              onPress={onAddOpen}
+              className="font-black uppercase tracking-widest text-xs shadow-lg shadow-primary/30 hover:shadow-primary/50 transition-all duration-300 transform hover:scale-105 active:scale-95"
+            >
+              {t.project.create} {activeTabSingular}
+            </Button>
+          )}
         </div>
       </div>
 

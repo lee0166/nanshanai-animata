@@ -524,27 +524,7 @@ const AssetList: React.FC<AssetListProps> = ({
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 pb-20">
-            {/* Add New Card - FIRST ITEM */}
-            {!isResources && onAdd && (
-              <Card
-                isPressable
-                onPress={onAdd}
-                className="bg-slate-50/50 dark:bg-slate-900/50 border-2 border-dashed border-slate-200 dark:border-slate-800 aspect-[3/4] w-full group hover:border-primary/50 hover:bg-white dark:hover:bg-slate-900 transition-all duration-300"
-                radius="lg"
-                shadow="none"
-              >
-                <CardBody className="flex flex-col items-center justify-center gap-4">
-                  <div className="w-14 h-14 rounded-2xl bg-slate-200 dark:bg-slate-800 flex items-center justify-center text-slate-400 group-hover:bg-primary group-hover:text-white group-hover:shadow-xl group-hover:shadow-primary/30 transition-all duration-500">
-                    <Plus className="w-7 h-7" />
-                  </div>
-                  <span className="text-[13px] font-black text-slate-400 dark:text-slate-600 uppercase tracking-[0.2em] group-hover:text-primary transition-colors">
-                    {t.project.create}
-                  </span>
-                </CardBody>
-              </Card>
-            )}
-
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 pb-20">
             {displayAssets.map(asset => (
               <div
                 key={asset.id}
@@ -553,7 +533,7 @@ const AssetList: React.FC<AssetListProps> = ({
                 className="cursor-pointer w-full"
               >
                 <Card
-                  className={`group border bg-white dark:bg-slate-900 shadow-sm hover:scale-[1.02] transition-all duration-300 aspect-[3/4] w-full ${
+                  className={`group border bg-white dark:bg-slate-900 shadow-sm hover:scale-[1.02] transition-all duration-300 w-full ${
                     highlightedAssetId === asset.id
                       ? 'border-primary ring-2 ring-primary/20'
                       : 'border-slate-200 dark:border-slate-800 hover:border-primary/50'
@@ -567,34 +547,34 @@ const AssetList: React.FC<AssetListProps> = ({
                       isVideoFile(asset.filePath) ? (
                         <video
                           src={urls[asset.id]}
-                          className="w-full h-full object-contain pointer-events-none"
+                          className="w-full h-full object-cover pointer-events-none"
                         />
                       ) : (
                         <img
                           src={urls[asset.id]}
                           alt={asset.name}
-                          className="w-full h-full object-contain"
+                          className="w-full h-full object-cover"
                         />
                       )
                     ) : (
                       <div className="flex flex-col items-center justify-center text-slate-300 dark:text-slate-800 gap-2">
                         {asset.filePath && urls[asset.id] === '' ? (
                           <>
-                            <AlertTriangle className="w-10 h-10 text-warning opacity-50" />
-                            <span className="text-[10px] font-black uppercase tracking-widest opacity-50">
+                            <AlertTriangle className="w-8 h-8 text-warning opacity-50" />
+                            <span className="text-[9px] font-black uppercase tracking-widest opacity-50">
                               {t.project.missing}
                             </span>
                           </>
                         ) : asset.type === AssetType.VIDEO_SEGMENT ? (
-                          <Film className="w-12 h-12" />
+                          <Film className="w-10 h-10" />
                         ) : (
-                          <ImageIcon className="w-12 h-12" />
+                          <ImageIcon className="w-10 h-10" />
                         )}
                       </div>
                     )}
 
                     <div
-                      className="absolute top-3 right-3 z-50 opacity-0 group-hover:opacity-100 scale-75 group-hover:scale-100 transition-all duration-300 flex gap-2"
+                      className="absolute top-2 right-2 z-50 opacity-0 group-hover:opacity-100 scale-75 group-hover:scale-100 transition-all duration-300 flex gap-1"
                       onClick={e => e.stopPropagation()}
                     >
                       {/* Edit Button for Video Segments */}
@@ -606,7 +586,7 @@ const AssetList: React.FC<AssetListProps> = ({
                           size="sm"
                           onPress={e => handleRequestEdit(e, asset)}
                         >
-                          <Pencil className="w-4 h-4" />
+                          <Pencil className="w-3.5 h-3.5" />
                         </Button>
                       )}
 
@@ -617,33 +597,38 @@ const AssetList: React.FC<AssetListProps> = ({
                         size="sm"
                         onPress={e => onRequestDelete(e, asset.id, asset.filePath)}
                       >
-                        <Trash2 className="w-4 h-4" />
+                        <Trash2 className="w-3.5 h-3.5" />
                       </Button>
                     </div>
                   </CardBody>
-                  <CardFooter className="flex-1 flex flex-col justify-start items-start p-4 gap-3 overflow-hidden">
+                  <CardFooter className="flex flex-col justify-center items-center p-2.5 gap-1.5 overflow-hidden">
                     <h3
-                      className="font-bold text-[18px] truncate w-full text-slate-800 dark:text-slate-100"
+                      className="font-bold text-[13px] truncate w-full text-center text-slate-800 dark:text-slate-100"
                       title={asset.name}
                     >
                       {asset.name}
                     </h3>
-                    <p className="text-[12px] text-slate-400 dark:text-slate-500 uppercase font-black tracking-widest truncate w-full mt-1">
-                      {asset.type === AssetType.CHARACTER
-                        ? (() => {
-                            const char = asset as CharacterAsset;
-                            const genderText = char.gender
-                              ? t.character.genderOptions[char.gender]
-                              : '-';
-                            const ageText = char.ageGroup
-                              ? t.character.ageOptions[char.ageGroup]
-                              : '-';
-                            return `${genderText} • ${ageText}`;
-                          })()
-                        : asset.type === AssetType.VIDEO_SEGMENT
-                          ? new Date(asset.createdAt).toLocaleString()
-                          : asset.prompt || t.project.noPrompt}
-                    </p>
+                    <div className="w-full flex items-center justify-center">
+                      <p className="text-[10px] text-slate-400 dark:text-slate-500 truncate text-center">
+                        {asset.type === AssetType.CHARACTER
+                          ? (() => {
+                              const char = asset as CharacterAsset;
+                              const genderText = char.gender
+                                ? t.character.genderOptions[char.gender]
+                                : '';
+                              const ageText = char.ageGroup
+                                ? t.character.ageOptions[char.ageGroup]
+                                : '';
+                              if (genderText && ageText) {
+                                return `${genderText} • ${ageText}`;
+                              }
+                              return genderText || ageText || '';
+                            })()
+                          : asset.type === AssetType.VIDEO_SEGMENT
+                            ? new Date(asset.createdAt).toLocaleDateString()
+                            : asset.prompt ? asset.prompt.substring(0, 25) + (asset.prompt.length > 25 ? '...' : '') : ''}
+                      </p>
+                    </div>
                   </CardFooter>
                 </Card>
               </div>

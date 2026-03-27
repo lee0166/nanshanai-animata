@@ -2288,7 +2288,14 @@ export const ShotManager: React.FC<ShotManagerProps> = ({
                               </div>
                               {references.character ? (
                                 <div className="space-y-2">
-                                  <div className="aspect-video bg-slate-300 dark:bg-slate-700 rounded overflow-hidden">
+                                  <div 
+                                    className="w-8 h-8 bg-slate-300 dark:bg-slate-700 rounded overflow-hidden cursor-pointer hover:opacity-90 transition-opacity"
+                                    onClick={() => {
+                                      if (referenceImageUrls.character) {
+                                        openPreview([{ src: referenceImageUrls.character, alt: references.character.name }], 0);
+                                      }
+                                    }}
+                                  >
                                     {referenceImageUrls.character ? (
                                       <img
                                         src={referenceImageUrls.character}
@@ -2306,7 +2313,7 @@ export const ShotManager: React.FC<ShotManagerProps> = ({
                                   </div>
                                 </div>
                               ) : (
-                                <div className="aspect-video bg-slate-200 dark:bg-slate-800 rounded border-2 border-dashed border-content3 flex items-center justify-center">
+                                <div className="w-8 h-8 bg-slate-200 dark:bg-slate-800 rounded border-2 border-dashed border-content3 flex items-center justify-center">
                                   <div className="text-center">
                                     <Users size={24} className="text-slate-400 mx-auto mb-1" />
                                     <span className="text-xs text-slate-500">未选择角色</span>
@@ -2338,7 +2345,14 @@ export const ShotManager: React.FC<ShotManagerProps> = ({
                               </div>
                               {references.scene ? (
                                 <div className="space-y-2">
-                                  <div className="aspect-video bg-slate-300 dark:bg-slate-700 rounded overflow-hidden">
+                                  <div 
+                                    className="w-8 h-8 bg-slate-300 dark:bg-slate-700 rounded overflow-hidden cursor-pointer hover:opacity-90 transition-opacity"
+                                    onClick={() => {
+                                      if (referenceImageUrls.scene) {
+                                        openPreview([{ src: referenceImageUrls.scene, alt: references.scene.name }], 0);
+                                      }
+                                    }}
+                                  >
                                     {referenceImageUrls.scene ? (
                                       <img
                                         src={referenceImageUrls.scene}
@@ -2356,7 +2370,7 @@ export const ShotManager: React.FC<ShotManagerProps> = ({
                                   </div>
                                 </div>
                               ) : (
-                                <div className="aspect-video bg-slate-200 dark:bg-slate-800 rounded border-2 border-dashed border-content3 flex items-center justify-center">
+                                <div className="w-8 h-8 bg-slate-200 dark:bg-slate-800 rounded border-2 border-dashed border-content3 flex items-center justify-center">
                                   <div className="text-center">
                                     <MapPin size={24} className="text-slate-400 mx-auto mb-1" />
                                     <span className="text-xs text-slate-500">未选择场景</span>
@@ -2537,11 +2551,18 @@ export const ShotManager: React.FC<ShotManagerProps> = ({
 
                       {/* 生成按钮 */}
                       <Button
-                        size="lg"
-                        color="primary"
+                        color="default"
                         variant="solid"
+                        size="lg"
+                        fullWidth
                         onPress={() => handleGenerateImage(selectedKeyframeIndex)}
-                        className="w-full py-3 font-semibold shadow-lg hover:shadow-xl transition-all duration-200 text-sm"
+                        className="font-bold h-12 rounded-xl bg-slate-200 hover:bg-slate-300 text-slate-900 dark:bg-slate-700 dark:hover:bg-slate-600 dark:text-slate-100 shadow-xl shadow-slate-500/20 dark:shadow-slate-900/20 active:scale-95 transition-all"
+                        classNames={{
+                          base: 'bg-slate-200 hover:bg-slate-300 text-slate-900 dark:bg-slate-700 dark:hover:bg-slate-600 dark:text-slate-100',
+                          content: 'text-slate-900 dark:text-slate-100 font-black uppercase tracking-widest text-sm',
+                          spinner: 'text-slate-900 dark:text-slate-100',
+                        }}
+                        startContent={<Sparkles size={18} className="text-slate-900 dark:text-slate-100" />}
                       >
                         生成图片
                       </Button>
