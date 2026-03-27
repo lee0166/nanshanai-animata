@@ -1,11 +1,11 @@
 # NanShan AI Animata
 
-[!\[License: MIT\](https://img.shields.io/badge/License-MIT-yellow.svg null)](https://opensource.org/licenses/MIT)
-[!\[React\](https://img.shields.io/badge/React-19.2.3-blue.svg null)](https://react.dev/)
-[!\[TypeScript\](https://img.shields.io/badge/TypeScript-5.8.2-blue.svg null)](https://www.typescriptlang.org/)
-[!\[Vite\](https://img.shields.io/badge/Vite-6.2.0-purple.svg null)](https://vitejs.dev/)
-[!\[Tailwind CSS\](https://img.shields.io/badge/Tailwind\_CSS-4.1.18-cyan.svg null)](https://tailwindcss.com/)
-[!\[HeroUI\](https://img.shields.io/badge/HeroUI-2.8.7-green.svg null)](https://www.heroui.com/)
+![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)
+![React](https://img.shields.io/badge/React-19.2.3-blue.svg)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.8.2-blue.svg)
+![Vite](https://img.shields.io/badge/Vite-6.2.0-purple.svg)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4.1.18-cyan.svg)
+![HeroUI](https://img.shields.io/badge/HeroUI-2.8.7-green.svg)
 
 ## 项目简介
 
