@@ -45,9 +45,9 @@ const DetailView: React.FC<DetailViewProps> = ({
   t,
 }) => {
   return (
-    <div className="h-full overflow-hidden bg-slate-50 dark:bg-slate-950 p-6 md:p-10">
+    <div className="h-full overflow-hidden bg-slate-50 dark:bg-slate-950 p-3 md:p-4">
       <div className="w-full max-w-[1600px] mx-auto h-full flex flex-col min-h-0">
-        <div className="flex items-center gap-4 mb-10 shrink-0">
+        <div className="flex items-center gap-4 mb-4 shrink-0">
           <Button
             isIconOnly
             variant="flat"

@@ -11,6 +11,8 @@ interface DynamicModelParametersProps {
   disabled?: boolean;
 }
 
+const HIDDEN_PARAMS = ['watermark', 'responseFormat', 'returnLastFrame', 'isRec'];
+
 export const DynamicModelParameters: React.FC<DynamicModelParametersProps> = ({
   modelConfig,
   values,
@@ -21,7 +23,7 @@ export const DynamicModelParameters: React.FC<DynamicModelParametersProps> = ({
 
   if (!modelConfig) return null;
 
-  const paramKeys = getUnifiedModelParams(modelConfig).filter(key => key !== 'watermark');
+  const paramKeys = getUnifiedModelParams(modelConfig).filter(key => !HIDDEN_PARAMS.includes(key));
 
   // Helper to get translation
   const getLabel = (param: any, key: string) => {
@@ -65,7 +67,7 @@ export const DynamicModelParameters: React.FC<DynamicModelParametersProps> = ({
   };
 
   return (
-    <div className="flex flex-col gap-2.5">
+    <div className="flex flex-col gap-1.5">
       {paramKeys.map(key => {
         const param = getModelParamInfo(modelConfig, key);
         if (!param) return null;

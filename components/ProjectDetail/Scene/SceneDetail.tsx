@@ -941,11 +941,11 @@ const SceneDetail: React.FC<SceneDetailProps> = ({ asset, onUpdate, projectId })
   ];
 
   return (
-    <div className="h-full flex bg-background p-4 gap-4 overflow-hidden">
+    <div className="h-full flex bg-background p-3 gap-3 overflow-hidden">
       {/* 左侧：场景信息和参数设置 */}
       <div className="w-[300px] bg-content1 border border-content3 rounded-xl flex flex-col overflow-hidden">
-        <div className="p-4 border-b border-content3">
-          <div className="flex items-center gap-3 mb-4">
+        <div className="p-3 border-b border-content3">
+          <div className="flex items-center gap-3 mb-3">
             <div className="w-9 h-9 bg-primary/10 rounded-xl flex items-center justify-center">
               <Map className="w-5 h-5 text-primary" />
             </div>
@@ -981,7 +981,7 @@ const SceneDetail: React.FC<SceneDetailProps> = ({ asset, onUpdate, projectId })
             onSelectionChange={setActiveParamTab}
             size="sm"
             classNames={{
-              tabList: 'gap-2 p-2',
+              tabList: 'gap-2 p-1.5',
               tab: 'h-8 min-h-8 px-4 text-xs',
               cursor: 'rounded-xl',
             }}
@@ -992,7 +992,7 @@ const SceneDetail: React.FC<SceneDetailProps> = ({ asset, onUpdate, projectId })
                 <span>参数</span>
               </div>
             }>
-              <div className="p-4 space-y-4">
+              <div className="p-3 space-y-2">
                 <ImageGenerationPanel
                   projectId={projectId}
                   prompt={prompt}
@@ -1046,7 +1046,7 @@ const SceneDetail: React.FC<SceneDetailProps> = ({ asset, onUpdate, projectId })
                 <span>风格</span>
               </div>
             }>
-              <div className="p-4">
+              <div className="p-3">
                 <StyleSelector
                   value={style}
                   onChange={setStyle}
@@ -1075,7 +1075,7 @@ const SceneDetail: React.FC<SceneDetailProps> = ({ asset, onUpdate, projectId })
                   <span>参数</span>
                 </div>
               }>
-                <div className="p-4 space-y-4">
+                <div className="p-3 space-y-2">
                   <CompactToolbar
                     modelId={modelId}
                     onModelChange={handleModelChange}
@@ -1111,7 +1111,7 @@ const SceneDetail: React.FC<SceneDetailProps> = ({ asset, onUpdate, projectId })
                   <span>风格</span>
                 </div>
               }>
-                <div className="p-4">
+                <div className="p-3">
                   <StyleSelector
                     value={style}
                     onChange={setStyle}
@@ -1123,7 +1123,7 @@ const SceneDetail: React.FC<SceneDetailProps> = ({ asset, onUpdate, projectId })
           </>
         )}
 
-        <div className="mt-auto p-4 border-t border-content3 relative z-10">
+        <div className="mt-auto p-3 border-t border-content3 relative z-10">
           {activeTab === 'views' && (
             <div className="flex items-center justify-between mb-3">
               <span className="text-xs font-medium text-slate-500 dark:text-slate-400">
@@ -1144,7 +1144,7 @@ const SceneDetail: React.FC<SceneDetailProps> = ({ asset, onUpdate, projectId })
             fullWidth
             isLoading={activeTab === 'single' ? generating : batchGenerating}
             onPress={activeTab === 'single' ? handleGenerate : (isBatchMode ? handleBatchGenerateViews : () => handleGenerateView(activeViewTab))}
-            className="font-bold h-10 rounded-xl bg-slate-200 hover:bg-slate-300 text-slate-900 dark:bg-slate-700 dark:hover:bg-slate-600 dark:text-slate-100 shadow-lg"
+            className="font-bold h-9 rounded-xl bg-slate-200 hover:bg-slate-300 text-slate-900 dark:bg-slate-700 dark:hover:bg-slate-600 dark:text-slate-100 shadow-lg"
             classNames={{
               base: 'bg-slate-200 hover:bg-slate-300 text-slate-900 dark:bg-slate-700 dark:hover:bg-slate-600 dark:text-slate-100',
               content: 'text-slate-900 dark:text-slate-100',

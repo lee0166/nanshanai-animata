@@ -59,16 +59,16 @@ export const CompactToolbar: React.FC<CompactToolbarProps> = ({
   };
 
   return (
-    <div className="space-y-2.5">
+    <div className="space-y-1.5">
       <div className="space-y-1">
-        <label className="text-xs font-semibold text-slate-400 uppercase tracking-wide">模型</label>
+        <label className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide">模型</label>
         <Select
           selectedKeys={modelId ? new Set([modelId]) : new Set()}
           onChange={(e) => onModelChange(e.target.value)}
           isDisabled={generating}
           size="sm"
           aria-label={t.aiParams?.model || '模型选择'}
-          classNames={{ trigger: 'h-8 text-[11px] min-h-8' }}
+          classNames={{ trigger: 'h-7 text-[11px] min-h-7' }}
         >
           {settings.models
             .filter(m => m.type === 'image' && (m.enabled ?? true))

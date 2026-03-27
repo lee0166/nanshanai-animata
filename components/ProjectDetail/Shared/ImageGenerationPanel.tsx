@@ -157,7 +157,7 @@ export const ImageGenerationPanel: React.FC<ImageGenerationPanelProps> = ({
           isDisabled={generating}
           size={compact ? "sm" : "md"}
           classNames={compact ? {
-            trigger: 'h-8 text-[11px] min-h-8',
+            trigger: 'h-7 text-[11px] min-h-7',
           } : {
             value: 'font-bold text-sm',
             trigger: 'border-2 data-[focus=true]:border-primary',

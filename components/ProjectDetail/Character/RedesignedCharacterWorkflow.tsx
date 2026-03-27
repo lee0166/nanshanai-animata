@@ -829,11 +829,11 @@ export const RedesignedCharacterWorkflow: React.FC<RedesignedCharacterWorkflowPr
   const currentSelectedImage = getCurrentSelectedImage();
 
   return (
-    <div className="h-full flex bg-background p-4 gap-4 overflow-hidden">
+    <div className="h-full flex bg-background p-3 gap-3 overflow-hidden">
       {/* 左侧：角色信息和参数设置 */}
       <div className="w-[300px] bg-content1 border border-content3 rounded-xl flex flex-col overflow-hidden">
-        <div className="p-4 border-b border-content3">
-          <div className="flex items-center gap-3 mb-4">
+        <div className="p-3 border-b border-content3">
+          <div className="flex items-center gap-3 mb-3">
             <div className="w-9 h-9 bg-primary/10 rounded-xl flex items-center justify-center">
               <User className="w-5 h-5 text-primary" />
             </div>
@@ -887,13 +887,13 @@ export const RedesignedCharacterWorkflow: React.FC<RedesignedCharacterWorkflowPr
           onSelectionChange={setActiveParamTab}
           size="sm"
           classNames={{
-            tabList: 'gap-2 p-2',
-            tab: 'h-8 min-h-8 px-4 text-xs',
-            cursor: 'rounded-xl',
-          }}
+              tabList: 'gap-2 p-1.5',
+              tab: 'h-8 min-h-8 px-4 text-xs',
+              cursor: 'rounded-xl',
+            }}
         >
           <Tab key="core" title={<div className="flex items-center gap-2"><Settings className="w-4 h-4" /><span>参数</span></div>}>
-            <div className="p-4 space-y-4">
+            <div className="p-3 space-y-2">
               <CompactToolbar
                 modelId={getCurrentModelId()}
                 onModelChange={setCurrentModelId}
@@ -912,7 +912,7 @@ export const RedesignedCharacterWorkflow: React.FC<RedesignedCharacterWorkflowPr
             </div>
           </Tab>
           <Tab key="style" title={<div className="flex items-center gap-2"><Palette className="w-4 h-4" /><span>风格</span></div>}>
-            <div className="p-4">
+            <div className="p-3">
               <StyleSelector
                 value={getCurrentStyle()}
                 onChange={setCurrentStyle}
@@ -922,7 +922,7 @@ export const RedesignedCharacterWorkflow: React.FC<RedesignedCharacterWorkflowPr
           </Tab>
         </Tabs>
 
-        <div className="mt-auto p-4 border-t border-content3 relative z-10">
+        <div className="mt-auto p-3 border-t border-content3 relative z-10">
           {currentStage === 3 && (
             <div className="flex items-center justify-between mb-3">
               <span className="text-xs font-medium text-slate-500 dark:text-slate-400">
@@ -943,7 +943,7 @@ export const RedesignedCharacterWorkflow: React.FC<RedesignedCharacterWorkflowPr
             fullWidth
             isLoading={generating}
             onPress={handleCurrentGenerate}
-            className="font-bold h-10 rounded-xl bg-slate-200 hover:bg-slate-300 text-slate-900 dark:bg-slate-700 dark:hover:bg-slate-600 dark:text-slate-100 shadow-lg"
+            className="font-bold h-9 rounded-xl bg-slate-200 hover:bg-slate-300 text-slate-900 dark:bg-slate-700 dark:hover:bg-slate-600 dark:text-slate-100 shadow-lg"
             classNames={{
               base: 'bg-slate-200 hover:bg-slate-300 text-slate-900 dark:bg-slate-700 dark:hover:bg-slate-600 dark:text-slate-100',
               content: 'text-slate-900 dark:text-slate-100',
