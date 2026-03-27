@@ -5,6 +5,9 @@ import {
   SceneAsset,
   SceneViewType,
   SceneViews,
+  ItemAsset,
+  ItemViewType,
+  ItemViews,
   GeneratedImage,
   ModelConfig,
 } from '../../types';
@@ -26,6 +29,15 @@ export interface GenerateSceneViewParams {
   modelConfigId: string;
   modelConfig?: ModelConfig;
   projectId: string;
+}
+
+export interface GenerateItemViewParams {
+  item: ItemAsset;
+  viewType: ItemViewType;
+  modelConfigId: string;
+  modelConfig?: ModelConfig;
+  projectId: string;
+  customPrompt?: string;
 }
 
 export interface AssetReuseResult {
@@ -502,6 +514,131 @@ export class AssetReuseService {
     } else {
       views[viewType] = image;
     }
+    return views;
+  }
+
+  /**
+   * 生成物品多视角
+   * 基于物品描述生成不同视角的物品图
+   */
+  async generateItemView(params: GenerateItemViewParams): Promise<AssetReuseResult> {
+    try {
+      const { item, viewType, modelConfigId, modelConfig, projectId, customPrompt } = params;
+
+      console.log(`[AssetReuseService] Generating item view: ${viewType}`);
+
+      if (!item) {
+        return { success: false, error: '物品资产不能为空' };
+      }
+      if (!viewType) {
+        return { success: false, error: '视角类型不能为空' };
+      }
+      if (!modelConfigId) {
+        return { success: false, error: '模型配置不能为空' };
+      }
+      if (!projectId) {
+        return { success: false, error: '项目ID不能为空' };
+      }
+
+      if (modelConfig) {
+        const capabilities = modelConfig.capabilities || {};
+        if (!capabilities.supportsReferenceImage) {
+          return { 
+            success: false, 
+            error: '当前选择的模型不支持参考图功能，请选择支持图生图的模型' 
+          };
+        }
+        if (capabilities.requiresImageInput && !item.currentImageId && !item.generatedImages?.length) {
+          return { 
+            success: false, 
+            error: '该模型需要参考图才能生成，请先在单图管理中生成一张参考图' 
+          };
+        }
+      }
+
+      const referenceImage =
+        item.views?.front ||
+        item.generatedImages?.find(img => img.id === item.currentImageId) ||
+        item.generatedImages?.[0];
+
+      const viewPrompts: Record<ItemViewType, string> = {
+        front: 'front view, facing camera directly, full view of the item',
+        side: 'side view, profile view, full view from the side',
+        top: 'top view, bird\'s-eye view, looking down from above',
+        'three-quarter': 'three-quarter view, 45 degree angle, showing front and side',
+      };
+
+      const viewPrompt = customPrompt || viewPrompts[viewType];
+      const basePrompt = item.prompt || '';
+      const prompt = basePrompt 
+        ? `${basePrompt}, ${viewPrompt}, same item, consistent appearance, maintaining all details and textures`
+        : `${viewPrompt}, item design, product photography`;
+
+      const referenceImages: string[] = [];
+      if (referenceImage?.path) {
+        try {
+          const refBase64 = await this.imageToBase64(referenceImage.path);
+          referenceImages.push(refBase64);
+        } catch (error) {
+          console.warn('[AssetReuseService] Failed to read reference image for item:', error);
+        }
+      }
+
+      let result;
+      try {
+        result = await aiService.generateImage(
+          prompt,
+          modelConfigId,
+          referenceImages.length > 0 ? referenceImages : undefined,
+          undefined,
+          '1024x1024'
+        );
+      } catch (error) {
+        console.error('[AssetReuseService] AI service call failed for item:', error);
+        return { success: false, error: 'AI服务调用失败，请检查网络连接和模型配置' };
+      }
+
+      if (!result.success || !result.data) {
+        return { success: false, error: result.error || '生成失败，请稍后重试' };
+      }
+
+      const imageData = Array.isArray(result.data) ? result.data[0] : result.data;
+      
+      if (!imageData) {
+        return { success: false, error: '生成结果为空' };
+      }
+
+      let generatedImage: GeneratedImage;
+      try {
+        generatedImage = await this.saveGeneratedImage(
+          imageData,
+          projectId,
+          prompt,
+          modelConfigId,
+          { viewType, stage: 'views' }
+        );
+      } catch (error) {
+        console.error('[AssetReuseService] Failed to save generated item image:', error);
+        return { success: false, error: '保存生成的图片失败，请检查存储空间' };
+      }
+
+      return { success: true, image: generatedImage };
+    } catch (error: any) {
+      console.error('[AssetReuseService] Generate item view failed:', error);
+      return { success: false, error: String(error) };
+    }
+  }
+
+  /**
+   * 更新物品的视图
+   */
+  async updateItemViews(
+    item: ItemAsset,
+    viewType: ItemViewType,
+    image: GeneratedImage
+  ): Promise<ItemViews> {
+    const views = item.views || {};
+    views[viewType] = image;
     return views;
   }
 }

@@ -41,6 +41,7 @@ import {
   Tab,
   Checkbox,
   useDisclosure,
+  Spinner,
 } from '@heroui/react';
 import { DeleteConfirmModal } from '../components/Shared/DeleteConfirmModal';
 import {
@@ -2264,16 +2265,48 @@ export const ShotManager: React.FC<ShotManagerProps> = ({
                           <label className="text-xs font-semibold text-slate-600 dark:text-slate-400 block">
                             参考图管理
                           </label>
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            {/* 角色参考图 */}
-                            <div className="bg-content2 rounded-lg border border-content3 p-3">
-                              <div className="flex items-center justify-between mb-2">
-                                <div className="flex items-center gap-2">
-                                  <Users size={14} className="text-primary" />
-                                  <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">
-                                    角色参考图
-                                  </span>
-                                </div>
+                          <div className="bg-content2 rounded-lg border border-content3 p-4">
+                            <div className="flex flex-col md:flex-row gap-4">
+                              {/* 角色参考图区域 */}
+                              <div className="flex-1 flex items-center gap-3">
+                                <Users size={16} className="text-primary shrink-0" />
+                                <span className="text-xs font-semibold text-slate-700 dark:text-slate-300 shrink-0">
+                                  角色参考图
+                                </span>
+                                {references.character ? (
+                                  <div className="flex items-center gap-3 flex-1">
+                                    <div 
+                                      className="w-8 h-8 bg-slate-300 dark:bg-slate-700 rounded overflow-hidden cursor-pointer hover:opacity-90 transition-opacity shrink-0"
+                                      onClick={() => {
+                                        if (referenceImageUrls.character) {
+                                          openPreview([{ src: referenceImageUrls.character, alt: references.character.name }], 0);
+                                        }
+                                      }}
+                                    >
+                                      {referenceImageUrls.character ? (
+                                        <img
+                                          src={referenceImageUrls.character}
+                                          alt={references.character.name}
+                                          className="w-full h-full object-cover"
+                                        />
+                                      ) : (
+                                        <div className="w-full h-full flex items-center justify-center">
+                                          <Users size={24} className="text-slate-500" />
+                                        </div>
+                                      )}
+                                    </div>
+                                    <div className="text-xs text-slate-600 dark:text-slate-400 truncate flex-1">
+                                      {references.character.name}
+                                    </div>
+                                  </div>
+                                ) : (
+                                  <div className="flex items-center gap-3 flex-1">
+                                    <div className="w-8 h-8 bg-slate-200 dark:bg-slate-800 rounded border-2 border-dashed border-content3 flex items-center justify-center shrink-0">
+                                      <Users size={20} className="text-slate-400" />
+                                    </div>
+                                    <span className="text-xs text-slate-500 flex-1">未选择角色</span>
+                                  </div>
+                                )}
                                 <Button
                                   size="sm"
                                   variant="flat"
@@ -2281,56 +2314,55 @@ export const ShotManager: React.FC<ShotManagerProps> = ({
                                   onPress={() => {
                                     setIsCharacterSelectorOpen(true);
                                   }}
-                                  className="text-xs"
+                                  className="text-xs shrink-0"
                                 >
                                   {references.character ? '更换' : '选择'}
                                 </Button>
                               </div>
-                              {references.character ? (
-                                <div className="space-y-2">
-                                  <div 
-                                    className="w-8 h-8 bg-slate-300 dark:bg-slate-700 rounded overflow-hidden cursor-pointer hover:opacity-90 transition-opacity"
-                                    onClick={() => {
-                                      if (referenceImageUrls.character) {
-                                        openPreview([{ src: referenceImageUrls.character, alt: references.character.name }], 0);
-                                      }
-                                    }}
-                                  >
-                                    {referenceImageUrls.character ? (
-                                      <img
-                                        src={referenceImageUrls.character}
-                                        alt={references.character.name}
-                                        className="w-full h-full object-cover"
-                                      />
-                                    ) : (
-                                      <div className="w-full h-full flex items-center justify-center">
-                                        <Users size={24} className="text-slate-500" />
-                                      </div>
-                                    )}
-                                  </div>
-                                  <div className="text-xs text-slate-600 dark:text-slate-400 truncate">
-                                    {references.character.name}
-                                  </div>
-                                </div>
-                              ) : (
-                                <div className="w-8 h-8 bg-slate-200 dark:bg-slate-800 rounded border-2 border-dashed border-content3 flex items-center justify-center">
-                                  <div className="text-center">
-                                    <Users size={24} className="text-slate-400 mx-auto mb-1" />
-                                    <span className="text-xs text-slate-500">未选择角色</span>
-                                  </div>
-                                </div>
-                              )}
-                            </div>
 
-                            {/* 场景参考图 */}
-                            <div className="bg-content2 rounded-lg border border-content3 p-3">
-                              <div className="flex items-center justify-between mb-2">
-                                <div className="flex items-center gap-2">
-                                  <MapPin size={14} className="text-primary" />
-                                  <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">
-                                    场景参考图
-                                  </span>
-                                </div>
+                              {/* 分隔线 */}
+                              <div className="hidden md:block w-px bg-content3" />
+
+                              {/* 场景参考图区域 */}
+                              <div className="flex-1 flex items-center gap-3">
+                                <MapPin size={16} className="text-primary shrink-0" />
+                                <span className="text-xs font-semibold text-slate-700 dark:text-slate-300 shrink-0">
+                                  场景参考图
+                                </span>
+                                {references.scene ? (
+                                  <div className="flex items-center gap-3 flex-1">
+                                    <div 
+                                      className="w-8 h-8 bg-slate-300 dark:bg-slate-700 rounded overflow-hidden cursor-pointer hover:opacity-90 transition-opacity shrink-0"
+                                      onClick={() => {
+                                        if (referenceImageUrls.scene) {
+                                          openPreview([{ src: referenceImageUrls.scene, alt: references.scene.name }], 0);
+                                        }
+                                      }}
+                                    >
+                                      {referenceImageUrls.scene ? (
+                                        <img
+                                          src={referenceImageUrls.scene}
+                                          alt={references.scene.name}
+                                          className="w-full h-full object-cover"
+                                        />
+                                      ) : (
+                                        <div className="w-full h-full flex items-center justify-center">
+                                          <MapPin size={24} className="text-slate-500" />
+                                        </div>
+                                      )}
+                                    </div>
+                                    <div className="text-xs text-slate-600 dark:text-slate-400 truncate flex-1">
+                                      {references.scene.name}
+                                    </div>
+                                  </div>
+                                ) : (
+                                  <div className="flex items-center gap-3 flex-1">
+                                    <div className="w-8 h-8 bg-slate-200 dark:bg-slate-800 rounded border-2 border-dashed border-content3 flex items-center justify-center shrink-0">
+                                      <MapPin size={20} className="text-slate-400" />
+                                    </div>
+                                    <span className="text-xs text-slate-500 flex-1">未选择场景</span>
+                                  </div>
+                                )}
                                 <Button
                                   size="sm"
                                   variant="flat"
@@ -2338,45 +2370,11 @@ export const ShotManager: React.FC<ShotManagerProps> = ({
                                   onPress={() => {
                                     setIsSceneSelectorOpen(true);
                                   }}
-                                  className="text-xs"
+                                  className="text-xs shrink-0"
                                 >
                                   {references.scene ? '更换' : '选择'}
                                 </Button>
                               </div>
-                              {references.scene ? (
-                                <div className="space-y-2">
-                                  <div 
-                                    className="w-8 h-8 bg-slate-300 dark:bg-slate-700 rounded overflow-hidden cursor-pointer hover:opacity-90 transition-opacity"
-                                    onClick={() => {
-                                      if (referenceImageUrls.scene) {
-                                        openPreview([{ src: referenceImageUrls.scene, alt: references.scene.name }], 0);
-                                      }
-                                    }}
-                                  >
-                                    {referenceImageUrls.scene ? (
-                                      <img
-                                        src={referenceImageUrls.scene}
-                                        alt={references.scene.name}
-                                        className="w-full h-full object-cover"
-                                      />
-                                    ) : (
-                                      <div className="w-full h-full flex items-center justify-center">
-                                        <MapPin size={24} className="text-slate-500" />
-                                      </div>
-                                    )}
-                                  </div>
-                                  <div className="text-xs text-slate-600 dark:text-slate-400 truncate">
-                                    {references.scene.name}
-                                  </div>
-                                </div>
-                              ) : (
-                                <div className="w-8 h-8 bg-slate-200 dark:bg-slate-800 rounded border-2 border-dashed border-content3 flex items-center justify-center">
-                                  <div className="text-center">
-                                    <MapPin size={24} className="text-slate-400 mx-auto mb-1" />
-                                    <span className="text-xs text-slate-500">未选择场景</span>
-                                  </div>
-                                </div>
-                              )}
                             </div>
                           </div>
                         </div>
@@ -3230,6 +3228,35 @@ const CharacterSelectorModal: React.FC<{
   currentId?: string;
 }> = ({ isOpen, onClose, assets, onSelect, onClear, currentId }) => {
   const characterAssets = assets.filter((a): a is CharacterAsset => a.type === AssetType.CHARACTER);
+  const [imageUrls, setImageUrls] = useState<Record<string, string>>({});
+  const [loadingImages, setLoadingImages] = useState<Set<string>>(new Set());
+
+  useEffect(() => {
+    if (!isOpen) return;
+    
+    const loadImageUrls = async () => {
+      const newLoading = new Set<string>();
+      
+      for (const asset of characterAssets) {
+        const currentImage = asset.generatedImages?.find(img => img.id === asset.currentImageId) || asset.generatedImages?.[0];
+        if (currentImage?.path && !imageUrls[currentImage.path]) {
+          newLoading.add(asset.id);
+          try {
+            const url = await storageService.getAssetUrl(currentImage.path);
+            if (url) {
+              setImageUrls(prev => ({ ...prev, [currentImage.path]: url }));
+            }
+          } catch (e) {
+            console.error('加载角色图片失败:', e);
+          }
+        }
+      }
+      
+      setLoadingImages(newLoading);
+    };
+    
+    loadImageUrls();
+  }, [isOpen, characterAssets]);
 
   return (
     <Modal isOpen={isOpen} onOpenChange={onClose} className="w-full max-w-3xl">
@@ -3251,6 +3278,9 @@ const CharacterSelectorModal: React.FC<{
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
               {characterAssets.map((asset) => {
                 const currentImage = asset.generatedImages?.find(img => img.id === asset.currentImageId) || asset.generatedImages?.[0];
+                const imageUrl = currentImage?.path ? imageUrls[currentImage.path] : undefined;
+                const isLoading = loadingImages.has(asset.id);
+                
                 return (
                   <div
                     key={asset.id}
@@ -3265,9 +3295,13 @@ const CharacterSelectorModal: React.FC<{
                     }}
                   >
                     <div className="aspect-square bg-slate-200 dark:bg-slate-800 rounded overflow-hidden mb-2">
-                      {currentImage?.path ? (
+                      {isLoading ? (
+                        <div className="w-full h-full flex items-center justify-center">
+                          <Spinner size="sm" />
+                        </div>
+                      ) : imageUrl ? (
                         <img
-                          src={currentImage.path}
+                          src={imageUrl}
                           alt={asset.name}
                           className="w-full h-full object-cover"
                         />
@@ -3304,6 +3338,35 @@ const SceneSelectorModal: React.FC<{
   currentId?: string;
 }> = ({ isOpen, onClose, assets, onSelect, onClear, currentId }) => {
   const sceneAssets = assets.filter((a): a is SceneAsset => a.type === AssetType.SCENE);
+  const [imageUrls, setImageUrls] = useState<Record<string, string>>({});
+  const [loadingImages, setLoadingImages] = useState<Set<string>>(new Set());
+
+  useEffect(() => {
+    if (!isOpen) return;
+    
+    const loadImageUrls = async () => {
+      const newLoading = new Set<string>();
+      
+      for (const asset of sceneAssets) {
+        const currentImage = asset.generatedImages?.find(img => img.id === asset.currentImageId) || asset.generatedImages?.[0];
+        if (currentImage?.path && !imageUrls[currentImage.path]) {
+          newLoading.add(asset.id);
+          try {
+            const url = await storageService.getAssetUrl(currentImage.path);
+            if (url) {
+              setImageUrls(prev => ({ ...prev, [currentImage.path]: url }));
+            }
+          } catch (e) {
+            console.error('加载场景图片失败:', e);
+          }
+        }
+      }
+      
+      setLoadingImages(newLoading);
+    };
+    
+    loadImageUrls();
+  }, [isOpen, sceneAssets]);
 
   return (
     <Modal isOpen={isOpen} onOpenChange={onClose} className="w-full max-w-3xl">
@@ -3325,6 +3388,9 @@ const SceneSelectorModal: React.FC<{
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
               {sceneAssets.map((asset) => {
                 const currentImage = asset.generatedImages?.find(img => img.id === asset.currentImageId) || asset.generatedImages?.[0];
+                const imageUrl = currentImage?.path ? imageUrls[currentImage.path] : undefined;
+                const isLoading = loadingImages.has(asset.id);
+                
                 return (
                   <div
                     key={asset.id}
@@ -3339,9 +3405,13 @@ const SceneSelectorModal: React.FC<{
                     }}
                   >
                     <div className="aspect-video bg-slate-200 dark:bg-slate-800 rounded overflow-hidden mb-2">
-                      {currentImage?.path ? (
+                      {isLoading ? (
+                        <div className="w-full h-full flex items-center justify-center">
+                          <Spinner size="sm" />
+                        </div>
+                      ) : imageUrl ? (
                         <img
-                          src={currentImage.path}
+                          src={imageUrl}
                           alt={asset.name}
                           className="w-full h-full object-cover"
                         />

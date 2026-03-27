@@ -82,6 +82,7 @@ const SceneDetail: React.FC<SceneDetailProps> = ({ asset, onUpdate, projectId })
   const [generatingViews, setGeneratingViews] = useState<Set<SceneViewType>>(new Set());
   const [batchGenerating, setBatchGenerating] = useState(false);
   const [activeParamTab, setActiveParamTab] = useState<string>('core');
+  const [activeViewTab, setActiveViewTab] = useState<SceneViewType>('wide');
   const previewScrollRef = React.useRef<HTMLDivElement>(null);
 
   const [name, setName] = useState(asset.name);
@@ -422,6 +423,19 @@ const SceneDetail: React.FC<SceneDetailProps> = ({ asset, onUpdate, projectId })
     loadViewUrls();
   }, [asset.views]);
 
+  useEffect(() => {
+    if (activeTab === 'views') {
+      const viewImage = asset.views?.[activeViewTab];
+      if (viewImage) {
+        setPrompt(viewImage.userPrompt || viewImage.prompt || '');
+      } else {
+        const basePrompt = asset.prompt || '';
+        const viewPrompt = getViewPrompt(activeViewTab);
+        setPrompt(basePrompt ? `${basePrompt}, ${viewPrompt}` : viewPrompt);
+      }
+    }
+  }, [activeViewTab, activeTab, asset.views, asset.prompt]);
+
   const handleSaveInfo = () => {
     if (name !== asset.name) {
       const updated = { ...asset, name };
@@ -708,6 +722,16 @@ const SceneDetail: React.FC<SceneDetailProps> = ({ asset, onUpdate, projectId })
     return labels[viewType];
   };
 
+  const getViewPrompt = (viewType: SceneViewType): string => {
+    const viewPrompts: Record<SceneViewType, string> = {
+      panorama: 'panoramic view, wide angle, 360 degree view, complete environment',
+      wide: 'wide shot, establishing shot, full view of the scene',
+      detail: 'detailed view, close-up of key elements, texture details',
+      aerial: 'aerial view, bird eye view, top-down perspective, overview',
+    };
+    return viewPrompts[viewType];
+  };
+
   const getViewIcon = (viewType: SceneViewType) => {
     switch (viewType) {
       case 'panorama':
@@ -721,7 +745,13 @@ const SceneDetail: React.FC<SceneDetailProps> = ({ asset, onUpdate, projectId })
     }
   };
 
-  const viewTypes: SceneViewType[] = ['panorama', 'wide', 'detail', 'aerial'];
+  const viewTypes: SceneViewType[] = ['panorama', 'wide', 'aerial'];
+
+  const viewTabs = [
+    { id: 'panorama' as SceneViewType, label: '全景' },
+    { id: 'wide' as SceneViewType, label: '广角' },
+    { id: 'aerial' as SceneViewType, label: '鸟瞰' },
+  ];
 
   const calculateViewCount = (): number => {
     if (!asset.views) return 0;
@@ -1114,6 +1144,23 @@ const SceneDetail: React.FC<SceneDetailProps> = ({ asset, onUpdate, projectId })
                   <Camera className="w-4 h-4 text-primary" />
                   {activeTab === 'single' ? '图片资产预览区' : '多视角图预览'}
                 </h4>
+                
+                {activeTab === 'views' && (
+                  <Tabs
+                    selectedKey={activeViewTab}
+                    onSelectionChange={(key) => setActiveViewTab(key as SceneViewType)}
+                    size="sm"
+                    classNames={{
+                      tabList: 'gap-1',
+                      tab: 'h-6 min-h-6 px-3 text-xs',
+                      cursor: 'rounded-lg',
+                    }}
+                  >
+                    {viewTabs.map((tab) => (
+                      <Tab key={tab.id} title={tab.label} />
+                    ))}
+                  </Tabs>
+                )}
               </div>
               {activeTab === 'single' && (
                 <div className="relative">
@@ -1202,6 +1249,33 @@ const SceneDetail: React.FC<SceneDetailProps> = ({ asset, onUpdate, projectId })
                   </div>
                 </div>
               )}
+
+              {activeTab === 'views' && (
+                <div className="relative">
+                  {/* 显示当前选中视角的图片 */}
+                  <div className="aspect-video bg-content2 rounded-xl border border-content3 overflow-hidden">
+                    {(() => {
+                      const viewImage = asset.views?.[activeViewTab];
+                      if (viewImage && viewUrls[viewImage.id]) {
+                        return (
+                          <img
+                            src={viewUrls[viewImage.id]}
+                            alt={getViewLabel(activeViewTab)}
+                            className="w-full h-full object-contain"
+                          />
+                        );
+                      }
+                      return (
+                        <div className="w-full h-full flex flex-col items-center justify-center">
+                          <span className="text-sm text-slate-500">
+                            暂无{getViewLabel(activeViewTab)}视图
+                          </span>
+                        </div>
+                      );
+                    })()}
+                  </div>
+                </div>
+              )}
             </CardBody>
           </Card>
 
@@ -1214,25 +1288,63 @@ const SceneDetail: React.FC<SceneDetailProps> = ({ asset, onUpdate, projectId })
                   定稿预览区
                 </h4>
               </div>
-              <div className="aspect-[3/4] bg-content2 rounded-xl border border-content3 overflow-hidden relative flex-1">
-                {currentSelectedImage && genUrls[currentSelectedImage.id] ? (
-                  <div
-                    onClick={() => handlePreviewImage(currentSelectedImage, [currentSelectedImage])}
-                    className="w-full h-full cursor-pointer hover:opacity-90 transition-opacity"
-                  >
-                    <img
-                      src={genUrls[currentSelectedImage.id]}
-                      alt={currentSelectedImage.prompt}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                ) : (
-                  <div className="w-full h-full flex flex-col items-center justify-center">
-                    <ImageIcon className="w-6 h-6 text-slate-500 mb-1" />
-                    <p className="text-xs text-slate-400">请从左侧选择图片</p>
-                  </div>
-                )}
-              </div>
+              {activeTab === 'views' ? (
+                /* 多视角预览 - 显示3个视角 */
+                <div className="grid grid-cols-2 gap-2 flex-1">
+                  {viewTabs.map((tab) => {
+                    const viewImage = asset.views?.[tab.id];
+                    return (
+                      <div key={tab.id} className="aspect-[3/4] bg-content2 rounded-xl border border-content3 overflow-hidden relative">
+                        {viewImage && viewUrls[viewImage.id] ? (
+                          <div
+                            onClick={() => {
+                              setActiveViewTab(tab.id);
+                              if (viewImage) {
+                                handlePreviewImage(viewImage, [viewImage]);
+                              }
+                            }}
+                            className="w-full h-full cursor-pointer hover:opacity-90 transition-opacity"
+                          >
+                            <img
+                              src={viewUrls[viewImage.id]}
+                              alt={getViewLabel(tab.id)}
+                              className="w-full h-full object-cover"
+                            />
+                            <div className="absolute bottom-1 left-1 right-1 bg-black/50 text-white text-xs text-center p-1 rounded">
+                              {tab.label}
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="w-full h-full flex flex-col items-center justify-center">
+                              <p className="text-[10px] text-slate-400">{tab.label}</p>
+                              <p className="text-[9px] text-slate-500">未生成</p>
+                            </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="aspect-[3/4] bg-content2 rounded-xl border border-content3 overflow-hidden relative flex-1">
+                  {currentSelectedImage && genUrls[currentSelectedImage.id] ? (
+                    <div
+                      onClick={() => handlePreviewImage(currentSelectedImage, [currentSelectedImage])}
+                      className="w-full h-full cursor-pointer hover:opacity-90 transition-opacity"
+                    >
+                      <img
+                        src={genUrls[currentSelectedImage.id]}
+                        alt={currentSelectedImage.prompt}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  ) : (
+                    <div className="w-full h-full flex flex-col items-center justify-center">
+                      <ImageIcon className="w-6 h-6 text-slate-500 mb-1" />
+                      <p className="text-xs text-slate-400">请从左侧选择图片</p>
+                    </div>
+                  )}
+                </div>
+              )}
             </CardBody>
           </Card>
         </div>

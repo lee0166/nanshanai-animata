@@ -123,11 +123,27 @@ export interface FragmentAsset extends Asset {
   generatedImages?: GeneratedImage[];
 }
 
+// 物品视角类型
+export type ItemViewType = 'front' | 'side' | 'top' | 'three-quarter';
+
+// 物品多视角
+export interface ItemViews {
+  front?: GeneratedImage; // 正面
+  side?: GeneratedImage; // 侧面
+  top?: GeneratedImage; // 顶面
+  threeQuarter?: GeneratedImage; // 四分之三侧面
+}
+
 export interface ItemAsset extends Asset {
   itemType: ItemType;
   scriptId?: string; // 关联剧本ID
   generatedImages?: GeneratedImage[];
   currentImageId?: string;
+  // 多视角支持
+  views?: ItemViews;
+  currentViewType?: ItemViewType;
+  // 多视角自定义提示词（按视角保存）
+  viewPrompts?: Record<ItemViewType, string>;
 }
 
 // 场景视角类型

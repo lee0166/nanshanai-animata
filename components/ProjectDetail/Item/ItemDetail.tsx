@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { ItemAsset, GeneratedImage, AssetType, Job, JobStatus, ItemType } from '../../../types';
+import { ItemAsset, GeneratedImage, AssetType, Job, JobStatus, ItemType, ItemViewType } from '../../../types';
 import { DEFAULT_MODELS } from '../../../config/models';
 import { UNIFIED_KEYS, resolveModelConfig } from '../../../services/modelUtils';
 import { storageService } from '../../../services/storage';
@@ -8,6 +8,7 @@ import { useApp } from '../../../contexts/context';
 import { useToast } from '../../../contexts/ToastContext';
 import { jobQueue } from '../../../services/queue';
 import { aiService } from '../../../services/aiService';
+import { assetReuseService } from '../../../services/asset/AssetReuseService';
 import {
   Input,
   Select,
@@ -21,6 +22,7 @@ import {
   Tabs,
   Tab,
   Chip,
+  ScrollShadow,
 } from '@heroui/react';
 import { DeleteConfirmModal } from '../../Shared/DeleteConfirmModal';
 import {
@@ -43,6 +45,7 @@ import {
   FileText,
   Music,
   Mic,
+  Info,
 } from 'lucide-react';
 import {
   getItemImagePrompt,
@@ -68,6 +71,9 @@ const ItemDetail: React.FC<ItemDetailProps> = ({ asset, onUpdate, projectId }) =
   const [activeJobIds, setActiveJobIds] = useState<Set<string>>(new Set());
   const [activeTab, setActiveTab] = useState<string>('single');
   const [activeParamTab, setActiveParamTab] = useState<string>('core');
+  const [activeViewTab, setActiveViewTab] = useState<ItemViewType>('front');
+  const [generatingViews, setGeneratingViews] = useState<Set<ItemViewType>>(new Set());
+  const [batchGenerating, setBatchGenerating] = useState(false);
   const previewScrollRef = React.useRef<HTMLDivElement>(null);
 
   const [name, setName] = useState(asset.name);
@@ -86,6 +92,7 @@ const ItemDetail: React.FC<ItemDetailProps> = ({ asset, onUpdate, projectId }) =
 
   const [refUrls, setRefUrls] = useState<Record<string, string>>({});
   const [genUrls, setGenUrls] = useState<Record<string, string>>({});
+  const [viewUrls, setViewUrls] = useState<Record<string, string>>({});
 
   const getInitialModelId = () => {
     const savedId = asset.metadata?.modelId;
@@ -392,6 +399,44 @@ const ItemDetail: React.FC<ItemDetailProps> = ({ asset, onUpdate, projectId }) =
     loadGenUrls();
   }, [asset.generatedImages]);
 
+  useEffect(() => {
+    const loadViewUrls = async () => {
+      const urls: Record<string, string> = {};
+      if (asset.views) {
+        const views = [
+          asset.views.front,
+          asset.views.side,
+          asset.views.top,
+          asset.views.threeQuarter
+        ];
+        for (const view of views) {
+          if (view?.path) {
+            if (view.path.startsWith('remote:')) {
+              urls[view.id] = view.path.substring(7);
+            } else {
+              urls[view.id] = await storageService.getAssetUrl(view.path);
+            }
+          }
+        }
+      }
+      setViewUrls(urls);
+    };
+    loadViewUrls();
+  }, [asset.views]);
+
+  useEffect(() => {
+    if (activeTab === 'views') {
+      const viewImage = asset.views?.[activeViewTab];
+      if (viewImage) {
+        setPrompt(viewImage.userPrompt || viewImage.prompt || '');
+      } else {
+        const basePrompt = asset.prompt || '';
+        const viewPrompt = getViewPrompt(activeViewTab);
+        setPrompt(basePrompt ? `${basePrompt}, ${viewPrompt}` : viewPrompt);
+      }
+    }
+  }, [activeViewTab, activeTab, asset.views, asset.prompt]);
+
   const handleSaveInfo = () => {
     if (name !== asset.name || itemType !== asset.itemType) {
       const updated = { ...asset, name, itemType };
@@ -602,6 +647,174 @@ const ItemDetail: React.FC<ItemDetailProps> = ({ asset, onUpdate, projectId }) =
     }
   };
 
+  const handleGenerateView = async (viewType: ItemViewType) => {
+    if (!modelId) {
+      showToast(t.project?.alertFill, 'warning');
+      return;
+    }
+
+    setGeneratingViews(prev => new Set([...prev, viewType]));
+    showToast(`开始生成${getViewLabel(viewType)}视图...`, 'info');
+
+    try {
+      const result = await assetReuseService.generateItemView({
+        item: asset,
+        viewType,
+        modelConfigId: modelId,
+        modelConfig: runtimeModel,
+        projectId,
+      });
+
+      if (result.success && result.image) {
+        const updatedAsset = (await storageService.getAsset(asset.id, projectId)) as ItemAsset;
+        if (updatedAsset) {
+          const newViews = await assetReuseService.updateItemViews(
+            updatedAsset,
+            viewType,
+            result.image
+          );
+          
+          const updated = {
+            ...updatedAsset,
+            views: newViews,
+            generatedImages: [
+              ...(updatedAsset.generatedImages || []),
+              result.image
+            ]
+          };
+          
+          onUpdate(updated);
+          showToast(`${getViewLabel(viewType)}视图生成成功!`, 'success');
+        }
+      } else {
+        showToast(result.error || '生成失败', 'error');
+      }
+    } catch (error: any) {
+      console.error('[ItemDetail] Failed to generate view:', error);
+      showToast(error.message || '生成失败', 'error');
+    } finally {
+      setGeneratingViews(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(viewType);
+        return newSet;
+      });
+    }
+  };
+
+  const handleDeleteView = (viewType: ItemViewType) => {
+    if (!asset.views) return;
+    
+    const newViews = { ...asset.views };
+    delete newViews[viewType];
+    
+    const hasViews = Object.keys(newViews).some(key => newViews[key as keyof typeof newViews] !== undefined);
+    
+    const updated = {
+      ...asset,
+      views: hasViews ? newViews : undefined
+    };
+    
+    onUpdate(updated);
+    showToast(`${getViewLabel(viewType)}视图已删除`, 'success');
+  };
+
+  const handleSetViewAsCurrent = (viewType: ItemViewType) => {
+    const viewImage = asset.views?.[viewType];
+    
+    if (!viewImage) return;
+    
+    const updated = {
+      ...asset,
+      currentImageId: viewImage.id,
+      filePath: viewImage.path
+    };
+    
+    onUpdate(updated);
+    showToast(`已将${getViewLabel(viewType)}视图设为当前`, 'success');
+  };
+
+  const handleBatchGenerateViews = async () => {
+    if (!modelId) {
+      showToast(t.project?.alertFill, 'warning');
+      return;
+    }
+
+    const missingViews = viewTypes.filter(type => !asset.views?.[type]);
+    
+    if (missingViews.length === 0) {
+      showToast('所有视角都已生成', 'info');
+      return;
+    }
+
+    setBatchGenerating(true);
+    showToast(`开始批量生成 ${missingViews.length} 个视角...`, 'info');
+
+    let successCount = 0;
+    let failCount = 0;
+
+    try {
+      for (const viewType of missingViews) {
+        setGeneratingViews(prev => new Set([...prev, viewType]));
+        
+        try {
+          const result = await assetReuseService.generateItemView({
+            item: asset,
+            viewType,
+            modelConfigId: modelId,
+            modelConfig: runtimeModel,
+            projectId,
+          });
+
+          if (result.success && result.image) {
+            const updatedAsset = (await storageService.getAsset(asset.id, projectId)) as ItemAsset;
+            if (updatedAsset) {
+              const newViews = await assetReuseService.updateItemViews(
+                updatedAsset,
+                viewType,
+                result.image
+              );
+              
+              const updated = {
+                ...updatedAsset,
+                views: newViews,
+                generatedImages: [
+                  ...(updatedAsset.generatedImages || []),
+                  result.image
+                ]
+              };
+              
+              onUpdate(updated);
+              successCount++;
+            }
+          } else {
+            failCount++;
+            console.error(`[ItemDetail] Failed to generate ${viewType} view:`, result.error);
+          }
+        } catch (error) {
+          failCount++;
+          console.error(`[ItemDetail] Error generating ${viewType} view:`, error);
+        } finally {
+          setGeneratingViews(prev => {
+            const newSet = new Set(prev);
+            newSet.delete(viewType);
+            return newSet;
+          });
+        }
+      }
+
+      if (successCount > 0) {
+        showToast(`批量生成完成！成功: ${successCount}, 失败: ${failCount}`, successCount === missingViews.length ? 'success' : 'warning');
+      } else {
+        showToast('批量生成失败', 'error');
+      }
+    } catch (error: any) {
+      console.error('[ItemDetail] Batch generate views failed:', error);
+      showToast(error.message || '批量生成失败', 'error');
+    } finally {
+      setBatchGenerating(false);
+    }
+  };
+
   const handleScrollLeft = () => {
     if (previewScrollRef.current) {
       previewScrollRef.current.scrollBy({ left: -220, behavior: 'smooth' });
@@ -623,6 +836,58 @@ const ItemDetail: React.FC<ItemDetailProps> = ({ asset, onUpdate, projectId }) =
     openPreview(slides, currentIndex);
   };
 
+  const getViewLabel = (viewType: ItemViewType): string => {
+    const labels: Record<ItemViewType, string> = {
+      front: '正面',
+      side: '侧面',
+      top: '顶面',
+      'three-quarter': '四分之三'
+    };
+    return labels[viewType];
+  };
+
+  const getViewPrompt = (viewType: ItemViewType): string => {
+    const viewPrompts: Record<ItemViewType, string> = {
+      front: 'front view, facing camera directly, full view of the item',
+      side: 'side view, profile view, full view from the side',
+      top: 'top view, bird\'s-eye view, looking down from above',
+      'three-quarter': 'three-quarter view, 45 degree angle, showing front and side',
+    };
+    return viewPrompts[viewType];
+  };
+
+  const getViewIcon = (viewType: ItemViewType) => {
+    switch (viewType) {
+      case 'front':
+        return <Box className="w-5 h-5" />;
+      case 'side':
+        return <Layers className="w-5 h-5" />;
+      case 'top':
+        return <Camera className="w-5 h-5" />;
+      case 'three-quarter':
+        return <ImageIcon className="w-5 h-5" />;
+    }
+  };
+
+  const viewTypes: ItemViewType[] = ['front', 'side', 'top', 'three-quarter'];
+
+  const viewTabs = [
+    { id: 'front' as ItemViewType, label: '正面' },
+    { id: 'side' as ItemViewType, label: '侧面' },
+    { id: 'top' as ItemViewType, label: '顶面' },
+    { id: 'three-quarter' as ItemViewType, label: '四分之三' },
+  ];
+
+  const calculateViewCount = (): number => {
+    if (!asset.views) return 0;
+    let count = 0;
+    if (asset.views.front) count++;
+    if (asset.views.side) count++;
+    if (asset.views.top) count++;
+    if (asset.views.threeQuarter) count++;
+    return count;
+  };
+
   const currentAllImages = (asset.generatedImages || []);
   const currentSelectedImage = asset.currentImageId 
     ? (asset.generatedImages || []).find(img => img.id === asset.currentImageId)
@@ -630,7 +895,7 @@ const ItemDetail: React.FC<ItemDetailProps> = ({ asset, onUpdate, projectId }) =
 
   const tabs = [
     { id: 'single', label: '单图', icon: Box },
-    { id: 'multi', label: '多图', icon: Layers },
+    { id: 'views', label: '多视角', icon: Layers },
   ];
 
   return (
@@ -668,105 +933,210 @@ const ItemDetail: React.FC<ItemDetailProps> = ({ asset, onUpdate, projectId }) =
           </div>
         </div>
 
-        <Tabs
-          selectedKey={activeParamTab}
-          onSelectionChange={setActiveParamTab}
-          size="sm"
-          classNames={{
-            tabList: 'gap-2 p-2',
-            tab: 'h-8 min-h-8 px-4 text-xs',
-            cursor: 'rounded-xl',
-          }}
-        >
-          <Tab key="core" title={
-            <div className="flex items-center gap-2">
-              <Settings className="w-4 h-4" />
-              <span>参数</span>
-            </div>
-          }>
-            <div className="p-4 space-y-4">
-              <ImageGenerationPanel
-                projectId={projectId}
-                prompt={prompt}
-                onPromptChange={handlePromptChange}
-                onPromptBlur={handlePromptBlur}
-                modelId={modelId}
-                onModelChange={handleModelChange}
-                referenceImages={referenceImages}
-                onReferenceImagesChange={newRefs => {
-                  setReferenceImages(newRefs);
-                  onUpdate({
-                    ...asset,
-                    metadata: { ...asset.metadata, referenceImages: newRefs },
-                  }, true);
-                }}
-                aspectRatio={aspectRatio}
-                onAspectRatioChange={val => {
-                  setAspectRatio(val);
-                  onUpdate({
-                    ...asset,
-                    metadata: { ...asset.metadata, aspectRatio: val },
-                  }, true);
-                }}
-                resolution={resolution}
-                onResolutionChange={val => {
-                  setResolution(val);
-                  onUpdate({
-                    ...asset,
-                    metadata: { ...asset.metadata, resolution: val },
-                  }, true);
-                }}
-                style={style}
-                onStyleChange={setStyle}
-                count={generateCount}
-                onCountChange={setGenerateCount}
-                guidanceScale={guidanceScale}
-                onGuidanceScaleChange={setGuidanceScale}
-                generating={generating || isCheckingJobs}
-                onGenerate={handleGenerate}
-                showPrompt={false}
-                showStyle={false}
-                showGenerateButton={false}
-                compact={true}
-                showReferenceImages={false}
-              />
-            </div>
-          </Tab>
-          <Tab key="style" title={
-            <div className="flex items-center gap-2">
-              <Palette className="w-4 h-4" />
-              <span>风格</span>
-            </div>
-          }>
-            <div className="p-4">
-              <StyleSelector
-                value={style}
-                onChange={setStyle}
-                disabled={generating}
-              />
-            </div>
-          </Tab>
-        </Tabs>
-
-        <div className="mt-auto p-4 border-t border-content3 relative z-10">
-          <Button
-            color="default"
-            variant="solid"
+        {activeTab === 'single' && (
+          <Tabs
+            selectedKey={activeParamTab}
+            onSelectionChange={setActiveParamTab}
             size="sm"
-            fullWidth
-            isLoading={generating}
-            onPress={handleGenerate}
-            className="font-bold h-10 rounded-xl bg-slate-200 hover:bg-slate-300 text-slate-900 dark:bg-slate-700 dark:hover:bg-slate-600 dark:text-slate-100 shadow-lg"
             classNames={{
-              base: 'bg-slate-200 hover:bg-slate-300 text-slate-900 dark:bg-slate-700 dark:hover:bg-slate-600 dark:text-slate-100',
-              content: 'text-slate-900 dark:text-slate-100',
-              spinner: 'text-slate-900 dark:text-slate-100',
+              tabList: 'gap-2 p-2',
+              tab: 'h-8 min-h-8 px-4 text-xs',
+              cursor: 'rounded-xl',
             }}
-            startContent={!generating && <Sparkles size={16} className="text-slate-900 dark:text-slate-100" />}
           >
-            {generating ? '生成中...' : '开始生成'}
-          </Button>
-        </div>
+            <Tab key="core" title={
+              <div className="flex items-center gap-2">
+                <Settings className="w-4 h-4" />
+                <span>参数</span>
+              </div>
+            }>
+              <div className="p-4 space-y-4">
+                <ImageGenerationPanel
+                  projectId={projectId}
+                  prompt={prompt}
+                  onPromptChange={handlePromptChange}
+                  onPromptBlur={handlePromptBlur}
+                  modelId={modelId}
+                  onModelChange={handleModelChange}
+                  referenceImages={referenceImages}
+                  onReferenceImagesChange={newRefs => {
+                    setReferenceImages(newRefs);
+                    onUpdate({
+                      ...asset,
+                      metadata: { ...asset.metadata, referenceImages: newRefs },
+                    }, true);
+                  }}
+                  aspectRatio={aspectRatio}
+                  onAspectRatioChange={val => {
+                    setAspectRatio(val);
+                    onUpdate({
+                      ...asset,
+                      metadata: { ...asset.metadata, aspectRatio: val },
+                    }, true);
+                  }}
+                  resolution={resolution}
+                  onResolutionChange={val => {
+                    setResolution(val);
+                    onUpdate({
+                      ...asset,
+                      metadata: { ...asset.metadata, resolution: val },
+                    }, true);
+                  }}
+                  style={style}
+                  onStyleChange={setStyle}
+                  count={generateCount}
+                  onCountChange={setGenerateCount}
+                  guidanceScale={guidanceScale}
+                  onGuidanceScaleChange={setGuidanceScale}
+                  generating={generating || isCheckingJobs}
+                  onGenerate={handleGenerate}
+                  showPrompt={false}
+                  showStyle={false}
+                  showGenerateButton={false}
+                  compact={true}
+                  showReferenceImages={false}
+                />
+              </div>
+            </Tab>
+            <Tab key="style" title={
+              <div className="flex items-center gap-2">
+                <Palette className="w-4 h-4" />
+                <span>风格</span>
+              </div>
+            }>
+              <div className="p-4">
+                <StyleSelector
+                  value={style}
+                  onChange={setStyle}
+                  disabled={generating}
+                />
+              </div>
+            </Tab>
+          </Tabs>
+        )}
+
+        {activeTab === 'views' && (
+          <ScrollShadow className="flex-1 p-4">
+            <div className="flex flex-col gap-4">
+              <div className="flex items-start gap-3 p-3 bg-primary/5 rounded-xl border border-primary/20">
+                <div className="p-2 bg-primary/10 rounded-lg">
+                  <Info className="w-5 h-5 text-primary" />
+                </div>
+                <div className="flex-1">
+                  <h4 className="font-bold text-sm text-slate-900 dark:text-slate-100 mb-1">
+                    多视角图生成设置
+                  </h4>
+                  <p className="text-xs text-slate-600 dark:text-slate-400">
+                    您正在使用的模型将同时用于多视角图生成。
+                  </p>
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                <Select
+                  aria-label="选择多视角图生成模型"
+                  placeholder="选择模型"
+                  selectedKeys={[modelId]}
+                  onChange={e => handleModelChange(e.target.value)}
+                  className="w-full"
+                  variant="bordered"
+                  radius="lg"
+                  isDisabled={generating || isCheckingJobs}
+                  classNames={{
+                    value: 'font-bold text-sm',
+                    trigger: 'border-2 group-data-[focus=true]:border-primary',
+                  }}
+                >
+                  {settings.models
+                    .filter(m => m.type === 'image' && (m.enabled ?? true))
+                    .map(model => (
+                      <SelectItem key={model.id} textValue={model.name}>
+                        {model.name}
+                      </SelectItem>
+                    ))}
+                </Select>
+              </div>
+
+              <Button
+                fullWidth
+                color="primary"
+                size="md"
+                isLoading={batchGenerating}
+                isDisabled={!modelId || viewTypes.filter(type => !asset.views?.[type]).length === 0}
+                onPress={handleBatchGenerateViews}
+                startContent={!batchGenerating && <Wand2 className="w-5 h-5" />}
+              >
+                {batchGenerating ? '批量生成中...' : '一键生成全部视角'}
+              </Button>
+
+              <div className="grid grid-cols-2 gap-3">
+                {viewTypes.map(viewType => {
+                  const hasView = !!asset.views?.[viewType];
+                  const isGeneratingView = generatingViews.has(viewType);
+                  
+                  return (
+                    <Card
+                      key={viewType}
+                      className="border border-slate-200 dark:border-slate-700 overflow-hidden"
+                    >
+                      <div className="p-3 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50">
+                        <div className="flex items-center gap-2">
+                          <div className="p-1.5 bg-primary/10 rounded-lg text-primary">
+                            {getViewIcon(viewType)}
+                          </div>
+                          <span className="font-bold text-sm text-slate-700 dark:text-slate-200">
+                            {getViewLabel(viewType)}
+                          </span>
+                          {hasView && (
+                            <Chip size="sm" color="success" variant="flat">
+                              已生成
+                            </Chip>
+                          )}
+                        </div>
+                      </div>
+                      <div className="p-3">
+                        <Button
+                          fullWidth
+                          size="sm"
+                          color={hasView ? 'secondary' : 'primary'}
+                          variant={hasView ? 'flat' : 'solid'}
+                          isLoading={isGeneratingView}
+                          isDisabled={!modelId}
+                          onPress={() => hasView ? handleSetViewAsCurrent(viewType) : handleGenerateView(viewType)}
+                          startContent={!isGeneratingView && (hasView ? <Check className="w-4 h-4" /> : <Wand2 className="w-4 h-4" />)}
+                        >
+                          {isGeneratingView ? '生成中...' : (hasView ? '设为当前' : '生成视角')}
+                        </Button>
+                      </div>
+                    </Card>
+                  );
+                })}
+              </div>
+            </div>
+          </ScrollShadow>
+        )}
+
+        {activeTab === 'single' && (
+          <div className="mt-auto p-4 border-t border-content3 relative z-10">
+            <Button
+              color="default"
+              variant="solid"
+              size="sm"
+              fullWidth
+              isLoading={generating}
+              onPress={handleGenerate}
+              className="font-bold h-10 rounded-xl bg-slate-200 hover:bg-slate-300 text-slate-900 dark:bg-slate-700 dark:hover:bg-slate-600 dark:text-slate-100 shadow-lg"
+              classNames={{
+                base: 'bg-slate-200 hover:bg-slate-300 text-slate-900 dark:bg-slate-700 dark:hover:bg-slate-600 dark:text-slate-100',
+                content: 'text-slate-900 dark:text-slate-100',
+                spinner: 'text-slate-900 dark:text-slate-100',
+              }}
+              startContent={!generating && <Sparkles size={16} className="text-slate-900 dark:text-slate-100" />}
+            >
+              {generating ? '生成中...' : '开始生成'}
+            </Button>
+          </div>
+        )}
       </div>
 
       {/* 中间：预览区域 */}
@@ -779,94 +1149,140 @@ const ItemDetail: React.FC<ItemDetailProps> = ({ asset, onUpdate, projectId }) =
               <div className="flex items-center justify-between mb-4">
                 <h4 className="font-semibold text-sm text-foreground flex items-center gap-2">
                   <Camera className="w-4 h-4 text-primary" />
-                  图片资产预览区
+                  {activeTab === 'single' ? '图片资产预览区' : '多视角图预览'}
                 </h4>
+                
+                {activeTab === 'views' && (
+                  <Tabs
+                    selectedKey={activeViewTab}
+                    onSelectionChange={(key) => setActiveViewTab(key as ItemViewType)}
+                    size="sm"
+                    classNames={{
+                      tabList: 'gap-1',
+                      tab: 'h-6 min-h-6 px-3 text-xs',
+                      cursor: 'rounded-lg',
+                    }}
+                  >
+                    {viewTabs.map((tab) => (
+                      <Tab key={tab.id} title={tab.label} />
+                    ))}
+                  </Tabs>
+                )}
               </div>
-              <div className="relative">
-                {/* 左侧滚动按钮 */}
-                <button
-                  className="absolute left-0 top-1/2 -translate-y-1/2 w-8 h-8 bg-black/50 text-white rounded-full flex items-center justify-center z-20 hover:bg-black/70 transition-colors"
-                  onClick={handleScrollLeft}
-                  aria-label="向左滚动"
-                >
-                  <ChevronLeft className="w-4 h-4" />
-                </button>
-                
-                {/* 右侧滚动按钮 */}
-                <button
-                  className="absolute right-0 top-1/2 -translate-y-1/2 w-8 h-8 bg-black/50 text-white rounded-full flex items-center justify-center z-20 hover:bg-black/70 transition-colors"
-                  onClick={handleScrollRight}
-                  aria-label="向右滚动"
-                >
-                  <ChevronRight className="w-4 h-4" />
-                </button>
-                
-                <div 
-                  ref={previewScrollRef}
-                  className="flex gap-4 overflow-x-hidden pb-2"
-                  style={{ scrollbarWidth: 'none' }}
-                >
-                  {currentAllImages.length === 0 ? (
-                    <div className="min-w-[200px] aspect-square bg-content2 rounded-xl border border-dashed border-content3 flex items-center justify-center">
-                      <span className="text-sm text-slate-500">暂无图片</span>
-                    </div>
-                  ) : (
-                    currentAllImages.slice().reverse().map((img) => {
-                      const isSelected = currentSelectedImage?.id === img.id;
-                      return (
-                        <div
-                          key={img.id}
-                          className={`min-w-[200px] max-w-[200px] aspect-square rounded-xl overflow-hidden cursor-pointer relative group transition-all border border-content3 hover:border-primary/50`}
-                        >
-                          <div 
-                            className="w-full h-full overflow-hidden"
-                            onClick={() => handlePreviewImage(img, currentAllImages)}
+              {activeTab === 'single' && (
+                <div className="relative">
+                  {/* 左侧滚动按钮 */}
+                  <button
+                    className="absolute left-0 top-1/2 -translate-y-1/2 w-8 h-8 bg-black/50 text-white rounded-full flex items-center justify-center z-20 hover:bg-black/70 transition-colors"
+                    onClick={handleScrollLeft}
+                    aria-label="向左滚动"
+                  >
+                    <ChevronLeft className="w-4 h-4" />
+                  </button>
+                  
+                  {/* 右侧滚动按钮 */}
+                  <button
+                    className="absolute right-0 top-1/2 -translate-y-1/2 w-8 h-8 bg-black/50 text-white rounded-full flex items-center justify-center z-20 hover:bg-black/70 transition-colors"
+                    onClick={handleScrollRight}
+                    aria-label="向右滚动"
+                  >
+                    <ChevronRight className="w-4 h-4" />
+                  </button>
+                  
+                  <div 
+                    ref={previewScrollRef}
+                    className="flex gap-4 overflow-x-hidden pb-2"
+                    style={{ scrollbarWidth: 'none' }}
+                  >
+                    {currentAllImages.length === 0 ? (
+                      <div className="min-w-[200px] aspect-square bg-content2 rounded-xl border border-dashed border-content3 flex items-center justify-center">
+                        <span className="text-sm text-slate-500">暂无图片</span>
+                      </div>
+                    ) : (
+                      currentAllImages.slice().reverse().map((img) => {
+                        const isSelected = currentSelectedImage?.id === img.id;
+                        return (
+                          <div
+                            key={img.id}
+                            className={`min-w-[200px] max-w-[200px] aspect-square rounded-xl overflow-hidden cursor-pointer relative group transition-all border border-content3 hover:border-primary/50`}
                           >
-                            {genUrls[img.id] ? (
-                              <img
-                                src={genUrls[img.id]}
-                                alt={img.prompt}
-                                className="w-full h-full object-cover"
-                              />
-                            ) : (
-                              <div className="w-full h-full bg-content3 flex items-center justify-center">
-                                <Spinner size="sm" />
-                              </div>
-                            )}
-                          </div>
-                          
-                          {/* 左上角选择框 */}
-                          <button
-                            className={`absolute top-2 left-2 z-10 w-5 h-5 border-2 flex items-center justify-center transition-colors ${
-                              isSelected 
-                                ? 'border-primary bg-primary' 
-                                : 'border-slate-200 dark:border-slate-700 bg-black/30 dark:bg-white/10'
-                            }`}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleSelectImage(img);
-                            }}
-                            aria-label={isSelected ? '取消选择' : '选择图片'}
-                          >
-                            {isSelected && (
-                              <Check className="w-3 h-3 text-white" />
-                            )}
-                          </button>
+                            <div 
+                              className="w-full h-full overflow-hidden"
+                              onClick={() => handlePreviewImage(img, currentAllImages)}
+                            >
+                              {genUrls[img.id] ? (
+                                <img
+                                  src={genUrls[img.id]}
+                                  alt={img.prompt}
+                                  className="w-full h-full object-cover"
+                                />
+                              ) : (
+                                <div className="w-full h-full bg-content3 flex items-center justify-center">
+                                  <Spinner size="sm" />
+                                </div>
+                              )}
+                            </div>
+                            
+                            {/* 左上角选择框 */}
+                            <button
+                              className={`absolute top-2 left-2 z-10 w-5 h-5 border-2 flex items-center justify-center transition-colors ${
+                                isSelected 
+                                  ? 'border-primary bg-primary' 
+                                  : 'border-slate-200 dark:border-slate-700 bg-black/30 dark:bg-white/10'
+                              }`}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleSelectImage(img);
+                              }}
+                              aria-label={isSelected ? '取消选择' : '选择图片'}
+                            >
+                              {isSelected && (
+                                <Check className="w-3 h-3 text-white" />
+                              )}
+                            </button>
 
-                          {/* 右上角删除图标 */}
-                          <button
-                            className="absolute top-2 right-2 w-6 h-6 flex items-center justify-center text-slate-400 hover:text-red-500 transition-colors z-10"
-                            onClick={(e) => promptDeleteImage(img, e)}
-                            aria-label="删除图片"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
+                            {/* 右上角删除图标 */}
+                            <button
+                              className="absolute top-2 right-2 w-6 h-6 flex items-center justify-center text-slate-400 hover:text-red-500 transition-colors z-10"
+                              onClick={(e) => promptDeleteImage(img, e)}
+                              aria-label="删除图片"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
+                        );
+                      })
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {activeTab === 'views' && (
+                <div className="relative">
+                  {/* 显示当前选中视角的图片 */}
+                  <div className="aspect-video bg-content2 rounded-xl border border-content3 overflow-hidden">
+                    {(() => {
+                      const viewImage = asset.views?.[activeViewTab];
+                      if (viewImage && viewUrls[viewImage.id]) {
+                        return (
+                          <img
+                            src={viewUrls[viewImage.id]}
+                            alt={getViewLabel(activeViewTab)}
+                            className="w-full h-full object-contain"
+                          />
+                        );
+                      }
+                      return (
+                        <div className="w-full h-full flex flex-col items-center justify-center">
+                          <span className="text-sm text-slate-500">
+                            暂无{getViewLabel(activeViewTab)}视图
+                          </span>
                         </div>
                       );
-                    })
-                  )}
+                    })()}
+                  </div>
                 </div>
-              </div>
+              )}
             </CardBody>
           </Card>
 
@@ -879,25 +1295,63 @@ const ItemDetail: React.FC<ItemDetailProps> = ({ asset, onUpdate, projectId }) =
                   定稿预览区
                 </h4>
               </div>
-              <div className="aspect-[3/4] bg-content2 rounded-xl border border-content3 overflow-hidden relative flex-1">
-                {currentSelectedImage && genUrls[currentSelectedImage.id] ? (
-                  <div
-                    onClick={() => handlePreviewImage(currentSelectedImage, [currentSelectedImage])}
-                    className="w-full h-full cursor-pointer hover:opacity-90 transition-opacity"
-                  >
-                    <img
-                      src={genUrls[currentSelectedImage.id]}
-                      alt={currentSelectedImage.prompt}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                ) : (
-                  <div className="w-full h-full flex flex-col items-center justify-center">
-                    <ImageIcon className="w-6 h-6 text-slate-500 mb-1" />
-                    <p className="text-xs text-slate-400">请从左侧选择图片</p>
-                  </div>
-                )}
-              </div>
+              {activeTab === 'views' ? (
+                /* 多视角预览 - 显示4个视角 */
+                <div className="grid grid-cols-2 gap-2 flex-1">
+                  {viewTabs.map((tab) => {
+                    const viewImage = asset.views?.[tab.id];
+                    return (
+                      <div key={tab.id} className="aspect-[3/4] bg-content2 rounded-xl border border-content3 overflow-hidden relative">
+                        {viewImage && viewUrls[viewImage.id] ? (
+                          <div
+                            onClick={() => {
+                              setActiveViewTab(tab.id);
+                              if (viewImage) {
+                                handlePreviewImage(viewImage, [viewImage]);
+                              }
+                            }}
+                            className="w-full h-full cursor-pointer hover:opacity-90 transition-opacity"
+                          >
+                            <img
+                              src={viewUrls[viewImage.id]}
+                              alt={getViewLabel(tab.id)}
+                              className="w-full h-full object-cover"
+                            />
+                            <div className="absolute bottom-1 left-1 right-1 bg-black/50 text-white text-xs text-center p-1 rounded">
+                              {tab.label}
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="w-full h-full flex flex-col items-center justify-center">
+                              <p className="text-[10px] text-slate-400">{tab.label}</p>
+                              <p className="text-[9px] text-slate-500">未生成</p>
+                            </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="aspect-[3/4] bg-content2 rounded-xl border border-content3 overflow-hidden relative flex-1">
+                  {currentSelectedImage && genUrls[currentSelectedImage.id] ? (
+                    <div
+                      onClick={() => handlePreviewImage(currentSelectedImage, [currentSelectedImage])}
+                      className="w-full h-full cursor-pointer hover:opacity-90 transition-opacity"
+                    >
+                      <img
+                        src={genUrls[currentSelectedImage.id]}
+                        alt={currentSelectedImage.prompt}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  ) : (
+                    <div className="w-full h-full flex flex-col items-center justify-center">
+                      <ImageIcon className="w-6 h-6 text-slate-500 mb-1" />
+                      <p className="text-xs text-slate-400">请从左侧选择图片</p>
+                    </div>
+                  )}
+                </div>
+              )}
             </CardBody>
           </Card>
         </div>
