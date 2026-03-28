@@ -1,4 +1,14 @@
-import { Shot, Keyframe, ShotType, CameraMovement, ShotContentType, FrameType, Script, CharacterAsset, SceneAsset } from '../../types';
+import {
+  Shot,
+  Keyframe,
+  ShotType,
+  CameraMovement,
+  ShotContentType,
+  FrameType,
+  Script,
+  CharacterAsset,
+  SceneAsset,
+} from '../../types';
 import { aiService } from '../aiService';
 
 export interface KeyframeSplitParams {
@@ -206,16 +216,28 @@ export class KeyframeEngine {
   private buildSplitPrompt(
     params: KeyframeSplitParams & { keyframeCount: number; contentType: ShotContentType }
   ): string {
-    const { shot, keyframeCount, contentType, characterAssets, sceneAsset, splitOptions, script, negativePrompt } = params;
-    
+    const {
+      shot,
+      keyframeCount,
+      contentType,
+      characterAssets,
+      sceneAsset,
+      splitOptions,
+      script,
+      negativePrompt,
+    } = params;
+
     console.log('[DEBUG KeyframeEngine] ========== buildSplitPrompt 被调用 ==========');
     console.log('[DEBUG KeyframeEngine] 接收到的 script:', script);
     console.log('[DEBUG KeyframeEngine] 接收到的 negativePrompt:', negativePrompt);
-    console.log('[DEBUG KeyframeEngine] 接收到的 visualStyle:', script?.parseState?.metadata?.visualStyle);
-    
+    console.log(
+      '[DEBUG KeyframeEngine] 接收到的 visualStyle:',
+      script?.parseState?.metadata?.visualStyle
+    );
+
     // 读取全局视觉风格
     const visualStyle = script?.parseState?.metadata?.visualStyle;
-    
+
     // 构建视觉风格描述
     let visualStyleDesc = '';
     if (visualStyle) {
@@ -234,32 +256,39 @@ export class KeyframeEngine {
     }
 
     // 构建详细的角色描述 - 充分利用所有 CharacterAsset 信息
-    const characterDesc = characterAssets?.map((char, index) => {
-      const charDetails: string[] = [];
-      charDetails.push(`- ${char.name}`);
-      if (char.gender) charDetails.push(`性别：${char.gender === 'male' ? '男' : char.gender === 'female' ? '女' : '不限'}`);
-      if (char.ageGroup) {
-        const ageMap: Record<string, string> = {
-          childhood: '儿童',
-          youth: '青年',
-          middle_aged: '中年',
-          elderly: '老年',
-          unknown: '未知'
-        };
-        charDetails.push(`年龄：${ageMap[char.ageGroup] || char.ageGroup}`);
-      }
-      if (char.prompt) charDetails.push(`角色描述：${char.prompt}`);
-      if (char.metadata?.features) charDetails.push(`特征：${char.metadata.features}`);
-      if (char.views) {
-        const availableViews: string[] = [];
-        if (char.views.front) availableViews.push('正面');
-        if (char.views.side) availableViews.push('侧面');
-        if (char.views.back) availableViews.push('背面');
-        if (char.views.threeQuarter) availableViews.push('四分之三侧面');
-        if (availableViews.length > 0) charDetails.push(`可用视角：${availableViews.join('、')}`);
-      }
-      return charDetails.join('，');
-    }).join('\n') || '无';
+    const characterDesc =
+      characterAssets
+        ?.map((char, index) => {
+          const charDetails: string[] = [];
+          charDetails.push(`- ${char.name}`);
+          if (char.gender)
+            charDetails.push(
+              `性别：${char.gender === 'male' ? '男' : char.gender === 'female' ? '女' : '不限'}`
+            );
+          if (char.ageGroup) {
+            const ageMap: Record<string, string> = {
+              childhood: '儿童',
+              youth: '青年',
+              middle_aged: '中年',
+              elderly: '老年',
+              unknown: '未知',
+            };
+            charDetails.push(`年龄：${ageMap[char.ageGroup] || char.ageGroup}`);
+          }
+          if (char.prompt) charDetails.push(`角色描述：${char.prompt}`);
+          if (char.metadata?.features) charDetails.push(`特征：${char.metadata.features}`);
+          if (char.views) {
+            const availableViews: string[] = [];
+            if (char.views.front) availableViews.push('正面');
+            if (char.views.side) availableViews.push('侧面');
+            if (char.views.back) availableViews.push('背面');
+            if (char.views.threeQuarter) availableViews.push('四分之三侧面');
+            if (availableViews.length > 0)
+              charDetails.push(`可用视角：${availableViews.join('、')}`);
+          }
+          return charDetails.join('，');
+        })
+        .join('\n') || '无';
 
     // 构建详细的场景描述 - 充分利用所有 SceneAsset 信息
     let sceneDesc = '未指定';
@@ -275,7 +304,8 @@ export class KeyframeEngine {
         const availableViews: string[] = [];
         if (sceneAsset.views.panorama) availableViews.push('全景');
         if (sceneAsset.views.wide) availableViews.push('广角');
-        if (sceneAsset.views.detail && sceneAsset.views.detail.length > 0) availableViews.push('细节');
+        if (sceneAsset.views.detail && sceneAsset.views.detail.length > 0)
+          availableViews.push('细节');
         if (sceneAsset.views.aerial) availableViews.push('鸟瞰');
         if (availableViews.length > 0) sceneDetails.push(`可用视角：${availableViews.join('、')}`);
       }
@@ -353,14 +383,15 @@ export class KeyframeEngine {
       referenceInfo += '【参考角色】\n';
       characterAssets.forEach((char, index) => {
         referenceInfo += `角色${index + 1}: ${char.name}\n`;
-        if (char.gender) referenceInfo += `  - 性别: ${char.gender === 'male' ? '男' : char.gender === 'female' ? '女' : '不限'}\n`;
+        if (char.gender)
+          referenceInfo += `  - 性别: ${char.gender === 'male' ? '男' : char.gender === 'female' ? '女' : '不限'}\n`;
         if (char.ageGroup) {
           const ageMap: Record<string, string> = {
             childhood: '儿童',
             youth: '青年',
             middle_aged: '中年',
             elderly: '老年',
-            unknown: '未知'
+            unknown: '未知',
           };
           referenceInfo += `  - 年龄: ${ageMap[char.ageGroup] || char.ageGroup}\n`;
         }
@@ -380,7 +411,8 @@ export class KeyframeEngine {
       referenceInfo += '【参考场景】\n';
       referenceInfo += `场景: ${sceneAsset.name}\n`;
       if (sceneAsset.prompt) referenceInfo += `  - 描述: ${sceneAsset.prompt}\n`;
-      if (sceneAsset.metadata?.features) referenceInfo += `  - 特征: ${sceneAsset.metadata.features}\n`;
+      if (sceneAsset.metadata?.features)
+        referenceInfo += `  - 特征: ${sceneAsset.metadata.features}\n`;
       if (sceneAsset.keyElements && sceneAsset.keyElements.length > 0) {
         referenceInfo += `  - 关键元素: ${sceneAsset.keyElements.join(', ')}\n`;
       }
@@ -485,8 +517,11 @@ ${additionalRequirements}
   ): Keyframe[] {
     console.log('[DEBUG KeyframeEngine] ========== parseKeyframesFromResponse 被调用 ==========');
     console.log('[DEBUG KeyframeEngine] 接收到的 negativePrompt:', negativePrompt);
-    console.log('[DEBUG KeyframeEngine] LLM返回的原始response:', response.substring(0, 500) + '...');
-    
+    console.log(
+      '[DEBUG KeyframeEngine] LLM返回的原始response:',
+      response.substring(0, 500) + '...'
+    );
+
     try {
       // 提取JSON部分
       const jsonMatch = response.match(/\{[\s\S]*\}/);
@@ -528,18 +563,25 @@ ${additionalRequirements}
           },
           status: 'pending' as const,
         };
-        
+
         console.log(`[DEBUG KeyframeEngine] 解析出的关键帧 ${index + 1}:`, keyframe);
         return keyframe;
       });
-      
+
       console.log('[DEBUG KeyframeEngine] 最终返回的关键帧数组:', keyframes);
       return keyframes;
     } catch (error) {
       console.error('[KeyframeEngine] 解析关键帧失败:', error);
       // 返回默认关键帧
       console.log('[DEBUG KeyframeEngine] 回退到generateDefaultKeyframes');
-      return this.generateDefaultKeyframes(shot, keyframeCount, characterAssets, sceneAsset, negativePrompt, script);
+      return this.generateDefaultKeyframes(
+        shot,
+        keyframeCount,
+        characterAssets,
+        sceneAsset,
+        negativePrompt,
+        script
+      );
     }
   }
 
@@ -620,11 +662,11 @@ ${additionalRequirements}
     return Array.from({ length: keyframeCount }, (_, i) => {
       const frameType = this.getFrameType(i, keyframeCount);
       const progress = (i + 1) / keyframeCount;
-      
+
       let typeDesc = '';
       let promptSuffix = '';
       let descriptionSuffix = '';
-      
+
       if (frameType === 'start') {
         typeDesc = '起始';
         promptSuffix = ', opening scene, full shot, soft lighting';
@@ -641,7 +683,7 @@ ${additionalRequirements}
           promptSuffix = ', transition frame, medium shot, detail focus';
           descriptionSuffix = '（中间过渡）';
         } else {
-          const middleProgress = (middleFrameIndex) / (middleFrameCount + 1);
+          const middleProgress = middleFrameIndex / (middleFrameCount + 1);
           if (middleProgress < 0.5) {
             typeDesc = '发展';
             promptSuffix = ', developing scene, medium close-up, plot progression';
@@ -655,16 +697,16 @@ ${additionalRequirements}
       }
 
       const shotNumber = shot.shotNumber || shot.sequence;
-      
+
       const promptParts = [
         'masterpiece, 8k, ultra detailed, best quality',
         ...stylePrompts,
         shot.shotType,
         sceneAsset?.name,
         characterAssets?.[0]?.name,
-        `${typeDesc} pose`
+        `${typeDesc} pose`,
       ].filter(Boolean);
-      
+
       return {
         id: `kf_${shot.id}_${i + 1}`,
         sequence: i + 1,

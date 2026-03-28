@@ -224,4 +224,3 @@ export function safeReduce<T, U>(
   if (!Array.isArray(arr)) return initialValue;
   return arr.reduce(callback, initialValue);
 }
-

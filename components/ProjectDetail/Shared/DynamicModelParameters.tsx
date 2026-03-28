@@ -76,73 +76,77 @@ export const DynamicModelParameters: React.FC<DynamicModelParametersProps> = ({
         const label = getLabel(param, key);
 
         if (param.type === 'select') {
-            const validOptions = param.options || [];
-            const validValues = validOptions.map(opt => String(opt.value));
-            const safeValue = currentValue ? String(currentValue) : '';
-            const isValidValue = validValues.includes(safeValue);
-            const finalSelectedKey = isValidValue ? safeValue : (validValues[0] || '');
-            
-            return (
-              <div key={key} className="space-y-1">
-                <label className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide">
-                  {label}
-                </label>
-                <Select
-                  placeholder={label}
-                  selectedKeys={finalSelectedKey ? new Set([finalSelectedKey]) : new Set([])}
-                  onChange={e => onChange(key, e.target.value)}
-                  isDisabled={disabled}
-                  size="sm"
-                  aria-label={label}
-                  classNames={{ trigger: 'h-7 text-[11px] min-h-7' }}
-                >
-                  {validOptions.map(opt => (
-                    <SelectItem key={String(opt.value)} value={opt.value} classNames={{ base: 'text-[11px]' }}>
-                      {getOptionLabel(opt)}
-                    </SelectItem>
-                  ))}
-                </Select>
-              </div>
-            );
-          } else if (param.type === 'boolean') {
-            return null;
-          } else if (param.type === 'number') {
-            return (
-              <div key={key} className="space-y-1">
-                <label className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide">
-                  {label}
-                </label>
-                <Input
-                  type="number"
-                  placeholder={label}
-                  value={String(currentValue)}
-                  onValueChange={v => onChange(key, Number(v))}
-                  min={param.min}
-                  max={param.max}
-                  step={param.step}
-                  isDisabled={disabled}
-                  size="sm"
-                  classNames={{ trigger: 'h-7 text-[11px] min-h-7', inputWrapper: 'h-7 min-h-7' }}
-                />
-              </div>
-            );
-          } else {
-            return (
-              <div key={key} className="space-y-1">
-                <label className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide">
-                  {label}
-                </label>
-                <Input
-                  placeholder={label}
-                  value={String(currentValue || '')}
-                  onValueChange={v => onChange(key, v)}
-                  isDisabled={disabled}
-                  size="sm"
-                  classNames={{ trigger: 'h-7 text-[11px] min-h-7', inputWrapper: 'h-7 min-h-7' }}
-                />
-              </div>
-            );
-          }
+          const validOptions = param.options || [];
+          const validValues = validOptions.map(opt => String(opt.value));
+          const safeValue = currentValue ? String(currentValue) : '';
+          const isValidValue = validValues.includes(safeValue);
+          const finalSelectedKey = isValidValue ? safeValue : validValues[0] || '';
+
+          return (
+            <div key={key} className="space-y-1">
+              <label className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide">
+                {label}
+              </label>
+              <Select
+                placeholder={label}
+                selectedKeys={finalSelectedKey ? new Set([finalSelectedKey]) : new Set([])}
+                onChange={e => onChange(key, e.target.value)}
+                isDisabled={disabled}
+                size="sm"
+                aria-label={label}
+                classNames={{ trigger: 'h-7 text-[11px] min-h-7' }}
+              >
+                {validOptions.map(opt => (
+                  <SelectItem
+                    key={String(opt.value)}
+                    value={opt.value}
+                    classNames={{ base: 'text-[11px]' }}
+                  >
+                    {getOptionLabel(opt)}
+                  </SelectItem>
+                ))}
+              </Select>
+            </div>
+          );
+        } else if (param.type === 'boolean') {
+          return null;
+        } else if (param.type === 'number') {
+          return (
+            <div key={key} className="space-y-1">
+              <label className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide">
+                {label}
+              </label>
+              <Input
+                type="number"
+                placeholder={label}
+                value={String(currentValue)}
+                onValueChange={v => onChange(key, Number(v))}
+                min={param.min}
+                max={param.max}
+                step={param.step}
+                isDisabled={disabled}
+                size="sm"
+                classNames={{ trigger: 'h-7 text-[11px] min-h-7', inputWrapper: 'h-7 min-h-7' }}
+              />
+            </div>
+          );
+        } else {
+          return (
+            <div key={key} className="space-y-1">
+              <label className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide">
+                {label}
+              </label>
+              <Input
+                placeholder={label}
+                value={String(currentValue || '')}
+                onValueChange={v => onChange(key, v)}
+                isDisabled={disabled}
+                size="sm"
+                classNames={{ trigger: 'h-7 text-[11px] min-h-7', inputWrapper: 'h-7 min-h-7' }}
+              />
+            </div>
+          );
+        }
       })}
     </div>
   );

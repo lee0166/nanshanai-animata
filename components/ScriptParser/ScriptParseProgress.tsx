@@ -98,7 +98,7 @@ const StageIndicator: React.FC<{
                 {isCompleted ? (
                   <CheckCircle className="w-5 h-5 text-white" />
                 ) : isCurrent ? (
-                  <Loader2 className="w-5 h-5 text-white animate-spin" />       
+                  <Loader2 className="w-5 h-5 text-white animate-spin" />
                 ) : (
                   <stage.icon className="w-5 h-5 text-slate-400" />
                 )}
@@ -117,7 +117,7 @@ const StageIndicator: React.FC<{
                 <motion.div
                   className="absolute -bottom-1 w-1 h-1 bg-primary rounded-full"
                   layoutId="currentStageIndicator"
-                  transition={{ type: 'spring', stiffness: 500, damping: 30 }}  
+                  transition={{ type: 'spring', stiffness: 500, damping: 30 }}
                 />
               )}
             </motion.div>
@@ -128,7 +128,7 @@ const StageIndicator: React.FC<{
                   className="absolute inset-y-0 left-0 bg-success"
                   initial={{ width: '0%' }}
                   animate={{
-                    width: isCompleted ? '100%' : isCurrent ? '50%' : '0%',     
+                    width: isCompleted ? '100%' : isCurrent ? '50%' : '0%',
                   }}
                   transition={{ duration: 0.5, ease: 'easeInOut' }}
                 />
@@ -189,7 +189,7 @@ const TimeEstimate: React.FC<{
   if (!elapsedTime) return null;
 
   return (
-    <div className="flex items-center gap-4 mt-4 text-sm text-slate-400">       
+    <div className="flex items-center gap-4 mt-4 text-sm text-slate-400">
       <div className="flex items-center gap-1.5">
         <Clock className="w-4 h-4" />
         <span>已耗时: {formatDuration(elapsedTime)}</span>
@@ -207,174 +207,179 @@ const TimeEstimate: React.FC<{
   );
 };
 
-export const ScriptParseProgress: React.FC<ScriptParseProgressProps> = React.memo(({       
-  isOpen,
-  currentStage,
-  progress,
-  stageProgress,
-  message,
-  elapsedTime,
-  estimatedRemainingTime,
-  subTaskInfo,
-  canCancel = true,
-  onCancel,
-  onMinimize,
-  onBackground,
-}) => {
-  if (import.meta.env.DEV) {
-    console.log('[ScriptParseProgress] 渲染:', { isOpen, currentStage, progress, stageProgress, message });
-  }
+export const ScriptParseProgress: React.FC<ScriptParseProgressProps> = React.memo(
+  ({
+    isOpen,
+    currentStage,
+    progress,
+    stageProgress,
+    message,
+    elapsedTime,
+    estimatedRemainingTime,
+    subTaskInfo,
+    canCancel = true,
+    onCancel,
+    onMinimize,
+    onBackground,
+  }) => {
+    if (import.meta.env.DEV) {
+      console.log('[ScriptParseProgress] 渲染:', {
+        isOpen,
+        currentStage,
+        progress,
+        stageProgress,
+        message,
+      });
+    }
 
-  if (!isOpen) return null;
+    if (!isOpen) return null;
 
-  const completedStages = STAGES.filter((s, index) => {
-    const currentIndex = STAGES.findIndex(st => st.key === currentStage);       
-    return index < currentIndex;
-  }).map(s => s.key);
+    const completedStages = STAGES.filter((s, index) => {
+      const currentIndex = STAGES.findIndex(st => st.key === currentStage);
+      return index < currentIndex;
+    }).map(s => s.key);
 
-  return (
-    <AnimatePresence>
-      <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        exit={{ opacity: 0, scale: 0.95 }}
-        transition={{ duration: 0.2 }}
-        className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
-      >
-        <Card className="w-full max-w-2xl bg-white dark:bg-slate-900 border-slate-800">       
-          <CardBody className="p-6">
-            <div className="flex items-center justify-between mb-6">
-              <div>
-                <h3 className="text-lg font-semibold text-foreground">剧本解析</h3>
-                <p className="text-sm text-slate-400 mt-0.5">{message || '正在处理...'}</p>
-              </div>
+    return (
+      <AnimatePresence>
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0, scale: 0.95 }}
+          transition={{ duration: 0.2 }}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
+        >
+          <Card className="w-full max-w-2xl bg-white dark:bg-slate-900 border-slate-800">
+            <CardBody className="p-6">
+              <div className="flex items-center justify-between mb-6">
+                <div>
+                  <h3 className="text-lg font-semibold text-foreground">剧本解析</h3>
+                  <p className="text-sm text-slate-400 mt-0.5">{message || '正在处理...'}</p>
+                </div>
 
-              <div className="flex items-center gap-2">
-                <span className="text-2xl font-bold text-primary">{Math.round(progress)}%</span>
+                <div className="flex items-center gap-2">
+                  <span className="text-2xl font-bold text-primary">{Math.round(progress)}%</span>
 
-                {onMinimize && (
-                  <Button
-                    isIconOnly
-                    variant="light"
-                    size="sm"
-                    onPress={onMinimize}
-                    className="text-slate-400 hover:text-foreground"
-                  >
-                    <Minimize2 className="w-4 h-4" />
-                  </Button>
-                )}
-
-                {canCancel && onCancel && (
-                  <Button
-                    isIconOnly
-                    variant="light"
-                    size="sm"
-                    onPress={onCancel}
-                    className="text-slate-400 hover:text-danger"
-                  >
-                    <X className="w-4 h-4" />
-                  </Button>
-                )}
-              </div>
-            </div>
-
-            <StageIndicator
-              stages={STAGES}
-              currentStage={currentStage}
-              completedStages={completedStages}
-            />
-
-            <div className="mb-4">
-              <p className="text-sm font-medium mb-2">总进度: {Math.round(progress)}%</p>
-              <Progress
-                value={progress}
-                color="success"
-                size="lg"
-                className="w-full"
-                aria-label={`总进度 ${Math.round(progress)}%`}
-              />
-            </div>
-
-            {currentStage !== 'completed' && currentStage !== 'error' && (      
-              <div className="mb-4">
-                <p className="text-sm font-medium mb-2">
-                  当前阶段 ({currentStage}): {Math.round(stageProgress)}%
-                </p>
-                <Progress
-                  value={stageProgress}
-                  color="warning"
-                  size="md"
-                  className="w-full"
-                  aria-label={`当前阶段进度 ${Math.round(stageProgress)}%`}
-                />
-              </div>
-            )}
-
-            {subTaskInfo && subTaskInfo.total > 0 && (
-              <SubTaskList
-                current={subTaskInfo.current}
-                total={subTaskInfo.total}
-                currentName={subTaskInfo.currentName}
-              />
-            )}
-
-            <TimeEstimate
-              elapsedTime={elapsedTime}
-              estimatedRemainingTime={estimatedRemainingTime}
-            />
-
-            <div className="flex items-center justify-between mt-6 pt-4 border-t border-slate-800">
-              <div className="text-xs text-slate-500">
-                {currentStage === 'completed'
-                  ? '解析完成！'
-                  : currentStage === 'error'
-                    ? '解析出错'
-                    : '解析将在后台继续，请勿关闭浏览器'}
-              </div>
-
-              <div className="flex items-center gap-2">
-                {onBackground && currentStage !== 'completed' && currentStage !== 'error' && (
-                  <Button
-                    variant="flat"
-                    size="sm"
-                    onPress={onBackground}
-                  >
-                    隐藏窗口
-                  </Button>
-                )}
-
-                {canCancel &&
-                  onCancel &&
-                  currentStage !== 'completed' &&
-                  currentStage !== 'error' && (
-                    <Button color="danger" variant="flat" size="sm" onPress={onCancel}>
-                      取消
+                  {onMinimize && (
+                    <Button
+                      isIconOnly
+                      variant="light"
+                      size="sm"
+                      onPress={onMinimize}
+                      className="text-slate-400 hover:text-foreground"
+                    >
+                      <Minimize2 className="w-4 h-4" />
                     </Button>
                   )}
 
-                {currentStage === 'completed' && (
-                  <Button color="primary" size="sm" onPress={onCancel}>
-                    完成
-                  </Button>
-                )}
+                  {canCancel && onCancel && (
+                    <Button
+                      isIconOnly
+                      variant="light"
+                      size="sm"
+                      onPress={onCancel}
+                      className="text-slate-400 hover:text-danger"
+                    >
+                      <X className="w-4 h-4" />
+                    </Button>
+                  )}
+                </div>
               </div>
-            </div>
-          </CardBody>
-        </Card>
-      </motion.div>
-    </AnimatePresence>
-  );
-}, (prevProps, nextProps) => {
-  return (
-    prevProps.isOpen === nextProps.isOpen &&
-    prevProps.currentStage === nextProps.currentStage &&
-    prevProps.progress === nextProps.progress &&
-    prevProps.stageProgress === nextProps.stageProgress &&
-    prevProps.message === nextProps.message &&
-    prevProps.elapsedTime === nextProps.elapsedTime &&
-    prevProps.estimatedRemainingTime === nextProps.estimatedRemainingTime &&
-    JSON.stringify(prevProps.subTaskInfo) === JSON.stringify(nextProps.subTaskInfo)
-  );
-});
+
+              <StageIndicator
+                stages={STAGES}
+                currentStage={currentStage}
+                completedStages={completedStages}
+              />
+
+              <div className="mb-4">
+                <p className="text-sm font-medium mb-2">总进度: {Math.round(progress)}%</p>
+                <Progress
+                  value={progress}
+                  color="success"
+                  size="lg"
+                  className="w-full"
+                  aria-label={`总进度 ${Math.round(progress)}%`}
+                />
+              </div>
+
+              {currentStage !== 'completed' && currentStage !== 'error' && (
+                <div className="mb-4">
+                  <p className="text-sm font-medium mb-2">
+                    当前阶段 ({currentStage}): {Math.round(stageProgress)}%
+                  </p>
+                  <Progress
+                    value={stageProgress}
+                    color="warning"
+                    size="md"
+                    className="w-full"
+                    aria-label={`当前阶段进度 ${Math.round(stageProgress)}%`}
+                  />
+                </div>
+              )}
+
+              {subTaskInfo && subTaskInfo.total > 0 && (
+                <SubTaskList
+                  current={subTaskInfo.current}
+                  total={subTaskInfo.total}
+                  currentName={subTaskInfo.currentName}
+                />
+              )}
+
+              <TimeEstimate
+                elapsedTime={elapsedTime}
+                estimatedRemainingTime={estimatedRemainingTime}
+              />
+
+              <div className="flex items-center justify-between mt-6 pt-4 border-t border-slate-800">
+                <div className="text-xs text-slate-500">
+                  {currentStage === 'completed'
+                    ? '解析完成！'
+                    : currentStage === 'error'
+                      ? '解析出错'
+                      : '解析将在后台继续，请勿关闭浏览器'}
+                </div>
+
+                <div className="flex items-center gap-2">
+                  {onBackground && currentStage !== 'completed' && currentStage !== 'error' && (
+                    <Button variant="flat" size="sm" onPress={onBackground}>
+                      隐藏窗口
+                    </Button>
+                  )}
+
+                  {canCancel &&
+                    onCancel &&
+                    currentStage !== 'completed' &&
+                    currentStage !== 'error' && (
+                      <Button color="danger" variant="flat" size="sm" onPress={onCancel}>
+                        取消
+                      </Button>
+                    )}
+
+                  {currentStage === 'completed' && (
+                    <Button color="primary" size="sm" onPress={onCancel}>
+                      完成
+                    </Button>
+                  )}
+                </div>
+              </div>
+            </CardBody>
+          </Card>
+        </motion.div>
+      </AnimatePresence>
+    );
+  },
+  (prevProps, nextProps) => {
+    return (
+      prevProps.isOpen === nextProps.isOpen &&
+      prevProps.currentStage === nextProps.currentStage &&
+      prevProps.progress === nextProps.progress &&
+      prevProps.stageProgress === nextProps.stageProgress &&
+      prevProps.message === nextProps.message &&
+      prevProps.elapsedTime === nextProps.elapsedTime &&
+      prevProps.estimatedRemainingTime === nextProps.estimatedRemainingTime &&
+      JSON.stringify(prevProps.subTaskInfo) === JSON.stringify(nextProps.subTaskInfo)
+    );
+  }
+);
 
 export default ScriptParseProgress;

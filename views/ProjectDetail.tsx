@@ -67,7 +67,7 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({
   // UI State
   const [selectedAsset, setSelectedAsset] = useState<Asset | null>(null);
   const [highlightedAssetId, setHighlightedAssetId] = useState<string>('');
-  
+
   const setActiveTab = (tab: AssetType) => {
     if (selectedAsset) {
       setSelectedAsset(null);
@@ -577,7 +577,9 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({
                 <div className="flex items-center gap-3">
                   <Select
                     aria-label="剧本筛选"
-                    placeholder={scripts.length > 0 ? `全部剧本 (共${scripts.length}个)` : '选择剧本'}
+                    placeholder={
+                      scripts.length > 0 ? `全部剧本 (共${scripts.length}个)` : '选择剧本'
+                    }
                     selectedKeys={[
                       activeTab === AssetType.CHARACTER
                         ? characterScriptFilter
@@ -625,9 +627,11 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({
               )}
           </div>
           {/* 新建按钮 - 在其他标签页显示 */}
-          {!(activeTab === AssetType.CHARACTER ||
-              activeTab === AssetType.SCENE ||
-              activeTab === AssetType.ITEM) && (
+          {!(
+            activeTab === AssetType.CHARACTER ||
+            activeTab === AssetType.SCENE ||
+            activeTab === AssetType.ITEM
+          ) && (
             <Button
               color="primary"
               radius="full"

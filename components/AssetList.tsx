@@ -626,7 +626,10 @@ const AssetList: React.FC<AssetListProps> = ({
                             })()
                           : asset.type === AssetType.VIDEO_SEGMENT
                             ? new Date(asset.createdAt).toLocaleDateString()
-                            : asset.prompt ? asset.prompt.substring(0, 25) + (asset.prompt.length > 25 ? '...' : '') : ''}
+                            : asset.prompt
+                              ? asset.prompt.substring(0, 25) +
+                                (asset.prompt.length > 25 ? '...' : '')
+                              : ''}
                       </p>
                     </div>
                   </CardFooter>

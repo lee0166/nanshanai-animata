@@ -1,13 +1,47 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Tabs, Tab, Card, CardBody, Button, Spinner, Chip, Select, SelectItem, Slider } from '@heroui/react';
-import { User, Camera, Layers, ChevronRight, Check, Image as ImageIcon, Trash2, Eye, Sparkles, Settings } from 'lucide-react';
-import { CharacterAsset, GeneratedImage, CharacterViewAngle, AssetType, JobStatus } from '../../../types';
+import {
+  Tabs,
+  Tab,
+  Card,
+  CardBody,
+  Button,
+  Spinner,
+  Chip,
+  Select,
+  SelectItem,
+  Slider,
+} from '@heroui/react';
+import {
+  User,
+  Camera,
+  Layers,
+  ChevronRight,
+  Check,
+  Image as ImageIcon,
+  Trash2,
+  Eye,
+  Sparkles,
+  Settings,
+} from 'lucide-react';
+import {
+  CharacterAsset,
+  GeneratedImage,
+  CharacterViewAngle,
+  AssetType,
+  JobStatus,
+} from '../../../types';
 import { useApp } from '../../../contexts/context';
 import { useToast } from '../../../contexts/ToastContext';
 import { usePreview } from '../../../components/PreviewProvider';
 import { jobQueue } from '../../../services/queue';
 import { aiService } from '../../../services/aiService';
-import { getFacePortraitPrompt, getFullBodyPrompt, getDefaultStylePrompt, extractFaceDescription, extractFullBodyDescription } from '../../../services/prompt';
+import {
+  getFacePortraitPrompt,
+  getFullBodyPrompt,
+  getDefaultStylePrompt,
+  extractFaceDescription,
+  extractFullBodyDescription,
+} from '../../../services/prompt';
 import { assetReuseService } from '../../../services/asset/AssetReuseService';
 import { ImageGenerationPanel } from '../Shared/ImageGenerationPanel';
 import { storageService } from '../../../services/storage';
@@ -25,19 +59,19 @@ interface CharacterWorkflowWizardProps {
 export const CharacterWorkflowWizard: React.FC<CharacterWorkflowWizardProps> = ({
   asset,
   onUpdate,
-  projectId
+  projectId,
 }) => {
   const { t, settings } = useApp();
   const { showToast } = useToast();
   const { openPreview } = usePreview();
-  
+
   const [currentStage, setCurrentStage] = useState<WorkflowStage>(1);
   const [selectedFaceImage, setSelectedFaceImage] = useState<GeneratedImage | null>(null);
   const [selectedFullBodyImage, setSelectedFullBodyImage] = useState<GeneratedImage | null>(null);
   const [generating, setGenerating] = useState(false);
   const [isCheckingJobs, setIsCheckingJobs] = useState(true);
   const [activeJobIds, setActiveJobIds] = useState<Set<string>>(new Set());
-  
+
   const [stage1Prompt, setStage1Prompt] = useState('');
   const [stage1ModelId, setStage1ModelId] = useState<string>('');
   const [stage1ReferenceImages, setStage1ReferenceImages] = useState<string[]>([]);
@@ -46,7 +80,7 @@ export const CharacterWorkflowWizard: React.FC<CharacterWorkflowWizardProps> = (
   const [stage1Style, setStage1Style] = useState<string>('');
   const [stage1Count, setStage1Count] = useState<number>(1);
   const [stage1GuidanceScale, setStage1GuidanceScale] = useState<number>(2.5);
-  
+
   const [stage2Prompt, setStage2Prompt] = useState('');
   const [stage2ModelId, setStage2ModelId] = useState<string>('');
   const [stage2AspectRatio, setStage2AspectRatio] = useState<string>('3:4');
@@ -54,24 +88,39 @@ export const CharacterWorkflowWizard: React.FC<CharacterWorkflowWizardProps> = (
   const [stage2Style, setStage2Style] = useState<string>('');
   const [stage2Count, setStage2Count] = useState<number>(1);
   const [stage2GuidanceScale, setStage2GuidanceScale] = useState<number>(2.5);
-  
+
   const [stage3Resolution, setStage3Resolution] = useState<string>('2K');
   const [stage3Style, setStage3Style] = useState<string>('');
   const [stage3GuidanceScale, setStage3GuidanceScale] = useState<number>(2.5);
-  
+
   const [genUrls, setGenUrls] = useState<Record<string, string>>({});
-  
+
   const stages = [
-    { id: 1, label: t.character.workflow?.stage1 || '面部特征设计', icon: User, description: t.character.workflow?.stage1Desc || '生成面部特写，确定面部特征' },
-    { id: 2, label: t.character.workflow?.stage2 || '全身设定图', icon: Camera, description: t.character.workflow?.stage2Desc || '基于面部图生成全身设定' },
-    { id: 3, label: t.character.workflow?.stage3 || '多视角生成', icon: Layers, description: t.character.workflow?.stage3Desc || '生成三视图（正面、侧面、背面）' },
+    {
+      id: 1,
+      label: t.character.workflow?.stage1 || '面部特征设计',
+      icon: User,
+      description: t.character.workflow?.stage1Desc || '生成面部特写，确定面部特征',
+    },
+    {
+      id: 2,
+      label: t.character.workflow?.stage2 || '全身设定图',
+      icon: Camera,
+      description: t.character.workflow?.stage2Desc || '基于面部图生成全身设定',
+    },
+    {
+      id: 3,
+      label: t.character.workflow?.stage3 || '多视角生成',
+      icon: Layers,
+      description: t.character.workflow?.stage3Desc || '生成三视图（正面、侧面、背面）',
+    },
   ];
-  
+
   const getInitialModelId = () => {
     const imageModels = settings.models.filter(m => m.type === 'image' && (m.enabled ?? true));
     return imageModels[0]?.id || '';
   };
-  
+
   useEffect(() => {
     const initialModelId = getInitialModelId();
     setStage1ModelId(initialModelId);
@@ -88,7 +137,7 @@ export const CharacterWorkflowWizard: React.FC<CharacterWorkflowWizardProps> = (
     setStage1Prompt(faceDescription || asset.prompt || '');
     setStage2Prompt(fullBodyDescription || asset.prompt || '');
   }, [asset.id]);
-  
+
   useEffect(() => {
     const loadGenUrls = async () => {
       if (!asset.generatedImages) return;
@@ -106,7 +155,7 @@ export const CharacterWorkflowWizard: React.FC<CharacterWorkflowWizardProps> = (
     };
     loadGenUrls();
   }, [asset.generatedImages]);
-  
+
   useEffect(() => {
     const checkActiveJob = async () => {
       setIsCheckingJobs(true);
@@ -133,7 +182,7 @@ export const CharacterWorkflowWizard: React.FC<CharacterWorkflowWizardProps> = (
     };
     checkActiveJob();
   }, [asset.id, settings.models]);
-  
+
   useEffect(() => {
     const unsub = jobQueue.subscribe(async job => {
       if (job.params.assetId === asset.id) {
@@ -169,14 +218,14 @@ export const CharacterWorkflowWizard: React.FC<CharacterWorkflowWizardProps> = (
     });
     return () => unsub();
   }, [asset.id, settings.models]);
-  
+
   const isStageEnabled = (stage: WorkflowStage): boolean => {
     if (stage === 1) return true;
     if (stage === 2) return selectedFaceImage !== null;
     if (stage === 3) return selectedFullBodyImage !== null;
     return false;
   };
-  
+
   const handleStage1Generate = async () => {
     if (!stage1Prompt || !stage1ModelId) {
       showToast(t.project?.alertFill, 'warning');
@@ -195,7 +244,12 @@ export const CharacterWorkflowWizard: React.FC<CharacterWorkflowWizardProps> = (
     try {
       const stylePrompt = getDefaultStylePrompt(stage1Style);
       const scriptDescription = asset.metadata?.scriptDescription as string | undefined;
-      const rolePrompt = getFacePortraitPrompt(stage1Prompt, asset.ageGroup || '', asset.gender || '', scriptDescription);
+      const rolePrompt = getFacePortraitPrompt(
+        stage1Prompt,
+        asset.ageGroup || '',
+        asset.gender || '',
+        scriptDescription
+      );
       const finalPrompt = `${rolePrompt} ${stylePrompt}`;
 
       const updated = {
@@ -247,7 +301,7 @@ export const CharacterWorkflowWizard: React.FC<CharacterWorkflowWizardProps> = (
       setGenerating(false);
     }
   };
-  
+
   const handleStage2Generate = async () => {
     if (!stage2Prompt || !stage2ModelId || !selectedFaceImage) {
       showToast(t.project?.alertFill, 'warning');
@@ -320,7 +374,7 @@ export const CharacterWorkflowWizard: React.FC<CharacterWorkflowWizardProps> = (
       setGenerating(false);
     }
   };
-  
+
   const handleStage3Generate = async () => {
     if (!stage2ModelId || !selectedFullBodyImage) {
       showToast('请先选择全身图', 'error');
@@ -351,23 +405,23 @@ export const CharacterWorkflowWizard: React.FC<CharacterWorkflowWizardProps> = (
         });
 
         if (result.success && result.image) {
-          const updatedAsset = (await storageService.getAsset(asset.id, projectId)) as CharacterAsset;
+          const updatedAsset = (await storageService.getAsset(
+            asset.id,
+            projectId
+          )) as CharacterAsset;
           if (updatedAsset) {
             const newViews = await assetReuseService.updateCharacterViews(
               updatedAsset,
               viewAngle,
               result.image
             );
-            
+
             const updated = {
               ...updatedAsset,
               views: newViews,
-              generatedImages: [
-                ...(updatedAsset.generatedImages || []),
-                result.image
-              ]
+              generatedImages: [...(updatedAsset.generatedImages || []), result.image],
             };
-            
+
             onUpdate(updated);
             successCount++;
           }
@@ -378,7 +432,10 @@ export const CharacterWorkflowWizard: React.FC<CharacterWorkflowWizardProps> = (
       }
 
       if (successCount > 0) {
-        showToast(`批量生成完成！成功: ${successCount}, 失败: ${failCount}`, successCount === viewAngles.length ? 'success' : 'warning');
+        showToast(
+          `批量生成完成！成功: ${successCount}, 失败: ${failCount}`,
+          successCount === viewAngles.length ? 'success' : 'warning'
+        );
       } else {
         showToast('批量生成失败', 'error');
       }
@@ -389,7 +446,7 @@ export const CharacterWorkflowWizard: React.FC<CharacterWorkflowWizardProps> = (
       setGenerating(false);
     }
   };
-  
+
   const handleSelectFaceImage = (img: GeneratedImage) => {
     setSelectedFaceImage(img);
     const scriptDescription = asset.metadata?.scriptDescription as string | undefined;
@@ -409,10 +466,10 @@ export const CharacterWorkflowWizard: React.FC<CharacterWorkflowWizardProps> = (
   const handleDeleteImage = async (imgId: string) => {
     try {
       const updatedImages = (asset.generatedImages || []).filter(img => img.id !== imgId);
-      
+
       let updatedSelectedFaceImage = selectedFaceImage;
       let updatedSelectedFullBodyImage = selectedFullBodyImage;
-      
+
       if (selectedFaceImage?.id === imgId) {
         updatedSelectedFaceImage = null;
       }
@@ -426,7 +483,7 @@ export const CharacterWorkflowWizard: React.FC<CharacterWorkflowWizardProps> = (
       const updatedAsset = {
         ...asset,
         generatedImages: updatedImages,
-        referenceImage: updatedSelectedFaceImage
+        referenceImage: updatedSelectedFaceImage,
       };
       onUpdate(updatedAsset);
       showToast('图片已删除', 'success');
@@ -438,13 +495,15 @@ export const CharacterWorkflowWizard: React.FC<CharacterWorkflowWizardProps> = (
 
   const handlePreviewImage = (img: GeneratedImage, allImages: GeneratedImage[]) => {
     const slides = allImages.map(image => ({
-      src: genUrls[image.id] || (image.path.startsWith('remote:') ? image.path.substring(7) : image.path),
-      alt: image.prompt
+      src:
+        genUrls[image.id] ||
+        (image.path.startsWith('remote:') ? image.path.substring(7) : image.path),
+      alt: image.prompt,
     }));
     const currentIndex = allImages.findIndex(i => i.id === img.id);
     openPreview(slides, currentIndex);
   };
-  
+
   const stage1Images = (asset.generatedImages || []).filter(
     img => img.metadata?.workflowStage === 1 || img.metadata?.stage === 'face'
   );
@@ -456,13 +515,13 @@ export const CharacterWorkflowWizard: React.FC<CharacterWorkflowWizardProps> = (
   const stage3Images = (asset.generatedImages || []).filter(
     img => img.metadata?.viewAngle || img.metadata?.stage === 'views'
   );
-  
+
   return (
     <div className="h-full flex flex-col">
       <div className="border-b border-slate-200 dark:border-slate-800 p-4">
-        <Tabs 
+        <Tabs
           selectedKey={String(currentStage)}
-          onSelectionChange={(key) => {
+          onSelectionChange={key => {
             const stage = Number(key) as WorkflowStage;
             if (isStageEnabled(stage)) {
               setCurrentStage(stage);
@@ -473,17 +532,15 @@ export const CharacterWorkflowWizard: React.FC<CharacterWorkflowWizardProps> = (
             tab: 'data-[selected=true]:bg-white dark:data-[selected=true]:bg-slate-700 transition-colors',
           }}
         >
-          {stages.map((stage) => (
-            <Tab 
+          {stages.map(stage => (
+            <Tab
               key={String(stage.id)}
               isDisabled={!isStageEnabled(stage.id as WorkflowStage)}
               title={
                 <div className="flex items-center gap-2">
                   <stage.icon className="w-4 h-4" />
                   <span className="text-sm font-medium">{stage.label}</span>
-                  {currentStage > stage.id && (
-                    <Check className="w-3 h-3 text-green-500" />
-                  )}
+                  {currentStage > stage.id && <Check className="w-3 h-3 text-green-500" />}
                 </div>
               }
             />
@@ -501,27 +558,34 @@ export const CharacterWorkflowWizard: React.FC<CharacterWorkflowWizardProps> = (
               </h3>
               <div className="flex flex-wrap gap-4 mb-4">
                 <div className="flex flex-col">
-                  <span className="text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wider font-bold">角色名称</span>
+                  <span className="text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wider font-bold">
+                    角色名称
+                  </span>
                   <span className="text-sm font-semibold">{asset.name}</span>
                 </div>
                 {asset.gender && (
                   <div className="flex flex-col">
-                    <span className="text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wider font-bold">性别</span>
+                    <span className="text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wider font-bold">
+                      性别
+                    </span>
                     <span className="text-sm font-semibold">{asset.gender}</span>
                   </div>
                 )}
                 {asset.ageGroup && (
                   <div className="flex flex-col">
-                    <span className="text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wider font-bold">年龄</span>
+                    <span className="text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wider font-bold">
+                      年龄
+                    </span>
                     <span className="text-sm font-semibold">{asset.ageGroup}</span>
                   </div>
                 )}
               </div>
               <p className="text-xs text-slate-600 dark:text-slate-400">
-                {t.character.workflow?.stage1Desc || '生成2-3张面部特写候选图，选择最满意的一张作为面部特征锁定。'}
+                {t.character.workflow?.stage1Desc ||
+                  '生成2-3张面部特写候选图，选择最满意的一张作为面部特征锁定。'}
               </p>
             </div>
-            
+
             <div className="bg-content1 rounded-xl border border-content3 p-6 shadow-sm">
               <ImageGenerationPanel
                 projectId={projectId}
@@ -553,12 +617,12 @@ export const CharacterWorkflowWizard: React.FC<CharacterWorkflowWizardProps> = (
                   {t.character.workflow?.selectFace || '生成的面部候选图'}
                 </h4>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                  {stage1Images.map((img) => (
-                    <div 
+                  {stage1Images.map(img => (
+                    <div
                       key={img.id}
                       className={`relative group cursor-pointer transition-all duration-200 rounded-xl overflow-hidden ${
-                        selectedFaceImage?.id === img.id 
-                          ? 'ring-4 ring-primary shadow-lg scale-[1.02]' 
+                        selectedFaceImage?.id === img.id
+                          ? 'ring-4 ring-primary shadow-lg scale-[1.02]'
                           : 'ring-2 ring-transparent hover:ring-content3 hover:scale-[1.01]'
                       } bg-content2`}
                       onClick={() => handleSelectFaceImage(img)}
@@ -575,7 +639,7 @@ export const CharacterWorkflowWizard: React.FC<CharacterWorkflowWizardProps> = (
                             <ImageIcon className="w-8 h-8 text-slate-400" />
                           </div>
                         )}
-                        
+
                         {selectedFaceImage?.id === img.id && (
                           <div className="absolute top-2 right-2 z-10">
                             <Chip color="primary" size="sm" className="shadow-lg">
@@ -584,14 +648,14 @@ export const CharacterWorkflowWizard: React.FC<CharacterWorkflowWizardProps> = (
                             </Chip>
                           </div>
                         )}
-                        
+
                         <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors duration-200 flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100">
                           <Button
                             size="sm"
                             isIconOnly
                             color="default"
                             className="bg-white/90 hover:bg-white shadow-lg"
-                            onClick={(e) => {
+                            onClick={e => {
                               e.stopPropagation();
                               handlePreviewImage(img, stage1Images);
                             }}
@@ -603,7 +667,7 @@ export const CharacterWorkflowWizard: React.FC<CharacterWorkflowWizardProps> = (
                             isIconOnly
                             color="danger"
                             className="bg-red-500/90 hover:bg-red-500 shadow-lg"
-                            onClick={(e) => {
+                            onClick={e => {
                               e.stopPropagation();
                               handleDeleteImage(img.id);
                             }}
@@ -631,7 +695,7 @@ export const CharacterWorkflowWizard: React.FC<CharacterWorkflowWizardProps> = (
                 {t.character.workflow?.stage2Desc || '基于选定的面部图，生成全身设定图。'}
               </p>
             </div>
-            
+
             {selectedFaceImage && (
               <div className="bg-content1 rounded-xl border border-content3 p-6 shadow-sm">
                 <h4 className="text-sm font-semibold mb-4 flex items-center gap-2">
@@ -691,12 +755,12 @@ export const CharacterWorkflowWizard: React.FC<CharacterWorkflowWizardProps> = (
                   {t.character.workflow?.selectFullBody || '生成的全身图'}
                 </h4>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                  {stage2Images.map((img) => (
-                    <div 
+                  {stage2Images.map(img => (
+                    <div
                       key={img.id}
                       className={`relative group cursor-pointer transition-all duration-200 rounded-xl overflow-hidden ${
-                        selectedFullBodyImage?.id === img.id 
-                          ? 'ring-4 ring-primary shadow-lg scale-[1.02]' 
+                        selectedFullBodyImage?.id === img.id
+                          ? 'ring-4 ring-primary shadow-lg scale-[1.02]'
                           : 'ring-2 ring-transparent hover:ring-content3 hover:scale-[1.01]'
                       } bg-content2`}
                       onClick={() => handleSelectFullBodyImage(img)}
@@ -713,7 +777,7 @@ export const CharacterWorkflowWizard: React.FC<CharacterWorkflowWizardProps> = (
                             <ImageIcon className="w-8 h-8 text-slate-400" />
                           </div>
                         )}
-                        
+
                         {selectedFullBodyImage?.id === img.id && (
                           <div className="absolute top-2 right-2 z-10">
                             <Chip color="primary" size="sm" className="shadow-lg">
@@ -722,14 +786,14 @@ export const CharacterWorkflowWizard: React.FC<CharacterWorkflowWizardProps> = (
                             </Chip>
                           </div>
                         )}
-                        
+
                         <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors duration-200 flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100">
                           <Button
                             size="sm"
                             isIconOnly
                             color="default"
                             className="bg-white/90 hover:bg-white shadow-lg"
-                            onClick={(e) => {
+                            onClick={e => {
                               e.stopPropagation();
                               handlePreviewImage(img, stage2Images);
                             }}
@@ -741,7 +805,7 @@ export const CharacterWorkflowWizard: React.FC<CharacterWorkflowWizardProps> = (
                             isIconOnly
                             color="danger"
                             className="bg-red-500/90 hover:bg-red-500 shadow-lg"
-                            onClick={(e) => {
+                            onClick={e => {
                               e.stopPropagation();
                               handleDeleteImage(img.id);
                             }}
@@ -766,10 +830,11 @@ export const CharacterWorkflowWizard: React.FC<CharacterWorkflowWizardProps> = (
                 {t.character.workflow?.stage3 || '阶段3：多视角生成'}
               </h3>
               <p className="text-xs text-slate-600 dark:text-slate-400">
-                {t.character.workflow?.stage3Desc || '基于全身设定图，生成三视图（正面、侧面、背面、四分之三）。'}
+                {t.character.workflow?.stage3Desc ||
+                  '基于全身设定图，生成三视图（正面、侧面、背面、四分之三）。'}
               </p>
             </div>
-            
+
             {selectedFullBodyImage && (
               <div className="bg-content1 rounded-xl border border-content3 p-6 shadow-sm">
                 <h4 className="text-sm font-semibold mb-4 flex items-center gap-2">
@@ -810,14 +875,16 @@ export const CharacterWorkflowWizard: React.FC<CharacterWorkflowWizardProps> = (
                   </label>
                   <Select
                     selectedKeys={[stage2ModelId]}
-                    onSelectionChange={(keys) => setStage2ModelId(Array.from(keys)[0] as string)}
+                    onSelectionChange={keys => setStage2ModelId(Array.from(keys)[0] as string)}
                     classNames={{ trigger: 'h-10' }}
                   >
-                    {settings.models.filter(m => m.type === 'image' && (m.enabled ?? true)).map(model => (
-                      <SelectItem key={model.id} value={model.id}>
-                        {model.name}
-                      </SelectItem>
-                    ))}
+                    {settings.models
+                      .filter(m => m.type === 'image' && (m.enabled ?? true))
+                      .map(model => (
+                        <SelectItem key={model.id} value={model.id}>
+                          {model.name}
+                        </SelectItem>
+                      ))}
                   </Select>
                 </div>
                 <div className="space-y-2">
@@ -826,12 +893,18 @@ export const CharacterWorkflowWizard: React.FC<CharacterWorkflowWizardProps> = (
                   </label>
                   <Select
                     selectedKeys={[stage3Resolution]}
-                    onSelectionChange={(keys) => setStage3Resolution(Array.from(keys)[0] as string)}
+                    onSelectionChange={keys => setStage3Resolution(Array.from(keys)[0] as string)}
                     classNames={{ trigger: 'h-10' }}
                   >
-                    <SelectItem key="1K" value="1K">1K (1024x1024)</SelectItem>
-                    <SelectItem key="2K" value="2K">2K (1536x1536)</SelectItem>
-                    <SelectItem key="4K" value="4K">4K (2048x2048)</SelectItem>
+                    <SelectItem key="1K" value="1K">
+                      1K (1024x1024)
+                    </SelectItem>
+                    <SelectItem key="2K" value="2K">
+                      2K (1536x1536)
+                    </SelectItem>
+                    <SelectItem key="4K" value="4K">
+                      4K (2048x2048)
+                    </SelectItem>
                   </Select>
                 </div>
                 <div className="space-y-2 md:col-span-2">
@@ -840,7 +913,7 @@ export const CharacterWorkflowWizard: React.FC<CharacterWorkflowWizardProps> = (
                   </label>
                   <Slider
                     value={stage3GuidanceScale}
-                    onChange={(value) => setStage3GuidanceScale(value as number)}
+                    onChange={value => setStage3GuidanceScale(value as number)}
                     minValue={1}
                     maxValue={10}
                     step={0.5}
@@ -858,7 +931,9 @@ export const CharacterWorkflowWizard: React.FC<CharacterWorkflowWizardProps> = (
                   className="font-bold shadow-lg shadow-primary/20"
                   startContent={!generating && <Sparkles size={20} />}
                 >
-                  {generating ? (t.character?.generating || '生成中...') : (t.character.startGeneration || '生成三视图')}
+                  {generating
+                    ? t.character?.generating || '生成中...'
+                    : t.character.startGeneration || '生成三视图'}
                 </Button>
               </div>
             </div>
@@ -870,8 +945,8 @@ export const CharacterWorkflowWizard: React.FC<CharacterWorkflowWizardProps> = (
                   生成的多视角图
                 </h4>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  {stage3Images.map((img) => (
-                    <div 
+                  {stage3Images.map(img => (
+                    <div
                       key={img.id}
                       className="relative group cursor-pointer transition-all duration-200 rounded-xl overflow-hidden ring-2 ring-transparent hover:ring-content3 hover:scale-[1.01] bg-content2"
                     >
@@ -887,24 +962,31 @@ export const CharacterWorkflowWizard: React.FC<CharacterWorkflowWizardProps> = (
                             <ImageIcon className="w-8 h-8 text-slate-400" />
                           </div>
                         )}
-                        
+
                         {img.metadata?.viewAngle && (
                           <div className="absolute top-2 left-2 z-10">
-                            <Chip size="sm" className="shadow-lg bg-black/60 text-white border-none">
-                              {img.metadata.viewAngle === 'front' ? '正面' : 
-                               img.metadata.viewAngle === 'side' ? '侧面' : 
-                               img.metadata.viewAngle === 'back' ? '背面' : '四分之三'}
+                            <Chip
+                              size="sm"
+                              className="shadow-lg bg-black/60 text-white border-none"
+                            >
+                              {img.metadata.viewAngle === 'front'
+                                ? '正面'
+                                : img.metadata.viewAngle === 'side'
+                                  ? '侧面'
+                                  : img.metadata.viewAngle === 'back'
+                                    ? '背面'
+                                    : '四分之三'}
                             </Chip>
                           </div>
                         )}
-                        
+
                         <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors duration-200 flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100">
                           <Button
                             size="sm"
                             isIconOnly
                             color="default"
                             className="bg-white/90 hover:bg-white shadow-lg"
-                            onClick={(e) => {
+                            onClick={e => {
                               e.stopPropagation();
                               handlePreviewImage(img, stage3Images);
                             }}
@@ -916,7 +998,7 @@ export const CharacterWorkflowWizard: React.FC<CharacterWorkflowWizardProps> = (
                             isIconOnly
                             color="danger"
                             className="bg-red-500/90 hover:bg-red-500 shadow-lg"
-                            onClick={(e) => {
+                            onClick={e => {
                               e.stopPropagation();
                               handleDeleteImage(img.id);
                             }}
@@ -943,11 +1025,11 @@ export const CharacterWorkflowWizard: React.FC<CharacterWorkflowWizardProps> = (
           {t.character.workflow?.prevStep || '上一步'}
         </Button>
         <div className="flex gap-2">
-          {currentStage < 3 && isStageEnabled(currentStage + 1 as WorkflowStage) && (
+          {currentStage < 3 && isStageEnabled((currentStage + 1) as WorkflowStage) && (
             <Button
               color="primary"
               endContent={<ChevronRight className="w-4 h-4" />}
-              onPress={() => setCurrentStage(prev => prev + 1 as WorkflowStage)}
+              onPress={() => setCurrentStage(prev => (prev + 1) as WorkflowStage)}
             >
               {t.character.workflow?.nextStep || '下一步'}
             </Button>

@@ -369,13 +369,13 @@ const HistoryThumbnail: React.FC<HistoryThumbnailProps> = React.memo(
   ({ img, index, isCurrent, imageUrl, onSelect, onDelete }) => {
     const [showDelete, setShowDelete] = React.useState(false);
     const deleteTimerRef = React.useRef<NodeJS.Timeout | null>(null);
-    
+
     const handleMouseEnter = React.useCallback(() => {
       deleteTimerRef.current = setTimeout(() => {
         setShowDelete(true);
       }, 500);
     }, []);
-    
+
     const handleMouseLeave = React.useCallback(() => {
       if (deleteTimerRef.current) {
         clearTimeout(deleteTimerRef.current);
@@ -396,18 +396,14 @@ const HistoryThumbnail: React.FC<HistoryThumbnailProps> = React.memo(
         className={`relative flex-shrink-0 w-24 h-16 cursor-pointer rounded-lg overflow-hidden border-2 ${
           isCurrent ? 'border-white' : 'border-transparent hover:border-slate-400'
         }`}
-        onClick={(e) => {
+        onClick={e => {
           e.stopPropagation();
           onSelect(img.id);
         }}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
       >
-        <img
-          src={imageUrl}
-          alt={`历史版本 ${index + 1}`}
-          className="w-full h-full object-cover"
-        />
+        <img src={imageUrl} alt={`历史版本 ${index + 1}`} className="w-full h-full object-cover" />
         <div className="absolute top-1 left-1 bg-black/70 text-white text-xs px-1 py-0.5 rounded">
           V{index + 1}
         </div>
@@ -415,7 +411,7 @@ const HistoryThumbnail: React.FC<HistoryThumbnailProps> = React.memo(
           className={`absolute top-0 right-0 w-5 h-5 flex items-center justify-center transition-opacity duration-200 ${
             showDelete ? 'opacity-100' : 'opacity-0'
           }`}
-          onClick={(e) => {
+          onClick={e => {
             e.stopPropagation();
             onDelete(img.id);
           }}
@@ -468,9 +464,7 @@ const VisualDescription: React.FC<VisualDescriptionProps> = React.memo(({ visual
   if (!visualDescription) {
     return (
       <div className="bg-slate-50 dark:bg-slate-800 rounded-lg p-4 border border-slate-200 dark:border-slate-700">
-        <h5 className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-3">
-          视觉描述
-        </h5>
+        <h5 className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-3">视觉描述</h5>
         <div className="p-3 bg-slate-100 dark:bg-slate-700 rounded text-slate-500 dark:text-slate-400">
           无详细视觉描述信息
         </div>
@@ -480,45 +474,54 @@ const VisualDescription: React.FC<VisualDescriptionProps> = React.memo(({ visual
 
   return (
     <div className="bg-slate-50 dark:bg-slate-800 rounded-lg p-4 border border-slate-200 dark:border-slate-700">
-      <h5 className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-4">
-        视觉描述
-      </h5>
-      
+      <h5 className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-4">视觉描述</h5>
+
       <div className="space-y-4">
         {visualDescription.composition && (
           <div className="p-3 bg-slate-100 dark:bg-slate-700 rounded">
             <div className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">构图</div>
-            <div className="text-sm text-slate-900 dark:text-slate-300">{visualDescription.composition}</div>
-          </div>
-        )}
-        
-        {visualDescription.lighting && (
-          <div className="p-3 bg-slate-100 dark:bg-slate-700 rounded">
-            <div className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">光影</div>
-            <div className="text-sm text-slate-900 dark:text-slate-300">{visualDescription.lighting}</div>
-          </div>
-        )}
-        
-        {visualDescription.colorPalette && (
-          <div className="p-3 bg-slate-100 dark:bg-slate-700 rounded">
-            <div className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">色调</div>
-            <div className="text-sm text-slate-900 dark:text-slate-300">{visualDescription.colorPalette}</div>
-          </div>
-        )}
-        
-        {visualDescription.characterPositions && visualDescription.characterPositions.length > 0 && (
-          <div className="p-3 bg-slate-100 dark:bg-slate-700 rounded">
-            <div className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">角色位置</div>
-            <div className="text-sm text-slate-900 dark:text-slate-300 space-y-2">
-              {visualDescription.characterPositions.map((pos, index) => (
-                <div key={index} className="flex flex-col">
-                  <span className="font-medium">{pos.characterId}</span>
-                  <span className="text-slate-600 dark:text-slate-400">{pos.position}，{pos.action}，{pos.expression}</span>
-                </div>
-              ))}
+            <div className="text-sm text-slate-900 dark:text-slate-300">
+              {visualDescription.composition}
             </div>
           </div>
         )}
+
+        {visualDescription.lighting && (
+          <div className="p-3 bg-slate-100 dark:bg-slate-700 rounded">
+            <div className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">光影</div>
+            <div className="text-sm text-slate-900 dark:text-slate-300">
+              {visualDescription.lighting}
+            </div>
+          </div>
+        )}
+
+        {visualDescription.colorPalette && (
+          <div className="p-3 bg-slate-100 dark:bg-slate-700 rounded">
+            <div className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">色调</div>
+            <div className="text-sm text-slate-900 dark:text-slate-300">
+              {visualDescription.colorPalette}
+            </div>
+          </div>
+        )}
+
+        {visualDescription.characterPositions &&
+          visualDescription.characterPositions.length > 0 && (
+            <div className="p-3 bg-slate-100 dark:bg-slate-700 rounded">
+              <div className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                角色位置
+              </div>
+              <div className="text-sm text-slate-900 dark:text-slate-300 space-y-2">
+                {visualDescription.characterPositions.map((pos, index) => (
+                  <div key={index} className="flex flex-col">
+                    <span className="font-medium">{pos.characterId}</span>
+                    <span className="text-slate-600 dark:text-slate-400">
+                      {pos.position}，{pos.action}，{pos.expression}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
       </div>
     </div>
   );
@@ -1709,17 +1712,17 @@ export const ShotManager: React.FC<ShotManagerProps> = ({
 
     storageService.saveScript(updatedScript);
     setScripts(scripts.map(s => (s.id === updatedScript.id ? updatedScript : s)));
-    
+
     onDeleteClose();
     setImageIdToDelete(null);
   }, [
-    imageIdToDelete, 
-    selectedShot, 
-    selectedKeyframeIndex, 
-    allShots, 
-    currentScript, 
-    scripts, 
-    onDeleteClose
+    imageIdToDelete,
+    selectedShot,
+    selectedKeyframeIndex,
+    allShots,
+    currentScript,
+    scripts,
+    onDeleteClose,
   ]);
 
   // 处理关键帧拖拽排序
@@ -1773,12 +1776,14 @@ export const ShotManager: React.FC<ShotManagerProps> = ({
   // 处理选择角色资产
   const handleSelectCharacter = useCallback(
     (asset: CharacterAsset) => {
-      const currentImage = asset.generatedImages?.find(img => img.id === asset.currentImageId) || asset.generatedImages?.[0];
+      const currentImage =
+        asset.generatedImages?.find(img => img.id === asset.currentImageId) ||
+        asset.generatedImages?.[0];
       setReferences(prev => ({
         ...prev,
         character: { id: asset.id, name: asset.name, weight: 1 },
       }));
-      
+
       // 更新关键帧的references
       if (selectedShot && selectedKeyframeIndex >= 0 && selectedShot.keyframes) {
         const updatedKeyframes = [...selectedShot.keyframes];
@@ -1815,7 +1820,7 @@ export const ShotManager: React.FC<ShotManagerProps> = ({
   const handleClearCharacter = useCallback(() => {
     setReferences(prev => ({ ...prev, character: undefined }));
     setReferenceImageUrls(prev => ({ ...prev, character: undefined }));
-    
+
     // 更新关键帧的references
     if (selectedShot && selectedKeyframeIndex >= 0 && selectedShot.keyframes) {
       const updatedKeyframes = [...selectedShot.keyframes];
@@ -1839,12 +1844,14 @@ export const ShotManager: React.FC<ShotManagerProps> = ({
   // 处理选择场景资产
   const handleSelectScene = useCallback(
     (asset: SceneAsset) => {
-      const currentImage = asset.generatedImages?.find(img => img.id === asset.currentImageId) || asset.generatedImages?.[0];
+      const currentImage =
+        asset.generatedImages?.find(img => img.id === asset.currentImageId) ||
+        asset.generatedImages?.[0];
       setReferences(prev => ({
         ...prev,
         scene: { id: asset.id, name: asset.name, weight: 1 },
       }));
-      
+
       // 更新关键帧的references
       if (selectedShot && selectedKeyframeIndex >= 0 && selectedShot.keyframes) {
         const updatedKeyframes = [...selectedShot.keyframes];
@@ -1881,7 +1888,7 @@ export const ShotManager: React.FC<ShotManagerProps> = ({
   const handleClearScene = useCallback(() => {
     setReferences(prev => ({ ...prev, scene: undefined }));
     setReferenceImageUrls(prev => ({ ...prev, scene: undefined }));
-    
+
     // 更新关键帧的references
     if (selectedShot && selectedKeyframeIndex >= 0 && selectedShot.keyframes) {
       const updatedKeyframes = [...selectedShot.keyframes];
@@ -2043,7 +2050,9 @@ export const ShotManager: React.FC<ShotManagerProps> = ({
                       {selectedShot.sceneName}
                     </h2>
                   </div>
-                  <p className="text-xs text-slate-400 mt-0.5 truncate max-w-md">{selectedShot.description}</p>
+                  <p className="text-xs text-slate-400 mt-0.5 truncate max-w-md">
+                    {selectedShot.description}
+                  </p>
                 </div>
               </div>
               <div className="flex items-center gap-2">
@@ -2092,7 +2101,9 @@ export const ShotManager: React.FC<ShotManagerProps> = ({
           {selectedShot ? (
             <div className="flex-1 flex flex-col overflow-y-auto gap-4">
               {/* 选中关键帧时：预览区 + 历史版本 + 生图面板 */}
-              {selectedShot.keyframes && selectedShot.keyframes.length > 0 && selectedKeyframeIndex >= 0 ? (
+              {selectedShot.keyframes &&
+              selectedShot.keyframes.length > 0 &&
+              selectedKeyframeIndex >= 0 ? (
                 <>
                   {/* 关键帧图片预览 */}
                   <div className="flex-shrink-0">
@@ -2131,18 +2142,15 @@ export const ShotManager: React.FC<ShotManagerProps> = ({
 
                         {/* 关键帧指示器 - 右上角 */}
                         <div className="absolute top-3 right-3 bg-black/80 px-3 py-1.5 rounded-full text-xs font-semibold text-white shadow-lg z-10">
-                          {selectedShot.shotNumber || selectedShot.sequence}-{selectedKeyframeIndex + 1}{' '}
-                          / {selectedShot.keyframes.length}
+                          {selectedShot.shotNumber || selectedShot.sequence}-
+                          {selectedKeyframeIndex + 1} / {selectedShot.keyframes.length}
                         </div>
 
                         {/* 悬浮控制条 - 底部 */}
                         <div className="absolute bottom-3 left-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10">
                           <div className="flex items-center gap-3">
                             {/* 上一帧按钮 */}
-                            <div
-                              onClick={(e) => e.stopPropagation()}
-                              className="flex-shrink-0"
-                            >
+                            <div onClick={e => e.stopPropagation()} className="flex-shrink-0">
                               <Button
                                 size="sm"
                                 variant="light"
@@ -2166,11 +2174,7 @@ export const ShotManager: React.FC<ShotManagerProps> = ({
                                 const kf = selectedShot.keyframes[selectedKeyframeIndex];
                                 const images = kf.generatedImages || [];
                                 if (images.length === 0) {
-                                  return (
-                                    <div className="text-sm text-white/60">
-                                      暂无历史版本
-                                    </div>
-                                  );
+                                  return <div className="text-sm text-white/60">暂无历史版本</div>;
                                 }
 
                                 return images.map((img, index) => (
@@ -2186,7 +2190,7 @@ export const ShotManager: React.FC<ShotManagerProps> = ({
                                 ));
                               })()}
                             </div>
-                            
+
                             <style>{`
                               .scrollbar-hide::-webkit-scrollbar {
                                 display: none;
@@ -2198,10 +2202,7 @@ export const ShotManager: React.FC<ShotManagerProps> = ({
                             `}</style>
 
                             {/* 下一帧按钮 */}
-                            <div
-                              onClick={(e) => e.stopPropagation()}
-                              className="flex-shrink-0"
-                            >
+                            <div onClick={e => e.stopPropagation()} className="flex-shrink-0">
                               <Button
                                 size="sm"
                                 variant="light"
@@ -2211,7 +2212,9 @@ export const ShotManager: React.FC<ShotManagerProps> = ({
                                     setSelectedKeyframeIndex(selectedKeyframeIndex + 1);
                                   }
                                 }}
-                                isDisabled={selectedKeyframeIndex === selectedShot.keyframes.length - 1}
+                                isDisabled={
+                                  selectedKeyframeIndex === selectedShot.keyframes.length - 1
+                                }
                                 className="bg-black/50 backdrop-blur-sm border border-white/30 text-white hover:bg-black/70"
                               >
                                 下一帧
@@ -2275,11 +2278,19 @@ export const ShotManager: React.FC<ShotManagerProps> = ({
                                 </span>
                                 {references.character ? (
                                   <div className="flex items-center gap-3 flex-1">
-                                    <div 
+                                    <div
                                       className="w-8 h-8 bg-slate-300 dark:bg-slate-700 rounded overflow-hidden cursor-pointer hover:opacity-90 transition-opacity shrink-0"
                                       onClick={() => {
                                         if (referenceImageUrls.character) {
-                                          openPreview([{ src: referenceImageUrls.character, alt: references.character.name }], 0);
+                                          openPreview(
+                                            [
+                                              {
+                                                src: referenceImageUrls.character,
+                                                alt: references.character.name,
+                                              },
+                                            ],
+                                            0
+                                          );
                                         }
                                       }}
                                     >
@@ -2304,7 +2315,9 @@ export const ShotManager: React.FC<ShotManagerProps> = ({
                                     <div className="w-8 h-8 bg-slate-200 dark:bg-slate-800 rounded border-2 border-dashed border-content3 flex items-center justify-center shrink-0">
                                       <Users size={20} className="text-slate-400" />
                                     </div>
-                                    <span className="text-xs text-slate-500 flex-1">未选择角色</span>
+                                    <span className="text-xs text-slate-500 flex-1">
+                                      未选择角色
+                                    </span>
                                   </div>
                                 )}
                                 <Button
@@ -2331,11 +2344,19 @@ export const ShotManager: React.FC<ShotManagerProps> = ({
                                 </span>
                                 {references.scene ? (
                                   <div className="flex items-center gap-3 flex-1">
-                                    <div 
+                                    <div
                                       className="w-8 h-8 bg-slate-300 dark:bg-slate-700 rounded overflow-hidden cursor-pointer hover:opacity-90 transition-opacity shrink-0"
                                       onClick={() => {
                                         if (referenceImageUrls.scene) {
-                                          openPreview([{ src: referenceImageUrls.scene, alt: references.scene.name }], 0);
+                                          openPreview(
+                                            [
+                                              {
+                                                src: referenceImageUrls.scene,
+                                                alt: references.scene.name,
+                                              },
+                                            ],
+                                            0
+                                          );
                                         }
                                       }}
                                     >
@@ -2360,7 +2381,9 @@ export const ShotManager: React.FC<ShotManagerProps> = ({
                                     <div className="w-8 h-8 bg-slate-200 dark:bg-slate-800 rounded border-2 border-dashed border-content3 flex items-center justify-center shrink-0">
                                       <MapPin size={20} className="text-slate-400" />
                                     </div>
-                                    <span className="text-xs text-slate-500 flex-1">未选择场景</span>
+                                    <span className="text-xs text-slate-500 flex-1">
+                                      未选择场景
+                                    </span>
                                   </div>
                                 )}
                                 <Button
@@ -2403,7 +2426,8 @@ export const ShotManager: React.FC<ShotManagerProps> = ({
                           <Select
                             aria-label="选择生图模型"
                             selectedKeys={
-                              selectedImageModel && availableImageModels.some(m => m.id === selectedImageModel)
+                              selectedImageModel &&
+                              availableImageModels.some(m => m.id === selectedImageModel)
                                 ? [selectedImageModel]
                                 : []
                             }
@@ -2557,10 +2581,13 @@ export const ShotManager: React.FC<ShotManagerProps> = ({
                         className="font-bold h-12 rounded-xl bg-slate-200 hover:bg-slate-300 text-slate-900 dark:bg-slate-700 dark:hover:bg-slate-600 dark:text-slate-100 shadow-xl shadow-slate-500/20 dark:shadow-slate-900/20 active:scale-95 transition-all"
                         classNames={{
                           base: 'bg-slate-200 hover:bg-slate-300 text-slate-900 dark:bg-slate-700 dark:hover:bg-slate-600 dark:text-slate-100',
-                          content: 'text-slate-900 dark:text-slate-100 font-black uppercase tracking-widest text-sm',
+                          content:
+                            'text-slate-900 dark:text-slate-100 font-black uppercase tracking-widest text-sm',
                           spinner: 'text-slate-900 dark:text-slate-100',
                         }}
-                        startContent={<Sparkles size={18} className="text-slate-900 dark:text-slate-100" />}
+                        startContent={
+                          <Sparkles size={18} className="text-slate-900 dark:text-slate-100" />
+                        }
                       >
                         生成图片
                       </Button>
@@ -2573,7 +2600,7 @@ export const ShotManager: React.FC<ShotManagerProps> = ({
                   <motion.div
                     initial={{ opacity: 0, y: 15 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.35, ease: "easeOut" }}
+                    transition={{ duration: 0.35, ease: 'easeOut' }}
                   >
                     {/* 专业风格分镜核心信息面板 */}
                     <div className="bg-content1 border border-content3 rounded-lg overflow-hidden flex flex-col max-w-4xl mx-auto">
@@ -2587,7 +2614,7 @@ export const ShotManager: React.FC<ShotManagerProps> = ({
                           <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
                         </div>
                       </div>
-                      
+
                       {/* 核心信息区域 */}
                       <div className="flex-1 overflow-y-auto p-4 space-y-3">
                         {/* 基本信息行 */}
@@ -2599,25 +2626,35 @@ export const ShotManager: React.FC<ShotManagerProps> = ({
                         >
                           {/* 镜号 */}
                           <div className="bg-content2 border border-content3 rounded-lg p-3">
-                            <div className="text-xs text-slate-500 dark:text-slate-400 mb-1">镜号</div>
+                            <div className="text-xs text-slate-500 dark:text-slate-400 mb-1">
+                              镜号
+                            </div>
                             <div className="text-sm font-mono font-semibold text-orange-500">
                               {selectedShot.shotNumber || selectedShot.sequence}
                             </div>
                           </div>
-                          
+
                           {/* 场景标签 */}
                           <div className="bg-content2 border border-content3 rounded-lg p-3">
-                            <div className="text-xs text-slate-500 dark:text-slate-400 mb-1">场景</div>
-                            <div className="text-sm font-medium text-foreground truncate">{selectedShot.sceneName}</div>
+                            <div className="text-xs text-slate-500 dark:text-slate-400 mb-1">
+                              场景
+                            </div>
+                            <div className="text-sm font-medium text-foreground truncate">
+                              {selectedShot.sceneName}
+                            </div>
                           </div>
-                          
+
                           {/* 时长 */}
                           <div className="bg-content2 border border-content3 rounded-lg p-3">
-                            <div className="text-xs text-slate-500 dark:text-slate-400 mb-1">时长</div>
-                            <div className="text-sm font-mono text-foreground">{selectedShot.duration}s</div>
+                            <div className="text-xs text-slate-500 dark:text-slate-400 mb-1">
+                              时长
+                            </div>
+                            <div className="text-sm font-mono text-foreground">
+                              {selectedShot.duration}s
+                            </div>
                           </div>
                         </motion.div>
-                        
+
                         {/* 技术参数行 */}
                         <motion.div
                           initial={{ opacity: 0, y: 6 }}
@@ -2627,35 +2664,45 @@ export const ShotManager: React.FC<ShotManagerProps> = ({
                         >
                           {/* 景别 */}
                           <div className="bg-content2 border border-content3 rounded-lg p-2.5">
-                            <div className="text-xs text-slate-500 dark:text-slate-400 mb-1">景别</div>
+                            <div className="text-xs text-slate-500 dark:text-slate-400 mb-1">
+                              景别
+                            </div>
                             <div className="text-sm font-mono text-foreground">
                               {selectedShot.shotType || '未知'}
                             </div>
                           </div>
-                          
+
                           {/* 拍摄角度 */}
                           <div className="bg-content2 border border-content3 rounded-lg p-2.5">
-                            <div className="text-xs text-slate-500 dark:text-slate-400 mb-1">角度</div>
+                            <div className="text-xs text-slate-500 dark:text-slate-400 mb-1">
+                              角度
+                            </div>
                             <div className="text-sm font-mono text-foreground">
                               {selectedShot.cameraAngle || '未知'}
                             </div>
                           </div>
-                          
+
                           {/* 运镜方式 */}
                           <div className="bg-content2 border border-content3 rounded-lg p-2.5">
-                            <div className="text-xs text-slate-500 dark:text-slate-400 mb-1">运镜</div>
+                            <div className="text-xs text-slate-500 dark:text-slate-400 mb-1">
+                              运镜
+                            </div>
                             <div className="text-sm font-mono text-foreground">
                               {selectedShot.cameraMovement || '未知'}
                             </div>
                           </div>
-                          
+
                           {/* 情绪 */}
                           <div className="bg-content2 border border-content3 rounded-lg p-2.5">
-                            <div className="text-xs text-slate-500 dark:text-slate-400 mb-1">情绪</div>
-                            <div className="text-sm text-foreground truncate">{selectedShot.mood || '未知'}</div>
+                            <div className="text-xs text-slate-500 dark:text-slate-400 mb-1">
+                              情绪
+                            </div>
+                            <div className="text-sm text-foreground truncate">
+                              {selectedShot.mood || '未知'}
+                            </div>
                           </div>
                         </motion.div>
-                        
+
                         {/* 分镜描述 */}
                         <motion.div
                           initial={{ opacity: 0, y: 6 }}
@@ -2665,13 +2712,15 @@ export const ShotManager: React.FC<ShotManagerProps> = ({
                         >
                           <div className="flex items-center gap-2 mb-2">
                             <div className="w-1 h-4 bg-orange-500 rounded" />
-                            <h5 className="text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wider">分镜描述</h5>
+                            <h5 className="text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wider">
+                              分镜描述
+                            </h5>
                           </div>
                           <div className="text-sm text-foreground leading-relaxed">
                             {selectedShot.description}
                           </div>
                         </motion.div>
-                        
+
                         {/* 视觉描述和音频信息 - 并排布局 */}
                         <div className="grid grid-cols-2 gap-3">
                           {/* 视觉描述 */}
@@ -2683,34 +2732,50 @@ export const ShotManager: React.FC<ShotManagerProps> = ({
                           >
                             <div className="flex items-center gap-2 mb-2">
                               <div className="w-1 h-4 bg-blue-500 rounded" />
-                              <h5 className="text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wider">视觉描述</h5>
+                              <h5 className="text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wider">
+                                视觉描述
+                              </h5>
                             </div>
                             {selectedShot.visualDescription ? (
                               <div className="space-y-2 text-sm">
                                 {selectedShot.visualDescription.composition && (
                                   <div className="flex gap-2">
-                                    <span className="text-xs font-medium text-slate-500 dark:text-slate-400 min-w-[45px]">构图:</span> 
-                                    <span className="text-foreground">{selectedShot.visualDescription.composition}</span>
+                                    <span className="text-xs font-medium text-slate-500 dark:text-slate-400 min-w-[45px]">
+                                      构图:
+                                    </span>
+                                    <span className="text-foreground">
+                                      {selectedShot.visualDescription.composition}
+                                    </span>
                                   </div>
                                 )}
                                 {selectedShot.visualDescription.lighting && (
                                   <div className="flex gap-2">
-                                    <span className="text-xs font-medium text-slate-500 dark:text-slate-400 min-w-[45px]">光影:</span> 
-                                    <span className="text-foreground">{selectedShot.visualDescription.lighting}</span>
+                                    <span className="text-xs font-medium text-slate-500 dark:text-slate-400 min-w-[45px]">
+                                      光影:
+                                    </span>
+                                    <span className="text-foreground">
+                                      {selectedShot.visualDescription.lighting}
+                                    </span>
                                   </div>
                                 )}
                                 {selectedShot.visualDescription.colorPalette && (
                                   <div className="flex gap-2">
-                                    <span className="text-xs font-medium text-slate-500 dark:text-slate-400 min-w-[45px]">色调:</span> 
-                                    <span className="text-foreground">{selectedShot.visualDescription.colorPalette}</span>
+                                    <span className="text-xs font-medium text-slate-500 dark:text-slate-400 min-w-[45px]">
+                                      色调:
+                                    </span>
+                                    <span className="text-foreground">
+                                      {selectedShot.visualDescription.colorPalette}
+                                    </span>
                                   </div>
                                 )}
                               </div>
                             ) : (
-                              <div className="text-slate-500 dark:text-slate-400 text-sm italic">无详细描述</div>
+                              <div className="text-slate-500 dark:text-slate-400 text-sm italic">
+                                无详细描述
+                              </div>
                             )}
                           </motion.div>
-                          
+
                           {/* 音频信息 */}
                           <motion.div
                             initial={{ opacity: 0, y: 6 }}
@@ -2720,34 +2785,48 @@ export const ShotManager: React.FC<ShotManagerProps> = ({
                           >
                             <div className="flex items-center gap-2 mb-2">
                               <div className="w-1 h-4 bg-green-500 rounded" />
-                              <h5 className="text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wider">音频信息</h5>
+                              <h5 className="text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wider">
+                                音频信息
+                              </h5>
                             </div>
                             <div className="space-y-2 text-sm">
                               {selectedShot.dialogue && (
                                 <div className="p-2 bg-content3/50 rounded border border-content3">
                                   <div className="flex items-center gap-2 mb-1">
                                     <div className="w-0.5 h-3 bg-green-500 rounded" />
-                                    <span className="text-xs font-medium text-slate-600 dark:text-slate-300">对话</span>
+                                    <span className="text-xs font-medium text-slate-600 dark:text-slate-300">
+                                      对话
+                                    </span>
                                   </div>
-                                  <span className="text-slate-600 dark:text-slate-400 text-sm line-clamp-2">{selectedShot.dialogue}</span>
+                                  <span className="text-slate-600 dark:text-slate-400 text-sm line-clamp-2">
+                                    {selectedShot.dialogue}
+                                  </span>
                                 </div>
                               )}
                               {selectedShot.sound && (
                                 <div className="p-2 bg-content3/50 rounded border border-content3">
                                   <div className="flex items-center gap-2 mb-1">
                                     <div className="w-0.5 h-3 bg-green-500 rounded" />
-                                    <span className="text-xs font-medium text-slate-600 dark:text-slate-300">音效</span>
+                                    <span className="text-xs font-medium text-slate-600 dark:text-slate-300">
+                                      音效
+                                    </span>
                                   </div>
-                                  <span className="text-slate-600 dark:text-slate-400 text-sm line-clamp-2">{selectedShot.sound}</span>
+                                  <span className="text-slate-600 dark:text-slate-400 text-sm line-clamp-2">
+                                    {selectedShot.sound}
+                                  </span>
                                 </div>
                               )}
-                              {!selectedShot.dialogue && !selectedShot.sound && !selectedShot.music && (
-                                <div className="text-slate-500 dark:text-slate-400 text-sm italic">无音频信息</div>
-                              )}
+                              {!selectedShot.dialogue &&
+                                !selectedShot.sound &&
+                                !selectedShot.music && (
+                                  <div className="text-slate-500 dark:text-slate-400 text-sm italic">
+                                    无音频信息
+                                  </div>
+                                )}
                             </div>
                           </motion.div>
                         </div>
-                        
+
                         {/* 资产关联和分镜分析 - 并排布局 */}
                         <div className="grid grid-cols-2 gap-3">
                           {/* 资产关联 */}
@@ -2759,30 +2838,43 @@ export const ShotManager: React.FC<ShotManagerProps> = ({
                           >
                             <div className="flex items-center gap-2 mb-2">
                               <div className="w-1 h-4 bg-purple-500 rounded" />
-                              <h5 className="text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wider">资产关联</h5>
+                              <h5 className="text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wider">
+                                资产关联
+                              </h5>
                             </div>
                             <div className="space-y-2 text-sm">
                               <div className="flex gap-2">
-                                <span className="text-xs font-medium text-slate-500 dark:text-slate-400 min-w-[55px]">角色:</span> 
+                                <span className="text-xs font-medium text-slate-500 dark:text-slate-400 min-w-[55px]">
+                                  角色:
+                                </span>
                                 <span className="text-foreground truncate">
-                                  {selectedShot.characters && selectedShot.characters.length > 0 
-                                    ? selectedShot.characters.join('、') 
+                                  {selectedShot.characters && selectedShot.characters.length > 0
+                                    ? selectedShot.characters.join('、')
                                     : '无'}
                                 </span>
                               </div>
                               <div className="flex gap-2">
-                                <span className="text-xs font-medium text-slate-500 dark:text-slate-400 min-w-[55px]">场景:</span> 
-                                <span className="text-foreground truncate">{selectedShot.sceneName}</span>
+                                <span className="text-xs font-medium text-slate-500 dark:text-slate-400 min-w-[55px]">
+                                  场景:
+                                </span>
+                                <span className="text-foreground truncate">
+                                  {selectedShot.sceneName}
+                                </span>
                               </div>
-                              {selectedShot.assets?.propIds && selectedShot.assets.propIds.length > 0 && (
-                                <div className="flex gap-2">
-                                  <span className="text-xs font-medium text-slate-500 dark:text-slate-400 min-w-[55px]">道具:</span> 
-                                  <span className="text-foreground truncate">{selectedShot.assets.propIds.join('、')}</span>
-                                </div>
-                              )}
+                              {selectedShot.assets?.propIds &&
+                                selectedShot.assets.propIds.length > 0 && (
+                                  <div className="flex gap-2">
+                                    <span className="text-xs font-medium text-slate-500 dark:text-slate-400 min-w-[55px]">
+                                      道具:
+                                    </span>
+                                    <span className="text-foreground truncate">
+                                      {selectedShot.assets.propIds.join('、')}
+                                    </span>
+                                  </div>
+                                )}
                             </div>
                           </motion.div>
-                          
+
                           {/* 分镜类型分析 */}
                           <motion.div
                             initial={{ opacity: 0, y: 6 }}
@@ -2792,12 +2884,16 @@ export const ShotManager: React.FC<ShotManagerProps> = ({
                           >
                             <div className="flex items-center gap-2 mb-2">
                               <div className="w-1 h-4 bg-yellow-500 rounded" />
-                              <h5 className="text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wider">分镜分析</h5>
+                              <h5 className="text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wider">
+                                分镜分析
+                              </h5>
                             </div>
                             <div className="space-y-2 text-sm">
                               <div className="grid grid-cols-2 gap-2">
                                 <div className="bg-content3/50 rounded p-2 border border-content3">
-                                  <div className="text-xs text-slate-500 dark:text-slate-400 mb-1">分镜类型</div>
+                                  <div className="text-xs text-slate-500 dark:text-slate-400 mb-1">
+                                    分镜类型
+                                  </div>
                                   <div className="text-sm font-medium text-foreground">
                                     {(() => {
                                       const analysis = {
@@ -2806,15 +2902,20 @@ export const ShotManager: React.FC<ShotManagerProps> = ({
                                         recommendation: {
                                           keyframeCount: 3,
                                           focus: ['动作', '情感', '细节'],
-                                          notes: '建议拆分为开始、中间和结束三个关键帧，捕捉动作的完整过程'
-                                        }
+                                          notes:
+                                            '建议拆分为开始、中间和结束三个关键帧，捕捉动作的完整过程',
+                                        },
                                       };
                                       const getTypeLabel = (type: string) => {
                                         switch (type) {
-                                          case 'static': return '静态分镜';
-                                          case 'dynamic-simple': return '简单动态';
-                                          case 'dynamic-complex': return '复杂动态';
-                                          default: return '未知类型';
+                                          case 'static':
+                                            return '静态分镜';
+                                          case 'dynamic-simple':
+                                            return '简单动态';
+                                          case 'dynamic-complex':
+                                            return '复杂动态';
+                                          default:
+                                            return '未知类型';
                                         }
                                       };
                                       return getTypeLabel(analysis.type);
@@ -2822,18 +2923,26 @@ export const ShotManager: React.FC<ShotManagerProps> = ({
                                   </div>
                                 </div>
                                 <div className="bg-content3/50 rounded p-2 border border-content3">
-                                  <div className="text-xs text-slate-500 dark:text-slate-400 mb-1">置信度</div>
+                                  <div className="text-xs text-slate-500 dark:text-slate-400 mb-1">
+                                    置信度
+                                  </div>
                                   <div className="text-sm font-medium text-foreground">90%</div>
                                 </div>
                               </div>
                               <div className="grid grid-cols-2 gap-2">
                                 <div className="bg-content3/50 rounded p-2 border border-content3">
-                                  <div className="text-xs text-slate-500 dark:text-slate-400 mb-1">关键帧数</div>
+                                  <div className="text-xs text-slate-500 dark:text-slate-400 mb-1">
+                                    关键帧数
+                                  </div>
                                   <div className="text-sm font-medium text-foreground">3</div>
                                 </div>
                                 <div className="bg-content3/50 rounded p-2 border border-content3">
-                                  <div className="text-xs text-slate-500 dark:text-slate-400 mb-1">关注重点</div>
-                                  <div className="text-sm font-medium text-foreground truncate">动作、情感</div>
+                                  <div className="text-xs text-slate-500 dark:text-slate-400 mb-1">
+                                    关注重点
+                                  </div>
+                                  <div className="text-sm font-medium text-foreground truncate">
+                                    动作、情感
+                                  </div>
                                 </div>
                               </div>
                             </div>
@@ -3233,12 +3342,14 @@ const CharacterSelectorModal: React.FC<{
 
   useEffect(() => {
     if (!isOpen) return;
-    
+
     const loadImageUrls = async () => {
       const newLoading = new Set<string>();
-      
+
       for (const asset of characterAssets) {
-        const currentImage = asset.generatedImages?.find(img => img.id === asset.currentImageId) || asset.generatedImages?.[0];
+        const currentImage =
+          asset.generatedImages?.find(img => img.id === asset.currentImageId) ||
+          asset.generatedImages?.[0];
         if (currentImage?.path && !imageUrls[currentImage.path]) {
           newLoading.add(asset.id);
           try {
@@ -3251,10 +3362,10 @@ const CharacterSelectorModal: React.FC<{
           }
         }
       }
-      
+
       setLoadingImages(newLoading);
     };
-    
+
     loadImageUrls();
   }, [isOpen, characterAssets]);
 
@@ -3271,16 +3382,16 @@ const CharacterSelectorModal: React.FC<{
         </ModalHeader>
         <ModalBody>
           {characterAssets.length === 0 ? (
-            <div className="text-center py-8 text-slate-500">
-              暂无角色资产
-            </div>
+            <div className="text-center py-8 text-slate-500">暂无角色资产</div>
           ) : (
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-              {characterAssets.map((asset) => {
-                const currentImage = asset.generatedImages?.find(img => img.id === asset.currentImageId) || asset.generatedImages?.[0];
+              {characterAssets.map(asset => {
+                const currentImage =
+                  asset.generatedImages?.find(img => img.id === asset.currentImageId) ||
+                  asset.generatedImages?.[0];
                 const imageUrl = currentImage?.path ? imageUrls[currentImage.path] : undefined;
                 const isLoading = loadingImages.has(asset.id);
-                
+
                 return (
                   <div
                     key={asset.id}
@@ -3343,12 +3454,14 @@ const SceneSelectorModal: React.FC<{
 
   useEffect(() => {
     if (!isOpen) return;
-    
+
     const loadImageUrls = async () => {
       const newLoading = new Set<string>();
-      
+
       for (const asset of sceneAssets) {
-        const currentImage = asset.generatedImages?.find(img => img.id === asset.currentImageId) || asset.generatedImages?.[0];
+        const currentImage =
+          asset.generatedImages?.find(img => img.id === asset.currentImageId) ||
+          asset.generatedImages?.[0];
         if (currentImage?.path && !imageUrls[currentImage.path]) {
           newLoading.add(asset.id);
           try {
@@ -3361,10 +3474,10 @@ const SceneSelectorModal: React.FC<{
           }
         }
       }
-      
+
       setLoadingImages(newLoading);
     };
-    
+
     loadImageUrls();
   }, [isOpen, sceneAssets]);
 
@@ -3381,16 +3494,16 @@ const SceneSelectorModal: React.FC<{
         </ModalHeader>
         <ModalBody>
           {sceneAssets.length === 0 ? (
-            <div className="text-center py-8 text-slate-500">
-              暂无场景资产
-            </div>
+            <div className="text-center py-8 text-slate-500">暂无场景资产</div>
           ) : (
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-              {sceneAssets.map((asset) => {
-                const currentImage = asset.generatedImages?.find(img => img.id === asset.currentImageId) || asset.generatedImages?.[0];
+              {sceneAssets.map(asset => {
+                const currentImage =
+                  asset.generatedImages?.find(img => img.id === asset.currentImageId) ||
+                  asset.generatedImages?.[0];
                 const imageUrl = currentImage?.path ? imageUrls[currentImage.path] : undefined;
                 const isLoading = loadingImages.has(asset.id);
-                
+
                 return (
                   <div
                     key={asset.id}

@@ -79,15 +79,19 @@ export class AssetReuseService {
       if (modelConfig) {
         const capabilities = modelConfig.capabilities || {};
         if (!capabilities.supportsReferenceImage) {
-          return { 
-            success: false, 
-            error: '当前选择的模型不支持参考图功能，请选择支持图生图的模型' 
+          return {
+            success: false,
+            error: '当前选择的模型不支持参考图功能，请选择支持图生图的模型',
           };
         }
-        if (capabilities.requiresImageInput && !character.currentImageId && !character.generatedImages?.length) {
-          return { 
-            success: false, 
-            error: '该模型需要参考图才能生成，请先在单图管理中生成一张参考图' 
+        if (
+          capabilities.requiresImageInput &&
+          !character.currentImageId &&
+          !character.generatedImages?.length
+        ) {
+          return {
+            success: false,
+            error: '该模型需要参考图才能生成，请先在单图管理中生成一张参考图',
           };
         }
       }
@@ -99,9 +103,9 @@ export class AssetReuseService {
         character.generatedImages?.[0];
 
       if (!referenceImage) {
-        return { 
-          success: false, 
-          error: '没有可用的参考图，请先在单图管理中生成一张角色正面图作为参考' 
+        return {
+          success: false,
+          error: '没有可用的参考图，请先在单图管理中生成一张角色正面图作为参考',
         };
       }
 
@@ -121,7 +125,7 @@ export class AssetReuseService {
 
       // 构建生成提示词
       const basePrompt = character.prompt || '';
-      const prompt = basePrompt 
+      const prompt = basePrompt
         ? `${basePrompt}, ${viewPrompt}, same character, consistent appearance, maintaining all facial features, hairstyle, and clothing details`
         : `${viewPrompt}, character design, consistent appearance`;
 
@@ -155,7 +159,7 @@ export class AssetReuseService {
 
       // 处理返回的图片数据
       const imageData = Array.isArray(result.data) ? result.data[0] : result.data;
-      
+
       if (!imageData) {
         return { success: false, error: '生成结果为空' };
       }
@@ -209,15 +213,19 @@ export class AssetReuseService {
       if (modelConfig) {
         const capabilities = modelConfig.capabilities || {};
         if (!capabilities.supportsReferenceImage) {
-          return { 
-            success: false, 
-            error: '当前选择的模型不支持参考图功能，请选择支持图生图的模型' 
+          return {
+            success: false,
+            error: '当前选择的模型不支持参考图功能，请选择支持图生图的模型',
           };
         }
-        if (capabilities.requiresImageInput && !scene.currentImageId && !scene.generatedImages?.length) {
-          return { 
-            success: false, 
-            error: '该模型需要参考图才能生成，请先在单图管理中生成一张参考图' 
+        if (
+          capabilities.requiresImageInput &&
+          !scene.currentImageId &&
+          !scene.generatedImages?.length
+        ) {
+          return {
+            success: false,
+            error: '该模型需要参考图才能生成，请先在单图管理中生成一张参考图',
           };
         }
       }
@@ -248,7 +256,10 @@ export class AssetReuseService {
             const refBase64 = await this.imageToBase64(refImage.path);
             referenceImages.push(refBase64);
           } catch (error) {
-            console.warn('[AssetReuseService] Failed to read reference image, continuing without:', error);
+            console.warn(
+              '[AssetReuseService] Failed to read reference image, continuing without:',
+              error
+            );
           }
         }
       }
@@ -274,7 +285,7 @@ export class AssetReuseService {
 
       // 处理返回的图片数据
       const imageData = Array.isArray(result.data) ? result.data[0] : result.data;
-      
+
       if (!imageData) {
         return { success: false, error: '生成结果为空' };
       }
@@ -387,7 +398,7 @@ export class AssetReuseService {
     } catch (error) {
       console.warn('[AssetReuseService] Failed to extract file extension:', error);
     }
-    
+
     return `data:image/${ext};base64,${base64}`;
   }
 
@@ -446,7 +457,7 @@ export class AssetReuseService {
 
         const timestamp = Date.now();
         const random = Math.random().toString(36).substring(2, 8);
-        
+
         // 安全的扩展名判断
         let ext = 'jpg';
         if (blob.type === 'image/webp') {
@@ -543,15 +554,19 @@ export class AssetReuseService {
       if (modelConfig) {
         const capabilities = modelConfig.capabilities || {};
         if (!capabilities.supportsReferenceImage) {
-          return { 
-            success: false, 
-            error: '当前选择的模型不支持参考图功能，请选择支持图生图的模型' 
+          return {
+            success: false,
+            error: '当前选择的模型不支持参考图功能，请选择支持图生图的模型',
           };
         }
-        if (capabilities.requiresImageInput && !item.currentImageId && !item.generatedImages?.length) {
-          return { 
-            success: false, 
-            error: '该模型需要参考图才能生成，请先在单图管理中生成一张参考图' 
+        if (
+          capabilities.requiresImageInput &&
+          !item.currentImageId &&
+          !item.generatedImages?.length
+        ) {
+          return {
+            success: false,
+            error: '该模型需要参考图才能生成，请先在单图管理中生成一张参考图',
           };
         }
       }
@@ -564,13 +579,13 @@ export class AssetReuseService {
       const viewPrompts: Record<ItemViewType, string> = {
         front: 'front view, facing camera directly, full view of the item',
         side: 'side view, profile view, full view from the side',
-        top: 'top view, bird\'s-eye view, looking down from above',
+        top: "top view, bird's-eye view, looking down from above",
         'three-quarter': 'three-quarter view, 45 degree angle, showing front and side',
       };
 
       const viewPrompt = customPrompt || viewPrompts[viewType];
       const basePrompt = item.prompt || '';
-      const prompt = basePrompt 
+      const prompt = basePrompt
         ? `${basePrompt}, ${viewPrompt}, same item, consistent appearance, maintaining all details and textures`
         : `${viewPrompt}, item design, product photography`;
 
@@ -603,7 +618,7 @@ export class AssetReuseService {
       }
 
       const imageData = Array.isArray(result.data) ? result.data[0] : result.data;
-      
+
       if (!imageData) {
         return { success: false, error: '生成结果为空' };
       }

@@ -71,7 +71,7 @@ export const ToolbarPanel: React.FC<ToolbarPanelProps> = ({
 
       <div className="p-3 border-b border-content3">
         <div className="space-y-1.5">
-          {stages.map((stage) => {
+          {stages.map(stage => {
             const isEnabled = isStageEnabled(stage.id as WorkflowStage);
             const isActive = currentStage === stage.id;
             const isCompleted = currentStage > stage.id;
@@ -85,24 +85,42 @@ export const ToolbarPanel: React.FC<ToolbarPanelProps> = ({
                   isActive
                     ? 'bg-primary/10 border-primary'
                     : isCompleted
-                    ? 'bg-content2 border-content3 hover:bg-content3'
-                    : isEnabled
-                    ? 'bg-content2 border-transparent hover:border-content3 hover:bg-content3'
-                    : 'bg-content2/50 border-transparent opacity-50 cursor-not-allowed'
+                      ? 'bg-content2 border-content3 hover:bg-content3'
+                      : isEnabled
+                        ? 'bg-content2 border-transparent hover:border-content3 hover:bg-content3'
+                        : 'bg-content2/50 border-transparent opacity-50 cursor-not-allowed'
                 }`}
               >
                 <div className="flex items-center gap-2.5">
-                  <div className={`p-1.5 rounded-md ${
-                    isActive ? 'bg-primary text-white' : isCompleted ? 'bg-green-500/20 text-green-500' : 'bg-content3 text-slate-400'
-                  }`}>
-                    {isCompleted ? <Check className="w-3.5 h-3.5" /> : isEnabled ? <stage.icon className="w-3.5 h-3.5" /> : <Lock className="w-3.5 h-3.5" />}
+                  <div
+                    className={`p-1.5 rounded-md ${
+                      isActive
+                        ? 'bg-primary text-white'
+                        : isCompleted
+                          ? 'bg-green-500/20 text-green-500'
+                          : 'bg-content3 text-slate-400'
+                    }`}
+                  >
+                    {isCompleted ? (
+                      <Check className="w-3.5 h-3.5" />
+                    ) : isEnabled ? (
+                      <stage.icon className="w-3.5 h-3.5" />
+                    ) : (
+                      <Lock className="w-3.5 h-3.5" />
+                    )}
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-1.5">
-                      <span className={`font-medium text-xs ${isActive ? 'text-primary' : 'text-foreground'}`}>
+                      <span
+                        className={`font-medium text-xs ${isActive ? 'text-primary' : 'text-foreground'}`}
+                      >
                         {stage.label}
                       </span>
-                      {isCompleted && <Chip size="sm" color="success" className="h-3 min-w-3 p-0 text-[10px]">✓</Chip>}
+                      {isCompleted && (
+                        <Chip size="sm" color="success" className="h-3 min-w-3 p-0 text-[10px]">
+                          ✓
+                        </Chip>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -136,10 +154,12 @@ export const ToolbarPanel: React.FC<ToolbarPanelProps> = ({
           >
             <div className="space-y-3">
               <div className="space-y-1.5">
-                <label className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">模型</label>
+                <label className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
+                  模型
+                </label>
                 <Select
                   selectedKeys={modelId ? new Set([modelId]) : new Set()}
-                  onChange={(e) => onModelChange(e.target.value)}
+                  onChange={e => onModelChange(e.target.value)}
                   isDisabled={generating}
                   size="sm"
                   classNames={{ trigger: 'h-8 text-xs' }}
@@ -156,40 +176,58 @@ export const ToolbarPanel: React.FC<ToolbarPanelProps> = ({
 
               <div className="grid grid-cols-2 gap-2.5">
                 <div className="space-y-1.5">
-                  <label className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">分辨率</label>
+                  <label className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
+                    分辨率
+                  </label>
                   <Select
                     selectedKeys={new Set([resolution])}
-                    onChange={(e) => onResolutionChange(e.target.value)}
+                    onChange={e => onResolutionChange(e.target.value)}
                     isDisabled={generating}
                     size="sm"
                     classNames={{ trigger: 'h-8 text-xs' }}
                   >
-                    <SelectItem key="1K" value="1K" classNames={{ base: 'text-xs' }}>1K</SelectItem>
-                    <SelectItem key="2K" value="2K" classNames={{ base: 'text-xs' }}>2K</SelectItem>
-                    <SelectItem key="4K" value="4K" classNames={{ base: 'text-xs' }}>4K</SelectItem>
+                    <SelectItem key="1K" value="1K" classNames={{ base: 'text-xs' }}>
+                      1K
+                    </SelectItem>
+                    <SelectItem key="2K" value="2K" classNames={{ base: 'text-xs' }}>
+                      2K
+                    </SelectItem>
+                    <SelectItem key="4K" value="4K" classNames={{ base: 'text-xs' }}>
+                      4K
+                    </SelectItem>
                   </Select>
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">比例</label>
+                  <label className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
+                    比例
+                  </label>
                   <Select
                     selectedKeys={new Set([aspectRatio])}
-                    onChange={(e) => onAspectRatioChange(e.target.value)}
+                    onChange={e => onAspectRatioChange(e.target.value)}
                     isDisabled={generating}
                     size="sm"
                     classNames={{ trigger: 'h-8 text-xs' }}
                   >
-                    <SelectItem key="1:1" value="1:1" classNames={{ base: 'text-xs' }}>1:1</SelectItem>
-                    <SelectItem key="3:4" value="3:4" classNames={{ base: 'text-xs' }}>3:4</SelectItem>
-                    <SelectItem key="16:9" value="16:9" classNames={{ base: 'text-xs' }}>16:9</SelectItem>
+                    <SelectItem key="1:1" value="1:1" classNames={{ base: 'text-xs' }}>
+                      1:1
+                    </SelectItem>
+                    <SelectItem key="3:4" value="3:4" classNames={{ base: 'text-xs' }}>
+                      3:4
+                    </SelectItem>
+                    <SelectItem key="16:9" value="16:9" classNames={{ base: 'text-xs' }}>
+                      16:9
+                    </SelectItem>
                   </Select>
                 </div>
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">数量: {count}</label>
+                <label className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
+                  数量: {count}
+                </label>
                 <Slider
                   value={count}
-                  onChange={(v) => onCountChange(v as number)}
+                  onChange={v => onCountChange(v as number)}
                   minValue={1}
                   maxValue={4}
                   step={1}
@@ -200,10 +238,12 @@ export const ToolbarPanel: React.FC<ToolbarPanelProps> = ({
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Guidance: {guidanceScale.toFixed(1)}</label>
+                <label className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
+                  Guidance: {guidanceScale.toFixed(1)}
+                </label>
                 <Slider
                   value={guidanceScale}
-                  onChange={(v) => onGuidanceScaleChange(v as number)}
+                  onChange={v => onGuidanceScaleChange(v as number)}
                   minValue={1}
                   maxValue={10}
                   step={0.5}
@@ -230,11 +270,7 @@ export const ToolbarPanel: React.FC<ToolbarPanelProps> = ({
             }}
             motionProps={{}}
           >
-            <StyleSelector
-              value={style}
-              onChange={onStyleChange}
-              disabled={generating}
-            />
+            <StyleSelector value={style} onChange={onStyleChange} disabled={generating} />
           </AccordionItem>
         </Accordion>
       </div>
@@ -249,7 +285,9 @@ export const ToolbarPanel: React.FC<ToolbarPanelProps> = ({
           className="font-bold shadow-md shadow-primary/20 h-10 text-sm"
           startContent={!generating && <Settings size={16} />}
         >
-          {generating ? (t.character?.generating || '生成中...') : (t.character.startGeneration || '开始生成')}
+          {generating
+            ? t.character?.generating || '生成中...'
+            : t.character.startGeneration || '开始生成'}
         </Button>
       </div>
     </div>

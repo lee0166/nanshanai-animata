@@ -77,7 +77,7 @@ export class ModelscopeProvider extends BaseProvider {
       if (negativePrompt) {
         body.negative_prompt = negativePrompt;
       }
-      
+
       if (extraParams) {
         Object.assign(body, extraParams);
       }

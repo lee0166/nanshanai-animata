@@ -54,7 +54,7 @@ export const resolveModelConfig = (
   if (!runtimeModel) return undefined;
 
   const cacheKey = getCacheKey(runtimeModel);
-  
+
   // 检查缓存
   if (configCache.has(cacheKey)) {
     return configCache.get(cacheKey);

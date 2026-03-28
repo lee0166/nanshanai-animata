@@ -111,14 +111,14 @@ export const getSceneImagePrompt = (userPrompt: string) => {
  */
 export const extractFaceDescription = (scriptDescription?: string): string => {
   if (!scriptDescription) return '';
-  
+
   try {
     const appearance = JSON.parse(scriptDescription);
     const faceParts: string[] = [];
-    
+
     if (appearance.face) faceParts.push(appearance.face);
     if (appearance.hair) faceParts.push(appearance.hair);
-    
+
     return faceParts.join('，');
   } catch (e) {
     return '';
@@ -132,17 +132,17 @@ export const extractFaceDescription = (scriptDescription?: string): string => {
  */
 export const extractFullBodyDescription = (scriptDescription?: string): string => {
   if (!scriptDescription) return '';
-  
+
   try {
     const appearance = JSON.parse(scriptDescription);
     const bodyParts: string[] = [];
-    
+
     if (appearance.height) bodyParts.push(appearance.height);
     if (appearance.build) bodyParts.push(appearance.build);
     if (appearance.face) bodyParts.push(appearance.face);
     if (appearance.hair) bodyParts.push(appearance.hair);
     if (appearance.clothing) bodyParts.push(appearance.clothing);
-    
+
     return bodyParts.join('，');
   } catch (e) {
     return '';
@@ -157,7 +157,12 @@ export const extractFullBodyDescription = (scriptDescription?: string): string =
  * @param scriptDescription 可选的完整appearance JSON
  * @returns
  */
-export const getFacePortraitPrompt = (userPrompt: string, age: string, gender: string, scriptDescription?: string) => {
+export const getFacePortraitPrompt = (
+  userPrompt: string,
+  age: string,
+  gender: string,
+  scriptDescription?: string
+) => {
   let details = '';
   if (age && age !== 'unknown' && age !== '不详' && age !== 'unknown') {
     details += `角色年龄段: ${age}\n    `;

@@ -1,4 +1,13 @@
-import { Shot, Keyframe, CharacterAsset, Asset, Script, CharacterViewAngle, SceneAsset, SceneViewType } from '../../types';
+import {
+  Shot,
+  Keyframe,
+  CharacterAsset,
+  Asset,
+  Script,
+  CharacterViewAngle,
+  SceneAsset,
+  SceneViewType,
+} from '../../types';
 import { keyframeEngine, KeyframeSplitParams } from './KeyframeEngine';
 import { storageService } from '../storage';
 import { aiService } from '../aiService';
@@ -93,15 +102,16 @@ export class KeyframeService {
       for (let i = 0; i < keyframeCount; i++) {
         const frameType = i === 0 ? 'start' : i === keyframeCount - 1 ? 'end' : 'middle';
         const progress = (i + 1) / keyframeCount;
-        
+
         let promptSuffix = '';
         let descriptionSuffix = '';
-        
+
         if (frameType === 'start') {
           promptSuffix = ', opening scene, full view, soft lighting, emphasize atmosphere';
           descriptionSuffix = '（开场画面）';
         } else if (frameType === 'end') {
-          promptSuffix = ', closing scene, close-up shot, profound artistic conception, leave aftertaste';
+          promptSuffix =
+            ', closing scene, close-up shot, profound artistic conception, leave aftertaste';
           descriptionSuffix = '（收尾画面）';
         } else {
           const middleFrameCount = keyframeCount - 2;
@@ -110,7 +120,7 @@ export class KeyframeService {
             promptSuffix = ', middle transition scene, medium shot, detail showcase';
             descriptionSuffix = '（中间过渡）';
           } else {
-            const middleProgress = (middleFrameIndex) / (middleFrameCount + 1);
+            const middleProgress = middleFrameIndex / (middleFrameCount + 1);
             if (middleProgress < 0.5) {
               promptSuffix = ', developing scene, medium close-up, plot advancement';
               descriptionSuffix = '（发展中画面）';
@@ -130,18 +140,16 @@ export class KeyframeService {
             if (color) stylePrompts.push(color);
           });
         }
-        
 
-        
         const promptParts = [
           'masterpiece, 8k, ultra detailed, best quality',
           ...stylePrompts,
           shot.shotType,
           sceneAsset?.name,
           characterAssets?.[0]?.name,
-          'static scene'
+          'static scene',
         ].filter(Boolean);
-        
+
         const staticKeyframe: Keyframe = {
           id: `kf_${shot.id}_${i + 1}`,
           sequence: i + 1,
@@ -166,7 +174,7 @@ export class KeyframeService {
           },
           status: 'pending',
         };
-        
+
         staticKeyframes.push(staticKeyframe);
       }
       console.log(`[KeyframeService] 静态分镜关键帧创建完成，共 ${staticKeyframes.length} 个`);
@@ -276,11 +284,21 @@ export class KeyframeService {
    */
   private detectCharacterViewAngle(description: string): CharacterViewAngle | undefined {
     const desc = description.toLowerCase();
-    
-    if (desc.includes('侧身') || desc.includes('侧面') || desc.includes('profile') || desc.includes('side')) {
+
+    if (
+      desc.includes('侧身') ||
+      desc.includes('侧面') ||
+      desc.includes('profile') ||
+      desc.includes('side')
+    ) {
       return 'side';
     }
-    if (desc.includes('背对') || desc.includes('背面') || desc.includes('back view') || desc.includes('from behind')) {
+    if (
+      desc.includes('背对') ||
+      desc.includes('背面') ||
+      desc.includes('back view') ||
+      desc.includes('from behind')
+    ) {
       return 'back';
     }
     if (desc.includes('正面') || desc.includes('facing camera') || desc.includes('front view')) {
@@ -289,7 +307,7 @@ export class KeyframeService {
     if (desc.includes('四分之三') || desc.includes('three-quarter') || desc.includes('45 degree')) {
       return 'three-quarter';
     }
-    
+
     return undefined;
   }
 
@@ -306,7 +324,7 @@ export class KeyframeService {
     if (shotType === 'close_up' || shotType === 'extreme_close_up') {
       return 'detail';
     }
-    
+
     return undefined;
   }
 
@@ -341,13 +359,17 @@ export class KeyframeService {
       // 智能选择角色视角
       if (characterAsset) {
         const charAsset = characterAsset as CharacterAsset;
-        const preferredAngle = keyframe.description ? this.detectCharacterViewAngle(keyframe.description) : undefined;
+        const preferredAngle = keyframe.description
+          ? this.detectCharacterViewAngle(keyframe.description)
+          : undefined;
         console.log(`[KeyframeService] 角色视角选择: 优先角度=${preferredAngle}`);
-        
+
         const charImage = assetReuseService.getCharacterViewForShot(charAsset, preferredAngle);
-        
+
         if (charImage?.path) {
-          console.log(`[KeyframeService] 读取角色参考图: ${charImage.path} (视角: ${preferredAngle || '默认'})`);
+          console.log(
+            `[KeyframeService] 读取角色参考图: ${charImage.path} (视角: ${preferredAngle || '默认'})`
+          );
           const base64 = await this.imageToBase64(charImage.path);
           referenceImages.push(base64);
           console.log(`[KeyframeService] 角色参考图转换成功，大小: ${base64.length} 字符`);
@@ -359,13 +381,17 @@ export class KeyframeService {
       // 智能选择场景视角
       if (sceneAsset) {
         const scnAsset = sceneAsset as SceneAsset;
-        const preferredViewType = (keyframe as any).shotType ? this.selectSceneViewType((keyframe as any).shotType) : undefined;
+        const preferredViewType = (keyframe as any).shotType
+          ? this.selectSceneViewType((keyframe as any).shotType)
+          : undefined;
         console.log(`[KeyframeService] 场景视角选择: 优先视角=${preferredViewType}`);
-        
+
         const sceneImage = assetReuseService.getSceneViewForShot(scnAsset, preferredViewType);
-        
+
         if (sceneImage?.path) {
-          console.log(`[KeyframeService] 读取场景参考图: ${sceneImage.path} (视角: ${preferredViewType || '默认'})`);
+          console.log(
+            `[KeyframeService] 读取场景参考图: ${sceneImage.path} (视角: ${preferredViewType || '默认'})`
+          );
           const base64 = await this.imageToBase64(sceneImage.path);
           referenceImages.push(base64);
           console.log(`[KeyframeService] 场景参考图转换成功，大小: ${base64.length} 字符`);

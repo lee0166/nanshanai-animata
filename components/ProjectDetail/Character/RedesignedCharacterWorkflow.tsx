@@ -1,13 +1,56 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Card, CardBody, Textarea, Button, Chip, Spinner, Tabs, Tab, useDisclosure, Switch, Modal, ModalContent, ModalHeader, ModalBody } from '@heroui/react';
-import { User, Image as ImageIcon, Eye, Trash2, Settings, Palette, Sparkles, ChevronLeft, ChevronRight, Check, Camera, CheckCircle2, FileText, Music, Mic } from 'lucide-react';
-import { CharacterAsset, GeneratedImage, CharacterViewAngle, AssetType, JobStatus } from '../../../types';
+import {
+  Card,
+  CardBody,
+  Textarea,
+  Button,
+  Chip,
+  Spinner,
+  Tabs,
+  Tab,
+  useDisclosure,
+  Switch,
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+} from '@heroui/react';
+import {
+  User,
+  Image as ImageIcon,
+  Eye,
+  Trash2,
+  Settings,
+  Palette,
+  Sparkles,
+  ChevronLeft,
+  ChevronRight,
+  Check,
+  Camera,
+  CheckCircle2,
+  FileText,
+  Music,
+  Mic,
+} from 'lucide-react';
+import {
+  CharacterAsset,
+  GeneratedImage,
+  CharacterViewAngle,
+  AssetType,
+  JobStatus,
+} from '../../../types';
 import { useApp } from '../../../contexts/context';
 import { useToast } from '../../../contexts/ToastContext';
 import { usePreview } from '../../PreviewProvider';
 import { jobQueue } from '../../../services/queue';
 import { aiService } from '../../../services/aiService';
-import { getFacePortraitPrompt, getFullBodyPrompt, getDefaultStylePrompt, extractFaceDescription, extractFullBodyDescription } from '../../../services/prompt';
+import {
+  getFacePortraitPrompt,
+  getFullBodyPrompt,
+  getDefaultStylePrompt,
+  extractFaceDescription,
+  extractFullBodyDescription,
+} from '../../../services/prompt';
 import { assetReuseService } from '../../../services/asset/AssetReuseService';
 import { storageService } from '../../../services/storage';
 import { CompactToolbar } from './CompactToolbar';
@@ -25,7 +68,7 @@ interface RedesignedCharacterWorkflowProps {
 export const RedesignedCharacterWorkflow: React.FC<RedesignedCharacterWorkflowProps> = ({
   asset,
   onUpdate,
-  projectId
+  projectId,
 }) => {
   const { t, settings } = useApp();
   const { showToast } = useToast();
@@ -36,7 +79,9 @@ export const RedesignedCharacterWorkflow: React.FC<RedesignedCharacterWorkflowPr
   const [currentStage, setCurrentStage] = useState<WorkflowStage>(1);
   const [selectedFaceImage, setSelectedFaceImage] = useState<GeneratedImage | null>(null);
   const [selectedFullBodyImage, setSelectedFullBodyImage] = useState<GeneratedImage | null>(null);
-  const [selectedViewImages, setSelectedViewImages] = useState<Record<string, GeneratedImage | null>>({});
+  const [selectedViewImages, setSelectedViewImages] = useState<
+    Record<string, GeneratedImage | null>
+  >({});
   const [generating, setGenerating] = useState(false);
   const [isCheckingJobs, setIsCheckingJobs] = useState(true);
   const [activeJobIds, setActiveJobIds] = useState<Set<string>>(new Set());
@@ -71,34 +116,44 @@ export const RedesignedCharacterWorkflow: React.FC<RedesignedCharacterWorkflowPr
   const [activeViewTab, setActiveViewTab] = useState<string>('front');
   const [isBatchMode, setIsBatchMode] = useState<boolean>(true);
   const [stage3Prompt, setStage3Prompt] = useState<string>('');
-  const { isOpen: isBasePromptOpen, onOpen: onOpenBasePrompt, onClose: onCloseBasePrompt } = useDisclosure();
-  const { isOpen: isEnhancementOpen, onOpen: onOpenEnhancement, onClose: onCloseEnhancement } = useDisclosure();
+  const {
+    isOpen: isBasePromptOpen,
+    onOpen: onOpenBasePrompt,
+    onClose: onCloseBasePrompt,
+  } = useDisclosure();
+  const {
+    isOpen: isEnhancementOpen,
+    onOpen: onOpenEnhancement,
+    onClose: onCloseEnhancement,
+  } = useDisclosure();
 
   const viewAngleConfigs: Record<CharacterViewAngle, { label: string; defaultPrompt: string }> = {
     front: {
       label: '正面',
-      defaultPrompt: 'front view, facing camera directly'
+      defaultPrompt: 'front view, facing camera directly',
     },
     side: {
       label: '侧面',
-      defaultPrompt: 'side view, profile view, facing left'
+      defaultPrompt: 'side view, profile view, facing left',
     },
     back: {
       label: '背面',
-      defaultPrompt: 'back view, from behind, facing away from camera'
+      defaultPrompt: 'back view, from behind, facing away from camera',
     },
     'three-quarter': {
       label: '四分之三侧面',
-      defaultPrompt: 'three-quarter view, 45 degree angle'
-    }
+      defaultPrompt: 'three-quarter view, 45 degree angle',
+    },
   };
 
   // 计算完整提示词（用于显示）
   const fullStage3Prompt = useMemo(() => {
     const basePrompt = asset.prompt || '';
-    const viewPrompt = stage3Prompt || viewAngleConfigs[activeViewTab as CharacterViewAngle]?.defaultPrompt || '';
-    const consistencyPrompt = 'same character, consistent appearance, maintaining all facial features, hairstyle, and clothing details';
-    
+    const viewPrompt =
+      stage3Prompt || viewAngleConfigs[activeViewTab as CharacterViewAngle]?.defaultPrompt || '';
+    const consistencyPrompt =
+      'same character, consistent appearance, maintaining all facial features, hairstyle, and clothing details';
+
     if (basePrompt) {
       return `${basePrompt}, ${viewPrompt}, ${consistencyPrompt}`;
     }
@@ -114,12 +169,15 @@ export const RedesignedCharacterWorkflow: React.FC<RedesignedCharacterWorkflowPr
       if (currentSavedPrompt !== stage3Prompt) {
         const updatedViewPrompts = {
           ...asset.viewPrompts,
-          [activeViewTab]: stage3Prompt
+          [activeViewTab]: stage3Prompt,
         };
-        onUpdate({
-          ...asset,
-          viewPrompts: updatedViewPrompts
-        }, true);
+        onUpdate(
+          {
+            ...asset,
+            viewPrompts: updatedViewPrompts,
+          },
+          true
+        );
       }
     }, 500);
 
@@ -149,43 +207,44 @@ export const RedesignedCharacterWorkflow: React.FC<RedesignedCharacterWorkflowPr
     let faceImage = null;
     let bodyImage = null;
     const viewImages: Record<string, GeneratedImage | null> = {};
-    
+
     if (asset.generatedImages) {
       // 查找参考图片（面部特征）
       if (asset.referenceImage) {
         faceImage = asset.referenceImage;
       } else if (asset.generatedImages.length > 0) {
         // 尝试找到第一个面部特征图片
-        faceImage = asset.generatedImages.find(img => 
-          img.metadata?.workflowStage === 1 || img.metadata?.stage === 'face'
-        ) || null;
+        faceImage =
+          asset.generatedImages.find(
+            img => img.metadata?.workflowStage === 1 || img.metadata?.stage === 'face'
+          ) || null;
       }
-      
+
       // 查找当前图片（全身设定）
       if (asset.currentImageId) {
         bodyImage = asset.generatedImages.find(img => img.id === asset.currentImageId) || null;
       } else if (asset.generatedImages.length > 0) {
         // 尝试找到第一个全身设定图片
-        bodyImage = asset.generatedImages.find(img => 
-          img.metadata?.workflowStage === 2 || img.metadata?.stage === 'full-body'
-        ) || null;
+        bodyImage =
+          asset.generatedImages.find(
+            img => img.metadata?.workflowStage === 2 || img.metadata?.stage === 'full-body'
+          ) || null;
       }
-      
+
       // 查找多视角图片
       viewTabs.forEach(tab => {
-        const viewImage = asset.generatedImages.find(img => 
-          img.metadata?.viewAngle === tab.id
-        ) || null;
+        const viewImage =
+          asset.generatedImages.find(img => img.metadata?.viewAngle === tab.id) || null;
         if (viewImage) {
           viewImages[tab.id] = viewImage;
         }
       });
     }
-    
+
     setSelectedFaceImage(faceImage);
     setSelectedFullBodyImage(bodyImage);
     setSelectedViewImages(viewImages);
-    
+
     const scriptDescription = asset.metadata?.scriptDescription as string | undefined;
     const faceDescription = extractFaceDescription(scriptDescription);
     const fullBodyDescription = extractFullBodyDescription(scriptDescription);
@@ -208,17 +267,30 @@ export const RedesignedCharacterWorkflow: React.FC<RedesignedCharacterWorkflowPr
   useEffect(() => {
     const loadGenUrls = async () => {
       if (!asset.generatedImages) return;
+      
+      // 使用 requestAnimationFrame 分批加载，减少强制重排
+      await new Promise(resolve => requestAnimationFrame(resolve));
+      
       const urls: Record<string, string> = {};
-      for (const img of asset.generatedImages) {
-        if (img.path) {
-          if (img.path.startsWith('remote:')) {
-            urls[img.id] = img.path.substring(7);
-          } else {
-            urls[img.id] = await storageService.getAssetUrl(img.path);
+      const batchSize = 3; // 每批加载 3 张图片
+      
+      for (let i = 0; i < asset.generatedImages.length; i += batchSize) {
+        const batch = asset.generatedImages.slice(i, i + batchSize);
+        
+        for (const img of batch) {
+          if (img.path) {
+            if (img.path.startsWith('remote:')) {
+              urls[img.id] = img.path.substring(7);
+            } else {
+              urls[img.id] = await storageService.getAssetUrl(img.path);
+            }
           }
         }
+        
+        // 每批加载后更新一次状态，并等待下一帧
+        setGenUrls(prev => ({ ...prev, ...urls }));
+        await new Promise(resolve => requestAnimationFrame(resolve));
       }
-      setGenUrls(urls);
     };
     loadGenUrls();
   }, [asset.generatedImages]);
@@ -328,7 +400,12 @@ export const RedesignedCharacterWorkflow: React.FC<RedesignedCharacterWorkflowPr
     try {
       const stylePrompt = getDefaultStylePrompt(stage1Style);
       const scriptDescription = asset.metadata?.scriptDescription as string | undefined;
-      const rolePrompt = getFacePortraitPrompt(stage1Prompt, asset.ageGroup || '', asset.gender || '', scriptDescription);
+      const rolePrompt = getFacePortraitPrompt(
+        stage1Prompt,
+        asset.ageGroup || '',
+        asset.gender || '',
+        scriptDescription
+      );
       const finalPrompt = `${rolePrompt} ${stylePrompt}`;
 
       const updated = {
@@ -486,7 +563,10 @@ export const RedesignedCharacterWorkflow: React.FC<RedesignedCharacterWorkflowPr
         });
 
         if (result.success && result.image) {
-          const updatedAsset = (await storageService.getAsset(asset.id, projectId)) as CharacterAsset;
+          const updatedAsset = (await storageService.getAsset(
+            asset.id,
+            projectId
+          )) as CharacterAsset;
           if (updatedAsset) {
             const newViews = await assetReuseService.updateCharacterViews(
               updatedAsset,
@@ -497,10 +577,7 @@ export const RedesignedCharacterWorkflow: React.FC<RedesignedCharacterWorkflowPr
             const updated = {
               ...updatedAsset,
               views: newViews,
-              generatedImages: [
-                ...(updatedAsset.generatedImages || []),
-                result.image
-              ]
+              generatedImages: [...(updatedAsset.generatedImages || []), result.image],
             };
 
             onUpdate(updated);
@@ -513,7 +590,10 @@ export const RedesignedCharacterWorkflow: React.FC<RedesignedCharacterWorkflowPr
       }
 
       if (successCount > 0) {
-        showToast(`批量生成完成！成功: ${successCount}, 失败: ${failCount}`, successCount === viewAngles.length ? 'success' : 'warning');
+        showToast(
+          `批量生成完成！成功: ${successCount}, 失败: ${failCount}`,
+          successCount === viewAngles.length ? 'success' : 'warning'
+        );
       } else {
         showToast('批量生成失败', 'error');
       }
@@ -562,14 +642,14 @@ export const RedesignedCharacterWorkflow: React.FC<RedesignedCharacterWorkflowPr
           const updated = {
             ...updatedAsset,
             views: newViews,
-            generatedImages: [
-              ...(updatedAsset.generatedImages || []),
-              result.image
-            ]
+            generatedImages: [...(updatedAsset.generatedImages || []), result.image],
           };
 
           onUpdate(updated);
-          showToast(`${viewAngleConfigs[activeViewTab as CharacterViewAngle].label}生成成功！`, 'success');
+          showToast(
+            `${viewAngleConfigs[activeViewTab as CharacterViewAngle].label}生成成功！`,
+            'success'
+          );
         }
       } else {
         showToast(result.error || '生成失败', 'error');
@@ -630,7 +710,7 @@ export const RedesignedCharacterWorkflow: React.FC<RedesignedCharacterWorkflowPr
       const updatedAsset = {
         ...asset,
         generatedImages: updatedImages,
-        referenceImage: updatedSelectedFaceImage
+        referenceImage: updatedSelectedFaceImage,
       };
       onUpdate(updatedAsset);
       showToast('图片已删除', 'success');
@@ -645,8 +725,10 @@ export const RedesignedCharacterWorkflow: React.FC<RedesignedCharacterWorkflowPr
 
   const handlePreviewImage = (img: GeneratedImage, allImages: GeneratedImage[]) => {
     const slides = allImages.map(image => ({
-      src: genUrls[image.id] || (image.path.startsWith('remote:') ? image.path.substring(7) : image.path),
-      alt: image.prompt
+      src:
+        genUrls[image.id] ||
+        (image.path.startsWith('remote:') ? image.path.substring(7) : image.path),
+      alt: image.prompt,
     }));
     const currentIndex = allImages.findIndex(i => i.id === img.id);
     openPreview(slides, currentIndex);
@@ -820,7 +902,7 @@ export const RedesignedCharacterWorkflow: React.FC<RedesignedCharacterWorkflowPr
     else if (currentStage === 3) {
       setSelectedViewImages(prev => ({
         ...prev,
-        [activeViewTab]: img
+        [activeViewTab]: img,
       }));
     }
   };
@@ -842,12 +924,16 @@ export const RedesignedCharacterWorkflow: React.FC<RedesignedCharacterWorkflowPr
               <div className="flex gap-2 mt-1">
                 {asset.gender && (
                   <span className="text-xs text-slate-400">
-                    {t.character.genderOptions?.[asset.gender as keyof typeof t.character.genderOptions] || asset.gender}
+                    {t.character.genderOptions?.[
+                      asset.gender as keyof typeof t.character.genderOptions
+                    ] || asset.gender}
                   </span>
                 )}
                 {asset.ageGroup && (
                   <span className="text-xs text-slate-400">
-                    {t.character.ageOptions?.[asset.ageGroup as keyof typeof t.character.ageOptions] || asset.ageGroup}
+                    {t.character.ageOptions?.[
+                      asset.ageGroup as keyof typeof t.character.ageOptions
+                    ] || asset.ageGroup}
                   </span>
                 )}
               </div>
@@ -855,7 +941,7 @@ export const RedesignedCharacterWorkflow: React.FC<RedesignedCharacterWorkflowPr
           </div>
 
           <div className="flex gap-2">
-            {stages.map((stage) => {
+            {stages.map(stage => {
               const isEnabled = isStageEnabled(stage.id as WorkflowStage);
               const isActive = currentStage === stage.id;
               const isCompleted = currentStage > stage.id;
@@ -869,10 +955,10 @@ export const RedesignedCharacterWorkflow: React.FC<RedesignedCharacterWorkflowPr
                     isActive
                       ? 'bg-primary text-primary-foreground'
                       : isCompleted
-                      ? 'bg-slate-600/30 text-slate-400'
-                      : isEnabled
-                      ? 'bg-content2 text-slate-400 hover:bg-content3'
-                      : 'bg-content2/50 text-slate-600 cursor-not-allowed'
+                        ? 'bg-slate-600/30 text-slate-400'
+                        : isEnabled
+                          ? 'bg-content2 text-slate-400 hover:bg-content3'
+                          : 'bg-content2/50 text-slate-600 cursor-not-allowed'
                   }`}
                 >
                   {stage.label}
@@ -887,12 +973,20 @@ export const RedesignedCharacterWorkflow: React.FC<RedesignedCharacterWorkflowPr
           onSelectionChange={setActiveParamTab}
           size="sm"
           classNames={{
-              tabList: 'gap-2 p-1.5',
-              tab: 'h-8 min-h-8 px-4 text-xs',
-              cursor: 'rounded-xl',
-            }}
+            tabList: 'gap-2 p-1.5',
+            tab: 'h-8 min-h-8 px-4 text-xs',
+            cursor: 'rounded-xl',
+          }}
         >
-          <Tab key="core" title={<div className="flex items-center gap-2"><Settings className="w-4 h-4" /><span>参数</span></div>}>
+          <Tab
+            key="core"
+            title={
+              <div className="flex items-center gap-2">
+                <Settings className="w-4 h-4" />
+                <span>参数</span>
+              </div>
+            }
+          >
             <div className="p-3 space-y-2">
               <CompactToolbar
                 modelId={getCurrentModelId()}
@@ -911,7 +1005,15 @@ export const RedesignedCharacterWorkflow: React.FC<RedesignedCharacterWorkflowPr
               />
             </div>
           </Tab>
-          <Tab key="style" title={<div className="flex items-center gap-2"><Palette className="w-4 h-4" /><span>风格</span></div>}>
+          <Tab
+            key="style"
+            title={
+              <div className="flex items-center gap-2">
+                <Palette className="w-4 h-4" />
+                <span>风格</span>
+              </div>
+            }
+          >
             <div className="p-3">
               <StyleSelector
                 value={getCurrentStyle()}
@@ -949,14 +1051,17 @@ export const RedesignedCharacterWorkflow: React.FC<RedesignedCharacterWorkflowPr
               content: 'text-slate-900 dark:text-slate-100',
               spinner: 'text-slate-900 dark:text-slate-100',
             }}
-            startContent={!generating && <Sparkles size={16} className="text-slate-900 dark:text-slate-100" />}
-          >
-            {generating 
-              ? (t.character?.generating || '生成中...') 
-              : currentStage === 3 
-                ? (isBatchMode ? '批量生成4个视角' : `生成${viewAngleConfigs[activeViewTab as CharacterViewAngle]?.label || '当前视角'}`)
-                : (t.character.startGeneration || '开始生成')
+            startContent={
+              !generating && <Sparkles size={16} className="text-slate-900 dark:text-slate-100" />
             }
+          >
+            {generating
+              ? t.character?.generating || '生成中...'
+              : currentStage === 3
+                ? isBatchMode
+                  ? '批量生成4个视角'
+                  : `生成${viewAngleConfigs[activeViewTab as CharacterViewAngle]?.label || '当前视角'}`
+                : t.character.startGeneration || '开始生成'}
           </Button>
         </div>
       </div>
@@ -973,7 +1078,7 @@ export const RedesignedCharacterWorkflow: React.FC<RedesignedCharacterWorkflowPr
                   <Camera className="w-4 h-4 text-primary" />
                   图片资产预览区
                 </h4>
-                
+
                 {/* 多视角标签页 - 仅在第3阶段显示 */}
                 {currentStage === 3 && (
                   <Tabs
@@ -986,7 +1091,7 @@ export const RedesignedCharacterWorkflow: React.FC<RedesignedCharacterWorkflowPr
                       cursor: 'rounded-lg',
                     }}
                   >
-                    {viewTabs.map((tab) => (
+                    {viewTabs.map(tab => (
                       <Tab key={tab.id} title={tab.label} />
                     ))}
                   </Tabs>
@@ -1001,7 +1106,7 @@ export const RedesignedCharacterWorkflow: React.FC<RedesignedCharacterWorkflowPr
                 >
                   <ChevronLeft className="w-4 h-4" />
                 </button>
-                
+
                 {/* 右侧滚动按钮 */}
                 <button
                   className="absolute right-0 top-1/2 -translate-y-1/2 w-8 h-8 bg-black/50 text-white rounded-full flex items-center justify-center z-20 hover:bg-black/70 transition-colors"
@@ -1010,8 +1115,8 @@ export const RedesignedCharacterWorkflow: React.FC<RedesignedCharacterWorkflowPr
                 >
                   <ChevronRight className="w-4 h-4" />
                 </button>
-                
-                <div 
+
+                <div
                   ref={previewScrollRef}
                   className="flex gap-4 overflow-x-hidden pb-2"
                   style={{ scrollbarWidth: 'none' }}
@@ -1021,14 +1126,14 @@ export const RedesignedCharacterWorkflow: React.FC<RedesignedCharacterWorkflowPr
                       <span className="text-sm text-slate-500">暂无图片</span>
                     </div>
                   ) : (
-                    currentAllImages.map((img) => {
+                    currentAllImages.map(img => {
                       const isSelected = currentSelectedImage?.id === img.id;
                       return (
                         <div
                           key={img.id}
                           className={`min-w-[200px] max-w-[200px] aspect-square rounded-xl overflow-hidden cursor-pointer relative group transition-all border border-content3 hover:border-primary/50`}
                         >
-                          <div 
+                          <div
                             className="w-full h-full overflow-hidden"
                             onClick={() => handlePreviewImage(img, currentAllImages)}
                           >
@@ -1037,6 +1142,8 @@ export const RedesignedCharacterWorkflow: React.FC<RedesignedCharacterWorkflowPr
                                 src={genUrls[img.id]}
                                 alt={img.prompt}
                                 className="w-full h-full object-cover"
+                                style={{ willChange: 'transform, opacity' }}
+                                loading="lazy"
                               />
                             ) : (
                               <div className="w-full h-full bg-content3 flex items-center justify-center">
@@ -1044,29 +1151,27 @@ export const RedesignedCharacterWorkflow: React.FC<RedesignedCharacterWorkflowPr
                               </div>
                             )}
                           </div>
-                          
+
                           {/* 左上角选择框 */}
                           <button
                             className={`absolute top-2 left-2 z-10 w-5 h-5 border-2 flex items-center justify-center transition-colors ${
-                              isSelected 
-                                ? 'border-primary bg-primary' 
+                              isSelected
+                                ? 'border-primary bg-primary'
                                 : 'border-slate-200 dark:border-slate-700 bg-black/30 dark:bg-white/10'
                             }`}
-                            onClick={(e) => {
+                            onClick={e => {
                               e.stopPropagation();
                               handleCurrentSelectImage(img);
                             }}
                             aria-label={isSelected ? '取消选择' : '选择图片'}
                           >
-                            {isSelected && (
-                              <Check className="w-3 h-3 text-white" />
-                            )}
+                            {isSelected && <Check className="w-3 h-3 text-white" />}
                           </button>
 
                           {/* 右上角删除图标 */}
                           <button
                             className="absolute top-2 right-2 w-6 h-6 flex items-center justify-center text-slate-400 hover:text-red-500 transition-colors z-10"
-                            onClick={(e) => promptDeleteImage(img.id, e)}
+                            onClick={e => promptDeleteImage(img.id, e)}
                             aria-label="删除图片"
                           >
                             <Trash2 className="w-4 h-4" />
@@ -1081,7 +1186,10 @@ export const RedesignedCharacterWorkflow: React.FC<RedesignedCharacterWorkflowPr
           </Card>
 
           {/* 定稿预览区 */}
-          <Card className="bg-content1 border border-content3 w-[200px] overflow-hidden" radius="lg">
+          <Card
+            className="bg-content1 border border-content3 w-[200px] overflow-hidden"
+            radius="lg"
+          >
             <CardBody className="p-3 h-full flex flex-col">
               <div className="flex items-center justify-between mb-2">
                 <h4 className="font-semibold text-sm text-foreground flex items-center gap-2">
@@ -1092,11 +1200,14 @@ export const RedesignedCharacterWorkflow: React.FC<RedesignedCharacterWorkflowPr
               {currentStage === 3 ? (
                 /* 多视角预览 - 显示4个不同角度 */
                 <div className="grid grid-cols-2 gap-2 flex-1">
-                  {viewTabs.map((tab) => {
+                  {viewTabs.map(tab => {
                     const viewImages = getViewImages(tab.id);
                     const selectedImage = selectedViewImages[tab.id];
                     return (
-                      <div key={tab.id} className="aspect-[3/4] bg-content2 rounded-xl border border-content3 overflow-hidden relative">
+                      <div
+                        key={tab.id}
+                        className="aspect-[3/4] bg-content2 rounded-xl border border-content3 overflow-hidden relative"
+                      >
                         {selectedImage && genUrls[selectedImage.id] ? (
                           <div
                             onClick={() => handlePreviewImage(selectedImage, viewImages)}
@@ -1106,6 +1217,8 @@ export const RedesignedCharacterWorkflow: React.FC<RedesignedCharacterWorkflowPr
                               src={genUrls[selectedImage.id]}
                               alt={selectedImage.prompt}
                               className="w-full h-full object-cover"
+                              style={{ willChange: 'transform, opacity' }}
+                              loading="lazy"
                             />
                             <div className="absolute bottom-1 left-1 right-1 bg-black/50 text-white text-xs text-center p-1 rounded">
                               {tab.label}
@@ -1113,9 +1226,9 @@ export const RedesignedCharacterWorkflow: React.FC<RedesignedCharacterWorkflowPr
                           </div>
                         ) : (
                           <div className="w-full h-full flex flex-col items-center justify-center">
-                              <p className="text-[10px] text-slate-400">{tab.label}</p>
-                              <p className="text-[9px] text-slate-500">未选择</p>
-                            </div>
+                            <p className="text-[10px] text-slate-400">{tab.label}</p>
+                            <p className="text-[9px] text-slate-500">未选择</p>
+                          </div>
                         )}
                       </div>
                     );
@@ -1126,13 +1239,17 @@ export const RedesignedCharacterWorkflow: React.FC<RedesignedCharacterWorkflowPr
                 <div className="aspect-[3/4] bg-content2 rounded-xl border border-content3 overflow-hidden relative flex-1">
                   {currentSelectedImage && genUrls[currentSelectedImage.id] ? (
                     <div
-                      onClick={() => handlePreviewImage(currentSelectedImage, [currentSelectedImage])}
+                      onClick={() =>
+                        handlePreviewImage(currentSelectedImage, [currentSelectedImage])
+                      }
                       className="w-full h-full cursor-pointer hover:opacity-90 transition-opacity"
                     >
                       <img
                         src={genUrls[currentSelectedImage.id]}
                         alt={currentSelectedImage.prompt}
                         className="w-full h-full object-cover"
+                        style={{ willChange: 'transform, opacity' }}
+                        loading="lazy"
                       />
                     </div>
                   ) : (
@@ -1148,7 +1265,10 @@ export const RedesignedCharacterWorkflow: React.FC<RedesignedCharacterWorkflowPr
         </div>
 
         {/* 生成提示词区域 */}
-        <Card className="bg-content1 border border-content3 flex-1 flex flex-col overflow-hidden" radius="lg">
+        <Card
+          className="bg-content1 border border-content3 flex-1 flex flex-col overflow-hidden"
+          radius="lg"
+        >
           <CardBody className="p-4 flex flex-col h-full overflow-hidden">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-3">
@@ -1157,7 +1277,7 @@ export const RedesignedCharacterWorkflow: React.FC<RedesignedCharacterWorkflowPr
                 </div>
                 <h4 className="font-semibold text-sm text-foreground">生成提示词</h4>
               </div>
-              
+
               {/* 右侧：参考图显示 - 所有阶段都显示 */}
               <div className="flex items-center gap-2">
                 <span className="text-xs font-semibold text-slate-400">参考图</span>
@@ -1165,18 +1285,20 @@ export const RedesignedCharacterWorkflow: React.FC<RedesignedCharacterWorkflowPr
                   {(() => {
                     // 确定实际使用的参考图片对象
                     let referenceImageObjects: GeneratedImage[] = [];
-                    
+
                     // 优先使用上一个环节的定稿图片
                     if (currentStage === 2 && selectedFaceImage) {
                       referenceImageObjects = [selectedFaceImage];
                     } else if (currentStage === 3 && selectedFullBodyImage) {
                       referenceImageObjects = [selectedFullBodyImage];
                     }
-                    
+
                     if (referenceImageObjects.length > 0) {
                       return referenceImageObjects.map((img, index) => {
                         // 直接使用图片对象的URL或路径
-                        const url = genUrls[img.id] || (img.path.startsWith('remote:') ? img.path.substring(7) : img.path);
+                        const url =
+                          genUrls[img.id] ||
+                          (img.path.startsWith('remote:') ? img.path.substring(7) : img.path);
                         return (
                           <div
                             key={img.id}
@@ -1200,21 +1322,20 @@ export const RedesignedCharacterWorkflow: React.FC<RedesignedCharacterWorkflowPr
                         );
                       });
                     } else {
-                      return (
-                        <div className="text-xs text-slate-400">无参考图</div>
-                      );
+                      return <div className="text-xs text-slate-400">无参考图</div>;
                     }
                   })()}
                 </div>
               </div>
             </div>
-            
+
             {/* 提示词输入区 */}
             <div className="flex-1 min-w-0">
               {currentStage === 3 && isBatchMode ? (
                 <div className="h-full bg-content2 rounded-xl border border-content3 flex items-center justify-center p-4">
                   <p className="text-xs text-slate-500 dark:text-slate-400 text-center">
-                    批量模式下使用预设视角提示词<br/>
+                    批量模式下使用预设视角提示词
+                    <br />
                     关闭批量开关可手动编辑提示词
                   </p>
                 </div>
@@ -1223,7 +1344,9 @@ export const RedesignedCharacterWorkflow: React.FC<RedesignedCharacterWorkflowPr
                   {/* 完整提示词预览（只读） */}
                   <div className="bg-content2 rounded-lg p-2 border border-content3">
                     <p className="text-[10px] text-slate-400 mb-1">完整提示词预览：</p>
-                    <p className="text-xs text-foreground whitespace-pre-wrap">{fullStage3Prompt}</p>
+                    <p className="text-xs text-foreground whitespace-pre-wrap">
+                      {fullStage3Prompt}
+                    </p>
                   </div>
                   {/* 视角提示词编辑 */}
                   <Textarea
@@ -1266,7 +1389,10 @@ export const RedesignedCharacterWorkflow: React.FC<RedesignedCharacterWorkflowPr
 
       {/* 右侧：音频功能模块预留 */}
       <div className="w-[320px] flex flex-col overflow-hidden">
-        <Card className="bg-content1 border border-content3 flex-1 flex flex-col overflow-hidden" radius="lg">
+        <Card
+          className="bg-content1 border border-content3 flex-1 flex flex-col overflow-hidden"
+          radius="lg"
+        >
           <CardBody className="p-4 flex flex-col h-full overflow-hidden">
             <div className="flex items-center gap-3 mb-4">
               <div className="w-9 h-9 bg-primary/10 rounded-xl flex items-center justify-center">
@@ -1290,11 +1416,11 @@ export const RedesignedCharacterWorkflow: React.FC<RedesignedCharacterWorkflowPr
         onClose={onDeleteClose}
         onConfirm={confirmDeleteImage}
       />
-      
+
       {/* 角色基础描述详情 Modal */}
       <Modal isOpen={isBasePromptOpen} onClose={onCloseBasePrompt} size="lg">
         <ModalContent>
-          {(onClose) => (
+          {onClose => (
             <>
               <ModalHeader className="flex flex-col gap-1">
                 <div className="flex items-center gap-2">
@@ -1313,11 +1439,11 @@ export const RedesignedCharacterWorkflow: React.FC<RedesignedCharacterWorkflowPr
           )}
         </ModalContent>
       </Modal>
-      
+
       {/* 一致性增强详情 Modal */}
       <Modal isOpen={isEnhancementOpen} onClose={onCloseEnhancement} size="lg">
         <ModalContent>
-          {(onClose) => (
+          {onClose => (
             <>
               <ModalHeader className="flex flex-col gap-1">
                 <div className="flex items-center gap-2">
@@ -1328,7 +1454,8 @@ export const RedesignedCharacterWorkflow: React.FC<RedesignedCharacterWorkflowPr
               <ModalBody>
                 <div className="p-2 bg-content2 rounded-lg">
                   <p className="text-sm text-foreground whitespace-pre-wrap">
-                    same character, consistent appearance, maintaining all facial features, hairstyle, and clothing details
+                    same character, consistent appearance, maintaining all facial features,
+                    hairstyle, and clothing details
                   </p>
                 </div>
               </ModalBody>

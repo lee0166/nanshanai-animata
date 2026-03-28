@@ -420,7 +420,8 @@ export const CharacterMapping: React.FC<CharacterMappingProps> = ({
                     aria-label="关联角色"
                     placeholder="选择角色"
                     selectedKeys={
-                      char.mappedAssetId && existingCharacters.some(c => c.id === char.mappedAssetId)
+                      char.mappedAssetId &&
+                      existingCharacters.some(c => c.id === char.mappedAssetId)
                         ? new Set([char.mappedAssetId])
                         : new Set()
                     }

@@ -359,7 +359,8 @@ export const SceneMapping: React.FC<SceneMappingProps> = ({
                       aria-label="关联场景"
                       placeholder="选择场景"
                       selectedKeys={
-                        scene.mappedAssetId && existingScenes.some(s => s.id === scene.mappedAssetId)
+                        scene.mappedAssetId &&
+                        existingScenes.some(s => s.id === scene.mappedAssetId)
                           ? new Set([scene.mappedAssetId])
                           : new Set()
                       }

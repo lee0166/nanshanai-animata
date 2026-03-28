@@ -50,6 +50,16 @@ export class StorageService {
   private isFsResponsive: boolean = true; // Circuit breaker flag
   private locks: Map<string, Promise<void>> = new Map();
   private cache: MultiLayerCache;
+  
+  // 内存缓存层 - 减少文件系统 I/O
+  private memoryCache: Map<string, { data: any; timestamp: number; ttl: number }> = new Map();
+  private readonly DEFAULT_MEMORY_CACHE_TTL = 30 * 1000; // 30秒
+  
+  // 快捷缓存键
+  private readonly CACHE_KEY_SETTINGS = 'settings';
+  private readonly CACHE_KEY_JOBS = 'jobs_queue';
+  private readonly CACHE_KEY_ASSETS_PREFIX = 'assets_';
+  private readonly CACHE_KEY_SCRIPTS_PREFIX = 'scripts_';
 
   constructor() {
     // 初始化多层缓存（settings 缓存 5 分钟）
@@ -59,6 +69,44 @@ export class StorageService {
       defaultTTL: 5 * 60 * 1000, // 5 分钟
       maxL1Items: 100,
     });
+  }
+  
+  // 内存缓存辅助方法
+  private getMemoryCache<T>(key: string): T | null {
+    const cached = this.memoryCache.get(key);
+    if (!cached) return null;
+    
+    const now = Date.now();
+    if (now - cached.timestamp > cached.ttl) {
+      this.memoryCache.delete(key);
+      return null;
+    }
+    
+    return cached.data as T;
+  }
+  
+  private setMemoryCache<T>(key: string, data: T, ttl?: number): void {
+    this.memoryCache.set(key, {
+      data,
+      timestamp: Date.now(),
+      ttl: ttl || this.DEFAULT_MEMORY_CACHE_TTL
+    });
+  }
+  
+  private invalidateMemoryCache(keyPattern: string): void {
+    const keysToDelete: string[] = [];
+    for (const key of this.memoryCache.keys()) {
+      if (key.includes(keyPattern)) {
+        keysToDelete.push(key);
+      }
+    }
+    for (const key of keysToDelete) {
+      this.memoryCache.delete(key);
+    }
+  }
+  
+  private clearMemoryCache(): void {
+    this.memoryCache.clear();
   }
 
   // Simple mutex lock to prevent race conditions on file operations
@@ -1040,11 +1088,20 @@ export class StorageService {
 
     // 更新缓存（同时更新 L1 和 L2）
     await this.cache.set('settings.json', settingsData);
+    
+    // 使内存缓存失效
+    this.invalidateMemoryCache(this.CACHE_KEY_SETTINGS);
 
     console.log(`[Storage] Settings saved and cache updated`);
   }
 
   async loadSettings(): Promise<AppSettings | null> {
+    // 优先检查内存缓存
+    const cached = this.getMemoryCache<AppSettings>(this.CACHE_KEY_SETTINGS);
+    if (cached) {
+      return cached;
+    }
+    
     // 使用多层缓存
     const settings = await this.cache.get<AppSettings>('settings.json', async () => {
       // L3 加载器：从文件系统读取
@@ -1094,6 +1151,11 @@ export class StorageService {
       return settings;
     });
 
+    // 设置内存缓存（较长的 TTL，因为 settings 变化不频繁）
+    if (settings) {
+      this.setMemoryCache(this.CACHE_KEY_SETTINGS, settings, 2 * 60 * 1000);
+    }
+    
     return settings;
   }
 
@@ -1136,8 +1198,16 @@ export class StorageService {
   }
 
   async getAssets(projectId: string): Promise<Asset[]> {
+    const cacheKey = `${this.CACHE_KEY_ASSETS_PREFIX}${projectId}`;
+    const cached = this.getMemoryCache<Asset[]>(cacheKey);
+    if (cached) {
+      return cached;
+    }
+    
     const data = await this.readJson<Asset[]>(`assets_${projectId}.json`);
-    return data || [];
+    const result = data || [];
+    this.setMemoryCache(cacheKey, result);
+    return result;
   }
 
   async loadAssets(): Promise<Asset[]> {
@@ -1193,11 +1263,14 @@ export class StorageService {
       assets[index] = updatedAsset;
 
       await this.writeJson(filename, assets);
+      // 使内存缓存失效
+      this.invalidateMemoryCache(this.CACHE_KEY_ASSETS_PREFIX);
     });
   }
 
   async saveAsset(asset: Asset): Promise<void> {
     const filename = `assets_${asset.projectId}.json`;
+    const cacheKey = `${this.CACHE_KEY_ASSETS_PREFIX}${asset.projectId}`;
     return this.lock(filename, async () => {
       const assets = await this.getAssets(asset.projectId);
       const index = assets.findIndex(a => a.id === asset.id);
@@ -1211,6 +1284,8 @@ export class StorageService {
         assets.push(asset);
       }
       await this.writeJson(filename, assets);
+      // 使内存缓存失效
+      this.invalidateMemoryCache(this.CACHE_KEY_ASSETS_PREFIX);
     });
   }
 
@@ -1220,12 +1295,22 @@ export class StorageService {
       let assets = await this.getAssets(projectId);
       assets = assets.filter(a => a.id !== assetId);
       await this.writeJson(filename, assets);
+      // 使内存缓存失效
+      this.invalidateMemoryCache(this.CACHE_KEY_ASSETS_PREFIX);
     });
   }
 
   async getJobs(): Promise<Job[]> {
+    const cached = this.getMemoryCache<Job[]>(this.CACHE_KEY_JOBS);
+    if (cached) {
+      return cached;
+    }
+    
     const jobs = await this.readJson<Job[]>('jobs_queue.json');
-    return jobs || [];
+    const result = jobs || [];
+    // Jobs 数据更新频繁，使用较短的 TTL（5秒）
+    this.setMemoryCache(this.CACHE_KEY_JOBS, result, 5000);
+    return result;
   }
 
   async claimJob(jobId: string): Promise<boolean> {
@@ -1243,6 +1328,8 @@ export class StorageService {
       job.updatedAt = Date.now();
 
       await this.writeJson('jobs_queue.json', jobs);
+      // 使内存缓存失效
+      this.invalidateMemoryCache(this.CACHE_KEY_JOBS);
       return true;
     });
   }
@@ -1259,6 +1346,8 @@ export class StorageService {
           jobs.push(job);
         }
         await this.writeJson('jobs_queue.json', jobs);
+        // 使内存缓存失效
+        this.invalidateMemoryCache(this.CACHE_KEY_JOBS);
       });
     } catch (e) {
       console.error('Failed to save job:', e);
@@ -1286,6 +1375,8 @@ export class StorageService {
         const updatedJobs = Array.from(jobMap.values());
 
         await this.writeJson('jobs_queue.json', updatedJobs);
+        // 使内存缓存失效
+        this.invalidateMemoryCache(this.CACHE_KEY_JOBS);
       });
     } catch (e) {
       console.error('Failed to save jobs batch:', e);
@@ -1296,12 +1387,20 @@ export class StorageService {
   // --- Script Management ---
 
   async getScripts(projectId: string): Promise<Script[]> {
+    const cacheKey = `${this.CACHE_KEY_SCRIPTS_PREFIX}${projectId}`;
+    const cached = this.getMemoryCache<Script[]>(cacheKey);
+    if (cached) {
+      return cached;
+    }
+    
     const filename = `scripts_${projectId}.json`;
     console.log('[Storage] getScripts called, projectId:', projectId);
     console.log('[Storage] Reading file:', filename);
     const data = await this.readJson<Script[]>(filename);
+    const result = data || [];
     console.log('[Storage] Read result:', data ? `Found ${data.length} scripts` : 'No data');
-    return data || [];
+    this.setMemoryCache(cacheKey, result);
+    return result;
   }
 
   async getAllScripts(): Promise<Script[]> {
@@ -1362,6 +1461,8 @@ export class StorageService {
 
       await this.writeJson(filename, scripts);
       console.log('[Storage] ========== Script Saved ==========');
+      // 使内存缓存失效
+      this.invalidateMemoryCache(this.CACHE_KEY_SCRIPTS_PREFIX);
     });
   }
 
@@ -1385,6 +1486,8 @@ export class StorageService {
       let scripts = await this.getScripts(projectId);
       scripts = scripts.filter(s => s.id !== scriptId);
       await this.writeJson(filename, scripts);
+      // 使内存缓存失效
+      this.invalidateMemoryCache(this.CACHE_KEY_SCRIPTS_PREFIX);
     });
 
     // 3. 级联删除关联资产（使用现有的 deleteAsset 方法）
@@ -1415,6 +1518,8 @@ export class StorageService {
 
       scripts[index] = script;
       await this.writeJson(filename, scripts);
+      // 使内存缓存失效
+      this.invalidateMemoryCache(this.CACHE_KEY_SCRIPTS_PREFIX);
     });
   }
 

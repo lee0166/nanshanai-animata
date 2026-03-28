@@ -5091,7 +5091,9 @@ ${content}
     // Start progress tracking - PROGRESS TRACKER IS THE SINGLE SOURCE OF TRUTH
     if (onProgress) {
       progressTracker.start((stage, progress, message, details) => {
-        console.log(`[ScriptParser] ProgressTracker emitting: stage=${stage}, progress=${progress}%, message=${message}`);
+        console.log(
+          `[ScriptParser] ProgressTracker emitting: stage=${stage}, progress=${progress}%, message=${message}`
+        );
         onProgress(stage, progress, message, details);
       });
     }
@@ -5101,50 +5103,62 @@ ${content}
 
     // 为每个阶段跟踪自己的进度 - 超级简化版！
     const stageProgressTracker: Partial<Record<ParseStage, number>> = {};
-    
+
     // 记录每个阶段的起始时间，用于模拟平滑进度
     const stageStartTime: Partial<Record<ParseStage, number>> = {};
-    
+
     // 添加持续进度动画定时器
     let progressAnimationInterval: NodeJS.Timeout | null = null;
     let isAnimatingProgress = false;
-    
+
     // 启动持续进度动画的函数
     const startProgressAnimation = () => {
       if (isAnimatingProgress || progressAnimationInterval) return;
-      
+
       isAnimatingProgress = true;
       console.log('[ScriptParser] Starting continuous progress animation...');
-      
+
       progressAnimationInterval = setInterval(() => {
-        if (currentTrackedStage && currentTrackedStage !== 'idle' && currentTrackedStage !== 'completed' && currentTrackedStage !== 'error') {
+        if (
+          currentTrackedStage &&
+          currentTrackedStage !== 'idle' &&
+          currentTrackedStage !== 'completed' &&
+          currentTrackedStage !== 'error'
+        ) {
           // 基于时间模拟阶段内进度增长
           const startTime = stageStartTime[currentTrackedStage] || Date.now();
           const elapsed = Date.now() - startTime;
           // 每个阶段假设耗时90秒，模拟平滑增长到95%
           const timeBasedProgress = Math.min(0.95, elapsed / 90000);
-          
+
           // 获取当前进度，如果没有则初始化为0
           const currentProgress = stageProgressTracker[currentTrackedStage] ?? 0;
           const newProgress = Math.max(currentProgress, timeBasedProgress);
           stageProgressTracker[currentTrackedStage] = newProgress;
-          
+
           // 构建更新后的details
           const updatedDetails = {
             currentStageProgress: Math.round(newProgress * 100),
           };
-          
-          console.log(`[ScriptParser] Progress animation: stage=${currentTrackedStage}, stageProgress=${Math.round(newProgress * 100)}%`);
-          
+
+          console.log(
+            `[ScriptParser] Progress animation: stage=${currentTrackedStage}, stageProgress=${Math.round(newProgress * 100)}%`
+          );
+
           // 同时更新ProgressTracker，这样overallProgress也会更新
           progressTracker.updateStageProgress(currentTrackedStage, newProgress);
-          
+
           // 调用enhancedOnProgress来更新UI
-          enhancedOnProgress(currentTrackedStage, progressTracker.getOverallProgress(), undefined, updatedDetails);
+          enhancedOnProgress(
+            currentTrackedStage,
+            progressTracker.getOverallProgress(),
+            undefined,
+            updatedDetails
+          );
         }
       }, 100); // 100ms更新一次，10fps
     };
-    
+
     // 停止持续进度动画的函数
     const stopProgressAnimation = () => {
       if (progressAnimationInterval) {
@@ -5154,7 +5168,7 @@ ${content}
       isAnimatingProgress = false;
       console.log('[ScriptParser] Stopped continuous progress animation');
     };
-    
+
     // 超级简化的进度回调！直接、清晰、简单！
     const enhancedOnProgress: ParseProgressCallback = (
       stage: ParseStage,
@@ -5162,9 +5176,11 @@ ${content}
       message?: string,
       details?: any
     ) => {
-      console.log(`[ScriptParser] enhancedOnProgress called: stage=${stage}, progress=${progress}%, message=${message}`);
+      console.log(
+        `[ScriptParser] enhancedOnProgress called: stage=${stage}, progress=${progress}%, message=${message}`
+      );
       console.log(`[ScriptParser] enhancedOnProgress details:`, details);
-      
+
       // 阶段变化处理
       if (stage !== currentTrackedStage && stage !== 'idle') {
         console.log(`[ScriptParser] Stage transition: ${currentTrackedStage} -> ${stage}`);
@@ -5173,14 +5189,16 @@ ${content}
         stageProgressTracker[stage] = 0;
         stageStartTime[stage] = Date.now();
       }
-      
+
       // 计算当前阶段进度 - 超简化逻辑！
       let stageProgressVal = 0;
-      
+
       // 方案1：如果 details 提供了 currentStageProgress，直接使用
       if (details?.currentStageProgress !== undefined) {
         stageProgressVal = details.currentStageProgress / 100;
-        console.log(`[ScriptParser] Using provided currentStageProgress: ${details.currentStageProgress}%`);
+        console.log(
+          `[ScriptParser] Using provided currentStageProgress: ${details.currentStageProgress}%`
+        );
       }
       // 方案2：如果有 subTaskInfo，使用子任务进度
       else if (details?.subTaskInfo?.total && details.subTaskInfo.total > 0) {
@@ -5194,34 +5212,36 @@ ${content}
         const elapsed = Date.now() - startTime;
         // 每个阶段假设耗时60秒，模拟平滑增长
         const timeBasedProgress = Math.min(0.95, elapsed / 60000);
-        
+
         // 确保进度不回退！
         if (stageProgressTracker[stage] !== undefined) {
           stageProgressVal = Math.max(stageProgressTracker[stage], timeBasedProgress);
         } else {
           stageProgressVal = timeBasedProgress;
         }
-        
-        console.log(`[ScriptParser] Using time-based progress: ${Math.round(stageProgressVal * 100)}%`);
+
+        console.log(
+          `[ScriptParser] Using time-based progress: ${Math.round(stageProgressVal * 100)}%`
+        );
       }
-      
+
       // 确保进度在0-1之间
       stageProgressVal = Math.max(0, Math.min(1, stageProgressVal));
-      
+
       // 保存到跟踪器
       stageProgressTracker[stage] = stageProgressVal;
-      
+
       // 构建更新后的 details
       const updatedDetails = {
         ...details,
         currentStageProgress: Math.round(stageProgressVal * 100),
       };
-      
+
       console.log(`[ScriptParser] Final stageProgress: ${Math.round(stageProgressVal * 100)}%`);
-      
+
       // 直接调用原始回调，确保UI能收到更新！
       onProgress?.(stage, progress, message, updatedDetails);
-      
+
       // 同时也更新 ProgressTracker
       if (stage !== 'idle' && stage !== 'completed' && stage !== 'error') {
         progressTracker.updateStageProgress(stage, stageProgressVal, message);
@@ -5439,7 +5459,11 @@ ${content}
         );
         const sceneTask = (async () => {
           try {
-            enhancedOnProgress?.('scenes', 40, `正在批量分析 ${remainingSceneNames.length} 个场景...`);
+            enhancedOnProgress?.(
+              'scenes',
+              40,
+              `正在批量分析 ${remainingSceneNames.length} 个场景...`
+            );
             const newScenes = await this.extractAllScenesWithContext(content, remainingSceneNames);
             scenes.push(...newScenes);
             state.scenes = scenes;
@@ -5644,13 +5668,18 @@ ${content}
         if (remainingScenes.length <= BASE_BATCH_SIZE) {
           // Small batch: use single API call
           console.log(`[ScriptParser] Using single API call for ${remainingScenes.length} scenes`);
-          enhancedOnProgress?.('shots', 75, `正在批量生成分镜 (${remainingScenes.length} 场景)...`, {
-            currentScene: 1,
-            totalScenes: remainingScenes.length,
-            currentBatch: 1,
-            totalBatches: 1,
-            currentStageProgress: 50,
-          });
+          enhancedOnProgress?.(
+            'shots',
+            75,
+            `正在批量生成分镜 (${remainingScenes.length} 场景)...`,
+            {
+              currentScene: 1,
+              totalScenes: remainingScenes.length,
+              currentBatch: 1,
+              totalBatches: 1,
+              currentStageProgress: 50,
+            }
+          );
 
           try {
             const newShots = await this.generateAllShotsWithContext(content, remainingScenes);
@@ -5776,7 +5805,7 @@ ${content}
       // Complete
       state.stage = 'completed';
       state.progress = 100;
-      
+
       // 停止持续进度动画
       stopProgressAnimation();
 
@@ -5863,7 +5892,7 @@ ${content}
     } catch (error: any) {
       // 停止持续进度动画
       stopProgressAnimation();
-      
+
       state.stage = 'error';
       state.error = error.message;
       enhancedOnProgress?.('error', state.progress, `解析失败: ${error.message}`);
@@ -5940,7 +5969,7 @@ ${content}
     try {
       // We'll keep track of previous stage to detect stage changes
       let previousStage: ParseStage = 'idle';
-      
+
       // Create a wrapper callback that updates ProgressTracker properly
       const enhancedCallback: ParseProgressCallback = (stage, progress, message, details) => {
         // Check if stage changed
@@ -5951,7 +5980,7 @@ ${content}
 
         // Calculate current stage progress based on the details
         let stageProgress = 0;
-        
+
         // Use currentStageProgress from details if available
         if (details?.currentStageProgress !== undefined && details.currentStageProgress > 0) {
           stageProgress = details.currentStageProgress / 100;
@@ -5969,7 +5998,7 @@ ${content}
             completed: [95, 100],
             error: [0, 100],
           };
-          
+
           const range = stageRanges[stage];
           if (range) {
             const [min, max] = range;
@@ -5980,10 +6009,10 @@ ${content}
             }
           }
         }
-        
+
         // Ensure stage progress is within [0, 1]
         stageProgress = Math.max(0, Math.min(1, stageProgress));
-        
+
         // Update progress tracker with the calculated stage progress
         if (stage !== 'idle' && stage !== 'completed' && stage !== 'error') {
           progressTracker.updateStageProgress(stage, stageProgress, message);

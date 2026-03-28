@@ -1,5 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { ItemAsset, GeneratedImage, AssetType, Job, JobStatus, ItemType, ItemViewType } from '../../../types';
+import {
+  ItemAsset,
+  GeneratedImage,
+  AssetType,
+  Job,
+  JobStatus,
+  ItemType,
+  ItemViewType,
+} from '../../../types';
 import { DEFAULT_MODELS } from '../../../config/models';
 import { UNIFIED_KEYS, resolveModelConfig } from '../../../services/modelUtils';
 import { storageService } from '../../../services/storage';
@@ -48,10 +56,7 @@ import {
   Mic,
   Info,
 } from 'lucide-react';
-import {
-  getItemImagePrompt,
-  getDefaultStylePrompt,
-} from '../../../services/prompt';
+import { getItemImagePrompt, getDefaultStylePrompt } from '../../../services/prompt';
 import ResourcePicker from '../../ResourcePicker';
 import { usePreview } from '../../PreviewProvider';
 import { ImageGenerationPanel } from '../Shared/ImageGenerationPanel';
@@ -411,7 +416,7 @@ const ItemDetail: React.FC<ItemDetailProps> = ({ asset, onUpdate, projectId }) =
           asset.views.front,
           asset.views.side,
           asset.views.top,
-          asset.views.threeQuarter
+          asset.views.threeQuarter,
         ];
         for (const view of views) {
           if (view?.path) {
@@ -447,12 +452,15 @@ const ItemDetail: React.FC<ItemDetailProps> = ({ asset, onUpdate, projectId }) =
       if (currentSavedPrompt !== viewPrompt) {
         const updatedViewPrompts = {
           ...asset.viewPrompts,
-          [activeViewTab]: viewPrompt
+          [activeViewTab]: viewPrompt,
         };
-        onUpdate({
-          ...asset,
-          viewPrompts: updatedViewPrompts
-        }, true);
+        onUpdate(
+          {
+            ...asset,
+            viewPrompts: updatedViewPrompts,
+          },
+          true
+        );
       }
     }, 500);
 
@@ -695,16 +703,13 @@ const ItemDetail: React.FC<ItemDetailProps> = ({ asset, onUpdate, projectId }) =
             viewType,
             result.image
           );
-          
+
           const updated = {
             ...updatedAsset,
             views: newViews,
-            generatedImages: [
-              ...(updatedAsset.generatedImages || []),
-              result.image
-            ]
+            generatedImages: [...(updatedAsset.generatedImages || []), result.image],
           };
-          
+
           onUpdate(updated);
           showToast(`${getViewLabel(viewType)}视图生成成功!`, 'success');
         }
@@ -725,32 +730,34 @@ const ItemDetail: React.FC<ItemDetailProps> = ({ asset, onUpdate, projectId }) =
 
   const handleDeleteView = (viewType: ItemViewType) => {
     if (!asset.views) return;
-    
+
     const newViews = { ...asset.views };
     delete newViews[viewType];
-    
-    const hasViews = Object.keys(newViews).some(key => newViews[key as keyof typeof newViews] !== undefined);
-    
+
+    const hasViews = Object.keys(newViews).some(
+      key => newViews[key as keyof typeof newViews] !== undefined
+    );
+
     const updated = {
       ...asset,
-      views: hasViews ? newViews : undefined
+      views: hasViews ? newViews : undefined,
     };
-    
+
     onUpdate(updated);
     showToast(`${getViewLabel(viewType)}视图已删除`, 'success');
   };
 
   const handleSetViewAsCurrent = (viewType: ItemViewType) => {
     const viewImage = asset.views?.[viewType];
-    
+
     if (!viewImage) return;
-    
+
     const updated = {
       ...asset,
       currentImageId: viewImage.id,
-      filePath: viewImage.path
+      filePath: viewImage.path,
     };
-    
+
     onUpdate(updated);
     showToast(`已将${getViewLabel(viewType)}视图设为当前`, 'success');
   };
@@ -762,7 +769,7 @@ const ItemDetail: React.FC<ItemDetailProps> = ({ asset, onUpdate, projectId }) =
     }
 
     const missingViews = viewTypes.filter(type => !asset.views?.[type]);
-    
+
     if (missingViews.length === 0) {
       showToast('所有视角都已生成', 'info');
       return;
@@ -777,7 +784,7 @@ const ItemDetail: React.FC<ItemDetailProps> = ({ asset, onUpdate, projectId }) =
     try {
       for (const viewType of missingViews) {
         setGeneratingViews(prev => new Set([...prev, viewType]));
-        
+
         try {
           const result = await assetReuseService.generateItemView({
             item: asset,
@@ -795,16 +802,13 @@ const ItemDetail: React.FC<ItemDetailProps> = ({ asset, onUpdate, projectId }) =
                 viewType,
                 result.image
               );
-              
+
               const updated = {
                 ...updatedAsset,
                 views: newViews,
-                generatedImages: [
-                  ...(updatedAsset.generatedImages || []),
-                  result.image
-                ]
+                generatedImages: [...(updatedAsset.generatedImages || []), result.image],
               };
-              
+
               onUpdate(updated);
               successCount++;
             }
@@ -825,7 +829,10 @@ const ItemDetail: React.FC<ItemDetailProps> = ({ asset, onUpdate, projectId }) =
       }
 
       if (successCount > 0) {
-        showToast(`批量生成完成！成功: ${successCount}, 失败: ${failCount}`, successCount === missingViews.length ? 'success' : 'warning');
+        showToast(
+          `批量生成完成！成功: ${successCount}, 失败: ${failCount}`,
+          successCount === missingViews.length ? 'success' : 'warning'
+        );
       } else {
         showToast('批量生成失败', 'error');
       }
@@ -851,8 +858,10 @@ const ItemDetail: React.FC<ItemDetailProps> = ({ asset, onUpdate, projectId }) =
 
   const handlePreviewImage = (img: GeneratedImage, allImages: GeneratedImage[]) => {
     const slides = allImages.map(image => ({
-      src: genUrls[image.id] || (image.path.startsWith('remote:') ? image.path.substring(7) : image.path),
-      alt: image.prompt
+      src:
+        genUrls[image.id] ||
+        (image.path.startsWith('remote:') ? image.path.substring(7) : image.path),
+      alt: image.prompt,
     }));
     const currentIndex = allImages.findIndex(i => i.id === img.id);
     openPreview(slides, currentIndex);
@@ -863,7 +872,7 @@ const ItemDetail: React.FC<ItemDetailProps> = ({ asset, onUpdate, projectId }) =
       front: '正面',
       side: '侧面',
       top: '顶面',
-      'three-quarter': '四分之三'
+      'three-quarter': '四分之三',
     };
     return labels[viewType];
   };
@@ -872,7 +881,7 @@ const ItemDetail: React.FC<ItemDetailProps> = ({ asset, onUpdate, projectId }) =
     const viewPrompts: Record<ItemViewType, string> = {
       front: 'front view, facing camera directly, full view of the item',
       side: 'side view, profile view, full view from the side',
-      top: 'top view, bird\'s-eye view, looking down from above',
+      top: "top view, bird's-eye view, looking down from above",
       'three-quarter': 'three-quarter view, 45 degree angle, showing front and side',
     };
     return viewPrompts[viewType];
@@ -881,8 +890,9 @@ const ItemDetail: React.FC<ItemDetailProps> = ({ asset, onUpdate, projectId }) =
   const fullViewPrompt = React.useMemo(() => {
     const basePrompt = asset.prompt || '';
     const viewPromptValue = viewPrompt || getViewPrompt(activeViewTab) || '';
-    const consistencyPrompt = 'same item, consistent appearance, maintaining all shape, color, and material details';
-    
+    const consistencyPrompt =
+      'same item, consistent appearance, maintaining all shape, color, and material details';
+
     if (basePrompt) {
       return `${basePrompt}, ${viewPromptValue}, ${consistencyPrompt}`;
     }
@@ -921,19 +931,20 @@ const ItemDetail: React.FC<ItemDetailProps> = ({ asset, onUpdate, projectId }) =
     return count;
   };
 
-  const currentAllImages = activeTab === 'single' 
-    ? (asset.generatedImages || [])
-    : (() => {
-        const viewImages: GeneratedImage[] = [];
-        if (asset.views) {
-          if (asset.views.front) viewImages.push(asset.views.front);
-          if (asset.views.side) viewImages.push(asset.views.side);
-          if (asset.views.top) viewImages.push(asset.views.top);
-          if (asset.views.threeQuarter) viewImages.push(asset.views.threeQuarter);
-        }
-        return viewImages;
-      })();
-  const currentSelectedImage = asset.currentImageId 
+  const currentAllImages =
+    activeTab === 'single'
+      ? asset.generatedImages || []
+      : (() => {
+          const viewImages: GeneratedImage[] = [];
+          if (asset.views) {
+            if (asset.views.front) viewImages.push(asset.views.front);
+            if (asset.views.side) viewImages.push(asset.views.side);
+            if (asset.views.top) viewImages.push(asset.views.top);
+            if (asset.views.threeQuarter) viewImages.push(asset.views.threeQuarter);
+          }
+          return viewImages;
+        })();
+  const currentSelectedImage = asset.currentImageId
     ? (asset.generatedImages || []).find(img => img.id === asset.currentImageId)
     : null;
 
@@ -957,7 +968,7 @@ const ItemDetail: React.FC<ItemDetailProps> = ({ asset, onUpdate, projectId }) =
           </div>
 
           <div className="flex gap-2">
-            {tabs.map((tab) => {
+            {tabs.map(tab => {
               const isActive = activeTab === tab.id;
 
               return (
@@ -988,12 +999,15 @@ const ItemDetail: React.FC<ItemDetailProps> = ({ asset, onUpdate, projectId }) =
               cursor: 'rounded-xl',
             }}
           >
-            <Tab key="core" title={
-              <div className="flex items-center gap-2">
-                <Settings className="w-4 h-4" />
-                <span>参数</span>
-              </div>
-            }>
+            <Tab
+              key="core"
+              title={
+                <div className="flex items-center gap-2">
+                  <Settings className="w-4 h-4" />
+                  <span>参数</span>
+                </div>
+              }
+            >
               <div className="p-3 space-y-2">
                 <ImageGenerationPanel
                   projectId={projectId}
@@ -1005,26 +1019,35 @@ const ItemDetail: React.FC<ItemDetailProps> = ({ asset, onUpdate, projectId }) =
                   referenceImages={referenceImages}
                   onReferenceImagesChange={newRefs => {
                     setReferenceImages(newRefs);
-                    onUpdate({
-                      ...asset,
-                      metadata: { ...asset.metadata, referenceImages: newRefs },
-                    }, true);
+                    onUpdate(
+                      {
+                        ...asset,
+                        metadata: { ...asset.metadata, referenceImages: newRefs },
+                      },
+                      true
+                    );
                   }}
                   aspectRatio={aspectRatio}
                   onAspectRatioChange={val => {
                     setAspectRatio(val);
-                    onUpdate({
-                      ...asset,
-                      metadata: { ...asset.metadata, aspectRatio: val },
-                    }, true);
+                    onUpdate(
+                      {
+                        ...asset,
+                        metadata: { ...asset.metadata, aspectRatio: val },
+                      },
+                      true
+                    );
                   }}
                   resolution={resolution}
                   onResolutionChange={val => {
                     setResolution(val);
-                    onUpdate({
-                      ...asset,
-                      metadata: { ...asset.metadata, resolution: val },
-                    }, true);
+                    onUpdate(
+                      {
+                        ...asset,
+                        metadata: { ...asset.metadata, resolution: val },
+                      },
+                      true
+                    );
                   }}
                   style={style}
                   onStyleChange={setStyle}
@@ -1042,18 +1065,17 @@ const ItemDetail: React.FC<ItemDetailProps> = ({ asset, onUpdate, projectId }) =
                 />
               </div>
             </Tab>
-            <Tab key="style" title={
-              <div className="flex items-center gap-2">
-                <Palette className="w-4 h-4" />
-                <span>风格</span>
-              </div>
-            }>
+            <Tab
+              key="style"
+              title={
+                <div className="flex items-center gap-2">
+                  <Palette className="w-4 h-4" />
+                  <span>风格</span>
+                </div>
+              }
+            >
               <div className="p-3">
-                <StyleSelector
-                  value={style}
-                  onChange={setStyle}
-                  disabled={generating}
-                />
+                <StyleSelector value={style} onChange={setStyle} disabled={generating} />
               </div>
             </Tab>
           </Tabs>
@@ -1071,31 +1093,40 @@ const ItemDetail: React.FC<ItemDetailProps> = ({ asset, onUpdate, projectId }) =
                 cursor: 'rounded-xl',
               }}
             >
-              <Tab key="core" title={
-                <div className="flex items-center gap-2">
-                  <Settings className="w-4 h-4" />
-                  <span>参数</span>
-                </div>
-              }>
+              <Tab
+                key="core"
+                title={
+                  <div className="flex items-center gap-2">
+                    <Settings className="w-4 h-4" />
+                    <span>参数</span>
+                  </div>
+                }
+              >
                 <div className="p-3 space-y-2">
                   <CompactToolbar
                     modelId={modelId}
                     onModelChange={handleModelChange}
                     aspectRatio={aspectRatio}
-                    onAspectRatioChange={(val) => {
+                    onAspectRatioChange={val => {
                       setAspectRatio(val);
-                      onUpdate({
-                        ...asset,
-                        metadata: { ...asset.metadata, aspectRatio: val },
-                      }, true);
+                      onUpdate(
+                        {
+                          ...asset,
+                          metadata: { ...asset.metadata, aspectRatio: val },
+                        },
+                        true
+                      );
                     }}
                     resolution={resolution}
-                    onResolutionChange={(val) => {
+                    onResolutionChange={val => {
                       setResolution(val);
-                      onUpdate({
-                        ...asset,
-                        metadata: { ...asset.metadata, resolution: val },
-                      }, true);
+                      onUpdate(
+                        {
+                          ...asset,
+                          metadata: { ...asset.metadata, resolution: val },
+                        },
+                        true
+                      );
                     }}
                     count={generateCount}
                     onCountChange={setGenerateCount}
@@ -1107,18 +1138,17 @@ const ItemDetail: React.FC<ItemDetailProps> = ({ asset, onUpdate, projectId }) =
                   />
                 </div>
               </Tab>
-              <Tab key="style" title={
-                <div className="flex items-center gap-2">
-                  <Palette className="w-4 h-4" />
-                  <span>风格</span>
-                </div>
-              }>
+              <Tab
+                key="style"
+                title={
+                  <div className="flex items-center gap-2">
+                    <Palette className="w-4 h-4" />
+                    <span>风格</span>
+                  </div>
+                }
+              >
                 <div className="p-3">
-                  <StyleSelector
-                    value={style}
-                    onChange={setStyle}
-                    disabled={generating}
-                  />
+                  <StyleSelector value={style} onChange={setStyle} disabled={generating} />
                 </div>
               </Tab>
             </Tabs>
@@ -1145,23 +1175,35 @@ const ItemDetail: React.FC<ItemDetailProps> = ({ asset, onUpdate, projectId }) =
             size="sm"
             fullWidth
             isLoading={activeTab === 'single' ? generating : batchGenerating}
-            onPress={activeTab === 'single' ? handleGenerate : (isBatchMode ? handleBatchGenerateViews : () => handleGenerateView(activeViewTab))}
+            onPress={
+              activeTab === 'single'
+                ? handleGenerate
+                : isBatchMode
+                  ? handleBatchGenerateViews
+                  : () => handleGenerateView(activeViewTab)
+            }
             className="font-bold h-9 rounded-xl bg-slate-200 hover:bg-slate-300 text-slate-900 dark:bg-slate-700 dark:hover:bg-slate-600 dark:text-slate-100 shadow-lg"
             classNames={{
               base: 'bg-slate-200 hover:bg-slate-300 text-slate-900 dark:bg-slate-700 dark:hover:bg-slate-600 dark:text-slate-100',
               content: 'text-slate-900 dark:text-slate-100',
               spinner: 'text-slate-900 dark:text-slate-100',
             }}
-            startContent={!generating && !batchGenerating && <Sparkles size={16} className="text-slate-900 dark:text-slate-100" />}
-          >
-            {activeTab === 'single' 
-              ? (generating ? '生成中...' : '开始生成') 
-              : (batchGenerating 
-                  ? '批量生成中...' 
-                  : (isBatchMode 
-                      ? '批量生成全部视角' 
-                      : `生成${getViewLabel(activeViewTab)}`))
+            startContent={
+              !generating &&
+              !batchGenerating && (
+                <Sparkles size={16} className="text-slate-900 dark:text-slate-100" />
+              )
             }
+          >
+            {activeTab === 'single'
+              ? generating
+                ? '生成中...'
+                : '开始生成'
+              : batchGenerating
+                ? '批量生成中...'
+                : isBatchMode
+                  ? '批量生成全部视角'
+                  : `生成${getViewLabel(activeViewTab)}`}
           </Button>
         </div>
       </div>
@@ -1178,11 +1220,11 @@ const ItemDetail: React.FC<ItemDetailProps> = ({ asset, onUpdate, projectId }) =
                   <Camera className="w-4 h-4 text-primary" />
                   {activeTab === 'single' ? '图片资产预览区' : '多视角图预览'}
                 </h4>
-                
+
                 {activeTab === 'views' && (
                   <Tabs
                     selectedKey={activeViewTab}
-                    onSelectionChange={(key) => setActiveViewTab(key as ItemViewType)}
+                    onSelectionChange={key => setActiveViewTab(key as ItemViewType)}
                     size="sm"
                     classNames={{
                       tabList: 'gap-1',
@@ -1190,7 +1232,7 @@ const ItemDetail: React.FC<ItemDetailProps> = ({ asset, onUpdate, projectId }) =
                       cursor: 'rounded-lg',
                     }}
                   >
-                    {viewTabs.map((tab) => (
+                    {viewTabs.map(tab => (
                       <Tab key={tab.id} title={tab.label} />
                     ))}
                   </Tabs>
@@ -1205,7 +1247,7 @@ const ItemDetail: React.FC<ItemDetailProps> = ({ asset, onUpdate, projectId }) =
                 >
                   <ChevronLeft className="w-4 h-4" />
                 </button>
-                
+
                 {/* 右侧滚动按钮 */}
                 <button
                   className="absolute right-0 top-1/2 -translate-y-1/2 w-8 h-8 bg-black/50 text-white rounded-full flex items-center justify-center z-20 hover:bg-black/70 transition-colors"
@@ -1214,8 +1256,8 @@ const ItemDetail: React.FC<ItemDetailProps> = ({ asset, onUpdate, projectId }) =
                 >
                   <ChevronRight className="w-4 h-4" />
                 </button>
-                
-                <div 
+
+                <div
                   ref={previewScrollRef}
                   className="flex gap-4 overflow-x-hidden pb-2"
                   style={{ scrollbarWidth: 'none' }}
@@ -1225,14 +1267,17 @@ const ItemDetail: React.FC<ItemDetailProps> = ({ asset, onUpdate, projectId }) =
                       <span className="text-sm text-slate-500">暂无图片</span>
                     </div>
                   ) : (
-                    (activeTab === 'single' ? currentAllImages.slice().reverse() : currentAllImages).map((img) => {
+                    (activeTab === 'single'
+                      ? currentAllImages.slice().reverse()
+                      : currentAllImages
+                    ).map(img => {
                       const isSelected = currentSelectedImage?.id === img.id;
                       return (
                         <div
                           key={img.id}
                           className={`min-w-[200px] max-w-[200px] aspect-square rounded-xl overflow-hidden cursor-pointer relative group transition-all border border-content3 hover:border-primary/50`}
                         >
-                          <div 
+                          <div
                             className="w-full h-full overflow-hidden"
                             onClick={() => handlePreviewImage(img, currentAllImages)}
                           >
@@ -1248,29 +1293,27 @@ const ItemDetail: React.FC<ItemDetailProps> = ({ asset, onUpdate, projectId }) =
                               </div>
                             )}
                           </div>
-                          
+
                           {/* 左上角选择框 */}
                           <button
                             className={`absolute top-2 left-2 z-10 w-5 h-5 border-2 flex items-center justify-center transition-colors ${
-                              isSelected 
-                                ? 'border-primary bg-primary' 
+                              isSelected
+                                ? 'border-primary bg-primary'
                                 : 'border-slate-200 dark:border-slate-700 bg-black/30 dark:bg-white/10'
                             }`}
-                            onClick={(e) => {
+                            onClick={e => {
                               e.stopPropagation();
                               handleSelectImage(img);
                             }}
                             aria-label={isSelected ? '取消选择' : '选择图片'}
                           >
-                            {isSelected && (
-                              <Check className="w-3 h-3 text-white" />
-                            )}
+                            {isSelected && <Check className="w-3 h-3 text-white" />}
                           </button>
 
                           {/* 右上角删除图标 */}
                           <button
                             className="absolute top-2 right-2 w-6 h-6 flex items-center justify-center text-slate-400 hover:text-red-500 transition-colors z-10"
-                            onClick={(e) => promptDeleteImage(img, e)}
+                            onClick={e => promptDeleteImage(img, e)}
                             aria-label="删除图片"
                           >
                             <Trash2 className="w-4 h-4" />
@@ -1285,7 +1328,10 @@ const ItemDetail: React.FC<ItemDetailProps> = ({ asset, onUpdate, projectId }) =
           </Card>
 
           {/* 定稿预览区 */}
-          <Card className="bg-content1 border border-content3 w-[200px] overflow-hidden" radius="lg">
+          <Card
+            className="bg-content1 border border-content3 w-[200px] overflow-hidden"
+            radius="lg"
+          >
             <CardBody className="p-3 h-full flex flex-col">
               <div className="flex items-center justify-between mb-2">
                 <h4 className="font-semibold text-sm text-foreground flex items-center gap-2">
@@ -1296,10 +1342,13 @@ const ItemDetail: React.FC<ItemDetailProps> = ({ asset, onUpdate, projectId }) =
               {activeTab === 'views' ? (
                 /* 多视角预览 - 显示4个视角 */
                 <div className="grid grid-cols-2 gap-2 flex-1">
-                  {viewTabs.map((tab) => {
+                  {viewTabs.map(tab => {
                     const viewImage = asset.views?.[tab.id];
                     return (
-                      <div key={tab.id} className="aspect-[3/4] bg-content2 rounded-xl border border-content3 overflow-hidden relative">
+                      <div
+                        key={tab.id}
+                        className="aspect-[3/4] bg-content2 rounded-xl border border-content3 overflow-hidden relative"
+                      >
                         {viewImage && viewUrls[viewImage.id] ? (
                           <div
                             onClick={() => {
@@ -1321,9 +1370,9 @@ const ItemDetail: React.FC<ItemDetailProps> = ({ asset, onUpdate, projectId }) =
                           </div>
                         ) : (
                           <div className="w-full h-full flex flex-col items-center justify-center">
-                              <p className="text-[10px] text-slate-400">{tab.label}</p>
-                              <p className="text-[9px] text-slate-500">未生成</p>
-                            </div>
+                            <p className="text-[10px] text-slate-400">{tab.label}</p>
+                            <p className="text-[9px] text-slate-500">未生成</p>
+                          </div>
                         )}
                       </div>
                     );
@@ -1333,7 +1382,9 @@ const ItemDetail: React.FC<ItemDetailProps> = ({ asset, onUpdate, projectId }) =
                 <div className="aspect-[3/4] bg-content2 rounded-xl border border-content3 overflow-hidden relative flex-1">
                   {currentSelectedImage && genUrls[currentSelectedImage.id] ? (
                     <div
-                      onClick={() => handlePreviewImage(currentSelectedImage, [currentSelectedImage])}
+                      onClick={() =>
+                        handlePreviewImage(currentSelectedImage, [currentSelectedImage])
+                      }
                       className="w-full h-full cursor-pointer hover:opacity-90 transition-opacity"
                     >
                       <img
@@ -1355,7 +1406,10 @@ const ItemDetail: React.FC<ItemDetailProps> = ({ asset, onUpdate, projectId }) =
         </div>
 
         {/* 生成提示词区域 */}
-        <Card className="bg-content1 border border-content3 flex-1 flex flex-col overflow-hidden" radius="lg">
+        <Card
+          className="bg-content1 border border-content3 flex-1 flex flex-col overflow-hidden"
+          radius="lg"
+        >
           <CardBody className="p-4 flex flex-col h-full overflow-hidden">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-3">
@@ -1364,14 +1418,18 @@ const ItemDetail: React.FC<ItemDetailProps> = ({ asset, onUpdate, projectId }) =
                 </div>
                 <h4 className="font-semibold text-sm text-foreground">生成提示词</h4>
               </div>
-              
+
               {/* 右侧：参考图显示 - 多视角模式优先显示定稿图片 */}
               <div className="flex items-center gap-2">
                 <span className="text-xs font-semibold text-slate-400">参考图</span>
                 <div className="flex gap-2">
                   {(() => {
                     if (activeTab === 'views' && currentSelectedImage) {
-                      const url = genUrls[currentSelectedImage.id] || (currentSelectedImage.path.startsWith('remote:') ? currentSelectedImage.path.substring(7) : currentSelectedImage.path);
+                      const url =
+                        genUrls[currentSelectedImage.id] ||
+                        (currentSelectedImage.path.startsWith('remote:')
+                          ? currentSelectedImage.path.substring(7)
+                          : currentSelectedImage.path);
                       return (
                         <div
                           key={currentSelectedImage.id}
@@ -1422,27 +1480,28 @@ const ItemDetail: React.FC<ItemDetailProps> = ({ asset, onUpdate, projectId }) =
                           })}
                           {referenceImages.length > 3 && (
                             <div className="w-10 h-10 bg-content2 rounded-lg border border-content3 flex items-center justify-center">
-                              <span className="text-xs text-slate-400">+{referenceImages.length - 3}</span>
+                              <span className="text-xs text-slate-400">
+                                +{referenceImages.length - 3}
+                              </span>
                             </div>
                           )}
                         </div>
                       );
                     } else {
-                      return (
-                        <div className="text-xs text-slate-400">无参考图</div>
-                      );
+                      return <div className="text-xs text-slate-400">无参考图</div>;
                     }
                   })()}
                 </div>
               </div>
             </div>
-            
+
             {/* 提示词输入区 */}
             <div className="flex-1 min-w-0">
               {activeTab === 'views' && isBatchMode ? (
                 <div className="h-full bg-content2 rounded-xl border border-content3 flex items-center justify-center p-4">
                   <p className="text-xs text-slate-500 dark:text-slate-400 text-center">
-                    批量模式下使用预设视角提示词<br/>
+                    批量模式下使用预设视角提示词
+                    <br />
                     关闭批量开关可手动编辑提示词
                   </p>
                 </div>
@@ -1493,7 +1552,10 @@ const ItemDetail: React.FC<ItemDetailProps> = ({ asset, onUpdate, projectId }) =
 
       {/* 右侧：预留功能模块 */}
       <div className="w-[320px] flex flex-col overflow-hidden">
-        <Card className="bg-content1 border border-content3 flex-1 flex flex-col overflow-hidden" radius="lg">
+        <Card
+          className="bg-content1 border border-content3 flex-1 flex flex-col overflow-hidden"
+          radius="lg"
+        >
           <CardBody className="p-4 flex flex-col h-full overflow-hidden">
             <div className="flex items-center gap-3 mb-4">
               <div className="w-9 h-9 bg-primary/10 rounded-xl flex items-center justify-center">

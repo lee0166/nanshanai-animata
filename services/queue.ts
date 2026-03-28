@@ -18,6 +18,7 @@ export class JobQueue {
   private processingCount = 0;
   private inFlightIds = new Set<string>();
   private listeners: JobUpdateCallback[] = [];
+  private lastNotifiedStates = new Map<string, JobStatus>();
 
   subscribe(callback: JobUpdateCallback) {
     this.listeners.push(callback);
@@ -31,6 +32,11 @@ export class JobQueue {
   }
 
   private notify(job: Job) {
+    const lastStatus = this.lastNotifiedStates.get(job.id);
+    if (lastStatus === job.status) {
+      return;
+    }
+    this.lastNotifiedStates.set(job.id, job.status);
     this.listeners.forEach(cb => cb(job));
   }
 
@@ -372,7 +378,7 @@ export class JobQueue {
       // Schedule next check immediately if we still have pending jobs and slots, otherwise interval
       // Wait, if we just started jobs, we don't need to check immediately unless we didn't fill slots?
       // Actually, better to check again after a short delay to ensure state updates
-      setTimeout(() => this.processQueue(), jobsToStart.length > 0 ? 1000 : pollInterval);
+      setTimeout(() => this.processQueue(), pollInterval);
     } catch (e) {
       console.error('[Queue] Loop error:', e);
       setTimeout(() => this.processQueue(), pollInterval);

@@ -123,7 +123,7 @@
 
 - ✅ 多 AI 提供商支持（火山引擎、Vidu、ModelScope、OpenAI）
 - ✅ 自定义添加任意模型 ID
-- ✅ 高级参数配置（Temperature、Max Tokens、enable\_thinking）
+- ✅ 高级参数配置（Temperature、Max Tokens、enable_thinking）
 - ✅ 模型分组展示（视频/图像/文本/音频）
 - ✅ 批量管理模型配置
 - ✅ 自动检测模型能力
@@ -508,11 +508,11 @@ chore: 构建/工具相关
 
 ### 文件命名规范
 
-| 类型   | 规范                  | 示例                     |
-| ---- | ------------------- | ---------------------- |
-| 组件   | PascalCase.tsx      | CharacterDetail.tsx    |
-| 服务   | camelCase.ts        | scriptParser.ts        |
-| 测试   | \*.test.tsx         | AssetPreview\.test.tsx |
+| 类型     | 规范                | 示例                   |
+| -------- | ------------------- | ---------------------- |
+| 组件     | PascalCase.tsx      | CharacterDetail.tsx    |
+| 服务     | camelCase.ts        | scriptParser.ts        |
+| 测试     | \*.test.tsx         | AssetPreview\.test.tsx |
 | 配置文件 | camelCase.config.ts | model.config.ts        |
 
 ## 常见问题
@@ -545,7 +545,7 @@ A: 推荐使用 Chrome 120+ 或 Edge 120+，因为需要 File System Access API 
 
 欢迎提交 Issue 和 Pull Request！
 
-***
+---
 
 <p align="center">
   Made with ❤️ by Nanshan AI Team

@@ -38,11 +38,6 @@ build/
 .trae
 dev
 
-# Dependency lock files (optional, uncomment if needed)
-# package-lock.json
-# yarn.lock
-# pnpm-lock.yaml
-
 # Development auxiliary files
 ANALYSIS_REPORT.md
 commit-msg.txt
@@ -68,6 +63,14 @@ VIDEO_MODEL_PARAMS_GUIDE.md
 大模型配置功能说明文档.md
 模型配置管理专项优化方案.md
 项目深度分析报告.md
+ITEM_EXTRACTION_OPTIMIZATION_PENDING.md
+AI角色设计工作流专业分析报告.md
+关键帧拆分功能完整分析报告与优化方案.md
+删除弹窗统一修复方案.md
+方案A-渐进式三阶段工作流详细实施方案-基于真实参数.md
+方案A-渐进式三阶段工作流详细实施方案.md
+音频功能完整实现方案-2026更新版.md
+音频功能完整实现方案.md
 
 # Documentation directory
 docs/
@@ -79,6 +82,7 @@ metadata.json
 # Backup files
 *.backup
 *.bak
+locales_backup.ts
 
 # Database and model data
 data/chroma_db/
@@ -106,3 +110,9 @@ scripts/
 # Large binary files (consider moving to CDN or download scripts)
 public/models/
 public/ort-wasm/
+public/token-limit-tests.js
+public/token-test-console.js
+
+# External files
+external_files/
+辅助工具/

@@ -109,6 +109,8 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({
 
   const [scripts, setScripts] = useState<Script[]>([]);
   const [currentScript, setCurrentScript] = useState<Script | null>(null);
+  const scriptsLoadedRef = useRef(false);
+  const assetsLoadedRef = useRef(false);
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
   const [isParsing, setIsParsing] = useState(false);
   const [parseProgress, setParseProgress] = useState(0);
@@ -281,50 +283,52 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({
   }, [currentScript]);
 
   const loadScripts = async () => {
-    console.log('[ScriptManager] loadScripts called, projectId:', projectId);
     if (!projectId) {
-      console.log('[ScriptManager] No projectId, skipping');
       return;
     }
 
-    // 2.0: 检查存储连接状态
+    if (scriptsLoadedRef.current) {
+      return;
+    }
+
+    scriptsLoadedRef.current = true;
+
     const connected = await checkConnection();
-    console.log('[ScriptManager] Connection check:', connected);
     if (!connected) {
-      console.log('[ScriptManager] Not connected, skipping loadScripts');
+      scriptsLoadedRef.current = false;
       return;
     }
 
     try {
-      console.log('[ScriptManager] Calling storageService.getScripts...');
       const loadedScripts = await storageService.getScripts(projectId);
-      console.log('[ScriptManager] Loaded scripts:', loadedScripts.length);
-      // 2.0: 移除isMountedRef检查，避免React严格模式导致的问题
-      console.log('[ScriptManager] Calling setScripts with', loadedScripts.length, 'scripts');
       setScripts(loadedScripts);
       if (loadedScripts.length > 0 && !currentScript) {
-        console.log('[ScriptManager] Setting currentScript to first script:', loadedScripts[0].id);
         setCurrentScript(loadedScripts[0]);
       }
     } catch (error) {
       console.error('[ScriptManager] Failed to load scripts:', error);
       showToast('加载剧本失败', 'error');
+      scriptsLoadedRef.current = false;
     }
   };
 
   const loadExistingAssets = async () => {
     if (!projectId) return;
 
-    // 2.0: 检查存储连接状态
+    if (assetsLoadedRef.current) {
+      return;
+    }
+
+    assetsLoadedRef.current = true;
+
     const connected = await checkConnection();
     if (!connected) {
-      console.log('[ScriptManager] Not connected, skipping loadExistingAssets');
+      assetsLoadedRef.current = false;
       return;
     }
 
     try {
       const assets = await storageService.getAssets(projectId);
-      // Note: Removed isMountedRef check to fix React StrictMode issues
       setExistingCharacters(assets.filter(a => a.type === AssetType.CHARACTER) as CharacterAsset[]);
       setExistingScenes(assets.filter(a => a.type === AssetType.SCENE) as SceneAsset[]);
       setExistingItems(assets.filter(a => a.type === AssetType.ITEM) as ItemAsset[]);
@@ -333,6 +337,7 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({
       );
     } catch (error) {
       console.error('[ScriptManager] Failed to load existing assets:', error);
+      assetsLoadedRef.current = false;
     }
   };
 
@@ -589,8 +594,10 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({
         console.log(`[ScriptManager] ============== onProgress CALLED ==============`);
         console.log(`[ScriptManager] stage=${stage}, progress=${progress}%, message=${message}`);
         console.log(`[ScriptManager] details:`, details);
-        console.log(`[ScriptManager] BEFORE state - parseProgress: ${parseProgressRef.current}, parseStageProgress: ${parseStageProgressRef.current}`);
-        
+        console.log(
+          `[ScriptManager] BEFORE state - parseProgress: ${parseProgressRef.current}, parseStageProgress: ${parseStageProgressRef.current}`
+        );
+
         setParseProgress(progress);
         setParseStageKey(stage);
         console.log(`[ScriptManager] Called setParseProgress(${progress})`);

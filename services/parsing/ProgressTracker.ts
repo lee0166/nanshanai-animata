@@ -372,20 +372,18 @@ export class ProgressTracker {
    */
   private calculateAndEmitProgress(message?: string): void {
     const newProgress = this.calculateOverallProgress();
-    
+
     // 对于 UI 更新，保持较小的阈值以确保流畅
     const now = Date.now();
     const timeDelta = now - this.lastEmitTime;
     const progressDelta = Math.abs(newProgress - this.lastEmittedProgress);
-    
+
     // UI 更新：至少 50ms 或至少 0.2% 的进度变化，或消息变化
-    const shouldUpdate = 
-      timeDelta >= 50 || 
-      progressDelta >= 0.2 || 
-      message !== this.lastEmittedMessage;
-    
+    const shouldUpdate =
+      timeDelta >= 50 || progressDelta >= 0.2 || message !== this.lastEmittedMessage;
+
     if (!shouldUpdate) return;
-    
+
     this.lastEmitTime = now;
     this.lastEmittedProgress = newProgress;
     this.lastEmittedMessage = message;
@@ -416,13 +414,15 @@ export class ProgressTracker {
   private emitProgress(message?: string, extraDetails?: Record<string, any>): void {
     const now = Date.now();
     const shouldLog = now - this.lastLogTime >= 500; // 日志每 500ms 输出一次
-    
+
     if (shouldLog) {
-      console.log(`[ProgressTracker] emitProgress() called: currentStage=${this.currentStage}, overallProgress=${this.overallProgress}%`);
+      console.log(
+        `[ProgressTracker] emitProgress() called: currentStage=${this.currentStage}, overallProgress=${this.overallProgress}%`
+      );
       console.log(`[ProgressTracker] onProgressCallback exists: ${!!this.onProgressCallback}`);
       this.lastLogTime = now;
     }
-    
+
     if (!this.onProgressCallback) {
       if (shouldLog) {
         console.log(`[ProgressTracker] No callback registered, skipping emit`);
@@ -431,15 +431,17 @@ export class ProgressTracker {
     }
 
     const details = this.buildProgressDetails();
-    
+
     const timeEstimate = this.config.enableTimeEstimation
       ? this.calculateTimeEstimate()
       : undefined;
 
     const finalMessage = message || this.getDefaultMessage();
-    
+
     if (shouldLog) {
-      console.log(`[ProgressTracker] Calling onProgressCallback with: stage=${this.currentStage}, progress=${this.overallProgress}%, message=${finalMessage}`);
+      console.log(
+        `[ProgressTracker] Calling onProgressCallback with: stage=${this.currentStage}, progress=${this.overallProgress}%, message=${finalMessage}`
+      );
     }
 
     // UI 更新总是立即执行，不节流
@@ -448,7 +450,7 @@ export class ProgressTracker {
       ...timeEstimate,
       ...extraDetails,
     });
-    
+
     if (shouldLog) {
       console.log(`[ProgressTracker] onProgressCallback called successfully`);
     }

@@ -38,9 +38,9 @@ export const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
   const defaultDescription = t.common.confirmDeleteImageDesc;
 
   return (
-    <Modal 
-      isOpen={isOpen} 
-      onClose={onClose} 
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
       size={size as any}
       classNames={{
         base: 'border border-content3 shadow-xl dark:shadow-2xl',
@@ -50,14 +50,14 @@ export const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
       backdrop="opaque"
     >
       <ModalContent className="p-7 sm:p-8">
-        {(onCloseModal) => (
+        {onCloseModal => (
           <div className="flex flex-col items-center gap-5 text-center">
             {showIcon && (
               <div className="w-14 h-14 rounded-2xl bg-red-50 dark:bg-red-900/25 flex items-center justify-center text-red-500 mb-1 shadow-sm dark:shadow-red-900/20 ring-1 ring-red-100 dark:ring-red-900/30">
                 <Trash2 className="w-7 h-7" />
               </div>
             )}
-            
+
             <div className="space-y-3">
               <h3 className="text-xl font-bold text-foreground tracking-tight">
                 {title || defaultTitle}
@@ -75,10 +75,10 @@ export const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
             </div>
 
             <div className="flex gap-3 w-full mt-3">
-              <Button 
-                fullWidth 
-                variant="light" 
-                onPress={onCloseModal} 
+              <Button
+                fullWidth
+                variant="light"
+                onPress={onCloseModal}
                 isDisabled={isLoading}
                 radius="lg"
                 className="text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 font-medium transition-all duration-200"

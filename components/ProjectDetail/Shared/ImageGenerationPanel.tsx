@@ -1,5 +1,14 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Button, Textarea, Select, SelectItem, Input, Slider, useDisclosure, Spinner } from '@heroui/react';
+import {
+  Button,
+  Textarea,
+  Select,
+  SelectItem,
+  Input,
+  Slider,
+  useDisclosure,
+  Spinner,
+} from '@heroui/react';
 import { Sparkles, Upload, Trash2 } from 'lucide-react';
 import { useApp } from '../../../contexts/context';
 import { DEFAULT_MODELS } from '../../../config/models';
@@ -138,14 +147,17 @@ export const ImageGenerationPanel: React.FC<ImageGenerationPanelProps> = ({
   });
 
   return (
-    <div className={compact ? "space-y-2.5" : "space-y-6"}>
+    <div className={compact ? 'space-y-2.5' : 'space-y-6'}>
       {/* Model Selection */}
-      <div className={compact ? "space-y-1" : "flex flex-col gap-2"}>
-        <label className={compact 
-          ? "text-[10px] font-semibold text-slate-400 uppercase tracking-wide" 
-          : "text-slate-300 font-bold text-base ml-1"
-        }>
-          {compact ? "模型" : t.project.modelLabel}
+      <div className={compact ? 'space-y-1' : 'flex flex-col gap-2'}>
+        <label
+          className={
+            compact
+              ? 'text-[10px] font-semibold text-slate-400 uppercase tracking-wide'
+              : 'text-slate-300 font-bold text-base ml-1'
+          }
+        >
+          {compact ? '模型' : t.project.modelLabel}
         </label>
         <Select
           aria-label={t.project.modelLabel}
@@ -155,13 +167,17 @@ export const ImageGenerationPanel: React.FC<ImageGenerationPanelProps> = ({
           variant="bordered"
           radius="lg"
           isDisabled={generating}
-          size={compact ? "sm" : "md"}
-          classNames={compact ? {
-            trigger: 'h-7 text-[11px] min-h-7',
-          } : {
-            value: 'font-bold text-sm',
-            trigger: 'border-2 data-[focus=true]:border-primary',
-          }}
+          size={compact ? 'sm' : 'md'}
+          classNames={
+            compact
+              ? {
+                  trigger: 'h-7 text-[11px] min-h-7',
+                }
+              : {
+                  value: 'font-bold text-sm',
+                  trigger: 'border-2 data-[focus=true]:border-primary',
+                }
+          }
         >
           {settings.models
             .filter(m => m.type === 'image' && (m.enabled ?? true))
@@ -169,7 +185,11 @@ export const ImageGenerationPanel: React.FC<ImageGenerationPanelProps> = ({
               const supportsRef = model.capabilities?.supportsReferenceImage;
               const requiresRef = model.capabilities?.requiresImageInput;
               return (
-                <SelectItem key={model.id} textValue={model.name} classNames={compact ? { base: 'text-[11px]' } : undefined}>
+                <SelectItem
+                  key={model.id}
+                  textValue={model.name}
+                  classNames={compact ? { base: 'text-[11px]' } : undefined}
+                >
                   {compact ? (
                     model.name
                   ) : (
@@ -309,12 +329,15 @@ export const ImageGenerationPanel: React.FC<ImageGenerationPanelProps> = ({
           className="font-bold h-12 rounded-xl bg-slate-200 hover:bg-slate-300 text-slate-900 dark:bg-slate-700 dark:hover:bg-slate-600 dark:text-slate-100 shadow-xl shadow-slate-500/20 dark:shadow-slate-900/20 active:scale-95 transition-all"
           classNames={{
             base: 'bg-slate-200 hover:bg-slate-300 text-slate-900 dark:bg-slate-700 dark:hover:bg-slate-600 dark:text-slate-100',
-            content: 'text-slate-900 dark:text-slate-100 font-black uppercase tracking-widest text-sm',
+            content:
+              'text-slate-900 dark:text-slate-100 font-black uppercase tracking-widest text-sm',
             spinner: 'text-slate-900 dark:text-slate-100',
           }}
-          startContent={!generating && <Sparkles size={18} className="text-slate-900 dark:text-slate-100" />}
+          startContent={
+            !generating && <Sparkles size={18} className="text-slate-900 dark:text-slate-100" />
+          }
         >
-          {generating ? (t.character?.generating || '生成中...') : (t.project?.generate || '生成图片')}
+          {generating ? t.character?.generating || '生成中...' : t.project?.generate || '生成图片'}
         </Button>
       )}
 
