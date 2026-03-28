@@ -51,7 +51,11 @@ const Tasks: React.FC = () => {
   const [loading, setLoading] = useState(false);
 
   // Modals
-  const { isOpen: deleteModalOpen, onOpen: openDeleteModal, onClose: closeDeleteModal } = useDisclosure();
+  const {
+    isOpen: deleteModalOpen,
+    onOpen: openDeleteModal,
+    onClose: closeDeleteModal,
+  } = useDisclosure();
   const [detailModalOpen, setDetailModalOpen] = useState(false);
   const [selectedJob, setSelectedJob] = useState<Job | null>(null);
 

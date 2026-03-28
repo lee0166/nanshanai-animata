@@ -267,16 +267,16 @@ export const RedesignedCharacterWorkflow: React.FC<RedesignedCharacterWorkflowPr
   useEffect(() => {
     const loadGenUrls = async () => {
       if (!asset.generatedImages) return;
-      
+
       // 使用 requestAnimationFrame 分批加载，减少强制重排
       await new Promise(resolve => requestAnimationFrame(resolve));
-      
+
       const urls: Record<string, string> = {};
       const batchSize = 3; // 每批加载 3 张图片
-      
+
       for (let i = 0; i < asset.generatedImages.length; i += batchSize) {
         const batch = asset.generatedImages.slice(i, i + batchSize);
-        
+
         for (const img of batch) {
           if (img.path) {
             if (img.path.startsWith('remote:')) {
@@ -286,7 +286,7 @@ export const RedesignedCharacterWorkflow: React.FC<RedesignedCharacterWorkflowPr
             }
           }
         }
-        
+
         // 每批加载后更新一次状态，并等待下一帧
         setGenUrls(prev => ({ ...prev, ...urls }));
         await new Promise(resolve => requestAnimationFrame(resolve));
@@ -478,7 +478,12 @@ export const RedesignedCharacterWorkflow: React.FC<RedesignedCharacterWorkflowPr
 
     try {
       const stylePrompt = getDefaultStylePrompt(stage2Style);
-      const rolePrompt = getFullBodyPrompt(stage2Prompt, asset.ageGroup || '', asset.gender || '', settings.language);
+      const rolePrompt = getFullBodyPrompt(
+        stage2Prompt,
+        asset.ageGroup || '',
+        asset.gender || '',
+        settings.language
+      );
       const finalPrompt = `${rolePrompt} ${stylePrompt}`;
 
       const referenceImages = [selectedFaceImage.path];

@@ -163,7 +163,11 @@ const FragmentDetail: FC<FragmentDetailProps> = ({ asset, onUpdate, projectId })
   const [pickerTarget, setPickerTarget] = useState<'start' | 'end'>('start');
 
   // Delete Video State
-  const { isOpen: deleteModalOpen, onOpen: openDeleteModal, onClose: closeDeleteModal } = useDisclosure();
+  const {
+    isOpen: deleteModalOpen,
+    onOpen: openDeleteModal,
+    onClose: closeDeleteModal,
+  } = useDisclosure();
   const [videoToDelete, setVideoToDelete] = useState<GeneratedVideo | null>(null);
 
   // Sync Params State

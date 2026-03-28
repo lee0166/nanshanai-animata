@@ -99,7 +99,11 @@ export const ShotList: React.FC<ShotListProps> = ({
   const { settings } = useApp();
   const [selectedShot, setSelectedShot] = useState<Shot | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const { isOpen: isDeleteModalOpen, onOpen: openDeleteModal, onClose: closeDeleteModal } = useDisclosure();
+  const {
+    isOpen: isDeleteModalOpen,
+    onOpen: openDeleteModal,
+    onClose: closeDeleteModal,
+  } = useDisclosure();
   const [isKeyframeModalOpen, setIsKeyframeModalOpen] = useState(false);
   const [isSplitModalOpen, setIsSplitModalOpen] = useState(false);
   const [isMoveModalOpen, setIsMoveModalOpen] = useState(false);
@@ -882,7 +886,9 @@ export const ShotList: React.FC<ShotListProps> = ({
         onClose={closeDeleteModal}
         onConfirm={() => selectedShot && handleDeleteShot(selectedShot.id)}
         title="确认删除"
-        itemName={selectedShot ? `${selectedShot.sceneName} - 镜头 #${selectedShot.sequence}` : undefined}
+        itemName={
+          selectedShot ? `${selectedShot.sceneName} - 镜头 #${selectedShot.sequence}` : undefined
+        }
         description="确定要删除这个分镜吗？"
         size="sm"
       />

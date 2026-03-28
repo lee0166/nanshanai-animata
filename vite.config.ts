@@ -361,7 +361,6 @@ export default defineConfig(({ mode }) => {
         'react-router-dom',
         'lucide-react',
       ],
-      exclude: ['@chroma-core/default-embed'],
       esbuildOptions: {
         target: 'es2020',
       },
