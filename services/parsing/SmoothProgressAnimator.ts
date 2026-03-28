@@ -19,9 +19,9 @@ export interface SmoothProgressAnimatorConfig {
 }
 
 export const DEFAULT_ANIMATOR_CONFIG: SmoothProgressAnimatorConfig = {
-  updateInterval: 50, // 50ms = 20fps
+  updateInterval: 100, // 100ms = 10fps（平衡流畅度和性能）
   easingType: 'easeOutCubic',
-  minDelta: 0.1,
+  minDelta: 0.2,
   maxDelta: 5,
 };
 

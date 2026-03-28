@@ -73,6 +73,7 @@ export class ProgressTracker {
   private lastEmitTime: number = 0;
   private lastEmittedProgress: number = 0;
   private lastEmittedMessage: string | undefined;
+  private lastLogTime: number = 0; // 单独的日志节流时间
   private onProgressCallback: ParseProgressCallback | null = null;
   private animator: SmoothProgressAnimator;
   private timeEstimator: TimeEstimator;
@@ -367,18 +368,29 @@ export class ProgressTracker {
   }
 
   /**
-   * 计算并发送进度 - 完全无节流！
+   * 计算并发送进度 - UI 更新保持流畅，只对日志进行节流
    */
   private calculateAndEmitProgress(message?: string): void {
     const newProgress = this.calculateOverallProgress();
-    console.log(`[ProgressTracker] calculateAndEmitProgress: newProgress=${newProgress}%`);
-
-    // 完全禁用节流！每次都发送更新！
-    this.overallProgress = newProgress;
+    
+    // 对于 UI 更新，保持较小的阈值以确保流畅
+    const now = Date.now();
+    const timeDelta = now - this.lastEmitTime;
+    const progressDelta = Math.abs(newProgress - this.lastEmittedProgress);
+    
+    // UI 更新：至少 50ms 或至少 0.2% 的进度变化，或消息变化
+    const shouldUpdate = 
+      timeDelta >= 50 || 
+      progressDelta >= 0.2 || 
+      message !== this.lastEmittedMessage;
+    
+    if (!shouldUpdate) return;
+    
+    this.lastEmitTime = now;
     this.lastEmittedProgress = newProgress;
     this.lastEmittedMessage = message;
+    this.overallProgress = newProgress;
 
-    console.log(`[ProgressTracker] Calling emitProgress(${message})`);
     this.emitProgress(message);
   }
 
@@ -399,19 +411,26 @@ export class ProgressTracker {
   }
 
   /**
-   * 发送进度回调 - 完全无节流！
+   * 发送进度回调 - UI 更新完全流畅，只对 console.log 进行节流
    */
   private emitProgress(message?: string, extraDetails?: Record<string, any>): void {
-    console.log(`[ProgressTracker] emitProgress() called: currentStage=${this.currentStage}, overallProgress=${this.overallProgress}%`);
-    console.log(`[ProgressTracker] onProgressCallback exists: ${!!this.onProgressCallback}`);
+    const now = Date.now();
+    const shouldLog = now - this.lastLogTime >= 500; // 日志每 500ms 输出一次
+    
+    if (shouldLog) {
+      console.log(`[ProgressTracker] emitProgress() called: currentStage=${this.currentStage}, overallProgress=${this.overallProgress}%`);
+      console.log(`[ProgressTracker] onProgressCallback exists: ${!!this.onProgressCallback}`);
+      this.lastLogTime = now;
+    }
     
     if (!this.onProgressCallback) {
-      console.log(`[ProgressTracker] No callback registered, skipping emit`);
+      if (shouldLog) {
+        console.log(`[ProgressTracker] No callback registered, skipping emit`);
+      }
       return;
     }
 
     const details = this.buildProgressDetails();
-    console.log(`[ProgressTracker] Built details:`, details);
     
     const timeEstimate = this.config.enableTimeEstimation
       ? this.calculateTimeEstimate()
@@ -419,15 +438,20 @@ export class ProgressTracker {
 
     const finalMessage = message || this.getDefaultMessage();
     
-    console.log(`[ProgressTracker] Calling onProgressCallback with: stage=${this.currentStage}, progress=${this.overallProgress}%, message=${finalMessage}`);
+    if (shouldLog) {
+      console.log(`[ProgressTracker] Calling onProgressCallback with: stage=${this.currentStage}, progress=${this.overallProgress}%, message=${finalMessage}`);
+    }
 
+    // UI 更新总是立即执行，不节流
     this.onProgressCallback(this.currentStage, this.overallProgress, finalMessage, {
       ...details,
       ...timeEstimate,
       ...extraDetails,
     });
     
-    console.log(`[ProgressTracker] onProgressCallback called successfully`);
+    if (shouldLog) {
+      console.log(`[ProgressTracker] onProgressCallback called successfully`);
+    }
   }
 
   /**

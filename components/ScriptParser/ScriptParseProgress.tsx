@@ -221,7 +221,9 @@ export const ScriptParseProgress: React.FC<ScriptParseProgressProps> = React.mem
   onMinimize,
   onBackground,
 }) => {
-  console.log('[ScriptParseProgress] 渲染:', { isOpen, currentStage, progress, stageProgress, message });
+  if (import.meta.env.DEV) {
+    console.log('[ScriptParseProgress] 渲染:', { isOpen, currentStage, progress, stageProgress, message });
+  }
 
   if (!isOpen) return null;
 
