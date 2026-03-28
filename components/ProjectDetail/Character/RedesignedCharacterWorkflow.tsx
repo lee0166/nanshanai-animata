@@ -93,7 +93,7 @@ export const RedesignedCharacterWorkflow: React.FC<RedesignedCharacterWorkflowPr
   const [stage1Prompt, setStage1Prompt] = useState('');
   const [stage1ModelId, setStage1ModelId] = useState<string>('');
   const [stage1ReferenceImages, setStage1ReferenceImages] = useState<string[]>([]);
-  const [stage1AspectRatio, setStage1AspectRatio] = useState<string>('1:1');
+  const [stage1AspectRatio, setStage1AspectRatio] = useState<string>('3:4');
   const [stage1Resolution, setStage1Resolution] = useState<string>('2K');
   const [stage1Style, setStage1Style] = useState<string>('');
   const [stage1Count, setStage1Count] = useState<number>(1);
@@ -404,7 +404,9 @@ export const RedesignedCharacterWorkflow: React.FC<RedesignedCharacterWorkflowPr
         stage1Prompt,
         asset.ageGroup || '',
         asset.gender || '',
-        scriptDescription
+        scriptDescription,
+        stage1AspectRatio,
+        settings.language
       );
       const finalPrompt = `${rolePrompt} ${stylePrompt}`;
 
@@ -476,7 +478,7 @@ export const RedesignedCharacterWorkflow: React.FC<RedesignedCharacterWorkflowPr
 
     try {
       const stylePrompt = getDefaultStylePrompt(stage2Style);
-      const rolePrompt = getFullBodyPrompt(stage2Prompt, asset.ageGroup || '', asset.gender || '');
+      const rolePrompt = getFullBodyPrompt(stage2Prompt, asset.ageGroup || '', asset.gender || '', settings.language);
       const finalPrompt = `${rolePrompt} ${stylePrompt}`;
 
       const referenceImages = [selectedFaceImage.path];

@@ -150,37 +150,131 @@ export const extractFullBodyDescription = (scriptDescription?: string): string =
 };
 
 /**
+ * 根据宽高比获取构图提示词
+ * @param aspectRatio 宽高比
+ * @param language 语言
+ * @returns 构图提示词
+ */
+const getCompositionPrompt = (aspectRatio: string, language: 'en' | 'zh' = 'zh') => {
+  const [w, h] = aspectRatio.split(':').map(Number);
+  const ratio = w / h;
+
+  if (language === 'en') {
+    if (ratio < 0.8) {
+      return `
+        head and shoulders portrait,
+        front view, facing camera directly,
+        rule of thirds composition,
+        eyes positioned along upper third line,
+        adequate headroom and space around face,
+        face centered with 15-20% margin on all sides,
+        ears fully visible,
+        natural facial proportions
+      `;
+    } else if (ratio > 1.2) {
+      return `
+        bust portrait,
+        front view, facing camera directly,
+        rule of thirds composition,
+        eyes positioned along upper third line,
+        adequate space around face,
+        natural facial proportions
+      `;
+    } else {
+      return `
+        close-up portrait,
+        front view, facing camera directly,
+        centered composition,
+        face occupies 60-70% of frame,
+        adequate margin around face,
+        ears visible,
+        natural proportions
+      `;
+    }
+  } else {
+    if (ratio < 0.8) {
+      return `
+        头像肩像，
+        正面视角，面向镜头，
+        三分法构图，
+        眼睛位于上三分线位置，
+        面部周围留有足够的边距，
+        面部居中，四周保留15-20%的边距，
+        耳朵完全可见，
+        自然的面部比例
+      `;
+    } else if (ratio > 1.2) {
+      return `
+        胸像，
+        正面视角，面向镜头，
+        三分法构图，
+        眼睛位于上三分线位置，
+        面部周围留有足够的边距，
+        自然的面部比例
+      `;
+    } else {
+      return `
+        特写肖像，
+        正面视角，面向镜头，
+        居中构图，
+        面部占据画面的60-70%，
+        面部周围留有足够的边距，
+        耳朵可见，
+        自然的比例
+      `;
+    }
+  }
+};
+
+/**
  * 阶段1：面部特写图提示词
  * @param userPrompt 用户输入的描述
  * @param age 年龄段
  * @param gender 性别
  * @param scriptDescription 可选的完整appearance JSON
+ * @param aspectRatio 宽高比
+ * @param language 语言
  * @returns
  */
 export const getFacePortraitPrompt = (
   userPrompt: string,
   age: string,
   gender: string,
-  scriptDescription?: string
+  scriptDescription?: string,
+  aspectRatio: string = '1:1',
+  language: 'en' | 'zh' = 'zh'
 ) => {
   let details = '';
   if (age && age !== 'unknown' && age !== '不详' && age !== 'unknown') {
-    details += `角色年龄段: ${age}\n    `;
+    details += language === 'en' ? `Age group: ${age}\n    ` : `角色年龄段: ${age}\n    `;
   }
   if (gender && gender !== 'unlimited' && gender !== '不限' && gender !== 'unlimited') {
-    details += `性别: ${gender}\n    `;
+    details += language === 'en' ? `Gender: ${gender}\n    ` : `性别: ${gender}\n    `;
   }
 
   const faceDescription = extractFaceDescription(scriptDescription);
   const finalPrompt = faceDescription || userPrompt;
+  const compositionPrompt = getCompositionPrompt(aspectRatio, language);
 
-  return `
-    生成一张高质量的人物面部特写头像。
-    ${details}角色特征: ${finalPrompt} 
-    画面要求：
-    头像特写，focus on face, detailed facial features, clear portrait, professional character design.
-    画面风格清晰、锐利，光照均匀。
+  if (language === 'en') {
+    return `
+      Generate a high-quality character face portrait.
+      ${details}Character features: ${finalPrompt}
+      Image requirements:
+      ${compositionPrompt}
+      focus on face, detailed facial features, clear portrait, professional character design.
+      Image style is clear, sharp, with even lighting.
     `;
+  } else {
+    return `
+      生成一张高质量的人物面部特写头像。
+      ${details}角色特征: ${finalPrompt} 
+      画面要求：
+      ${compositionPrompt}
+      focus on face, detailed facial features, clear portrait, professional character design.
+      画面风格清晰、锐利，光照均匀。
+    `;
+  }
 };
 
 /**
@@ -188,22 +282,54 @@ export const getFacePortraitPrompt = (
  * @param userPrompt 用户输入的描述
  * @param age 年龄段
  * @param gender 性别
+ * @param language 语言
  * @returns
  */
-export const getFullBodyPrompt = (userPrompt: string, age: string, gender: string) => {
+export const getFullBodyPrompt = (
+  userPrompt: string,
+  age: string,
+  gender: string,
+  language: 'en' | 'zh' = 'zh'
+) => {
   let details = '';
   if (age && age !== 'unknown' && age !== '不详' && age !== 'unknown') {
-    details += `角色年龄段: ${age}\n    `;
+    details += language === 'en' ? `Age group: ${age}\n    ` : `角色年龄段: ${age}\n    `;
   }
   if (gender && gender !== 'unlimited' && gender !== '不限' && gender !== 'unlimited') {
-    details += `性别: ${gender}\n    `;
+    details += language === 'en' ? `Gender: ${gender}\n    ` : `性别: ${gender}\n    `;
   }
 
-  return `
-    生成一张高质量的人物全身设定图。
-    ${details}角色特征: ${userPrompt} 
-    画面要求：
-    full body shot, standing pose, character design sheet, professional concept art.
-    画面风格清晰、锐利，光照均匀。
+  if (language === 'en') {
+    return `
+      Generate a high-quality full-body character design sheet.
+      ${details}Character features: ${userPrompt}
+      Image requirements:
+      full body shot, standing pose, character design sheet, professional concept art,
+      CORRECT HUMAN PROPORTIONS,
+      7.5-8 head tall, balanced head-to-body ratio,
+      natural anatomy, realistic proportions,
+      entire body visible from head to feet,
+      no distortion, well-proportioned limbs,
+      use reference image for facial features and likeness only,
+      maintain correct full-body proportions,
+      do not exaggerate head size.
+      Image style is clear, sharp, with even lighting.
     `;
+  } else {
+    return `
+      生成一张高质量的人物全身设定图。
+      ${details}角色特征: ${userPrompt} 
+      画面要求：
+      full body shot, standing pose, character design sheet, professional concept art,
+      正确的人体比例，
+      7.5-8头身，平衡的头身比例，
+      自然的解剖结构，真实的比例，
+      从头到脚全身可见，
+      无变形，四肢比例协调，
+      仅使用参考图的面部特征和相似度，
+      保持正确的全身比例，
+      不要夸大头部尺寸。
+      画面风格清晰、锐利，光照均匀。
+    `;
+  }
 };
