@@ -166,7 +166,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           // Only enforce minimum loading time on first visit (when hasPrevious is false)
           // This improves reload/refresh performance while maintaining smooth first-time UX
           const elapsed = Date.now() - start;
-          if (!hasPrevious && elapsed < 300) {
+          if (!hasPrevious && elapsed < 300 && !import.meta.env.DEV) {
             await new Promise(r => setTimeout(r, 300 - elapsed));
           }
 
@@ -226,6 +226,18 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       return;
     }
     await storageService.saveSettings(newSettings);
+
+    // 同步到 ModelConfigManager（保持数据一致性）
+    try {
+      modelConfigManager.clear();
+      const converted = fromLegacySettings(newSettings.models);
+      for (const config of converted) {
+        modelConfigManager.createCustom(config);
+      }
+      console.log('[ModelConfigManager] Synced', converted.length, 'models from updateSettings');
+    } catch (e) {
+      console.warn('[ModelConfigManager] Sync failed:', e);
+    }
   };
 
   const toggleTheme = (mode: ThemeMode) => {

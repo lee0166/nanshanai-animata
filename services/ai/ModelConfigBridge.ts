@@ -68,7 +68,7 @@ function convertOldToNew(oldConfig: ModelConfig): Partial<ModelConfig> {
     parameters: oldConfig.parameters,
     apiKey: oldConfig.apiKey || '',
     baseUrl: oldConfig.apiUrl || '',
-    enabled: true,
+    enabled: oldConfig.enabled ?? true,
     // 保留原有字段
     isDefault: oldConfig.isDefault,
     costPer1KInput: oldConfig.costPer1KInput,

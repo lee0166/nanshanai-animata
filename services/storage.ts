@@ -50,11 +50,11 @@ export class StorageService {
   private isFsResponsive: boolean = true; // Circuit breaker flag
   private locks: Map<string, Promise<void>> = new Map();
   private cache: MultiLayerCache;
-  
+
   // 内存缓存层 - 减少文件系统 I/O
   private memoryCache: Map<string, { data: any; timestamp: number; ttl: number }> = new Map();
   private readonly DEFAULT_MEMORY_CACHE_TTL = 30 * 1000; // 30秒
-  
+
   // 快捷缓存键
   private readonly CACHE_KEY_SETTINGS = 'settings';
   private readonly CACHE_KEY_JOBS = 'jobs_queue';
@@ -70,29 +70,29 @@ export class StorageService {
       maxL1Items: 100,
     });
   }
-  
+
   // 内存缓存辅助方法
   private getMemoryCache<T>(key: string): T | null {
     const cached = this.memoryCache.get(key);
     if (!cached) return null;
-    
+
     const now = Date.now();
     if (now - cached.timestamp > cached.ttl) {
       this.memoryCache.delete(key);
       return null;
     }
-    
+
     return cached.data as T;
   }
-  
+
   private setMemoryCache<T>(key: string, data: T, ttl?: number): void {
     this.memoryCache.set(key, {
       data,
       timestamp: Date.now(),
-      ttl: ttl || this.DEFAULT_MEMORY_CACHE_TTL
+      ttl: ttl || this.DEFAULT_MEMORY_CACHE_TTL,
     });
   }
-  
+
   private invalidateMemoryCache(keyPattern: string): void {
     const keysToDelete: string[] = [];
     for (const key of this.memoryCache.keys()) {
@@ -104,7 +104,7 @@ export class StorageService {
       this.memoryCache.delete(key);
     }
   }
-  
+
   private clearMemoryCache(): void {
     this.memoryCache.clear();
   }
@@ -1079,6 +1079,7 @@ export class StorageService {
       apiUrl: m.apiUrl,
       apiKey: m.apiKey,
       isDefault: m.isDefault,
+      enabled: m.enabled,
     }));
 
     const settingsData = { ...settings, models: prunedModels };
@@ -1088,7 +1089,7 @@ export class StorageService {
 
     // 更新缓存（同时更新 L1 和 L2）
     await this.cache.set('settings.json', settingsData);
-    
+
     // 使内存缓存失效
     this.invalidateMemoryCache(this.CACHE_KEY_SETTINGS);
 
@@ -1101,7 +1102,7 @@ export class StorageService {
     if (cached) {
       return cached;
     }
-    
+
     // 使用多层缓存
     const settings = await this.cache.get<AppSettings>('settings.json', async () => {
       // L3 加载器：从文件系统读取
@@ -1155,7 +1156,7 @@ export class StorageService {
     if (settings) {
       this.setMemoryCache(this.CACHE_KEY_SETTINGS, settings, 2 * 60 * 1000);
     }
-    
+
     return settings;
   }
 
@@ -1203,7 +1204,7 @@ export class StorageService {
     if (cached) {
       return cached;
     }
-    
+
     const data = await this.readJson<Asset[]>(`assets_${projectId}.json`);
     const result = data || [];
     this.setMemoryCache(cacheKey, result);
@@ -1305,7 +1306,7 @@ export class StorageService {
     if (cached) {
       return cached;
     }
-    
+
     const jobs = await this.readJson<Job[]>('jobs_queue.json');
     const result = jobs || [];
     // Jobs 数据更新频繁，使用较短的 TTL（5秒）
@@ -1392,7 +1393,7 @@ export class StorageService {
     if (cached) {
       return cached;
     }
-    
+
     const filename = `scripts_${projectId}.json`;
     console.log('[Storage] getScripts called, projectId:', projectId);
     console.log('[Storage] Reading file:', filename);
