@@ -38,6 +38,7 @@ import QualityReportCard from '../components/ScriptParser/QualityReportCard';
 import { CreativeIntentModal } from '../components/CreativeIntentModal';
 import PerformanceReportCard from '../components/ScriptParser/PerformanceReportCard';
 import { PerformanceReport as PerformanceReportType } from '../services/parsing/PerformanceMonitor';
+import { DeleteConfirmModal } from '../components/Shared/DeleteConfirmModal';
 
 // Professional Analysis Components
 import { SoundDesignTab } from '../src/components/ScriptParser/SoundDesignTab';
@@ -68,6 +69,7 @@ import {
   Divider,
   Badge,
   Switch,
+  useDisclosure,
 } from '@heroui/react';
 import {
   FileText,
@@ -155,7 +157,7 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({
   const [performanceReport, setPerformanceReport] = useState<PerformanceReportType | null>(null);
 
   // Delete confirmation modal
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const { isOpen: isDeleteOpen, onOpen: onDeleteOpen, onClose: onDeleteClose } = useDisclosure();
   const [scriptToDelete, setScriptToDelete] = useState<Script | null>(null);
   const [deleteStats, setDeleteStats] = useState<{
     characters: number;
@@ -817,7 +819,7 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({
         setCurrentScript(updatedScripts.length > 0 ? updatedScripts[0] : null);
       }
 
-      setIsDeleteModalOpen(false);
+      onDeleteClose();
       setScriptToDelete(null);
       showToast('Script deleted successfully', 'success');
     } catch (error) {
@@ -837,7 +839,7 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({
       shots: script.parseState?.shots?.length || 0,
     };
     setDeleteStats(stats);
-    setIsDeleteModalOpen(true);
+    onDeleteOpen();
   };
 
   // 2.0: 获取可用的LLM模型列表
@@ -1473,30 +1475,20 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({
       </Modal>
 
       {/* Delete Confirmation Modal */}
-      <Modal isOpen={isDeleteModalOpen} onClose={() => setIsDeleteModalOpen(false)}>
-        <ModalContent>
-          <ModalHeader>确认删除</ModalHeader>
-          <ModalBody>
-            <p>确定要删除 &quot;{scriptToDelete?.title}&quot; 吗？</p>
-            {deleteStats && (
-              <div className="mt-4 p-4 bg-slate-100 dark:bg-slate-800 rounded-lg">
-                <p className="text-sm text-slate-600 dark:text-slate-400">
-                  这将同时删除 {deleteStats.characters} 个角色、{deleteStats.scenes} 个场景、
-                  {deleteStats.items} 个物品和 {deleteStats.shots} 个分镜。
-                </p>
-              </div>
-            )}
-          </ModalBody>
-          <ModalFooter>
-            <Button variant="light" onPress={() => setIsDeleteModalOpen(false)}>
-              取消
-            </Button>
-            <Button color="danger" onPress={handleDeleteScript} isLoading={isDeleting}>
-              删除
-            </Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
+      <DeleteConfirmModal
+        isOpen={isDeleteOpen}
+        onClose={onDeleteClose}
+        onConfirm={handleDeleteScript}
+        title="确认删除"
+        itemName={scriptToDelete?.title}
+        description={
+          deleteStats
+            ? `这将同时删除 ${deleteStats.characters} 个角色、${deleteStats.scenes} 个场景、${deleteStats.items} 个物品和 ${deleteStats.shots} 个分镜。`
+            : undefined
+        }
+        isLoading={isDeleting}
+        size="md"
+      />
 
       {/* 2.0: Creative Intent Modal - 替代旧的ParseConfigConfirmModal */}
       <CreativeIntentModal

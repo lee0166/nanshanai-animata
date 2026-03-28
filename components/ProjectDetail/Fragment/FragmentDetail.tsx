@@ -33,6 +33,7 @@ import {
   Accordion,
   AccordionItem,
   Switch,
+  useDisclosure,
 } from '@heroui/react';
 import {
   X,
@@ -56,6 +57,7 @@ import {
   processModelParams,
 } from '../../../services/modelUtils';
 import { DEFAULT_MODELS } from '../../../config/models';
+import { DeleteConfirmModal } from '../../Shared/DeleteConfirmModal';
 
 interface FragmentDetailProps {
   asset: FragmentAsset;
@@ -161,7 +163,7 @@ const FragmentDetail: FC<FragmentDetailProps> = ({ asset, onUpdate, projectId })
   const [pickerTarget, setPickerTarget] = useState<'start' | 'end'>('start');
 
   // Delete Video State
-  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const { isOpen: deleteModalOpen, onOpen: openDeleteModal, onClose: closeDeleteModal } = useDisclosure();
   const [videoToDelete, setVideoToDelete] = useState<GeneratedVideo | null>(null);
 
   // Sync Params State
@@ -655,7 +657,7 @@ const FragmentDetail: FC<FragmentDetailProps> = ({ asset, onUpdate, projectId })
       const updatedAsset = { ...asset, videos: updatedVideos };
       onUpdate(updatedAsset);
 
-      setDeleteModalOpen(false);
+      closeDeleteModal();
       setVideoToDelete(null);
       showToast(t.common.deleteSuccess, 'success');
     } catch (e) {
@@ -1591,7 +1593,7 @@ const FragmentDetail: FC<FragmentDetailProps> = ({ asset, onUpdate, projectId })
                     className="bg-danger/80 text-white backdrop-blur-md"
                     onPress={() => {
                       setVideoToDelete(video);
-                      setDeleteModalOpen(true);
+                      openDeleteModal();
                     }}
                   >
                     <Trash2 size={14} />
@@ -1646,26 +1648,13 @@ const FragmentDetail: FC<FragmentDetailProps> = ({ asset, onUpdate, projectId })
         }}
       />
 
-      <Modal isOpen={deleteModalOpen} onClose={() => setDeleteModalOpen(false)}>
-        <ModalContent>
-          {onClose => (
-            <>
-              <ModalHeader>{t.common.confirmDeleteTitle}</ModalHeader>
-              <ModalBody>
-                <p>{t.project.resourceManager.confirmDeleteDesc}</p>
-              </ModalBody>
-              <ModalFooter>
-                <Button variant="light" onPress={onClose}>
-                  {t.common.cancel}
-                </Button>
-                <Button color="danger" onPress={handleDeleteVideo}>
-                  {t.common.delete}
-                </Button>
-              </ModalFooter>
-            </>
-          )}
-        </ModalContent>
-      </Modal>
+      <DeleteConfirmModal
+        isOpen={deleteModalOpen}
+        onClose={closeDeleteModal}
+        onConfirm={handleDeleteVideo}
+        title={t.common.confirmDeleteTitle}
+        description={t.project.resourceManager.confirmDeleteDesc}
+      />
 
       <Modal isOpen={syncModalOpen} onClose={() => setSyncModalOpen(false)}>
         <ModalContent>

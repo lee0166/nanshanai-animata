@@ -26,6 +26,7 @@ import {
   Snippet,
   Code,
   Divider,
+  useDisclosure,
 } from '@heroui/react';
 import {
   RefreshCw,
@@ -40,6 +41,7 @@ import {
   Copy,
 } from 'lucide-react';
 import { usePreview } from '../components/PreviewProvider';
+import { DeleteConfirmModal } from '../components/Shared/DeleteConfirmModal';
 
 const Tasks: React.FC = () => {
   const { t } = useApp();
@@ -49,7 +51,7 @@ const Tasks: React.FC = () => {
   const [loading, setLoading] = useState(false);
 
   // Modals
-  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const { isOpen: deleteModalOpen, onOpen: openDeleteModal, onClose: closeDeleteModal } = useDisclosure();
   const [detailModalOpen, setDetailModalOpen] = useState(false);
   const [selectedJob, setSelectedJob] = useState<Job | null>(null);
 
@@ -90,7 +92,7 @@ const Tasks: React.FC = () => {
 
   const handleDeleteClick = (job: Job) => {
     setSelectedJob(job);
-    setDeleteModalOpen(true);
+    openDeleteModal();
   };
 
   const confirmDelete = async () => {
@@ -113,7 +115,7 @@ const Tasks: React.FC = () => {
         setPage(1);
       }
 
-      setDeleteModalOpen(false);
+      closeDeleteModal();
       setSelectedJob(null);
     } catch (error) {
       console.error('Failed to delete job:', error);
@@ -436,32 +438,13 @@ const Tasks: React.FC = () => {
         </Card>
 
         {/* Delete Confirmation Modal */}
-        <Modal isOpen={deleteModalOpen} onClose={() => setDeleteModalOpen(false)}>
-          <ModalContent>
-            {onClose => (
-              <>
-                <ModalHeader className="flex flex-col gap-1">{t.jobs.deleteTask}</ModalHeader>
-                <ModalBody>
-                  <p>{t.jobs.confirmDeleteTask}</p>
-                </ModalBody>
-                <ModalFooter>
-                  <Button variant="light" onPress={onClose}>
-                    {t.common.cancel}
-                  </Button>
-                  <Button
-                    color="danger"
-                    onPress={() => {
-                      confirmDelete();
-                      onClose();
-                    }}
-                  >
-                    {t.common.delete}
-                  </Button>
-                </ModalFooter>
-              </>
-            )}
-          </ModalContent>
-        </Modal>
+        <DeleteConfirmModal
+          isOpen={deleteModalOpen}
+          onClose={closeDeleteModal}
+          onConfirm={confirmDelete}
+          title={t.jobs.deleteTask}
+          description={t.jobs.confirmDeleteTask}
+        />
 
         {/* Detail Modal */}
         <Modal

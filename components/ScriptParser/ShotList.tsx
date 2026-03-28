@@ -32,6 +32,7 @@ import {
   Tab,
   Badge,
   Progress,
+  useDisclosure,
 } from '@heroui/react';
 import {
   Film,
@@ -53,6 +54,7 @@ import { keyframeService } from '../../services/keyframe';
 import { storageService } from '../../services/storage';
 import { useApp } from '../../contexts/context';
 import { generateShotNumbers } from '../../services/utils/shotNumberGenerator';
+import { DeleteConfirmModal } from '../Shared/DeleteConfirmModal';
 
 interface ShotListProps {
   shots: Shot[];
@@ -97,7 +99,7 @@ export const ShotList: React.FC<ShotListProps> = ({
   const { settings } = useApp();
   const [selectedShot, setSelectedShot] = useState<Shot | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const { isOpen: isDeleteModalOpen, onOpen: openDeleteModal, onClose: closeDeleteModal } = useDisclosure();
   const [isKeyframeModalOpen, setIsKeyframeModalOpen] = useState(false);
   const [isSplitModalOpen, setIsSplitModalOpen] = useState(false);
   const [isMoveModalOpen, setIsMoveModalOpen] = useState(false);
@@ -220,7 +222,7 @@ export const ShotList: React.FC<ShotListProps> = ({
     // 重新生成所有分镜的专业编号
     const updatedListWithNumbers = generateShotNumbers(updatedList);
     onShotsUpdate(updatedListWithNumbers);
-    setIsDeleteModalOpen(false);
+    closeDeleteModal();
   };
 
   // Handle add new shot
@@ -555,7 +557,7 @@ export const ShotList: React.FC<ShotListProps> = ({
                         color="danger"
                         onPress={() => {
                           setSelectedShot(shot);
-                          setIsDeleteModalOpen(true);
+                          openDeleteModal();
                         }}
                       >
                         <Trash2 size={14} />
@@ -875,30 +877,15 @@ export const ShotList: React.FC<ShotListProps> = ({
       </Modal>
 
       {/* Delete Confirmation Modal */}
-      <Modal isOpen={isDeleteModalOpen} onClose={() => setIsDeleteModalOpen(false)} size="sm">
-        <ModalContent>
-          <ModalHeader>确认删除</ModalHeader>
-          <ModalBody>
-            <p>确定要删除这个分镜吗？</p>
-            {selectedShot && (
-              <p className="text-sm text-default-500 mt-2">
-                {selectedShot.sceneName} - 镜头 #{selectedShot.sequence}
-              </p>
-            )}
-          </ModalBody>
-          <ModalFooter>
-            <Button variant="flat" onPress={() => setIsDeleteModalOpen(false)}>
-              取消
-            </Button>
-            <Button
-              color="danger"
-              onPress={() => selectedShot && handleDeleteShot(selectedShot.id)}
-            >
-              删除
-            </Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
+      <DeleteConfirmModal
+        isOpen={isDeleteModalOpen}
+        onClose={closeDeleteModal}
+        onConfirm={() => selectedShot && handleDeleteShot(selectedShot.id)}
+        title="确认删除"
+        itemName={selectedShot ? `${selectedShot.sceneName} - 镜头 #${selectedShot.sequence}` : undefined}
+        description="确定要删除这个分镜吗？"
+        size="sm"
+      />
 
       {/* Move Confirmation Modal */}
       <Modal isOpen={isMoveModalOpen} onClose={() => setIsMoveModalOpen(false)} size="sm">
