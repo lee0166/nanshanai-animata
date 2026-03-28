@@ -117,11 +117,14 @@ const JobMonitor: React.FC = () => {
       <Tooltip content={t.jobs.queue} placement="left">
         <Button
           isIconOnly
-          color={activeCount > 0 ? 'primary' : 'default'}
           variant="shadow"
           radius="full"
           size="lg"
-          className="fixed bottom-6 right-6 z-50 shadow-2xl animate-in fade-in zoom-in duration-300"
+          style={activeCount > 0 ? {
+            background: 'linear-gradient(135deg, #A3E635 0%, #84CC16 100%)',
+            color: '#000000',
+          } : undefined}
+          className="fixed bottom-6 right-6 z-50 shadow-2xl shadow-lime-500/30 animate-in fade-in zoom-in duration-300"
           onPress={() => setViewMode('collapsed')}
         >
           {activeCount > 0 ? (
@@ -159,7 +162,7 @@ const JobMonitor: React.FC = () => {
           <CardBody className="py-4 px-5 flex flex-row items-center justify-between pointer-events-none">
             <div className="flex items-center gap-3">
               <div
-                className={`p-2.5 rounded-full ${activeCount > 0 ? 'bg-primary/10 dark:bg-primary/20 text-primary' : 'bg-slate-100 dark:bg-slate-800 text-slate-500'}`}
+                className={`p-2.5 rounded-full ${activeCount > 0 ? 'bg-lime-500/10 dark:bg-lime-500/20 text-lime-400' : 'bg-slate-100 dark:bg-slate-800 text-slate-500'}`}
               >
                 {activeCount > 0 ? (
                   <Loader2 className="w-5 h-5 animate-spin" />
@@ -214,9 +217,9 @@ const JobMonitor: React.FC = () => {
     >
       <CardHeader className="px-5 py-4 flex justify-between items-center border-b border-slate-100 dark:border-slate-800/50">
         <div className="flex items-center gap-2">
-          <Activity className="w-5 h-5 text-primary" />
-          <span className="font-black text-sm uppercase tracking-widest text-slate-900 dark:text-slate-100">
-            {t.jobs.queue} <span className="ml-1 opacity-50">({jobs.length})</span>
+          <Activity className="w-5 h-5 text-lime-400" />
+          <span className="font-black text-sm uppercase tracking-widest text-lime-400">
+            {t.jobs.queue} <span className="ml-1 opacity-50 text-slate-500">({jobs.length})</span>
           </span>
         </div>
         <div className="flex gap-1">
@@ -246,10 +249,10 @@ const JobMonitor: React.FC = () => {
           {displayedJobs.map(job => (
             <div
               key={job.id}
-              className="p-4 bg-slate-50/50 dark:bg-slate-950/50 rounded-2xl border border-slate-100 dark:border-slate-800/50 hover:border-primary/30 transition-all group"
+              className="p-4 bg-slate-50/50 dark:bg-slate-950/50 rounded-2xl border border-slate-100 dark:border-slate-800/50 hover:border-lime-500/30 transition-all group"
             >
               <div className="flex justify-between items-center mb-2">
-                <span className="font-black text-[10px] uppercase tracking-widest text-slate-500 group-hover:text-primary transition-colors">
+                <span className="font-black text-[10px] uppercase tracking-widest text-slate-500 group-hover:text-lime-400 transition-colors">
                   {t.jobTypes?.[job.type] || job.type}
                 </span>
 
@@ -267,8 +270,7 @@ const JobMonitor: React.FC = () => {
                   <Chip
                     size="sm"
                     variant="flat"
-                    color="primary"
-                    className="h-6 text-[10px] font-black uppercase tracking-widest px-2"
+                    className="h-6 text-[10px] font-black uppercase tracking-widest px-2 bg-lime-500/10 text-lime-400"
                   >
                     {t.jobs.processing}
                   </Chip>
@@ -310,8 +312,11 @@ const JobMonitor: React.FC = () => {
           fullWidth
           size="md"
           variant="flat"
-          color="primary"
-          className="font-bold text-sm h-10"
+          style={{
+            background: 'linear-gradient(135deg, #A3E635 0%, #84CC16 100%)',
+            color: '#000000',
+          }}
+          className="font-bold text-sm h-10 shadow-lg shadow-lime-500/20 hover:shadow-lime-500/40 transition-all"
           endContent={<ArrowRight className="w-4 h-4" />}
           onPress={() => navigate('/tasks')}
         >

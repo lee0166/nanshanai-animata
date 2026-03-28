@@ -139,7 +139,7 @@ const Dashboard: React.FC = () => {
     <div className="h-full overflow-y-auto p-6 md:p-10 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-200">
       <div className="flex justify-between items-center mb-10 max-w-[1600px] mx-auto">
         <div className="animate-fadeIn">
-          <h1 className="text-4xl md:text-5xl font-black mb-2 uppercase tracking-tighter text-primary dark:text-primary">
+          <h1 className="text-4xl md:text-5xl font-black mb-2 uppercase tracking-tighter text-lime-400">
             {t.dashboard.title}
           </h1>
           <p className="text-slate-500 dark:text-slate-400 font-medium text-lg">
@@ -147,12 +147,15 @@ const Dashboard: React.FC = () => {
           </p>
         </div>
         <Button
-          color="primary"
           size="lg"
           radius="full"
           startContent={<Plus className="w-5 h-5" />}
           onPress={onCreateOpen}
-          className="font-black uppercase tracking-widest text-xs shadow-lg shadow-primary/30 active:scale-95 hover:scale-105 hover:shadow-primary/50 transition-all duration-300 ease-out transform-gpu"
+          className="font-black uppercase tracking-widest text-xs shadow-xl shadow-lime-500/30 active:scale-95 hover:scale-105 hover:shadow-lime-500/50 transition-all duration-300 ease-out transform-gpu"
+          style={{
+            background: 'linear-gradient(135deg, #A3E635 0%, #84CC16 100%)',
+            color: '#000000',
+          }}
         >
           {t.dashboard.newProject}
         </Button>
@@ -180,12 +183,15 @@ const Dashboard: React.FC = () => {
               {t.dashboard.emptyStateDesc}
             </p>
             <Button
-              color="primary"
               size="lg"
               radius="full"
               startContent={<Plus className="w-5 h-5" />}
               onPress={onCreateOpen}
-              className="font-black uppercase tracking-widest text-xs shadow-lg shadow-primary/30 hover:shadow-primary/50 transition-all duration-300"
+              className="font-black uppercase tracking-widest text-xs shadow-xl shadow-lime-500/30 hover:shadow-lime-500/50 transition-all duration-300"
+              style={{
+                background: 'linear-gradient(135deg, #A3E635 0%, #84CC16 100%)',
+                color: '#000000',
+              }}
             >
               {t.dashboard.newProject}
             </Button>
@@ -203,7 +209,7 @@ const Dashboard: React.FC = () => {
               <Card className="border-none bg-white dark:bg-slate-900/100 backdrop-blur-sm shadow-soft hover:shadow-hover hover:scale-[1.02] transition-all duration-300 group h-full">
                 <CardBody className="p-8">
                   <div className="flex justify-between items-start mb-6">
-                    <div className="p-4 bg-primary/10 dark:bg-primary/20 rounded-2xl text-primary transition-all duration-300 group-hover:bg-primary group-hover:text-white group-hover:shadow-primary">
+                    <div className="p-4 bg-lime-500/10 dark:bg-lime-500/20 rounded-2xl text-lime-400 transition-all duration-300 group-hover:bg-lime-500 group-hover:text-white group-hover:shadow-lime-500">
                       <Folder className="w-8 h-8" />
                     </div>
                     <Tooltip content={t.settings.remove} color="danger">
@@ -220,7 +226,7 @@ const Dashboard: React.FC = () => {
                     </Tooltip>
                   </div>
 
-                  <h2 className="text-2xl font-black text-slate-800 dark:text-slate-100 group-hover:text-primary transition-colors mb-3">
+                  <h2 className="text-2xl font-black text-slate-800 dark:text-slate-100 group-hover:text-lime-400 transition-colors mb-3">
                     {project.name}
                   </h2>
                   <p className="text-slate-500 dark:text-slate-400 text-sm line-clamp-2 min-h-[2.5rem] font-medium leading-relaxed mb-4">
@@ -244,7 +250,7 @@ const Dashboard: React.FC = () => {
                     variant="light"
                     size="sm"
                     endContent={<ChevronRight className="w-4 h-4" />}
-                    className="text-primary hover:bg-primary/10 transition-colors duration-300"
+                    className="text-lime-400 hover:bg-lime-500/10 transition-colors duration-300"
                     onPress={() => handleCardClick(project.id)}
                   >
                     {t.dashboard.openProject}
@@ -299,7 +305,7 @@ const Dashboard: React.FC = () => {
                         'font-black text-[15px] uppercase tracking-widest text-slate-400 dark:text-slate-300 mb-2',
                       input: 'text-[16px]',
                       inputWrapper:
-                        'border-2 group-data-[focus=true]:border-primary transition-colors duration-300',
+                        'border-2 group-data-[focus=true]:border-lime-500 transition-colors duration-300',
                     }}
                   />
                   <Textarea
@@ -317,7 +323,7 @@ const Dashboard: React.FC = () => {
                         'font-black text-[15px] uppercase tracking-widest text-slate-400 dark:text-slate-300 mb-2',
                       input: 'font-medium text-base',
                       inputWrapper:
-                        'border-2 group-data-[focus=true]:border-primary transition-colors duration-300',
+                        'border-2 group-data-[focus=true]:border-lime-500 transition-colors duration-300',
                     }}
                   />
                 </div>
@@ -331,10 +337,13 @@ const Dashboard: React.FC = () => {
                   {t.dashboard.cancel}
                 </Button>
                 <Button
-                  color="primary"
                   onPress={handleCreate}
-                  className="font-black uppercase tracking-widest text-xs px-8 shadow-lg shadow-primary/30 hover:shadow-primary/50 transition-all duration-300"
+                  className="font-black uppercase tracking-widest text-xs px-8 shadow-xl shadow-lime-500/30 hover:shadow-lime-500/50 transition-all duration-300"
                   radius="lg"
+                  style={{
+                    background: 'linear-gradient(135deg, #A3E635 0%, #84CC16 100%)',
+                    color: '#000000',
+                  }}
                 >
                   {t.dashboard.create}
                 </Button>

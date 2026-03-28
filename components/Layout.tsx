@@ -132,8 +132,7 @@ const Layout: React.FC<LayoutProps> = ({
                 <div className="flex items-center gap-3">
                   <Chip
                     variant="flat"
-                    color="primary"
-                    className="h-9 px-4 rounded-xl font-black text-[10px] uppercase tracking-widest border-none bg-primary/10 text-primary dark:bg-primary/30 dark:text-primary/90"
+                    className="h-9 px-4 rounded-xl font-black text-[10px] uppercase tracking-widest border-none bg-lime-500/10 text-lime-400 dark:bg-lime-500/20"
                   >
                     {currentProject.name}
                   </Chip>
@@ -141,14 +140,13 @@ const Layout: React.FC<LayoutProps> = ({
                   <Tabs
                     aria-label={t.project.projectTabs}
                     variant="light"
-                    color="primary"
                     selectedKey={activeTab}
                     onSelectionChange={key => setActiveTab?.(key as AssetType)}
                     classNames={{
                       tabList: 'bg-transparent p-0 gap-1',
                       tab: 'group h-9 px-4 rounded-lg transition-all duration-300',
                       tabContent:
-                        'font-bold text-[13px] uppercase tracking-wider text-slate-500 dark:text-slate-400 group-data-[selected=true]:text-primary transition-colors duration-300',
+                        'font-bold text-[13px] uppercase tracking-wider text-slate-500 dark:text-slate-400 group-data-[selected=true]:text-lime-400 transition-colors duration-300',
                     }}
                   >
                     {tabs.map(tab => (
@@ -156,7 +154,7 @@ const Layout: React.FC<LayoutProps> = ({
                         key={tab.id}
                         title={
                           <div className="flex items-center gap-2">
-                            <tab.icon className="w-4 h-4 transition-colors duration-300 group-data-[selected=true]:text-primary" />
+                            <tab.icon className="w-4 h-4 transition-colors duration-300 group-data-[selected=true]:text-lime-400" />
                             <span className="hidden lg:inline">{tab.label}</span>
                           </div>
                         }
@@ -186,11 +184,14 @@ const Layout: React.FC<LayoutProps> = ({
           {!isConnected && !isSettings && (
             <NavbarItem>
               <Button
-                color="primary"
                 variant="solid"
                 radius="full"
                 size="sm"
-                className="font-bold px-8 py-3 shadow-2xl shadow-primary/50 transition-all duration-300 transform hover:scale-105 active:scale-95 border-2 border-white/30 bg-primary text-white hover:bg-primary/90 focus:ring-4 focus:ring-primary/30 focus:outline-none"
+                style={{
+                  background: 'linear-gradient(135deg, #A3E635 0%, #84CC16 100%)',
+                  color: '#000000',
+                }}
+                className="font-bold px-8 py-3 shadow-2xl shadow-lime-500/30 transition-all duration-300 transform hover:scale-105 active:scale-95 border-2 border-white/30 hover:shadow-lime-500/50 focus:outline-none"
                 onPress={onConnect}
               >
                 {t.sidebar.openWorkspace}
@@ -265,11 +266,14 @@ const Layout: React.FC<LayoutProps> = ({
                 {t.workspace.selectDesc}
               </p>
               <Button
-                color="primary"
                 variant="solid"
                 size="lg"
                 radius="full"
-                className="w-full h-16 text-lg font-black uppercase tracking-widest shadow-2xl shadow-primary/50 bg-primary text-white active:scale-95 transition-all duration-300 hover:shadow-primary/70 hover:scale-105 transform-gpu dark:bg-primary dark:text-white border-2 border-white/30 hover:border-white/50 focus:ring-4 focus:ring-primary/30 focus:outline-none"
+                style={{
+                  background: 'linear-gradient(135deg, #A3E635 0%, #84CC16 100%)',
+                  color: '#000000',
+                }}
+                className="w-full h-16 text-lg font-black uppercase tracking-widest shadow-2xl shadow-lime-500/30 active:scale-95 transition-all duration-300 hover:shadow-lime-500/50 hover:scale-105 transform-gpu border-2 border-white/30 hover:border-white/50 focus:outline-none"
                 onPress={onConnect}
               >
                 {t.sidebar.openWorkspace}

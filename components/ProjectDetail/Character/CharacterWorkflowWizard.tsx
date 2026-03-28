@@ -529,7 +529,7 @@ export const CharacterWorkflowWizard: React.FC<CharacterWorkflowWizardProps> = (
           }}
           classNames={{
             tabList: 'gap-1 p-1 bg-slate-100 dark:bg-slate-800 rounded-lg',
-            tab: 'data-[selected=true]:bg-white dark:data-[selected=true]:bg-slate-700 transition-colors',
+            tab: 'data-[selected=true]:bg-lime-500 data-[selected=true]:text-black transition-colors',
           }}
         >
           {stages.map(stage => (
@@ -553,19 +553,19 @@ export const CharacterWorkflowWizard: React.FC<CharacterWorkflowWizardProps> = (
           <div className="space-y-6">
             <div className="bg-content1 rounded-xl border border-content3 p-6 shadow-sm">
               <h3 className="font-bold text-sm mb-4 flex items-center gap-2">
-                <User className="w-4 h-4 text-primary" />
-                {t.character.workflow?.stage1 || '阶段1：面部特征设计'}
+                <User className="w-4 h-4 text-lime-400" />
+                <span className="text-lime-400">{t.character.workflow?.stage1 || '阶段1：面部特征设计'}</span>
               </h3>
               <div className="flex flex-wrap gap-4 mb-4">
                 <div className="flex flex-col">
-                  <span className="text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wider font-bold">
+                  <span className="text-xs text-lime-400 uppercase tracking-wider font-bold">
                     角色名称
                   </span>
                   <span className="text-sm font-semibold">{asset.name}</span>
                 </div>
                 {asset.gender && (
                   <div className="flex flex-col">
-                    <span className="text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wider font-bold">
+                    <span className="text-xs text-lime-400 uppercase tracking-wider font-bold">
                       性别
                     </span>
                     <span className="text-sm font-semibold">{asset.gender}</span>
@@ -573,7 +573,7 @@ export const CharacterWorkflowWizard: React.FC<CharacterWorkflowWizardProps> = (
                 )}
                 {asset.ageGroup && (
                   <div className="flex flex-col">
-                    <span className="text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wider font-bold">
+                    <span className="text-xs text-lime-400 uppercase tracking-wider font-bold">
                       年龄
                     </span>
                     <span className="text-sm font-semibold">{asset.ageGroup}</span>
@@ -613,8 +613,8 @@ export const CharacterWorkflowWizard: React.FC<CharacterWorkflowWizardProps> = (
             {stage1Images.length > 0 && (
               <div className="bg-content1 rounded-xl border border-content3 p-6 shadow-sm">
                 <h4 className="text-sm font-semibold mb-4 flex items-center gap-2">
-                  <ImageIcon className="w-4 h-4 text-primary" />
-                  {t.character.workflow?.selectFace || '生成的面部候选图'}
+                  <ImageIcon className="w-4 h-4 text-lime-400" />
+                  <span className="text-lime-400">{t.character.workflow?.selectFace || '生成的面部候选图'}</span>
                 </h4>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                   {stage1Images.map(img => (
@@ -622,8 +622,8 @@ export const CharacterWorkflowWizard: React.FC<CharacterWorkflowWizardProps> = (
                       key={img.id}
                       className={`relative group cursor-pointer transition-all duration-200 rounded-xl overflow-hidden ${
                         selectedFaceImage?.id === img.id
-                          ? 'ring-4 ring-primary shadow-lg scale-[1.02]'
-                          : 'ring-2 ring-transparent hover:ring-content3 hover:scale-[1.01]'
+                          ? 'ring-4 ring-lime-500 shadow-lg scale-[1.02]'
+                          : 'ring-2 ring-transparent hover:ring-lime-500/30 hover:scale-[1.01]'
                       } bg-content2`}
                       onClick={() => handleSelectFaceImage(img)}
                     >
@@ -642,7 +642,7 @@ export const CharacterWorkflowWizard: React.FC<CharacterWorkflowWizardProps> = (
 
                         {selectedFaceImage?.id === img.id && (
                           <div className="absolute top-2 right-2 z-10">
-                            <Chip color="primary" size="sm" className="shadow-lg">
+                            <Chip size="sm" className="shadow-lg bg-lime-500 text-black">
                               <Check className="w-3 h-3 mr-1" />
                               已选择
                             </Chip>
@@ -688,8 +688,8 @@ export const CharacterWorkflowWizard: React.FC<CharacterWorkflowWizardProps> = (
           <div className="space-y-6">
             <div className="bg-content1 rounded-xl border border-content3 p-6 shadow-sm">
               <h3 className="font-bold text-sm mb-2 flex items-center gap-2">
-                <Camera className="w-4 h-4 text-primary" />
-                {t.character.workflow?.stage2 || '阶段2：全身设定图'}
+                <Camera className="w-4 h-4 text-lime-400" />
+                <span className="text-lime-400">{t.character.workflow?.stage2 || '阶段2：全身设定图'}</span>
               </h3>
               <p className="text-xs text-slate-600 dark:text-slate-400">
                 {t.character.workflow?.stage2Desc || '基于选定的面部图，生成全身设定图。'}
@@ -699,10 +699,10 @@ export const CharacterWorkflowWizard: React.FC<CharacterWorkflowWizardProps> = (
             {selectedFaceImage && (
               <div className="bg-content1 rounded-xl border border-content3 p-6 shadow-sm">
                 <h4 className="text-sm font-semibold mb-4 flex items-center gap-2">
-                  <User className="w-4 h-4 text-primary" />
-                  {t.character.workflow?.selectFace || '已选择的面部图'}
+                  <User className="w-4 h-4 text-lime-400" />
+                  <span className="text-lime-400">{t.character.workflow?.selectFace || '已选择的面部图'}</span>
                 </h4>
-                <div className="relative w-48 rounded-xl overflow-hidden ring-2 ring-primary shadow-lg">
+                <div className="relative w-48 rounded-xl overflow-hidden ring-2 ring-lime-500 shadow-lg">
                   {genUrls[selectedFaceImage.id] ? (
                     <img
                       src={genUrls[selectedFaceImage.id]}
@@ -751,8 +751,8 @@ export const CharacterWorkflowWizard: React.FC<CharacterWorkflowWizardProps> = (
             {stage2Images.length > 0 && (
               <div className="bg-content1 rounded-xl border border-content3 p-6 shadow-sm">
                 <h4 className="text-sm font-semibold mb-4 flex items-center gap-2">
-                  <ImageIcon className="w-4 h-4 text-primary" />
-                  {t.character.workflow?.selectFullBody || '生成的全身图'}
+                  <ImageIcon className="w-4 h-4 text-lime-400" />
+                  <span className="text-lime-400">{t.character.workflow?.selectFullBody || '生成的全身图'}</span>
                 </h4>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                   {stage2Images.map(img => (
@@ -760,8 +760,8 @@ export const CharacterWorkflowWizard: React.FC<CharacterWorkflowWizardProps> = (
                       key={img.id}
                       className={`relative group cursor-pointer transition-all duration-200 rounded-xl overflow-hidden ${
                         selectedFullBodyImage?.id === img.id
-                          ? 'ring-4 ring-primary shadow-lg scale-[1.02]'
-                          : 'ring-2 ring-transparent hover:ring-content3 hover:scale-[1.01]'
+                          ? 'ring-4 ring-lime-500 shadow-lg scale-[1.02]'
+                          : 'ring-2 ring-transparent hover:ring-lime-500/30 hover:scale-[1.01]'
                       } bg-content2`}
                       onClick={() => handleSelectFullBodyImage(img)}
                     >
@@ -780,7 +780,7 @@ export const CharacterWorkflowWizard: React.FC<CharacterWorkflowWizardProps> = (
 
                         {selectedFullBodyImage?.id === img.id && (
                           <div className="absolute top-2 right-2 z-10">
-                            <Chip color="primary" size="sm" className="shadow-lg">
+                            <Chip size="sm" className="shadow-lg bg-lime-500 text-black">
                               <Check className="w-3 h-3 mr-1" />
                               已选择
                             </Chip>
@@ -826,8 +826,8 @@ export const CharacterWorkflowWizard: React.FC<CharacterWorkflowWizardProps> = (
           <div className="space-y-6">
             <div className="bg-content1 rounded-xl border border-content3 p-6 shadow-sm">
               <h3 className="font-bold text-sm mb-4 flex items-center gap-2">
-                <Layers className="w-4 h-4 text-primary" />
-                {t.character.workflow?.stage3 || '阶段3：多视角生成'}
+                <Layers className="w-4 h-4 text-lime-400" />
+                <span className="text-lime-400">{t.character.workflow?.stage3 || '阶段3：多视角生成'}</span>
               </h3>
               <p className="text-xs text-slate-600 dark:text-slate-400">
                 {t.character.workflow?.stage3Desc ||
@@ -838,10 +838,10 @@ export const CharacterWorkflowWizard: React.FC<CharacterWorkflowWizardProps> = (
             {selectedFullBodyImage && (
               <div className="bg-content1 rounded-xl border border-content3 p-6 shadow-sm">
                 <h4 className="text-sm font-semibold mb-4 flex items-center gap-2">
-                  <Camera className="w-4 h-4 text-primary" />
-                  {t.character.workflow?.selectFullBody || '已选择的全身图'}
+                  <Camera className="w-4 h-4 text-lime-400" />
+                  <span className="text-lime-400">{t.character.workflow?.selectFullBody || '已选择的全身图'}</span>
                 </h4>
-                <div className="relative w-48 rounded-xl overflow-hidden ring-2 ring-primary shadow-lg">
+                <div className="relative w-48 rounded-xl overflow-hidden ring-2 ring-lime-500 shadow-lg">
                   {genUrls[selectedFullBodyImage.id] ? (
                     <img
                       src={genUrls[selectedFullBodyImage.id]}
@@ -865,12 +865,12 @@ export const CharacterWorkflowWizard: React.FC<CharacterWorkflowWizardProps> = (
 
             <div className="bg-content1 rounded-xl border border-content3 p-6 shadow-sm">
               <h4 className="text-sm font-semibold mb-4 flex items-center gap-2">
-                <Settings className="w-4 h-4 text-primary" />
-                生成参数
+                <Settings className="w-4 h-4 text-lime-400" />
+                <span className="text-lime-400">生成参数</span>
               </h4>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <label className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                  <label className="text-xs font-semibold text-lime-400 uppercase tracking-wider">
                     模型
                   </label>
                   <Select
@@ -888,7 +888,7 @@ export const CharacterWorkflowWizard: React.FC<CharacterWorkflowWizardProps> = (
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <label className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                  <label className="text-xs font-semibold text-lime-400 uppercase tracking-wider">
                     分辨率
                   </label>
                   <Select
@@ -908,7 +908,7 @@ export const CharacterWorkflowWizard: React.FC<CharacterWorkflowWizardProps> = (
                   </Select>
                 </div>
                 <div className="space-y-2 md:col-span-2">
-                  <label className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                  <label className="text-xs font-semibold text-lime-400 uppercase tracking-wider">
                     Guidance Scale: {stage3GuidanceScale.toFixed(1)}
                   </label>
                   <Slider
@@ -922,13 +922,16 @@ export const CharacterWorkflowWizard: React.FC<CharacterWorkflowWizardProps> = (
               </div>
               <div className="mt-6">
                 <Button
-                  color="primary"
                   size="lg"
                   fullWidth
                   isLoading={generating}
                   onPress={handleStage3Generate}
                   isDisabled={!selectedFullBodyImage}
-                  className="font-bold shadow-lg shadow-primary/20"
+                  style={{
+                    background: 'linear-gradient(135deg, #A3E635 0%, #84CC16 100%)',
+                    color: '#000000',
+                  }}
+                  className="font-bold shadow-lg shadow-lime-500/20 hover:shadow-lime-500/40 transition-all"
                   startContent={!generating && <Sparkles size={20} />}
                 >
                   {generating
@@ -941,8 +944,8 @@ export const CharacterWorkflowWizard: React.FC<CharacterWorkflowWizardProps> = (
             {stage3Images.length > 0 && (
               <div className="bg-content1 rounded-xl border border-content3 p-6 shadow-sm">
                 <h4 className="text-sm font-semibold mb-4 flex items-center gap-2">
-                  <ImageIcon className="w-4 h-4 text-primary" />
-                  生成的多视角图
+                  <ImageIcon className="w-4 h-4 text-lime-400" />
+                  <span className="text-lime-400">生成的多视角图</span>
                 </h4>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   {stage3Images.map(img => (
@@ -1027,9 +1030,13 @@ export const CharacterWorkflowWizard: React.FC<CharacterWorkflowWizardProps> = (
         <div className="flex gap-2">
           {currentStage < 3 && isStageEnabled((currentStage + 1) as WorkflowStage) && (
             <Button
-              color="primary"
               endContent={<ChevronRight className="w-4 h-4" />}
               onPress={() => setCurrentStage(prev => (prev + 1) as WorkflowStage)}
+              style={{
+                background: 'linear-gradient(135deg, #A3E635 0%, #84CC16 100%)',
+                color: '#000000',
+              }}
+              className="shadow-lg shadow-lime-500/20 hover:shadow-lime-500/40 transition-all"
             >
               {t.character.workflow?.nextStep || '下一步'}
             </Button>

@@ -84,7 +84,7 @@ export const DynamicModelParameters: React.FC<DynamicModelParametersProps> = ({
 
           return (
             <div key={key} className="space-y-1">
-              <label className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide">
+              <label className="text-[10px] font-semibold text-lime-400 uppercase tracking-wide">
                 {label}
               </label>
               <Select
@@ -94,7 +94,10 @@ export const DynamicModelParameters: React.FC<DynamicModelParametersProps> = ({
                 isDisabled={disabled}
                 size="sm"
                 aria-label={label}
-                classNames={{ trigger: 'h-7 text-[11px] min-h-7' }}
+                classNames={{ 
+                  trigger: 'h-7 text-[11px] min-h-7 border border-zinc-700 data-[focus=true]:border-lime-500 bg-zinc-900/50',
+                  value: 'text-zinc-200',
+                }}
               >
                 {validOptions.map(opt => (
                   <SelectItem
@@ -113,7 +116,7 @@ export const DynamicModelParameters: React.FC<DynamicModelParametersProps> = ({
         } else if (param.type === 'number') {
           return (
             <div key={key} className="space-y-1">
-              <label className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide">
+              <label className="text-[10px] font-semibold text-lime-400 uppercase tracking-wide">
                 {label}
               </label>
               <Input
@@ -126,14 +129,18 @@ export const DynamicModelParameters: React.FC<DynamicModelParametersProps> = ({
                 step={param.step}
                 isDisabled={disabled}
                 size="sm"
-                classNames={{ trigger: 'h-7 text-[11px] min-h-7', inputWrapper: 'h-7 min-h-7' }}
+                classNames={{ 
+                  trigger: 'h-7 text-[11px] min-h-7', 
+                  inputWrapper: 'h-7 min-h-7 border border-zinc-700 data-[focus=true]:border-lime-500 bg-zinc-900/50',
+                  input: 'text-zinc-200',
+                }}
               />
             </div>
           );
         } else {
           return (
             <div key={key} className="space-y-1">
-              <label className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide">
+              <label className="text-[10px] font-semibold text-lime-400 uppercase tracking-wide">
                 {label}
               </label>
               <Input
@@ -142,7 +149,11 @@ export const DynamicModelParameters: React.FC<DynamicModelParametersProps> = ({
                 onValueChange={v => onChange(key, v)}
                 isDisabled={disabled}
                 size="sm"
-                classNames={{ trigger: 'h-7 text-[11px] min-h-7', inputWrapper: 'h-7 min-h-7' }}
+                classNames={{ 
+                  trigger: 'h-7 text-[11px] min-h-7', 
+                  inputWrapper: 'h-7 min-h-7 border border-zinc-700 data-[focus=true]:border-lime-500 bg-zinc-900/50',
+                  input: 'text-zinc-200',
+                }}
               />
             </div>
           );

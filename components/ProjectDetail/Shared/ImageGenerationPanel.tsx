@@ -153,8 +153,8 @@ export const ImageGenerationPanel: React.FC<ImageGenerationPanelProps> = ({
         <label
           className={
             compact
-              ? 'text-[10px] font-semibold text-slate-400 uppercase tracking-wide'
-              : 'text-slate-300 font-bold text-base ml-1'
+              ? 'text-[10px] font-semibold text-lime-400 uppercase tracking-wide'
+              : 'text-lime-400 font-bold text-base ml-1'
           }
         >
           {compact ? '模型' : t.project.modelLabel}
@@ -175,7 +175,7 @@ export const ImageGenerationPanel: React.FC<ImageGenerationPanelProps> = ({
                 }
               : {
                   value: 'font-bold text-sm',
-                  trigger: 'border-2 data-[focus=true]:border-primary',
+                  trigger: 'border border-zinc-700 data-[focus=true]:border-lime-500 bg-zinc-900/50',
                 }
           }
         >
@@ -224,7 +224,7 @@ export const ImageGenerationPanel: React.FC<ImageGenerationPanelProps> = ({
       {/* Prompt */}
       {showPrompt && (
         <div className="flex flex-col gap-2">
-          <label className="text-slate-300 font-bold text-base ml-1">{t.common.prompt}</label>
+          <label className="text-lime-400 font-bold text-base ml-1">{t.common.prompt}</label>
           <Textarea
             placeholder={t.project.promptPlaceholder}
             value={prompt}
@@ -236,7 +236,7 @@ export const ImageGenerationPanel: React.FC<ImageGenerationPanelProps> = ({
             isDisabled={generating}
             classNames={{
               input: 'font-medium text-sm',
-              inputWrapper: 'border-2 group-data-[focus=true]:border-primary',
+              inputWrapper: 'border border-zinc-700 group-data-[focus=true]:border-lime-500 bg-zinc-900/50',
             }}
           />
         </div>
@@ -245,7 +245,7 @@ export const ImageGenerationPanel: React.FC<ImageGenerationPanelProps> = ({
       {/* Reference Images */}
       {showReferenceImages && !compact && (
         <div className="space-y-2">
-          <label className="text-slate-300 font-bold text-base ml-1">参考图</label>
+          <label className="text-lime-400 font-bold text-base ml-1">参考图</label>
           {referenceImages.length > 0 ? (
             <div className="flex flex-wrap gap-2">
               {referenceImages.map((path, index) => (
@@ -291,7 +291,7 @@ export const ImageGenerationPanel: React.FC<ImageGenerationPanelProps> = ({
       {/* Params Grid */}
       {!compact && (
         <div className="flex flex-col gap-2">
-          <label className="text-sm font-black text-primary/80 dark:text-primary-400 uppercase tracking-widest mb-2">
+          <label className="text-sm font-black text-lime-400 uppercase tracking-widest mb-2">
             {t.aiParams.modelParams}
           </label>
         </div>
@@ -320,21 +320,24 @@ export const ImageGenerationPanel: React.FC<ImageGenerationPanelProps> = ({
 
       {showGenerateButton && (
         <Button
-          color="default"
+          color="primary"
           variant="solid"
           size="lg"
           fullWidth
           isLoading={generating}
           onPress={onGenerate}
-          className="font-bold h-12 rounded-xl bg-slate-200 hover:bg-slate-300 text-slate-900 dark:bg-slate-700 dark:hover:bg-slate-600 dark:text-slate-100 shadow-xl shadow-slate-500/20 dark:shadow-slate-900/20 active:scale-95 transition-all"
+          className="font-bold h-12 rounded-xl shadow-xl shadow-lime-500/30 hover:shadow-lime-500/50 active:scale-95 transition-all hover:scale-[1.01]"
+          style={{
+            background: 'linear-gradient(135deg, #A3E635 0%, #84CC16 100%)',
+            color: '#000000',
+          }}
           classNames={{
-            base: 'bg-slate-200 hover:bg-slate-300 text-slate-900 dark:bg-slate-700 dark:hover:bg-slate-600 dark:text-slate-100',
             content:
-              'text-slate-900 dark:text-slate-100 font-black uppercase tracking-widest text-sm',
-            spinner: 'text-slate-900 dark:text-slate-100',
+              'text-black font-black uppercase tracking-widest text-sm',
+            spinner: 'text-black',
           }}
           startContent={
-            !generating && <Sparkles size={18} className="text-slate-900 dark:text-slate-100" />
+            !generating && <Sparkles size={18} className="text-black" />
           }
         >
           {generating ? t.character?.generating || '生成中...' : t.project?.generate || '生成图片'}

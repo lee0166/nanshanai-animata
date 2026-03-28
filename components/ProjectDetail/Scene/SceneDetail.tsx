@@ -957,8 +957,8 @@ const SceneDetail: React.FC<SceneDetailProps> = ({ asset, onUpdate, projectId })
       <div className="w-[300px] bg-content1 border border-content3 rounded-xl flex flex-col overflow-hidden">
         <div className="p-3 border-b border-content3">
           <div className="flex items-center gap-3 mb-3">
-            <div className="w-9 h-9 bg-primary/10 rounded-xl flex items-center justify-center">
-              <Map className="w-5 h-5 text-primary" />
+            <div className="w-9 h-9 bg-lime-500/10 rounded-xl flex items-center justify-center">
+              <Map className="w-5 h-5 text-lime-400" />
             </div>
             <div className="flex-1 min-w-0">
               <h3 className="font-bold text-sm text-foreground truncate">{asset.name}</h3>
@@ -975,8 +975,8 @@ const SceneDetail: React.FC<SceneDetailProps> = ({ asset, onUpdate, projectId })
                   onClick={() => setActiveTab(tab.id)}
                   className={`flex-1 py-2.5 px-3 rounded-xl text-xs font-medium transition-all flex items-center justify-center gap-1 ${
                     isActive
-                      ? 'bg-primary text-primary-foreground'
-                      : 'bg-content2 text-slate-400 hover:bg-content3'
+                      ? 'bg-lime-500 text-black'
+                      : 'bg-content2 text-zinc-500 hover:bg-content3'
                   }`}
                 >
                   {tab.label}
@@ -1180,16 +1180,19 @@ const SceneDetail: React.FC<SceneDetailProps> = ({ asset, onUpdate, projectId })
                   ? handleBatchGenerateViews
                   : () => handleGenerateView(activeViewTab)
             }
-            className="font-bold h-9 rounded-xl bg-slate-200 hover:bg-slate-300 text-slate-900 dark:bg-slate-700 dark:hover:bg-slate-600 dark:text-slate-100 shadow-lg"
+            className="font-bold h-9 rounded-xl shadow-xl shadow-lime-500/30 hover:shadow-lime-500/50 transition-all hover:scale-[1.01]"
+            style={{
+              background: 'linear-gradient(135deg, #A3E635 0%, #84CC16 100%)',
+              color: '#000000',
+            }}
             classNames={{
-              base: 'bg-slate-200 hover:bg-slate-300 text-slate-900 dark:bg-slate-700 dark:hover:bg-slate-600 dark:text-slate-100',
-              content: 'text-slate-900 dark:text-slate-100',
-              spinner: 'text-slate-900 dark:text-slate-100',
+              content: 'text-black',
+              spinner: 'text-black',
             }}
             startContent={
               !generating &&
               !batchGenerating && (
-                <Sparkles size={16} className="text-slate-900 dark:text-slate-100" />
+                <Sparkles size={16} className="text-black" />
               )
             }
           >

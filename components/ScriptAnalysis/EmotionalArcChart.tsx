@@ -132,8 +132,8 @@ export const EmotionalArcChart: React.FC<EmotionalArcChartProps> = ({
     <Card className="w-full bg-gradient-to-br from-content1 to-content2">
       <CardHeader className="flex items-center justify-between pb-1">
         <div className="flex items-center gap-3">
-          <div className="p-2.5 bg-primary/15 rounded-xl">
-            <Heart className="w-5 h-5 text-primary" />
+          <div className="p-2.5 bg-lime-500/15 rounded-xl">
+            <Heart className="w-5 h-5 text-lime-400" />
           </div>
           <div>
             <h3 className="text-base font-semibold">情绪曲线</h3>
@@ -141,7 +141,7 @@ export const EmotionalArcChart: React.FC<EmotionalArcChartProps> = ({
           </div>
         </div>
         {overallMood && (
-          <Chip size="sm" variant="flat" className="bg-primary/10 text-primary border-none">
+          <Chip size="sm" variant="flat" className="bg-lime-500/10 text-lime-400 border-none">
             {overallMood}
           </Chip>
         )}
@@ -158,8 +158,8 @@ export const EmotionalArcChart: React.FC<EmotionalArcChartProps> = ({
             <defs>
               {/* 渐变填充 - 更清晰 */}
               <linearGradient id="emotionFillGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.5" />
-                <stop offset="100%" stopColor="#3b82f6" stopOpacity="0.15" />
+                <stop offset="0%" stopColor="#84CC16" stopOpacity="0.5" />
+                <stop offset="100%" stopColor="#84CC16" stopOpacity="0.15" />
               </linearGradient>
             </defs>
 
@@ -250,7 +250,7 @@ export const EmotionalArcChart: React.FC<EmotionalArcChartProps> = ({
             <path
               d={generatePath()}
               fill="none"
-              stroke="#3b82f6"
+              stroke="#84CC16"
               strokeWidth="3"
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -293,7 +293,7 @@ export const EmotionalArcChart: React.FC<EmotionalArcChartProps> = ({
               return (
                 <div
                   key={idx}
-                  className="flex-shrink-0 bg-content2/60 backdrop-blur-sm rounded-lg p-2.5 border border-divider hover:border-primary/30 transition-all cursor-pointer min-w-[140px]"
+                  className="flex-shrink-0 bg-content2/60 backdrop-blur-sm rounded-lg p-2.5 border border-divider hover:border-lime-500/30 transition-all cursor-pointer min-w-[140px]"
                 >
                   <div className="flex items-center justify-between mb-1.5">
                     <span className="text-xs font-medium truncate" style={{ color: pointColor }}>

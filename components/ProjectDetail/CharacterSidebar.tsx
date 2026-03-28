@@ -100,7 +100,7 @@ const CharacterSidebar: React.FC<CharacterSidebarProps> = ({
   return (
     <div className="h-full flex flex-col bg-white dark:bg-slate-900 border-l border-slate-200 dark:border-slate-800 w-[340px]">
       <div className="p-4 border-b border-slate-200 dark:border-slate-800">
-        <h3 className="text-lg font-black text-slate-900 dark:text-white mb-4">
+        <h3 className="text-lg font-black text-lime-400 mb-4">
           {t.project.characterList}
         </h3>
 
@@ -113,8 +113,9 @@ const CharacterSidebar: React.FC<CharacterSidebarProps> = ({
           size="sm"
           variant="bordered"
           radius="lg"
+          aria-label={t.common?.search || 'Search'}
           classNames={{
-            inputWrapper: 'bg-slate-50 dark:bg-slate-950 mt-2',
+            inputWrapper: 'bg-slate-50 dark:bg-slate-950 mt-2 border-2 group-data-[focus=true]:border-lime-500',
           }}
         />
       </div>
@@ -130,8 +131,8 @@ const CharacterSidebar: React.FC<CharacterSidebarProps> = ({
                 onClick={() => onSelect(char)}
                 className={`group flex items-center gap-4 p-3 rounded-2xl cursor-pointer transition-all border ${
                   isSelected
-                    ? 'bg-primary/10 dark:bg-slate-800 border-primary'
-                    : 'bg-slate-50 dark:bg-slate-900/50 border-transparent hover:bg-slate-100 dark:hover:bg-slate-800 hover:border-slate-200 dark:hover:border-slate-700'
+                    ? 'bg-lime-500/10 dark:bg-slate-800 border-lime-500'
+                    : 'bg-slate-50 dark:bg-slate-900/50 border-transparent hover:bg-slate-100 dark:hover:bg-slate-800 hover:border-lime-500/50'
                 }`}
               >
                 <div className="relative w-12 h-12 rounded-full overflow-hidden bg-slate-200 dark:bg-slate-800 flex-none border-2 border-white dark:border-slate-700 shadow-sm">

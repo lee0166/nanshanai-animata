@@ -90,7 +90,7 @@ const ItemSidebar: React.FC<ItemSidebarProps> = ({
   return (
     <div className="h-full flex flex-col bg-white dark:bg-slate-900 border-l border-slate-200 dark:border-slate-800 w-[340px] order-last">
       <div className="p-4 border-b border-slate-200 dark:border-slate-800">
-        <h3 className="text-lg font-black text-slate-900 dark:text-white mb-4">
+        <h3 className="text-lg font-black text-lime-400 mb-4">
           {t.project.itemList}
         </h3>
         <Input
@@ -101,8 +101,9 @@ const ItemSidebar: React.FC<ItemSidebarProps> = ({
           size="sm"
           variant="bordered"
           radius="lg"
+          aria-label={t.common?.search || 'Search'}
           classNames={{
-            inputWrapper: 'bg-slate-50 dark:bg-slate-950',
+            inputWrapper: 'bg-slate-50 dark:bg-slate-950 border-2 group-data-[focus=true]:border-lime-500',
           }}
         />
       </div>
@@ -119,8 +120,8 @@ const ItemSidebar: React.FC<ItemSidebarProps> = ({
                 onClick={() => onSelect(item)}
                 className={`group flex items-center gap-4 p-3 rounded-2xl cursor-pointer transition-all border ${
                   isSelected
-                    ? 'bg-primary/10 dark:bg-slate-800 border-primary'
-                    : 'bg-slate-50 dark:bg-slate-800/30 border-transparent hover:bg-slate-100 dark:hover:bg-slate-800/60'
+                    ? 'bg-lime-500/10 dark:bg-slate-800 border-lime-500'
+                    : 'bg-slate-50 dark:bg-slate-800/30 border-transparent hover:bg-slate-100 dark:hover:bg-slate-800/60 hover:border-lime-500/50'
                 }`}
               >
                 <div className="relative w-16 h-16 rounded-lg overflow-hidden bg-slate-200 dark:bg-slate-800 flex-none border-2 border-white dark:border-slate-700 shadow-sm">
@@ -138,7 +139,7 @@ const ItemSidebar: React.FC<ItemSidebarProps> = ({
                 </div>
                 <div className="flex-1 min-w-0 flex flex-col gap-1">
                   <div
-                    className={`font-bold text-base truncate ${isSelected ? 'text-primary' : 'text-slate-900 dark:text-white'}`}
+                    className={`font-bold text-base truncate ${isSelected ? 'text-lime-400' : 'text-slate-900 dark:text-white'}`}
                   >
                     {item.name}
                   </div>
@@ -147,7 +148,7 @@ const ItemSidebar: React.FC<ItemSidebarProps> = ({
                       <Chip
                         size="sm"
                         variant="flat"
-                        className="h-5 text-[10px] font-bold bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400"
+                        className="h-5 text-[10px] font-bold bg-lime-500/20 text-lime-400"
                       >
                         {typeLabel}
                       </Chip>
