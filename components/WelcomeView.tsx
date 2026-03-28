@@ -16,11 +16,11 @@ const WelcomeView: React.FC<WelcomeViewProps> = ({ onConnect }) => {
     <div className="h-full flex flex-col items-center justify-center p-6 text-center max-w-[1600px] mx-auto relative overflow-hidden">
       {/* 发光背景效果 */}
       <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[800px] h-[800px] bg-lime-500/10 rounded-full blur-[120px]"></div>
-        <div className="absolute bottom-1/4 left-1/4 w-[600px] h-[600px] bg-lime-400/5 rounded-full blur-[100px]"></div>
+        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[800px] h-[800px] bg-primary/10 rounded-full blur-[120px]"></div>
+        <div className="absolute bottom-1/4 left-1/4 w-[600px] h-[600px] bg-primary/5 rounded-full blur-[100px]"></div>
       </div>
 
-      <div className="relative z-10 mb-12 mt-20 p-8 bg-lime-500/10 rounded-[3rem] relative overflow-hidden">
+      <div className="relative z-10 mb-12 mt-20 p-8 bg-primary/10 rounded-[3rem] relative overflow-hidden">
         <div className="absolute inset-0 animate-[shimmerSmooth_6s_infinite] bg-gradient-to-r from-transparent via-white/40 to-transparent -skew-x-12"></div>
         <img src="/icon.png" className="w-20 h-20 object-contain relative z-10 drop-shadow-[0_0_30px_rgba(163,230,53,0.4)]" alt="Logo" />
       </div>
@@ -90,12 +90,12 @@ const WelcomeView: React.FC<WelcomeViewProps> = ({ onConnect }) => {
         ].map((item, i) => (
           <Card
             key={i}
-            className="border border-zinc-700 dark:border-zinc-800 bg-zinc-900/60 dark:bg-zinc-900/60 backdrop-blur-xl hover:border-lime-500/30 transition-all duration-300"
+            className="border border-zinc-700 dark:border-zinc-800 bg-zinc-900/60 dark:bg-zinc-900/60 backdrop-blur-xl hover:border-primary/30 transition-all duration-300"
             shadow="sm"
             radius="lg"
           >
             <CardBody className="p-8">
-              <h3 className="text-xl font-black text-lime-400 uppercase tracking-widest mb-2">
+              <h3 className="text-xl font-black text-primary uppercase tracking-widest mb-2">
                 {item.title}
               </h3>
               <p className="text-base text-slate-500 dark:text-zinc-500 font-medium leading-relaxed">

@@ -724,7 +724,7 @@ const Settings: React.FC = () => {
       >
         <CardHeader className="px-6 pt-6 pb-3 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div className="flex flex-col items-start gap-1">
-            <div className="flex items-center gap-2 text-lime-400">
+            <div className="flex items-center gap-2 text-primary">
               <Database className="w-5 h-5" />
               <h2 className="text-xl font-black uppercase tracking-widest">
                 {t.settings.workspace}
@@ -752,7 +752,7 @@ const Settings: React.FC = () => {
         <CardBody className="px-4 pb-4 pt-3 space-y-4">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-4 bg-slate-50 dark:bg-slate-950 rounded-xl border border-slate-100 dark:border-slate-900">
             <div className="flex items-center gap-4">
-              <div className="p-3 bg-white dark:bg-slate-900 rounded-xl shadow-sm text-lime-400 border border-slate-100 dark:border-slate-800">
+              <div className="p-3 bg-white dark:bg-slate-900 rounded-xl shadow-sm text-primary border border-slate-100 dark:border-slate-800">
                 <FolderOpen className="w-5 h-5" />
               </div>
               <div>
@@ -857,7 +857,7 @@ const Settings: React.FC = () => {
                 color="primary"
                 size="md"
                 classNames={{
-                  wrapper: 'group-data-[selected=true]:bg-lime-500',
+                  wrapper: 'group-data-[selected=true]:bg-primary',
                 }}
               />
             </div>
@@ -1060,7 +1060,7 @@ const Settings: React.FC = () => {
       <CardBody className="px-4 pb-4 pt-3 space-y-4">
         <div className="space-y-3">
           <div className="flex items-center gap-2">
-            <div className="w-1 h-5 bg-lime-500 rounded-full" />
+            <div className="w-1 h-5 bg-primary rounded-full" />
             <h3 className="text-[15px] font-black uppercase tracking-widest text-slate-900 dark:text-white">
               {t.settings.durationBudget?.basicConfig || '基础配置'}
               <span className="text-xs text-slate-400 ml-2 font-medium normal-case">
@@ -1148,8 +1148,8 @@ const Settings: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pl-3">
             <div className="flex items-center justify-between gap-4 p-3 bg-slate-50 dark:bg-slate-950 rounded-xl border border-slate-100 dark:border-slate-900">
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-lime-500/10 rounded-lg">
-                  <Clock className="w-4 h-4 text-lime-400" />
+                <div className="p-2 bg-primary/10 rounded-lg">
+                  <Clock className="w-4 h-4 text-primary" />
                 </div>
                 <div>
                   <label className="block text-[13px] font-black text-slate-900 dark:text-white uppercase tracking-widest">
@@ -1167,7 +1167,7 @@ const Settings: React.FC = () => {
                 color="primary"
                 size="md"
                 classNames={{
-                  wrapper: 'group-data-[selected=true]:bg-lime-500',
+                  wrapper: 'group-data-[selected=true]:bg-primary',
                 }}
               />
             </div>
@@ -1682,7 +1682,7 @@ const Settings: React.FC = () => {
               {selectedType === 'llm' && (
                 <div className="space-y-3">
                   <div
-                    className="flex items-center gap-2 cursor-pointer text-lime-400 p-2 bg-lime-500/5 dark:bg-lime-500/10 rounded-lg hover:bg-lime-500/10 dark:hover:bg-lime-500/20 transition-colors"
+                    className="flex items-center gap-2 cursor-pointer text-primary p-2 bg-primary/5 dark:bg-primary/10 rounded-lg hover:bg-primary/10 dark:hover:bg-primary/20 transition-colors"
                     onClick={() => setShowAdvancedOptions(!showAdvancedOptions)}
                   >
                     <span className="font-black uppercase tracking-widest text-[12px]">
@@ -1695,7 +1695,7 @@ const Settings: React.FC = () => {
 
                   {showAdvancedOptions && (
                     <div className="space-y-3">
-                      <div className="p-4 bg-lime-500/10 dark:bg-lime-500/20 rounded-xl">
+                      <div className="p-4 bg-primary/10 dark:bg-primary/20 rounded-xl">
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                           <Input
                             label={t.settings.modelConfig?.temperature || '温度'}
@@ -1759,7 +1759,7 @@ const Settings: React.FC = () => {
                         </div>
                       </div>
 
-                      <div className="p-4 bg-lime-500/10 dark:bg-lime-500/20 rounded-xl">
+                      <div className="p-4 bg-primary/10 dark:bg-primary/20 rounded-xl">
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                           <Input
                             label={t.settings.modelConfig?.costPer1KInput || '每1K输入成本'}
@@ -1943,7 +1943,7 @@ const Settings: React.FC = () => {
                 <CardHeader className="flex justify-between items-center">
                   <div className="flex items-center gap-3">
                     <div
-                      className={`p-2 rounded-lg ${type === 'video' ? 'bg-lime-500/10 text-lime-400' : 'bg-pink-500/10 text-pink-500'}`}
+                      className={`p-2 rounded-lg ${type === 'video' ? 'bg-primary/10 text-primary' : 'bg-pink-500/10 text-pink-500'}`}
                     >
                       <TypeIcon className="w-5 h-5" />
                     </div>
@@ -1994,7 +1994,7 @@ const Settings: React.FC = () => {
                                 );
                               }
                             }}
-                            className="w-4 h-4 rounded border-slate-300 dark:border-slate-600 text-lime-400 focus:ring-lime-500"
+                            className="w-4 h-4 rounded border-slate-300 dark:border-slate-600 text-primary focus:ring-lime-500"
                           />
                         </TableColumn>
                         <TableColumn width={80}>状态</TableColumn>
@@ -2013,7 +2013,7 @@ const Settings: React.FC = () => {
                                 type="checkbox"
                                 checked={selectedModelIds.includes(model.id)}
                                 onChange={() => toggleModelSelection(model.id)}
-                                className="w-4 h-4 rounded border-slate-300 dark:border-slate-600 text-lime-400 focus:ring-lime-500"
+                                className="w-4 h-4 rounded border-slate-300 dark:border-slate-600 text-primary focus:ring-lime-500"
                               />
                             </TableCell>
                             <TableCell>
@@ -2027,7 +2027,7 @@ const Settings: React.FC = () => {
                             <TableCell>
                               <div className="flex items-center gap-3">
                                 <div
-                                  className={`w-2 h-2 rounded-full ${model.type === 'video' ? 'bg-lime-500' : 'bg-pink-500'}`}
+                                  className={`w-2 h-2 rounded-full ${model.type === 'video' ? 'bg-primary' : 'bg-pink-500'}`}
                                 />
                                 <span className="font-black text-slate-900 dark:text-white uppercase tracking-tight">
                                   {model.name}
@@ -2221,7 +2221,7 @@ const Settings: React.FC = () => {
                 onClick={() => setActiveNav(item.id as any)}
                 className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 ${
                   isActive
-                    ? 'bg-lime-500 text-black shadow-lg'
+                    ? 'bg-primary text-black shadow-lg'
                     : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white'
                 }`}
               >

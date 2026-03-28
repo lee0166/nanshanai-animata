@@ -132,7 +132,7 @@ const Layout: React.FC<LayoutProps> = ({
                 <div className="flex items-center gap-3">
                   <Chip
                     variant="flat"
-                    className="h-9 px-4 rounded-xl font-black text-[10px] uppercase tracking-widest border-none bg-lime-500/10 text-lime-400 dark:bg-lime-500/20"
+                    className="h-9 px-4 rounded-xl font-black text-[10px] uppercase tracking-widest border-none bg-primary/10 text-primary dark:bg-primary/20"
                   >
                     {currentProject.name}
                   </Chip>
@@ -146,7 +146,7 @@ const Layout: React.FC<LayoutProps> = ({
                       tabList: 'bg-transparent p-0 gap-1',
                       tab: 'group h-9 px-4 rounded-lg transition-all duration-300',
                       tabContent:
-                        'font-bold text-[13px] uppercase tracking-wider text-slate-500 dark:text-slate-400 group-data-[selected=true]:text-lime-400 transition-colors duration-300',
+                        'font-bold text-[13px] uppercase tracking-wider text-slate-500 dark:text-slate-400 group-data-[selected=true]:text-primary transition-colors duration-300',
                     }}
                   >
                     {tabs.map(tab => (
@@ -154,7 +154,7 @@ const Layout: React.FC<LayoutProps> = ({
                         key={tab.id}
                         title={
                           <div className="flex items-center gap-2">
-                            <tab.icon className="w-4 h-4 transition-colors duration-300 group-data-[selected=true]:text-lime-400" />
+                            <tab.icon className="w-4 h-4 transition-colors duration-300 group-data-[selected=true]:text-primary" />
                             <span className="hidden lg:inline">{tab.label}</span>
                           </div>
                         }

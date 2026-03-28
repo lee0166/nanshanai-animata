@@ -162,7 +162,7 @@ const JobMonitor: React.FC = () => {
           <CardBody className="py-4 px-5 flex flex-row items-center justify-between pointer-events-none">
             <div className="flex items-center gap-3">
               <div
-                className={`p-2.5 rounded-full ${activeCount > 0 ? 'bg-lime-500/10 dark:bg-lime-500/20 text-lime-400' : 'bg-slate-100 dark:bg-slate-800 text-slate-500'}`}
+                className={`p-2.5 rounded-full ${activeCount > 0 ? 'bg-primary/10 dark:bg-primary/20 text-primary' : 'bg-slate-100 dark:bg-slate-800 text-slate-500'}`}
               >
                 {activeCount > 0 ? (
                   <Loader2 className="w-5 h-5 animate-spin" />
@@ -217,8 +217,8 @@ const JobMonitor: React.FC = () => {
     >
       <CardHeader className="px-5 py-4 flex justify-between items-center border-b border-slate-100 dark:border-slate-800/50">
         <div className="flex items-center gap-2">
-          <Activity className="w-5 h-5 text-lime-400" />
-          <span className="font-black text-sm uppercase tracking-widest text-lime-400">
+          <Activity className="w-5 h-5 text-primary" />
+          <span className="font-black text-sm uppercase tracking-widest text-primary">
             {t.jobs.queue} <span className="ml-1 opacity-50 text-slate-500">({jobs.length})</span>
           </span>
         </div>
@@ -252,7 +252,7 @@ const JobMonitor: React.FC = () => {
               className="p-4 bg-slate-50/50 dark:bg-slate-950/50 rounded-2xl border border-slate-100 dark:border-slate-800/50 hover:border-lime-500/30 transition-all group"
             >
               <div className="flex justify-between items-center mb-2">
-                <span className="font-black text-[10px] uppercase tracking-widest text-slate-500 group-hover:text-lime-400 transition-colors">
+                <span className="font-black text-[10px] uppercase tracking-widest text-slate-500 group-hover:text-primary transition-colors">
                   {t.jobTypes?.[job.type] || job.type}
                 </span>
 
@@ -270,7 +270,7 @@ const JobMonitor: React.FC = () => {
                   <Chip
                     size="sm"
                     variant="flat"
-                    className="h-6 text-[10px] font-black uppercase tracking-widest px-2 bg-lime-500/10 text-lime-400"
+                    className="h-6 text-[10px] font-black uppercase tracking-widest px-2 bg-primary/10 text-primary"
                   >
                     {t.jobs.processing}
                   </Chip>

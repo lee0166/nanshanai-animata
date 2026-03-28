@@ -153,8 +153,8 @@ export const ImageGenerationPanel: React.FC<ImageGenerationPanelProps> = ({
         <label
           className={
             compact
-              ? 'text-[10px] font-semibold text-lime-400 uppercase tracking-wide'
-              : 'text-lime-400 font-bold text-base ml-1'
+              ? 'text-[10px] font-semibold text-primary uppercase tracking-wide'
+              : 'text-primary font-bold text-base ml-1'
           }
         >
           {compact ? '模型' : t.project.modelLabel}
@@ -175,7 +175,7 @@ export const ImageGenerationPanel: React.FC<ImageGenerationPanelProps> = ({
                 }
               : {
                   value: 'font-bold text-sm',
-                  trigger: 'border border-zinc-700 data-[focus=true]:border-lime-500 bg-zinc-900/50',
+                  trigger: 'border border-zinc-700 data-[focus=true]:border-primary bg-zinc-900/50',
                 }
           }
         >
@@ -224,7 +224,7 @@ export const ImageGenerationPanel: React.FC<ImageGenerationPanelProps> = ({
       {/* Prompt */}
       {showPrompt && (
         <div className="flex flex-col gap-2">
-          <label className="text-lime-400 font-bold text-base ml-1">{t.common.prompt}</label>
+          <label className="text-primary font-bold text-base ml-1">{t.common.prompt}</label>
           <Textarea
             placeholder={t.project.promptPlaceholder}
             value={prompt}
@@ -236,7 +236,7 @@ export const ImageGenerationPanel: React.FC<ImageGenerationPanelProps> = ({
             isDisabled={generating}
             classNames={{
               input: 'font-medium text-sm',
-              inputWrapper: 'border border-zinc-700 group-data-[focus=true]:border-lime-500 bg-zinc-900/50',
+              inputWrapper: 'border border-zinc-700 group-data-[focus=true]:border-primary bg-zinc-900/50',
             }}
           />
         </div>
@@ -245,7 +245,7 @@ export const ImageGenerationPanel: React.FC<ImageGenerationPanelProps> = ({
       {/* Reference Images */}
       {showReferenceImages && !compact && (
         <div className="space-y-2">
-          <label className="text-lime-400 font-bold text-base ml-1">参考图</label>
+          <label className="text-primary font-bold text-base ml-1">参考图</label>
           {referenceImages.length > 0 ? (
             <div className="flex flex-wrap gap-2">
               {referenceImages.map((path, index) => (
@@ -291,7 +291,7 @@ export const ImageGenerationPanel: React.FC<ImageGenerationPanelProps> = ({
       {/* Params Grid */}
       {!compact && (
         <div className="flex flex-col gap-2">
-          <label className="text-sm font-black text-lime-400 uppercase tracking-widest mb-2">
+          <label className="text-sm font-black text-primary uppercase tracking-widest mb-2">
             {t.aiParams.modelParams}
           </label>
         </div>

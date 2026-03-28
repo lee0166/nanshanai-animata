@@ -959,8 +959,8 @@ const ItemDetail: React.FC<ItemDetailProps> = ({ asset, onUpdate, projectId }) =
       <div className="w-[300px] bg-content1 border border-content3 rounded-xl flex flex-col overflow-hidden">
         <div className="p-3 border-b border-content3">
           <div className="flex items-center gap-3 mb-3">
-            <div className="w-9 h-9 bg-lime-500/10 rounded-xl flex items-center justify-center">
-              <Box className="w-5 h-5 text-lime-400" />
+            <div className="w-9 h-9 bg-primary/10 rounded-xl flex items-center justify-center">
+              <Box className="w-5 h-5 text-primary" />
             </div>
             <div className="flex-1 min-w-0">
               <h3 className="font-bold text-sm text-foreground truncate">{asset.name}</h3>
@@ -977,7 +977,7 @@ const ItemDetail: React.FC<ItemDetailProps> = ({ asset, onUpdate, projectId }) =
                   onClick={() => setActiveTab(tab.id)}
                   className={`flex-1 py-2.5 px-3 rounded-xl text-xs font-medium transition-all flex items-center justify-center gap-1 ${
                     isActive
-                      ? 'bg-lime-500 text-black'
+                      ? 'bg-primary text-black'
                       : 'bg-content2 text-zinc-500 hover:bg-content3'
                   }`}
                 >
@@ -1220,7 +1220,7 @@ const ItemDetail: React.FC<ItemDetailProps> = ({ asset, onUpdate, projectId }) =
             <CardBody className="p-4">
               <div className="flex items-center justify-between mb-4">
                 <h4 className="font-semibold text-sm text-foreground flex items-center gap-2">
-                  <Camera className="w-4 h-4 text-lime-400" />
+                  <Camera className="w-4 h-4 text-primary" />
                   {activeTab === 'single' ? '图片资产预览区' : '多视角图预览'}
                 </h4>
 
@@ -1338,7 +1338,7 @@ const ItemDetail: React.FC<ItemDetailProps> = ({ asset, onUpdate, projectId }) =
             <CardBody className="p-3 h-full flex flex-col">
               <div className="flex items-center justify-between mb-2">
                 <h4 className="font-semibold text-sm text-foreground flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-lime-400" />
+                  <CheckCircle2 className="w-4 h-4 text-primary" />
                   定稿预览区
                 </h4>
               </div>
@@ -1416,8 +1416,8 @@ const ItemDetail: React.FC<ItemDetailProps> = ({ asset, onUpdate, projectId }) =
           <CardBody className="p-4 flex flex-col h-full overflow-hidden">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 bg-lime-500/10 rounded-xl flex items-center justify-center">
-                  <FileText className="w-5 h-5 text-lime-400" />
+                <div className="w-9 h-9 bg-primary/10 rounded-xl flex items-center justify-center">
+                  <FileText className="w-5 h-5 text-primary" />
                 </div>
                 <h4 className="font-semibold text-sm text-foreground">生成提示词</h4>
               </div>
@@ -1561,8 +1561,8 @@ const ItemDetail: React.FC<ItemDetailProps> = ({ asset, onUpdate, projectId }) =
         >
           <CardBody className="p-4 flex flex-col h-full overflow-hidden">
             <div className="flex items-center gap-3 mb-4">
-              <div className="w-9 h-9 bg-lime-500/10 rounded-xl flex items-center justify-center">
-                <Music className="w-5 h-5 text-lime-400" />
+              <div className="w-9 h-9 bg-primary/10 rounded-xl flex items-center justify-center">
+                <Music className="w-5 h-5 text-primary" />
               </div>
               <h4 className="font-semibold text-sm text-foreground">物品音效生成功能面板</h4>
             </div>

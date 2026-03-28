@@ -867,11 +867,11 @@ const FragmentDetail: FC<FragmentDetailProps> = ({ asset, onUpdate, projectId })
       {/* Left: Configuration Form */}
       <Card className="w-1/3 min-w-[350px] h-full flex flex-col overflow-hidden">
         <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-4">
-          <h3 className="text-lg font-bold text-lime-400">{t.project.fragment.configuration}</h3>
+          <h3 className="text-lg font-bold text-primary">{t.project.fragment.configuration}</h3>
 
           {/* 0. Name */}
           <div className="flex flex-col gap-2">
-            <label className="text-lime-400 font-bold text-base ml-1">{t.project.videoName}</label>
+            <label className="text-primary font-bold text-base ml-1">{t.project.videoName}</label>
             <Input
               placeholder={t.project.videoName}
               value={videoName}
@@ -881,14 +881,14 @@ const FragmentDetail: FC<FragmentDetailProps> = ({ asset, onUpdate, projectId })
               onValueChange={setVideoName}
               classNames={{
                 input: 'font-bold text-sm',
-                inputWrapper: 'border-2 group-data-[focus=true]:border-lime-500',
+                inputWrapper: 'border-2 group-data-[focus=true]:border-primary',
               }}
             />
           </div>
 
           {/* 1. Model Selection */}
           <div className="flex flex-col gap-2">
-            <label className="text-lime-400 font-bold text-base ml-1">
+            <label className="text-primary font-bold text-base ml-1">
               {t.project.modelLabel}
             </label>
             <Select
@@ -901,7 +901,7 @@ const FragmentDetail: FC<FragmentDetailProps> = ({ asset, onUpdate, projectId })
               aria-label={t.project.modelLabel}
               classNames={{
                 value: 'font-bold text-sm',
-                trigger: 'border-2 data-[focus=true]:border-lime-500',
+                trigger: 'border-2 data-[focus=true]:border-primary',
               }}
             >
               {allVideoModels.map(model => (
@@ -914,7 +914,7 @@ const FragmentDetail: FC<FragmentDetailProps> = ({ asset, onUpdate, projectId })
 
           {/* 2. Generation Type */}
           <div className="flex flex-col gap-2">
-            <span className="text-sm font-semibold text-lime-400">{t.project.fragment.generationType}</span>
+            <span className="text-sm font-semibold text-primary">{t.project.fragment.generationType}</span>
             <Tabs
               selectedKey={generationType}
               onSelectionChange={k => setGenerationType(k as any)}
@@ -930,7 +930,7 @@ const FragmentDetail: FC<FragmentDetailProps> = ({ asset, onUpdate, projectId })
 
           {/* 3. Resource Selection */}
           <div className="flex flex-col gap-3 border-y py-4 border-slate-200 dark:border-slate-800">
-            <span className="text-sm font-semibold text-lime-400">{t.project.fragment.resources}</span>
+            <span className="text-sm font-semibold text-primary">{t.project.fragment.resources}</span>
 
             {/* @ts-ignore - HeroUI Accordion type mismatch */}
             <Accordion
@@ -950,7 +950,7 @@ const FragmentDetail: FC<FragmentDetailProps> = ({ asset, onUpdate, projectId })
                     return (
                       <div
                         key={c.id}
-                        className={`relative group cursor-pointer border rounded-lg overflow-hidden transition-all ${isSelected ? 'border-lime-500 ring-2 ring-lime-500 ring-offset-1' : 'border-default-200 hover:border-default-400'}`}
+                        className={`relative group cursor-pointer border rounded-lg overflow-hidden transition-all ${isSelected ? 'border-primary ring-2 ring-primary ring-offset-1' : 'border-default-200 hover:border-default-400'}`}
                         onClick={() => {
                           const newSet = new Set(selectedCharacters);
                           if (newSet.has(c.id)) newSet.delete(c.id);
@@ -976,8 +976,8 @@ const FragmentDetail: FC<FragmentDetailProps> = ({ asset, onUpdate, projectId })
                           {c.name}
                         </div>
                         {isSelected && (
-                          <div className="absolute top-1 left-1 text-lime-500 bg-white rounded-full z-20 shadow-sm">
-                            <CheckCircle2 size={16} className="text-lime-500 fill-white" />
+                          <div className="absolute top-1 left-1 text-primary bg-white rounded-full z-20 shadow-sm">
+                            <CheckCircle2 size={16} className="text-primary fill-white" />
                           </div>
                         )}
                         <div className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity z-20">
@@ -1014,7 +1014,7 @@ const FragmentDetail: FC<FragmentDetailProps> = ({ asset, onUpdate, projectId })
                     return (
                       <div
                         key={i.id}
-                        className={`relative group cursor-pointer border rounded-lg overflow-hidden transition-all ${isSelected ? 'border-lime-500 ring-2 ring-lime-500 ring-offset-1' : 'border-default-200 hover:border-default-400'}`}
+                        className={`relative group cursor-pointer border rounded-lg overflow-hidden transition-all ${isSelected ? 'border-primary ring-2 ring-primary ring-offset-1' : 'border-default-200 hover:border-default-400'}`}
                         onClick={() => {
                           const newSet = new Set(selectedItems);
                           if (newSet.has(i.id)) newSet.delete(i.id);
@@ -1040,8 +1040,8 @@ const FragmentDetail: FC<FragmentDetailProps> = ({ asset, onUpdate, projectId })
                           {i.name}
                         </div>
                         {isSelected && (
-                          <div className="absolute top-1 left-1 text-lime-500 bg-white rounded-full z-20 shadow-sm">
-                            <CheckCircle2 size={16} className="text-lime-500 fill-white" />
+                          <div className="absolute top-1 left-1 text-primary bg-white rounded-full z-20 shadow-sm">
+                            <CheckCircle2 size={16} className="text-primary fill-white" />
                           </div>
                         )}
                         <div className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity z-20">
@@ -1078,7 +1078,7 @@ const FragmentDetail: FC<FragmentDetailProps> = ({ asset, onUpdate, projectId })
                     return (
                       <div
                         key={s.id}
-                        className={`relative group cursor-pointer border rounded-lg overflow-hidden transition-all ${isSelected ? 'border-lime-500 ring-2 ring-lime-500 ring-offset-1' : 'border-default-200 hover:border-default-400'}`}
+                        className={`relative group cursor-pointer border rounded-lg overflow-hidden transition-all ${isSelected ? 'border-primary ring-2 ring-primary ring-offset-1' : 'border-default-200 hover:border-default-400'}`}
                         onClick={() => setSelectedScene(isSelected ? '' : s.id)}
                       >
                         <div className="aspect-square w-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center overflow-hidden">
@@ -1099,8 +1099,8 @@ const FragmentDetail: FC<FragmentDetailProps> = ({ asset, onUpdate, projectId })
                           {s.name}
                         </div>
                         {isSelected && (
-                          <div className="absolute top-1 left-1 text-lime-500 bg-white rounded-full z-20 shadow-sm">
-                            <CheckCircle2 size={16} className="text-lime-500 fill-white" />
+                          <div className="absolute top-1 left-1 text-primary bg-white rounded-full z-20 shadow-sm">
+                            <CheckCircle2 size={16} className="text-primary fill-white" />
                           </div>
                         )}
                         <div className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity z-20">
@@ -1137,7 +1137,7 @@ const FragmentDetail: FC<FragmentDetailProps> = ({ asset, onUpdate, projectId })
                     return (
                       <div
                         key={e.id}
-                        className={`relative group cursor-pointer border rounded-lg overflow-hidden transition-all ${isSelected ? 'border-lime-500 ring-2 ring-lime-500 ring-offset-1' : 'border-default-200 hover:border-default-400'}`}
+                        className={`relative group cursor-pointer border rounded-lg overflow-hidden transition-all ${isSelected ? 'border-primary ring-2 ring-primary ring-offset-1' : 'border-default-200 hover:border-default-400'}`}
                         onClick={() => {
                           const newSet = new Set(selectedEffects);
                           if (newSet.has(e.id)) newSet.delete(e.id);
@@ -1163,8 +1163,8 @@ const FragmentDetail: FC<FragmentDetailProps> = ({ asset, onUpdate, projectId })
                           {e.name}
                         </div>
                         {isSelected && (
-                          <div className="absolute top-1 left-1 text-lime-500 bg-white rounded-full z-20 shadow-sm">
-                            <CheckCircle2 size={16} className="text-lime-500 fill-white" />
+                          <div className="absolute top-1 left-1 text-primary bg-white rounded-full z-20 shadow-sm">
+                            <CheckCircle2 size={16} className="text-primary fill-white" />
                           </div>
                         )}
                         <div className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity z-20">
@@ -1201,7 +1201,7 @@ const FragmentDetail: FC<FragmentDetailProps> = ({ asset, onUpdate, projectId })
                     return (
                       <div
                         key={r.id}
-                        className={`relative group cursor-pointer border rounded-lg overflow-hidden transition-all ${isSelected ? 'border-lime-500 ring-2 ring-lime-500 ring-offset-1' : 'border-default-200 hover:border-default-400'}`}
+                        className={`relative group cursor-pointer border rounded-lg overflow-hidden transition-all ${isSelected ? 'border-primary ring-2 ring-primary ring-offset-1' : 'border-default-200 hover:border-default-400'}`}
                         onClick={() => {
                           const newSet = new Set(selectedRefs);
                           if (newSet.has(r.id)) newSet.delete(r.id);
@@ -1227,8 +1227,8 @@ const FragmentDetail: FC<FragmentDetailProps> = ({ asset, onUpdate, projectId })
                           {r.name}
                         </div>
                         {isSelected && (
-                          <div className="absolute top-1 left-1 text-lime-500 bg-white rounded-full z-20 shadow-sm">
-                            <CheckCircle2 size={16} className="text-lime-500 fill-white" />
+                          <div className="absolute top-1 left-1 text-primary bg-white rounded-full z-20 shadow-sm">
+                            <CheckCircle2 size={16} className="text-primary fill-white" />
                           </div>
                         )}
                         <div className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity z-20">
@@ -1260,7 +1260,7 @@ const FragmentDetail: FC<FragmentDetailProps> = ({ asset, onUpdate, projectId })
             <div className="flex gap-2">
               {/* Start Frame - Always Visible */}
               <div className="w-1/2 flex flex-col gap-2">
-                <span className="text-xs font-bold block text-lime-400">{t.project.fragment.startImage}</span>
+                <span className="text-xs font-bold block text-primary">{t.project.fragment.startImage}</span>
                 <div className="aspect-video bg-slate-100 dark:bg-slate-800 rounded-lg flex items-center justify-center relative group overflow-hidden border-2 border-dashed border-slate-300 dark:border-slate-700">
                   {startImage ? (
                     urlCache[startImage] ? (
@@ -1347,7 +1347,7 @@ const FragmentDetail: FC<FragmentDetailProps> = ({ asset, onUpdate, projectId })
               {/* End Frame - Based on model capabilities */}
               {modelConfig?.capabilities?.supportsEndFrame && (
                 <div className="w-1/2 flex flex-col gap-2">
-                  <span className="text-xs font-bold block text-lime-400">{t.project.fragment.endImage}</span>
+                  <span className="text-xs font-bold block text-primary">{t.project.fragment.endImage}</span>
                   <div className="aspect-video bg-slate-100 dark:bg-slate-800 rounded-lg flex items-center justify-center relative group overflow-hidden border-2 border-dashed border-slate-300 dark:border-slate-700">
                     {endImage ? (
                       urlCache[endImage] ? (
@@ -1435,7 +1435,7 @@ const FragmentDetail: FC<FragmentDetailProps> = ({ asset, onUpdate, projectId })
 
           {/* 5. Prompt */}
           <div className="flex flex-col gap-2">
-            <label className="text-lime-400 font-bold text-base ml-1">{t.common.prompt}</label>
+            <label className="text-primary font-bold text-base ml-1">{t.common.prompt}</label>
             <Textarea
               value={prompt}
               onValueChange={setPrompt}
@@ -1446,7 +1446,7 @@ const FragmentDetail: FC<FragmentDetailProps> = ({ asset, onUpdate, projectId })
               aria-label={t.common.prompt}
               classNames={{
                 input: 'font-bold text-sm',
-                inputWrapper: 'border-2 group-data-[focus=true]:border-lime-500',
+                inputWrapper: 'border-2 group-data-[focus=true]:border-primary',
               }}
             />
           </div>
@@ -1455,7 +1455,7 @@ const FragmentDetail: FC<FragmentDetailProps> = ({ asset, onUpdate, projectId })
           <StyleSelector value={style} onChange={setStyle} />
 
           <div className="flex flex-col gap-2">
-            <label className="text-lime-400 font-bold text-base ml-1">
+            <label className="text-primary font-bold text-base ml-1">
               {t.aiParams.modelParams}
             </label>
 
@@ -1530,7 +1530,7 @@ const FragmentDetail: FC<FragmentDetailProps> = ({ asset, onUpdate, projectId })
               <Card
                 key={video.id}
                 isPressable={false}
-                className="relative group aspect-video bg-black overflow-hidden border-2 border-transparent hover:border-lime-500/50 transition-colors cursor-pointer"
+                className="relative group aspect-video bg-black overflow-hidden border-2 border-transparent hover:border-primary/50 transition-colors cursor-pointer"
                 onClick={() => handleSyncParams(video)}
               >
                 {video.path ? (

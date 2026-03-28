@@ -38,7 +38,7 @@ const FragmentSidebar: React.FC<FragmentSidebarProps> = ({
   return (
     <div className="h-full flex flex-col bg-white dark:bg-slate-900 border-l border-slate-200 dark:border-slate-800 w-[300px]">
       <div className="p-4 border-b border-slate-200 dark:border-slate-800">
-        <h3 className="text-lg font-black text-lime-400 mb-4">
+        <h3 className="text-lg font-black text-primary mb-4">
           {t.project.fragmentList}
         </h3>
         <Input
@@ -51,7 +51,7 @@ const FragmentSidebar: React.FC<FragmentSidebarProps> = ({
           radius="lg"
           aria-label={t.common?.search || 'Search'}
           classNames={{
-            inputWrapper: 'bg-slate-50 dark:bg-slate-950 border-2 group-data-[focus=true]:border-lime-500',
+            inputWrapper: 'bg-slate-50 dark:bg-slate-950 border-2 group-data-[focus=true]:border-primary',
           }}
         />
       </div>
@@ -66,12 +66,12 @@ const FragmentSidebar: React.FC<FragmentSidebarProps> = ({
                 onClick={() => onSelect(frag)}
                 className={`group flex flex-col gap-1 p-3 rounded-xl cursor-pointer transition-all border ${
                   isSelected
-                    ? 'bg-lime-500/10 dark:bg-slate-800 border-lime-500 shadow-sm'
-                    : 'bg-slate-50 dark:bg-slate-800/30 border-transparent hover:bg-slate-100 dark:hover:bg-slate-800/60 hover:border-lime-500/50'
+                    ? 'bg-primary/10 dark:bg-slate-800 border-primary shadow-sm'
+                    : 'bg-slate-50 dark:bg-slate-800/30 border-transparent hover:bg-slate-100 dark:hover:bg-slate-800/60 hover:border-primary/50'
                 }`}
               >
                 <div
-                  className={`font-bold text-base truncate ${isSelected ? 'text-lime-400' : 'text-slate-900 dark:text-white'}`}
+                  className={`font-bold text-base truncate ${isSelected ? 'text-primary' : 'text-slate-900 dark:text-white'}`}
                 >
                   {frag.name}
                 </div>

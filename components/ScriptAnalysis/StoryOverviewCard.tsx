@@ -27,8 +27,8 @@ export const StoryOverviewCard: React.FC<StoryOverviewCardProps> = ({ metadata, 
   return (
     <Card className="w-full">
       <CardHeader className="flex items-center gap-3 pb-2">
-        <div className="p-2 bg-lime-500/10 rounded-lg">
-          <BookOpen className="w-5 h-5 text-lime-400" />
+        <div className="p-2 bg-primary/10 rounded-lg">
+          <BookOpen className="w-5 h-5 text-primary" />
         </div>
         <div>
           <h3 className="text-lg font-bold">故事概览</h3>
@@ -40,7 +40,7 @@ export const StoryOverviewCard: React.FC<StoryOverviewCardProps> = ({ metadata, 
         {/* 一句话简介 */}
         {logline && (
           <div className="bg-content2 rounded-lg p-4">
-            <div className="flex items-center gap-2 text-lime-400 mb-2">
+            <div className="flex items-center gap-2 text-primary mb-2">
               <Quote className="w-4 h-4" />
               <span className="text-sm font-medium">一句话简介</span>
             </div>
@@ -100,7 +100,7 @@ export const StoryOverviewCard: React.FC<StoryOverviewCardProps> = ({ metadata, 
         <div className="flex flex-wrap gap-2">
           {genre && (
             <Tooltip content="剧本类型/题材">
-              <Chip size="sm" variant="flat" className="bg-lime-500/20 text-lime-400">
+              <Chip size="sm" variant="flat" className="bg-primary/20 text-primary">
                 {genre}
               </Chip>
             </Tooltip>

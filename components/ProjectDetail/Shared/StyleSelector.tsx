@@ -37,7 +37,7 @@ export const StyleSelector: React.FC<StyleSelectorProps> = ({
               key={key}
               className={`
                 relative cursor-pointer group rounded-md overflow-hidden border-2 transition-all
-                ${isSelected ? 'border-lime-500' : 'border-zinc-700 hover:border-zinc-600 hover:opacity-80'}
+                ${isSelected ? 'border-primary' : 'border-zinc-700 hover:border-zinc-600 hover:opacity-80'}
                 ${disabled ? 'opacity-50 cursor-not-allowed' : ''}
               `}
               onClick={() => !disabled && onChange(isSelected ? '' : key)}
@@ -52,7 +52,7 @@ export const StyleSelector: React.FC<StyleSelectorProps> = ({
                 <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors" />
 
                 {isSelected && (
-                  <div className="absolute top-0.5 right-0.5 bg-lime-500 rounded-full z-10 shadow-sm">
+                  <div className="absolute top-0.5 right-0.5 bg-primary rounded-full z-10 shadow-sm">
                     <CheckCircle2 size={12} fill="currentColor" className="text-black" />
                   </div>
                 )}
