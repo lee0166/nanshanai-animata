@@ -20,7 +20,7 @@ interface EmotionalArcChartProps {
 }
 
 /**
- * 获取情绪颜色 - 使用高饱和度颜色，对比度更强
+ * 获取情绪颜色 - 使用 HeroUI 主题色
  */
 const getEmotionColor = (emotion: string): string => {
   const lowerEmotion = emotion.toLowerCase();
@@ -31,7 +31,7 @@ const getEmotionColor = (emotion: string): string => {
     lowerEmotion.includes('兴奋') ||
     lowerEmotion.includes('甜蜜')
   ) {
-    return '#22c55e'; // 绿色-高饱和
+    return 'var(--heroui-colors-success)'; // 成功色（绿色）
   }
   if (
     lowerEmotion.includes('悲伤') ||
@@ -39,7 +39,7 @@ const getEmotionColor = (emotion: string): string => {
     lowerEmotion.includes('绝望') ||
     lowerEmotion.includes('失落')
   ) {
-    return '#3b82f6'; // 蓝色-高饱和
+    return 'var(--heroui-colors-secondary)'; // 次级色（蓝色）
   }
   if (
     lowerEmotion.includes('紧张') ||
@@ -47,20 +47,20 @@ const getEmotionColor = (emotion: string): string => {
     lowerEmotion.includes('冲突') ||
     lowerEmotion.includes('焦虑')
   ) {
-    return '#ef4444'; // 红色-高饱和
+    return 'var(--heroui-colors-danger)'; // 危险色（红色）
   }
   if (
     lowerEmotion.includes('平静') ||
     lowerEmotion.includes('安宁') ||
     lowerEmotion.includes('温馨')
   ) {
-    return '#06b6d4'; // 青色-高饱和
+    return 'var(--heroui-colors-primary)'; // 主色（酸橙绿）
   }
   if (lowerEmotion.includes('浪漫') || lowerEmotion.includes('温暖')) {
-    return '#f97316'; // 橙色-高饱和
+    return 'var(--heroui-colors-warning)'; // 警告色（橙色）
   }
 
-  return '#8b5cf6'; // 紫色
+  return 'var(--heroui-colors-default)'; // 默认色
 };
 
 /**
@@ -156,10 +156,10 @@ export const EmotionalArcChart: React.FC<EmotionalArcChartProps> = ({
             preserveAspectRatio="xMidYMid meet"
           >
             <defs>
-              {/* 渐变填充 - 更清晰 */}
+              {/* 渐变填充 - 使用 CSS 变量 */}
               <linearGradient id="emotionFillGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                <stop offset="0%" stopColor="#84CC16" stopOpacity="0.5" />
-                <stop offset="100%" stopColor="#84CC16" stopOpacity="0.15" />
+                <stop offset="0%" stopColor="var(--heroui-colors-primary)" stopOpacity="0.5" />
+                <stop offset="100%" stopColor="var(--heroui-colors-primary)" stopOpacity="0.15" />
               </linearGradient>
             </defs>
 
@@ -250,7 +250,7 @@ export const EmotionalArcChart: React.FC<EmotionalArcChartProps> = ({
             <path
               d={generatePath()}
               fill="none"
-              stroke="#84CC16"
+              stroke="var(--heroui-colors-primary)"
               strokeWidth="3"
               strokeLinecap="round"
               strokeLinejoin="round"
