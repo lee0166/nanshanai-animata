@@ -141,10 +141,10 @@ const ShotItem: React.FC<ShotItemProps> = React.memo(
         <motion.div
           className={`flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-all duration-200 ${
             isActive
-              ? 'bg-slate-200 dark:bg-slate-800 border border-orange-500'
+              ? 'bg-content2 border border-primary'
               : isSelected
-                ? 'bg-slate-200/50 dark:bg-slate-800/50 border border-orange-500/50'
-                : 'hover:bg-slate-200/30 dark:hover:bg-slate-800/30 border border-transparent'
+                ? 'bg-content2/50 border border-primary/50'
+                : 'hover:bg-content2/30 border border-transparent'
           }`}
           onClick={() => onSelect(shot)}
           whileHover={{ scale: 1.01 }}
@@ -158,29 +158,29 @@ const ShotItem: React.FC<ShotItemProps> = React.memo(
                 e.stopPropagation();
                 onToggleSelection(shot.id);
               }}
-              className="text-orange-500 border-orange-500"
+              className="text-primary border-primary"
             />
           )}
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2">
-              <span className="text-xs font-mono font-bold text-orange-500">
+              <span className="text-xs font-mono font-bold text-primary">
                 {shot.shotNumber || shot.sequence}
               </span>
-              <span className="text-xs font-medium text-slate-700 dark:text-slate-300 truncate">
+              <span className="text-xs font-medium text-foreground truncate">
                 {shot.sceneName}
               </span>
             </div>
-            <div className="text-xs text-slate-600 dark:text-slate-400 mt-1 truncate">
+            <div className="text-xs text-slate-400 mt-1 truncate">
               {shot.description}
             </div>
             <div className="flex items-center gap-2 mt-1">
-              <span className="text-xs text-slate-600 dark:text-slate-500">{shot.duration}s</span>
+              <span className="text-xs text-slate-400">{shot.duration}s</span>
               {hasKeyframes ? (
-                <span className="text-xs text-green-600 dark:text-green-400">
+                <span className="text-xs text-success">
                   ✓ {shot.keyframes.length}关键帧
                 </span>
               ) : (
-                <span className="text-xs text-slate-600 dark:text-slate-500">○ 未拆分</span>
+                <span className="text-xs text-slate-400">○ 未拆分</span>
               )}
             </div>
           </div>
@@ -190,7 +190,7 @@ const ShotItem: React.FC<ShotItemProps> = React.memo(
               variant="ghost"
               onClick={handleToggleExpand}
               aria-label={expanded ? '收起关键帧' : '展开关键帧'}
-              className="text-slate-400 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-slate-800 rounded-lg p-1 w-6 h-6 transition-all duration-200 flex items-center justify-center"
+              className="text-slate-400 hover:text-foreground hover:bg-content2 rounded-lg p-1 w-6 h-6 transition-all duration-200 flex items-center justify-center"
             >
               <ChevronDown
                 size={16}
@@ -224,13 +224,13 @@ const ShotItem: React.FC<ShotItemProps> = React.memo(
                   transition={{ duration: 0.2, delay: index * 0.05 }}
                   className={`p-2 rounded-md border transition-all duration-200 ${
                     isActive && selectedKeyframeIndex === index
-                      ? 'border-orange-500 bg-slate-200/50 dark:bg-slate-800/50'
-                      : 'border-slate-300 dark:border-slate-700 hover:border-slate-400 dark:hover:border-slate-600'
+                      ? 'border-primary bg-content2/50'
+                      : 'border-content3 hover:border-content4'
                   }`}
                   onClick={() => onSelectKeyframe(shot.id, index)}
                 >
                   <div className="flex items-center gap-3">
-                    <div className="w-12 h-8 rounded overflow-hidden bg-slate-200 dark:bg-slate-800 flex items-center justify-center">
+                    <div className="w-12 h-8 rounded overflow-hidden bg-content2 flex items-center justify-center">
                       {imageUrl ? (
                         <img
                           src={imageUrl}
@@ -239,22 +239,22 @@ const ShotItem: React.FC<ShotItemProps> = React.memo(
                         />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center">
-                          <Camera size={16} className="text-slate-600" />
+                          <Camera size={16} className="text-slate-400" />
                         </div>
                       )}
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
-                        <span className="text-xs font-mono font-bold text-orange-500">
+                        <span className="text-xs font-mono font-bold text-primary">
                           {shot.shotNumber || shot.sequence}-{keyframe.sequence}
                         </span>
                         <span
                           className={`text-xs px-1 py-0.5 rounded ${
                             keyframe.frameType === 'start'
-                              ? 'bg-green-500/20 text-green-600 dark:text-green-400'
+                              ? 'bg-success/20 text-success'
                               : keyframe.frameType === 'end'
-                                ? 'bg-blue-500/20 text-blue-600 dark:text-blue-400'
-                                : 'bg-slate-500/20 text-slate-600 dark:text-slate-400'
+                                ? 'bg-primary/20 text-primary'
+                                : 'bg-slate-500/20 text-slate-400'
                           }`}
                         >
                           {keyframe.frameType === 'start'
@@ -264,7 +264,7 @@ const ShotItem: React.FC<ShotItemProps> = React.memo(
                               : '中间'}
                         </span>
                       </div>
-                      <div className="text-xs text-slate-600 dark:text-slate-400 mt-0.5 truncate">
+                      <div className="text-xs text-slate-400 mt-0.5 truncate">
                         {keyframe.description || keyframe.prompt?.substring(0, 20) + '...'}
                       </div>
                     </div>
@@ -328,7 +328,7 @@ const HistoryItem: React.FC<HistoryItemProps> = React.memo(
     return (
       <div
         className={`relative w-16 h-12 rounded-md overflow-hidden cursor-pointer border-2 transition-all duration-200 ${
-          isActive ? 'border-orange-500' : 'border-transparent hover:border-slate-600'
+          isActive ? 'border-primary' : 'border-transparent hover:border-slate-600'
         }`}
         onClick={() => onSelect(image.id)}
       >
@@ -434,19 +434,19 @@ interface CharacterItemProps {
 const CharacterItem: React.FC<CharacterItemProps> = React.memo(
   ({ character, characterAsset, imageUrl }) => {
     return (
-      <div className="flex items-center gap-3 p-3 bg-slate-200 dark:bg-slate-800 rounded-lg border border-slate-300 dark:border-slate-700">
-        <div className="w-9 h-9 rounded-full bg-slate-300 dark:bg-slate-700 overflow-hidden">
+      <div className="flex items-center gap-3 p-3 bg-content2 rounded-lg border border-content3">
+        <div className="w-9 h-9 rounded-full bg-content3 overflow-hidden">
           {imageUrl ? (
             <img src={imageUrl} alt={character} className="w-full h-full object-cover" />
           ) : (
-            <div className="w-full h-full bg-slate-300 dark:bg-slate-700 flex items-center justify-center">
-              <Users size={18} className="text-slate-600 dark:text-slate-400" />
+            <div className="w-full h-full bg-content3 flex items-center justify-center">
+              <Users size={18} className="text-slate-400" />
             </div>
           )}
         </div>
         <div className="flex-1">
-          <div className="text-sm font-medium text-slate-900 dark:text-white">{character}</div>
-          <div className="text-xs text-slate-600 dark:text-slate-400">
+          <div className="text-sm font-medium text-foreground">{character}</div>
+          <div className="text-xs text-slate-400">
             {characterAsset?.description || '角色'}
           </div>
         </div>
@@ -463,9 +463,9 @@ interface VisualDescriptionProps {
 const VisualDescription: React.FC<VisualDescriptionProps> = React.memo(({ visualDescription }) => {
   if (!visualDescription) {
     return (
-      <div className="bg-slate-50 dark:bg-slate-800 rounded-lg p-4 border border-slate-200 dark:border-slate-700">
-        <h5 className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-3">视觉描述</h5>
-        <div className="p-3 bg-slate-100 dark:bg-slate-700 rounded text-slate-500 dark:text-slate-400">
+      <div className="bg-content2 rounded-lg p-4 border border-content3">
+        <h5 className="text-sm font-medium text-foreground mb-3">视觉描述</h5>
+        <div className="p-3 bg-content1 rounded text-slate-400">
           无详细视觉描述信息
         </div>
       </div>
@@ -473,32 +473,32 @@ const VisualDescription: React.FC<VisualDescriptionProps> = React.memo(({ visual
   }
 
   return (
-    <div className="bg-slate-50 dark:bg-slate-800 rounded-lg p-4 border border-slate-200 dark:border-slate-700">
-      <h5 className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-4">视觉描述</h5>
+    <div className="bg-content2 rounded-lg p-4 border border-content3">
+      <h5 className="text-sm font-medium text-foreground mb-4">视觉描述</h5>
 
       <div className="space-y-4">
         {visualDescription.composition && (
-          <div className="p-3 bg-slate-100 dark:bg-slate-700 rounded">
-            <div className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">构图</div>
-            <div className="text-sm text-slate-900 dark:text-slate-300">
+          <div className="p-3 bg-content1 rounded">
+            <div className="text-sm font-medium text-foreground mb-1">构图</div>
+            <div className="text-sm text-foreground">
               {visualDescription.composition}
             </div>
           </div>
         )}
 
         {visualDescription.lighting && (
-          <div className="p-3 bg-slate-100 dark:bg-slate-700 rounded">
-            <div className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">光影</div>
-            <div className="text-sm text-slate-900 dark:text-slate-300">
+          <div className="p-3 bg-content1 rounded">
+            <div className="text-sm font-medium text-foreground mb-1">光影</div>
+            <div className="text-sm text-foreground">
               {visualDescription.lighting}
             </div>
           </div>
         )}
 
         {visualDescription.colorPalette && (
-          <div className="p-3 bg-slate-100 dark:bg-slate-700 rounded">
-            <div className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">色调</div>
-            <div className="text-sm text-slate-900 dark:text-slate-300">
+          <div className="p-3 bg-content1 rounded">
+            <div className="text-sm font-medium text-foreground mb-1">色调</div>
+            <div className="text-sm text-foreground">
               {visualDescription.colorPalette}
             </div>
           </div>
@@ -506,15 +506,15 @@ const VisualDescription: React.FC<VisualDescriptionProps> = React.memo(({ visual
 
         {visualDescription.characterPositions &&
           visualDescription.characterPositions.length > 0 && (
-            <div className="p-3 bg-slate-100 dark:bg-slate-700 rounded">
-              <div className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+            <div className="p-3 bg-content1 rounded">
+              <div className="text-sm font-medium text-foreground mb-2">
                 角色位置
               </div>
-              <div className="text-sm text-slate-900 dark:text-slate-300 space-y-2">
+              <div className="text-sm text-foreground space-y-2">
                 {visualDescription.characterPositions.map((pos, index) => (
                   <div key={index} className="flex flex-col">
                     <span className="font-medium">{pos.characterId}</span>
-                    <span className="text-slate-600 dark:text-slate-400">
+                    <span className="text-slate-400">
                       {pos.position}，{pos.action}，{pos.expression}
                     </span>
                   </div>
@@ -536,13 +536,13 @@ interface SceneInfoProps {
 
 const SceneInfo: React.FC<SceneInfoProps> = React.memo(({ sceneName, sceneAsset, imageUrl }) => {
   return (
-    <div className="flex items-center gap-3 p-3 bg-slate-200 dark:bg-slate-800 rounded-lg border border-slate-300 dark:border-slate-700">
-      <div className="w-9 h-9 rounded-md bg-slate-300 dark:bg-slate-700 flex items-center justify-center text-green-600 dark:text-green-400">
+    <div className="flex items-center gap-3 p-3 bg-content2 rounded-lg border border-content3">
+      <div className="w-9 h-9 rounded-md bg-content3 flex items-center justify-center text-success">
         <MapPin size={18} />
       </div>
       <div className="flex-1">
-        <div className="text-sm font-medium text-slate-900 dark:text-white">{sceneName}</div>
-        <div className="text-xs text-slate-600 dark:text-slate-400">
+        <div className="text-sm font-medium text-foreground">{sceneName}</div>
+        <div className="text-xs text-slate-400">
           {sceneAsset?.description || '场景'}
         </div>
       </div>
@@ -1912,7 +1912,7 @@ export const ShotManager: React.FC<ShotManagerProps> = ({
   if (isLoading) {
     return (
       <div className="h-full flex items-center justify-center">
-        <div className="text-slate-900 dark:text-white">加载中...</div>
+        <div className="text-foreground">加载中...</div>
       </div>
     );
   }
@@ -1920,16 +1920,16 @@ export const ShotManager: React.FC<ShotManagerProps> = ({
   if (!currentScript) {
     return (
       <div className="h-full flex items-center justify-center">
-        <div className="text-slate-900 dark:text-white">暂无剧本数据</div>
+        <div className="text-foreground">暂无剧本数据</div>
       </div>
     );
   }
 
   return (
-    <div className="flex h-full bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white">
+    <div className="flex h-full bg-background text-foreground">
       {/* 左侧分镜列表 */}
-      <aside className="w-80 bg-slate-100 dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex flex-col overflow-y-auto transition-all duration-300">
-        <div className="p-4 border-b border-slate-800">
+      <aside className="w-80 bg-content1 border-r border-content3 flex flex-col overflow-y-auto transition-all duration-300">
+        <div className="p-4 border-b border-content3">
           <div className="mb-3">
             <label className="text-xs text-slate-400 block mb-1">选择剧本</label>
             <Select
@@ -1948,7 +1948,7 @@ export const ShotManager: React.FC<ShotManagerProps> = ({
 
           <div className="flex items-center justify-between mb-3">
             <div>
-              <h2 className="text-sm font-semibold text-slate-900 dark:text-white">分镜列表</h2>
+              <h2 className="text-sm font-semibold text-foreground">分镜列表</h2>
               <p className="text-xs text-slate-400">共 {allShots.length} 个分镜</p>
             </div>
             <Button
@@ -2035,18 +2035,18 @@ export const ShotManager: React.FC<ShotManagerProps> = ({
       </aside>
 
       {/* 中央预览区 */}
-      <main className="flex-1 flex flex-col bg-slate-50 dark:bg-slate-950 transition-all duration-300 overflow-hidden">
+      <main className="flex-1 flex flex-col bg-background transition-all duration-300 overflow-hidden">
         {/* 顶部信息栏 - 更紧凑 */}
         {selectedShot && (
-          <div className="bg-slate-100 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-4 py-3">
+          <div className="bg-content1 border-b border-content3 px-4 py-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center">
                 <div>
                   <div className="flex items-center gap-2">
-                    <span className="text-lg font-bold text-orange-500 font-mono">
+                    <span className="text-lg font-bold text-primary font-mono">
                       {selectedShot.sequence}
                     </span>
-                    <h2 className="text-base font-semibold text-slate-900 dark:text-white truncate max-w-xs">
+                    <h2 className="text-base font-semibold text-foreground truncate max-w-xs">
                       {selectedShot.sceneName}
                     </h2>
                   </div>
@@ -2063,7 +2063,7 @@ export const ShotManager: React.FC<ShotManagerProps> = ({
                     onPress={() => handleOpenSplitModal(selectedShot)}
                     isLoading={splittingShotId === selectedShot.id}
                     isDisabled={availableLLMModels.length === 0}
-                    className="text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white border border-slate-300 dark:border-slate-700 text-xs"
+                    className="text-slate-400 hover:text-foreground border border-content3 text-xs"
                   >
                     重新拆分
                   </Button>
@@ -2074,7 +2074,7 @@ export const ShotManager: React.FC<ShotManagerProps> = ({
                       variant="flat"
                       onPress={() => handleAutoProcessStaticShot(selectedShot)}
                       isLoading={splittingShotId === selectedShot.id}
-                      className="text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white border border-slate-300 dark:border-slate-700 text-xs"
+                      className="text-slate-400 hover:text-foreground border border-content3 text-xs"
                     >
                       自动处理
                     </Button>
@@ -2097,7 +2097,7 @@ export const ShotManager: React.FC<ShotManagerProps> = ({
         )}
 
         {/* 预览区域 - 预览区 + 生图面板垂直堆叠 */}
-        <div className="flex-1 flex flex-col bg-slate-50 dark:bg-slate-950 relative p-4 overflow-hidden">
+        <div className="flex-1 flex flex-col bg-background relative p-4 overflow-hidden">
           {selectedShot ? (
             <div className="flex-1 flex flex-col overflow-y-auto gap-4">
               {/* 选中关键帧时：预览区 + 历史版本 + 生图面板 */}
@@ -2108,7 +2108,7 @@ export const ShotManager: React.FC<ShotManagerProps> = ({
                   {/* 关键帧图片预览 */}
                   <div className="flex-shrink-0">
                     <div className="relative w-full max-w-4xl mx-auto group">
-                      <div className="aspect-video bg-slate-100 dark:bg-slate-900 rounded-lg overflow-hidden relative shadow-lg">
+                      <div className="aspect-video bg-content2 rounded-lg overflow-hidden relative shadow-lg">
                         {(() => {
                           const kf = selectedShot.keyframes[selectedKeyframeIndex];
                           const currentImage =
@@ -2133,8 +2133,8 @@ export const ShotManager: React.FC<ShotManagerProps> = ({
                             );
                           } else {
                             return (
-                              <div className="w-full h-full flex items-center justify-center bg-slate-800">
-                                <Camera size={40} className="text-slate-600" />
+                              <div className="w-full h-full flex items-center justify-center bg-content3">
+                                <Camera size={40} className="text-slate-400" />
                               </div>
                             );
                           }
@@ -2230,14 +2230,14 @@ export const ShotManager: React.FC<ShotManagerProps> = ({
                   {/* 生图功能面板 - 统一容器 */}
                   <div className="flex-shrink-0 pb-4">
                     <div className="bg-content1 rounded-xl border border-content3 p-6 shadow-sm space-y-5 max-w-4xl mx-auto">
-                      <h3 className="text-sm font-semibold text-slate-900 dark:text-white flex items-center gap-2">
+                      <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
                         <Sparkles size={18} className="text-primary" />
                         生图功能
                       </h3>
 
                       {/* 生图模式 */}
                       <div>
-                        <label className="text-xs font-semibold text-slate-600 dark:text-slate-400 block mb-2">
+                        <label className="text-xs font-semibold text-slate-400 block mb-2">
                           生图模式
                         </label>
                         <div className="flex gap-2">
@@ -2265,7 +2265,7 @@ export const ShotManager: React.FC<ShotManagerProps> = ({
                       {/* 参考图管理 - 仅在图生图模式显示 */}
                       {generationMode === 'reference-to-image' && (
                         <div className="space-y-4">
-                          <label className="text-xs font-semibold text-slate-600 dark:text-slate-400 block">
+                          <label className="text-xs font-semibold text-slate-400 block">
                             参考图管理
                           </label>
                           <div className="bg-content2 rounded-lg border border-content3 p-4">
@@ -2273,13 +2273,13 @@ export const ShotManager: React.FC<ShotManagerProps> = ({
                               {/* 角色参考图区域 */}
                               <div className="flex-1 flex items-center gap-3">
                                 <Users size={16} className="text-primary shrink-0" />
-                                <span className="text-xs font-semibold text-slate-700 dark:text-slate-300 shrink-0">
+                                <span className="text-xs font-semibold text-slate-400 shrink-0">
                                   角色参考图
                                 </span>
                                 {references.character ? (
                                   <div className="flex items-center gap-3 flex-1">
                                     <div
-                                      className="w-8 h-8 bg-slate-300 dark:bg-slate-700 rounded overflow-hidden cursor-pointer hover:opacity-90 transition-opacity shrink-0"
+                                      className="w-8 h-8 bg-content3 rounded overflow-hidden cursor-pointer hover:opacity-90 transition-opacity shrink-0"
                                       onClick={() => {
                                         if (referenceImageUrls.character) {
                                           openPreview(
@@ -2302,20 +2302,20 @@ export const ShotManager: React.FC<ShotManagerProps> = ({
                                         />
                                       ) : (
                                         <div className="w-full h-full flex items-center justify-center">
-                                          <Users size={24} className="text-slate-500" />
+                                          <Users size={24} className="text-slate-400" />
                                         </div>
                                       )}
                                     </div>
-                                    <div className="text-xs text-slate-600 dark:text-slate-400 truncate flex-1">
+                                    <div className="text-xs text-slate-400 truncate flex-1">
                                       {references.character.name}
                                     </div>
                                   </div>
                                 ) : (
                                   <div className="flex items-center gap-3 flex-1">
-                                    <div className="w-8 h-8 bg-slate-200 dark:bg-slate-800 rounded border-2 border-dashed border-content3 flex items-center justify-center shrink-0">
+                                    <div className="w-8 h-8 bg-content2 rounded border-2 border-dashed border-content3 flex items-center justify-center shrink-0">
                                       <Users size={20} className="text-slate-400" />
                                     </div>
-                                    <span className="text-xs text-slate-500 flex-1">
+                                    <span className="text-xs text-slate-400 flex-1">
                                       未选择角色
                                     </span>
                                   </div>
@@ -2339,13 +2339,13 @@ export const ShotManager: React.FC<ShotManagerProps> = ({
                               {/* 场景参考图区域 */}
                               <div className="flex-1 flex items-center gap-3">
                                 <MapPin size={16} className="text-primary shrink-0" />
-                                <span className="text-xs font-semibold text-slate-700 dark:text-slate-300 shrink-0">
+                                <span className="text-xs font-semibold text-slate-400 shrink-0">
                                   场景参考图
                                 </span>
                                 {references.scene ? (
                                   <div className="flex items-center gap-3 flex-1">
                                     <div
-                                      className="w-8 h-8 bg-slate-300 dark:bg-slate-700 rounded overflow-hidden cursor-pointer hover:opacity-90 transition-opacity shrink-0"
+                                      className="w-8 h-8 bg-content3 rounded overflow-hidden cursor-pointer hover:opacity-90 transition-opacity shrink-0"
                                       onClick={() => {
                                         if (referenceImageUrls.scene) {
                                           openPreview(
@@ -2368,20 +2368,20 @@ export const ShotManager: React.FC<ShotManagerProps> = ({
                                         />
                                       ) : (
                                         <div className="w-full h-full flex items-center justify-center">
-                                          <MapPin size={24} className="text-slate-500" />
+                                          <MapPin size={24} className="text-slate-400" />
                                         </div>
                                       )}
                                     </div>
-                                    <div className="text-xs text-slate-600 dark:text-slate-400 truncate flex-1">
+                                    <div className="text-xs text-slate-400 truncate flex-1">
                                       {references.scene.name}
                                     </div>
                                   </div>
                                 ) : (
                                   <div className="flex items-center gap-3 flex-1">
-                                    <div className="w-8 h-8 bg-slate-200 dark:bg-slate-800 rounded border-2 border-dashed border-content3 flex items-center justify-center shrink-0">
+                                    <div className="w-8 h-8 bg-content2 rounded border-2 border-dashed border-content3 flex items-center justify-center shrink-0">
                                       <MapPin size={20} className="text-slate-400" />
                                     </div>
-                                    <span className="text-xs text-slate-500 flex-1">
+                                    <span className="text-xs text-slate-400 flex-1">
                                       未选择场景
                                     </span>
                                   </div>
@@ -2405,13 +2405,13 @@ export const ShotManager: React.FC<ShotManagerProps> = ({
 
                       {/* 正面提示词 */}
                       <div>
-                        <label className="text-xs font-semibold text-slate-600 dark:text-slate-400 block mb-2">
+                        <label className="text-xs font-semibold text-slate-400 block mb-2">
                           正面提示词
                         </label>
                         <Textarea
                           value={selectedShot.keyframes[selectedKeyframeIndex]?.prompt || ''}
                           onChange={e => handleUpdatePrompt(selectedKeyframeIndex, e.target.value)}
-                          className="w-full text-sm border-content3 bg-white dark:bg-slate-900 text-foreground"
+                          className="w-full text-sm border-content3 bg-content1 text-foreground"
                           placeholder="输入生图正面提示词"
                           minRows={3}
                         />
@@ -2420,7 +2420,7 @@ export const ShotManager: React.FC<ShotManagerProps> = ({
                       {/* 模型选择 + 分辨率/宽高比 */}
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div>
-                          <label className="text-xs font-semibold text-slate-600 dark:text-slate-400 block mb-2">
+                          <label className="text-xs font-semibold text-slate-400 block mb-2">
                             选择模型
                           </label>
                           <Select
@@ -2443,7 +2443,7 @@ export const ShotManager: React.FC<ShotManagerProps> = ({
                           </Select>
                         </div>
                         <div>
-                          <label className="text-xs font-semibold text-slate-600 dark:text-slate-400 block mb-2">
+                          <label className="text-xs font-semibold text-slate-400 block mb-2">
                             分辨率
                           </label>
                           <Select
@@ -2465,7 +2465,7 @@ export const ShotManager: React.FC<ShotManagerProps> = ({
                           </Select>
                         </div>
                         <div>
-                          <label className="text-xs font-semibold text-slate-600 dark:text-slate-400 block mb-2">
+                          <label className="text-xs font-semibold text-slate-400 block mb-2">
                             宽高比
                           </label>
                           <Select
@@ -2487,7 +2487,7 @@ export const ShotManager: React.FC<ShotManagerProps> = ({
                       {/* Seed值 + 批量数量 + 提示词模板 */}
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div>
-                          <label className="text-xs font-semibold text-slate-600 dark:text-slate-400 block mb-2">
+                          <label className="text-xs font-semibold text-slate-400 block mb-2">
                             Seed值
                           </label>
                           <div className="flex gap-2">
@@ -2495,7 +2495,7 @@ export const ShotManager: React.FC<ShotManagerProps> = ({
                               type="number"
                               value={seed}
                               onChange={e => setSeed(Number(e.target.value))}
-                              className="w-full text-sm border-content3 bg-white dark:bg-slate-900"
+                              className="w-full text-sm border-content3 bg-content1"
                               placeholder="输入Seed值"
                               size="sm"
                             />
@@ -2510,7 +2510,7 @@ export const ShotManager: React.FC<ShotManagerProps> = ({
                           </div>
                         </div>
                         <div>
-                          <label className="text-xs font-semibold text-slate-600 dark:text-slate-400 block mb-2">
+                          <label className="text-xs font-semibold text-slate-400 block mb-2">
                             批量数量
                           </label>
                           <Select
@@ -2528,7 +2528,7 @@ export const ShotManager: React.FC<ShotManagerProps> = ({
                           </Select>
                         </div>
                         <div>
-                          <label className="text-xs font-semibold text-slate-600 dark:text-slate-400 block mb-2">
+                          <label className="text-xs font-semibold text-slate-400 block mb-2">
                             提示词模板
                           </label>
                           <Select
@@ -2559,13 +2559,13 @@ export const ShotManager: React.FC<ShotManagerProps> = ({
 
                       {/* 负向提示词 */}
                       <div>
-                        <label className="text-xs font-semibold text-slate-600 dark:text-slate-400 block mb-2">
+                        <label className="text-xs font-semibold text-slate-400 block mb-2">
                           负向提示词
                         </label>
                         <Textarea
                           value={negativePrompt}
                           onChange={e => setNegativePrompt(e.target.value)}
-                          className="w-full text-sm border-content3 bg-white dark:bg-slate-900 text-foreground"
+                          className="w-full text-sm border-content3 bg-content1 text-foreground"
                           placeholder="输入负向提示词"
                           minRows={2}
                         />
@@ -2573,20 +2573,17 @@ export const ShotManager: React.FC<ShotManagerProps> = ({
 
                       {/* 生成按钮 */}
                       <Button
-                        color="default"
+                        color="primary"
                         variant="solid"
                         size="lg"
                         fullWidth
                         onPress={() => handleGenerateImage(selectedKeyframeIndex)}
-                        className="font-bold h-12 rounded-xl bg-slate-200 hover:bg-slate-300 text-slate-900 dark:bg-slate-700 dark:hover:bg-slate-600 dark:text-slate-100 shadow-xl shadow-slate-500/20 dark:shadow-slate-900/20 active:scale-95 transition-all"
+                        className="font-bold h-12 rounded-xl shadow-xl shadow-primary/20 active:scale-95 transition-all"
                         classNames={{
-                          base: 'bg-slate-200 hover:bg-slate-300 text-slate-900 dark:bg-slate-700 dark:hover:bg-slate-600 dark:text-slate-100',
-                          content:
-                            'text-slate-900 dark:text-slate-100 font-black uppercase tracking-widest text-sm',
-                          spinner: 'text-slate-900 dark:text-slate-100',
+                          content: 'font-black uppercase tracking-widest text-sm',
                         }}
                         startContent={
-                          <Sparkles size={18} className="text-slate-900 dark:text-slate-100" />
+                          <Sparkles size={18} className="text-primary-foreground" />
                         }
                       >
                         生成图片
@@ -2607,11 +2604,11 @@ export const ShotManager: React.FC<ShotManagerProps> = ({
                       {/* 顶部标题栏 */}
                       <div className="bg-content2 border-b border-content3 px-4 py-3 flex items-center justify-between">
                         <h4 className="text-sm font-semibold text-foreground flex items-center gap-2">
-                          <Film size={18} className="text-orange-500" />
+                          <Film size={18} className="text-primary" />
                           分镜核心信息
                         </h4>
                         <div className="flex items-center gap-2">
-                          <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+                          <div className="w-2 h-2 rounded-full bg-success animate-pulse" />
                         </div>
                       </div>
 
@@ -2629,7 +2626,7 @@ export const ShotManager: React.FC<ShotManagerProps> = ({
                             <div className="text-xs text-slate-500 dark:text-slate-400 mb-1">
                               镜号
                             </div>
-                            <div className="text-sm font-mono font-semibold text-orange-500">
+                            <div className="text-sm font-mono font-semibold text-primary">
                               {selectedShot.shotNumber || selectedShot.sequence}
                             </div>
                           </div>
@@ -2711,8 +2708,8 @@ export const ShotManager: React.FC<ShotManagerProps> = ({
                           className="bg-content2 border border-content3 rounded-lg p-3"
                         >
                           <div className="flex items-center gap-2 mb-2">
-                            <div className="w-1 h-4 bg-orange-500 rounded" />
-                            <h5 className="text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wider">
+                            <div className="w-1 h-4 bg-primary rounded" />
+                            <h5 className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
                               分镜描述
                             </h5>
                           </div>
@@ -2731,8 +2728,8 @@ export const ShotManager: React.FC<ShotManagerProps> = ({
                             className="bg-content2 border border-content3 rounded-lg p-3"
                           >
                             <div className="flex items-center gap-2 mb-2">
-                              <div className="w-1 h-4 bg-blue-500 rounded" />
-                              <h5 className="text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wider">
+                              <div className="w-1 h-4 bg-primary rounded" />
+                              <h5 className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
                                 视觉描述
                               </h5>
                             </div>
@@ -2784,8 +2781,8 @@ export const ShotManager: React.FC<ShotManagerProps> = ({
                             className="bg-content2 border border-content3 rounded-lg p-3"
                           >
                             <div className="flex items-center gap-2 mb-2">
-                              <div className="w-1 h-4 bg-green-500 rounded" />
-                              <h5 className="text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wider">
+                              <div className="w-1 h-4 bg-success rounded" />
+                              <h5 className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
                                 音频信息
                               </h5>
                             </div>
@@ -2793,12 +2790,12 @@ export const ShotManager: React.FC<ShotManagerProps> = ({
                               {selectedShot.dialogue && (
                                 <div className="p-2 bg-content3/50 rounded border border-content3">
                                   <div className="flex items-center gap-2 mb-1">
-                                    <div className="w-0.5 h-3 bg-green-500 rounded" />
-                                    <span className="text-xs font-medium text-slate-600 dark:text-slate-300">
+                                    <div className="w-0.5 h-3 bg-success rounded" />
+                                    <span className="text-xs font-medium text-slate-400">
                                       对话
                                     </span>
                                   </div>
-                                  <span className="text-slate-600 dark:text-slate-400 text-sm line-clamp-2">
+                                  <span className="text-slate-400 text-sm line-clamp-2">
                                     {selectedShot.dialogue}
                                   </span>
                                 </div>
@@ -2806,12 +2803,12 @@ export const ShotManager: React.FC<ShotManagerProps> = ({
                               {selectedShot.sound && (
                                 <div className="p-2 bg-content3/50 rounded border border-content3">
                                   <div className="flex items-center gap-2 mb-1">
-                                    <div className="w-0.5 h-3 bg-green-500 rounded" />
-                                    <span className="text-xs font-medium text-slate-600 dark:text-slate-300">
+                                    <div className="w-0.5 h-3 bg-success rounded" />
+                                    <span className="text-xs font-medium text-slate-400">
                                       音效
                                     </span>
                                   </div>
-                                  <span className="text-slate-600 dark:text-slate-400 text-sm line-clamp-2">
+                                  <span className="text-slate-400 text-sm line-clamp-2">
                                     {selectedShot.sound}
                                   </span>
                                 </div>
@@ -2963,31 +2960,31 @@ export const ShotManager: React.FC<ShotManagerProps> = ({
       </main>
 
       {/* 右侧边栏 - 简化后 */}
-      <aside className="w-72 bg-slate-100 dark:bg-slate-900 border-l border-slate-200 dark:border-slate-800 flex flex-col overflow-y-auto">
+      <aside className="w-72 bg-content1 border-l border-content3 flex flex-col overflow-y-auto">
         {selectedShot ? (
           <>
             {/* 基本信息 */}
-            <div className="p-4 border-b border-slate-200 dark:border-slate-800">
-              <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-3 flex items-center gap-2">
-                <Layers size={16} className="text-orange-500" />
+            <div className="p-4 border-b border-content3">
+              <h3 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
+                <Layers size={16} className="text-primary" />
                 分镜信息
               </h3>
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
-                  <span className="text-slate-500 dark:text-slate-400">时长:</span>
+                  <span className="text-slate-400">时长:</span>
                   <span className="font-mono">{selectedShot.duration}s</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-slate-500 dark:text-slate-400">景别:</span>
+                  <span className="text-slate-400">景别:</span>
                   <span>{selectedShot.shotType || '-'}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-slate-500 dark:text-slate-400">机位:</span>
+                  <span className="text-slate-400">机位:</span>
                   <span>{selectedShot.cameraAngle || '-'}</span>
                 </div>
                 {selectedShot.mood && (
                   <div className="flex justify-between">
-                    <span className="text-slate-500 dark:text-slate-400">情绪:</span>
+                    <span className="text-slate-400">情绪:</span>
                     <span>{selectedShot.mood}</span>
                   </div>
                 )}
@@ -2995,8 +2992,8 @@ export const ShotManager: React.FC<ShotManagerProps> = ({
             </div>
 
             {/* 关联资产 */}
-            <div className="p-4 border-b border-slate-200 dark:border-slate-800">
-              <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-3 flex items-center gap-2">
+            <div className="p-4 border-b border-content3">
+              <h3 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
                 <Box size={16} className="text-primary" />
                 关联资产
               </h3>
@@ -3017,8 +3014,8 @@ export const ShotManager: React.FC<ShotManagerProps> = ({
 
             {/* 快捷操作 */}
             <div className="p-4 flex-1">
-              <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-3 flex items-center gap-2">
-                <List size={16} className="text-green-500" />
+              <h3 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
+                <List size={16} className="text-success" />
                 快捷操作
               </h3>
               <div className="space-y-2">
@@ -3160,7 +3157,7 @@ const SplitKeyframeModal: React.FC<{
 }) => {
   return (
     <Modal isOpen={isOpen} onOpenChange={onClose} className="w-full max-w-2xl">
-      <ModalContent className="bg-slate-100 dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white">
+      <ModalContent className="bg-content1 border-content3 text-foreground">
         <ModalHeader>
           <h3>拆分关键帧</h3>
         </ModalHeader>
@@ -3371,7 +3368,7 @@ const CharacterSelectorModal: React.FC<{
 
   return (
     <Modal isOpen={isOpen} onOpenChange={onClose} className="w-full max-w-3xl">
-      <ModalContent className="bg-slate-100 dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white">
+      <ModalContent className="bg-content1 border-content3 text-foreground">
         <ModalHeader>
           <div className="flex items-center justify-between">
             <h3>选择角色参考图</h3>
@@ -3382,7 +3379,7 @@ const CharacterSelectorModal: React.FC<{
         </ModalHeader>
         <ModalBody>
           {characterAssets.length === 0 ? (
-            <div className="text-center py-8 text-slate-500">暂无角色资产</div>
+            <div className="text-center py-8 text-slate-400">暂无角色资产</div>
           ) : (
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
               {characterAssets.map(asset => {
@@ -3398,14 +3395,14 @@ const CharacterSelectorModal: React.FC<{
                     className={`cursor-pointer rounded-lg border-2 p-3 transition-all ${
                       currentId === asset.id
                         ? 'border-primary bg-primary/10'
-                        : 'border-content3 hover:border-slate-400 dark:hover:border-slate-600'
+                        : 'border-content3 hover:border-slate-400'
                     }`}
                     onClick={() => {
                       onSelect(asset);
                       onClose();
                     }}
                   >
-                    <div className="aspect-square bg-slate-200 dark:bg-slate-800 rounded overflow-hidden mb-2">
+                    <div className="aspect-square bg-content2 rounded overflow-hidden mb-2">
                       {isLoading ? (
                         <div className="w-full h-full flex items-center justify-center">
                           <Spinner size="sm" />
@@ -3483,7 +3480,7 @@ const SceneSelectorModal: React.FC<{
 
   return (
     <Modal isOpen={isOpen} onOpenChange={onClose} className="w-full max-w-3xl">
-      <ModalContent className="bg-slate-100 dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white">
+      <ModalContent className="bg-content1 border-content3 text-foreground">
         <ModalHeader>
           <div className="flex items-center justify-between">
             <h3>选择场景参考图</h3>
@@ -3494,7 +3491,7 @@ const SceneSelectorModal: React.FC<{
         </ModalHeader>
         <ModalBody>
           {sceneAssets.length === 0 ? (
-            <div className="text-center py-8 text-slate-500">暂无场景资产</div>
+            <div className="text-center py-8 text-slate-400">暂无场景资产</div>
           ) : (
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
               {sceneAssets.map(asset => {
@@ -3510,14 +3507,14 @@ const SceneSelectorModal: React.FC<{
                     className={`cursor-pointer rounded-lg border-2 p-3 transition-all ${
                       currentId === asset.id
                         ? 'border-primary bg-primary/10'
-                        : 'border-content3 hover:border-slate-400 dark:hover:border-slate-600'
+                        : 'border-content3 hover:border-slate-400'
                     }`}
                     onClick={() => {
                       onSelect(asset);
                       onClose();
                     }}
                   >
-                    <div className="aspect-video bg-slate-200 dark:bg-slate-800 rounded overflow-hidden mb-2">
+                    <div className="aspect-video bg-content2 rounded overflow-hidden mb-2">
                       {isLoading ? (
                         <div className="w-full h-full flex items-center justify-center">
                           <Spinner size="sm" />
