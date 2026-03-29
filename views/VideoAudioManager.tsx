@@ -12,6 +12,16 @@ import {
 } from '../types';
 import { storageService } from '../services/storage';
 import AudioLibrary from '../components/AudioLibrary/AudioLibrary';
+import {
+  Button,
+  Card,
+  CardBody,
+  Select,
+  SelectItem,
+  Textarea,
+  Progress,
+  Chip,
+} from '@heroui/react';
 
 interface GenerationTask {
   id: string;
@@ -562,415 +572,432 @@ const VideoAudioManager: React.FC<VideoAudioManagerProps> = ({ projectId: propPr
   const renderTaskStatus = (status: JobStatus) => {
     switch (status) {
       case JobStatus.PENDING:
-        return <span className="text-yellow-500">等待中</span>;
+        return <span className="text-warning">等待中</span>;
       case JobStatus.PROCESSING:
-        return <span className="text-blue-500">处理中</span>;
+        return <span className="text-secondary">处理中</span>;
       case JobStatus.COMPLETED:
-        return <span className="text-green-500">已完成</span>;
+        return <span className="text-success">已完成</span>;
       case JobStatus.FAILED:
-        return <span className="text-red-500">失败</span>;
+        return <span className="text-danger">失败</span>;
       default:
-        return <span className="text-gray-500">未知</span>;
+        return <span className="text-slate-400">未知</span>;
     }
   };
 
   return (
-    <div className="container mx-auto p-4 bg-slate-50 dark:bg-slate-950 min-h-screen">
+    <div className="container mx-auto p-4 bg-background min-h-screen">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-slate-900 dark:text-white">音视频管理</h1>
-        <button
-          onClick={() => navigate('/dashboard')}
-          className="px-4 py-2 bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-900 dark:text-white rounded-md transition-colors"
+        <h1 className="text-2xl font-bold text-foreground">音视频管理</h1>
+        <Button
+          variant="flat"
+          onPress={() => navigate('/dashboard')}
         >
           返回
-        </button>
+        </Button>
       </div>
 
       {/* 生成控制区 */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
         {/* 视频生成 */}
-        <div className="bg-white dark:bg-slate-900 p-4 rounded-lg shadow border border-slate-200 dark:border-slate-800">
-          <h2 className="text-xl font-semibold mb-4 text-slate-900 dark:text-white">视频生成</h2>
+        <Card>
+          <CardBody>
+            <h2 className="text-xl font-semibold mb-4 text-foreground">视频生成</h2>
 
-          <div className="mb-4">
-            <label className="block mb-2 text-slate-700 dark:text-slate-300">视频提示词</label>
-            <textarea
-              value={videoPrompt}
-              onChange={e => setVideoPrompt(e.target.value)}
-              className="w-full p-2 border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white rounded-md"
-              rows={3}
-              placeholder="请输入视频描述..."
-            />
-          </div>
-
-          <div className="mb-4">
-            <label className="block mb-2 text-slate-700 dark:text-slate-300">模型配置</label>
-            <select
-              value={modelConfigId}
-              onChange={e => setModelConfigId(e.target.value)}
-              className="w-full p-2 border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white rounded-md"
-            >
-              {modelConfigs
-                .filter(config => config.type === 'video')
-                .map(config => (
-                  <option key={config.id} value={config.id}>
-                    {config.name}
-                  </option>
-                ))}
-            </select>
-          </div>
-
-          <div className="mb-4">
-            <h3 className="font-medium mb-2 text-slate-700 dark:text-slate-300">关键帧</h3>
-            <div className="flex flex-wrap gap-2 mb-2">
-              {keyframes.map(keyframe => (
-                <div
-                  key={keyframe.id}
-                  className="bg-slate-100 dark:bg-slate-800 p-2 rounded-md text-slate-900 dark:text-white"
-                >
-                  {keyframe.frameType} 帧
-                </div>
-              ))}
+            <div className="mb-4">
+              <Textarea
+                label="视频提示词"
+                value={videoPrompt}
+                onChange={e => setVideoPrompt(e.target.value)}
+                rows={3}
+                placeholder="请输入视频描述..."
+              />
             </div>
-            <button
-              onClick={addKeyframe}
-              className="px-3 py-1 bg-primary text-primary-foreground rounded-md hover:bg-primary/80 transition-colors"
-            >
-              添加关键帧
-            </button>
-          </div>
 
-          <button
-            onClick={generateVideo}
-            disabled={isGenerating}
-            className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:bg-slate-300 dark:disabled:bg-slate-700 transition-colors"
-          >
-            {isGenerating ? '生成中...' : '生成视频'}
-          </button>
-        </div>
+            <div className="mb-4">
+              <Select
+                label="模型配置"
+                selectedKeys={modelConfigId ? [modelConfigId] : []}
+                onChange={e => setModelConfigId(e.target.value)}
+              >
+                {modelConfigs
+                  .filter(config => config.type === 'video')
+                  .map(config => (
+                    <SelectItem key={config.id} value={config.id}>
+                      {config.name}
+                    </SelectItem>
+                  ))}
+              </Select>
+            </div>
+
+            <div className="mb-4">
+              <h3 className="font-medium mb-2 text-foreground">关键帧</h3>
+              <div className="flex flex-wrap gap-2 mb-2">
+                {keyframes.map(keyframe => (
+                  <Chip
+                    key={keyframe.id}
+                    variant="flat"
+                  >
+                    {keyframe.frameType} 帧
+                  </Chip>
+                ))}
+              </div>
+              <Button
+                onPress={addKeyframe}
+              >
+                添加关键帧
+              </Button>
+            </div>
+
+            <Button
+              color="success"
+              onPress={generateVideo}
+              isLoading={isGenerating}
+            >
+              {isGenerating ? '生成中...' : '生成视频'}
+            </Button>
+          </CardBody>
+        </Card>
 
         {/* 音频生成 */}
-        <div className="bg-white dark:bg-slate-900 p-4 rounded-lg shadow border border-slate-200 dark:border-slate-800">
-          <h2 className="text-xl font-semibold mb-4 text-slate-900 dark:text-white">音频生成</h2>
+        <Card>
+          <CardBody>
+            <h2 className="text-xl font-semibold mb-4 text-foreground">音频生成</h2>
 
-          <div className="mb-4">
-            <label className="block mb-2 text-slate-700 dark:text-slate-300">音频类型</label>
-            <select
-              value={audioType}
-              onChange={e => setAudioType(e.target.value as 'dialogue' | 'sound' | 'music')}
-              className="w-full p-2 border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white rounded-md"
-            >
-              <option value="dialogue">对话</option>
-              <option value="sound">音效</option>
-              <option value="music">音乐</option>
-            </select>
-          </div>
+            <div className="mb-4">
+              <Select
+                label="音频类型"
+                selectedKeys={[audioType]}
+                onChange={e => setAudioType(e.target.value as 'dialogue' | 'sound' | 'music')}
+              >
+                <SelectItem key="dialogue" value="dialogue">对话</SelectItem>
+                <SelectItem key="sound" value="sound">音效</SelectItem>
+                <SelectItem key="music" value="music">音乐</SelectItem>
+              </Select>
+            </div>
 
-          <div className="mb-4">
-            <label className="block mb-2 text-slate-700 dark:text-slate-300">音频提示词</label>
-            <textarea
-              value={audioPrompt}
-              onChange={e => setAudioPrompt(e.target.value)}
-              className="w-full p-2 border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white rounded-md"
-              rows={3}
-              placeholder="请输入音频描述..."
-            />
-          </div>
+            <div className="mb-4">
+              <Textarea
+                label="音频提示词"
+                value={audioPrompt}
+                onChange={e => setAudioPrompt(e.target.value)}
+                rows={3}
+                placeholder="请输入音频描述..."
+              />
+            </div>
 
-          <div className="mb-4">
-            <label className="block mb-2 text-slate-700 dark:text-slate-300">模型配置</label>
-            <select
-              value={modelConfigId}
-              onChange={e => setModelConfigId(e.target.value)}
-              className="w-full p-2 border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white rounded-md"
-            >
-              {modelConfigs
-                .filter(config => config.capabilities.supportsAudioGeneration)
-                .map(config => (
-                  <option key={config.id} value={config.id}>
-                    {config.name}
-                  </option>
-                ))}
-            </select>
-          </div>
+            <div className="mb-4">
+              <Select
+                label="模型配置"
+                selectedKeys={modelConfigId ? [modelConfigId] : []}
+                onChange={e => setModelConfigId(e.target.value)}
+              >
+                {modelConfigs
+                  .filter(config => config.capabilities.supportsAudioGeneration)
+                  .map(config => (
+                    <SelectItem key={config.id} value={config.id}>
+                      {config.name}
+                    </SelectItem>
+                  ))}
+              </Select>
+            </div>
 
-          <div className="flex gap-2 mb-4">
-            <button
-              onClick={() => selectedVideo && generateAudioFromVideo(selectedVideo.id)}
-              disabled={isGenerating || !selectedVideo}
-              className="flex-1 px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 disabled:bg-slate-300 dark:disabled:bg-slate-700 transition-colors"
-            >
-              {isGenerating ? '生成中...' : '基于视频生成音频'}
-            </button>
-            <button
-              onClick={() => setShowAudioLibrary(!showAudioLibrary)}
-              className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/80 transition-colors"
-            >
-              音频库
-            </button>
-          </div>
-        </div>
+            <div className="flex gap-2 mb-4">
+              <Button
+                color="secondary"
+                onPress={() => selectedVideo && generateAudioFromVideo(selectedVideo.id)}
+                disabled={isGenerating || !selectedVideo}
+                isLoading={isGenerating}
+                className="flex-1"
+              >
+                {isGenerating ? '生成中...' : '基于视频生成音频'}
+              </Button>
+              <Button
+                onPress={() => setShowAudioLibrary(!showAudioLibrary)}
+              >
+                音频库
+              </Button>
+            </div>
+          </CardBody>
+        </Card>
       </div>
 
       {/* 批量生成区域 */}
-      <div className="bg-white dark:bg-slate-900 p-4 rounded-lg shadow border border-slate-200 dark:border-slate-800 mb-8">
-        <h2 className="text-xl font-semibold mb-4 text-slate-900 dark:text-white">批量音频生成</h2>
-        <div className="mb-4">
-          <label className="block mb-2 text-slate-700 dark:text-slate-300">音频类型</label>
-          <select
-            value={batchAudioType}
-            onChange={e => setBatchAudioType(e.target.value as 'dialogue' | 'sound' | 'music')}
-            className="w-full p-2 border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white rounded-md"
-          >
-            <option value="dialogue">对话</option>
-            <option value="sound">音效</option>
-            <option value="music">音乐</option>
-          </select>
-        </div>
-        <div className="mb-4">
-          <label className="block mb-2 text-slate-700 dark:text-slate-300">
-            批量文本（每行一个）
-          </label>
-          <textarea
-            value={batchTexts}
-            onChange={e => setBatchTexts(e.target.value)}
-            className="w-full p-2 border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white rounded-md"
-            rows={6}
-            placeholder="请输入批量生成的文本，每行一个..."
-          />
-        </div>
-        {isBatchGenerating && (
-          <div className="w-full mb-4">
-            <div className="flex justify-between mb-1">
-              <span className="text-sm text-slate-500 dark:text-slate-400">批量生成中...</span>
-              <span className="text-sm text-slate-500 dark:text-slate-400">{batchProgress}%</span>
-            </div>
-            <div className="w-full bg-slate-200 dark:bg-slate-800 rounded-full h-2.5">
-              <div
-                className="bg-orange-600 h-2.5 rounded-full"
-                style={{ width: `${batchProgress}%` }}
-              ></div>
-            </div>
+      <Card className="mb-8">
+        <CardBody>
+          <h2 className="text-xl font-semibold mb-4 text-foreground">批量音频生成</h2>
+          <div className="mb-4">
+            <Select
+              label="音频类型"
+              selectedKeys={[batchAudioType]}
+              onChange={e => setBatchAudioType(e.target.value as 'dialogue' | 'sound' | 'music')}
+            >
+              <SelectItem key="dialogue" value="dialogue">对话</SelectItem>
+              <SelectItem key="sound" value="sound">音效</SelectItem>
+              <SelectItem key="music" value="music">音乐</SelectItem>
+            </Select>
           </div>
-        )}
-        <button
-          onClick={batchGenerate}
-          disabled={isBatchGenerating}
-          className="px-6 py-3 bg-orange-600 text-white rounded-md hover:bg-orange-700 disabled:bg-slate-300 dark:disabled:bg-slate-700 transition-colors"
-        >
-          {isBatchGenerating ? '生成中...' : '批量生成音频'}
-        </button>
-      </div>
+          <div className="mb-4">
+            <Textarea
+              label="批量文本（每行一个）"
+              value={batchTexts}
+              onChange={e => setBatchTexts(e.target.value)}
+              rows={6}
+              placeholder="请输入批量生成的文本，每行一个..."
+            />
+          </div>
+          {isBatchGenerating && (
+            <div className="w-full mb-4">
+              <div className="flex justify-between mb-1">
+                <span className="text-sm text-foreground/50">批量生成中...</span>
+                <span className="text-sm text-foreground/50">{batchProgress}%</span>
+              </div>
+              <Progress
+                value={batchProgress}
+                className="w-full"
+              />
+            </div>
+          )}
+          <Button
+            color="warning"
+            onPress={batchGenerate}
+            disabled={isBatchGenerating}
+            isLoading={isBatchGenerating}
+          >
+            {isBatchGenerating ? '生成中...' : '批量生成音频'}
+          </Button>
+        </CardBody>
+      </Card>
 
       {/* 资产列表 */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
         {/* 视频列表 */}
-        <div className="bg-white dark:bg-slate-900 p-4 rounded-lg shadow border border-slate-200 dark:border-slate-800">
-          <h2 className="text-xl font-semibold mb-4 text-slate-900 dark:text-white">视频资产</h2>
-          <div className="space-y-4">
-            {videos.map(video => (
-              <div
-                key={video.id}
-                className={`p-3 border rounded-md cursor-pointer ${selectedVideo?.id === video.id ? 'border-primary bg-primary/10' : 'border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800'}`}
-                onClick={() => setSelectedVideo(video)}
-              >
-                <div className="flex justify-between items-center">
-                  <h3 className="font-medium text-slate-900 dark:text-white">
-                    {video.name || `视频 ${video.id}`}
-                  </h3>
-                  <span className="text-sm text-slate-500 dark:text-slate-400">
-                    {video.duration}秒
-                  </span>
+        <Card>
+          <CardBody>
+            <h2 className="text-xl font-semibold mb-4 text-foreground">视频资产</h2>
+            <div className="space-y-4">
+              {videos.map(video => (
+                <div
+                  key={video.id}
+                  className={`p-3 border rounded-md cursor-pointer ${selectedVideo?.id === video.id ? 'border-primary bg-primary/10' : 'border-content3 bg-content2'}`}
+                  onClick={() => setSelectedVideo(video)}
+                >
+                  <div className="flex justify-between items-center">
+                    <h3 className="font-medium text-foreground">
+                      {video.name || `视频 ${video.id}`}
+                    </h3>
+                    <span className="text-sm text-foreground/50">
+                      {video.duration}秒
+                    </span>
+                  </div>
+                  <p className="text-sm text-foreground/50 mt-1">{video.prompt}</p>
+                  <div className="mt-2 flex gap-2">
+                    <div
+                      onClick={e => {
+                        e.stopPropagation();
+                        setSelectedVideo(video);
+                      }}
+                    >
+                      <Button
+                        size="sm"
+                        variant="flat"
+                      >
+                        选择
+                      </Button>
+                    </div>
+                  </div>
                 </div>
-                <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">{video.prompt}</p>
-                <div className="mt-2 flex gap-2">
-                  <button
-                    onClick={e => {
-                      e.stopPropagation();
-                      setSelectedVideo(video);
-                    }}
-                    className="px-2 py-1 text-xs bg-primary/20 text-primary rounded"
-                  >
-                    选择
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
+              ))}
+            </div>
+          </CardBody>
+        </Card>
 
         {/* 音频列表 */}
-        <div className="bg-white dark:bg-slate-900 p-4 rounded-lg shadow border border-slate-200 dark:border-slate-800">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-semibold text-slate-900 dark:text-white">音频资产</h2>
-            {selectedAudios.length > 0 && (
-              <button
-                onClick={batchPreviewAudios}
-                disabled={isBatchPreviewing}
-                className="px-4 py-1 bg-primary text-primary-foreground rounded-md hover:bg-primary/80 disabled:bg-slate-300 dark:disabled:bg-slate-700 transition-colors"
-              >
-                {isBatchPreviewing ? '加载中...' : `批量预览 (${selectedAudios.length})`}
-              </button>
-            )}
-          </div>
-          <div className="space-y-4">
-            {audios.map(audio => (
-              <div
-                key={audio.id}
-                className={`p-3 border rounded-md cursor-pointer ${selectedAudio?.id === audio.id ? 'border-green-500 bg-green-50 dark:bg-green-900/20' : 'border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800'}`}
-                onClick={() => setSelectedAudio(audio)}
-              >
-                <div className="flex justify-between items-center">
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="checkbox"
-                      checked={selectedAudios.some(a => a.id === audio.id)}
-                      onChange={e => {
-                        e.stopPropagation();
-                        toggleAudioSelection(audio);
-                      }}
-                      className="cursor-pointer"
-                    />
-                    <h3 className="font-medium text-slate-900 dark:text-white">
-                      {audio.name || `音频 ${audio.id}`}
-                    </h3>
+        <Card>
+          <CardBody>
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-semibold text-foreground">音频资产</h2>
+              {selectedAudios.length > 0 && (
+                <Button
+                  onPress={batchPreviewAudios}
+                  disabled={isBatchPreviewing}
+                  isLoading={isBatchPreviewing}
+                >
+                  {isBatchPreviewing ? '加载中...' : `批量预览 (${selectedAudios.length})`}
+                </Button>
+              )}
+            </div>
+            <div className="space-y-4">
+              {audios.map(audio => (
+                <div
+                  key={audio.id}
+                  className={`p-3 border rounded-md cursor-pointer ${selectedAudio?.id === audio.id ? 'border-success bg-success/10' : 'border-content3 bg-content2'}`}
+                  onClick={() => setSelectedAudio(audio)}
+                >
+                  <div className="flex justify-between items-center">
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="checkbox"
+                        checked={selectedAudios.some(a => a.id === audio.id)}
+                        onChange={e => {
+                          e.stopPropagation();
+                          toggleAudioSelection(audio);
+                        }}
+                        className="cursor-pointer"
+                      />
+                      <h3 className="font-medium text-foreground">
+                        {audio.name || `音频 ${audio.id}`}
+                      </h3>
+                    </div>
+                    <span className="text-sm text-foreground/50">
+                      {audio.duration}秒
+                    </span>
                   </div>
-                  <span className="text-sm text-slate-500 dark:text-slate-400">
-                    {audio.duration}秒
-                  </span>
+                  <p className="text-sm text-foreground/50 mt-1">{audio.prompt}</p>
+                  <div className="mt-2 flex gap-2">
+                    <div
+                      onClick={e => {
+                        e.stopPropagation();
+                        setSelectedAudio(audio);
+                      }}
+                    >
+                      <Button
+                        size="sm"
+                        color="success"
+                        variant="flat"
+                      >
+                        选择
+                      </Button>
+                    </div>
+                    <div
+                      onClick={e => {
+                        e.stopPropagation();
+                        preloadAudio(audio);
+                      }}
+                    >
+                      <Button
+                        size="sm"
+                        variant="flat"
+                      >
+                        预加载
+                      </Button>
+                    </div>
+                  </div>
                 </div>
-                <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">{audio.prompt}</p>
-                <div className="mt-2 flex gap-2">
-                  <button
-                    onClick={e => {
-                      e.stopPropagation();
-                      setSelectedAudio(audio);
-                    }}
-                    className="px-2 py-1 text-xs bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded"
-                  >
-                    选择
-                  </button>
-                  <button
-                    onClick={e => {
-                      e.stopPropagation();
-                      preloadAudio(audio);
-                    }}
-                    className="px-2 py-1 text-xs bg-primary/20 text-primary rounded"
-                  >
-                    预加载
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
+              ))}
+            </div>
+          </CardBody>
+        </Card>
       </div>
 
       {/* 同步预览 */}
       {selectedVideo && selectedAudio && (
-        <div className="bg-white dark:bg-slate-900 p-4 rounded-lg shadow border border-slate-200 dark:border-slate-800 mb-8">
-          <h2 className="text-xl font-semibold mb-4 text-slate-900 dark:text-white">
-            音视频同步预览
-          </h2>
-          <div className="flex flex-col items-center">
-            <div className="mb-4">
-              <video
-                ref={videoRef}
-                src={previewVideoUrl}
-                width="640"
-                height="360"
-                controls
-                className="border border-slate-300 dark:border-slate-700 rounded-md"
-              />
-            </div>
-            <div className="mb-4">
-              <audio ref={audioRef} src={previewAudioUrl} controls className="w-full" />
-            </div>
-            {loadingPreview && (
-              <div className="w-full max-w-md mb-4">
-                <div className="flex justify-between mb-1">
-                  <span className="text-sm text-slate-500 dark:text-slate-400">加载中...</span>
-                  <span className="text-sm text-slate-500 dark:text-slate-400">
-                    {previewProgress}%
-                  </span>
-                </div>
-                <div className="w-full bg-slate-200 dark:bg-slate-800 rounded-full h-2.5">
-                  <div
-                    className="bg-primary h-2.5 rounded-full"
-                    style={{ width: `${previewProgress}%` }}
-                  ></div>
-                </div>
+        <Card className="mb-8">
+          <CardBody>
+            <h2 className="text-xl font-semibold mb-4 text-foreground">
+              音视频同步预览
+            </h2>
+            <div className="flex flex-col items-center">
+              <div className="mb-4">
+                <video
+                  ref={videoRef}
+                  src={previewVideoUrl}
+                  width="640"
+                  height="360"
+                  controls
+                  className="border border-content3 rounded-md"
+                />
               </div>
-            )}
-            <button
-              onClick={() => syncPreview(selectedVideo, selectedAudio)}
-              disabled={loadingPreview}
-              className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/80 disabled:bg-slate-300 dark:disabled:bg-slate-700 transition-colors"
-            >
-              {loadingPreview ? '加载中...' : '同步播放'}
-            </button>
-          </div>
-        </div>
+              <div className="mb-4">
+                <audio ref={audioRef} src={previewAudioUrl} controls className="w-full" />
+              </div>
+              {loadingPreview && (
+                <div className="w-full max-w-md mb-4">
+                  <div className="flex justify-between mb-1">
+                    <span className="text-sm text-foreground/50">加载中...</span>
+                    <span className="text-sm text-foreground/50">
+                      {previewProgress}%
+                    </span>
+                  </div>
+                  <Progress
+                    value={previewProgress}
+                    className="w-full"
+                  />
+                </div>
+              )}
+              <Button
+                onPress={() => syncPreview(selectedVideo, selectedAudio)}
+                disabled={loadingPreview}
+                isLoading={loadingPreview}
+              >
+                {loadingPreview ? '加载中...' : '同步播放'}
+              </Button>
+            </div>
+          </CardBody>
+        </Card>
       )}
 
       {/* 批量音频预览 */}
       {selectedAudios.length > 0 && batchPreviewUrls.length > 0 && (
-        <div className="bg-white dark:bg-slate-900 p-4 rounded-lg shadow border border-slate-200 dark:border-slate-800 mb-8">
-          <h2 className="text-xl font-semibold mb-4 text-slate-900 dark:text-white">
-            批量音频预览
-          </h2>
-          <div className="flex flex-col items-center">
-            <div className="mb-4 w-full max-w-md">
-              <audio src={batchPreviewUrls[currentBatchPreviewIndex]} controls className="w-full" />
+        <Card className="mb-8">
+          <CardBody>
+            <h2 className="text-xl font-semibold mb-4 text-foreground">
+              批量音频预览
+            </h2>
+            <div className="flex flex-col items-center">
+              <div className="mb-4 w-full max-w-md">
+                <audio src={batchPreviewUrls[currentBatchPreviewIndex]} controls className="w-full" />
+              </div>
+              <div className="mb-4 text-center">
+                <span className="text-sm text-foreground/50">
+                  {currentBatchPreviewIndex + 1} / {batchPreviewUrls.length}
+                </span>
+                <p className="text-sm text-foreground/50 mt-1">
+                  {selectedAudios[currentBatchPreviewIndex]?.prompt || ''}
+                </p>
+              </div>
+              <div className="flex gap-4">
+                <Button
+                  variant="flat"
+                  onPress={playPreviousAudio}
+                  disabled={currentBatchPreviewIndex === 0}
+                >
+                  上一个
+                </Button>
+                <Button
+                  variant="flat"
+                  onPress={playNextAudio}
+                  disabled={currentBatchPreviewIndex === batchPreviewUrls.length - 1}
+                >
+                  下一个
+                </Button>
+              </div>
             </div>
-            <div className="mb-4 text-center">
-              <span className="text-sm text-slate-500 dark:text-slate-400">
-                {currentBatchPreviewIndex + 1} / {batchPreviewUrls.length}
-              </span>
-              <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-                {selectedAudios[currentBatchPreviewIndex]?.prompt || ''}
-              </p>
-            </div>
-            <div className="flex gap-4">
-              <button
-                onClick={playPreviousAudio}
-                disabled={currentBatchPreviewIndex === 0}
-                className="px-4 py-2 bg-slate-200 dark:bg-slate-800 text-slate-900 dark:text-white rounded-md hover:bg-slate-300 dark:hover:bg-slate-700 disabled:bg-slate-300 dark:disabled:bg-slate-700 transition-colors"
-              >
-                上一个
-              </button>
-              <button
-                onClick={playNextAudio}
-                disabled={currentBatchPreviewIndex === batchPreviewUrls.length - 1}
-                className="px-4 py-2 bg-slate-200 dark:bg-slate-800 text-slate-900 dark:text-white rounded-md hover:bg-slate-300 dark:hover:bg-slate-700 disabled:bg-slate-300 dark:disabled:bg-slate-700 transition-colors"
-              >
-                下一个
-              </button>
-            </div>
-          </div>
-        </div>
+          </CardBody>
+        </Card>
       )}
 
       {/* 任务状态 */}
-      <div className="bg-white dark:bg-slate-900 p-4 rounded-lg shadow border border-slate-200 dark:border-slate-800">
-        <h2 className="text-xl font-semibold mb-4 text-slate-900 dark:text-white">任务状态</h2>
-        <div className="space-y-2">
-          {generationTasks.map(task => (
-            <div
-              key={task.id}
-              className="p-3 border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 rounded-md"
-            >
-              <div className="flex justify-between items-center">
-                <span className="font-medium text-slate-900 dark:text-white">
-                  {task.type === 'video' ? '视频生成' : '音频生成'}
-                </span>
-                {renderTaskStatus(task.status)}
+      <Card>
+        <CardBody>
+          <h2 className="text-xl font-semibold mb-4 text-foreground">任务状态</h2>
+          <div className="space-y-2">
+            {generationTasks.map(task => (
+              <div
+                key={task.id}
+                className="p-3 border border-content3 bg-content2 rounded-md"
+              >
+                <div className="flex justify-between items-center">
+                  <span className="font-medium text-foreground">
+                    {task.type === 'video' ? '视频生成' : '音频生成'}
+                  </span>
+                  {renderTaskStatus(task.status)}
+                </div>
+                {task.error && <p className="text-sm text-danger mt-1">{task.error}</p>}
               </div>
-              {task.error && <p className="text-sm text-red-500 mt-1">{task.error}</p>}
-            </div>
-          ))}
-        </div>
-      </div>
+            ))}
+          </div>
+        </CardBody>
+      </Card>
 
       {/* 音频库 */}
       {showAudioLibrary && (
