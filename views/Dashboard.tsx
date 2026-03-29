@@ -220,6 +220,7 @@ const Dashboard: React.FC = () => {
                         radius="full"
                         onClick={e => onRequestDelete(e, project.id)}
                         className="text-slate-400 hover:text-danger opacity-0 group-hover:opacity-100 transition-all duration-300"
+                        aria-label={t.common.delete}
                       >
                         <Trash2 className="w-5 h-5" />
                       </Button>

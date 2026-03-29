@@ -126,6 +126,7 @@ const JobMonitor: React.FC = () => {
           } : undefined}
           className="fixed bottom-6 right-6 z-50 shadow-2xl shadow-lime-500/30 animate-in fade-in zoom-in duration-300"
           onPress={() => setViewMode('collapsed')}
+          aria-label={t.jobs.queue}
         >
           {activeCount > 0 ? (
             <div className="relative">
@@ -190,6 +191,7 @@ const JobMonitor: React.FC = () => {
                 onPress={() => {
                   setViewMode('minimized');
                 }}
+                aria-label={t.common.minimize}
               >
                 <Minimize2 className="w-4 h-4 text-slate-400" />
               </Button>
@@ -199,6 +201,7 @@ const JobMonitor: React.FC = () => {
                 variant="light"
                 radius="full"
                 onPress={() => setViewMode('expanded')}
+                aria-label={t.common.expand}
               >
                 <ChevronUp className="w-4 h-4 text-slate-400" />
               </Button>
@@ -229,6 +232,7 @@ const JobMonitor: React.FC = () => {
             variant="light"
             radius="full"
             onPress={() => setViewMode('minimized')}
+            aria-label={t.common.minimize}
           >
             <Minimize2 className="w-4 h-4 text-slate-400" />
           </Button>
@@ -238,8 +242,9 @@ const JobMonitor: React.FC = () => {
             variant="light"
             radius="full"
             onPress={() => setViewMode('collapsed')}
+            aria-label={t.common.collapse}
           >
-            <ChevronDown className="w-5 h-5 text-slate-400" />
+            <ChevronDown className="w-4 h-4 text-slate-400" />
           </Button>
         </div>
       </CardHeader>

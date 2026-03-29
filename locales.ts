@@ -1,6 +1,20 @@
 export const translations = {
   en: {
     appTitle: 'Nanshan AI Animata',
+    common: {
+      back: 'Back',
+      minimize: 'Minimize',
+      maximize: 'Maximize',
+      expand: 'Expand',
+      collapse: 'Collapse',
+      close: 'Close',
+      delete: 'Delete',
+      edit: 'Edit',
+      save: 'Save',
+      cancel: 'Cancel',
+      switchLanguage: 'Switch Language',
+      toggleTheme: 'Toggle Theme',
+    },
     sidebar: {
       openWorkspace: 'Open Workspace',
       dashboard: 'Dashboard',
@@ -539,6 +553,20 @@ export const translations = {
   },
   zh: {
     appTitle: '南山AI短剧版',
+    common: {
+      back: '返回',
+      minimize: '最小化',
+      maximize: '最大化',
+      expand: '展开',
+      collapse: '收起',
+      close: '关闭',
+      delete: '删除',
+      edit: '编辑',
+      save: '保存',
+      cancel: '取消',
+      switchLanguage: '切换语言',
+      toggleTheme: '切换主题',
+    },
     sidebar: {
       openWorkspace: '打开工作区',
       dashboard: '仪表盘',

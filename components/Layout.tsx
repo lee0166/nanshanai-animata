@@ -109,6 +109,7 @@ const Layout: React.FC<LayoutProps> = ({
                 radius="full"
                 onPress={() => navigate(-1)}
                 className="text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all duration-300"
+                aria-label={t.common.back}
               >
                 <ChevronLeft className="w-5 h-5" />
               </Button>
@@ -118,7 +119,7 @@ const Layout: React.FC<LayoutProps> = ({
           <NavbarBrand>
             <Link to="/" className="flex items-center gap-2 group">
               <div className="w-8 h-8 transition-transform duration-300 group-hover:scale-110">
-                <img src="/icon.png" className="w-full h-full object-contain" />
+                <img src="/icon.png" className="w-full h-full object-contain" alt={t.appTitle} />
               </div>
               <span className="hidden sm:block font-black text-xl tracking-tighter uppercase text-slate-900 dark:text-white transition-colors duration-300 group-hover:text-primary">
                 {t.appTitle}
@@ -212,6 +213,7 @@ const Layout: React.FC<LayoutProps> = ({
                   variant="light"
                   onPress={() => toggleLanguage(settings.language === 'en' ? 'zh' : 'en')}
                   className="text-slate-500 min-w-8 w-8 h-8 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700 transition-all duration-300"
+                  aria-label={t.common.switchLanguage}
                 >
                   <Languages className="w-4 h-4" />
                 </Button>
@@ -223,6 +225,7 @@ const Layout: React.FC<LayoutProps> = ({
                   variant="light"
                   onPress={() => toggleTheme(settings.theme === 'dark' ? 'light' : 'dark')}
                   className="text-slate-500 min-w-8 w-8 h-8 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700 transition-all duration-300"
+                  aria-label={t.common.toggleTheme}
                 >
                   {settings.theme === 'dark' ? (
                     <Sun className="w-4 h-4" />
@@ -240,6 +243,7 @@ const Layout: React.FC<LayoutProps> = ({
                   variant={isSettings ? 'solid' : 'light'}
                   color={isSettings ? 'primary' : 'default'}
                   className={`min-w-8 w-8 h-8 rounded-full transition-all duration-300 ${!isSettings ? 'text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-700' : 'text-white font-bold'}`}
+                  aria-label={t.sidebar.settings}
                 >
                   <Settings className="w-4 h-4" />
                 </Button>
@@ -254,7 +258,7 @@ const Layout: React.FC<LayoutProps> = ({
           <div className="h-full flex flex-col items-center justify-center p-8 text-center bg-slate-50 dark:bg-slate-950">
             <Card className="max-w-lg p-10 md:p-14 border-none shadow-2xl bg-white dark:bg-slate-900 rounded-[2.5rem] animate-fadeIn">
               <div className="w-16 h-16 mx-auto mb-10 transition-transform duration-500 hover:scale-110">
-                <img src="/icon.png" className="w-full h-full object-contain" />
+                <img src="/icon.png" className="w-full h-full object-contain" alt={t.appTitle} />
               </div>
               <h2 className="text-4xl font-black mb-4 text-slate-900 dark:text-white tracking-tighter uppercase animate-slideIn">
                 {t.workspace.selectTitle}
