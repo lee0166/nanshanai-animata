@@ -124,20 +124,14 @@ export const EmotionalArcChart: React.FC<EmotionalArcChartProps> = ({
   };
 
   return (
-    <Card className="w-full bg-gradient-to-br from-content1 to-content2 border-none relative">
-      <CardHeader className="flex items-center justify-between pb-2">
-        <div className="flex items-center gap-3">
-          <motion.div
-            className="p-2.5 bg-primary/15 rounded-xl"
-            animate={{ 
-              scale: [1, 1.05, 1],
-            }}
-            transition={{ duration: 2, repeat: Infinity }}
-          >
-            <Heart className="w-5 h-5 text-primary" />
-          </motion.div>
+    <Card className="w-full bg-gradient-to-br from-content1 to-content2 border-none relative flex flex-col">
+      <CardHeader className="flex items-center justify-between pb-1 pt-3">
+        <div className="flex items-center gap-2">
+          <div className="p-1.5 bg-primary/15 rounded-lg">
+            <Heart className="w-4 h-4 text-primary" />
+          </div>
           <div>
-            <h3 className="text-lg font-semibold">情绪曲线</h3>
+            <h3 className="text-lg font-bold">情绪曲线</h3>
             <p className="text-sm text-default-500">故事情绪起伏与情节点</p>
           </div>
         </div>
@@ -148,13 +142,14 @@ export const EmotionalArcChart: React.FC<EmotionalArcChartProps> = ({
         )}
       </CardHeader>
 
-      <CardBody className="pt-2 pb-4">
-        <div className="relative w-full">
-          <svg
-            viewBox={`0 0 ${width} ${height}`}
-            className="w-full h-auto"
-            preserveAspectRatio="xMidYMid meet"
-          >
+      <CardBody className="pt-2 pb-4 space-y-3 flex-1 flex flex-col">
+        <div>
+          <div className="relative w-full">
+            <svg
+              viewBox={`0 0 ${width} ${height}`}
+              className="w-full h-auto"
+              preserveAspectRatio="xMidYMid meet"
+            >
             <defs>
               <linearGradient id="emotionLineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
                 {points.map((point, idx) => (
@@ -299,6 +294,7 @@ export const EmotionalArcChart: React.FC<EmotionalArcChartProps> = ({
               );
             })}
           </svg>
+          </div>
         </div>
       </CardBody>
 

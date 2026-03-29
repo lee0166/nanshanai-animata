@@ -70,6 +70,7 @@ import {
   Badge,
   Switch,
   useDisclosure,
+  Tooltip,
 } from '@heroui/react';
 import {
   FileText,
@@ -939,8 +940,10 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({
               {scripts.map(script => (
                 <div
                   key={script.id}
-                  className={`p-4 cursor-pointer hover:bg-content2 transition-colors ${
-                    currentScript?.id === script.id ? 'bg-content2' : ''
+                  className={`p-4 cursor-pointer hover:bg-content2 transition-all duration-200 border-l-4 ${
+                    currentScript?.id === script.id 
+                      ? 'bg-primary/10 border-primary' 
+                      : 'border-transparent'
                   }`}
                   onClick={() => setCurrentScript(script)}
                 >
@@ -951,22 +954,24 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({
                         {new Date(script.createdAt).toLocaleDateString()}
                       </p>
                       {script.parseState?.stage === 'completed' && (
-                        <Chip size="sm" color="success" variant="flat" className="mt-1">
+                        <Chip size="sm" color="default" variant="flat" className="mt-1">
                           <CheckCircle2 className="w-3 h-3 mr-1" />
-                          已解析
+                          解析完成
                         </Chip>
                       )}
                     </div>
-                    <Button
-                      isIconOnly
-                      size="sm"
-                      variant="light"
-                      color="danger"
-                      aria-label="删除剧本"
-                      onPress={() => confirmDeleteScript(script)}
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
+                    <Tooltip content="删除剧本" delay={300}>
+                      <Button
+                        isIconOnly
+                        size="sm"
+                        variant="light"
+                        color="default"
+                        aria-label="删除剧本"
+                        onPress={() => confirmDeleteScript(script)}
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </Tooltip>
                   </div>
                 </div>
               ))}
@@ -1046,6 +1051,7 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({
                   )}
                   {currentScript.parseState?.stage === 'completed' && (
                     <Button
+                      color="primary"
                       variant="flat"
                       startContent={<RotateCcw className="w-4 h-4" />}
                       onPress={handleStartParse}
@@ -1096,97 +1102,7 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({
                   >
                     <Card>
                       <CardBody className="space-y-6">
-                        {/* 统计区 - 2x2紧凑网格布局 */}
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                          <motion.div
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.3, delay: 0 }}
-                          >
-                            <Card className="bg-gradient-to-br from-primary/10 to-primary/5 border border-primary/20 hover:border-primary/40 transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
-                              <CardBody className="p-4">
-                                <div className="flex items-center gap-3">
-                                  <div className="p-2.5 bg-primary/20 rounded-xl">
-                                    <Activity className="w-5 h-5 text-primary" />
-                                  </div>
-                                  <div className="flex-1 min-w-0">
-                                    <p className="text-3xl font-bold text-primary">
-                                      {currentScript.parseState.plotAnalysis?.plotPoints?.length ||
-                                        currentScript.parseState.shots?.length ||
-                                        0}
-                                    </p>
-                                    <p className="text-xs text-foreground/60 mt-0.5">情节点</p>
-                                  </div>
-                                </div>
-                              </CardBody>
-                            </Card>
-                          </motion.div>
-                          <motion.div
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.3, delay: 0.1 }}
-                          >
-                            <Card className="bg-gradient-to-br from-secondary/10 to-secondary/5 border border-secondary/20 hover:border-secondary/40 transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
-                              <CardBody className="p-4">
-                                <div className="flex items-center gap-3">
-                                  <div className="p-2.5 bg-secondary/20 rounded-xl">
-                                    <Camera className="w-5 h-5 text-secondary" />
-                                  </div>
-                                  <div className="flex-1 min-w-0">
-                                    <p className="text-3xl font-bold text-secondary">
-                                      {currentScript.parseState.shots?.length || 0}
-                                    </p>
-                                    <p className="text-xs text-foreground/60 mt-0.5">生成分镜</p>
-                                  </div>
-                                </div>
-                              </CardBody>
-                            </Card>
-                          </motion.div>
-                          <motion.div
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.3, delay: 0.2 }}
-                          >
-                            <Card className="bg-gradient-to-br from-success/10 to-success/5 border border-success/20 hover:border-success/40 transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
-                              <CardBody className="p-4">
-                                <div className="flex items-center gap-3">
-                                  <div className="p-2.5 bg-success/20 rounded-xl">
-                                    <User className="w-5 h-5 text-success" />
-                                  </div>
-                                  <div className="flex-1 min-w-0">
-                                    <p className="text-3xl font-bold text-success">
-                                      {currentScript.parseState.characters?.length || 0}
-                                    </p>
-                                    <p className="text-xs text-foreground/60 mt-0.5">角色</p>
-                                  </div>
-                                </div>
-                              </CardBody>
-                            </Card>
-                          </motion.div>
-                          <motion.div
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.3, delay: 0.3 }}
-                          >
-                            <Card className="bg-gradient-to-br from-warning/10 to-warning/5 border border-warning/20 hover:border-warning/40 transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
-                              <CardBody className="p-4">
-                                <div className="flex items-center gap-3">
-                                  <div className="p-2.5 bg-warning/20 rounded-xl">
-                                    <Map className="w-5 h-5 text-warning" />
-                                  </div>
-                                  <div className="flex-1 min-w-0">
-                                    <p className="text-3xl font-bold text-warning">
-                                      {currentScript.parseState.scenes?.length || 0}
-                                    </p>
-                                    <p className="text-xs text-foreground/60 mt-0.5">场景</p>
-                                  </div>
-                                </div>
-                              </CardBody>
-                            </Card>
-                          </motion.div>
-                        </div>
-
-                        {/* 第一行：故事概览 + 视觉风格 */}
+                        {/* 第一行：故事概览 + 情绪曲线 */}
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                           <motion.div
                             initial={{ opacity: 0, y: 20 }}
@@ -1195,22 +1111,11 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({
                           >
                             <StoryOverviewCard metadata={currentScript.parseState.metadata} t={{}} />
                           </motion.div>
-                          <motion.div
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.3, delay: 0.45 }}
-                          >
-                            <VisualStyleCard metadata={currentScript.parseState.metadata} t={{}} />
-                          </motion.div>
-                        </div>
-
-                        {/* 第二行：情绪曲线 + 故事结构 */}
-                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                           {currentScript.parseState.metadata?.emotionalArc && (
                             <motion.div
                               initial={{ opacity: 0, y: 20 }}
                               animate={{ opacity: 1, y: 0 }}
-                              transition={{ duration: 0.4, delay: 0.5 }}
+                              transition={{ duration: 0.4, delay: 0.45 }}
                             >
                               <EmotionalArcChart
                                 emotionalArc={currentScript.parseState.metadata.emotionalArc}
@@ -1218,6 +1123,17 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({
                               />
                             </motion.div>
                           )}
+                        </div>
+
+                        {/* 第二行：视觉风格 + 故事结构 */}
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                          <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.3, delay: 0.5 }}
+                          >
+                            <VisualStyleCard metadata={currentScript.parseState.metadata} t={{}} />
+                          </motion.div>
                           <motion.div
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
@@ -1451,18 +1367,20 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({
                         <div className="flex items-center gap-2">
                           <AlertCircle size={16} />
                           <span>质量</span>
-                          <Chip
-                            size="sm"
-                            color={
-                              qualityReport.score >= 80
-                                ? 'success'
-                                : qualityReport.score >= 60
-                                  ? 'warning'
-                                  : 'danger'
-                            }
-                          >
-                            {qualityReport.score}
-                          </Chip>
+                          <Tooltip content="剧本解析质量评分（0-100）" delay={300}>
+                            <Chip
+                              size="sm"
+                              color={
+                                qualityReport.score >= 80
+                                  ? 'success'
+                                  : qualityReport.score >= 60
+                                    ? 'warning'
+                                    : 'danger'
+                              }
+                            >
+                              {qualityReport.score}
+                            </Chip>
+                          </Tooltip>
                         </div>
                       }
                     >

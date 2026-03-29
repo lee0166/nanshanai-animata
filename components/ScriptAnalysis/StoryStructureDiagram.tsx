@@ -9,7 +9,7 @@
  */
 
 import React from 'react';
-import { Card, CardBody, CardHeader, Chip, Tooltip } from '@heroui/react';
+import { Card, CardBody, CardHeader, Chip, Tooltip, Divider } from '@heroui/react';
 import {
   Layout,
   Play,
@@ -52,13 +52,13 @@ const getStructureTypeDescription = (type: string): string => {
 const getStructureTypeIcon = (type: string) => {
   switch (type) {
     case 'three_act':
-      return <Layout className="w-5 h-5 text-primary" />;
+      return <Layout className="w-4 h-4 text-primary" />;
     case 'hero_journey':
-      return <TrendingUp className="w-5 h-5 text-primary" />;
+      return <TrendingUp className="w-4 h-4 text-primary" />;
     case 'five_act':
-      return <Flag className="w-5 h-5 text-primary" />;
+      return <Flag className="w-4 h-4 text-primary" />;
     default:
-      return <HelpCircle className="w-5 h-5 text-primary" />;
+      return <HelpCircle className="w-4 h-4 text-primary" />;
   }
 };
 
@@ -130,20 +130,14 @@ export const StoryStructureDiagram: React.FC<StoryStructureDiagramProps> = ({
   }
 
   return (
-    <Card className="w-full bg-gradient-to-br from-content1 to-content2 border-none relative">
-      <CardHeader className="flex items-center justify-between pb-2">
-        <div className="flex items-center gap-3">
-          <motion.div
-            className="p-2.5 bg-primary/15 rounded-xl"
-            animate={{ 
-              scale: [1, 1.05, 1],
-            }}
-            transition={{ duration: 2, repeat: Infinity }}
-          >
+    <Card className="w-full bg-gradient-to-br from-content1 to-content2 border-none relative flex flex-col">
+      <CardHeader className="flex items-center justify-between pb-1 pt-3">
+        <div className="flex items-center gap-2">
+          <div className="p-1.5 bg-primary/15 rounded-lg">
             {getStructureTypeIcon(structureType)}
-          </motion.div>
+          </div>
           <div>
-            <h3 className="text-lg font-semibold">故事结构</h3>
+            <h3 className="text-lg font-bold">故事结构</h3>
             <p className="text-sm text-default-500">{getStructureTypeDescription(structureType)}</p>
           </div>
         </div>
@@ -152,86 +146,95 @@ export const StoryStructureDiagram: React.FC<StoryStructureDiagramProps> = ({
         </Chip>
       </CardHeader>
 
-      <CardBody className="pt-2 pb-4 space-y-4">
-        <div className="relative">
-          <div className="absolute top-1/2 left-0 right-0 h-0.5 bg-content3 rounded-full -translate-y-1/2" />
+      <CardBody className="pt-2 pb-4 space-y-3 flex-1 flex flex-col">
+        <div>
+          <div className="relative">
+            <div className="absolute top-1/2 left-0 right-0 h-0.5 bg-content3 rounded-full -translate-y-1/2" />
 
-          <div className="relative flex justify-between items-center py-4">
-            {ACT_CONFIG.map((act, idx) => {
-              const content = storyStructure[act.key as keyof StoryStructure] as string;
-              const hasContent = !!content;
+            <div className="relative flex justify-between items-center py-4">
+              {ACT_CONFIG.map((act, idx) => {
+                const content = storyStructure[act.key as keyof StoryStructure] as string;
+                const hasContent = !!content;
 
-              return (
-                <Tooltip
-                  key={act.key}
-                  content={
-                    <div className="max-w-xs">
-                      <div className="font-medium text-base mb-0.5">{act.title}</div>
-                      <div className="text-sm text-default-400 mb-1">{act.description}</div>
-                      {content && <div className="text-sm">{content}</div>}
-                    </div>
-                  }
-                >
-                  <div
-                    className={`relative flex flex-col items-center cursor-pointer transition-all duration-300 ${
-                      hasContent ? 'opacity-100' : 'opacity-40'
-                    }`}
+                return (
+                  <Tooltip
+                    key={act.key}
+                    content={
+                      <div className="max-w-xs">
+                        <div className="font-medium text-base mb-0.5">{act.title}</div>
+                        <div className="text-sm text-default-400 mb-1">{act.description}</div>
+                        {content && <div className="text-sm">{content}</div>}
+                      </div>
+                    }
                   >
                     <div
-                      className={`w-10 h-10 rounded-full flex items-center justify-center border-2 z-10 transition-transform hover:scale-110 ${
-                        hasContent
-                          ? 'bg-primary border-primary text-primary-foreground'
-                          : 'bg-content2 border-content3 text-default-500'
+                      className={`relative flex flex-col items-center cursor-pointer transition-all duration-300 ${
+                        hasContent ? 'opacity-100' : 'opacity-40'
                       }`}
-                      style={{
-                        backgroundColor: hasContent ? 'var(--heroui-colors-primary)' : 'var(--heroui-colors-content2)',
-                        borderColor: hasContent ? 'var(--heroui-colors-primary)' : 'var(--heroui-colors-content3)',
-                        color: hasContent
-                          ? 'var(--heroui-colors-primary-foreground)'
-                          : undefined,
-                      }}
                     >
-                      {act.icon}
-                    </div>
+                      <div
+                        className={`w-10 h-10 rounded-full flex items-center justify-center border-2 z-10 transition-transform hover:scale-110 ${
+                          hasContent
+                            ? 'bg-primary border-primary text-primary-foreground'
+                            : 'bg-content2 border-content3 text-default-500'
+                        }`}
+                        style={{
+                          backgroundColor: hasContent ? 'var(--heroui-colors-primary)' : 'var(--heroui-colors-content2)',
+                          borderColor: hasContent ? 'var(--heroui-colors-primary)' : 'var(--heroui-colors-content3)',
+                          color: hasContent
+                            ? 'var(--heroui-colors-primary-foreground)'
+                            : undefined,
+                        }}
+                      >
+                        {act.icon}
+                      </div>
 
-                    <div className="mt-2 text-center">
-                      <div className="text-base font-medium">{act.title}</div>
-                      <div className="text-sm text-default-400">{act.subtitle}</div>
+                      <div className="mt-2 text-center">
+                        <div className="text-sm font-medium">{act.title}</div>
+                        <div className="text-xs text-default-400">{act.subtitle}</div>
+                      </div>
                     </div>
-                  </div>
-                </Tooltip>
-              );
-            })}
+                  </Tooltip>
+                );
+              })}
+            </div>
           </div>
         </div>
 
         {(midpoint || climax) && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {midpoint && (
-              <div className="bg-content2 rounded-lg p-3 border border-content3">
-                <div className="flex items-center gap-2 text-primary mb-1">
-                  <TrendingUp className="w-4 h-4" />
-                  <span className="text-base font-medium">中点转折</span>
-                </div>
-                <p className="text-base text-foreground">{midpoint}</p>
+          <>
+            <Divider className="my-2" />
+            <div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {midpoint && (
+                  <div>
+                    <div className="flex items-center gap-2 text-default-500 mb-1">
+                      <TrendingUp className="w-4 h-4" />
+                      <span className="text-sm font-bold">中点转折</span>
+                    </div>
+                    <p className="text-sm text-foreground">{midpoint}</p>
+                  </div>
+                )}
+                {climax && (
+                  <div>
+                    <div className="flex items-center gap-2 text-default-500 mb-1">
+                      <Target className="w-4 h-4" />
+                      <span className="text-sm font-bold">高潮</span>
+                    </div>
+                    <p className="text-sm text-foreground">{climax}</p>
+                  </div>
+                )}
               </div>
-            )}
-            {climax && (
-              <div className="bg-content2 rounded-lg p-3 border border-content3">
-                <div className="flex items-center gap-2 text-primary mb-1">
-                  <Target className="w-4 h-4" />
-                  <span className="text-base font-medium">高潮</span>
-                </div>
-                <p className="text-base text-foreground">{climax}</p>
-              </div>
-            )}
-          </div>
+            </div>
+          </>
         )}
 
-        <div className="bg-content2/50 rounded-lg p-3 border border-content3/50">
-          <div className="flex items-center gap-2 text-default-500 mb-2">
+        {(midpoint || climax) && <Divider className="my-2" />}
+        
+        <div>
+          <div className="flex items-center gap-2 text-default-500 mb-1.5">
             <BookOpen className="w-4 h-4" />
-            <span className="text-base font-medium">结构说明</span>
+            <span className="text-sm font-bold">结构说明</span>
           </div>
           <p className="text-sm text-default-400 leading-relaxed">
             {structureType === 'three_act' 
