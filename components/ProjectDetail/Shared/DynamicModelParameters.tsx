@@ -131,7 +131,7 @@ export const DynamicModelParameters: React.FC<DynamicModelParametersProps> = ({
                 size="sm"
                 classNames={{ 
                   trigger: 'h-7 text-[11px] min-h-7', 
-                  inputWrapper: 'h-7 min-h-7 border border-zinc-700 data-[focus=true]:border-lime-500 bg-zinc-900/50',
+                  inputWrapper: 'h-7 min-h-7 border border-zinc-700 data-[focus=true]:border-primary bg-zinc-900/50',
                   input: 'text-zinc-200',
                 }}
               />
@@ -151,7 +151,7 @@ export const DynamicModelParameters: React.FC<DynamicModelParametersProps> = ({
                 size="sm"
                 classNames={{ 
                   trigger: 'h-7 text-[11px] min-h-7', 
-                  inputWrapper: 'h-7 min-h-7 border border-zinc-700 data-[focus=true]:border-lime-500 bg-zinc-900/50',
+                  inputWrapper: 'h-7 min-h-7 border border-zinc-700 data-[focus=true]:border-primary bg-zinc-900/50',
                   input: 'text-zinc-200',
                 }}
               />

@@ -642,7 +642,7 @@ export const CharacterWorkflowWizard: React.FC<CharacterWorkflowWizardProps> = (
 
                         {selectedFaceImage?.id === img.id && (
                           <div className="absolute top-2 right-2 z-10">
-                            <Chip size="sm" className="shadow-lg bg-lime-500 text-black">
+                            <Chip size="sm" className="shadow-lg bg-primary text-black">
                               <Check className="w-3 h-3 mr-1" />
                               已选择
                             </Chip>
@@ -780,7 +780,7 @@ export const CharacterWorkflowWizard: React.FC<CharacterWorkflowWizardProps> = (
 
                         {selectedFullBodyImage?.id === img.id && (
                           <div className="absolute top-2 right-2 z-10">
-                            <Chip size="sm" className="shadow-lg bg-lime-500 text-black">
+                            <Chip size="sm" className="shadow-lg bg-primary text-black">
                               <Check className="w-3 h-3 mr-1" />
                               已选择
                             </Chip>

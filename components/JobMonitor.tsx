@@ -249,7 +249,7 @@ const JobMonitor: React.FC = () => {
           {displayedJobs.map(job => (
             <div
               key={job.id}
-              className="p-4 bg-slate-50/50 dark:bg-slate-950/50 rounded-2xl border border-slate-100 dark:border-slate-800/50 hover:border-lime-500/30 transition-all group"
+              className="p-4 bg-slate-50/50 dark:bg-slate-950/50 rounded-2xl border border-slate-100 dark:border-slate-800/50 hover:border-primary/30 transition-all group"
             >
               <div className="flex justify-between items-center mb-2">
                 <span className="font-black text-[10px] uppercase tracking-widest text-slate-500 group-hover:text-primary transition-colors">

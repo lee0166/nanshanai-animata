@@ -1994,7 +1994,7 @@ const Settings: React.FC = () => {
                                 );
                               }
                             }}
-                            className="w-4 h-4 rounded border-slate-300 dark:border-slate-600 text-primary focus:ring-lime-500"
+                            className="w-4 h-4 rounded border-slate-300 dark:border-slate-600 text-primary focus:ring-primary"
                           />
                         </TableColumn>
                         <TableColumn width={80}>状态</TableColumn>
@@ -2013,7 +2013,7 @@ const Settings: React.FC = () => {
                                 type="checkbox"
                                 checked={selectedModelIds.includes(model.id)}
                                 onChange={() => toggleModelSelection(model.id)}
-                                className="w-4 h-4 rounded border-slate-300 dark:border-slate-600 text-primary focus:ring-lime-500"
+                                className="w-4 h-4 rounded border-slate-300 dark:border-slate-600 text-primary focus:ring-primary"
                               />
                             </TableCell>
                             <TableCell>
