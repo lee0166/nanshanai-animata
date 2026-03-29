@@ -323,23 +323,23 @@ export const TimelineEditor: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-screen bg-[#0F0F23]">
+      <div className="flex items-center justify-center h-screen bg-background">
         <Spinner size="lg" color="primary" />
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col h-screen bg-[#0F0F23] text-[#F8FAFC]">
+    <div className="flex flex-col h-screen bg-background text-foreground">
       {/* Header */}
-      <header className="flex items-center justify-between px-6 py-4 bg-[#1E1B4B] border-b border-[#1E1B4B]/50">
+      <header className="flex items-center justify-between px-6 py-4 bg-content1 border-b border-content3">
         <div className="flex items-center gap-4">
-          <Button variant="light" isIconOnly onPress={() => navigate(-1)}>
+          <Button variant="light" isIconOnly onPress={() => navigate(-1)} aria-label="返回">
             <ChevronLeft size={20} />
           </Button>
           <div>
             <h1 className="text-xl font-semibold">{timeline?.name || 'Timeline Editor'}</h1>
-            <p className="text-sm text-gray-400">
+            <p className="text-sm text-slate-400">
               {videoClips.length} clips · {formatTime(totalDuration)} total
             </p>
           </div>
@@ -352,6 +352,7 @@ export const TimelineEditor: React.FC = () => {
               isIconOnly
               variant={viewMode === 'timeline' ? 'solid' : 'light'}
               onPress={() => setViewMode('timeline')}
+              aria-label="时间线视图"
             >
               <Layers size={18} />
             </Button>
@@ -359,6 +360,7 @@ export const TimelineEditor: React.FC = () => {
               isIconOnly
               variant={viewMode === 'grid' ? 'solid' : 'light'}
               onPress={() => setViewMode('grid')}
+              aria-label="网格视图"
             >
               <Grid3X3 size={18} />
             </Button>
@@ -366,6 +368,7 @@ export const TimelineEditor: React.FC = () => {
               isIconOnly
               variant={viewMode === 'list' ? 'solid' : 'light'}
               onPress={() => setViewMode('list')}
+              aria-label="列表视图"
             >
               <List size={18} />
             </Button>
@@ -405,11 +408,11 @@ export const TimelineEditor: React.FC = () => {
           {viewMode === 'timeline' && (
             <div className="space-y-4">
               {/* Time ruler */}
-              <div className="flex items-end h-8 border-b border-gray-700">
+              <div className="flex items-end h-8 border-b border-content4">
                 {Array.from({ length: Math.ceil(totalDuration / 5) + 1 }).map((_, i) => (
                   <div
                     key={i}
-                    className="flex-shrink-0 text-xs text-gray-500"
+                    className="flex-shrink-0 text-xs text-slate-400"
                     style={{ width: 5 * TIMELINE_SCALE }}
                   >
                     {formatTime(i * 5)}
@@ -423,7 +426,7 @@ export const TimelineEditor: React.FC = () => {
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-2">
                       {track.type === 'video' && <Film size={16} className="text-primary" />}
-                      {track.type === 'audio' && <Music size={16} className="text-green-400" />}
+                      {track.type === 'audio' && <Music size={16} className="text-success" />}
                       <span className="text-sm font-medium">{track.name}</span>
                     </div>
                     {track.type === 'audio' && (
@@ -434,6 +437,7 @@ export const TimelineEditor: React.FC = () => {
                         onPress={() =>
                           setSelectedTrackId(track.id === selectedTrackId ? null : track.id)
                         }
+                        aria-label="切换静音"
                       >
                         {track.isMuted ? <VolumeX size={14} /> : <Volume2 size={14} />}
                       </Button>
@@ -441,7 +445,7 @@ export const TimelineEditor: React.FC = () => {
                   </div>
 
                   <div
-                    className="relative h-24 bg-[#1E1B4B]/30 rounded-lg overflow-hidden"
+                    className="relative h-24 bg-content2 rounded-lg overflow-hidden"
                     style={{ width: Math.max(totalDuration * TIMELINE_SCALE, 800) }}
                   >
                     {track.clips.map((clip, index) => {
@@ -461,8 +465,8 @@ export const TimelineEditor: React.FC = () => {
                             absolute top-2 bottom-2 rounded cursor-pointer
                             transition-all duration-200
                             ${isSelected ? 'ring-2 ring-primary' : ''}
-                            ${isDragOver ? 'bg-primary/30' : track.type === 'video' ? 'bg-[#1E1B4B]' : 'bg-[#164e32]'}
-                            hover:bg-[#2d2a5c]
+                            ${isDragOver ? 'bg-primary/30' : track.type === 'video' ? 'bg-content1' : 'bg-primary/10'}
+                            hover:bg-content3
                           `}
                           style={{
                             left: clip.startTime * TIMELINE_SCALE,
@@ -470,12 +474,12 @@ export const TimelineEditor: React.FC = () => {
                           }}
                         >
                           <div className="flex items-center gap-2 p-2 h-full">
-                            <GripVertical size={16} className="text-gray-500 cursor-grab" />
+                            <GripVertical size={16} className="text-slate-400 cursor-grab" />
                             <div className="flex-1 min-w-0">
                               <p className="text-xs font-medium truncate">{clip.name}</p>
-                              <p className="text-xs text-gray-500">{formatTime(clip.duration)}</p>
+                              <p className="text-xs text-slate-400">{formatTime(clip.duration)}</p>
                               {track.type === 'audio' && clip.audioProperties && (
-                                <p className="text-xs text-green-400">
+                                <p className="text-xs text-success">
                                   Vol: {Math.round(clip.audioProperties.volume * 100)}%
                                   {clip.audioProperties.fadeIn > 0 &&
                                     ` | Fade In: ${clip.audioProperties.fadeIn}s`}
@@ -493,6 +497,7 @@ export const TimelineEditor: React.FC = () => {
                                 onPress={() => {
                                   handleDeleteClip(clip.id, track.id);
                                 }}
+                                aria-label="删除片段"
                               >
                                 <Trash2 size={14} />
                               </Button>
@@ -504,10 +509,10 @@ export const TimelineEditor: React.FC = () => {
 
                     {/* Playhead */}
                     <div
-                      className="absolute top-0 bottom-0 w-0.5 bg-[#E11D48] z-10"
+                      className="absolute top-0 bottom-0 w-0.5 bg-primary z-10"
                       style={{ left: currentTime * TIMELINE_SCALE }}
                     >
-                      <div className="absolute -top-1 -left-1.5 w-4 h-4 bg-[#E11D48] rounded-full" />
+                      <div className="absolute -top-1 -left-1.5 w-4 h-4 bg-primary rounded-full" />
                     </div>
                   </div>
                 </div>
@@ -538,13 +543,13 @@ export const TimelineEditor: React.FC = () => {
                     onPress={() => handleClipClick(clip.id)}
                     className={`${isSelected ? 'ring-2 ring-primary' : ''}`}
                   >
-                    <CardBody className="p-0 aspect-video bg-[#1E1B4B] flex items-center justify-center">
-                      <Film size={32} className="text-gray-600" />
+                    <CardBody className="p-0 aspect-video bg-content1 flex items-center justify-center">
+                      <Film size={32} className="text-slate-400" />
                     </CardBody>
                     <CardHeader className="py-2 px-3">
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium truncate">{clip.name}</p>
-                        <p className="text-xs text-gray-500">{formatTime(clip.duration)}</p>
+                        <p className="text-xs text-slate-400">{formatTime(clip.duration)}</p>
                       </div>
                     </CardHeader>
                   </Card>
@@ -567,13 +572,13 @@ export const TimelineEditor: React.FC = () => {
                     className={`${isSelected ? 'ring-2 ring-primary' : ''}`}
                   >
                     <CardBody className="flex items-center gap-4 py-3">
-                      <span className="text-gray-500 w-8">{index + 1}</span>
-                      <div className="w-16 h-12 bg-[#1E1B4B] rounded flex items-center justify-center">
-                        <Film size={20} className="text-gray-600" />
+                      <span className="text-slate-400 w-8">{index + 1}</span>
+                      <div className="w-16 h-12 bg-content1 rounded flex items-center justify-center">
+                        <Film size={20} className="text-slate-400" />
                       </div>
                       <div className="flex-1">
                         <p className="font-medium">{clip.name}</p>
-                        <p className="text-sm text-gray-500">
+                        <p className="text-sm text-slate-400">
                           {shot?.description?.slice(0, 60)}...
                         </p>
                       </div>
@@ -591,6 +596,7 @@ export const TimelineEditor: React.FC = () => {
                               handleDeleteClip(clip.id, videoTrack.id);
                             }
                           }}
+                          aria-label="删除片段"
                         >
                           <Trash2 size={16} />
                         </Button>
@@ -605,7 +611,7 @@ export const TimelineEditor: React.FC = () => {
 
         {/* Properties panel */}
         {selectedClipId && (
-          <div className="w-80 border-l border-[#1E1B4B] bg-[#1E1B4B]/30 p-4">
+          <div className="w-80 border-l border-content3 bg-content2 p-4">
             {(() => {
               // Find the clip in all tracks
               let clip: TimelineClip | undefined;
@@ -629,17 +635,17 @@ export const TimelineEditor: React.FC = () => {
                   <h3 className="font-semibold">Clip Properties</h3>
 
                   <div>
-                    <label className="text-xs text-gray-500">Name</label>
+                    <label className="text-xs text-slate-400">Name</label>
                     <p className="text-sm">{clip.name}</p>
                   </div>
 
                   <div>
-                    <label className="text-xs text-gray-500">Duration</label>
+                    <label className="text-xs text-slate-400">Duration</label>
                     <p className="text-sm">{formatTime(clip.duration)}</p>
                   </div>
 
                   <div>
-                    <label className="text-xs text-gray-500">Track Type</label>
+                    <label className="text-xs text-slate-400">Track Type</label>
                     <Chip size="sm" className="mt-1">
                       {track?.type === 'video' ? 'Video' : 'Audio'}
                     </Chip>
@@ -648,14 +654,14 @@ export const TimelineEditor: React.FC = () => {
                   {track?.type === 'video' && (
                     <>
                       <div>
-                        <label className="text-xs text-gray-500">Shot Type</label>
+                        <label className="text-xs text-slate-400">Shot Type</label>
                         <Chip size="sm" className="mt-1">
                           {shot.shotType}
                         </Chip>
                       </div>
 
                       <div>
-                        <label className="text-xs text-gray-500">Camera Movement</label>
+                        <label className="text-xs text-slate-400">Camera Movement</label>
                         <p className="text-sm">{shot.cameraMovement}</p>
                       </div>
                     </>
@@ -670,8 +676,8 @@ export const TimelineEditor: React.FC = () => {
 
                       <div>
                         <div className="flex justify-between items-center mb-1">
-                          <label className="text-xs text-gray-500">Volume</label>
-                          <span className="text-xs text-gray-500">
+                          <label className="text-xs text-slate-400">Volume</label>
+                          <span className="text-xs text-slate-400">
                             {Math.round((clip.audioProperties?.volume || 1) * 100)}%
                           </span>
                         </div>
@@ -691,8 +697,8 @@ export const TimelineEditor: React.FC = () => {
 
                       <div>
                         <div className="flex justify-between items-center mb-1">
-                          <label className="text-xs text-gray-500">Fade In</label>
-                          <span className="text-xs text-gray-500">
+                          <label className="text-xs text-slate-400">Fade In</label>
+                          <span className="text-xs text-slate-400">
                             {clip.audioProperties?.fadeIn || 0}s
                           </span>
                         </div>
@@ -712,8 +718,8 @@ export const TimelineEditor: React.FC = () => {
 
                       <div>
                         <div className="flex justify-between items-center mb-1">
-                          <label className="text-xs text-gray-500">Fade Out</label>
-                          <span className="text-xs text-gray-500">
+                          <label className="text-xs text-slate-400">Fade Out</label>
+                          <span className="text-xs text-slate-400">
                             {clip.audioProperties?.fadeOut || 0}s
                           </span>
                         </div>
@@ -736,13 +742,13 @@ export const TimelineEditor: React.FC = () => {
                   <Divider />
 
                   <div>
-                    <label className="text-xs text-gray-500">Description</label>
-                    <p className="text-sm text-gray-400">{shot.description}</p>
+                    <label className="text-xs text-slate-400">Description</label>
+                    <p className="text-sm text-slate-400">{shot.description}</p>
                   </div>
 
                   {shot.dialogue && (
                     <div>
-                      <label className="text-xs text-gray-500">Dialogue</label>
+                      <label className="text-xs text-slate-400">Dialogue</label>
                       <p className="text-sm italic">&ldquo;{shot.dialogue}&rdquo;</p>
                     </div>
                   )}
@@ -754,21 +760,21 @@ export const TimelineEditor: React.FC = () => {
       </div>
 
       {/* Playback controls */}
-      <div className="flex items-center justify-between px-6 py-3 bg-[#1E1B4B] border-t border-[#1E1B4B]/50">
+      <div className="flex items-center justify-between px-6 py-3 bg-content1 border-t border-content3">
         <div className="flex items-center gap-4">
-          <Button isIconOnly variant="light" size="sm">
+          <Button isIconOnly variant="light" size="sm" aria-label="后退">
             <SkipBack size={20} />
           </Button>
-          <Button isIconOnly color="primary" size="lg" onPress={() => setIsPlaying(!isPlaying)}>
+          <Button isIconOnly color="primary" size="lg" onPress={() => setIsPlaying(!isPlaying)} aria-label="播放/暂停">
             {isPlaying ? <Pause size={24} /> : <Play size={24} />}
           </Button>
-          <Button isIconOnly variant="light" size="sm">
+          <Button isIconOnly variant="light" size="sm" aria-label="前进">
             <SkipForward size={20} />
           </Button>
         </div>
 
         <div className="flex items-center gap-4">
-          <Clock size={16} className="text-gray-500" />
+          <Clock size={16} className="text-slate-400" />
           <span className="font-mono text-lg">
             {formatTime(currentTime)} / {formatTime(totalDuration)}
           </span>
