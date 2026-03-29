@@ -898,14 +898,14 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({
   return (
     <div className="flex flex-col h-full">
       {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900">
+      <div className="flex items-center justify-between p-4 border-b border-content3 bg-content1">
         <div className="flex items-center gap-4">
-          <h2 className="text-xl font-bold flex items-center gap-2 text-slate-900 dark:text-white">
-            <FileText className="w-5 h-5 text-slate-700 dark:text-slate-300" />
+          <h2 className="text-xl font-bold flex items-center gap-2 text-foreground">
+            <FileText className="w-5 h-5 text-foreground/70" />
             剧本管理
           </h2>
           {scripts.length > 0 && (
-            <Chip size="sm" variant="flat" className="text-slate-700 dark:text-slate-300">
+            <Chip size="sm" variant="flat" className="text-foreground/70">
               {scripts.length} 个剧本
             </Chip>
           )}
@@ -924,26 +924,26 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({
       {/* Main Content */}
       <div className="flex flex-1 overflow-hidden">
         {/* Script List Sidebar */}
-        <div className="w-64 border-r border-slate-200 dark:border-slate-800 overflow-y-auto">
+        <div className="w-64 border-r border-content3 overflow-y-auto">
           {scripts.length === 0 ? (
-            <div className="p-4 text-center text-slate-500">
+            <div className="p-4 text-center text-foreground/50">
               <p>暂无剧本</p>
               <p className="text-sm">上传剧本开始使用</p>
             </div>
           ) : (
-            <div className="divide-y divide-slate-200 dark:divide-slate-800">
+            <div className="divide-y divide-content3">
               {scripts.map(script => (
                 <div
                   key={script.id}
-                  className={`p-4 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors ${
-                    currentScript?.id === script.id ? 'bg-slate-100 dark:bg-slate-800' : ''
+                  className={`p-4 cursor-pointer hover:bg-content2 transition-colors ${
+                    currentScript?.id === script.id ? 'bg-content2' : ''
                   }`}
                   onClick={() => setCurrentScript(script)}
                 >
                   <div className="flex items-start justify-between">
                     <div className="flex-1 min-w-0">
                       <p className="font-medium truncate">{script.title}</p>
-                      <p className="text-xs text-slate-500">
+                      <p className="text-xs text-foreground/50">
                         {new Date(script.createdAt).toLocaleDateString()}
                       </p>
                       {script.parseState?.stage === 'completed' && (
@@ -958,6 +958,7 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({
                       size="sm"
                       variant="light"
                       color="danger"
+                      aria-label="删除剧本"
                       onPress={() => confirmDeleteScript(script)}
                     >
                       <Trash2 className="w-4 h-4" />
@@ -972,7 +973,7 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({
         {/* Script Detail */}
         <div className="flex-1 overflow-y-auto p-6">
           {!currentScript ? (
-            <div className="flex flex-col items-center justify-center h-full text-slate-500">
+            <div className="flex flex-col items-center justify-center h-full text-foreground/50">
               <FileText className="w-16 h-16 mb-4 opacity-50" />
               <p className="text-lg">选择剧本查看详情</p>
               <p className="text-sm">或上传新剧本</p>
@@ -983,7 +984,7 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({
               <div className="flex items-start justify-between">
                 <div>
                   <h3 className="text-2xl font-bold">{currentScript.title}</h3>
-                  <p className="text-slate-500 mt-1">
+                  <p className="text-foreground/50 mt-1">
                     {(() => {
                       const trimmed = currentScript.content.trim();
                       const chineseChars = (trimmed.match(/[\u4e00-\u9fa5]/g) || []).length;
@@ -1100,7 +1101,7 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({
                                   currentScript.parseState.shots?.length ||
                                   0}
                               </p>
-                              <p className="text-sm text-slate-500">情节点</p>
+                              <p className="text-sm text-foreground/50">情节点</p>
                             </CardBody>
                           </Card>
                           <Card className="bg-secondary/5">
@@ -1108,7 +1109,7 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({
                               <p className="text-2xl font-bold text-secondary">
                                 {currentScript.parseState.shots?.length || 0}
                               </p>
-                              <p className="text-sm text-slate-500">生成分镜</p>
+                              <p className="text-sm text-foreground/50">生成分镜</p>
                             </CardBody>
                           </Card>
                           <Card className="bg-success/5">
@@ -1116,7 +1117,7 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({
                               <p className="text-2xl font-bold text-success">
                                 {currentScript.parseState.characters?.length || 0}
                               </p>
-                              <p className="text-sm text-slate-500">角色</p>
+                              <p className="text-sm text-foreground/50">角色</p>
                             </CardBody>
                           </Card>
                           <Card className="bg-warning/5">
@@ -1124,7 +1125,7 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({
                               <p className="text-2xl font-bold text-warning">
                                 {currentScript.parseState.scenes?.length || 0}
                               </p>
-                              <p className="text-sm text-slate-500">场景</p>
+                              <p className="text-sm text-foreground/50">场景</p>
                             </CardBody>
                           </Card>
                         </div>
@@ -1234,7 +1235,7 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({
                           </div>
                         </div>
                         {isEditing ? (
-                          <div className="border border-slate-200 dark:border-slate-700 rounded-lg p-4 bg-white dark:bg-slate-800 h-96 overflow-auto">
+                          <div className="border border-content3 rounded-lg p-4 bg-content1 h-96 overflow-auto">
                             <textarea
                               value={editedContent}
                               onChange={e => setEditedContent(e.target.value)}
@@ -1243,7 +1244,7 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({
                             />
                           </div>
                         ) : (
-                          <div className="border border-slate-200 dark:border-slate-700 rounded-lg p-4 bg-slate-50 dark:bg-slate-800 h-96 overflow-auto">
+                          <div className="border border-content3 rounded-lg p-4 bg-content2 h-96 overflow-auto">
                             <pre className="whitespace-pre-wrap text-sm">
                               {currentView === 'original'
                                 ? currentScript.originalContent || currentScript.content
@@ -1402,7 +1403,7 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({
                 <Card>
                   <CardBody>
                     <h4 className="font-medium mb-3">剧本内容</h4>
-                    <div className="bg-slate-100 dark:bg-slate-900 p-4 rounded-lg max-h-96 overflow-y-auto">
+                    <div className="bg-content2 p-4 rounded-lg max-h-96 overflow-y-auto">
                       <pre className="whitespace-pre-wrap text-sm">
                         {currentScript.originalContent || currentScript.content}
                       </pre>
@@ -1421,13 +1422,13 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({
           <ModalHeader>上传剧本</ModalHeader>
           <ModalBody className="space-y-4">
             {/* 2.0: 文件上传区域 */}
-            <Card className="border-2 border-dashed border-slate-300 dark:border-slate-600 relative overflow-hidden">
+            <Card className="border-2 border-dashed border-content3 relative overflow-hidden">
               <CardBody className="text-center py-6">
-                <Upload className="w-8 h-8 mx-auto mb-2 text-slate-400" />
-                <p className="text-sm text-slate-600 dark:text-slate-400 mb-2">
+                <Upload className="w-8 h-8 mx-auto mb-2 text-foreground/40" />
+                <p className="text-sm text-foreground/60 mb-2">
                   点击或拖拽文件到此处上传
                 </p>
-                <p className="text-xs text-slate-500">
+                <p className="text-xs text-foreground/50">
                   支持 .txt, .md, .docx, .pdf 格式（最大50MB）
                 </p>
                 <input
@@ -1456,7 +1457,7 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({
               maxRows={20}
             />
             {scriptWordCount > 0 && (
-              <p className="text-sm text-slate-500">{scriptWordCount.toLocaleString()} 字</p>
+              <p className="text-sm text-foreground/50">{scriptWordCount.toLocaleString()} 字</p>
             )}
           </ModalBody>
           <ModalFooter>
