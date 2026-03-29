@@ -53,7 +53,7 @@ export const StyleSelector: React.FC<StyleSelectorProps> = ({
 
                 {isSelected && (
                   <div className="absolute top-0.5 right-0.5 bg-primary rounded-full z-10 shadow-sm">
-                    <CheckCircle2 size={12} fill="currentColor" className="text-black" />
+                    <CheckCircle2 size={12} fill="currentColor" className="text-primary-foreground" />
                   </div>
                 )}
               </div>

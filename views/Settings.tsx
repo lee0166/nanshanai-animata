@@ -2221,7 +2221,7 @@ const Settings: React.FC = () => {
                 onClick={() => setActiveNav(item.id as any)}
                 className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 ${
                   isActive
-                    ? 'bg-primary text-black shadow-lg'
+                    ? 'bg-primary text-primary-foreground shadow-lg'
                     : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white'
                 }`}
               >

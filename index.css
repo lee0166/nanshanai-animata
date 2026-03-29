@@ -1,6 +1,48 @@
 @import 'tailwindcss';
 @config "./tailwind.config.js";
 
+@theme {
+  --color-primary-50: #f7fee7;
+  --color-primary-100: #ecfccb;
+  --color-primary-200: #d9f99d;
+  --color-primary-300: #bef264;
+  --color-primary-400: #a3e635;
+  --color-primary-500: #84cc16;
+  --color-primary-600: #65a30d;
+  --color-primary-700: #4d7c0f;
+  --color-primary-800: #3f6212;
+  --color-primary-900: #365314;
+  --color-primary-950: #1a2e05;
+  --color-primary: #84cc16;
+  --color-primary-foreground: #000000;
+
+  --color-secondary-50: #eff6ff;
+  --color-secondary-100: #dbeafe;
+  --color-secondary-200: #bfdbfe;
+  --color-secondary-300: #93c5fd;
+  --color-secondary-400: #60a5fa;
+  --color-secondary-500: #3b82f6;
+  --color-secondary-600: #2563eb;
+  --color-secondary-700: #1d4ed8;
+  --color-secondary-800: #1e40af;
+  --color-secondary-900: #1e3a8a;
+  --color-secondary-950: #172554;
+  --color-secondary: #2563eb;
+  --color-secondary-foreground: #ffffff;
+
+  --color-lime-50: #f7fee7;
+  --color-lime-100: #ecfccb;
+  --color-lime-200: #d9f99d;
+  --color-lime-300: #bef264;
+  --color-lime-400: #a3e635;
+  --color-lime-500: #84cc16;
+  --color-lime-600: #65a30d;
+  --color-lime-700: #4d7c0f;
+  --color-lime-800: #3f6212;
+  --color-lime-900: #365314;
+  --color-lime-950: #1a2e05;
+}
+
 @variant dark (&:where(.dark, .dark *));
 
 @layer base {

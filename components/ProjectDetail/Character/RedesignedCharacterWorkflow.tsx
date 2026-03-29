@@ -960,7 +960,7 @@ export const RedesignedCharacterWorkflow: React.FC<RedesignedCharacterWorkflowPr
                   disabled={!isEnabled}
                   className={`flex-1 py-2.5 px-3 rounded-xl text-xs font-medium transition-all flex items-center justify-center gap-1 ${
                     isActive
-                      ? 'bg-primary text-black'
+                      ? 'bg-primary text-primary-foreground'
                       : isCompleted
                         ? 'bg-primary/30 text-primary'
                         : isEnabled
@@ -1058,11 +1058,11 @@ export const RedesignedCharacterWorkflow: React.FC<RedesignedCharacterWorkflowPr
               color: '#000000',
             }}
             classNames={{
-              content: 'text-black',
-              spinner: 'text-black',
+              content: 'text-primary-foreground',
+              spinner: 'text-primary-foreground',
             }}
             startContent={
-              !generating && <Sparkles size={16} className="text-black" />
+              !generating && <Sparkles size={16} className="text-primary-foreground" />
             }
           >
             {generating

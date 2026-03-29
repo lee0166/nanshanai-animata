@@ -95,7 +95,7 @@ export const ToolbarPanel: React.FC<ToolbarPanelProps> = ({
                   <div
                     className={`p-1.5 rounded-md ${
                       isActive
-                        ? 'bg-primary text-white'
+                        ? 'bg-primary text-primary-foreground'
                         : isCompleted
                           ? 'bg-green-500/20 text-green-500'
                           : 'bg-content3 text-slate-400'

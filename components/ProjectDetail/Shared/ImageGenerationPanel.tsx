@@ -333,11 +333,11 @@ export const ImageGenerationPanel: React.FC<ImageGenerationPanelProps> = ({
           }}
           classNames={{
             content:
-              'text-black font-black uppercase tracking-widest text-sm',
-            spinner: 'text-black',
+              'text-primary-foreground font-black uppercase tracking-widest text-sm',
+            spinner: 'text-primary-foreground',
           }}
           startContent={
-            !generating && <Sparkles size={18} className="text-black" />
+            !generating && <Sparkles size={18} className="text-primary-foreground" />
           }
         >
           {generating ? t.character?.generating || '生成中...' : t.project?.generate || '生成图片'}

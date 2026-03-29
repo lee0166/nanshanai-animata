@@ -323,7 +323,7 @@ const ResourcePicker: React.FC<ResourcePickerProps> = ({
                   </Card>
 
                   {selectedIds.has(res.id) && (
-                    <div className="absolute top-2 right-2 z-20 bg-primary text-white rounded-full p-1.5 shadow-lg scale-110 animate-in zoom-in-50 duration-200">
+                    <div className="absolute top-2 right-2 z-20 bg-primary text-primary-foreground rounded-full p-1.5 shadow-lg scale-110 animate-in zoom-in-50 duration-200">
                       <Check className="w-3.5 h-3.5 stroke-[3px]" />
                     </div>
                   )}

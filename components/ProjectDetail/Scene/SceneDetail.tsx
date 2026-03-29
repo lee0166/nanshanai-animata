@@ -975,7 +975,7 @@ const SceneDetail: React.FC<SceneDetailProps> = ({ asset, onUpdate, projectId })
                   onClick={() => setActiveTab(tab.id)}
                   className={`flex-1 py-2.5 px-3 rounded-xl text-xs font-medium transition-all flex items-center justify-center gap-1 ${
                     isActive
-                      ? 'bg-primary text-black'
+                      ? 'bg-primary text-primary-foreground'
                       : 'bg-content2 text-zinc-500 hover:bg-content3'
                   }`}
                 >
@@ -1186,13 +1186,13 @@ const SceneDetail: React.FC<SceneDetailProps> = ({ asset, onUpdate, projectId })
               color: '#000000',
             }}
             classNames={{
-              content: 'text-black',
-              spinner: 'text-black',
+              content: 'text-primary-foreground',
+              spinner: 'text-primary-foreground',
             }}
             startContent={
               !generating &&
               !batchGenerating && (
-                <Sparkles size={16} className="text-black" />
+                <Sparkles size={16} className="text-primary-foreground" />
               )
             }
           >

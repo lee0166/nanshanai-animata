@@ -344,7 +344,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             <div className="flex flex-col gap-3">
               <button
                 onClick={handleSwitchToSandbox}
-                className="w-full py-3 bg-primary hover:bg-primary-700 text-white rounded-xl font-bold transition-all shadow-lg shadow-primary/30 dark:shadow-none"
+                className="w-full py-3 bg-primary hover:bg-primary-700 text-primary-foreground rounded-xl font-bold transition-all shadow-lg shadow-primary/30 dark:shadow-none"
               >
                 {t.settings.sandboxMode}
               </button>

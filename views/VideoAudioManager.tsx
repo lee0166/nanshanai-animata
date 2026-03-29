@@ -634,7 +634,7 @@ const VideoAudioManager: React.FC<VideoAudioManagerProps> = ({ projectId: propPr
             </div>
             <button
               onClick={addKeyframe}
-              className="px-3 py-1 bg-primary text-white rounded-md hover:bg-primary/80 transition-colors"
+              className="px-3 py-1 bg-primary text-primary-foreground rounded-md hover:bg-primary/80 transition-colors"
             >
               添加关键帧
             </button>
@@ -704,7 +704,7 @@ const VideoAudioManager: React.FC<VideoAudioManagerProps> = ({ projectId: propPr
             </button>
             <button
               onClick={() => setShowAudioLibrary(!showAudioLibrary)}
-              className="px-4 py-2 bg-primary text-white rounded-md hover:bg-primary/80 transition-colors"
+              className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/80 transition-colors"
             >
               音频库
             </button>
@@ -807,7 +807,7 @@ const VideoAudioManager: React.FC<VideoAudioManagerProps> = ({ projectId: propPr
               <button
                 onClick={batchPreviewAudios}
                 disabled={isBatchPreviewing}
-                className="px-4 py-1 bg-primary text-white rounded-md hover:bg-primary/80 disabled:bg-slate-300 dark:disabled:bg-slate-700 transition-colors"
+                className="px-4 py-1 bg-primary text-primary-foreground rounded-md hover:bg-primary/80 disabled:bg-slate-300 dark:disabled:bg-slate-700 transition-colors"
               >
                 {isBatchPreviewing ? '加载中...' : `批量预览 (${selectedAudios.length})`}
               </button>
@@ -905,7 +905,7 @@ const VideoAudioManager: React.FC<VideoAudioManagerProps> = ({ projectId: propPr
             <button
               onClick={() => syncPreview(selectedVideo, selectedAudio)}
               disabled={loadingPreview}
-              className="px-4 py-2 bg-primary text-white rounded-md hover:bg-primary/80 disabled:bg-slate-300 dark:disabled:bg-slate-700 transition-colors"
+              className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/80 disabled:bg-slate-300 dark:disabled:bg-slate-700 transition-colors"
             >
               {loadingPreview ? '加载中...' : '同步播放'}
             </button>

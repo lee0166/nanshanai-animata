@@ -529,7 +529,7 @@ export const CharacterWorkflowWizard: React.FC<CharacterWorkflowWizardProps> = (
           }}
           classNames={{
             tabList: 'gap-1 p-1 bg-slate-100 dark:bg-slate-800 rounded-lg',
-            tab: 'data-[selected=true]:bg-primary data-[selected=true]:text-black transition-colors',
+            tab: 'data-[selected=true]:bg-primary data-[selected=true]:text-primary-foreground transition-colors',
           }}
         >
           {stages.map(stage => (
@@ -642,7 +642,7 @@ export const CharacterWorkflowWizard: React.FC<CharacterWorkflowWizardProps> = (
 
                         {selectedFaceImage?.id === img.id && (
                           <div className="absolute top-2 right-2 z-10">
-                            <Chip size="sm" className="shadow-lg bg-primary text-black">
+                            <Chip size="sm" className="shadow-lg bg-primary text-primary-foreground">
                               <Check className="w-3 h-3 mr-1" />
                               已选择
                             </Chip>
@@ -780,7 +780,7 @@ export const CharacterWorkflowWizard: React.FC<CharacterWorkflowWizardProps> = (
 
                         {selectedFullBodyImage?.id === img.id && (
                           <div className="absolute top-2 right-2 z-10">
-                            <Chip size="sm" className="shadow-lg bg-primary text-black">
+                            <Chip size="sm" className="shadow-lg bg-primary text-primary-foreground">
                               <Check className="w-3 h-3 mr-1" />
                               已选择
                             </Chip>
