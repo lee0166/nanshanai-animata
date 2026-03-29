@@ -125,7 +125,7 @@ export const PlatformTemplateSelector: React.FC<PlatformTemplateSelectorProps> =
     <div className="space-y-4">
       <div className="flex items-center gap-2">
         <div className="w-1 h-5 bg-secondary rounded-full" />
-        <h3 className="text-[15px] font-black uppercase tracking-widest text-slate-900 dark:text-white">
+        <h3 className="text-[15px] font-black uppercase tracking-widest text-foreground">
           {t.settings.durationBudget?.quickConfig || '快速配置'}
         </h3>
       </div>
@@ -134,7 +134,7 @@ export const PlatformTemplateSelector: React.FC<PlatformTemplateSelectorProps> =
         {templates.map(template => (
           <Card
             key={template.id}
-            className="border border-slate-200 dark:border-slate-800 hover:border-primary dark:hover:border-primary transition-all duration-300 cursor-pointer group"
+            className="border border-default-200 hover:border-primary transition-all duration-300 cursor-pointer group"
             isPressable
             onPress={() => onSelectTemplate(template)}
           >
@@ -144,21 +144,21 @@ export const PlatformTemplateSelector: React.FC<PlatformTemplateSelectorProps> =
                   {template.icon}
                 </div>
                 <div className="flex-1">
-                  <h4 className="text-[15px] font-bold text-slate-900 dark:text-white group-hover:text-primary transition-colors">
+                  <h4 className="text-[15px] font-bold text-foreground group-hover:text-primary transition-colors">
                     {template.name}
                   </h4>
-                  <p className="text-xs text-slate-500 mt-1">{template.description}</p>
+                  <p className="text-xs text-default-500 mt-1">{template.description}</p>
                   <div className="flex flex-wrap gap-2 mt-2">
                     {template.features.map((feature, index) => (
                       <span
                         key={index}
-                        className="px-2 py-0.5 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 text-[10px] rounded-full"
+                        className="px-2 py-0.5 bg-default-100 text-default-600 text-[10px] rounded-full"
                       >
                         {feature}
                       </span>
                     ))}
                   </div>
-                  <div className="flex items-center gap-4 mt-3 text-xs text-slate-500">
+                  <div className="flex items-center gap-4 mt-3 text-xs text-default-500">
                     <span>⏱️ {template.estimatedDuration}</span>
                     <span>🎬 {template.recommendedShots}</span>
                   </div>

@@ -173,22 +173,22 @@ export const SmartConfigEngine: React.FC<SmartConfigEngineProps> = ({
           </div>
           <div className="flex-1">
             <div className="flex items-center justify-between">
-              <h4 className="text-[15px] font-bold text-slate-900 dark:text-white">
+              <h4 className="text-[15px] font-bold text-foreground">
                 {t.settings.durationBudget?.smartRecommendation || '智能配置推荐'}
               </h4>
-              <Button isIconOnly size="sm" variant="light" onPress={onDismiss}>
+              <Button isIconOnly size="sm" variant="light" onPress={onDismiss} aria-label="关闭推荐">
                 <X className="w-4 h-4" />
               </Button>
             </div>
 
-            <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
+            <p className="text-sm text-default-600 mt-1">
               {t.settings.durationBudget?.basedOnWordCount?.replace(
                 '{count}',
                 novelLength.toString()
               ) || `基于您的文本（${novelLength}字），系统推荐以下配置：`}
             </p>
 
-            <div className="mt-3 p-3 bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-800">
+            <div className="mt-3 p-3 bg-content1 rounded-lg border border-default-200">
               <div className="flex items-center gap-2 mb-2">
                 <span className="px-2 py-0.5 bg-primary/10 text-primary text-xs font-bold rounded-full">
                   {getModeName(recommendation.mode)}
@@ -197,7 +197,7 @@ export const SmartConfigEngine: React.FC<SmartConfigEngineProps> = ({
 
               <div className="grid grid-cols-2 gap-2 text-sm">
                 <div className="flex items-center gap-2">
-                  <span className="text-slate-500">
+                  <span className="text-default-500">
                     {t.settings.durationBudget?.platformLabel || '平台'}:
                   </span>
                   <span className="font-medium">
@@ -205,7 +205,7 @@ export const SmartConfigEngine: React.FC<SmartConfigEngineProps> = ({
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="text-slate-500">
+                  <span className="text-default-500">
                     {t.settings.durationBudget?.paceLabel || '节奏'}:
                   </span>
                   <span className="font-medium">
@@ -213,7 +213,7 @@ export const SmartConfigEngine: React.FC<SmartConfigEngineProps> = ({
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="text-slate-500">
+                  <span className="text-default-500">
                     {t.settings.durationBudget?.durationBudget || '时长预算'}:
                   </span>
                   <span className="font-medium">
@@ -221,7 +221,7 @@ export const SmartConfigEngine: React.FC<SmartConfigEngineProps> = ({
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="text-slate-500">
+                  <span className="text-default-500">
                     {t.settings.durationBudget?.productionPrompt || '生产级Prompt'}:
                   </span>
                   <span className="font-medium">
@@ -230,8 +230,8 @@ export const SmartConfigEngine: React.FC<SmartConfigEngineProps> = ({
                 </div>
               </div>
 
-              <div className="mt-3 pt-3 border-t border-slate-200 dark:border-slate-800">
-                <div className="flex items-center gap-4 text-xs text-slate-500">
+              <div className="mt-3 pt-3 border-t border-default-200">
+                <div className="flex items-center gap-4 text-xs text-default-500">
                   <span>
                     ⏱️ {t.settings.durationBudget?.estimatedDuration || '预计时长'}:{' '}
                     {recommendation.estimatedDuration}
@@ -244,7 +244,7 @@ export const SmartConfigEngine: React.FC<SmartConfigEngineProps> = ({
               </div>
             </div>
 
-            <p className="text-xs text-slate-500 mt-3">💡 {recommendation.reason}</p>
+            <p className="text-xs text-default-500 mt-3">💡 {recommendation.reason}</p>
 
             <div className="flex items-center gap-2 mt-3">
               <Button

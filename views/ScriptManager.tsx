@@ -90,6 +90,10 @@ import {
   Eye,
   Loader2,
   Music,
+  Activity,
+  Camera,
+  User,
+  Map,
 } from 'lucide-react';
 
 interface ScriptManagerProps {
@@ -1092,64 +1096,139 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({
                   >
                     <Card>
                       <CardBody className="space-y-6">
-                        {/* 2.0: 项目概览 - 移除分镜数量预估，显示实际解析结果 */}
+                        {/* 统计区 - 2x2紧凑网格布局 */}
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                          <Card className="bg-primary/5">
-                            <CardBody className="text-center">
-                              <p className="text-2xl font-bold text-primary">
-                                {currentScript.parseState.plotAnalysis?.plotPoints?.length ||
-                                  currentScript.parseState.shots?.length ||
-                                  0}
-                              </p>
-                              <p className="text-sm text-foreground/50">情节点</p>
-                            </CardBody>
-                          </Card>
-                          <Card className="bg-secondary/5">
-                            <CardBody className="text-center">
-                              <p className="text-2xl font-bold text-secondary">
-                                {currentScript.parseState.shots?.length || 0}
-                              </p>
-                              <p className="text-sm text-foreground/50">生成分镜</p>
-                            </CardBody>
-                          </Card>
-                          <Card className="bg-success/5">
-                            <CardBody className="text-center">
-                              <p className="text-2xl font-bold text-success">
-                                {currentScript.parseState.characters?.length || 0}
-                              </p>
-                              <p className="text-sm text-foreground/50">角色</p>
-                            </CardBody>
-                          </Card>
-                          <Card className="bg-warning/5">
-                            <CardBody className="text-center">
-                              <p className="text-2xl font-bold text-warning">
-                                {currentScript.parseState.scenes?.length || 0}
-                              </p>
-                              <p className="text-sm text-foreground/50">场景</p>
-                            </CardBody>
-                          </Card>
+                          <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.3, delay: 0 }}
+                          >
+                            <Card className="bg-gradient-to-br from-primary/10 to-primary/5 border border-primary/20 hover:border-primary/40 transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
+                              <CardBody className="p-4">
+                                <div className="flex items-center gap-3">
+                                  <div className="p-2.5 bg-primary/20 rounded-xl">
+                                    <Activity className="w-5 h-5 text-primary" />
+                                  </div>
+                                  <div className="flex-1 min-w-0">
+                                    <p className="text-3xl font-bold text-primary">
+                                      {currentScript.parseState.plotAnalysis?.plotPoints?.length ||
+                                        currentScript.parseState.shots?.length ||
+                                        0}
+                                    </p>
+                                    <p className="text-xs text-foreground/60 mt-0.5">情节点</p>
+                                  </div>
+                                </div>
+                              </CardBody>
+                            </Card>
+                          </motion.div>
+                          <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.3, delay: 0.1 }}
+                          >
+                            <Card className="bg-gradient-to-br from-secondary/10 to-secondary/5 border border-secondary/20 hover:border-secondary/40 transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
+                              <CardBody className="p-4">
+                                <div className="flex items-center gap-3">
+                                  <div className="p-2.5 bg-secondary/20 rounded-xl">
+                                    <Camera className="w-5 h-5 text-secondary" />
+                                  </div>
+                                  <div className="flex-1 min-w-0">
+                                    <p className="text-3xl font-bold text-secondary">
+                                      {currentScript.parseState.shots?.length || 0}
+                                    </p>
+                                    <p className="text-xs text-foreground/60 mt-0.5">生成分镜</p>
+                                  </div>
+                                </div>
+                              </CardBody>
+                            </Card>
+                          </motion.div>
+                          <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.3, delay: 0.2 }}
+                          >
+                            <Card className="bg-gradient-to-br from-success/10 to-success/5 border border-success/20 hover:border-success/40 transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
+                              <CardBody className="p-4">
+                                <div className="flex items-center gap-3">
+                                  <div className="p-2.5 bg-success/20 rounded-xl">
+                                    <User className="w-5 h-5 text-success" />
+                                  </div>
+                                  <div className="flex-1 min-w-0">
+                                    <p className="text-3xl font-bold text-success">
+                                      {currentScript.parseState.characters?.length || 0}
+                                    </p>
+                                    <p className="text-xs text-foreground/60 mt-0.5">角色</p>
+                                  </div>
+                                </div>
+                              </CardBody>
+                            </Card>
+                          </motion.div>
+                          <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.3, delay: 0.3 }}
+                          >
+                            <Card className="bg-gradient-to-br from-warning/10 to-warning/5 border border-warning/20 hover:border-warning/40 transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
+                              <CardBody className="p-4">
+                                <div className="flex items-center gap-3">
+                                  <div className="p-2.5 bg-warning/20 rounded-xl">
+                                    <Map className="w-5 h-5 text-warning" />
+                                  </div>
+                                  <div className="flex-1 min-w-0">
+                                    <p className="text-3xl font-bold text-warning">
+                                      {currentScript.parseState.scenes?.length || 0}
+                                    </p>
+                                    <p className="text-xs text-foreground/60 mt-0.5">场景</p>
+                                  </div>
+                                </div>
+                              </CardBody>
+                            </Card>
+                          </motion.div>
                         </div>
 
-                        {/* Story Overview & Visual Style */}
+                        {/* 第一行：故事概览 + 视觉风格 */}
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                          <StoryOverviewCard metadata={currentScript.parseState.metadata} t={{}} />
-                          <VisualStyleCard metadata={currentScript.parseState.metadata} t={{}} />
+                          <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.3, delay: 0.4 }}
+                          >
+                            <StoryOverviewCard metadata={currentScript.parseState.metadata} t={{}} />
+                          </motion.div>
+                          <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.3, delay: 0.45 }}
+                          >
+                            <VisualStyleCard metadata={currentScript.parseState.metadata} t={{}} />
+                          </motion.div>
                         </div>
 
-                        {/* Emotional Arc */}
-                        {currentScript.parseState.metadata?.emotionalArc && (
-                          <EmotionalArcChart
-                            emotionalArc={currentScript.parseState.metadata.emotionalArc}
-                          />
-                        )}
-
-                        {/* Story Structure */}
-                        {currentScript.parseState.metadata?.storyStructure && (
-                          <StoryStructureDiagram
-                            storyStructure={currentScript.parseState.metadata.storyStructure}
-                            t={t}
-                          />
-                        )}
+                        {/* 第二行：情绪曲线 + 故事结构 */}
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                          {currentScript.parseState.metadata?.emotionalArc && (
+                            <motion.div
+                              initial={{ opacity: 0, y: 20 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              transition={{ duration: 0.4, delay: 0.5 }}
+                            >
+                              <EmotionalArcChart
+                                emotionalArc={currentScript.parseState.metadata.emotionalArc}
+                                t={t}
+                              />
+                            </motion.div>
+                          )}
+                          <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.3, delay: 0.55 }}
+                          >
+                            <StoryStructureDiagram
+                              storyStructure={currentScript.parseState.metadata.storyStructure}
+                              t={t}
+                            />
+                          </motion.div>
+                        </div>
                       </CardBody>
                     </Card>
                   </Tab>

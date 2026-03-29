@@ -4,8 +4,8 @@
  * 故事概览卡片组件
  * 展示剧本的核心故事信息：梗概、核心冲突、主题思想
  *
- * @module components/ScriptAnalysis/StoryOverviewCard
- * @version 1.0.0
+ * @module components/ScriptAnalysis/StoryOverview
+ * @version 4.0.0
  */
 
 import React from 'react';
@@ -18,75 +18,68 @@ interface StoryOverviewCardProps {
   t: any;
 }
 
-/**
- * 故事概览卡片组件
- */
 export const StoryOverviewCard: React.FC<StoryOverviewCardProps> = ({ metadata, t }) => {
   const { synopsis, logline, coreConflict, theme, title, genre, tone } = metadata;
 
   return (
-    <Card className="w-full">
-      <CardHeader className="flex items-center gap-3 pb-2">
-        <div className="p-2 bg-primary/10 rounded-lg">
-          <BookOpen className="w-5 h-5 text-primary" />
+    <Card className="w-full h-full bg-gradient-to-br from-content1 to-content2 border-none">
+      <CardHeader className="flex items-center gap-2 pb-1 pt-3">
+        <div className="p-1.5 bg-primary/15 rounded-lg">
+          <BookOpen className="w-4 h-4 text-primary" />
         </div>
         <div>
           <h3 className="text-lg font-bold">故事概览</h3>
-          <p className="text-sm text-default-500">核心故事信息与主题</p>
+          <p className="text-sm text-default-500">核心故事信息</p>
         </div>
       </CardHeader>
 
-      <CardBody className="pt-0 space-y-4">
-        {/* 一句话简介 */}
+      <CardBody className="pt-1 space-y-2">
         {logline && (
-          <div className="bg-content2 rounded-lg p-4">
-            <div className="flex items-center gap-2 text-primary mb-2">
-              <Quote className="w-4 h-4" />
-              <span className="text-sm font-medium">一句话简介</span>
+          <div className="bg-content2 rounded-lg p-2.5 border border-content3">
+            <div className="flex items-center gap-1.5 text-primary mb-1">
+              <Quote className="w-3 h-3" />
+              <span className="text-base font-medium">一句话简介</span>
             </div>
-            <p className="text-sm text-foreground italic">"{logline}"</p>
+            <p className="text-base text-foreground italic">"{logline}"</p>
           </div>
         )}
 
-        {/* 故事梗概 */}
         {synopsis && (
           <div>
-            <div className="flex items-center gap-2 text-default-500 mb-2">
-              <BookOpen className="w-4 h-4" />
-              <span className="text-sm font-medium">故事梗概</span>
+            <div className="flex items-center gap-1.5 text-default-500 mb-1">
+              <BookOpen className="w-3 h-3" />
+              <span className="text-base font-medium">故事梗概</span>
             </div>
-            <p className="text-sm text-foreground leading-relaxed">{synopsis}</p>
+            <p className="text-base text-foreground leading-relaxed line-clamp-4">{synopsis}</p>
           </div>
         )}
 
-        <Divider />
+        <Divider className="my-1.5" />
 
-        {/* 核心冲突 */}
         {coreConflict && (
           <div>
-            <div className="flex items-center gap-2 text-danger mb-2">
-              <Target className="w-4 h-4" />
-              <span className="text-sm font-medium">核心冲突</span>
+            <div className="flex items-center gap-1.5 text-default-500 mb-1">
+              <Target className="w-3 h-3" />
+              <span className="text-base font-medium">核心冲突</span>
             </div>
-            <p className="text-sm text-foreground">{coreConflict}</p>
+            <p className="text-base text-foreground line-clamp-2">{coreConflict}</p>
           </div>
         )}
 
-        {/* 主题思想 */}
         {theme && theme.length > 0 && (
           <div>
-            <div className="flex items-center gap-2 text-warning mb-2">
-              <Lightbulb className="w-4 h-4" />
-              <span className="text-sm font-medium">主题思想</span>
+            <div className="flex items-center gap-1.5 text-default-500 mb-1">
+              <Lightbulb className="w-3 h-3" />
+              <span className="text-base font-medium">主题思想</span>
             </div>
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-1">
               {theme.map((t, idx) => (
                 <Chip
                   key={idx}
                   size="sm"
                   variant="flat"
-                  color="warning"
-                  startContent={<Sparkles className="w-3 h-3" />}
+                  classNames={{ base: 'bg-content2 text-foreground border-content3', content: 'text-sm' }}
+                  startContent={<Sparkles className="w-2.5 h-2.5 text-primary" />}
                 >
                   {t}
                 </Chip>
@@ -95,19 +88,19 @@ export const StoryOverviewCard: React.FC<StoryOverviewCardProps> = ({ metadata, 
           </div>
         )}
 
-        {/* 类型与基调 */}
-        <Divider />
-        <div className="flex flex-wrap gap-2">
+        <Divider className="my-1.5" />
+        
+        <div className="flex flex-wrap gap-1">
           {genre && (
             <Tooltip content="剧本类型/题材">
-              <Chip size="sm" variant="flat" className="bg-primary/20 text-primary">
+              <Chip size="sm" variant="flat" classNames={{ base: 'bg-content2 text-foreground border-content3', content: 'text-sm' }}>
                 {genre}
               </Chip>
             </Tooltip>
           )}
           {tone && (
             <Tooltip content="整体基调">
-              <Chip size="sm" variant="flat" color="secondary">
+              <Chip size="sm" variant="flat" classNames={{ base: 'bg-content2 text-foreground border-content3', content: 'text-sm' }}>
                 {tone}
               </Chip>
             </Tooltip>

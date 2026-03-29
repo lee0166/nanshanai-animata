@@ -42,33 +42,33 @@ export const DurationBudgetDependencyGraph: React.FC<DurationBudgetDependencyGra
   const status = getDependencyStatus();
 
   return (
-    <div className="p-4 bg-slate-50 dark:bg-slate-950 rounded-xl border border-slate-100 dark:border-slate-900 mb-4">
+    <div className="p-4 bg-default-50 rounded-xl border border-default-100 mb-4">
       <div className="flex items-center justify-center gap-4">
         {/* 时长预算节点 */}
         <div
           className={`flex flex-col items-center p-3 rounded-lg border-2 transition-all duration-300 ${
             useDurationBudget
               ? 'bg-primary/10 border-primary'
-              : 'bg-slate-100 dark:bg-slate-900 border-slate-200 dark:border-slate-700'
+              : 'bg-default-100 border-default-200'
           }`}
         >
           <div
             className={`p-2 rounded-full mb-2 ${
-              useDurationBudget ? 'bg-primary' : 'bg-slate-300 dark:bg-slate-600'
+              useDurationBudget ? 'bg-primary' : 'bg-default-300'
             }`}
           >
             <Clock className="w-5 h-5 text-white" />
           </div>
           <span
             className={`text-xs font-bold uppercase tracking-wider ${
-              useDurationBudget ? 'text-primary' : 'text-slate-400'
+              useDurationBudget ? 'text-primary' : 'text-default-400'
             }`}
           >
             {t.settings.durationBudget?.durationBudget || '时长预算'}
           </span>
           <span
             className={`text-[10px] mt-1 ${
-              useDurationBudget ? 'text-primary/70' : 'text-slate-400'
+              useDurationBudget ? 'text-primary/70' : 'text-default-400'
             }`}
           >
             {useDurationBudget
@@ -85,7 +85,7 @@ export const DurationBudgetDependencyGraph: React.FC<DurationBudgetDependencyGra
                 ? 'bg-success/20 text-success'
                 : status === 'missing'
                   ? 'bg-warning/20 text-warning'
-                  : 'bg-slate-200 dark:bg-slate-700 text-slate-400'
+                  : 'bg-default-200 text-default-400'
             }`}
           >
             <span>{t.settings.durationBudget?.dependsOn || '依赖'}</span>
@@ -97,7 +97,7 @@ export const DurationBudgetDependencyGraph: React.FC<DurationBudgetDependencyGra
                 ? 'bg-success'
                 : status === 'missing'
                   ? 'bg-warning'
-                  : 'bg-slate-300 dark:bg-slate-600'
+                  : 'bg-default-300'
             }`}
           />
         </div>
@@ -107,19 +107,19 @@ export const DurationBudgetDependencyGraph: React.FC<DurationBudgetDependencyGra
           className={`flex flex-col items-center p-3 rounded-lg border-2 transition-all duration-300 ${
             useProductionPrompt
               ? 'bg-success/10 border-success'
-              : 'bg-slate-100 dark:bg-slate-900 border-slate-200 dark:border-slate-700'
+              : 'bg-default-100 border-default-200'
           }`}
         >
           <div
             className={`p-2 rounded-full mb-2 ${
-              useProductionPrompt ? 'bg-success' : 'bg-slate-300 dark:bg-slate-600'
+              useProductionPrompt ? 'bg-success' : 'bg-default-300'
             }`}
           >
             <Sparkles className="w-5 h-5 text-white" />
           </div>
           <span
             className={`text-xs font-bold uppercase tracking-wider ${
-              useProductionPrompt ? 'text-success' : 'text-slate-400'
+              useProductionPrompt ? 'text-success' : 'text-default-400'
             }`}
           >
             {t.settings.durationBudget?.productionPrompt || '生产级Prompt'}
@@ -150,7 +150,7 @@ export const DurationBudgetDependencyGraph: React.FC<DurationBudgetDependencyGra
           </p>
         )}
         {status === 'inactive' && (
-          <p className="text-xs text-slate-400 font-medium">
+          <p className="text-xs text-default-400 font-medium">
             {t.settings.durationBudget?.dependencyInactive || '启用时长预算以查看依赖关系'}
           </p>
         )}

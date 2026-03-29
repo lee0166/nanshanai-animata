@@ -244,15 +244,15 @@ const Tasks: React.FC = () => {
   };
 
   return (
-    <div className="h-full flex flex-col p-6 md:p-10 bg-slate-50 dark:bg-slate-950 overflow-hidden">
+    <div className="h-full flex flex-col p-6 md:p-10 bg-background overflow-hidden">
       <div className="max-w-[1600px] mx-auto w-full flex flex-col h-full gap-6">
         {/* Header */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div>
-            <h1 className="text-[32px] font-black text-slate-900 dark:text-white uppercase tracking-tight">
+            <h1 className="text-[32px] font-black text-foreground uppercase tracking-tight">
               {t.jobs.tasksTitle}
             </h1>
-            <p className="text-[15px] text-slate-500 dark:text-slate-400 font-medium">
+            <p className="text-[15px] text-default-500 font-medium">
               {t.jobs.tasksSubtitle}
             </p>
           </div>
@@ -270,7 +270,7 @@ const Tasks: React.FC = () => {
             selectedKeys={[statusFilter]}
             onChange={e => setStatusFilter(e.target.value)}
             classNames={{
-              label: 'text-[16px] font-bold text-slate-500 mb-2',
+              label: 'text-[16px] font-bold text-default-500 mb-2',
               value: 'text-[14px]',
             }}
           >
@@ -300,7 +300,7 @@ const Tasks: React.FC = () => {
             selectedKeys={[typeFilter]}
             onChange={e => setTypeFilter(e.target.value)}
             classNames={{
-              label: 'text-[16px] font-bold text-slate-500 mb-2',
+              label: 'text-[16px] font-bold text-default-500 mb-2',
               value: 'text-[14px]',
             }}
           >
@@ -339,7 +339,7 @@ const Tasks: React.FC = () => {
             isHeaderSticky
             classNames={{
               wrapper: 'h-full overflow-auto shadow-none',
-              th: 'bg-slate-100 dark:bg-slate-900 text-slate-500 font-bold uppercase text-[15px] tracking-wider',
+              th: 'bg-content2 text-default-500 font-bold uppercase text-[15px] tracking-wider',
               td: 'text-[15px]',
             }}
             bottomContent={
@@ -381,14 +381,14 @@ const Tasks: React.FC = () => {
                   <TableCell>{renderType(item.type)}</TableCell>
                   <TableCell>
                     <div className="flex flex-col">
-                      <span className="font-medium text-slate-700 dark:text-slate-300">
+                      <span className="font-medium text-foreground">
                         {projects[item.projectId]?.name || '-'}
                       </span>
                     </div>
                   </TableCell>
                   <TableCell>
                     <div
-                      className="max-w-[200px] truncate text-slate-700 dark:text-slate-200 font-medium"
+                      className="max-w-[200px] truncate text-foreground font-medium"
                       title={item.params.userPrompt}
                     >
                       {item.params.userPrompt || '-'}
@@ -396,7 +396,7 @@ const Tasks: React.FC = () => {
                   </TableCell>
                   <TableCell>
                     <div
-                      className="max-w-[200px] truncate text-slate-500 text-[13px]"
+                      className="max-w-[200px] truncate text-default-500 text-[13px]"
                       title={item.params.prompt}
                     >
                       {item.params.prompt || '-'}
@@ -412,8 +412,9 @@ const Tasks: React.FC = () => {
                           size="sm"
                           variant="light"
                           onPress={() => handlePreview(item)}
+                          aria-label="预览"
                         >
-                          <Eye className="w-4 h-4 text-slate-500" />
+                          <Eye className="w-4 h-4 text-default-500" />
                         </Button>
                       )}
                       <Button
@@ -421,8 +422,9 @@ const Tasks: React.FC = () => {
                         size="sm"
                         variant="light"
                         onPress={() => handleDetailClick(item)}
+                        aria-label="查看详情"
                       >
-                        <List className="w-4 h-4 text-slate-500" />
+                        <List className="w-4 h-4 text-default-500" />
                       </Button>
                       <Button
                         isIconOnly
@@ -430,6 +432,7 @@ const Tasks: React.FC = () => {
                         variant="light"
                         color="danger"
                         onPress={() => handleDeleteClick(item)}
+                        aria-label="删除任务"
                       >
                         <Trash2 className="w-4 h-4" />
                       </Button>
@@ -470,7 +473,7 @@ const Tasks: React.FC = () => {
                   {selectedJob && (
                     <div className="flex flex-col gap-4">
                       {/* Basic Info */}
-                      <div className="grid grid-cols-2 gap-4 p-4 bg-default-50 rounded-lg">
+                      <div className="grid grid-cols-2 gap-4 p-4 bg-content2 rounded-lg">
                         <div>
                           <span className="text-xs text-default-500 uppercase font-bold">
                             {t.jobs.project}
@@ -515,7 +518,7 @@ const Tasks: React.FC = () => {
                       </div>
 
                       {/* Prompts Display */}
-                      <div className="flex flex-col gap-3 p-4 bg-default-50 rounded-lg">
+                      <div className="flex flex-col gap-3 p-4 bg-content2 rounded-lg">
                         <div>
                           <span className="text-xs text-default-500 uppercase font-bold">
                             {t.jobs.userPrompt}
@@ -529,7 +532,7 @@ const Tasks: React.FC = () => {
                           <span className="text-xs text-default-500 uppercase font-bold">
                             {t.jobs.finalPrompt}
                           </span>
-                          <p className="text-sm font-mono bg-slate-100 dark:bg-slate-900 p-2 rounded mt-1 whitespace-pre-wrap">
+                          <p className="text-sm font-mono bg-content3 p-2 rounded mt-1 whitespace-pre-wrap">
                             {selectedJob.params.prompt || '-'}
                           </p>
                         </div>
@@ -538,7 +541,7 @@ const Tasks: React.FC = () => {
 
                       {/* Raw API Response */}
                       {selectedJob.result?.meta && (
-                        <div className="flex flex-col gap-3 p-4 bg-default-50 rounded-lg">
+                        <div className="flex flex-col gap-3 p-4 bg-content2 rounded-lg">
                           <span className="text-xs text-default-500 uppercase font-bold">
                             {t.jobs.rawApiResponse}
                           </span>
@@ -582,7 +585,7 @@ const Tasks: React.FC = () => {
                           }
                         >
                           <div className="relative group">
-                            <pre className="bg-slate-950 text-slate-50 p-4 rounded-lg overflow-auto max-h-60 text-xs">
+                            <pre className="bg-background text-foreground p-4 rounded-lg overflow-auto max-h-60 text-xs">
                               {JSON.stringify(selectedJob.params, null, 2)}
                             </pre>
                             <Button
@@ -614,7 +617,7 @@ const Tasks: React.FC = () => {
                           }
                         >
                           <div className="relative group">
-                            <pre className="bg-slate-950 text-slate-50 p-4 rounded-lg overflow-auto max-h-60 text-xs">
+                            <pre className="bg-background text-foreground p-4 rounded-lg overflow-auto max-h-60 text-xs">
                               {JSON.stringify(
                                 selectedJob.result || selectedJob.error || {},
                                 null,

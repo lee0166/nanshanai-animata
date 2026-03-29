@@ -92,7 +92,7 @@ const StageIndicator: React.FC<{
                   transition-colors duration-300
                   ${isCompleted ? 'bg-success' : ''}
                   ${isCurrent ? 'bg-primary' : ''}
-                  ${isPending ? 'bg-slate-700' : ''}
+                  ${isPending ? 'bg-content3' : ''}
                 `}
               >
                 {isCompleted ? (
@@ -107,7 +107,7 @@ const StageIndicator: React.FC<{
               <span
                 className={`
                   mt-2 text-xs font-medium
-                  ${isCompleted || isCurrent ? 'text-foreground' : 'text-slate-500'}
+                  ${isCompleted || isCurrent ? 'text-foreground' : 'text-default-500'}
                 `}
               >
                 {stage.label}
@@ -123,7 +123,7 @@ const StageIndicator: React.FC<{
             </motion.div>
 
             {index < stages.length - 1 && (
-              <div className="flex-1 h-0.5 mx-2 bg-slate-700 relative overflow-hidden">
+              <div className="flex-1 h-0.5 mx-2 bg-content3 relative overflow-hidden">
                 <motion.div
                   className="absolute inset-y-0 left-0 bg-success"
                   initial={{ width: '0%' }}
@@ -151,15 +151,15 @@ const SubTaskList: React.FC<{
   const progress = (current / total) * 100;
 
   return (
-    <div className="mt-4 p-4 bg-slate-800/50 rounded-lg">
+    <div className="mt-4 p-4 bg-content2/50 rounded-lg">
       <div className="flex items-center justify-between mb-2">
-        <span className="text-sm text-slate-300">子任务进度</span>
+        <span className="text-sm text-default-500">子任务进度</span>
         <span className="text-sm font-medium text-foreground">
           {current} / {total}
         </span>
       </div>
 
-      <div className="h-2 bg-slate-700 rounded-full overflow-hidden">
+      <div className="h-2 bg-content3 rounded-full overflow-hidden">
         <motion.div
           className="h-full bg-primary rounded-full"
           initial={{ width: 0 }}
@@ -197,7 +197,7 @@ const TimeEstimate: React.FC<{
 
       {estimatedRemainingTime && estimatedRemainingTime > 0 && (
         <>
-          <div className="w-px h-4 bg-slate-600" />
+          <div className="w-px h-4 bg-content4" />
           <div className="flex items-center gap-1.5">
             <span>预计剩余: {formatDuration(estimatedRemainingTime * 1000)}</span>
           </div>
@@ -248,12 +248,12 @@ export const ScriptParseProgress: React.FC<ScriptParseProgressProps> = React.mem
           transition={{ duration: 0.2 }}
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
         >
-          <Card className="w-full max-w-2xl bg-white dark:bg-slate-900 border-slate-800">
+          <Card className="w-full max-w-2xl bg-white dark:bg-content1 border-content3">
             <CardBody className="p-6">
               <div className="flex items-center justify-between mb-6">
                 <div>
                   <h3 className="text-lg font-semibold text-foreground">剧本解析</h3>
-                  <p className="text-sm text-slate-400 mt-0.5">{message || '正在处理...'}</p>
+                  <p className="text-sm text-default-500 mt-0.5">{message || '正在处理...'}</p>
                 </div>
 
                 <div className="flex items-center gap-2">
@@ -265,7 +265,8 @@ export const ScriptParseProgress: React.FC<ScriptParseProgressProps> = React.mem
                       variant="light"
                       size="sm"
                       onPress={onMinimize}
-                      className="text-slate-400 hover:text-foreground"
+                      className="text-default-500 hover:text-foreground"
+                      aria-label="最小化"
                     >
                       <Minimize2 className="w-4 h-4" />
                     </Button>
@@ -277,7 +278,8 @@ export const ScriptParseProgress: React.FC<ScriptParseProgressProps> = React.mem
                       variant="light"
                       size="sm"
                       onPress={onCancel}
-                      className="text-slate-400 hover:text-danger"
+                      className="text-default-500 hover:text-danger"
+                      aria-label="取消解析"
                     >
                       <X className="w-4 h-4" />
                     </Button>
@@ -330,8 +332,8 @@ export const ScriptParseProgress: React.FC<ScriptParseProgressProps> = React.mem
                 estimatedRemainingTime={estimatedRemainingTime}
               />
 
-              <div className="flex items-center justify-between mt-6 pt-4 border-t border-slate-800">
-                <div className="text-xs text-slate-500">
+              <div className="flex items-center justify-between mt-6 pt-4 border-t border-content3">
+                <div className="text-xs text-default-500">
                   {currentStage === 'completed'
                     ? '解析完成！'
                     : currentStage === 'error'

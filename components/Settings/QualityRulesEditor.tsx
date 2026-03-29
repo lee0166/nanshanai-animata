@@ -270,25 +270,25 @@ export const QualityRulesEditor: React.FC<QualityRulesEditorProps> = ({ t }) => 
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="text-slate-400">加载中...</div>
+        <div className="text-default-400">加载中...</div>
       </div>
     );
   }
 
   return (
     <Card
-      className="border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 overflow-hidden shadow-sm"
+      className="border border-default-200 bg-content1 overflow-hidden shadow-sm"
       radius="lg"
     >
       {/* Header - 优化按钮设计 */}
-      <CardHeader className="px-6 py-4 border-b border-slate-200 dark:border-slate-800 flex flex-col md:flex-row md:items-center md:justify-between gap-3 bg-slate-50 dark:bg-slate-900">
+      <CardHeader className="px-6 py-4 border-b border-default-200 flex flex-col md:flex-row md:items-center md:justify-between gap-3 bg-default-50">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center border border-primary/20">
             <Settings2 className="w-5 h-5 text-primary" />
           </div>
           <div>
-            <h2 className="text-lg font-bold text-slate-900 dark:text-white">质量评估规则</h2>
-            <p className="text-xs text-slate-500 dark:text-slate-400">
+            <h2 className="text-lg font-bold text-foreground">质量评估规则</h2>
+            <p className="text-xs text-default-500">
               v{config.version} · {config.lastUpdated}
             </p>
           </div>
@@ -308,7 +308,7 @@ export const QualityRulesEditor: React.FC<QualityRulesEditorProps> = ({ t }) => 
               variant="flat"
               size="sm"
               startContent={<Upload className="w-4 h-4" />}
-              className="text-slate-700 dark:text-slate-300"
+              className="text-default-700"
             >
               导入
             </Button>
@@ -348,7 +348,7 @@ export const QualityRulesEditor: React.FC<QualityRulesEditorProps> = ({ t }) => 
 
       {/* 权重警告 */}
       {Math.abs(weightSum - 1.0) > 0.01 && (
-        <div className="px-6 py-2 bg-warning/10 dark:bg-warning/20 border-b border-warning/20">
+        <div className="px-6 py-2 bg-warning/10 border-b border-warning/20">
           <div className="flex items-center gap-2 text-warning text-xs">
             <AlertTriangle className="w-4 h-4" />
             <span>权重总和 {(weightSum * 100).toFixed(0)}%，需调整为100%</span>
@@ -364,8 +364,8 @@ export const QualityRulesEditor: React.FC<QualityRulesEditorProps> = ({ t }) => 
           variant="light"
           classNames={{
             tabList:
-              'px-6 py-2 gap-1 border-b border-slate-200 dark:border-slate-800 bg-transparent',
-            tab: 'px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-400 data-[selected=true]:text-slate-900 dark:data-[selected=true]:text-white data-[selected=true]:bg-slate-100 dark:data-[selected=true]:bg-slate-800 rounded-lg transition-colors',
+              'px-6 py-2 gap-1 border-b border-default-200 bg-transparent',
+            tab: 'px-4 py-2 text-sm font-medium text-default-600 data-[selected=true]:text-foreground data-[selected=true]:bg-default-100 rounded-lg transition-colors',
             cursor: 'hidden',
             panel: 'p-6',
           }}
@@ -391,7 +391,7 @@ export const QualityRulesEditor: React.FC<QualityRulesEditorProps> = ({ t }) => 
                 return (
                   <div
                     key={key}
-                    className="group flex items-center gap-4 p-3 rounded-xl bg-slate-100 dark:bg-slate-900/50 hover:bg-slate-200 dark:hover:bg-slate-800/50 transition-colors"
+                    className="group flex items-center gap-4 p-3 rounded-xl bg-default-100 hover:bg-default-200 transition-colors"
                   >
                     {/* 左侧：彩色标识条+名称 */}
                     <div className="flex items-center gap-3 w-36 flex-shrink-0">
@@ -400,10 +400,10 @@ export const QualityRulesEditor: React.FC<QualityRulesEditorProps> = ({ t }) => 
                         style={{ backgroundColor: dim?.color || '#666' }}
                       />
                       <div>
-                        <div className="text-sm font-semibold text-slate-900 dark:text-white">
+                        <div className="text-sm font-semibold text-foreground">
                           {dim?.name || key}
                         </div>
-                        <div className="text-[10px] text-slate-500 dark:text-slate-400">
+                        <div className="text-[10px] text-default-500">
                           {dim?.desc}
                         </div>
                       </div>
@@ -420,20 +420,20 @@ export const QualityRulesEditor: React.FC<QualityRulesEditorProps> = ({ t }) => 
                         size="sm"
                         color="primary"
                         classNames={{
-                          track: 'h-2 bg-slate-300 dark:bg-slate-700 rounded-full',
+                          track: 'h-2 bg-default-300 rounded-full',
                           filler: 'bg-gradient-to-r from-primary/60 to-primary rounded-full',
                           thumb:
-                            'w-5 h-5 bg-white dark:bg-slate-200 border-2 border-primary shadow-md',
+                            'w-5 h-5 bg-white border-2 border-primary shadow-md',
                         }}
                       />
                     </div>
 
                     {/* 右侧：数值 */}
                     <div className="flex items-center gap-1 w-16 flex-shrink-0 justify-end">
-                      <span className="text-xl font-bold text-slate-900 dark:text-white">
+                      <span className="text-xl font-bold text-foreground">
                         {(weight.value * 100).toFixed(0)}
                       </span>
-                      <span className="text-xs text-slate-500 dark:text-slate-400">%</span>
+                      <span className="text-xs text-default-500">%</span>
                     </div>
                   </div>
                 );
@@ -448,7 +448,7 @@ export const QualityRulesEditor: React.FC<QualityRulesEditorProps> = ({ t }) => 
               <div className="flex items-center gap-2">
                 <Gauge className="w-4 h-4" />
                 <span>阈值配置</span>
-                <span className="text-xs text-slate-500 dark:text-slate-400">
+                <span className="text-xs text-default-500">
                   {Object.keys(config.thresholds).length}
                 </span>
               </div>
@@ -462,22 +462,22 @@ export const QualityRulesEditor: React.FC<QualityRulesEditorProps> = ({ t }) => 
                   return (
                     <div
                       key={key}
-                      className="group flex items-center gap-4 p-3 rounded-xl bg-slate-100 dark:bg-slate-900/50 hover:bg-slate-200 dark:hover:bg-slate-800/50 transition-colors"
+                      className="group flex items-center gap-4 p-3 rounded-xl bg-default-100 hover:bg-default-200 transition-colors"
                     >
                       {/* 左侧：Lucide图标+名称 */}
                       <div className="flex items-center gap-3 w-44 flex-shrink-0">
-                        <div className="w-8 h-8 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
-                          <IconComponent className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                        <div className="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center">
+                          <IconComponent className="w-4 h-4 text-blue-600" />
                         </div>
                         <div>
                           <div
-                            className="text-sm font-semibold text-slate-900 dark:text-white truncate"
+                            className="text-sm font-semibold text-foreground truncate"
                             title={thresh?.name || key}
                           >
                             {thresh?.name || key}
                           </div>
                           <Tooltip content={threshold.rationale}>
-                            <div className="text-[10px] text-slate-500 dark:text-slate-400 cursor-help flex items-center gap-1">
+                            <div className="text-[10px] text-default-500 cursor-help flex items-center gap-1">
                               {thresh?.desc || threshold.description}
                               <Info className="w-3 h-3" />
                             </div>
@@ -496,11 +496,11 @@ export const QualityRulesEditor: React.FC<QualityRulesEditorProps> = ({ t }) => 
                           size="sm"
                           color="secondary"
                           classNames={{
-                            track: 'h-2 bg-slate-300 dark:bg-slate-700 rounded-full',
+                            track: 'h-2 bg-default-300 rounded-full',
                             filler:
-                              'bg-gradient-to-r from-blue-400 to-blue-600 dark:from-blue-500 dark:to-blue-400 rounded-full',
+                              'bg-gradient-to-r from-blue-400 to-blue-600 rounded-full',
                             thumb:
-                              'w-5 h-5 bg-white dark:bg-slate-200 border-2 border-blue-500 shadow-md',
+                              'w-5 h-5 bg-white border-2 border-blue-500 shadow-md',
                           }}
                         />
                       </div>
@@ -514,9 +514,9 @@ export const QualityRulesEditor: React.FC<QualityRulesEditorProps> = ({ t }) => 
                           min={threshold.range[0]}
                           max={threshold.range[1]}
                           classNames={{
-                            input: 'text-center font-bold text-slate-900 dark:text-white',
+                            input: 'text-center font-bold text-foreground',
                             inputWrapper:
-                              'bg-slate-50 dark:bg-slate-800 border-slate-300 dark:border-slate-600 h-9 w-16',
+                              'bg-default-50 border-default-300 h-9 w-16',
                           }}
                           size="sm"
                         />

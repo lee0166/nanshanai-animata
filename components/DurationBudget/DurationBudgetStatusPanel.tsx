@@ -77,37 +77,37 @@ export const DurationBudgetStatusPanel: React.FC<DurationBudgetStatusPanelProps>
   };
 
   return (
-    <Card className="bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800">
+    <Card className="bg-default-50 border border-default-200">
       <CardBody className="p-6">
         <div className="flex items-center gap-2 mb-4">
           <div className="w-1 h-5 bg-primary rounded-full" />
-          <h3 className="text-[15px] font-black uppercase tracking-widest text-slate-900 dark:text-white">
+          <h3 className="text-[15px] font-black uppercase tracking-widest text-foreground">
             {t.settings.durationBudget?.configStatus || '配置状态'}
           </h3>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {/* 基础配置状态 */}
-          <div className="flex items-start gap-3 p-3 bg-white dark:bg-slate-900 rounded-lg border border-slate-100 dark:border-slate-800">
+          <div className="flex items-start gap-3 p-3 bg-content1 rounded-lg border border-default-100">
             <div
-              className={`p-2 rounded-lg ${status.basicConfigComplete ? 'bg-primary/10' : 'bg-slate-100 dark:bg-slate-800'}`}
+              className={`p-2 rounded-lg ${status.basicConfigComplete ? 'bg-primary/10' : 'bg-default-100'}`}
             >
               <Film
-                className={`w-5 h-5 ${status.basicConfigComplete ? 'text-primary' : 'text-slate-400'}`}
+                className={`w-5 h-5 ${status.basicConfigComplete ? 'text-primary' : 'text-default-400'}`}
               />
             </div>
             <div className="flex-1">
               <div className="flex items-center gap-2">
-                <span className="text-sm font-bold text-slate-900 dark:text-white">
+                <span className="text-sm font-bold text-foreground">
                   {t.settings.durationBudget?.basicConfig || '基础配置'}
                 </span>
                 {status.basicConfigComplete ? (
                   <CheckCircle className="w-4 h-4 text-success" />
                 ) : (
-                  <AlertCircle className="w-4 h-4 text-slate-400" />
+                  <AlertCircle className="w-4 h-4 text-default-400" />
                 )}
               </div>
-              <p className="text-xs text-slate-500 mt-1">
+              <p className="text-xs text-default-500 mt-1">
                 {status.basicConfigComplete
                   ? `${getPlatformName(config.platform)} · ${getPaceName(config.pace)}`
                   : t.settings.durationBudget?.basicConfigIncomplete || '请选择平台和节奏'}
@@ -116,14 +116,14 @@ export const DurationBudgetStatusPanel: React.FC<DurationBudgetStatusPanelProps>
           </div>
 
           {/* 核心功能状态 */}
-          <div className="flex items-start gap-3 p-3 bg-white dark:bg-slate-900 rounded-lg border border-slate-100 dark:border-slate-800">
+          <div className="flex items-start gap-3 p-3 bg-content1 rounded-lg border border-default-100">
             <div
               className={`p-2 rounded-lg ${
                 status.coreFeatureStatus === 'active'
                   ? 'bg-success/10'
                   : status.coreFeatureStatus === 'dependency-missing'
                     ? 'bg-warning/10'
-                    : 'bg-slate-100 dark:bg-slate-800'
+                    : 'bg-default-100'
               }`}
             >
               <Sparkles
@@ -132,13 +132,13 @@ export const DurationBudgetStatusPanel: React.FC<DurationBudgetStatusPanelProps>
                     ? 'text-success'
                     : status.coreFeatureStatus === 'dependency-missing'
                       ? 'text-warning'
-                      : 'text-slate-400'
+                      : 'text-default-400'
                 }`}
               />
             </div>
             <div className="flex-1">
               <div className="flex items-center gap-2">
-                <span className="text-sm font-bold text-slate-900 dark:text-white">
+                <span className="text-sm font-bold text-foreground">
                   {t.settings.durationBudget?.coreFeatures || '核心功能'}
                 </span>
                 {status.coreFeatureStatus === 'active' && (
@@ -148,10 +148,10 @@ export const DurationBudgetStatusPanel: React.FC<DurationBudgetStatusPanelProps>
                   <AlertTriangle className="w-4 h-4 text-warning" />
                 )}
                 {status.coreFeatureStatus === 'inactive' && (
-                  <AlertCircle className="w-4 h-4 text-slate-400" />
+                  <AlertCircle className="w-4 h-4 text-default-400" />
                 )}
               </div>
-              <p className="text-xs text-slate-500 mt-1">
+              <p className="text-xs text-default-500 mt-1">
                 {status.coreFeatureStatus === 'active'
                   ? t.settings.durationBudget?.coreFeatureActive || '已生效'
                   : status.coreFeatureStatus === 'dependency-missing'
@@ -162,26 +162,26 @@ export const DurationBudgetStatusPanel: React.FC<DurationBudgetStatusPanelProps>
           </div>
 
           {/* 高级功能状态 */}
-          <div className="flex items-start gap-3 p-3 bg-white dark:bg-slate-900 rounded-lg border border-slate-100 dark:border-slate-800">
+          <div className="flex items-start gap-3 p-3 bg-content1 rounded-lg border border-default-100">
             <div
-              className={`p-2 rounded-lg ${status.advancedFeatureStatus === 'active' ? 'bg-warning/10' : 'bg-slate-100 dark:bg-slate-800'}`}
+              className={`p-2 rounded-lg ${status.advancedFeatureStatus === 'active' ? 'bg-warning/10' : 'bg-default-100'}`}
             >
               <Shield
-                className={`w-5 h-5 ${status.advancedFeatureStatus === 'active' ? 'text-warning' : 'text-slate-400'}`}
+                className={`w-5 h-5 ${status.advancedFeatureStatus === 'active' ? 'text-warning' : 'text-default-400'}`}
               />
             </div>
             <div className="flex-1">
               <div className="flex items-center gap-2">
-                <span className="text-sm font-bold text-slate-900 dark:text-white">
+                <span className="text-sm font-bold text-foreground">
                   {t.settings.durationBudget?.advancedFeatures || '高级功能'}
                 </span>
                 {status.advancedFeatureStatus === 'active' ? (
                   <CheckCircle className="w-4 h-4 text-warning" />
                 ) : (
-                  <span className="text-xs text-slate-400">{t.common?.optional || '可选'}</span>
+                  <span className="text-xs text-default-400">{t.common?.optional || '可选'}</span>
                 )}
               </div>
-              <p className="text-xs text-slate-500 mt-1">
+              <p className="text-xs text-default-500 mt-1">
                 {status.advancedFeatureStatus === 'active'
                   ? t.settings.durationBudget?.shotQCEnabled || '分镜质检已启用'
                   : t.settings.durationBudget?.shotQCDisabled || '分镜质检未启用'}
@@ -199,7 +199,7 @@ export const DurationBudgetStatusPanel: React.FC<DurationBudgetStatusPanelProps>
                 <p className="text-sm font-medium text-warning">
                   {t.settings.durationBudget?.dependencyWarning || '配置警告'}
                 </p>
-                <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">
+                <p className="text-xs text-default-600 mt-1">
                   {t.settings.durationBudget?.dependencyWarningDesc ||
                     '您已启用"时长预算规划"，但未启用"生产级Prompt"。时长预算约束需要通过生产级Prompt才能生效。建议同时开启两个功能。'}
                 </p>

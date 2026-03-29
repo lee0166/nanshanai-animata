@@ -5,7 +5,7 @@
  * 展示剧本的视觉风格定义：美术指导、色彩方案、参考影片
  *
  * @module components/ScriptAnalysis/VisualStyleCard
- * @version 1.0.0
+ * @version 5.0.0
  */
 
 import React from 'react';
@@ -18,18 +18,14 @@ interface VisualStyleCardProps {
   t: any;
 }
 
-/**
- * 颜色块组件
- */
 const ColorBlock: React.FC<{ color: string; index: number }> = ({ color, index }) => {
-  // 判断颜色是否为十六进制
   const isHex = color.startsWith('#');
   const displayColor = isHex ? color : `#${color}`;
 
   return (
     <Tooltip content={color}>
       <div
-        className="w-10 h-10 rounded-lg border-2 border-content3 shadow-sm cursor-pointer transition-transform hover:scale-110"
+        className="w-7 h-7 rounded-md border border-content3 shadow-sm cursor-pointer transition-transform hover:scale-110"
         style={{ backgroundColor: displayColor }}
         aria-label={`颜色 ${index + 1}: ${color}`}
       />
@@ -37,20 +33,17 @@ const ColorBlock: React.FC<{ color: string; index: number }> = ({ color, index }
   );
 };
 
-/**
- * 视觉风格卡片组件
- */
 export const VisualStyleCard: React.FC<VisualStyleCardProps> = ({ metadata, t }) => {
   const { visualStyle, eraContext, references } = metadata;
 
   if (!visualStyle && !eraContext) {
     return (
-      <Card className="w-full">
+      <Card className="w-full h-full bg-gradient-to-br from-content1 to-content2 border-none">
         <CardBody>
-          <div className="text-center text-default-500 py-8">
-            <Palette className="w-12 h-12 mx-auto mb-3 opacity-50" />
-            <p>暂无视觉风格信息</p>
-            <p className="text-sm mt-1">请先解析剧本以获取视觉风格分析</p>
+          <div className="text-center text-default-500 py-4">
+            <Palette className="w-8 h-8 mx-auto mb-2 opacity-50 text-primary" />
+            <p className="text-sm">暂无视觉风格信息</p>
+            <p className="text-sm mt-0.5">请先解析剧本</p>
           </div>
         </CardBody>
       </Card>
@@ -58,57 +51,50 @@ export const VisualStyleCard: React.FC<VisualStyleCardProps> = ({ metadata, t })
   }
 
   return (
-    <Card className="w-full">
-      <CardHeader className="flex items-center gap-3 pb-2">
-        <div className="p-2 bg-secondary/10 rounded-lg">
-          <Palette className="w-5 h-5 text-secondary" />
+    <Card className="w-full h-full bg-gradient-to-br from-content1 to-content2 border-none">
+      <CardHeader className="flex items-center gap-2 pb-1 pt-3">
+        <div className="p-1.5 bg-primary/15 rounded-lg">
+          <Palette className="w-4 h-4 text-primary" />
         </div>
         <div>
           <h3 className="text-lg font-bold">视觉风格</h3>
-          <p className="text-sm text-default-500">美术指导与色彩方案</p>
+          <p className="text-sm text-default-500">美术指导与色彩</p>
         </div>
       </CardHeader>
 
-      <CardBody className="pt-0 space-y-4">
-        {/* 美术风格 */}
+      <CardBody className="pt-1 space-y-2">
         {visualStyle?.artStyle && (
           <div>
-            <div className="flex items-center gap-2 text-default-500 mb-2">
-              <Brush className="w-4 h-4" />
-              <span className="text-sm font-medium">美术风格</span>
+            <div className="flex items-center gap-1.5 text-default-500 mb-1">
+              <Brush className="w-3 h-3 text-primary" />
+              <span className="text-base font-medium">美术风格</span>
             </div>
-            <div className="flex items-center gap-2">
-              <Chip size="md" color="secondary" variant="flat">
+            <div className="flex items-center gap-1.5">
+              <Chip size="sm" classNames={{ base: 'bg-content2 text-foreground border-content3', content: 'text-sm' }}>
                 {visualStyle.artStyle}
               </Chip>
               {visualStyle.artDirection && (
-                <span className="text-sm text-default-500">{visualStyle.artDirection}</span>
+                <span className="text-sm text-default-500 truncate">{visualStyle.artDirection}</span>
               )}
             </div>
-            {visualStyle.artStyleDescription && (
-              <p className="text-sm text-foreground mt-2 leading-relaxed">
-                {visualStyle.artStyleDescription}
-              </p>
-            )}
           </div>
         )}
 
-        {/* 色彩方案 */}
         {visualStyle?.colorPalette && visualStyle.colorPalette.length > 0 && (
           <>
-            <Divider />
+            <Divider className="my-1" />
             <div>
-              <div className="flex items-center gap-2 text-default-500 mb-3">
-                <Palette className="w-4 h-4" />
-                <span className="text-sm font-medium">主色调</span>
+              <div className="flex items-center gap-1.5 text-default-500 mb-1.5">
+                <Palette className="w-3 h-3 text-primary" />
+                <span className="text-base font-medium">主色调</span>
                 {visualStyle.colorMood && (
-                  <Chip size="sm" variant="flat" color="primary">
+                  <Chip size="sm" variant="flat" classNames={{ base: 'bg-content2 text-foreground border-content3', content: 'text-sm' }}>
                     {visualStyle.colorMood}
                   </Chip>
                 )}
               </div>
-              <div className="flex flex-wrap gap-3">
-                {visualStyle.colorPalette.map((color, idx) => (
+              <div className="flex flex-wrap gap-1.5">
+                {visualStyle.colorPalette.slice(0, 6).map((color, idx) => (
                   <ColorBlock key={idx} color={color} index={idx} />
                 ))}
               </div>
@@ -116,113 +102,83 @@ export const VisualStyleCard: React.FC<VisualStyleCardProps> = ({ metadata, t })
           </>
         )}
 
-        {/* 摄影与光影 */}
         {(visualStyle?.cinematography || visualStyle?.lightingStyle) && (
           <>
-            <Divider />
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <Divider className="my-1" />
+            <div className="grid grid-cols-1 gap-1.5">
               {visualStyle.cinematography && (
                 <div>
-                  <div className="flex items-center gap-2 text-default-500 mb-2">
-                    <Camera className="w-4 h-4" />
-                    <span className="text-sm font-medium">摄影风格</span>
+                  <div className="flex items-center gap-1.5 text-default-500 mb-0.5">
+                    <Camera className="w-3 h-3 text-primary" />
+                    <span className="text-base font-medium">摄影</span>
                   </div>
-                  <p className="text-sm text-foreground">{visualStyle.cinematography}</p>
+                  <p className="text-sm text-foreground line-clamp-1">{visualStyle.cinematography}</p>
                 </div>
               )}
               {visualStyle.lightingStyle && (
                 <div>
-                  <div className="flex items-center gap-2 text-default-500 mb-2">
-                    <Sun className="w-4 h-4" />
-                    <span className="text-sm font-medium">光影风格</span>
+                  <div className="flex items-center gap-1.5 text-default-500 mb-0.5">
+                    <Sun className="w-3 h-3 text-primary" />
+                    <span className="text-base font-medium">光影</span>
                   </div>
-                  <p className="text-sm text-foreground">{visualStyle.lightingStyle}</p>
+                  <p className="text-sm text-foreground line-clamp-1">{visualStyle.lightingStyle}</p>
                 </div>
               )}
             </div>
           </>
         )}
 
-        {/* 时代背景 */}
         {eraContext && (
           <>
-            <Divider />
+            <Divider className="my-1" />
             <div>
-              <div className="flex items-center gap-2 text-default-500 mb-3">
-                <Clapperboard className="w-4 h-4" />
-                <span className="text-sm font-medium">时代背景</span>
+              <div className="flex items-center gap-1.5 text-default-500 mb-1">
+                <Clapperboard className="w-3 h-3 text-primary" />
+                <span className="text-base font-medium">时代背景</span>
               </div>
-              <div className="flex flex-wrap gap-2 mb-2">
+              <div className="flex flex-wrap gap-1">
                 {eraContext.era && (
-                  <Chip size="sm" variant="flat" color="default">
+                  <Chip size="sm" variant="flat" classNames={{ base: 'bg-content2 text-foreground border-content3', content: 'text-sm' }}>
                     {eraContext.era}
                   </Chip>
                 )}
                 {eraContext.location && (
-                  <Chip size="sm" variant="flat" color="default">
+                  <Chip size="sm" variant="flat" classNames={{ base: 'bg-content2 text-foreground border-content3', content: 'text-sm' }}>
                     {eraContext.location}
                   </Chip>
                 )}
                 {eraContext.season && (
-                  <Chip size="sm" variant="flat" color="success">
+                  <Chip size="sm" variant="flat" classNames={{ base: 'bg-content2 text-foreground border-content3', content: 'text-sm' }}>
                     {eraContext.season}
                   </Chip>
                 )}
               </div>
-              {eraContext.eraDescription && (
-                <p className="text-sm text-foreground leading-relaxed">
-                  {eraContext.eraDescription}
-                </p>
-              )}
             </div>
           </>
         )}
 
-        {/* 参考影片与导演 */}
         {references && (
           <>
-            <Divider />
+            <Divider className="my-1" />
             <div>
-              <div className="flex items-center gap-2 text-default-500 mb-3">
-                <Film className="w-4 h-4" />
-                <span className="text-sm font-medium">参考风格</span>
+              <div className="flex items-center gap-1.5 text-default-500 mb-1">
+                <Film className="w-3 h-3 text-primary" />
+                <span className="text-base font-medium">参考</span>
               </div>
 
               {references.films && references.films.length > 0 && (
-                <div className="mb-2">
-                  <span className="text-xs text-default-400 mb-1 block">参考影片</span>
-                  <div className="flex flex-wrap gap-2">
-                    {references.films.map((film, idx) => (
-                      <Chip
-                        key={idx}
-                        size="sm"
-                        variant="flat"
-                        color="primary"
-                        startContent={<Film className="w-3 h-3" />}
-                      >
-                        {film}
-                      </Chip>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {references.directors && references.directors.length > 0 && (
-                <div>
-                  <span className="text-xs text-default-400 mb-1 block">参考导演</span>
-                  <div className="flex flex-wrap gap-2">
-                    {references.directors.map((director, idx) => (
-                      <Chip
-                        key={idx}
-                        size="sm"
-                        variant="flat"
-                        color="secondary"
-                        startContent={<User className="w-3 h-3" />}
-                      >
-                        {director}
-                      </Chip>
-                    ))}
-                  </div>
+                <div className="flex flex-wrap gap-1">
+                  {references.films.slice(0, 3).map((film, idx) => (
+                    <Chip
+                      key={idx}
+                      size="sm"
+                      variant="flat"
+                      classNames={{ base: 'bg-content2 text-foreground border-content3', content: 'text-sm' }}
+                      startContent={<Film className="w-2.5 h-2.5 text-primary" />}
+                    >
+                      {film}
+                    </Chip>
+                  ))}
                 </div>
               )}
             </div>

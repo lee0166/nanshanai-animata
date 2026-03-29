@@ -244,13 +244,13 @@ export const ReviewManager: React.FC<ReviewManagerProps> = ({
   }
 
   return (
-    <div className="h-full flex flex-col bg-slate-50 dark:bg-slate-950">
+    <div className="h-full flex flex-col bg-background">
       {/* 头部 */}
-      <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
+      <div className="px-6 py-4 border-b border-content3 bg-content1">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-xl font-bold text-slate-900 dark:text-white">审核管理</h1>
-            <p className="text-sm text-slate-500 mt-1">管理AI生成内容的审核流程</p>
+            <h1 className="text-xl font-bold text-foreground">审核管理</h1>
+            <p className="text-sm text-default-500 mt-1">管理AI生成内容的审核流程</p>
           </div>
         </div>
       </div>
@@ -268,14 +268,14 @@ export const ReviewManager: React.FC<ReviewManagerProps> = ({
           {selectedTab === 'pending' && (
             <Card className="shadow-lg border-none">
               <CardBody className="p-6">
-                <h2 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">
+                <h2 className="text-lg font-semibold text-foreground mb-4">
                   待审核项目 ({pendingReviews.length})
                 </h2>
 
                 {pendingReviews.length === 0 ? (
                   <div className="text-center py-12">
-                    <CheckCircle2 size={48} className="mx-auto text-green-500 mb-4" />
-                    <p className="text-slate-500 dark:text-slate-400">暂无待审核项目</p>
+                    <CheckCircle2 size={48} className="mx-auto text-success mb-4" />
+                    <p className="text-default-500">暂无待审核项目</p>
                   </div>
                 ) : (
                   <Table>
@@ -311,10 +311,10 @@ export const ReviewManager: React.FC<ReviewManagerProps> = ({
                                 <div className="font-medium">{review.metadata.sceneName}</div>
                               )}
                               {review.metadata?.shotNumber && (
-                                <div className="text-slate-500">{review.metadata.shotNumber}</div>
+                                <div className="text-default-500">{review.metadata.shotNumber}</div>
                               )}
                               {review.metadata?.description && (
-                                <div className="text-slate-600 dark:text-slate-400 truncate">
+                                <div className="text-slate-400 truncate">
                                   {review.metadata.description}
                                 </div>
                               )}
@@ -322,7 +322,7 @@ export const ReviewManager: React.FC<ReviewManagerProps> = ({
                           </TableCell>
                           <TableCell>{getStatusBadge(review.status)}</TableCell>
                           <TableCell>
-                            <div className="text-sm text-slate-500">
+                            <div className="text-sm text-default-500">
                               {new Date(review.createdAt).toLocaleString()}
                             </div>
                           </TableCell>
@@ -349,14 +349,14 @@ export const ReviewManager: React.FC<ReviewManagerProps> = ({
           {selectedTab === 'history' && (
             <Card className="shadow-lg border-none">
               <CardBody className="p-6">
-                <h2 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">
+                <h2 className="text-lg font-semibold text-foreground mb-4">
                   审核历史 ({reviewHistory.length})
                 </h2>
 
                 {reviewHistory.length === 0 ? (
                   <div className="text-center py-12">
                     <Clock size={48} className="mx-auto text-slate-400 mb-4" />
-                    <p className="text-slate-500 dark:text-slate-400">暂无审核历史</p>
+                    <p className="text-default-500">暂无审核历史</p>
                   </div>
                 ) : (
                   <Table>
@@ -392,18 +392,18 @@ export const ReviewManager: React.FC<ReviewManagerProps> = ({
                                 <div className="font-medium">{review.metadata.sceneName}</div>
                               )}
                               {review.metadata?.shotNumber && (
-                                <div className="text-slate-500">{review.metadata.shotNumber}</div>
+                                <div className="text-default-500">{review.metadata.shotNumber}</div>
                               )}
                             </div>
                           </TableCell>
                           <TableCell>{getStatusBadge(review.status)}</TableCell>
                           <TableCell>
-                            <div className="text-sm text-slate-500">
+                            <div className="text-sm text-default-500">
                               {new Date(review.updatedAt).toLocaleString()}
                             </div>
                           </TableCell>
                           <TableCell>
-                            <div className="text-sm text-slate-600 dark:text-slate-400">
+                            <div className="text-sm text-slate-400">
                               {review.metadata?.comments || '无'}
                             </div>
                           </TableCell>
@@ -428,7 +428,7 @@ export const ReviewManager: React.FC<ReviewManagerProps> = ({
             {selectedReview && (
               <div className="space-y-4">
                 {/* 项目信息 */}
-                <div className="bg-slate-50 dark:bg-slate-800 rounded-lg p-4">
+                <div className="bg-content2 rounded-lg p-4">
                   <div className="flex items-center gap-2 mb-2">
                     {getTypeIcon(selectedReview.type)}
                     <h3 className="font-medium">
