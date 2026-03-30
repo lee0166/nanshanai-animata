@@ -8,8 +8,8 @@
  * @version 8.0.0
  */
 
-import React, { useState, useRef } from 'react';
-import { Card, CardBody, CardHeader, Chip } from '@heroui/react';
+import React from 'react';
+import { Card, CardBody, CardHeader, Chip, Tooltip } from '@heroui/react';
 import { Activity, Heart } from 'lucide-react';
 import { motion } from 'framer-motion';
 import type { EmotionalPoint } from '../../types';
@@ -34,26 +34,11 @@ const emotionColors = [
   '#65a30d',
 ];
 
-interface TooltipState {
-  visible: boolean;
-  x: number;
-  y: number;
-  point: EmotionalPoint | null;
-  color: string;
-}
-
 export const EmotionalArcChart: React.FC<EmotionalArcChartProps> = ({
   emotionalArc,
   overallMood,
   t,
 }) => {
-  const [tooltip, setTooltip] = useState<TooltipState>({
-    visible: false,
-    x: 0,
-    y: 0,
-    point: null,
-    color: '#000',
-  });
 
   if (!emotionalArc || emotionalArc.length === 0) {
     return (
@@ -97,30 +82,6 @@ export const EmotionalArcChart: React.FC<EmotionalArcChartProps> = ({
     }
 
     return path;
-  };
-
-  const handlePointMouseEnter = (
-    e: React.MouseEvent,
-    point: EmotionalPoint,
-    color: string
-  ) => {
-    setTooltip({
-      visible: true,
-      x: e.clientX,
-      y: e.clientY,
-      point,
-      color,
-    });
-  };
-
-  const handlePointMouseLeave = () => {
-    setTooltip({
-      visible: false,
-      x: 0,
-      y: 0,
-      point: null,
-      color: '#000',
-    });
   };
 
   return (
@@ -262,123 +223,63 @@ export const EmotionalArcChart: React.FC<EmotionalArcChartProps> = ({
               strokeLinejoin="round"
             />
 
-            {points.map((point, idx) => {
-              const isHovered = tooltip.visible && tooltip.point?.percentage === point.percentage;
-
-              return (
-                <g key={idx}>
+            {points.map((point, idx) => (
+              <Tooltip
+                key={idx}
+                content={
+                  <div className="max-w-xs">
+                    <div className="font-bold text-[#84CC16] text-base mb-1">{point.plotPoint}</div>
+                    <div className="text-sm text-[#d4d4d8] mb-2">{point.emotion}</div>
+                    <div className="flex items-center gap-2">
+                      <div className="flex-1 h-1.5 bg-[#27272a] rounded-sm overflow-hidden">
+                        <div
+                          className="h-full rounded-sm"
+                          style={{
+                            width: `${point.intensity * 10}%`,
+                            backgroundColor: point.color,
+                          }}
+                        />
+                      </div>
+                      <span className="font-bold text-sm whitespace-nowrap" style={{ color: point.color }}>
+                        {point.intensity}/10
+                      </span>
+                    </div>
+                  </div>
+                }
+                delay={0}
+                closeDelay={0}
+                placement="top"
+                classNames={{
+                  content: 'bg-[#0a0a0a] border-2 border-[#84CC16] rounded-lg p-3 shadow-xl',
+                }}
+              >
+                <g style={{ cursor: 'pointer' }}>
                   <circle
                     cx={point.x}
                     cy={point.y}
-                    r={isHovered ? 14 : 8}
+                    r={8}
                     fill={point.color}
                     stroke="#84CC16"
                     strokeWidth="3"
-                    style={{ 
-                      cursor: 'pointer',
-                    }}
-                    onMouseEnter={(e) => handlePointMouseEnter(e, point, point.color)}
-                    onMouseLeave={handlePointMouseLeave}
+                    className="transition-all duration-200 hover:r-14"
                   />
-                  
                   <circle
                     cx={point.x}
                     cy={point.y}
-                    r={isHovered ? 18 : 12}
+                    r={12}
                     fill="none"
                     stroke="#84CC16"
                     strokeWidth="1"
-                    opacity={isHovered ? 0.4 : 0.2}
+                    opacity="0.2"
+                    className="transition-all duration-200 hover:opacity-40 hover:r-18"
                   />
                 </g>
-              );
-            })}
+              </Tooltip>
+            ))}
           </svg>
           </div>
         </div>
       </CardBody>
-
-      {tooltip.visible && tooltip.point && (
-        <div
-          style={{
-            position: 'fixed',
-            left: tooltip.x + 20,
-            top: tooltip.y - 100,
-            zIndex: 999999,
-            pointerEvents: 'none',
-          }}
-        >
-          <div
-            style={{
-              backgroundColor: '#0a0a0a',
-              border: '2px solid #84CC16',
-              borderRadius: '8px',
-              padding: '12px 16px',
-              boxShadow: '0 4px 20px rgba(0, 0, 0, 0.8)',
-              minWidth: '200px',
-              maxWidth: '280px',
-            }}
-          >
-            <div
-              style={{
-                fontWeight: 700,
-                color: '#84CC16',
-                marginBottom: '6px',
-                fontSize: '15px',
-                lineHeight: '1.4',
-              }}
-            >
-              {tooltip.point.plotPoint}
-            </div>
-            <div
-              style={{
-                color: '#d4d4d8',
-                marginBottom: '8px',
-                fontSize: '14px',
-                lineHeight: '1.4',
-              }}
-            >
-              {tooltip.point.emotion}
-            </div>
-            <div
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
-              }}
-            >
-              <div
-                style={{
-                  flex: 1,
-                  height: '6px',
-                  backgroundColor: '#27272a',
-                  borderRadius: '3px',
-                  overflow: 'hidden',
-                }}
-              >
-                <div
-                  style={{
-                    width: `${tooltip.point.intensity * 10}%`,
-                    height: '100%',
-                    backgroundColor: tooltip.color,
-                    borderRadius: '3px',
-                  }}
-                />
-              </div>
-              <span
-                style={{
-                  fontWeight: 700,
-                  color: tooltip.color,
-                  fontSize: '13px',
-                  whiteSpace: 'nowrap',
-                }}
-              >
-                {tooltip.point.intensity}/10
-              </span>
-            </div>
-          </div>
-        </div>
-      )}
     </Card>
   );
 };
