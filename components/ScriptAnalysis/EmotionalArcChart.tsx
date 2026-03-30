@@ -143,11 +143,11 @@ export const EmotionalArcChart: React.FC<EmotionalArcChartProps> = ({
       </CardHeader>
 
       <CardBody className="pt-2 pb-4 space-y-3 flex-1 flex flex-col">
-        <div>
-          <div className="relative w-full">
+        <div className="flex-1 min-h-0">
+          <div className="relative w-full h-full">
             <svg
               viewBox={`0 0 ${width} ${height}`}
-              className="w-full h-auto"
+              className="w-full h-full"
               preserveAspectRatio="xMidYMid meet"
             >
             <defs>

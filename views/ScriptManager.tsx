@@ -1100,53 +1100,59 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({
                       </div>
                     }
                   >
-                    <Card>
-                      <CardBody className="space-y-6">
-                        {/* 第一行：故事概览 + 情绪曲线 */}
-                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                          <motion.div
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.3, delay: 0.4 }}
-                          >
-                            <StoryOverviewCard metadata={currentScript.parseState.metadata} t={{}} />
-                          </motion.div>
-                          {currentScript.parseState.metadata?.emotionalArc && (
+                    <div className="h-[calc(100vh-24rem)] min-h-[600px]">
+                      <Card className="flex flex-col h-full">
+                        <CardBody className="flex-1 flex flex-col gap-4 p-4">
+                          {/* 第一行：故事概览 + 情绪曲线 */}
+                          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 flex-1">
                             <motion.div
                               initial={{ opacity: 0, y: 20 }}
                               animate={{ opacity: 1, y: 0 }}
-                              transition={{ duration: 0.4, delay: 0.45 }}
+                              transition={{ duration: 0.3, delay: 0.4 }}
+                              className="h-full"
                             >
-                              <EmotionalArcChart
-                                emotionalArc={currentScript.parseState.metadata.emotionalArc}
+                              <StoryOverviewCard metadata={currentScript.parseState.metadata} t={{}} />
+                            </motion.div>
+                            {currentScript.parseState.metadata?.emotionalArc && (
+                              <motion.div
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ duration: 0.4, delay: 0.45 }}
+                                className="h-full"
+                              >
+                                <EmotionalArcChart
+                                  emotionalArc={currentScript.parseState.metadata.emotionalArc}
+                                  t={t}
+                                />
+                              </motion.div>
+                            )}
+                          </div>
+
+                          {/* 第二行：视觉风格 + 故事结构 */}
+                          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 flex-1">
+                            <motion.div
+                              initial={{ opacity: 0, y: 20 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              transition={{ duration: 0.3, delay: 0.5 }}
+                              className="h-full"
+                            >
+                              <VisualStyleCard metadata={currentScript.parseState.metadata} t={{}} />
+                            </motion.div>
+                            <motion.div
+                              initial={{ opacity: 0, y: 20 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              transition={{ duration: 0.3, delay: 0.55 }}
+                              className="h-full"
+                            >
+                              <StoryStructureDiagram
+                                storyStructure={currentScript.parseState.metadata.storyStructure}
                                 t={t}
                               />
                             </motion.div>
-                          )}
-                        </div>
-
-                        {/* 第二行：视觉风格 + 故事结构 */}
-                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                          <motion.div
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.3, delay: 0.5 }}
-                          >
-                            <VisualStyleCard metadata={currentScript.parseState.metadata} t={{}} />
-                          </motion.div>
-                          <motion.div
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.3, delay: 0.55 }}
-                          >
-                            <StoryStructureDiagram
-                              storyStructure={currentScript.parseState.metadata.storyStructure}
-                              t={t}
-                            />
-                          </motion.div>
-                        </div>
-                      </CardBody>
-                    </Card>
+                          </div>
+                        </CardBody>
+                      </Card>
+                    </div>
                   </Tab>
 
                   {/* Original Text Tab */}

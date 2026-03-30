@@ -94,26 +94,28 @@ export const StoryOverviewCard: React.FC<StoryOverviewCardProps> = ({ metadata, 
           <Divider className="my-2" />
         )}
         
-        {(genre || tone) && (
-          <div>
-            <div className="flex flex-wrap gap-1.5">
-              {genre && (
-                <Tooltip content="剧本类型/题材">
-                  <Chip size="sm" variant="flat" classNames={{ base: 'bg-content2 text-foreground border-content3', content: 'text-sm' }}>
-                    {genre}
-                  </Chip>
-                </Tooltip>
-              )}
-              {tone && (
-                <Tooltip content="整体基调">
-                  <Chip size="sm" variant="flat" classNames={{ base: 'bg-content2 text-foreground border-content3', content: 'text-sm' }}>
-                    {tone}
-                  </Chip>
-                </Tooltip>
-              )}
+        <div className="flex-1">
+          {(genre || tone) && (
+            <div>
+              <div className="flex flex-wrap gap-1.5">
+                {genre && (
+                  <Tooltip content="剧本类型/题材">
+                    <Chip size="sm" variant="flat" classNames={{ base: 'bg-content2 text-foreground border-content3', content: 'text-sm' }}>
+                      {genre}
+                    </Chip>
+                  </Tooltip>
+                )}
+                {tone && (
+                  <Tooltip content="整体基调">
+                    <Chip size="sm" variant="flat" classNames={{ base: 'bg-content2 text-foreground border-content3', content: 'text-sm' }}>
+                      {tone}
+                    </Chip>
+                  </Tooltip>
+                )}
+              </div>
             </div>
-          </div>
-        )}
+          )}
+        </div>
       </CardBody>
     </Card>
   );

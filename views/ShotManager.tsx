@@ -68,7 +68,10 @@ import {
   Layers,
   Box,
   Sparkles,
+  Calendar,
 } from 'lucide-react';
+import { ShotTimelineView } from '../components/ScriptParser/ShotTimelineView';
+import { TimelineShotInfoPanel } from '../components/ScriptParser/TimelineShotInfoPanel';
 import { keyframeService, keyframeEngine } from '../services/keyframe';
 import { videoGenerationService } from '../services/video';
 import { jobQueue } from '../services/queue';
@@ -94,7 +97,7 @@ import {
 import { CSS } from '@dnd-kit/utilities';
 
 // 视图模式类型
-type ViewMode = 'shotList' | 'keyframeSequence';
+type ViewMode = 'shotList' | 'keyframeSequence' | 'timeline';
 
 // 分镜项组件
 interface ShotItemProps {
@@ -648,6 +651,7 @@ export const ShotManager: React.FC<ShotManagerProps> = ({
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
   // 视图模式
   const [viewMode, setViewMode] = useState<ViewMode>('shotList');
+  
   // 展开状态管理
   const [expandedShots, setExpandedShots] = useState<Set<string>>(new Set());
   // 资产选择器状态
@@ -866,6 +870,12 @@ export const ShotManager: React.FC<ShotManagerProps> = ({
     const shots = currentScript?.parseState?.shots || [];
     return generateShotNumbers(shots);
   }, [currentScript]);
+
+  // 时间线视图场景
+  const scenes: ScriptScene[] = useMemo(() => {
+    const sceneNames = new Set(allShots.map(s => s.sceneName || '未分类场景'));
+    return Array.from(sceneNames).map(name => ({ name }));
+  }, [allShots]);
 
   // 完整的关键帧序列数据结构
   const completeKeyframeSequence = useMemo(() => {
@@ -1927,40 +1937,66 @@ export const ShotManager: React.FC<ShotManagerProps> = ({
 
   return (
     <div className="flex h-full bg-background text-foreground">
-      {/* 左侧分镜列表 */}
-      <aside className="w-80 bg-content1 border-r border-content3 flex flex-col overflow-y-auto transition-all duration-300">
-        <div className="p-4 border-b border-content3">
-          <div className="mb-3">
-            <label className="text-xs text-slate-400 block mb-1">选择剧本</label>
-            <Select
-              aria-label="选择剧本"
-              selectedKeys={selectedScriptId ? [selectedScriptId] : []}
-              onChange={e => setSelectedScriptId(e.target.value)}
-              className="w-full"
-            >
-              {scripts.map(script => (
-                <SelectItem key={script.id} value={script.id} textValue={script.title}>
-                  {script.title}
-                </SelectItem>
-              ))}
-            </Select>
-          </div>
+      {/* 列表视图 */}
+      {viewMode !== 'timeline' ? (
+        <>
+          {/* 左侧分镜列表 */}
+          <aside className="w-80 bg-content1 border-r border-content3 flex flex-col overflow-y-auto transition-all duration-300">
+            <div className="p-4 border-b border-content3">
+              <div className="mb-3">
+                <label className="text-xs text-slate-400 block mb-1">选择剧本</label>
+                <Select
+                  aria-label="选择剧本"
+                  selectedKeys={selectedScriptId ? [selectedScriptId] : []}
+                  onChange={e => setSelectedScriptId(e.target.value)}
+                  className="w-full"
+                >
+                  {scripts.map(script => (
+                    <SelectItem key={script.id} value={script.id} textValue={script.title}>
+                      {script.title}
+                    </SelectItem>
+                  ))}
+                </Select>
+              </div>
 
-          <div className="flex items-center justify-between mb-3">
-            <div>
-              <h2 className="text-sm font-semibold text-foreground">分镜列表</h2>
-              <p className="text-xs text-slate-400">共 {allShots.length} 个分镜</p>
-            </div>
-            <Button
-              size="sm"
-              variant="flat"
-              color={isBatchMode ? 'primary' : 'default'}
-              onPress={toggleBatchMode}
-              className="text-xs"
-            >
-              {isBatchMode ? '退出批量' : '批量操作'}
-            </Button>
-          </div>
+              <div className="flex items-center justify-between mb-3">
+                <div>
+                  <h2 className="text-sm font-semibold text-foreground">分镜列表</h2>
+                  <p className="text-xs text-slate-400">共 {allShots.length} 个分镜</p>
+                </div>
+                <Button
+                  size="sm"
+                  variant="flat"
+                  color={isBatchMode ? 'primary' : 'default'}
+                  onPress={toggleBatchMode}
+                  className="text-xs"
+                >
+                  {isBatchMode ? '退出批量' : '批量操作'}
+                </Button>
+              </div>
+              
+              {/* 视图切换按钮 */}
+              <div className="flex gap-2 mb-3">
+                <Button
+                  size="sm"
+                  variant={viewMode === 'shotList' ? 'solid' : 'flat'}
+                  color="primary"
+                  onPress={() => setViewMode('shotList')}
+                  className="flex-1"
+                  startContent={<List size={14} />}
+                >
+                  列表
+                </Button>
+                <Button
+                  size="sm"
+                  variant="flat"
+                  onPress={() => setViewMode('timeline')}
+                  className="flex-1"
+                  startContent={<Calendar size={14} />}
+                >
+                  时间线
+                </Button>
+              </div>
 
           {isBatchMode && (
             <div className="space-y-3 mb-3">
@@ -3063,6 +3099,33 @@ export const ShotManager: React.FC<ShotManagerProps> = ({
           </div>
         )}
       </aside>
+        </>
+      ) : (
+        /* 时间线视图 */
+        <div className="flex flex-1 overflow-hidden">
+          {/* 时间线视图（左中栏合并） */}
+          <div className="flex-1 overflow-hidden">
+            <ShotTimelineView
+              shots={allShots}
+              scenes={scenes}
+              selectedShotId={selectedShotId}
+              onSelectShot={(shot) => {
+                setSelectedShotId(shot.id);
+                setSelectedKeyframeIndex(-1);
+              }}
+              onSwitchToListView={() => setViewMode('shotList')}
+              imageUrls={imageUrls}
+            />
+          </div>
+          {/* 时间线视图专用右栏 - 仅信息展示 */}
+          <div className="w-80 flex-shrink-0">
+            <TimelineShotInfoPanel
+              shot={selectedShot || null}
+              onSwitchToListView={() => setViewMode('shotList')}
+            />
+          </div>
+        </div>
+      )}
 
       {/* 拆分关键帧弹窗 */}
       <SplitKeyframeModal

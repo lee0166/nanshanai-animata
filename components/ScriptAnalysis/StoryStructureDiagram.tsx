@@ -231,7 +231,7 @@ export const StoryStructureDiagram: React.FC<StoryStructureDiagramProps> = ({
 
         {(midpoint || climax) && <Divider className="my-2" />}
         
-        <div>
+        <div className="flex-1">
           <div className="flex items-center gap-2 text-default-500 mb-1.5">
             <BookOpen className="w-4 h-4" />
             <span className="text-sm font-bold">结构说明</span>

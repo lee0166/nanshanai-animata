@@ -159,33 +159,35 @@ export const VisualStyleCard: React.FC<VisualStyleCardProps> = ({ metadata, t })
           </>
         )}
 
-        {references && (
-          <>
-            {(visualStyle?.artStyle || (visualStyle?.colorPalette && visualStyle.colorPalette.length > 0) || visualStyle?.cinematography || visualStyle?.lightingStyle || eraContext) && <Divider className="my-2" />}
-            <div>
-              <div className="flex items-center gap-1.5 text-default-500 mb-1.5">
-                <Film className="w-3.5 h-3.5" />
-                <span className="text-sm font-bold">参考</span>
-              </div>
-
-              {references.films && references.films.length > 0 && (
-                <div className="flex flex-wrap gap-1.5">
-                  {references.films.slice(0, 3).map((film, idx) => (
-                    <Chip
-                      key={idx}
-                      size="sm"
-                      variant="flat"
-                      classNames={{ base: 'bg-content2 text-foreground border-content3', content: 'text-sm' }}
-                      startContent={<Film className="w-2.5 h-2.5 text-primary" />}
-                    >
-                      {film}
-                    </Chip>
-                  ))}
+        <div className="flex-1">
+          {references && (
+            <>
+              {(visualStyle?.artStyle || (visualStyle?.colorPalette && visualStyle.colorPalette.length > 0) || visualStyle?.cinematography || visualStyle?.lightingStyle || eraContext) && <Divider className="my-2" />}
+              <div>
+                <div className="flex items-center gap-1.5 text-default-500 mb-1.5">
+                  <Film className="w-3.5 h-3.5" />
+                  <span className="text-sm font-bold">参考</span>
                 </div>
-              )}
-            </div>
-          </>
-        )}
+
+                {references.films && references.films.length > 0 && (
+                  <div className="flex flex-wrap gap-1.5">
+                    {references.films.slice(0, 3).map((film, idx) => (
+                      <Chip
+                        key={idx}
+                        size="sm"
+                        variant="flat"
+                        classNames={{ base: 'bg-content2 text-foreground border-content3', content: 'text-sm' }}
+                        startContent={<Film className="w-2.5 h-2.5 text-primary" />}
+                      >
+                        {film}
+                      </Chip>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </>
+          )}
+        </div>
       </CardBody>
     </Card>
   );
