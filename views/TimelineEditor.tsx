@@ -765,7 +765,13 @@ export const TimelineEditor: React.FC = () => {
           <Button isIconOnly variant="light" size="sm" aria-label="后退">
             <SkipBack size={20} />
           </Button>
-          <Button isIconOnly color="primary" size="lg" onPress={() => setIsPlaying(!isPlaying)} aria-label="播放/暂停">
+          <Button
+            isIconOnly
+            color="primary"
+            size="lg"
+            onPress={() => setIsPlaying(!isPlaying)}
+            aria-label="播放/暂停"
+          >
             {isPlaying ? <Pause size={24} /> : <Play size={24} />}
           </Button>
           <Button isIconOnly variant="light" size="sm" aria-label="前进">

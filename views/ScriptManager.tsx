@@ -941,8 +941,8 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({
                 <div
                   key={script.id}
                   className={`p-4 cursor-pointer hover:bg-content2 transition-all duration-200 border-l-4 ${
-                    currentScript?.id === script.id 
-                      ? 'bg-primary/10 border-primary' 
+                    currentScript?.id === script.id
+                      ? 'bg-primary/10 border-primary'
                       : 'border-transparent'
                   }`}
                   onClick={() => setCurrentScript(script)}
@@ -1111,7 +1111,10 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({
                               transition={{ duration: 0.3, delay: 0.4 }}
                               className="h-full"
                             >
-                              <StoryOverviewCard metadata={currentScript.parseState.metadata} t={{}} />
+                              <StoryOverviewCard
+                                metadata={currentScript.parseState.metadata}
+                                t={{}}
+                              />
                             </motion.div>
                             {currentScript.parseState.metadata?.emotionalArc && (
                               <motion.div
@@ -1136,7 +1139,10 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({
                               transition={{ duration: 0.3, delay: 0.5 }}
                               className="h-full"
                             >
-                              <VisualStyleCard metadata={currentScript.parseState.metadata} t={{}} />
+                              <VisualStyleCard
+                                metadata={currentScript.parseState.metadata}
+                                t={{}}
+                              />
                             </motion.div>
                             <motion.div
                               initial={{ opacity: 0, y: 20 }}
@@ -1428,9 +1434,7 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({
             <Card className="border-2 border-dashed border-content3 relative overflow-hidden">
               <CardBody className="text-center py-6">
                 <Upload className="w-8 h-8 mx-auto mb-2 text-foreground/40" />
-                <p className="text-sm text-foreground/60 mb-2">
-                  点击或拖拽文件到此处上传
-                </p>
+                <p className="text-sm text-foreground/60 mb-2">点击或拖拽文件到此处上传</p>
                 <p className="text-xs text-foreground/50">
                   支持 .txt, .md, .docx, .pdf 格式（最大50MB）
                 </p>

@@ -70,11 +70,19 @@ export const VisualStyleCard: React.FC<VisualStyleCardProps> = ({ metadata, t })
               <span className="text-sm font-bold">美术风格</span>
             </div>
             <div className="flex items-center gap-1.5">
-              <Chip size="sm" classNames={{ base: 'bg-content2 text-foreground border-content3', content: 'text-sm' }}>
+              <Chip
+                size="sm"
+                classNames={{
+                  base: 'bg-content2 text-foreground border-content3',
+                  content: 'text-sm',
+                }}
+              >
                 {visualStyle.artStyle}
               </Chip>
               {visualStyle.artDirection && (
-                <span className="text-sm text-default-500 truncate">{visualStyle.artDirection}</span>
+                <span className="text-sm text-default-500 truncate">
+                  {visualStyle.artDirection}
+                </span>
               )}
             </div>
           </div>
@@ -88,7 +96,14 @@ export const VisualStyleCard: React.FC<VisualStyleCardProps> = ({ metadata, t })
                 <Palette className="w-3.5 h-3.5" />
                 <span className="text-sm font-bold">主色调</span>
                 {visualStyle.colorMood && (
-                  <Chip size="sm" variant="flat" classNames={{ base: 'bg-content2 text-foreground border-content3', content: 'text-sm' }}>
+                  <Chip
+                    size="sm"
+                    variant="flat"
+                    classNames={{
+                      base: 'bg-content2 text-foreground border-content3',
+                      content: 'text-sm',
+                    }}
+                  >
                     {visualStyle.colorMood}
                   </Chip>
                 )}
@@ -104,7 +119,10 @@ export const VisualStyleCard: React.FC<VisualStyleCardProps> = ({ metadata, t })
 
         {(visualStyle?.cinematography || visualStyle?.lightingStyle) && (
           <>
-            {(visualStyle?.artStyle || (visualStyle?.colorPalette && visualStyle.colorPalette.length > 0)) && <Divider className="my-2" />}
+            {(visualStyle?.artStyle ||
+              (visualStyle?.colorPalette && visualStyle.colorPalette.length > 0)) && (
+              <Divider className="my-2" />
+            )}
             <div>
               <div className="grid grid-cols-1 gap-2">
                 {visualStyle.cinematography && (
@@ -113,7 +131,9 @@ export const VisualStyleCard: React.FC<VisualStyleCardProps> = ({ metadata, t })
                       <Camera className="w-3.5 h-3.5" />
                       <span className="text-sm font-bold">摄影</span>
                     </div>
-                    <p className="text-sm text-foreground line-clamp-1">{visualStyle.cinematography}</p>
+                    <p className="text-sm text-foreground line-clamp-1">
+                      {visualStyle.cinematography}
+                    </p>
                   </div>
                 )}
                 {visualStyle.lightingStyle && (
@@ -122,7 +142,9 @@ export const VisualStyleCard: React.FC<VisualStyleCardProps> = ({ metadata, t })
                       <Sun className="w-3.5 h-3.5" />
                       <span className="text-sm font-bold">光影</span>
                     </div>
-                    <p className="text-sm text-foreground line-clamp-1">{visualStyle.lightingStyle}</p>
+                    <p className="text-sm text-foreground line-clamp-1">
+                      {visualStyle.lightingStyle}
+                    </p>
                   </div>
                 )}
               </div>
@@ -132,7 +154,10 @@ export const VisualStyleCard: React.FC<VisualStyleCardProps> = ({ metadata, t })
 
         {eraContext && (
           <>
-            {(visualStyle?.artStyle || (visualStyle?.colorPalette && visualStyle.colorPalette.length > 0) || visualStyle?.cinematography || visualStyle?.lightingStyle) && <Divider className="my-2" />}
+            {(visualStyle?.artStyle ||
+              (visualStyle?.colorPalette && visualStyle.colorPalette.length > 0) ||
+              visualStyle?.cinematography ||
+              visualStyle?.lightingStyle) && <Divider className="my-2" />}
             <div>
               <div className="flex items-center gap-1.5 text-default-500 mb-1.5">
                 <Clapperboard className="w-3.5 h-3.5" />
@@ -140,17 +165,38 @@ export const VisualStyleCard: React.FC<VisualStyleCardProps> = ({ metadata, t })
               </div>
               <div className="flex flex-wrap gap-1.5">
                 {eraContext.era && (
-                  <Chip size="sm" variant="flat" classNames={{ base: 'bg-content2 text-foreground border-content3', content: 'text-sm' }}>
+                  <Chip
+                    size="sm"
+                    variant="flat"
+                    classNames={{
+                      base: 'bg-content2 text-foreground border-content3',
+                      content: 'text-sm',
+                    }}
+                  >
                     {eraContext.era}
                   </Chip>
                 )}
                 {eraContext.location && (
-                  <Chip size="sm" variant="flat" classNames={{ base: 'bg-content2 text-foreground border-content3', content: 'text-sm' }}>
+                  <Chip
+                    size="sm"
+                    variant="flat"
+                    classNames={{
+                      base: 'bg-content2 text-foreground border-content3',
+                      content: 'text-sm',
+                    }}
+                  >
                     {eraContext.location}
                   </Chip>
                 )}
                 {eraContext.season && (
-                  <Chip size="sm" variant="flat" classNames={{ base: 'bg-content2 text-foreground border-content3', content: 'text-sm' }}>
+                  <Chip
+                    size="sm"
+                    variant="flat"
+                    classNames={{
+                      base: 'bg-content2 text-foreground border-content3',
+                      content: 'text-sm',
+                    }}
+                  >
                     {eraContext.season}
                   </Chip>
                 )}
@@ -162,7 +208,11 @@ export const VisualStyleCard: React.FC<VisualStyleCardProps> = ({ metadata, t })
         <div className="flex-1">
           {references && (
             <>
-              {(visualStyle?.artStyle || (visualStyle?.colorPalette && visualStyle.colorPalette.length > 0) || visualStyle?.cinematography || visualStyle?.lightingStyle || eraContext) && <Divider className="my-2" />}
+              {(visualStyle?.artStyle ||
+                (visualStyle?.colorPalette && visualStyle.colorPalette.length > 0) ||
+                visualStyle?.cinematography ||
+                visualStyle?.lightingStyle ||
+                eraContext) && <Divider className="my-2" />}
               <div>
                 <div className="flex items-center gap-1.5 text-default-500 mb-1.5">
                   <Film className="w-3.5 h-3.5" />
@@ -176,7 +226,10 @@ export const VisualStyleCard: React.FC<VisualStyleCardProps> = ({ metadata, t })
                         key={idx}
                         size="sm"
                         variant="flat"
-                        classNames={{ base: 'bg-content2 text-foreground border-content3', content: 'text-sm' }}
+                        classNames={{
+                          base: 'bg-content2 text-foreground border-content3',
+                          content: 'text-sm',
+                        }}
                         startContent={<Film className="w-2.5 h-2.5 text-primary" />}
                       >
                         {film}

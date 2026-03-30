@@ -47,9 +47,7 @@ export const DurationBudgetDependencyGraph: React.FC<DurationBudgetDependencyGra
         {/* 时长预算节点 */}
         <div
           className={`flex flex-col items-center p-3 rounded-lg border-2 transition-all duration-300 ${
-            useDurationBudget
-              ? 'bg-primary/10 border-primary'
-              : 'bg-default-100 border-default-200'
+            useDurationBudget ? 'bg-primary/10 border-primary' : 'bg-default-100 border-default-200'
           }`}
         >
           <div

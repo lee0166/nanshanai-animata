@@ -176,7 +176,13 @@ export const SmartConfigEngine: React.FC<SmartConfigEngineProps> = ({
               <h4 className="text-[15px] font-bold text-foreground">
                 {t.settings.durationBudget?.smartRecommendation || '智能配置推荐'}
               </h4>
-              <Button isIconOnly size="sm" variant="light" onPress={onDismiss} aria-label="关闭推荐">
+              <Button
+                isIconOnly
+                size="sm"
+                variant="light"
+                onPress={onDismiss}
+                aria-label="关闭推荐"
+              >
                 <X className="w-4 h-4" />
               </Button>
             </div>

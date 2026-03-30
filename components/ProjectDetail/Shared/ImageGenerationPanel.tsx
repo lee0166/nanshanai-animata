@@ -236,7 +236,8 @@ export const ImageGenerationPanel: React.FC<ImageGenerationPanelProps> = ({
             isDisabled={generating}
             classNames={{
               input: 'font-medium text-sm',
-              inputWrapper: 'border border-zinc-700 group-data-[focus=true]:border-primary bg-zinc-900/50',
+              inputWrapper:
+                'border border-zinc-700 group-data-[focus=true]:border-primary bg-zinc-900/50',
             }}
           />
         </div>
@@ -332,13 +333,10 @@ export const ImageGenerationPanel: React.FC<ImageGenerationPanelProps> = ({
             color: '#000000',
           }}
           classNames={{
-            content:
-              'text-primary-foreground font-black uppercase tracking-widest text-sm',
+            content: 'text-primary-foreground font-black uppercase tracking-widest text-sm',
             spinner: 'text-primary-foreground',
           }}
-          startContent={
-            !generating && <Sparkles size={18} className="text-primary-foreground" />
-          }
+          startContent={!generating && <Sparkles size={18} className="text-primary-foreground" />}
         >
           {generating ? t.character?.generating || '生成中...' : t.project?.generate || '生成图片'}
         </Button>

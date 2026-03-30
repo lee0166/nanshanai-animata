@@ -276,10 +276,7 @@ export const QualityRulesEditor: React.FC<QualityRulesEditorProps> = ({ t }) => 
   }
 
   return (
-    <Card
-      className="border border-default-200 bg-content1 overflow-hidden shadow-sm"
-      radius="lg"
-    >
+    <Card className="border border-default-200 bg-content1 overflow-hidden shadow-sm" radius="lg">
       {/* Header - 优化按钮设计 */}
       <CardHeader className="px-6 py-4 border-b border-default-200 flex flex-col md:flex-row md:items-center md:justify-between gap-3 bg-default-50">
         <div className="flex items-center gap-3">
@@ -363,8 +360,7 @@ export const QualityRulesEditor: React.FC<QualityRulesEditorProps> = ({ t }) => 
           onSelectionChange={key => setActiveTab(key as 'weights' | 'thresholds')}
           variant="light"
           classNames={{
-            tabList:
-              'px-6 py-2 gap-1 border-b border-default-200 bg-transparent',
+            tabList: 'px-6 py-2 gap-1 border-b border-default-200 bg-transparent',
             tab: 'px-4 py-2 text-sm font-medium text-default-600 data-[selected=true]:text-foreground data-[selected=true]:bg-default-100 rounded-lg transition-colors',
             cursor: 'hidden',
             panel: 'p-6',
@@ -403,9 +399,7 @@ export const QualityRulesEditor: React.FC<QualityRulesEditorProps> = ({ t }) => 
                         <div className="text-sm font-semibold text-foreground">
                           {dim?.name || key}
                         </div>
-                        <div className="text-[10px] text-default-500">
-                          {dim?.desc}
-                        </div>
+                        <div className="text-[10px] text-default-500">{dim?.desc}</div>
                       </div>
                     </div>
 
@@ -422,8 +416,7 @@ export const QualityRulesEditor: React.FC<QualityRulesEditorProps> = ({ t }) => 
                         classNames={{
                           track: 'h-2 bg-default-300 rounded-full',
                           filler: 'bg-gradient-to-r from-primary/60 to-primary rounded-full',
-                          thumb:
-                            'w-5 h-5 bg-white border-2 border-primary shadow-md',
+                          thumb: 'w-5 h-5 bg-white border-2 border-primary shadow-md',
                         }}
                       />
                     </div>
@@ -497,10 +490,8 @@ export const QualityRulesEditor: React.FC<QualityRulesEditorProps> = ({ t }) => 
                           color="secondary"
                           classNames={{
                             track: 'h-2 bg-default-300 rounded-full',
-                            filler:
-                              'bg-gradient-to-r from-blue-400 to-blue-600 rounded-full',
-                            thumb:
-                              'w-5 h-5 bg-white border-2 border-blue-500 shadow-md',
+                            filler: 'bg-gradient-to-r from-blue-400 to-blue-600 rounded-full',
+                            thumb: 'w-5 h-5 bg-white border-2 border-blue-500 shadow-md',
                           }}
                         />
                       </div>
@@ -515,8 +506,7 @@ export const QualityRulesEditor: React.FC<QualityRulesEditorProps> = ({ t }) => 
                           max={threshold.range[1]}
                           classNames={{
                             input: 'text-center font-bold text-foreground',
-                            inputWrapper:
-                              'bg-default-50 border-default-300 h-9 w-16',
+                            inputWrapper: 'bg-default-50 border-default-300 h-9 w-16',
                           }}
                           size="sm"
                         />

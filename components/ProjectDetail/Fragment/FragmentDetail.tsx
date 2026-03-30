@@ -888,9 +888,7 @@ const FragmentDetail: FC<FragmentDetailProps> = ({ asset, onUpdate, projectId })
 
           {/* 1. Model Selection */}
           <div className="flex flex-col gap-2">
-            <label className="text-primary font-bold text-base ml-1">
-              {t.project.modelLabel}
-            </label>
+            <label className="text-primary font-bold text-base ml-1">{t.project.modelLabel}</label>
             <Select
               placeholder={t.project.modelLabel}
               selectedKeys={[modelId]}
@@ -914,7 +912,9 @@ const FragmentDetail: FC<FragmentDetailProps> = ({ asset, onUpdate, projectId })
 
           {/* 2. Generation Type */}
           <div className="flex flex-col gap-2">
-            <span className="text-sm font-semibold text-primary">{t.project.fragment.generationType}</span>
+            <span className="text-sm font-semibold text-primary">
+              {t.project.fragment.generationType}
+            </span>
             <Tabs
               selectedKey={generationType}
               onSelectionChange={k => setGenerationType(k as any)}
@@ -930,7 +930,9 @@ const FragmentDetail: FC<FragmentDetailProps> = ({ asset, onUpdate, projectId })
 
           {/* 3. Resource Selection */}
           <div className="flex flex-col gap-3 border-y py-4 border-slate-200 dark:border-slate-800">
-            <span className="text-sm font-semibold text-primary">{t.project.fragment.resources}</span>
+            <span className="text-sm font-semibold text-primary">
+              {t.project.fragment.resources}
+            </span>
 
             {/* @ts-ignore - HeroUI Accordion type mismatch */}
             <Accordion
@@ -1260,7 +1262,9 @@ const FragmentDetail: FC<FragmentDetailProps> = ({ asset, onUpdate, projectId })
             <div className="flex gap-2">
               {/* Start Frame - Always Visible */}
               <div className="w-1/2 flex flex-col gap-2">
-                <span className="text-xs font-bold block text-primary">{t.project.fragment.startImage}</span>
+                <span className="text-xs font-bold block text-primary">
+                  {t.project.fragment.startImage}
+                </span>
                 <div className="aspect-video bg-slate-100 dark:bg-slate-800 rounded-lg flex items-center justify-center relative group overflow-hidden border-2 border-dashed border-slate-300 dark:border-slate-700">
                   {startImage ? (
                     urlCache[startImage] ? (
@@ -1347,7 +1351,9 @@ const FragmentDetail: FC<FragmentDetailProps> = ({ asset, onUpdate, projectId })
               {/* End Frame - Based on model capabilities */}
               {modelConfig?.capabilities?.supportsEndFrame && (
                 <div className="w-1/2 flex flex-col gap-2">
-                  <span className="text-xs font-bold block text-primary">{t.project.fragment.endImage}</span>
+                  <span className="text-xs font-bold block text-primary">
+                    {t.project.fragment.endImage}
+                  </span>
                   <div className="aspect-video bg-slate-100 dark:bg-slate-800 rounded-lg flex items-center justify-center relative group overflow-hidden border-2 border-dashed border-slate-300 dark:border-slate-700">
                     {endImage ? (
                       urlCache[endImage] ? (

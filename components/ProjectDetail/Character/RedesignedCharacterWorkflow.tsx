@@ -1061,9 +1061,7 @@ export const RedesignedCharacterWorkflow: React.FC<RedesignedCharacterWorkflowPr
               content: 'text-primary-foreground',
               spinner: 'text-primary-foreground',
             }}
-            startContent={
-              !generating && <Sparkles size={16} className="text-primary-foreground" />
-            }
+            startContent={!generating && <Sparkles size={16} className="text-primary-foreground" />}
           >
             {generating
               ? t.character?.generating || '生成中...'

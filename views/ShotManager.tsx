@@ -169,19 +169,13 @@ const ShotItem: React.FC<ShotItemProps> = React.memo(
               <span className="text-xs font-mono font-bold text-primary">
                 {shot.shotNumber || shot.sequence}
               </span>
-              <span className="text-xs font-medium text-foreground truncate">
-                {shot.sceneName}
-              </span>
+              <span className="text-xs font-medium text-foreground truncate">{shot.sceneName}</span>
             </div>
-            <div className="text-xs text-slate-400 mt-1 truncate">
-              {shot.description}
-            </div>
+            <div className="text-xs text-slate-400 mt-1 truncate">{shot.description}</div>
             <div className="flex items-center gap-2 mt-1">
               <span className="text-xs text-slate-400">{shot.duration}s</span>
               {hasKeyframes ? (
-                <span className="text-xs text-success">
-                  ✓ {shot.keyframes.length}关键帧
-                </span>
+                <span className="text-xs text-success">✓ {shot.keyframes.length}关键帧</span>
               ) : (
                 <span className="text-xs text-slate-400">○ 未拆分</span>
               )}
@@ -449,9 +443,7 @@ const CharacterItem: React.FC<CharacterItemProps> = React.memo(
         </div>
         <div className="flex-1">
           <div className="text-sm font-medium text-foreground">{character}</div>
-          <div className="text-xs text-slate-400">
-            {characterAsset?.description || '角色'}
-          </div>
+          <div className="text-xs text-slate-400">{characterAsset?.description || '角色'}</div>
         </div>
       </div>
     );
@@ -468,9 +460,7 @@ const VisualDescription: React.FC<VisualDescriptionProps> = React.memo(({ visual
     return (
       <div className="bg-content2 rounded-lg p-4 border border-content3">
         <h5 className="text-sm font-medium text-foreground mb-3">视觉描述</h5>
-        <div className="p-3 bg-content1 rounded text-slate-400">
-          无详细视觉描述信息
-        </div>
+        <div className="p-3 bg-content1 rounded text-slate-400">无详细视觉描述信息</div>
       </div>
     );
   }
@@ -483,36 +473,28 @@ const VisualDescription: React.FC<VisualDescriptionProps> = React.memo(({ visual
         {visualDescription.composition && (
           <div className="p-3 bg-content1 rounded">
             <div className="text-sm font-medium text-foreground mb-1">构图</div>
-            <div className="text-sm text-foreground">
-              {visualDescription.composition}
-            </div>
+            <div className="text-sm text-foreground">{visualDescription.composition}</div>
           </div>
         )}
 
         {visualDescription.lighting && (
           <div className="p-3 bg-content1 rounded">
             <div className="text-sm font-medium text-foreground mb-1">光影</div>
-            <div className="text-sm text-foreground">
-              {visualDescription.lighting}
-            </div>
+            <div className="text-sm text-foreground">{visualDescription.lighting}</div>
           </div>
         )}
 
         {visualDescription.colorPalette && (
           <div className="p-3 bg-content1 rounded">
             <div className="text-sm font-medium text-foreground mb-1">色调</div>
-            <div className="text-sm text-foreground">
-              {visualDescription.colorPalette}
-            </div>
+            <div className="text-sm text-foreground">{visualDescription.colorPalette}</div>
           </div>
         )}
 
         {visualDescription.characterPositions &&
           visualDescription.characterPositions.length > 0 && (
             <div className="p-3 bg-content1 rounded">
-              <div className="text-sm font-medium text-foreground mb-2">
-                角色位置
-              </div>
+              <div className="text-sm font-medium text-foreground mb-2">角色位置</div>
               <div className="text-sm text-foreground space-y-2">
                 {visualDescription.characterPositions.map((pos, index) => (
                   <div key={index} className="flex flex-col">
@@ -545,9 +527,7 @@ const SceneInfo: React.FC<SceneInfoProps> = React.memo(({ sceneName, sceneAsset,
       </div>
       <div className="flex-1">
         <div className="text-sm font-medium text-foreground">{sceneName}</div>
-        <div className="text-xs text-slate-400">
-          {sceneAsset?.description || '场景'}
-        </div>
+        <div className="text-xs text-slate-400">{sceneAsset?.description || '场景'}</div>
       </div>
     </div>
   );
@@ -651,7 +631,7 @@ export const ShotManager: React.FC<ShotManagerProps> = ({
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
   // 视图模式
   const [viewMode, setViewMode] = useState<ViewMode>('shotList');
-  
+
   // 展开状态管理
   const [expandedShots, setExpandedShots] = useState<Set<string>>(new Set());
   // 资产选择器状态
@@ -1974,7 +1954,7 @@ export const ShotManager: React.FC<ShotManagerProps> = ({
                   {isBatchMode ? '退出批量' : '批量操作'}
                 </Button>
               </div>
-              
+
               {/* 视图切换按钮 */}
               <div className="flex gap-2 mb-3">
                 <Button
@@ -1998,236 +1978,238 @@ export const ShotManager: React.FC<ShotManagerProps> = ({
                 </Button>
               </div>
 
-          {isBatchMode && (
-            <div className="space-y-3 mb-3">
-              <div className="grid grid-cols-2 gap-2">
-                <Button
-                  size="sm"
-                  variant="bordered"
-                  onPress={selectAllShots}
-                  className="text-xs py-2"
-                >
-                  全选
-                </Button>
-                <Button
-                  size="sm"
-                  variant="bordered"
-                  onPress={clearSelection}
-                  className="text-xs py-2"
-                >
-                  清空
-                </Button>
-                <Button
-                  size="sm"
-                  variant="bordered"
-                  color="primary"
-                  onPress={handleBatchSplitKeyframes}
-                  isLoading={isSplittingBatch}
-                  className="text-xs py-2"
-                  isDisabled={selectedShots.length === 0}
-                >
-                  批量拆分关键帧
-                </Button>
-                <Button
-                  size="sm"
-                  variant="bordered"
-                  color="primary"
-                  onPress={handleBatchGenerate}
-                  isLoading={isGeneratingBatch}
-                  className="text-xs py-2"
-                  isDisabled={selectedShots.length === 0}
-                >
-                  批量生成图片
-                </Button>
-              </div>
-              <div className="flex items-center justify-between text-xs">
-                <span className="text-slate-400">共 {allShots.length} 个分镜</span>
-                <span className="text-slate-400">已选择 {selectedShots.length}</span>
-              </div>
-            </div>
-          )}
-        </div>
-        <div className="flex-1 overflow-y-auto p-3 space-y-2">
-          {allShots.map(shot => (
-            <ShotItem
-              key={shot.id}
-              shot={shot}
-              isActive={selectedShotId === shot.id}
-              onSelect={() => {
-                setSelectedShotId(shot.id);
-                setSelectedKeyframeIndex(-1);
-              }}
-              isBatchMode={isBatchMode}
-              isSelected={selectedShots.includes(shot.id)}
-              onToggleSelection={toggleShotSelection}
-              expanded={expandedShots.has(shot.id)}
-              onToggleExpand={toggleShotExpand}
-              imageUrls={imageUrls}
-              selectedKeyframeIndex={selectedKeyframeIndex}
-              onSelectKeyframe={handleSelectKeyframe}
-            />
-          ))}
-        </div>
-      </aside>
-
-      {/* 中央预览区 */}
-      <main className="flex-1 flex flex-col bg-background transition-all duration-300 overflow-hidden">
-        {/* 顶部信息栏 - 更紧凑 */}
-        {selectedShot && (
-          <div className="bg-content1 border-b border-content3 px-4 py-3">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center">
-                <div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-lg font-bold text-primary font-mono">
-                      {selectedShot.sequence}
-                    </span>
-                    <h2 className="text-base font-semibold text-foreground truncate max-w-xs">
-                      {selectedShot.sceneName}
-                    </h2>
+              {isBatchMode && (
+                <div className="space-y-3 mb-3">
+                  <div className="grid grid-cols-2 gap-2">
+                    <Button
+                      size="sm"
+                      variant="bordered"
+                      onPress={selectAllShots}
+                      className="text-xs py-2"
+                    >
+                      全选
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="bordered"
+                      onPress={clearSelection}
+                      className="text-xs py-2"
+                    >
+                      清空
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="bordered"
+                      color="primary"
+                      onPress={handleBatchSplitKeyframes}
+                      isLoading={isSplittingBatch}
+                      className="text-xs py-2"
+                      isDisabled={selectedShots.length === 0}
+                    >
+                      批量拆分关键帧
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="bordered"
+                      color="primary"
+                      onPress={handleBatchGenerate}
+                      isLoading={isGeneratingBatch}
+                      className="text-xs py-2"
+                      isDisabled={selectedShots.length === 0}
+                    >
+                      批量生成图片
+                    </Button>
                   </div>
-                  <p className="text-xs text-slate-400 mt-0.5 truncate max-w-md">
-                    {selectedShot.description}
-                  </p>
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="text-slate-400">共 {allShots.length} 个分镜</span>
+                    <span className="text-slate-400">已选择 {selectedShots.length}</span>
+                  </div>
+                </div>
+              )}
+            </div>
+            <div className="flex-1 overflow-y-auto p-3 space-y-2">
+              {allShots.map(shot => (
+                <ShotItem
+                  key={shot.id}
+                  shot={shot}
+                  isActive={selectedShotId === shot.id}
+                  onSelect={() => {
+                    setSelectedShotId(shot.id);
+                    setSelectedKeyframeIndex(-1);
+                  }}
+                  isBatchMode={isBatchMode}
+                  isSelected={selectedShots.includes(shot.id)}
+                  onToggleSelection={toggleShotSelection}
+                  expanded={expandedShots.has(shot.id)}
+                  onToggleExpand={toggleShotExpand}
+                  imageUrls={imageUrls}
+                  selectedKeyframeIndex={selectedKeyframeIndex}
+                  onSelectKeyframe={handleSelectKeyframe}
+                />
+              ))}
+            </div>
+          </aside>
+
+          {/* 中央预览区 */}
+          <main className="flex-1 flex flex-col bg-background transition-all duration-300 overflow-hidden">
+            {/* 顶部信息栏 - 更紧凑 */}
+            {selectedShot && (
+              <div className="bg-content1 border-b border-content3 px-4 py-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center">
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-lg font-bold text-primary font-mono">
+                          {selectedShot.sequence}
+                        </span>
+                        <h2 className="text-base font-semibold text-foreground truncate max-w-xs">
+                          {selectedShot.sceneName}
+                        </h2>
+                      </div>
+                      <p className="text-xs text-slate-400 mt-0.5 truncate max-w-md">
+                        {selectedShot.description}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    {selectedShot.keyframes ? (
+                      <Button
+                        size="sm"
+                        variant="flat"
+                        onPress={() => handleOpenSplitModal(selectedShot)}
+                        isLoading={splittingShotId === selectedShot.id}
+                        isDisabled={availableLLMModels.length === 0}
+                        className="text-slate-400 hover:text-foreground border border-content3 text-xs"
+                      >
+                        重新拆分
+                      </Button>
+                    ) : (
+                      <>
+                        <Button
+                          size="sm"
+                          variant="flat"
+                          onPress={() => handleAutoProcessStaticShot(selectedShot)}
+                          isLoading={splittingShotId === selectedShot.id}
+                          className="text-slate-400 hover:text-foreground border border-content3 text-xs"
+                        >
+                          自动处理
+                        </Button>
+                        <Button
+                          size="sm"
+                          color="primary"
+                          onPress={() => handleOpenSplitModal(selectedShot)}
+                          isLoading={splittingShotId === selectedShot.id}
+                          isDisabled={availableLLMModels.length === 0}
+                          className="text-xs"
+                        >
+                          <Scissors size={14} className="mr-1" />
+                          拆分
+                        </Button>
+                      </>
+                    )}
+                  </div>
                 </div>
               </div>
-              <div className="flex items-center gap-2">
-                {selectedShot.keyframes ? (
-                  <Button
-                    size="sm"
-                    variant="flat"
-                    onPress={() => handleOpenSplitModal(selectedShot)}
-                    isLoading={splittingShotId === selectedShot.id}
-                    isDisabled={availableLLMModels.length === 0}
-                    className="text-slate-400 hover:text-foreground border border-content3 text-xs"
-                  >
-                    重新拆分
-                  </Button>
-                ) : (
-                  <>
-                    <Button
-                      size="sm"
-                      variant="flat"
-                      onPress={() => handleAutoProcessStaticShot(selectedShot)}
-                      isLoading={splittingShotId === selectedShot.id}
-                      className="text-slate-400 hover:text-foreground border border-content3 text-xs"
-                    >
-                      自动处理
-                    </Button>
-                    <Button
-                      size="sm"
-                      color="primary"
-                      onPress={() => handleOpenSplitModal(selectedShot)}
-                      isLoading={splittingShotId === selectedShot.id}
-                      isDisabled={availableLLMModels.length === 0}
-                      className="text-xs"
-                    >
-                      <Scissors size={14} className="mr-1" />
-                      拆分
-                    </Button>
-                  </>
-                )}
-              </div>
-            </div>
-          </div>
-        )}
+            )}
 
-        {/* 预览区域 - 预览区 + 生图面板垂直堆叠 */}
-        <div className="flex-1 flex flex-col bg-background relative p-4 overflow-hidden">
-          {selectedShot ? (
-            <div className="flex-1 flex flex-col overflow-y-auto gap-4">
-              {/* 选中关键帧时：预览区 + 历史版本 + 生图面板 */}
-              {selectedShot.keyframes &&
-              selectedShot.keyframes.length > 0 &&
-              selectedKeyframeIndex >= 0 ? (
-                <>
-                  {/* 关键帧图片预览 */}
-                  <div className="flex-shrink-0">
-                    <div className="relative w-full max-w-4xl mx-auto group">
-                      <div className="aspect-video bg-content2 rounded-lg overflow-hidden relative shadow-lg">
-                        {(() => {
-                          const kf = selectedShot.keyframes[selectedKeyframeIndex];
-                          const currentImage =
-                            kf.generatedImages?.find(img => img.id === kf.currentImageId) ||
-                            kf.generatedImage;
-                          const imageUrl = currentImage
-                            ? imageUrls[currentImage.id] || currentImage.path
-                            : null;
+            {/* 预览区域 - 预览区 + 生图面板垂直堆叠 */}
+            <div className="flex-1 flex flex-col bg-background relative p-4 overflow-hidden">
+              {selectedShot ? (
+                <div className="flex-1 flex flex-col overflow-y-auto gap-4">
+                  {/* 选中关键帧时：预览区 + 历史版本 + 生图面板 */}
+                  {selectedShot.keyframes &&
+                  selectedShot.keyframes.length > 0 &&
+                  selectedKeyframeIndex >= 0 ? (
+                    <>
+                      {/* 关键帧图片预览 */}
+                      <div className="flex-shrink-0">
+                        <div className="relative w-full max-w-4xl mx-auto group">
+                          <div className="aspect-video bg-content2 rounded-lg overflow-hidden relative shadow-lg">
+                            {(() => {
+                              const kf = selectedShot.keyframes[selectedKeyframeIndex];
+                              const currentImage =
+                                kf.generatedImages?.find(img => img.id === kf.currentImageId) ||
+                                kf.generatedImage;
+                              const imageUrl = currentImage
+                                ? imageUrls[currentImage.id] || currentImage.path
+                                : null;
 
-                          if (currentImage && imageUrl) {
-                            return (
-                              <div
-                                className="w-full h-full cursor-pointer transition-transform duration-300 hover:scale-[1.02]"
-                                onClick={() => openPreview([{ src: imageUrl }])}
-                              >
-                                <img
-                                  src={imageUrl}
-                                  alt="关键帧预览"
-                                  className="w-full h-full object-cover transition-all duration-500"
-                                />
-                              </div>
-                            );
-                          } else {
-                            return (
-                              <div className="w-full h-full flex items-center justify-center bg-content3">
-                                <Camera size={40} className="text-slate-400" />
-                              </div>
-                            );
-                          }
-                        })()}
+                              if (currentImage && imageUrl) {
+                                return (
+                                  <div
+                                    className="w-full h-full cursor-pointer transition-transform duration-300 hover:scale-[1.02]"
+                                    onClick={() => openPreview([{ src: imageUrl }])}
+                                  >
+                                    <img
+                                      src={imageUrl}
+                                      alt="关键帧预览"
+                                      className="w-full h-full object-cover transition-all duration-500"
+                                    />
+                                  </div>
+                                );
+                              } else {
+                                return (
+                                  <div className="w-full h-full flex items-center justify-center bg-content3">
+                                    <Camera size={40} className="text-slate-400" />
+                                  </div>
+                                );
+                              }
+                            })()}
 
-                        {/* 关键帧指示器 - 右上角 */}
-                        <div className="absolute top-3 right-3 bg-black/80 px-3 py-1.5 rounded-full text-xs font-semibold text-white shadow-lg z-10">
-                          {selectedShot.shotNumber || selectedShot.sequence}-
-                          {selectedKeyframeIndex + 1} / {selectedShot.keyframes.length}
-                        </div>
-
-                        {/* 悬浮控制条 - 底部 */}
-                        <div className="absolute bottom-3 left-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10">
-                          <div className="flex items-center gap-3">
-                            {/* 上一帧按钮 */}
-                            <div onClick={e => e.stopPropagation()} className="flex-shrink-0">
-                              <Button
-                                size="sm"
-                                variant="light"
-                                radius="lg"
-                                onPress={() => {
-                                  if (selectedKeyframeIndex > 0) {
-                                    setSelectedKeyframeIndex(selectedKeyframeIndex - 1);
-                                  }
-                                }}
-                                isDisabled={selectedKeyframeIndex === 0}
-                                className="bg-black/50 backdrop-blur-sm border border-white/30 text-white hover:bg-black/70"
-                              >
-                                <ChevronLeft size={16} />
-                                上一帧
-                              </Button>
+                            {/* 关键帧指示器 - 右上角 */}
+                            <div className="absolute top-3 right-3 bg-black/80 px-3 py-1.5 rounded-full text-xs font-semibold text-white shadow-lg z-10">
+                              {selectedShot.shotNumber || selectedShot.sequence}-
+                              {selectedKeyframeIndex + 1} / {selectedShot.keyframes.length}
                             </div>
 
-                            {/* 历史版本缩略图 */}
-                            <div className="flex-1 flex items-center gap-2 overflow-x-auto scrollbar-hide">
-                              {(() => {
-                                const kf = selectedShot.keyframes[selectedKeyframeIndex];
-                                const images = kf.generatedImages || [];
-                                if (images.length === 0) {
-                                  return <div className="text-sm text-white/60">暂无历史版本</div>;
-                                }
+                            {/* 悬浮控制条 - 底部 */}
+                            <div className="absolute bottom-3 left-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10">
+                              <div className="flex items-center gap-3">
+                                {/* 上一帧按钮 */}
+                                <div onClick={e => e.stopPropagation()} className="flex-shrink-0">
+                                  <Button
+                                    size="sm"
+                                    variant="light"
+                                    radius="lg"
+                                    onPress={() => {
+                                      if (selectedKeyframeIndex > 0) {
+                                        setSelectedKeyframeIndex(selectedKeyframeIndex - 1);
+                                      }
+                                    }}
+                                    isDisabled={selectedKeyframeIndex === 0}
+                                    className="bg-black/50 backdrop-blur-sm border border-white/30 text-white hover:bg-black/70"
+                                  >
+                                    <ChevronLeft size={16} />
+                                    上一帧
+                                  </Button>
+                                </div>
 
-                                return images.map((img, index) => (
-                                  <HistoryThumbnail
-                                    key={img.id}
-                                    img={img}
-                                    index={index}
-                                    isCurrent={img.id === kf.currentImageId}
-                                    imageUrl={imageUrls[img.id] || img.path}
-                                    onSelect={handleSelectHistoryImage}
-                                    onDelete={promptDeleteHistoryImage}
-                                  />
-                                ));
-                              })()}
-                            </div>
+                                {/* 历史版本缩略图 */}
+                                <div className="flex-1 flex items-center gap-2 overflow-x-auto scrollbar-hide">
+                                  {(() => {
+                                    const kf = selectedShot.keyframes[selectedKeyframeIndex];
+                                    const images = kf.generatedImages || [];
+                                    if (images.length === 0) {
+                                      return (
+                                        <div className="text-sm text-white/60">暂无历史版本</div>
+                                      );
+                                    }
 
-                            <style>{`
+                                    return images.map((img, index) => (
+                                      <HistoryThumbnail
+                                        key={img.id}
+                                        img={img}
+                                        index={index}
+                                        isCurrent={img.id === kf.currentImageId}
+                                        imageUrl={imageUrls[img.id] || img.path}
+                                        onSelect={handleSelectHistoryImage}
+                                        onDelete={promptDeleteHistoryImage}
+                                      />
+                                    ));
+                                  })()}
+                                </div>
+
+                                <style>{`
                               .scrollbar-hide::-webkit-scrollbar {
                                 display: none;
                               }
@@ -2237,868 +2219,879 @@ export const ShotManager: React.FC<ShotManagerProps> = ({
                               }
                             `}</style>
 
-                            {/* 下一帧按钮 */}
-                            <div onClick={e => e.stopPropagation()} className="flex-shrink-0">
+                                {/* 下一帧按钮 */}
+                                <div onClick={e => e.stopPropagation()} className="flex-shrink-0">
+                                  <Button
+                                    size="sm"
+                                    variant="light"
+                                    radius="lg"
+                                    onPress={() => {
+                                      if (
+                                        selectedKeyframeIndex <
+                                        selectedShot.keyframes.length - 1
+                                      ) {
+                                        setSelectedKeyframeIndex(selectedKeyframeIndex + 1);
+                                      }
+                                    }}
+                                    isDisabled={
+                                      selectedKeyframeIndex === selectedShot.keyframes.length - 1
+                                    }
+                                    className="bg-black/50 backdrop-blur-sm border border-white/30 text-white hover:bg-black/70"
+                                  >
+                                    下一帧
+                                    <ChevronRight size={16} />
+                                  </Button>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* 生图功能面板 - 统一容器 */}
+                      <div className="flex-shrink-0 pb-4">
+                        <div className="bg-content1 rounded-xl border border-content3 p-6 shadow-sm space-y-5 max-w-4xl mx-auto">
+                          <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
+                            <Sparkles size={18} className="text-primary" />
+                            生图功能
+                          </h3>
+
+                          {/* 生图模式 */}
+                          <div>
+                            <label className="text-xs font-semibold text-slate-400 block mb-2">
+                              生图模式
+                            </label>
+                            <div className="flex gap-2">
                               <Button
                                 size="sm"
-                                variant="light"
-                                radius="lg"
-                                onPress={() => {
-                                  if (selectedKeyframeIndex < selectedShot.keyframes.length - 1) {
-                                    setSelectedKeyframeIndex(selectedKeyframeIndex + 1);
-                                  }
-                                }}
-                                isDisabled={
-                                  selectedKeyframeIndex === selectedShot.keyframes.length - 1
-                                }
-                                className="bg-black/50 backdrop-blur-sm border border-white/30 text-white hover:bg-black/70"
+                                color={generationMode === 'text-to-image' ? 'primary' : 'default'}
+                                variant={generationMode === 'text-to-image' ? 'solid' : 'bordered'}
+                                onPress={() => handleGenerationModeChange('text-to-image')}
+                                className="flex-1 font-medium py-2 text-sm"
                               >
-                                下一帧
-                                <ChevronRight size={16} />
+                                文生图
+                              </Button>
+                              <Button
+                                size="sm"
+                                color={
+                                  generationMode === 'reference-to-image' ? 'primary' : 'default'
+                                }
+                                variant={
+                                  generationMode === 'reference-to-image' ? 'solid' : 'bordered'
+                                }
+                                onPress={() => handleGenerationModeChange('reference-to-image')}
+                                className="flex-1 font-medium py-2 text-sm"
+                              >
+                                图生图
                               </Button>
                             </div>
                           </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
 
-                  {/* 生图功能面板 - 统一容器 */}
-                  <div className="flex-shrink-0 pb-4">
-                    <div className="bg-content1 rounded-xl border border-content3 p-6 shadow-sm space-y-5 max-w-4xl mx-auto">
-                      <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
-                        <Sparkles size={18} className="text-primary" />
-                        生图功能
-                      </h3>
-
-                      {/* 生图模式 */}
-                      <div>
-                        <label className="text-xs font-semibold text-slate-400 block mb-2">
-                          生图模式
-                        </label>
-                        <div className="flex gap-2">
-                          <Button
-                            size="sm"
-                            color={generationMode === 'text-to-image' ? 'primary' : 'default'}
-                            variant={generationMode === 'text-to-image' ? 'solid' : 'bordered'}
-                            onPress={() => handleGenerationModeChange('text-to-image')}
-                            className="flex-1 font-medium py-2 text-sm"
-                          >
-                            文生图
-                          </Button>
-                          <Button
-                            size="sm"
-                            color={generationMode === 'reference-to-image' ? 'primary' : 'default'}
-                            variant={generationMode === 'reference-to-image' ? 'solid' : 'bordered'}
-                            onPress={() => handleGenerationModeChange('reference-to-image')}
-                            className="flex-1 font-medium py-2 text-sm"
-                          >
-                            图生图
-                          </Button>
-                        </div>
-                      </div>
-
-                      {/* 参考图管理 - 仅在图生图模式显示 */}
-                      {generationMode === 'reference-to-image' && (
-                        <div className="space-y-4">
-                          <label className="text-xs font-semibold text-slate-400 block">
-                            参考图管理
-                          </label>
-                          <div className="bg-content2 rounded-lg border border-content3 p-4">
-                            <div className="flex flex-col md:flex-row gap-4">
-                              {/* 角色参考图区域 */}
-                              <div className="flex-1 flex items-center gap-3">
-                                <Users size={16} className="text-primary shrink-0" />
-                                <span className="text-xs font-semibold text-slate-400 shrink-0">
-                                  角色参考图
-                                </span>
-                                {references.character ? (
-                                  <div className="flex items-center gap-3 flex-1">
-                                    <div
-                                      className="w-8 h-8 bg-content3 rounded overflow-hidden cursor-pointer hover:opacity-90 transition-opacity shrink-0"
-                                      onClick={() => {
-                                        if (referenceImageUrls.character) {
-                                          openPreview(
-                                            [
-                                              {
-                                                src: referenceImageUrls.character,
-                                                alt: references.character.name,
-                                              },
-                                            ],
-                                            0
-                                          );
-                                        }
-                                      }}
-                                    >
-                                      {referenceImageUrls.character ? (
-                                        <img
-                                          src={referenceImageUrls.character}
-                                          alt={references.character.name}
-                                          className="w-full h-full object-cover"
-                                        />
-                                      ) : (
-                                        <div className="w-full h-full flex items-center justify-center">
-                                          <Users size={24} className="text-slate-400" />
-                                        </div>
-                                      )}
-                                    </div>
-                                    <div className="text-xs text-slate-400 truncate flex-1">
-                                      {references.character.name}
-                                    </div>
-                                  </div>
-                                ) : (
-                                  <div className="flex items-center gap-3 flex-1">
-                                    <div className="w-8 h-8 bg-content2 rounded border-2 border-dashed border-content3 flex items-center justify-center shrink-0">
-                                      <Users size={20} className="text-slate-400" />
-                                    </div>
-                                    <span className="text-xs text-slate-400 flex-1">
-                                      未选择角色
+                          {/* 参考图管理 - 仅在图生图模式显示 */}
+                          {generationMode === 'reference-to-image' && (
+                            <div className="space-y-4">
+                              <label className="text-xs font-semibold text-slate-400 block">
+                                参考图管理
+                              </label>
+                              <div className="bg-content2 rounded-lg border border-content3 p-4">
+                                <div className="flex flex-col md:flex-row gap-4">
+                                  {/* 角色参考图区域 */}
+                                  <div className="flex-1 flex items-center gap-3">
+                                    <Users size={16} className="text-primary shrink-0" />
+                                    <span className="text-xs font-semibold text-slate-400 shrink-0">
+                                      角色参考图
                                     </span>
-                                  </div>
-                                )}
-                                <Button
-                                  size="sm"
-                                  variant="flat"
-                                  color="primary"
-                                  onPress={() => {
-                                    setIsCharacterSelectorOpen(true);
-                                  }}
-                                  className="text-xs shrink-0"
-                                >
-                                  {references.character ? '更换' : '选择'}
-                                </Button>
-                              </div>
-
-                              {/* 分隔线 */}
-                              <div className="hidden md:block w-px bg-content3" />
-
-                              {/* 场景参考图区域 */}
-                              <div className="flex-1 flex items-center gap-3">
-                                <MapPin size={16} className="text-primary shrink-0" />
-                                <span className="text-xs font-semibold text-slate-400 shrink-0">
-                                  场景参考图
-                                </span>
-                                {references.scene ? (
-                                  <div className="flex items-center gap-3 flex-1">
-                                    <div
-                                      className="w-8 h-8 bg-content3 rounded overflow-hidden cursor-pointer hover:opacity-90 transition-opacity shrink-0"
-                                      onClick={() => {
-                                        if (referenceImageUrls.scene) {
-                                          openPreview(
-                                            [
-                                              {
-                                                src: referenceImageUrls.scene,
-                                                alt: references.scene.name,
-                                              },
-                                            ],
-                                            0
-                                          );
-                                        }
-                                      }}
-                                    >
-                                      {referenceImageUrls.scene ? (
-                                        <img
-                                          src={referenceImageUrls.scene}
-                                          alt={references.scene.name}
-                                          className="w-full h-full object-cover"
-                                        />
-                                      ) : (
-                                        <div className="w-full h-full flex items-center justify-center">
-                                          <MapPin size={24} className="text-slate-400" />
+                                    {references.character ? (
+                                      <div className="flex items-center gap-3 flex-1">
+                                        <div
+                                          className="w-8 h-8 bg-content3 rounded overflow-hidden cursor-pointer hover:opacity-90 transition-opacity shrink-0"
+                                          onClick={() => {
+                                            if (referenceImageUrls.character) {
+                                              openPreview(
+                                                [
+                                                  {
+                                                    src: referenceImageUrls.character,
+                                                    alt: references.character.name,
+                                                  },
+                                                ],
+                                                0
+                                              );
+                                            }
+                                          }}
+                                        >
+                                          {referenceImageUrls.character ? (
+                                            <img
+                                              src={referenceImageUrls.character}
+                                              alt={references.character.name}
+                                              className="w-full h-full object-cover"
+                                            />
+                                          ) : (
+                                            <div className="w-full h-full flex items-center justify-center">
+                                              <Users size={24} className="text-slate-400" />
+                                            </div>
+                                          )}
                                         </div>
-                                      )}
-                                    </div>
-                                    <div className="text-xs text-slate-400 truncate flex-1">
-                                      {references.scene.name}
-                                    </div>
+                                        <div className="text-xs text-slate-400 truncate flex-1">
+                                          {references.character.name}
+                                        </div>
+                                      </div>
+                                    ) : (
+                                      <div className="flex items-center gap-3 flex-1">
+                                        <div className="w-8 h-8 bg-content2 rounded border-2 border-dashed border-content3 flex items-center justify-center shrink-0">
+                                          <Users size={20} className="text-slate-400" />
+                                        </div>
+                                        <span className="text-xs text-slate-400 flex-1">
+                                          未选择角色
+                                        </span>
+                                      </div>
+                                    )}
+                                    <Button
+                                      size="sm"
+                                      variant="flat"
+                                      color="primary"
+                                      onPress={() => {
+                                        setIsCharacterSelectorOpen(true);
+                                      }}
+                                      className="text-xs shrink-0"
+                                    >
+                                      {references.character ? '更换' : '选择'}
+                                    </Button>
                                   </div>
-                                ) : (
-                                  <div className="flex items-center gap-3 flex-1">
-                                    <div className="w-8 h-8 bg-content2 rounded border-2 border-dashed border-content3 flex items-center justify-center shrink-0">
-                                      <MapPin size={20} className="text-slate-400" />
-                                    </div>
-                                    <span className="text-xs text-slate-400 flex-1">
-                                      未选择场景
+
+                                  {/* 分隔线 */}
+                                  <div className="hidden md:block w-px bg-content3" />
+
+                                  {/* 场景参考图区域 */}
+                                  <div className="flex-1 flex items-center gap-3">
+                                    <MapPin size={16} className="text-primary shrink-0" />
+                                    <span className="text-xs font-semibold text-slate-400 shrink-0">
+                                      场景参考图
                                     </span>
+                                    {references.scene ? (
+                                      <div className="flex items-center gap-3 flex-1">
+                                        <div
+                                          className="w-8 h-8 bg-content3 rounded overflow-hidden cursor-pointer hover:opacity-90 transition-opacity shrink-0"
+                                          onClick={() => {
+                                            if (referenceImageUrls.scene) {
+                                              openPreview(
+                                                [
+                                                  {
+                                                    src: referenceImageUrls.scene,
+                                                    alt: references.scene.name,
+                                                  },
+                                                ],
+                                                0
+                                              );
+                                            }
+                                          }}
+                                        >
+                                          {referenceImageUrls.scene ? (
+                                            <img
+                                              src={referenceImageUrls.scene}
+                                              alt={references.scene.name}
+                                              className="w-full h-full object-cover"
+                                            />
+                                          ) : (
+                                            <div className="w-full h-full flex items-center justify-center">
+                                              <MapPin size={24} className="text-slate-400" />
+                                            </div>
+                                          )}
+                                        </div>
+                                        <div className="text-xs text-slate-400 truncate flex-1">
+                                          {references.scene.name}
+                                        </div>
+                                      </div>
+                                    ) : (
+                                      <div className="flex items-center gap-3 flex-1">
+                                        <div className="w-8 h-8 bg-content2 rounded border-2 border-dashed border-content3 flex items-center justify-center shrink-0">
+                                          <MapPin size={20} className="text-slate-400" />
+                                        </div>
+                                        <span className="text-xs text-slate-400 flex-1">
+                                          未选择场景
+                                        </span>
+                                      </div>
+                                    )}
+                                    <Button
+                                      size="sm"
+                                      variant="flat"
+                                      color="primary"
+                                      onPress={() => {
+                                        setIsSceneSelectorOpen(true);
+                                      }}
+                                      className="text-xs shrink-0"
+                                    >
+                                      {references.scene ? '更换' : '选择'}
+                                    </Button>
                                   </div>
-                                )}
-                                <Button
-                                  size="sm"
-                                  variant="flat"
-                                  color="primary"
-                                  onPress={() => {
-                                    setIsSceneSelectorOpen(true);
-                                  }}
-                                  className="text-xs shrink-0"
-                                >
-                                  {references.scene ? '更换' : '选择'}
-                                </Button>
+                                </div>
                               </div>
                             </div>
-                          </div>
-                        </div>
-                      )}
+                          )}
 
-                      {/* 正面提示词 */}
-                      <div>
-                        <label className="text-xs font-semibold text-slate-400 block mb-2">
-                          正面提示词
-                        </label>
-                        <Textarea
-                          value={selectedShot.keyframes[selectedKeyframeIndex]?.prompt || ''}
-                          onChange={e => handleUpdatePrompt(selectedKeyframeIndex, e.target.value)}
-                          className="w-full text-sm border-content3 bg-content1 text-foreground"
-                          placeholder="输入生图正面提示词"
-                          minRows={3}
-                        />
-                      </div>
-
-                      {/* 模型选择 + 分辨率/宽高比 */}
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div>
-                          <label className="text-xs font-semibold text-slate-400 block mb-2">
-                            选择模型
-                          </label>
-                          <Select
-                            aria-label="选择生图模型"
-                            selectedKeys={
-                              selectedImageModel &&
-                              availableImageModels.some(m => m.id === selectedImageModel)
-                                ? [selectedImageModel]
-                                : []
-                            }
-                            onChange={e => setSelectedImageModel(e.target.value)}
-                            className="w-full"
-                            size="sm"
-                          >
-                            {availableImageModels.map(model => (
-                              <SelectItem key={model.id} value={model.id}>
-                                {model.name}
-                              </SelectItem>
-                            ))}
-                          </Select>
-                        </div>
-                        <div>
-                          <label className="text-xs font-semibold text-slate-400 block mb-2">
-                            分辨率
-                          </label>
-                          <Select
-                            aria-label="选择分辨率"
-                            selectedKeys={
-                              availableResolutions.includes(selectedResolution)
-                                ? [selectedResolution]
-                                : []
-                            }
-                            onChange={e => setSelectedResolution(e.target.value)}
-                            className="w-full"
-                            size="sm"
-                          >
-                            {availableResolutions.map(res => (
-                              <SelectItem key={res} value={res}>
-                                {res}
-                              </SelectItem>
-                            ))}
-                          </Select>
-                        </div>
-                        <div>
-                          <label className="text-xs font-semibold text-slate-400 block mb-2">
-                            宽高比
-                          </label>
-                          <Select
-                            aria-label="选择宽高比"
-                            selectedKeys={[selectedAspectRatio]}
-                            onChange={e => setSelectedAspectRatio(e.target.value)}
-                            className="w-full"
-                            size="sm"
-                          >
-                            <SelectItem value="1:1">1:1</SelectItem>
-                            <SelectItem value="16:9">16:9</SelectItem>
-                            <SelectItem value="9:16">9:16</SelectItem>
-                            <SelectItem value="4:3">4:3</SelectItem>
-                            <SelectItem value="3:4">3:4</SelectItem>
-                          </Select>
-                        </div>
-                      </div>
-
-                      {/* Seed值 + 批量数量 + 提示词模板 */}
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div>
-                          <label className="text-xs font-semibold text-slate-400 block mb-2">
-                            Seed值
-                          </label>
-                          <div className="flex gap-2">
-                            <Input
-                              type="number"
-                              value={seed}
-                              onChange={e => setSeed(Number(e.target.value))}
-                              className="w-full text-sm border-content3 bg-content1"
-                              placeholder="输入Seed值"
-                              size="sm"
-                            />
-                            <Button
-                              size="sm"
-                              variant="flat"
-                              onPress={() => setSeed(Math.floor(Math.random() * 1000000))}
-                              className="flex-shrink-0"
-                            >
-                              随机
-                            </Button>
-                          </div>
-                        </div>
-                        <div>
-                          <label className="text-xs font-semibold text-slate-400 block mb-2">
-                            批量数量
-                          </label>
-                          <Select
-                            aria-label="选择批量生成数量"
-                            selectedKeys={[batchCount.toString()]}
-                            onChange={e => setBatchCount(Number(e.target.value))}
-                            className="w-full"
-                            size="sm"
-                          >
-                            <SelectItem value="1">1张</SelectItem>
-                            <SelectItem value="2">2张</SelectItem>
-                            <SelectItem value="3">3张</SelectItem>
-                            <SelectItem value="4">4张</SelectItem>
-                            <SelectItem value="5">5张</SelectItem>
-                          </Select>
-                        </div>
-                        <div>
-                          <label className="text-xs font-semibold text-slate-400 block mb-2">
-                            提示词模板
-                          </label>
-                          <Select
-                            aria-label="选择提示词模板"
-                            selectedKeys={[]}
-                            onChange={e => {
-                              const template = promptTemplates.find(t => t.id === e.target.value);
-                              if (template) {
-                                const currentPrompt =
-                                  selectedShot.keyframes[selectedKeyframeIndex]?.prompt || '';
-                                const newPrompt = currentPrompt
-                                  ? `${currentPrompt}, ${template.value}`
-                                  : template.value;
-                                handleUpdatePrompt(selectedKeyframeIndex, newPrompt);
+                          {/* 正面提示词 */}
+                          <div>
+                            <label className="text-xs font-semibold text-slate-400 block mb-2">
+                              正面提示词
+                            </label>
+                            <Textarea
+                              value={selectedShot.keyframes[selectedKeyframeIndex]?.prompt || ''}
+                              onChange={e =>
+                                handleUpdatePrompt(selectedKeyframeIndex, e.target.value)
                               }
+                              className="w-full text-sm border-content3 bg-content1 text-foreground"
+                              placeholder="输入生图正面提示词"
+                              minRows={3}
+                            />
+                          </div>
+
+                          {/* 模型选择 + 分辨率/宽高比 */}
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div>
+                              <label className="text-xs font-semibold text-slate-400 block mb-2">
+                                选择模型
+                              </label>
+                              <Select
+                                aria-label="选择生图模型"
+                                selectedKeys={
+                                  selectedImageModel &&
+                                  availableImageModels.some(m => m.id === selectedImageModel)
+                                    ? [selectedImageModel]
+                                    : []
+                                }
+                                onChange={e => setSelectedImageModel(e.target.value)}
+                                className="w-full"
+                                size="sm"
+                              >
+                                {availableImageModels.map(model => (
+                                  <SelectItem key={model.id} value={model.id}>
+                                    {model.name}
+                                  </SelectItem>
+                                ))}
+                              </Select>
+                            </div>
+                            <div>
+                              <label className="text-xs font-semibold text-slate-400 block mb-2">
+                                分辨率
+                              </label>
+                              <Select
+                                aria-label="选择分辨率"
+                                selectedKeys={
+                                  availableResolutions.includes(selectedResolution)
+                                    ? [selectedResolution]
+                                    : []
+                                }
+                                onChange={e => setSelectedResolution(e.target.value)}
+                                className="w-full"
+                                size="sm"
+                              >
+                                {availableResolutions.map(res => (
+                                  <SelectItem key={res} value={res}>
+                                    {res}
+                                  </SelectItem>
+                                ))}
+                              </Select>
+                            </div>
+                            <div>
+                              <label className="text-xs font-semibold text-slate-400 block mb-2">
+                                宽高比
+                              </label>
+                              <Select
+                                aria-label="选择宽高比"
+                                selectedKeys={[selectedAspectRatio]}
+                                onChange={e => setSelectedAspectRatio(e.target.value)}
+                                className="w-full"
+                                size="sm"
+                              >
+                                <SelectItem value="1:1">1:1</SelectItem>
+                                <SelectItem value="16:9">16:9</SelectItem>
+                                <SelectItem value="9:16">9:16</SelectItem>
+                                <SelectItem value="4:3">4:3</SelectItem>
+                                <SelectItem value="3:4">3:4</SelectItem>
+                              </Select>
+                            </div>
+                          </div>
+
+                          {/* Seed值 + 批量数量 + 提示词模板 */}
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div>
+                              <label className="text-xs font-semibold text-slate-400 block mb-2">
+                                Seed值
+                              </label>
+                              <div className="flex gap-2">
+                                <Input
+                                  type="number"
+                                  value={seed}
+                                  onChange={e => setSeed(Number(e.target.value))}
+                                  className="w-full text-sm border-content3 bg-content1"
+                                  placeholder="输入Seed值"
+                                  size="sm"
+                                />
+                                <Button
+                                  size="sm"
+                                  variant="flat"
+                                  onPress={() => setSeed(Math.floor(Math.random() * 1000000))}
+                                  className="flex-shrink-0"
+                                >
+                                  随机
+                                </Button>
+                              </div>
+                            </div>
+                            <div>
+                              <label className="text-xs font-semibold text-slate-400 block mb-2">
+                                批量数量
+                              </label>
+                              <Select
+                                aria-label="选择批量生成数量"
+                                selectedKeys={[batchCount.toString()]}
+                                onChange={e => setBatchCount(Number(e.target.value))}
+                                className="w-full"
+                                size="sm"
+                              >
+                                <SelectItem value="1">1张</SelectItem>
+                                <SelectItem value="2">2张</SelectItem>
+                                <SelectItem value="3">3张</SelectItem>
+                                <SelectItem value="4">4张</SelectItem>
+                                <SelectItem value="5">5张</SelectItem>
+                              </Select>
+                            </div>
+                            <div>
+                              <label className="text-xs font-semibold text-slate-400 block mb-2">
+                                提示词模板
+                              </label>
+                              <Select
+                                aria-label="选择提示词模板"
+                                selectedKeys={[]}
+                                onChange={e => {
+                                  const template = promptTemplates.find(
+                                    t => t.id === e.target.value
+                                  );
+                                  if (template) {
+                                    const currentPrompt =
+                                      selectedShot.keyframes[selectedKeyframeIndex]?.prompt || '';
+                                    const newPrompt = currentPrompt
+                                      ? `${currentPrompt}, ${template.value}`
+                                      : template.value;
+                                    handleUpdatePrompt(selectedKeyframeIndex, newPrompt);
+                                  }
+                                }}
+                                className="w-full"
+                                size="sm"
+                              >
+                                {promptTemplates.map(template => (
+                                  <SelectItem key={template.id} value={template.id}>
+                                    {template.name}
+                                  </SelectItem>
+                                ))}
+                              </Select>
+                            </div>
+                          </div>
+
+                          {/* 负向提示词 */}
+                          <div>
+                            <label className="text-xs font-semibold text-slate-400 block mb-2">
+                              负向提示词
+                            </label>
+                            <Textarea
+                              value={negativePrompt}
+                              onChange={e => setNegativePrompt(e.target.value)}
+                              className="w-full text-sm border-content3 bg-content1 text-foreground"
+                              placeholder="输入负向提示词"
+                              minRows={2}
+                            />
+                          </div>
+
+                          {/* 生成按钮 */}
+                          <Button
+                            color="primary"
+                            variant="solid"
+                            size="lg"
+                            fullWidth
+                            onPress={() => handleGenerateImage(selectedKeyframeIndex)}
+                            className="font-bold h-12 rounded-xl shadow-xl shadow-primary/20 active:scale-95 transition-all"
+                            classNames={{
+                              content: 'font-black uppercase tracking-widest text-sm',
                             }}
-                            className="w-full"
-                            size="sm"
+                            startContent={
+                              <Sparkles size={18} className="text-primary-foreground" />
+                            }
                           >
-                            {promptTemplates.map(template => (
-                              <SelectItem key={template.id} value={template.id}>
-                                {template.name}
-                              </SelectItem>
-                            ))}
-                          </Select>
+                            生成图片
+                          </Button>
                         </div>
                       </div>
-
-                      {/* 负向提示词 */}
-                      <div>
-                        <label className="text-xs font-semibold text-slate-400 block mb-2">
-                          负向提示词
-                        </label>
-                        <Textarea
-                          value={negativePrompt}
-                          onChange={e => setNegativePrompt(e.target.value)}
-                          className="w-full text-sm border-content3 bg-content1 text-foreground"
-                          placeholder="输入负向提示词"
-                          minRows={2}
-                        />
-                      </div>
-
-                      {/* 生成按钮 */}
-                      <Button
-                        color="primary"
-                        variant="solid"
-                        size="lg"
-                        fullWidth
-                        onPress={() => handleGenerateImage(selectedKeyframeIndex)}
-                        className="font-bold h-12 rounded-xl shadow-xl shadow-primary/20 active:scale-95 transition-all"
-                        classNames={{
-                          content: 'font-black uppercase tracking-widest text-sm',
-                        }}
-                        startContent={
-                          <Sparkles size={18} className="text-primary-foreground" />
-                        }
+                    </>
+                  ) : (
+                    /* 未选择关键帧或无关键帧状态 - 分镜核心信息 */
+                    <div className="flex-1 overflow-auto">
+                      <motion.div
+                        initial={{ opacity: 0, y: 15 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.35, ease: 'easeOut' }}
                       >
-                        生成图片
-                      </Button>
-                    </div>
-                  </div>
-                </>
-              ) : (
-                /* 未选择关键帧或无关键帧状态 - 分镜核心信息 */
-                <div className="flex-1 overflow-auto">
-                  <motion.div
-                    initial={{ opacity: 0, y: 15 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.35, ease: 'easeOut' }}
-                  >
-                    {/* 专业风格分镜核心信息面板 */}
-                    <div className="bg-content1 border border-content3 rounded-lg overflow-hidden flex flex-col max-w-4xl mx-auto">
-                      {/* 顶部标题栏 */}
-                      <div className="bg-content2 border-b border-content3 px-4 py-3 flex items-center justify-between">
-                        <h4 className="text-sm font-semibold text-foreground flex items-center gap-2">
-                          <Film size={18} className="text-primary" />
-                          分镜核心信息
-                        </h4>
-                        <div className="flex items-center gap-2">
-                          <div className="w-2 h-2 rounded-full bg-success animate-pulse" />
-                        </div>
-                      </div>
-
-                      {/* 核心信息区域 */}
-                      <div className="flex-1 overflow-y-auto p-4 space-y-3">
-                        {/* 基本信息行 */}
-                        <motion.div
-                          initial={{ opacity: 0, y: 6 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ duration: 0.25 }}
-                          className="grid grid-cols-3 gap-3"
-                        >
-                          {/* 镜号 */}
-                          <div className="bg-content2 border border-content3 rounded-lg p-3">
-                            <div className="text-xs text-slate-500 dark:text-slate-400 mb-1">
-                              镜号
-                            </div>
-                            <div className="text-sm font-mono font-semibold text-primary">
-                              {selectedShot.shotNumber || selectedShot.sequence}
+                        {/* 专业风格分镜核心信息面板 */}
+                        <div className="bg-content1 border border-content3 rounded-lg overflow-hidden flex flex-col max-w-4xl mx-auto">
+                          {/* 顶部标题栏 */}
+                          <div className="bg-content2 border-b border-content3 px-4 py-3 flex items-center justify-between">
+                            <h4 className="text-sm font-semibold text-foreground flex items-center gap-2">
+                              <Film size={18} className="text-primary" />
+                              分镜核心信息
+                            </h4>
+                            <div className="flex items-center gap-2">
+                              <div className="w-2 h-2 rounded-full bg-success animate-pulse" />
                             </div>
                           </div>
 
-                          {/* 场景标签 */}
-                          <div className="bg-content2 border border-content3 rounded-lg p-3">
-                            <div className="text-xs text-slate-500 dark:text-slate-400 mb-1">
-                              场景
-                            </div>
-                            <div className="text-sm font-medium text-foreground truncate">
-                              {selectedShot.sceneName}
-                            </div>
-                          </div>
-
-                          {/* 时长 */}
-                          <div className="bg-content2 border border-content3 rounded-lg p-3">
-                            <div className="text-xs text-slate-500 dark:text-slate-400 mb-1">
-                              时长
-                            </div>
-                            <div className="text-sm font-mono text-foreground">
-                              {selectedShot.duration}s
-                            </div>
-                          </div>
-                        </motion.div>
-
-                        {/* 技术参数行 */}
-                        <motion.div
-                          initial={{ opacity: 0, y: 6 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ duration: 0.25, delay: 0.08 }}
-                          className="grid grid-cols-4 gap-3"
-                        >
-                          {/* 景别 */}
-                          <div className="bg-content2 border border-content3 rounded-lg p-2.5">
-                            <div className="text-xs text-slate-500 dark:text-slate-400 mb-1">
-                              景别
-                            </div>
-                            <div className="text-sm font-mono text-foreground">
-                              {selectedShot.shotType || '未知'}
-                            </div>
-                          </div>
-
-                          {/* 拍摄角度 */}
-                          <div className="bg-content2 border border-content3 rounded-lg p-2.5">
-                            <div className="text-xs text-slate-500 dark:text-slate-400 mb-1">
-                              角度
-                            </div>
-                            <div className="text-sm font-mono text-foreground">
-                              {selectedShot.cameraAngle || '未知'}
-                            </div>
-                          </div>
-
-                          {/* 运镜方式 */}
-                          <div className="bg-content2 border border-content3 rounded-lg p-2.5">
-                            <div className="text-xs text-slate-500 dark:text-slate-400 mb-1">
-                              运镜
-                            </div>
-                            <div className="text-sm font-mono text-foreground">
-                              {selectedShot.cameraMovement || '未知'}
-                            </div>
-                          </div>
-
-                          {/* 情绪 */}
-                          <div className="bg-content2 border border-content3 rounded-lg p-2.5">
-                            <div className="text-xs text-slate-500 dark:text-slate-400 mb-1">
-                              情绪
-                            </div>
-                            <div className="text-sm text-foreground truncate">
-                              {selectedShot.mood || '未知'}
-                            </div>
-                          </div>
-                        </motion.div>
-
-                        {/* 分镜描述 */}
-                        <motion.div
-                          initial={{ opacity: 0, y: 6 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ duration: 0.25, delay: 0.15 }}
-                          className="bg-content2 border border-content3 rounded-lg p-3"
-                        >
-                          <div className="flex items-center gap-2 mb-2">
-                            <div className="w-1 h-4 bg-primary rounded" />
-                            <h5 className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
-                              分镜描述
-                            </h5>
-                          </div>
-                          <div className="text-sm text-foreground leading-relaxed">
-                            {selectedShot.description}
-                          </div>
-                        </motion.div>
-
-                        {/* 视觉描述和音频信息 - 并排布局 */}
-                        <div className="grid grid-cols-2 gap-3">
-                          {/* 视觉描述 */}
-                          <motion.div
-                            initial={{ opacity: 0, y: 6 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.25, delay: 0.22 }}
-                            className="bg-content2 border border-content3 rounded-lg p-3"
-                          >
-                            <div className="flex items-center gap-2 mb-2">
-                              <div className="w-1 h-4 bg-primary rounded" />
-                              <h5 className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
-                                视觉描述
-                              </h5>
-                            </div>
-                            {selectedShot.visualDescription ? (
-                              <div className="space-y-2 text-sm">
-                                {selectedShot.visualDescription.composition && (
-                                  <div className="flex gap-2">
-                                    <span className="text-xs font-medium text-slate-500 dark:text-slate-400 min-w-[45px]">
-                                      构图:
-                                    </span>
-                                    <span className="text-foreground">
-                                      {selectedShot.visualDescription.composition}
-                                    </span>
-                                  </div>
-                                )}
-                                {selectedShot.visualDescription.lighting && (
-                                  <div className="flex gap-2">
-                                    <span className="text-xs font-medium text-slate-500 dark:text-slate-400 min-w-[45px]">
-                                      光影:
-                                    </span>
-                                    <span className="text-foreground">
-                                      {selectedShot.visualDescription.lighting}
-                                    </span>
-                                  </div>
-                                )}
-                                {selectedShot.visualDescription.colorPalette && (
-                                  <div className="flex gap-2">
-                                    <span className="text-xs font-medium text-slate-500 dark:text-slate-400 min-w-[45px]">
-                                      色调:
-                                    </span>
-                                    <span className="text-foreground">
-                                      {selectedShot.visualDescription.colorPalette}
-                                    </span>
-                                  </div>
-                                )}
-                              </div>
-                            ) : (
-                              <div className="text-slate-500 dark:text-slate-400 text-sm italic">
-                                无详细描述
-                              </div>
-                            )}
-                          </motion.div>
-
-                          {/* 音频信息 */}
-                          <motion.div
-                            initial={{ opacity: 0, y: 6 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.25, delay: 0.28 }}
-                            className="bg-content2 border border-content3 rounded-lg p-3"
-                          >
-                            <div className="flex items-center gap-2 mb-2">
-                              <div className="w-1 h-4 bg-success rounded" />
-                              <h5 className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
-                                音频信息
-                              </h5>
-                            </div>
-                            <div className="space-y-2 text-sm">
-                              {selectedShot.dialogue && (
-                                <div className="p-2 bg-content3/50 rounded border border-content3">
-                                  <div className="flex items-center gap-2 mb-1">
-                                    <div className="w-0.5 h-3 bg-success rounded" />
-                                    <span className="text-xs font-medium text-slate-400">
-                                      对话
-                                    </span>
-                                  </div>
-                                  <span className="text-slate-400 text-sm line-clamp-2">
-                                    {selectedShot.dialogue}
-                                  </span>
+                          {/* 核心信息区域 */}
+                          <div className="flex-1 overflow-y-auto p-4 space-y-3">
+                            {/* 基本信息行 */}
+                            <motion.div
+                              initial={{ opacity: 0, y: 6 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              transition={{ duration: 0.25 }}
+                              className="grid grid-cols-3 gap-3"
+                            >
+                              {/* 镜号 */}
+                              <div className="bg-content2 border border-content3 rounded-lg p-3">
+                                <div className="text-xs text-slate-500 dark:text-slate-400 mb-1">
+                                  镜号
                                 </div>
-                              )}
-                              {selectedShot.sound && (
-                                <div className="p-2 bg-content3/50 rounded border border-content3">
-                                  <div className="flex items-center gap-2 mb-1">
-                                    <div className="w-0.5 h-3 bg-success rounded" />
-                                    <span className="text-xs font-medium text-slate-400">
-                                      音效
-                                    </span>
-                                  </div>
-                                  <span className="text-slate-400 text-sm line-clamp-2">
-                                    {selectedShot.sound}
-                                  </span>
+                                <div className="text-sm font-mono font-semibold text-primary">
+                                  {selectedShot.shotNumber || selectedShot.sequence}
                                 </div>
-                              )}
-                              {!selectedShot.dialogue &&
-                                !selectedShot.sound &&
-                                !selectedShot.music && (
-                                  <div className="text-slate-500 dark:text-slate-400 text-sm italic">
-                                    无音频信息
-                                  </div>
-                                )}
-                            </div>
-                          </motion.div>
-                        </div>
-
-                        {/* 资产关联和分镜分析 - 并排布局 */}
-                        <div className="grid grid-cols-2 gap-3">
-                          {/* 资产关联 */}
-                          <motion.div
-                            initial={{ opacity: 0, y: 6 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.25, delay: 0.35 }}
-                            className="bg-content2 border border-content3 rounded-lg p-3"
-                          >
-                            <div className="flex items-center gap-2 mb-2">
-                              <div className="w-1 h-4 bg-purple-500 rounded" />
-                              <h5 className="text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wider">
-                                资产关联
-                              </h5>
-                            </div>
-                            <div className="space-y-2 text-sm">
-                              <div className="flex gap-2">
-                                <span className="text-xs font-medium text-slate-500 dark:text-slate-400 min-w-[55px]">
-                                  角色:
-                                </span>
-                                <span className="text-foreground truncate">
-                                  {selectedShot.characters && selectedShot.characters.length > 0
-                                    ? selectedShot.characters.join('、')
-                                    : '无'}
-                                </span>
                               </div>
-                              <div className="flex gap-2">
-                                <span className="text-xs font-medium text-slate-500 dark:text-slate-400 min-w-[55px]">
-                                  场景:
-                                </span>
-                                <span className="text-foreground truncate">
+
+                              {/* 场景标签 */}
+                              <div className="bg-content2 border border-content3 rounded-lg p-3">
+                                <div className="text-xs text-slate-500 dark:text-slate-400 mb-1">
+                                  场景
+                                </div>
+                                <div className="text-sm font-medium text-foreground truncate">
                                   {selectedShot.sceneName}
-                                </span>
+                                </div>
                               </div>
-                              {selectedShot.assets?.propIds &&
-                                selectedShot.assets.propIds.length > 0 && (
+
+                              {/* 时长 */}
+                              <div className="bg-content2 border border-content3 rounded-lg p-3">
+                                <div className="text-xs text-slate-500 dark:text-slate-400 mb-1">
+                                  时长
+                                </div>
+                                <div className="text-sm font-mono text-foreground">
+                                  {selectedShot.duration}s
+                                </div>
+                              </div>
+                            </motion.div>
+
+                            {/* 技术参数行 */}
+                            <motion.div
+                              initial={{ opacity: 0, y: 6 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              transition={{ duration: 0.25, delay: 0.08 }}
+                              className="grid grid-cols-4 gap-3"
+                            >
+                              {/* 景别 */}
+                              <div className="bg-content2 border border-content3 rounded-lg p-2.5">
+                                <div className="text-xs text-slate-500 dark:text-slate-400 mb-1">
+                                  景别
+                                </div>
+                                <div className="text-sm font-mono text-foreground">
+                                  {selectedShot.shotType || '未知'}
+                                </div>
+                              </div>
+
+                              {/* 拍摄角度 */}
+                              <div className="bg-content2 border border-content3 rounded-lg p-2.5">
+                                <div className="text-xs text-slate-500 dark:text-slate-400 mb-1">
+                                  角度
+                                </div>
+                                <div className="text-sm font-mono text-foreground">
+                                  {selectedShot.cameraAngle || '未知'}
+                                </div>
+                              </div>
+
+                              {/* 运镜方式 */}
+                              <div className="bg-content2 border border-content3 rounded-lg p-2.5">
+                                <div className="text-xs text-slate-500 dark:text-slate-400 mb-1">
+                                  运镜
+                                </div>
+                                <div className="text-sm font-mono text-foreground">
+                                  {selectedShot.cameraMovement || '未知'}
+                                </div>
+                              </div>
+
+                              {/* 情绪 */}
+                              <div className="bg-content2 border border-content3 rounded-lg p-2.5">
+                                <div className="text-xs text-slate-500 dark:text-slate-400 mb-1">
+                                  情绪
+                                </div>
+                                <div className="text-sm text-foreground truncate">
+                                  {selectedShot.mood || '未知'}
+                                </div>
+                              </div>
+                            </motion.div>
+
+                            {/* 分镜描述 */}
+                            <motion.div
+                              initial={{ opacity: 0, y: 6 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              transition={{ duration: 0.25, delay: 0.15 }}
+                              className="bg-content2 border border-content3 rounded-lg p-3"
+                            >
+                              <div className="flex items-center gap-2 mb-2">
+                                <div className="w-1 h-4 bg-primary rounded" />
+                                <h5 className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
+                                  分镜描述
+                                </h5>
+                              </div>
+                              <div className="text-sm text-foreground leading-relaxed">
+                                {selectedShot.description}
+                              </div>
+                            </motion.div>
+
+                            {/* 视觉描述和音频信息 - 并排布局 */}
+                            <div className="grid grid-cols-2 gap-3">
+                              {/* 视觉描述 */}
+                              <motion.div
+                                initial={{ opacity: 0, y: 6 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ duration: 0.25, delay: 0.22 }}
+                                className="bg-content2 border border-content3 rounded-lg p-3"
+                              >
+                                <div className="flex items-center gap-2 mb-2">
+                                  <div className="w-1 h-4 bg-primary rounded" />
+                                  <h5 className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
+                                    视觉描述
+                                  </h5>
+                                </div>
+                                {selectedShot.visualDescription ? (
+                                  <div className="space-y-2 text-sm">
+                                    {selectedShot.visualDescription.composition && (
+                                      <div className="flex gap-2">
+                                        <span className="text-xs font-medium text-slate-500 dark:text-slate-400 min-w-[45px]">
+                                          构图:
+                                        </span>
+                                        <span className="text-foreground">
+                                          {selectedShot.visualDescription.composition}
+                                        </span>
+                                      </div>
+                                    )}
+                                    {selectedShot.visualDescription.lighting && (
+                                      <div className="flex gap-2">
+                                        <span className="text-xs font-medium text-slate-500 dark:text-slate-400 min-w-[45px]">
+                                          光影:
+                                        </span>
+                                        <span className="text-foreground">
+                                          {selectedShot.visualDescription.lighting}
+                                        </span>
+                                      </div>
+                                    )}
+                                    {selectedShot.visualDescription.colorPalette && (
+                                      <div className="flex gap-2">
+                                        <span className="text-xs font-medium text-slate-500 dark:text-slate-400 min-w-[45px]">
+                                          色调:
+                                        </span>
+                                        <span className="text-foreground">
+                                          {selectedShot.visualDescription.colorPalette}
+                                        </span>
+                                      </div>
+                                    )}
+                                  </div>
+                                ) : (
+                                  <div className="text-slate-500 dark:text-slate-400 text-sm italic">
+                                    无详细描述
+                                  </div>
+                                )}
+                              </motion.div>
+
+                              {/* 音频信息 */}
+                              <motion.div
+                                initial={{ opacity: 0, y: 6 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ duration: 0.25, delay: 0.28 }}
+                                className="bg-content2 border border-content3 rounded-lg p-3"
+                              >
+                                <div className="flex items-center gap-2 mb-2">
+                                  <div className="w-1 h-4 bg-success rounded" />
+                                  <h5 className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
+                                    音频信息
+                                  </h5>
+                                </div>
+                                <div className="space-y-2 text-sm">
+                                  {selectedShot.dialogue && (
+                                    <div className="p-2 bg-content3/50 rounded border border-content3">
+                                      <div className="flex items-center gap-2 mb-1">
+                                        <div className="w-0.5 h-3 bg-success rounded" />
+                                        <span className="text-xs font-medium text-slate-400">
+                                          对话
+                                        </span>
+                                      </div>
+                                      <span className="text-slate-400 text-sm line-clamp-2">
+                                        {selectedShot.dialogue}
+                                      </span>
+                                    </div>
+                                  )}
+                                  {selectedShot.sound && (
+                                    <div className="p-2 bg-content3/50 rounded border border-content3">
+                                      <div className="flex items-center gap-2 mb-1">
+                                        <div className="w-0.5 h-3 bg-success rounded" />
+                                        <span className="text-xs font-medium text-slate-400">
+                                          音效
+                                        </span>
+                                      </div>
+                                      <span className="text-slate-400 text-sm line-clamp-2">
+                                        {selectedShot.sound}
+                                      </span>
+                                    </div>
+                                  )}
+                                  {!selectedShot.dialogue &&
+                                    !selectedShot.sound &&
+                                    !selectedShot.music && (
+                                      <div className="text-slate-500 dark:text-slate-400 text-sm italic">
+                                        无音频信息
+                                      </div>
+                                    )}
+                                </div>
+                              </motion.div>
+                            </div>
+
+                            {/* 资产关联和分镜分析 - 并排布局 */}
+                            <div className="grid grid-cols-2 gap-3">
+                              {/* 资产关联 */}
+                              <motion.div
+                                initial={{ opacity: 0, y: 6 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ duration: 0.25, delay: 0.35 }}
+                                className="bg-content2 border border-content3 rounded-lg p-3"
+                              >
+                                <div className="flex items-center gap-2 mb-2">
+                                  <div className="w-1 h-4 bg-purple-500 rounded" />
+                                  <h5 className="text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wider">
+                                    资产关联
+                                  </h5>
+                                </div>
+                                <div className="space-y-2 text-sm">
                                   <div className="flex gap-2">
                                     <span className="text-xs font-medium text-slate-500 dark:text-slate-400 min-w-[55px]">
-                                      道具:
+                                      角色:
                                     </span>
                                     <span className="text-foreground truncate">
-                                      {selectedShot.assets.propIds.join('、')}
+                                      {selectedShot.characters && selectedShot.characters.length > 0
+                                        ? selectedShot.characters.join('、')
+                                        : '无'}
                                     </span>
                                   </div>
-                                )}
-                            </div>
-                          </motion.div>
+                                  <div className="flex gap-2">
+                                    <span className="text-xs font-medium text-slate-500 dark:text-slate-400 min-w-[55px]">
+                                      场景:
+                                    </span>
+                                    <span className="text-foreground truncate">
+                                      {selectedShot.sceneName}
+                                    </span>
+                                  </div>
+                                  {selectedShot.assets?.propIds &&
+                                    selectedShot.assets.propIds.length > 0 && (
+                                      <div className="flex gap-2">
+                                        <span className="text-xs font-medium text-slate-500 dark:text-slate-400 min-w-[55px]">
+                                          道具:
+                                        </span>
+                                        <span className="text-foreground truncate">
+                                          {selectedShot.assets.propIds.join('、')}
+                                        </span>
+                                      </div>
+                                    )}
+                                </div>
+                              </motion.div>
 
-                          {/* 分镜类型分析 */}
-                          <motion.div
-                            initial={{ opacity: 0, y: 6 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.25, delay: 0.42 }}
-                            className="bg-content2 border border-content3 rounded-lg p-3"
-                          >
-                            <div className="flex items-center gap-2 mb-2">
-                              <div className="w-1 h-4 bg-yellow-500 rounded" />
-                              <h5 className="text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wider">
-                                分镜分析
-                              </h5>
+                              {/* 分镜类型分析 */}
+                              <motion.div
+                                initial={{ opacity: 0, y: 6 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ duration: 0.25, delay: 0.42 }}
+                                className="bg-content2 border border-content3 rounded-lg p-3"
+                              >
+                                <div className="flex items-center gap-2 mb-2">
+                                  <div className="w-1 h-4 bg-yellow-500 rounded" />
+                                  <h5 className="text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wider">
+                                    分镜分析
+                                  </h5>
+                                </div>
+                                <div className="space-y-2 text-sm">
+                                  <div className="grid grid-cols-2 gap-2">
+                                    <div className="bg-content3/50 rounded p-2 border border-content3">
+                                      <div className="text-xs text-slate-500 dark:text-slate-400 mb-1">
+                                        分镜类型
+                                      </div>
+                                      <div className="text-sm font-medium text-foreground">
+                                        {(() => {
+                                          const analysis = {
+                                            type: selectedShot.contentType || 'static',
+                                            confidence: 90,
+                                            recommendation: {
+                                              keyframeCount: 3,
+                                              focus: ['动作', '情感', '细节'],
+                                              notes:
+                                                '建议拆分为开始、中间和结束三个关键帧，捕捉动作的完整过程',
+                                            },
+                                          };
+                                          const getTypeLabel = (type: string) => {
+                                            switch (type) {
+                                              case 'static':
+                                                return '静态分镜';
+                                              case 'dynamic-simple':
+                                                return '简单动态';
+                                              case 'dynamic-complex':
+                                                return '复杂动态';
+                                              default:
+                                                return '未知类型';
+                                            }
+                                          };
+                                          return getTypeLabel(analysis.type);
+                                        })()}
+                                      </div>
+                                    </div>
+                                    <div className="bg-content3/50 rounded p-2 border border-content3">
+                                      <div className="text-xs text-slate-500 dark:text-slate-400 mb-1">
+                                        置信度
+                                      </div>
+                                      <div className="text-sm font-medium text-foreground">90%</div>
+                                    </div>
+                                  </div>
+                                  <div className="grid grid-cols-2 gap-2">
+                                    <div className="bg-content3/50 rounded p-2 border border-content3">
+                                      <div className="text-xs text-slate-500 dark:text-slate-400 mb-1">
+                                        关键帧数
+                                      </div>
+                                      <div className="text-sm font-medium text-foreground">3</div>
+                                    </div>
+                                    <div className="bg-content3/50 rounded p-2 border border-content3">
+                                      <div className="text-xs text-slate-500 dark:text-slate-400 mb-1">
+                                        关注重点
+                                      </div>
+                                      <div className="text-sm font-medium text-foreground truncate">
+                                        动作、情感
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                              </motion.div>
                             </div>
-                            <div className="space-y-2 text-sm">
-                              <div className="grid grid-cols-2 gap-2">
-                                <div className="bg-content3/50 rounded p-2 border border-content3">
-                                  <div className="text-xs text-slate-500 dark:text-slate-400 mb-1">
-                                    分镜类型
-                                  </div>
-                                  <div className="text-sm font-medium text-foreground">
-                                    {(() => {
-                                      const analysis = {
-                                        type: selectedShot.contentType || 'static',
-                                        confidence: 90,
-                                        recommendation: {
-                                          keyframeCount: 3,
-                                          focus: ['动作', '情感', '细节'],
-                                          notes:
-                                            '建议拆分为开始、中间和结束三个关键帧，捕捉动作的完整过程',
-                                        },
-                                      };
-                                      const getTypeLabel = (type: string) => {
-                                        switch (type) {
-                                          case 'static':
-                                            return '静态分镜';
-                                          case 'dynamic-simple':
-                                            return '简单动态';
-                                          case 'dynamic-complex':
-                                            return '复杂动态';
-                                          default:
-                                            return '未知类型';
-                                        }
-                                      };
-                                      return getTypeLabel(analysis.type);
-                                    })()}
-                                  </div>
-                                </div>
-                                <div className="bg-content3/50 rounded p-2 border border-content3">
-                                  <div className="text-xs text-slate-500 dark:text-slate-400 mb-1">
-                                    置信度
-                                  </div>
-                                  <div className="text-sm font-medium text-foreground">90%</div>
-                                </div>
-                              </div>
-                              <div className="grid grid-cols-2 gap-2">
-                                <div className="bg-content3/50 rounded p-2 border border-content3">
-                                  <div className="text-xs text-slate-500 dark:text-slate-400 mb-1">
-                                    关键帧数
-                                  </div>
-                                  <div className="text-sm font-medium text-foreground">3</div>
-                                </div>
-                                <div className="bg-content3/50 rounded p-2 border border-content3">
-                                  <div className="text-xs text-slate-500 dark:text-slate-400 mb-1">
-                                    关注重点
-                                  </div>
-                                  <div className="text-sm font-medium text-foreground truncate">
-                                    动作、情感
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                          </motion.div>
+                          </div>
                         </div>
-                      </div>
+                      </motion.div>
                     </div>
-                  </motion.div>
+                  )}
+                </div>
+              ) : (
+                <div className="flex items-center justify-center h-full">
+                  <p className="text-slate-400 text-sm">请选择左侧分镜查看详情</p>
                 </div>
               )}
             </div>
-          ) : (
-            <div className="flex items-center justify-center h-full">
-              <p className="text-slate-400 text-sm">请选择左侧分镜查看详情</p>
-            </div>
-          )}
-        </div>
-      </main>
+          </main>
 
-      {/* 右侧边栏 - 简化后 */}
-      <aside className="w-72 bg-content1 border-l border-content3 flex flex-col overflow-y-auto">
-        {selectedShot ? (
-          <>
-            {/* 基本信息 */}
-            <div className="p-4 border-b border-content3">
-              <h3 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
-                <Layers size={16} className="text-primary" />
-                分镜信息
-              </h3>
-              <div className="space-y-2 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-slate-400">时长:</span>
-                  <span className="font-mono">{selectedShot.duration}s</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-slate-400">景别:</span>
-                  <span>{selectedShot.shotType || '-'}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-slate-400">机位:</span>
-                  <span>{selectedShot.cameraAngle || '-'}</span>
-                </div>
-                {selectedShot.mood && (
-                  <div className="flex justify-between">
-                    <span className="text-slate-400">情绪:</span>
-                    <span>{selectedShot.mood}</span>
+          {/* 右侧边栏 - 简化后 */}
+          <aside className="w-72 bg-content1 border-l border-content3 flex flex-col overflow-y-auto">
+            {selectedShot ? (
+              <>
+                {/* 基本信息 */}
+                <div className="p-4 border-b border-content3">
+                  <h3 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
+                    <Layers size={16} className="text-primary" />
+                    分镜信息
+                  </h3>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex justify-between">
+                      <span className="text-slate-400">时长:</span>
+                      <span className="font-mono">{selectedShot.duration}s</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-slate-400">景别:</span>
+                      <span>{selectedShot.shotType || '-'}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-slate-400">机位:</span>
+                      <span>{selectedShot.cameraAngle || '-'}</span>
+                    </div>
+                    {selectedShot.mood && (
+                      <div className="flex justify-between">
+                        <span className="text-slate-400">情绪:</span>
+                        <span>{selectedShot.mood}</span>
+                      </div>
+                    )}
                   </div>
-                )}
-              </div>
-            </div>
+                </div>
 
-            {/* 关联资产 */}
-            <div className="p-4 border-b border-content3">
-              <h3 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
-                <Box size={16} className="text-primary" />
-                关联资产
-              </h3>
-              <div className="space-y-2">
-                {/* 关联角色 */}
-                {selectedShot.characters && selectedShot.characters.length > 0 && (
+                {/* 关联资产 */}
+                <div className="p-4 border-b border-content3">
+                  <h3 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
+                    <Box size={16} className="text-primary" />
+                    关联资产
+                  </h3>
                   <div className="space-y-2">
-                    {selectedShot.characters.map((character, index) => (
-                      <CharacterItem key={index} character={character} imageUrl="" />
-                    ))}
+                    {/* 关联角色 */}
+                    {selectedShot.characters && selectedShot.characters.length > 0 && (
+                      <div className="space-y-2">
+                        {selectedShot.characters.map((character, index) => (
+                          <CharacterItem key={index} character={character} imageUrl="" />
+                        ))}
+                      </div>
+                    )}
+
+                    {/* 关联场景 */}
+                    <SceneInfo sceneName={selectedShot.sceneName} imageUrl="" />
                   </div>
-                )}
+                </div>
 
-                {/* 关联场景 */}
-                <SceneInfo sceneName={selectedShot.sceneName} imageUrl="" />
+                {/* 快捷操作 */}
+                <div className="p-4 flex-1">
+                  <h3 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
+                    <List size={16} className="text-success" />
+                    快捷操作
+                  </h3>
+                  <div className="space-y-2">
+                    {selectedShot.keyframes ? (
+                      <Button
+                        size="sm"
+                        variant="flat"
+                        fullWidth
+                        onPress={() => handleOpenSplitModal(selectedShot)}
+                        isLoading={splittingShotId === selectedShot.id}
+                        isDisabled={availableLLMModels.length === 0}
+                      >
+                        重新拆分关键帧
+                      </Button>
+                    ) : (
+                      <>
+                        <Button
+                          size="sm"
+                          variant="flat"
+                          fullWidth
+                          onPress={() => handleAutoProcessStaticShot(selectedShot)}
+                          isLoading={splittingShotId === selectedShot.id}
+                        >
+                          自动处理静态分镜
+                        </Button>
+                        <Button
+                          size="sm"
+                          color="primary"
+                          fullWidth
+                          onPress={() => handleOpenSplitModal(selectedShot)}
+                          isLoading={splittingShotId === selectedShot.id}
+                          isDisabled={availableLLMModels.length === 0}
+                          startContent={<Scissors size={14} />}
+                        >
+                          拆分关键帧
+                        </Button>
+                      </>
+                    )}
+                  </div>
+                </div>
+              </>
+            ) : (
+              <div className="flex-1 flex items-center justify-center p-4">
+                <p className="text-slate-400 text-sm text-center">请选择左侧分镜查看详情</p>
               </div>
-            </div>
-
-            {/* 快捷操作 */}
-            <div className="p-4 flex-1">
-              <h3 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
-                <List size={16} className="text-success" />
-                快捷操作
-              </h3>
-              <div className="space-y-2">
-                {selectedShot.keyframes ? (
-                  <Button
-                    size="sm"
-                    variant="flat"
-                    fullWidth
-                    onPress={() => handleOpenSplitModal(selectedShot)}
-                    isLoading={splittingShotId === selectedShot.id}
-                    isDisabled={availableLLMModels.length === 0}
-                  >
-                    重新拆分关键帧
-                  </Button>
-                ) : (
-                  <>
-                    <Button
-                      size="sm"
-                      variant="flat"
-                      fullWidth
-                      onPress={() => handleAutoProcessStaticShot(selectedShot)}
-                      isLoading={splittingShotId === selectedShot.id}
-                    >
-                      自动处理静态分镜
-                    </Button>
-                    <Button
-                      size="sm"
-                      color="primary"
-                      fullWidth
-                      onPress={() => handleOpenSplitModal(selectedShot)}
-                      isLoading={splittingShotId === selectedShot.id}
-                      isDisabled={availableLLMModels.length === 0}
-                      startContent={<Scissors size={14} />}
-                    >
-                      拆分关键帧
-                    </Button>
-                  </>
-                )}
-              </div>
-            </div>
-          </>
-        ) : (
-          <div className="flex-1 flex items-center justify-center p-4">
-            <p className="text-slate-400 text-sm text-center">请选择左侧分镜查看详情</p>
-          </div>
-        )}
-      </aside>
+            )}
+          </aside>
         </>
       ) : (
         /* 时间线视图 */
@@ -3109,7 +3102,7 @@ export const ShotManager: React.FC<ShotManagerProps> = ({
               shots={allShots}
               scenes={scenes}
               selectedShotId={selectedShotId}
-              onSelectShot={(shot) => {
+              onSelectShot={shot => {
                 setSelectedShotId(shot.id);
                 setSelectedKeyframeIndex(-1);
               }}

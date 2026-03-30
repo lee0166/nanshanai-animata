@@ -554,7 +554,9 @@ export const CharacterWorkflowWizard: React.FC<CharacterWorkflowWizardProps> = (
             <div className="bg-content1 rounded-xl border border-content3 p-6 shadow-sm">
               <h3 className="font-bold text-sm mb-4 flex items-center gap-2">
                 <User className="w-4 h-4 text-primary" />
-                <span className="text-primary">{t.character.workflow?.stage1 || '阶段1：面部特征设计'}</span>
+                <span className="text-primary">
+                  {t.character.workflow?.stage1 || '阶段1：面部特征设计'}
+                </span>
               </h3>
               <div className="flex flex-wrap gap-4 mb-4">
                 <div className="flex flex-col">
@@ -614,7 +616,9 @@ export const CharacterWorkflowWizard: React.FC<CharacterWorkflowWizardProps> = (
               <div className="bg-content1 rounded-xl border border-content3 p-6 shadow-sm">
                 <h4 className="text-sm font-semibold mb-4 flex items-center gap-2">
                   <ImageIcon className="w-4 h-4 text-primary" />
-                  <span className="text-primary">{t.character.workflow?.selectFace || '生成的面部候选图'}</span>
+                  <span className="text-primary">
+                    {t.character.workflow?.selectFace || '生成的面部候选图'}
+                  </span>
                 </h4>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                   {stage1Images.map(img => (
@@ -642,7 +646,10 @@ export const CharacterWorkflowWizard: React.FC<CharacterWorkflowWizardProps> = (
 
                         {selectedFaceImage?.id === img.id && (
                           <div className="absolute top-2 right-2 z-10">
-                            <Chip size="sm" className="shadow-lg bg-primary text-primary-foreground">
+                            <Chip
+                              size="sm"
+                              className="shadow-lg bg-primary text-primary-foreground"
+                            >
                               <Check className="w-3 h-3 mr-1" />
                               已选择
                             </Chip>
@@ -689,7 +696,9 @@ export const CharacterWorkflowWizard: React.FC<CharacterWorkflowWizardProps> = (
             <div className="bg-content1 rounded-xl border border-content3 p-6 shadow-sm">
               <h3 className="font-bold text-sm mb-2 flex items-center gap-2">
                 <Camera className="w-4 h-4 text-primary" />
-                <span className="text-primary">{t.character.workflow?.stage2 || '阶段2：全身设定图'}</span>
+                <span className="text-primary">
+                  {t.character.workflow?.stage2 || '阶段2：全身设定图'}
+                </span>
               </h3>
               <p className="text-xs text-slate-600 dark:text-slate-400">
                 {t.character.workflow?.stage2Desc || '基于选定的面部图，生成全身设定图。'}
@@ -700,7 +709,9 @@ export const CharacterWorkflowWizard: React.FC<CharacterWorkflowWizardProps> = (
               <div className="bg-content1 rounded-xl border border-content3 p-6 shadow-sm">
                 <h4 className="text-sm font-semibold mb-4 flex items-center gap-2">
                   <User className="w-4 h-4 text-primary" />
-                  <span className="text-primary">{t.character.workflow?.selectFace || '已选择的面部图'}</span>
+                  <span className="text-primary">
+                    {t.character.workflow?.selectFace || '已选择的面部图'}
+                  </span>
                 </h4>
                 <div className="relative w-48 rounded-xl overflow-hidden ring-2 ring-primary shadow-lg">
                   {genUrls[selectedFaceImage.id] ? (
@@ -752,7 +763,9 @@ export const CharacterWorkflowWizard: React.FC<CharacterWorkflowWizardProps> = (
               <div className="bg-content1 rounded-xl border border-content3 p-6 shadow-sm">
                 <h4 className="text-sm font-semibold mb-4 flex items-center gap-2">
                   <ImageIcon className="w-4 h-4 text-primary" />
-                  <span className="text-primary">{t.character.workflow?.selectFullBody || '生成的全身图'}</span>
+                  <span className="text-primary">
+                    {t.character.workflow?.selectFullBody || '生成的全身图'}
+                  </span>
                 </h4>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                   {stage2Images.map(img => (
@@ -780,7 +793,10 @@ export const CharacterWorkflowWizard: React.FC<CharacterWorkflowWizardProps> = (
 
                         {selectedFullBodyImage?.id === img.id && (
                           <div className="absolute top-2 right-2 z-10">
-                            <Chip size="sm" className="shadow-lg bg-primary text-primary-foreground">
+                            <Chip
+                              size="sm"
+                              className="shadow-lg bg-primary text-primary-foreground"
+                            >
                               <Check className="w-3 h-3 mr-1" />
                               已选择
                             </Chip>
@@ -827,7 +843,9 @@ export const CharacterWorkflowWizard: React.FC<CharacterWorkflowWizardProps> = (
             <div className="bg-content1 rounded-xl border border-content3 p-6 shadow-sm">
               <h3 className="font-bold text-sm mb-4 flex items-center gap-2">
                 <Layers className="w-4 h-4 text-primary" />
-                <span className="text-primary">{t.character.workflow?.stage3 || '阶段3：多视角生成'}</span>
+                <span className="text-primary">
+                  {t.character.workflow?.stage3 || '阶段3：多视角生成'}
+                </span>
               </h3>
               <p className="text-xs text-slate-600 dark:text-slate-400">
                 {t.character.workflow?.stage3Desc ||
@@ -839,7 +857,9 @@ export const CharacterWorkflowWizard: React.FC<CharacterWorkflowWizardProps> = (
               <div className="bg-content1 rounded-xl border border-content3 p-6 shadow-sm">
                 <h4 className="text-sm font-semibold mb-4 flex items-center gap-2">
                   <Camera className="w-4 h-4 text-primary" />
-                  <span className="text-primary">{t.character.workflow?.selectFullBody || '已选择的全身图'}</span>
+                  <span className="text-primary">
+                    {t.character.workflow?.selectFullBody || '已选择的全身图'}
+                  </span>
                 </h4>
                 <div className="relative w-48 rounded-xl overflow-hidden ring-2 ring-primary shadow-lg">
                   {genUrls[selectedFullBodyImage.id] ? (

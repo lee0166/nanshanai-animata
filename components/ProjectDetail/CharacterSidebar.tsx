@@ -100,9 +100,7 @@ const CharacterSidebar: React.FC<CharacterSidebarProps> = ({
   return (
     <div className="h-full flex flex-col bg-white dark:bg-slate-900 border-l border-slate-200 dark:border-slate-800 w-[340px]">
       <div className="p-4 border-b border-slate-200 dark:border-slate-800">
-        <h3 className="text-lg font-black text-primary mb-4">
-          {t.project.characterList}
-        </h3>
+        <h3 className="text-lg font-black text-primary mb-4">{t.project.characterList}</h3>
 
         {/* 搜索框 */}
         <Input
@@ -115,7 +113,8 @@ const CharacterSidebar: React.FC<CharacterSidebarProps> = ({
           radius="lg"
           aria-label={t.common?.search || 'Search'}
           classNames={{
-            inputWrapper: 'bg-slate-50 dark:bg-slate-950 mt-2 border-2 group-data-[focus=true]:border-primary',
+            inputWrapper:
+              'bg-slate-50 dark:bg-slate-950 mt-2 border-2 group-data-[focus=true]:border-primary',
           }}
         />
       </div>

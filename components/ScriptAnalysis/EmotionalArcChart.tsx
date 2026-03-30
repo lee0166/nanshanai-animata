@@ -39,7 +39,6 @@ export const EmotionalArcChart: React.FC<EmotionalArcChartProps> = ({
   overallMood,
   t,
 }) => {
-
   if (!emotionalArc || emotionalArc.length === 0) {
     return (
       <Card className="w-full">
@@ -111,172 +110,189 @@ export const EmotionalArcChart: React.FC<EmotionalArcChartProps> = ({
               className="w-full h-full"
               preserveAspectRatio="xMidYMid meet"
             >
-            <defs>
-              <linearGradient id="emotionLineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                {points.map((point, idx) => (
-                  <stop
-                    key={idx}
-                    offset={`${(idx / Math.max(points.length - 1, 1)) * 100}%`}
-                    stopColor={point.color}
-                    stopOpacity="1"
-                  />
-                ))}
-              </linearGradient>
-              
-              <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
-                <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#3f3f46" strokeWidth="0.5" opacity="0.3"/>
-              </pattern>
-            </defs>
+              <defs>
+                <linearGradient id="emotionLineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                  {points.map((point, idx) => (
+                    <stop
+                      key={idx}
+                      offset={`${(idx / Math.max(points.length - 1, 1)) * 100}%`}
+                      stopColor={point.color}
+                      stopOpacity="1"
+                    />
+                  ))}
+                </linearGradient>
 
-            <rect x={padding.left} y={padding.top} width={chartWidth} height={chartHeight} fill="url(#grid)" />
-
-            {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((level) => {
-              const y = padding.top + chartHeight - (level / 10) * chartHeight;
-              return (
-                <g key={level}>
-                  <line
-                    x1={padding.left}
-                    y1={y}
-                    x2={padding.left + chartWidth}
-                    y2={y}
-                    stroke="#52525b"
-                    strokeWidth="0.5"
-                    opacity="0.4"
-                  />
-                </g>
-              );
-            })}
-
-            {[0, 25, 50, 75, 100].map((percent) => {
-              const x = padding.left + (percent / 100) * chartWidth;
-              return (
-                <g key={percent}>
-                  <line
-                    x1={x}
-                    y1={padding.top}
-                    x2={x}
-                    y2={padding.top + chartHeight}
-                    stroke="#52525b"
-                    strokeWidth="0.5"
-                    opacity="0.4"
-                  />
-                </g>
-              );
-            })}
-
-            <text
-              x={padding.left - 12}
-              y={padding.top + 4}
-              className="text-[14px] fill-default-400"
-              textAnchor="end"
-            >
-              10
-            </text>
-            <text
-              x={padding.left - 12}
-              y={padding.top + chartHeight / 2 + 4}
-              className="text-[14px] fill-default-400"
-              textAnchor="end"
-            >
-              5
-            </text>
-            <text
-              x={padding.left - 12}
-              y={padding.top + chartHeight + 4}
-              className="text-[14px] fill-default-400"
-              textAnchor="end"
-            >
-              0
-            </text>
-
-            <text
-              x={padding.left}
-              y={height - 12}
-              className="text-[14px] fill-default-400"
-              textAnchor="middle"
-            >
-              开场
-            </text>
-            <text
-              x={width / 2}
-              y={height - 12}
-              className="text-[14px] fill-default-400"
-              textAnchor="middle"
-            >
-              中点
-            </text>
-            <text
-              x={width - padding.right}
-              y={height - 12}
-              className="text-[14px] fill-default-400"
-              textAnchor="middle"
-            >
-              结局
-            </text>
-
-            <path
-              d={generatePath()}
-              fill="none"
-              stroke="url(#emotionLineGradient)"
-              strokeWidth="5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-
-            {points.map((point, idx) => (
-              <Tooltip
-                key={idx}
-                content={
-                  <div className="max-w-xs">
-                    <div className="font-bold text-[#84CC16] text-base mb-1">{point.plotPoint}</div>
-                    <div className="text-sm text-[#d4d4d8] mb-2">{point.emotion}</div>
-                    <div className="flex items-center gap-2">
-                      <div className="flex-1 h-1.5 bg-[#27272a] rounded-sm overflow-hidden">
-                        <div
-                          className="h-full rounded-sm"
-                          style={{
-                            width: `${point.intensity * 10}%`,
-                            backgroundColor: point.color,
-                          }}
-                        />
-                      </div>
-                      <span className="font-bold text-sm whitespace-nowrap" style={{ color: point.color }}>
-                        {point.intensity}/10
-                      </span>
-                    </div>
-                  </div>
-                }
-                delay={0}
-                closeDelay={0}
-                placement="top"
-                classNames={{
-                  content: 'bg-[#0a0a0a] border-2 border-[#84CC16] rounded-lg p-3 shadow-xl',
-                }}
-              >
-                <g style={{ cursor: 'pointer' }}>
-                  <circle
-                    cx={point.x}
-                    cy={point.y}
-                    r={8}
-                    fill={point.color}
-                    stroke="#84CC16"
-                    strokeWidth="3"
-                    className="transition-all duration-200 hover:r-14"
-                  />
-                  <circle
-                    cx={point.x}
-                    cy={point.y}
-                    r={12}
+                <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+                  <path
+                    d="M 40 0 L 0 0 0 40"
                     fill="none"
-                    stroke="#84CC16"
-                    strokeWidth="1"
-                    opacity="0.2"
-                    className="transition-all duration-200 hover:opacity-40 hover:r-18"
+                    stroke="#3f3f46"
+                    strokeWidth="0.5"
+                    opacity="0.3"
                   />
-                </g>
-              </Tooltip>
-            ))}
-          </svg>
+                </pattern>
+              </defs>
+
+              <rect
+                x={padding.left}
+                y={padding.top}
+                width={chartWidth}
+                height={chartHeight}
+                fill="url(#grid)"
+              />
+
+              {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(level => {
+                const y = padding.top + chartHeight - (level / 10) * chartHeight;
+                return (
+                  <g key={level}>
+                    <line
+                      x1={padding.left}
+                      y1={y}
+                      x2={padding.left + chartWidth}
+                      y2={y}
+                      stroke="#52525b"
+                      strokeWidth="0.5"
+                      opacity="0.4"
+                    />
+                  </g>
+                );
+              })}
+
+              {[0, 25, 50, 75, 100].map(percent => {
+                const x = padding.left + (percent / 100) * chartWidth;
+                return (
+                  <g key={percent}>
+                    <line
+                      x1={x}
+                      y1={padding.top}
+                      x2={x}
+                      y2={padding.top + chartHeight}
+                      stroke="#52525b"
+                      strokeWidth="0.5"
+                      opacity="0.4"
+                    />
+                  </g>
+                );
+              })}
+
+              <text
+                x={padding.left - 12}
+                y={padding.top + 4}
+                className="text-[14px] fill-default-400"
+                textAnchor="end"
+              >
+                10
+              </text>
+              <text
+                x={padding.left - 12}
+                y={padding.top + chartHeight / 2 + 4}
+                className="text-[14px] fill-default-400"
+                textAnchor="end"
+              >
+                5
+              </text>
+              <text
+                x={padding.left - 12}
+                y={padding.top + chartHeight + 4}
+                className="text-[14px] fill-default-400"
+                textAnchor="end"
+              >
+                0
+              </text>
+
+              <text
+                x={padding.left}
+                y={height - 12}
+                className="text-[14px] fill-default-400"
+                textAnchor="middle"
+              >
+                开场
+              </text>
+              <text
+                x={width / 2}
+                y={height - 12}
+                className="text-[14px] fill-default-400"
+                textAnchor="middle"
+              >
+                中点
+              </text>
+              <text
+                x={width - padding.right}
+                y={height - 12}
+                className="text-[14px] fill-default-400"
+                textAnchor="middle"
+              >
+                结局
+              </text>
+
+              <path
+                d={generatePath()}
+                fill="none"
+                stroke="url(#emotionLineGradient)"
+                strokeWidth="5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+
+              {points.map((point, idx) => (
+                <Tooltip
+                  key={idx}
+                  content={
+                    <div className="max-w-xs">
+                      <div className="font-bold text-[#84CC16] text-base mb-1">
+                        {point.plotPoint}
+                      </div>
+                      <div className="text-sm text-[#d4d4d8] mb-2">{point.emotion}</div>
+                      <div className="flex items-center gap-2">
+                        <div className="flex-1 h-1.5 bg-[#27272a] rounded-sm overflow-hidden">
+                          <div
+                            className="h-full rounded-sm"
+                            style={{
+                              width: `${point.intensity * 10}%`,
+                              backgroundColor: point.color,
+                            }}
+                          />
+                        </div>
+                        <span
+                          className="font-bold text-sm whitespace-nowrap"
+                          style={{ color: point.color }}
+                        >
+                          {point.intensity}/10
+                        </span>
+                      </div>
+                    </div>
+                  }
+                  delay={0}
+                  closeDelay={0}
+                  placement="top"
+                  classNames={{
+                    content: 'bg-[#0a0a0a] border-2 border-[#84CC16] rounded-lg p-3 shadow-xl',
+                  }}
+                >
+                  <g style={{ cursor: 'pointer' }}>
+                    <circle
+                      cx={point.x}
+                      cy={point.y}
+                      r={8}
+                      fill={point.color}
+                      stroke="#84CC16"
+                      strokeWidth="3"
+                      className="transition-all duration-200 hover:r-14"
+                    />
+                    <circle
+                      cx={point.x}
+                      cy={point.y}
+                      r={12}
+                      fill="none"
+                      stroke="#84CC16"
+                      strokeWidth="1"
+                      opacity="0.2"
+                      className="transition-all duration-200 hover:opacity-40 hover:r-18"
+                    />
+                  </g>
+                </Tooltip>
+              ))}
+            </svg>
           </div>
         </div>
       </CardBody>

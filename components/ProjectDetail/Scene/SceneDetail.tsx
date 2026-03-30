@@ -1191,9 +1191,7 @@ const SceneDetail: React.FC<SceneDetailProps> = ({ asset, onUpdate, projectId })
             }}
             startContent={
               !generating &&
-              !batchGenerating && (
-                <Sparkles size={16} className="text-primary-foreground" />
-              )
+              !batchGenerating && <Sparkles size={16} className="text-primary-foreground" />
             }
           >
             {activeTab === 'single'

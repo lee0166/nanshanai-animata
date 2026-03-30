@@ -22,7 +22,11 @@ const WelcomeView: React.FC<WelcomeViewProps> = ({ onConnect }) => {
 
       <div className="relative z-10 mb-12 mt-20 p-8 bg-primary/10 rounded-[3rem] relative overflow-hidden">
         <div className="absolute inset-0 animate-[shimmerSmooth_6s_infinite] bg-gradient-to-r from-transparent via-white/40 to-transparent -skew-x-12"></div>
-        <img src="/icon.png" className="w-20 h-20 object-contain relative z-10 drop-shadow-[0_0_30px_rgba(163,230,53,0.4)]" alt="Logo" />
+        <img
+          src="/icon.png"
+          className="w-20 h-20 object-contain relative z-10 drop-shadow-[0_0_30px_rgba(163,230,53,0.4)]"
+          alt="Logo"
+        />
       </div>
       <h1 className="relative z-10 text-6xl font-black text-slate-900 dark:text-white mb-6 mt-5 tracking-tight uppercase leading-[0.9]">
         {hasPreviousWorkspace

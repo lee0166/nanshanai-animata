@@ -1,22 +1,7 @@
 import React from 'react';
-import {
-  Shot,
-} from '../../types';
-import {
-  Card,
-  CardBody,
-  CardHeader,
-  Button,
-  Chip,
-  Divider,
-} from '@heroui/react';
-import {
-  Camera,
-  Clock,
-  Users,
-  List,
-  Film,
-} from 'lucide-react';
+import { Shot } from '../../types';
+import { Card, CardBody, CardHeader, Button, Chip, Divider } from '@heroui/react';
+import { Camera, Clock, Users, List, Film } from 'lucide-react';
 
 const SHOT_TYPE_LABELS: Record<string, string> = {
   extreme_long: '极远景',
@@ -90,9 +75,7 @@ export const TimelineShotInfoPanel: React.FC<TimelineShotInfoPanelProps> = ({
                   <h4 className="text-lg font-bold">
                     {shot.shotNumber || `镜头 ${shot.sequence}`}
                   </h4>
-                  <p className="text-sm text-slate-400">
-                    {shot.sceneName || '未分类场景'}
-                  </p>
+                  <p className="text-sm text-slate-400">{shot.sceneName || '未分类场景'}</p>
                 </div>
                 <div className="flex flex-col items-end gap-1">
                   {shot.layer === 'key' && (
@@ -100,11 +83,7 @@ export const TimelineShotInfoPanel: React.FC<TimelineShotInfoPanelProps> = ({
                       关键镜头
                     </Chip>
                   )}
-                  <Chip
-                    size="sm"
-                    color={getShotTypeColor(shot.shotType) as any}
-                    variant="flat"
-                  >
+                  <Chip size="sm" color={getShotTypeColor(shot.shotType) as any} variant="flat">
                     {SHOT_TYPE_LABELS[shot.shotType] || shot.shotType}
                   </Chip>
                 </div>
@@ -166,7 +145,9 @@ export const TimelineShotInfoPanel: React.FC<TimelineShotInfoPanelProps> = ({
                         <h5 className="text-sm font-medium text-slate-300">关键帧</h5>
                         <Chip
                           size="sm"
-                          color={completedKeyframes === shot.keyframes!.length ? 'success' : 'default'}
+                          color={
+                            completedKeyframes === shot.keyframes!.length ? 'success' : 'default'
+                          }
                           variant="flat"
                         >
                           {completedKeyframes}/{shot.keyframes!.length} 已生成
@@ -184,28 +165,40 @@ export const TimelineShotInfoPanel: React.FC<TimelineShotInfoPanelProps> = ({
                                 kf.frameType === 'start'
                                   ? 'success'
                                   : kf.frameType === 'end'
-                                  ? 'primary'
-                                  : 'default'
+                                    ? 'primary'
+                                    : 'default'
                               }
                               variant="flat"
                             >
                               {kf.frameType === 'start'
                                 ? '开始'
                                 : kf.frameType === 'end'
-                                ? '结束'
-                                : '中间'}
+                                  ? '结束'
+                                  : '中间'}
                             </Chip>
                             <div className="flex-1 min-w-0">
                               <p className="text-xs text-slate-300 truncate">
-                                {kf.description || kf.prompt?.substring(0, 30) || '关键帧 ' + (index + 1)}
+                                {kf.description ||
+                                  kf.prompt?.substring(0, 30) ||
+                                  '关键帧 ' + (index + 1)}
                               </p>
                             </div>
                             <Chip
                               size="sm"
-                              color={kf.status === 'completed' ? 'success' : kf.status === 'generating' ? 'primary' : 'default'}
+                              color={
+                                kf.status === 'completed'
+                                  ? 'success'
+                                  : kf.status === 'generating'
+                                    ? 'primary'
+                                    : 'default'
+                              }
                               variant="flat"
                             >
-                              {kf.status === 'completed' ? '已完成' : kf.status === 'generating' ? '生成中' : '待生成'}
+                              {kf.status === 'completed'
+                                ? '已完成'
+                                : kf.status === 'generating'
+                                  ? '生成中'
+                                  : '待生成'}
                             </Chip>
                           </div>
                         ))}

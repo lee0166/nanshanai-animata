@@ -588,10 +588,7 @@ const VideoAudioManager: React.FC<VideoAudioManagerProps> = ({ projectId: propPr
     <div className="container mx-auto p-4 bg-background min-h-screen">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold text-foreground">音视频管理</h1>
-        <Button
-          variant="flat"
-          onPress={() => navigate('/dashboard')}
-        >
+        <Button variant="flat" onPress={() => navigate('/dashboard')}>
           返回
         </Button>
       </div>
@@ -633,26 +630,15 @@ const VideoAudioManager: React.FC<VideoAudioManagerProps> = ({ projectId: propPr
               <h3 className="font-medium mb-2 text-foreground">关键帧</h3>
               <div className="flex flex-wrap gap-2 mb-2">
                 {keyframes.map(keyframe => (
-                  <Chip
-                    key={keyframe.id}
-                    variant="flat"
-                  >
+                  <Chip key={keyframe.id} variant="flat">
                     {keyframe.frameType} 帧
                   </Chip>
                 ))}
               </div>
-              <Button
-                onPress={addKeyframe}
-              >
-                添加关键帧
-              </Button>
+              <Button onPress={addKeyframe}>添加关键帧</Button>
             </div>
 
-            <Button
-              color="success"
-              onPress={generateVideo}
-              isLoading={isGenerating}
-            >
+            <Button color="success" onPress={generateVideo} isLoading={isGenerating}>
               {isGenerating ? '生成中...' : '生成视频'}
             </Button>
           </CardBody>
@@ -669,9 +655,15 @@ const VideoAudioManager: React.FC<VideoAudioManagerProps> = ({ projectId: propPr
                 selectedKeys={[audioType]}
                 onChange={e => setAudioType(e.target.value as 'dialogue' | 'sound' | 'music')}
               >
-                <SelectItem key="dialogue" value="dialogue">对话</SelectItem>
-                <SelectItem key="sound" value="sound">音效</SelectItem>
-                <SelectItem key="music" value="music">音乐</SelectItem>
+                <SelectItem key="dialogue" value="dialogue">
+                  对话
+                </SelectItem>
+                <SelectItem key="sound" value="sound">
+                  音效
+                </SelectItem>
+                <SelectItem key="music" value="music">
+                  音乐
+                </SelectItem>
               </Select>
             </div>
 
@@ -711,11 +703,7 @@ const VideoAudioManager: React.FC<VideoAudioManagerProps> = ({ projectId: propPr
               >
                 {isGenerating ? '生成中...' : '基于视频生成音频'}
               </Button>
-              <Button
-                onPress={() => setShowAudioLibrary(!showAudioLibrary)}
-              >
-                音频库
-              </Button>
+              <Button onPress={() => setShowAudioLibrary(!showAudioLibrary)}>音频库</Button>
             </div>
           </CardBody>
         </Card>
@@ -731,9 +719,15 @@ const VideoAudioManager: React.FC<VideoAudioManagerProps> = ({ projectId: propPr
               selectedKeys={[batchAudioType]}
               onChange={e => setBatchAudioType(e.target.value as 'dialogue' | 'sound' | 'music')}
             >
-              <SelectItem key="dialogue" value="dialogue">对话</SelectItem>
-              <SelectItem key="sound" value="sound">音效</SelectItem>
-              <SelectItem key="music" value="music">音乐</SelectItem>
+              <SelectItem key="dialogue" value="dialogue">
+                对话
+              </SelectItem>
+              <SelectItem key="sound" value="sound">
+                音效
+              </SelectItem>
+              <SelectItem key="music" value="music">
+                音乐
+              </SelectItem>
             </Select>
           </div>
           <div className="mb-4">
@@ -751,10 +745,7 @@ const VideoAudioManager: React.FC<VideoAudioManagerProps> = ({ projectId: propPr
                 <span className="text-sm text-foreground/50">批量生成中...</span>
                 <span className="text-sm text-foreground/50">{batchProgress}%</span>
               </div>
-              <Progress
-                value={batchProgress}
-                className="w-full"
-              />
+              <Progress value={batchProgress} className="w-full" />
             </div>
           )}
           <Button
@@ -785,9 +776,7 @@ const VideoAudioManager: React.FC<VideoAudioManagerProps> = ({ projectId: propPr
                     <h3 className="font-medium text-foreground">
                       {video.name || `视频 ${video.id}`}
                     </h3>
-                    <span className="text-sm text-foreground/50">
-                      {video.duration}秒
-                    </span>
+                    <span className="text-sm text-foreground/50">{video.duration}秒</span>
                   </div>
                   <p className="text-sm text-foreground/50 mt-1">{video.prompt}</p>
                   <div className="mt-2 flex gap-2">
@@ -797,10 +786,7 @@ const VideoAudioManager: React.FC<VideoAudioManagerProps> = ({ projectId: propPr
                         setSelectedVideo(video);
                       }}
                     >
-                      <Button
-                        size="sm"
-                        variant="flat"
-                      >
+                      <Button size="sm" variant="flat">
                         选择
                       </Button>
                     </div>
@@ -848,9 +834,7 @@ const VideoAudioManager: React.FC<VideoAudioManagerProps> = ({ projectId: propPr
                         {audio.name || `音频 ${audio.id}`}
                       </h3>
                     </div>
-                    <span className="text-sm text-foreground/50">
-                      {audio.duration}秒
-                    </span>
+                    <span className="text-sm text-foreground/50">{audio.duration}秒</span>
                   </div>
                   <p className="text-sm text-foreground/50 mt-1">{audio.prompt}</p>
                   <div className="mt-2 flex gap-2">
@@ -860,11 +844,7 @@ const VideoAudioManager: React.FC<VideoAudioManagerProps> = ({ projectId: propPr
                         setSelectedAudio(audio);
                       }}
                     >
-                      <Button
-                        size="sm"
-                        color="success"
-                        variant="flat"
-                      >
+                      <Button size="sm" color="success" variant="flat">
                         选择
                       </Button>
                     </div>
@@ -874,10 +854,7 @@ const VideoAudioManager: React.FC<VideoAudioManagerProps> = ({ projectId: propPr
                         preloadAudio(audio);
                       }}
                     >
-                      <Button
-                        size="sm"
-                        variant="flat"
-                      >
+                      <Button size="sm" variant="flat">
                         预加载
                       </Button>
                     </div>
@@ -893,9 +870,7 @@ const VideoAudioManager: React.FC<VideoAudioManagerProps> = ({ projectId: propPr
       {selectedVideo && selectedAudio && (
         <Card className="mb-8">
           <CardBody>
-            <h2 className="text-xl font-semibold mb-4 text-foreground">
-              音视频同步预览
-            </h2>
+            <h2 className="text-xl font-semibold mb-4 text-foreground">音视频同步预览</h2>
             <div className="flex flex-col items-center">
               <div className="mb-4">
                 <video
@@ -914,14 +889,9 @@ const VideoAudioManager: React.FC<VideoAudioManagerProps> = ({ projectId: propPr
                 <div className="w-full max-w-md mb-4">
                   <div className="flex justify-between mb-1">
                     <span className="text-sm text-foreground/50">加载中...</span>
-                    <span className="text-sm text-foreground/50">
-                      {previewProgress}%
-                    </span>
+                    <span className="text-sm text-foreground/50">{previewProgress}%</span>
                   </div>
-                  <Progress
-                    value={previewProgress}
-                    className="w-full"
-                  />
+                  <Progress value={previewProgress} className="w-full" />
                 </div>
               )}
               <Button
@@ -940,12 +910,14 @@ const VideoAudioManager: React.FC<VideoAudioManagerProps> = ({ projectId: propPr
       {selectedAudios.length > 0 && batchPreviewUrls.length > 0 && (
         <Card className="mb-8">
           <CardBody>
-            <h2 className="text-xl font-semibold mb-4 text-foreground">
-              批量音频预览
-            </h2>
+            <h2 className="text-xl font-semibold mb-4 text-foreground">批量音频预览</h2>
             <div className="flex flex-col items-center">
               <div className="mb-4 w-full max-w-md">
-                <audio src={batchPreviewUrls[currentBatchPreviewIndex]} controls className="w-full" />
+                <audio
+                  src={batchPreviewUrls[currentBatchPreviewIndex]}
+                  controls
+                  className="w-full"
+                />
               </div>
               <div className="mb-4 text-center">
                 <span className="text-sm text-foreground/50">
@@ -982,10 +954,7 @@ const VideoAudioManager: React.FC<VideoAudioManagerProps> = ({ projectId: propPr
           <h2 className="text-xl font-semibold mb-4 text-foreground">任务状态</h2>
           <div className="space-y-2">
             {generationTasks.map(task => (
-              <div
-                key={task.id}
-                className="p-3 border border-content3 bg-content2 rounded-md"
-              >
+              <div key={task.id} className="p-3 border border-content3 bg-content2 rounded-md">
                 <div className="flex justify-between items-center">
                   <span className="font-medium text-foreground">
                     {task.type === 'video' ? '视频生成' : '音频生成'}

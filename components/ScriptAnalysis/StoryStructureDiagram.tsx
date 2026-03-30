@@ -179,11 +179,13 @@ export const StoryStructureDiagram: React.FC<StoryStructureDiagramProps> = ({
                             : 'bg-content2 border-content3 text-default-500'
                         }`}
                         style={{
-                          backgroundColor: hasContent ? 'var(--heroui-colors-primary)' : 'var(--heroui-colors-content2)',
-                          borderColor: hasContent ? 'var(--heroui-colors-primary)' : 'var(--heroui-colors-content3)',
-                          color: hasContent
-                            ? 'var(--heroui-colors-primary-foreground)'
-                            : undefined,
+                          backgroundColor: hasContent
+                            ? 'var(--heroui-colors-primary)'
+                            : 'var(--heroui-colors-content2)',
+                          borderColor: hasContent
+                            ? 'var(--heroui-colors-primary)'
+                            : 'var(--heroui-colors-content3)',
+                          color: hasContent ? 'var(--heroui-colors-primary-foreground)' : undefined,
                         }}
                       >
                         {act.icon}
@@ -230,21 +232,20 @@ export const StoryStructureDiagram: React.FC<StoryStructureDiagramProps> = ({
         )}
 
         {(midpoint || climax) && <Divider className="my-2" />}
-        
+
         <div className="flex-1">
           <div className="flex items-center gap-2 text-default-500 mb-1.5">
             <BookOpen className="w-4 h-4" />
             <span className="text-sm font-bold">结构说明</span>
           </div>
           <p className="text-sm text-default-400 leading-relaxed">
-            {structureType === 'three_act' 
+            {structureType === 'three_act'
               ? '三幕式结构是最经典的叙事模式：第一幕建立世界，第二幕展开冲突，第三幕解决问题并收尾。'
               : structureType === 'hero_journey'
-              ? '英雄之旅模式描述了主角从平凡到非凡的冒险过程，包含召唤、启程、试炼、归来等关键阶段。'
-              : structureType === 'five_act'
-              ? '五幕式结构将故事更细分为五个部分，提供更丰富的叙事节奏和冲突层次。'
-              : '自定义结构形式，根据故事特点灵活组织叙事节奏。'
-            }
+                ? '英雄之旅模式描述了主角从平凡到非凡的冒险过程，包含召唤、启程、试炼、归来等关键阶段。'
+                : structureType === 'five_act'
+                  ? '五幕式结构将故事更细分为五个部分，提供更丰富的叙事节奏和冲突层次。'
+                  : '自定义结构形式，根据故事特点灵活组织叙事节奏。'}
           </p>
         </div>
       </CardBody>

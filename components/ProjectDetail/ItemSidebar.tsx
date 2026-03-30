@@ -90,9 +90,7 @@ const ItemSidebar: React.FC<ItemSidebarProps> = ({
   return (
     <div className="h-full flex flex-col bg-white dark:bg-slate-900 border-l border-slate-200 dark:border-slate-800 w-[340px] order-last">
       <div className="p-4 border-b border-slate-200 dark:border-slate-800">
-        <h3 className="text-lg font-black text-primary mb-4">
-          {t.project.itemList}
-        </h3>
+        <h3 className="text-lg font-black text-primary mb-4">{t.project.itemList}</h3>
         <Input
           placeholder={t.common?.search || 'Search...'}
           value={search}
@@ -103,7 +101,8 @@ const ItemSidebar: React.FC<ItemSidebarProps> = ({
           radius="lg"
           aria-label={t.common?.search || 'Search'}
           classNames={{
-            inputWrapper: 'bg-slate-50 dark:bg-slate-950 border-2 group-data-[focus=true]:border-primary',
+            inputWrapper:
+              'bg-slate-50 dark:bg-slate-950 border-2 group-data-[focus=true]:border-primary',
           }}
         />
       </div>

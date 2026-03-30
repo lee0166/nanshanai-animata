@@ -80,7 +80,10 @@ export const StoryOverviewCard: React.FC<StoryOverviewCardProps> = ({ metadata, 
                   key={idx}
                   size="sm"
                   variant="flat"
-                  classNames={{ base: 'bg-content2 text-foreground border-content3', content: 'text-sm' }}
+                  classNames={{
+                    base: 'bg-content2 text-foreground border-content3',
+                    content: 'text-sm',
+                  }}
                   startContent={<Sparkles className="w-2.5 h-2.5 text-primary" />}
                 >
                   {t}
@@ -90,24 +93,36 @@ export const StoryOverviewCard: React.FC<StoryOverviewCardProps> = ({ metadata, 
           </div>
         )}
 
-        {(coreConflict || theme) && (genre || tone) && (
-          <Divider className="my-2" />
-        )}
-        
+        {(coreConflict || theme) && (genre || tone) && <Divider className="my-2" />}
+
         <div className="flex-1">
           {(genre || tone) && (
             <div>
               <div className="flex flex-wrap gap-1.5">
                 {genre && (
                   <Tooltip content="剧本类型/题材">
-                    <Chip size="sm" variant="flat" classNames={{ base: 'bg-content2 text-foreground border-content3', content: 'text-sm' }}>
+                    <Chip
+                      size="sm"
+                      variant="flat"
+                      classNames={{
+                        base: 'bg-content2 text-foreground border-content3',
+                        content: 'text-sm',
+                      }}
+                    >
                       {genre}
                     </Chip>
                   </Tooltip>
                 )}
                 {tone && (
                   <Tooltip content="整体基调">
-                    <Chip size="sm" variant="flat" classNames={{ base: 'bg-content2 text-foreground border-content3', content: 'text-sm' }}>
+                    <Chip
+                      size="sm"
+                      variant="flat"
+                      classNames={{
+                        base: 'bg-content2 text-foreground border-content3',
+                        content: 'text-sm',
+                      }}
+                    >
                       {tone}
                     </Chip>
                   </Tooltip>

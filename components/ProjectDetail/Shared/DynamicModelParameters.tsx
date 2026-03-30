@@ -94,8 +94,9 @@ export const DynamicModelParameters: React.FC<DynamicModelParametersProps> = ({
                 isDisabled={disabled}
                 size="sm"
                 aria-label={label}
-                classNames={{ 
-                  trigger: 'h-7 text-[11px] min-h-7 border border-zinc-700 data-[focus=true]:border-primary bg-zinc-900/50',
+                classNames={{
+                  trigger:
+                    'h-7 text-[11px] min-h-7 border border-zinc-700 data-[focus=true]:border-primary bg-zinc-900/50',
                   value: 'text-zinc-200',
                 }}
               >
@@ -129,9 +130,10 @@ export const DynamicModelParameters: React.FC<DynamicModelParametersProps> = ({
                 step={param.step}
                 isDisabled={disabled}
                 size="sm"
-                classNames={{ 
-                  trigger: 'h-7 text-[11px] min-h-7', 
-                  inputWrapper: 'h-7 min-h-7 border border-zinc-700 data-[focus=true]:border-primary bg-zinc-900/50',
+                classNames={{
+                  trigger: 'h-7 text-[11px] min-h-7',
+                  inputWrapper:
+                    'h-7 min-h-7 border border-zinc-700 data-[focus=true]:border-primary bg-zinc-900/50',
                   input: 'text-zinc-200',
                 }}
               />
@@ -149,9 +151,10 @@ export const DynamicModelParameters: React.FC<DynamicModelParametersProps> = ({
                 onValueChange={v => onChange(key, v)}
                 isDisabled={disabled}
                 size="sm"
-                classNames={{ 
-                  trigger: 'h-7 text-[11px] min-h-7', 
-                  inputWrapper: 'h-7 min-h-7 border border-zinc-700 data-[focus=true]:border-primary bg-zinc-900/50',
+                classNames={{
+                  trigger: 'h-7 text-[11px] min-h-7',
+                  inputWrapper:
+                    'h-7 min-h-7 border border-zinc-700 data-[focus=true]:border-primary bg-zinc-900/50',
                   input: 'text-zinc-200',
                 }}
               />

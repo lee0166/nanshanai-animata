@@ -120,10 +120,14 @@ const JobMonitor: React.FC = () => {
           variant="shadow"
           radius="full"
           size="lg"
-          style={activeCount > 0 ? {
-            background: 'linear-gradient(135deg, #A3E635 0%, #84CC16 100%)',
-            color: '#000000',
-          } : undefined}
+          style={
+            activeCount > 0
+              ? {
+                  background: 'linear-gradient(135deg, #A3E635 0%, #84CC16 100%)',
+                  color: '#000000',
+                }
+              : undefined
+          }
           className="fixed bottom-6 right-6 z-50 shadow-2xl shadow-lime-500/30 animate-in fade-in zoom-in duration-300"
           onPress={() => setViewMode('collapsed')}
           aria-label={t.jobs.queue}

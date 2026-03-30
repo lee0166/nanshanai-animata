@@ -252,9 +252,7 @@ const Tasks: React.FC = () => {
             <h1 className="text-[32px] font-black text-foreground uppercase tracking-tight">
               {t.jobs.tasksTitle}
             </h1>
-            <p className="text-[15px] text-default-500 font-medium">
-              {t.jobs.tasksSubtitle}
-            </p>
+            <p className="text-[15px] text-default-500 font-medium">{t.jobs.tasksSubtitle}</p>
           </div>
           {/* Removed Retry Button as requested */}
         </div>
