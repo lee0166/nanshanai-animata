@@ -39,12 +39,16 @@ export interface KeyframeSplitResult {
 export class KeyframeEngine {
   /**
    * 自动检测分镜类型（static/dynamic-simple/dynamic-complex）
-   * 基于description中的动作词汇判断
+   * 基于description中的动作词汇判断（使用权重机制）
    */
   detectShotType(description: string, cameraMovement: CameraMovement): ShotContentType {
+    console.log(`[KeyframeEngine] ========== 开始实时检测分镜类型 ==========`);
+    console.log(`[KeyframeEngine] description:`, description);
+    console.log(`[KeyframeEngine] cameraMovement:`, cameraMovement);
+
     const desc = description.toLowerCase();
 
-    // 复杂动态关键词（需要3个关键帧）
+    // 复杂动态关键词（权重+2）
     const complexKeywords = [
       '打斗',
       '战斗',
@@ -53,7 +57,6 @@ export class KeyframeEngine {
       '跳跃',
       '翻滚',
       '爆炸',
-      '特效',
       'fight',
       'battle',
       'chase',
@@ -61,15 +64,13 @@ export class KeyframeEngine {
       'jump',
       'roll',
       'explosion',
-      'effect',
       '激烈',
       '快速移动',
       '连续动作',
-      '复杂的',
       '激烈地',
     ];
 
-    // 简单动态关键词（需要2个关键帧）
+    // 简单动态关键词（权重+1）
     const simpleKeywords = [
       '走',
       '走动',
@@ -85,7 +86,6 @@ export class KeyframeEngine {
       'stand',
       'open',
       'close',
-      'move',
       'enter',
       'exit',
       '走向',
@@ -103,17 +103,33 @@ export class KeyframeEngine {
       '表情变化',
     ];
 
-    // 检查复杂动态
-    if (complexKeywords.some(kw => desc.includes(kw))) {
-      return 'dynamic-complex';
-    }
+    // 计算权重
+    let complexScore = 0;
+    let simpleScore = 0;
 
-    // 检查简单动态
-    if (simpleKeywords.some(kw => desc.includes(kw))) {
-      return 'dynamic-simple';
-    }
+    // 统计复杂关键词
+    const matchedComplexKeywords: string[] = [];
+    complexKeywords.forEach(kw => {
+      if (desc.includes(kw)) {
+        complexScore += 2;
+        matchedComplexKeywords.push(kw);
+      }
+    });
+    console.log(`[KeyframeEngine] 匹配到的复杂关键词:`, matchedComplexKeywords);
 
-    // 运镜判断：如果有动态运镜（推/拉/摇/移/跟），视为简单动态
+    // 统计简单关键词
+    const matchedSimpleKeywords: string[] = [];
+    simpleKeywords.forEach(kw => {
+      if (desc.includes(kw)) {
+        simpleScore += 1;
+        matchedSimpleKeywords.push(kw);
+      }
+    });
+    console.log(`[KeyframeEngine] 匹配到的简单关键词:`, matchedSimpleKeywords);
+
+    console.log(`[KeyframeEngine] 分镜类型检测 - 复杂分: ${complexScore}, 简单分: ${simpleScore}`);
+
+    // 运镜加分：如果有动态运镜，简单分+1
     const dynamicMovements: CameraMovement[] = [
       'push',
       'pull',
@@ -125,12 +141,29 @@ export class KeyframeEngine {
       'dolly_in',
       'dolly_out',
     ];
+    let hasDynamicMovement = false;
     if (dynamicMovements.includes(cameraMovement)) {
-      return 'dynamic-simple';
+      simpleScore += 1;
+      hasDynamicMovement = true;
+      console.log(`[KeyframeEngine] 检测到动态运镜，简单分+1`);
     }
 
-    // 默认为静态
-    return 'static';
+    console.log(`[KeyframeEngine] 最终分数 - 复杂分: ${complexScore}, 简单分: ${simpleScore}`);
+
+    // 权重判定规则
+    let result: ShotContentType;
+    if (complexScore >= 2) {
+      result = 'dynamic-complex';
+    } else if (simpleScore >= 1) {
+      result = 'dynamic-simple';
+    } else {
+      result = 'static';
+    }
+
+    console.log(`[KeyframeEngine] 最终判定结果: ${result}`);
+    console.log(`[KeyframeEngine] ========== 检测完成 ==========`);
+
+    return result;
   }
 
   /**

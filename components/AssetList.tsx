@@ -32,6 +32,7 @@ import {
   Skeleton,
   Input,
 } from '@heroui/react';
+import { DeleteConfirmModal } from './Shared/DeleteConfirmModal';
 
 interface AssetListProps {
   projectId: string;
@@ -641,58 +642,15 @@ const AssetList: React.FC<AssetListProps> = ({
       </div>
 
       {/* DELETE CONFIRMATION MODAL */}
-      <Modal
+      <DeleteConfirmModal
         isOpen={isDeleteOpen}
-        onOpenChange={onDeleteOpenChange}
-        placement="center"
-        backdrop="blur"
-        size="sm"
-        classNames={{
-          base: 'border border-slate-200 dark:border-slate-800 rounded-[2.5rem]',
-          header: 'border-b-0',
-          footer: 'border-t-0 px-6 pb-6',
-        }}
-      >
-        <ModalContent>
-          {onClose => (
-            <>
-              <ModalHeader className="flex flex-col gap-1 items-center pt-8">
-                <div className="w-16 h-16 bg-red-50 dark:bg-red-900/20 text-red-500 rounded-full flex items-center justify-center mb-2">
-                  <AlertTriangle className="w-8 h-8" />
-                </div>
-                <h3 className="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tighter">
-                  {t.project.deleteConfirmTitle}
-                </h3>
-              </ModalHeader>
-              <ModalBody className="text-center px-8 pb-4">
-                <p className="text-slate-500 dark:text-slate-400 text-sm leading-relaxed">
-                  {t.project.confirmDelete}
-                </p>
-              </ModalBody>
-              <ModalFooter className="flex gap-3">
-                <Button
-                  variant="light"
-                  onPress={onClose}
-                  className="flex-1 font-bold text-slate-500 h-12 rounded-2xl"
-                >
-                  {t.dashboard.cancel}
-                </Button>
-                <Button
-                  color="danger"
-                  variant="shadow"
-                  onPress={() => {
-                    confirmDelete();
-                    onClose();
-                  }}
-                  className="flex-1 font-bold h-12 rounded-2xl"
-                >
-                  {t.project.deleteConfirmAction}
-                </Button>
-              </ModalFooter>
-            </>
-          )}
-        </ModalContent>
-      </Modal>
+        onClose={onDeleteOpenChange}
+        onConfirm={confirmDelete}
+        title={t.project.deleteConfirmTitle}
+        description={t.project.confirmDelete}
+        confirmText={t.project.deleteConfirmAction}
+        cancelText={t.dashboard.cancel}
+      />
       {/* EDIT MODAL */}
       <Modal isOpen={isEditOpen} onOpenChange={onEditOpenChange} placement="center" backdrop="blur">
         <ModalContent>

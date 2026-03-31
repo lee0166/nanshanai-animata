@@ -89,102 +89,14 @@ export class KeyframeService {
     console.log(`[KeyframeService] 场景资产: ${sceneAsset?.name || '无'}`);
     console.log(`[KeyframeService] LLM模型配置ID: ${modelConfigId || '未指定'}`);
 
-    // 检测分镜类型
+    // 检测分镜类型（用于日志输出）
     const contentType = keyframeEngine.detectShotType(shot.description, shot.cameraMovement);
     console.log(`[KeyframeService] 检测到分镜类型: ${contentType}`);
-
-    // 对于静态分镜，根据用户选择的关键帧数量创建多个关键帧
-    if (contentType === 'static') {
-      console.log(`[KeyframeService] 静态分镜，创建 ${keyframeCount} 个关键帧`);
-      const staticKeyframes: Keyframe[] = [];
-      const durationPerFrame = shot.duration / keyframeCount;
-
-      for (let i = 0; i < keyframeCount; i++) {
-        const frameType = i === 0 ? 'start' : i === keyframeCount - 1 ? 'end' : 'middle';
-        const progress = (i + 1) / keyframeCount;
-
-        let promptSuffix = '';
-        let descriptionSuffix = '';
-
-        if (frameType === 'start') {
-          promptSuffix = ', opening scene, full view, soft lighting, emphasize atmosphere';
-          descriptionSuffix = '（开场画面）';
-        } else if (frameType === 'end') {
-          promptSuffix =
-            ', closing scene, close-up shot, profound artistic conception, leave aftertaste';
-          descriptionSuffix = '（收尾画面）';
-        } else {
-          const middleFrameCount = keyframeCount - 2;
-          const middleFrameIndex = i;
-          if (middleFrameCount === 1) {
-            promptSuffix = ', middle transition scene, medium shot, detail showcase';
-            descriptionSuffix = '（中间过渡）';
-          } else {
-            const middleProgress = middleFrameIndex / (middleFrameCount + 1);
-            if (middleProgress < 0.5) {
-              promptSuffix = ', developing scene, medium close-up, plot advancement';
-              descriptionSuffix = '（发展中画面）';
-            } else {
-              promptSuffix = ', pre-climax scene, close-up shot, emotional buildup';
-              descriptionSuffix = '（高潮前画面）';
-            }
-          }
-        }
-
-        const visualStyle = script?.parseState?.metadata?.visualStyle;
-        const stylePrompts: string[] = [];
-        if (visualStyle?.artStyle) stylePrompts.push(visualStyle.artStyle);
-        if (visualStyle?.cinematography) stylePrompts.push(visualStyle.cinematography);
-        if (visualStyle?.colorPalette && Array.isArray(visualStyle.colorPalette)) {
-          visualStyle.colorPalette.forEach(color => {
-            if (color) stylePrompts.push(color);
-          });
-        }
-
-        const promptParts = [
-          'masterpiece, 8k, ultra detailed, best quality',
-          ...stylePrompts,
-          shot.shotType,
-          sceneAsset?.name,
-          characterAssets?.[0]?.name,
-          'static scene',
-        ].filter(Boolean);
-
-        const staticKeyframe: Keyframe = {
-          id: `kf_${shot.id}_${i + 1}`,
-          sequence: i + 1,
-          frameType,
-          description: `${shot.description}${descriptionSuffix}`,
-          prompt: `${promptParts.join(', ')}${promptSuffix}`,
-          negativePrompt,
-          duration: durationPerFrame,
-          references: {
-            character: characterAssets?.[0]
-              ? {
-                  id: characterAssets[0].id,
-                  name: characterAssets[0].name,
-                }
-              : undefined,
-            scene: sceneAsset
-              ? {
-                  id: sceneAsset.id,
-                  name: sceneAsset.name,
-                }
-              : undefined,
-          },
-          status: 'pending',
-        };
-
-        staticKeyframes.push(staticKeyframe);
-      }
-      console.log(`[KeyframeService] 静态分镜关键帧创建完成，共 ${staticKeyframes.length} 个`);
-      return staticKeyframes;
-    }
 
     // 准备参数 - 完整传递所有资产信息
     const params: KeyframeSplitParams = {
       shot,
-      keyframeCount: Math.max(2, Math.min(4, keyframeCount)),
+      keyframeCount: Math.max(1, Math.min(10, keyframeCount)), // 合理范围：1-10
       script,
       characterAssets,
       sceneAsset: sceneAsset as SceneAsset | undefined,
@@ -227,14 +139,34 @@ export class KeyframeService {
     console.log(`[KeyframeService] ========== 自动处理静态分镜 ==========`);
     console.log(`[KeyframeService] 分镜ID: ${shot.id}`);
     console.log(`[KeyframeService] 分镜名称: ${shot.sceneName}-镜头${shot.sequence}`);
+    console.log(`[KeyframeService] ========== 完整分镜对象详情 ==========`);
+    console.log(`[KeyframeService] shot.contentType (原始值):`, shot.contentType);
+    console.log(`[KeyframeService] typeof shot.contentType:`, typeof shot.contentType);
+    console.log(`[KeyframeService] shot.contentType === 'static':`, shot.contentType === 'static');
+    console.log(`[KeyframeService] shot.description:`, shot.description);
+    console.log(`[KeyframeService] shot.cameraMovement:`, shot.cameraMovement);
+    console.log(`[KeyframeService] =========================================`);
 
-    // 检测分镜类型
-    const contentType = keyframeEngine.detectShotType(shot.description, shot.cameraMovement);
+    // 优先使用分镜自己保存的 contentType，如果没有才实时检测
+    let contentType = shot.contentType;
+    if (!contentType) {
+      console.log(`[KeyframeService] 分镜未保存 contentType，开始实时检测...`);
+      contentType = keyframeEngine.detectShotType(shot.description, shot.cameraMovement);
+      console.log(`[KeyframeService] 实时检测结果: ${contentType}`);
+    } else {
+      console.log(`[KeyframeService] 使用分镜保存的 contentType: ${contentType}`);
+    }
+
+    console.log(`[KeyframeService] 最终 contentType:`, contentType);
+    console.log(`[KeyframeService] contentType === 'static'?`, contentType === 'static');
 
     if (contentType !== 'static') {
-      console.log(`[KeyframeService] 不是静态分镜，跳过自动处理`);
+      console.log(`[KeyframeService] ❌ 不是静态分镜，跳过自动处理`);
+      console.log(`[KeyframeService] 返回空数组`);
       return [];
     }
+
+    console.log(`[KeyframeService] ✅ 是静态分镜，继续处理`);
 
     // 获取角色和场景资产
     const assets = await storageService.getAssets(projectId);
