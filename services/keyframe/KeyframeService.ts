@@ -31,6 +31,7 @@ export interface SplitKeyframesOptions {
   temperature?: number;
   maxTokens?: number;
   negativePrompt?: string;
+  language?: 'zh' | 'en'; // 语言设置
 }
 
 export interface BatchSplitKeyframesOptions {
@@ -77,21 +78,11 @@ export class KeyframeService {
       temperature,
       maxTokens,
       negativePrompt,
+      language,
     } = options;
 
-    console.log(`[KeyframeService] ========== 开始拆分关键帧 ==========`);
-    console.log(`[KeyframeService] 分镜ID: ${shot.id}`);
-    console.log(`[KeyframeService] 分镜名称: ${shot.sceneName}-镜头${shot.sequence}`);
-    console.log(`[KeyframeService] 分镜描述: ${shot.description?.substring(0, 50)}...`);
-    console.log(`[KeyframeService] 分镜类型: ${shot.contentType || '未指定'}`);
-    console.log(`[KeyframeService] 请求关键帧数量: ${keyframeCount}`);
-    console.log(`[KeyframeService] 角色资产数量: ${characterAssets?.length || 0}`);
-    console.log(`[KeyframeService] 场景资产: ${sceneAsset?.name || '无'}`);
-    console.log(`[KeyframeService] LLM模型配置ID: ${modelConfigId || '未指定'}`);
-
-    // 检测分镜类型（用于日志输出）
+    // 检测分镜类型
     const contentType = keyframeEngine.detectShotType(shot.description, shot.cameraMovement);
-    console.log(`[KeyframeService] 检测到分镜类型: ${contentType}`);
 
     // 准备参数 - 完整传递所有资产信息
     const params: KeyframeSplitParams = {
@@ -105,28 +96,15 @@ export class KeyframeService {
       temperature,
       maxTokens,
       negativePrompt,
+      language,
     };
 
-    console.log(`[KeyframeService] 实际关键帧数量: ${params.keyframeCount}`);
-    console.log(`[KeyframeService] 调用 KeyframeEngine.splitKeyframes...`);
-
     // 调用引擎拆分
-    const startTime = Date.now();
     const result = await keyframeEngine.splitKeyframes(params);
-    const duration = Date.now() - startTime;
-
-    console.log(`[KeyframeService] 关键帧拆分完成，耗时: ${duration}ms`);
 
     if (result.error) {
-      console.error(`[KeyframeService] 拆分失败: ${result.error}`);
       throw new Error(result.error);
     }
-
-    console.log(`[KeyframeService] 成功生成 ${result.keyframes?.length || 0} 个关键帧`);
-    result.keyframes?.forEach((kf, idx) => {
-      console.log(`[KeyframeService]   关键帧 ${idx + 1}: ${kf.description?.substring(0, 50)}...`);
-    });
-    console.log(`[KeyframeService] ========== 关键帧拆分完成 ==========`);
 
     return result.keyframes;
   }
@@ -135,38 +113,20 @@ export class KeyframeService {
    * 自动处理静态分镜
    * 为静态分镜自动创建单个关键帧
    */
-  async autoProcessStaticShot(shot: Shot, projectId: string): Promise<Keyframe[]> {
-    console.log(`[KeyframeService] ========== 自动处理静态分镜 ==========`);
-    console.log(`[KeyframeService] 分镜ID: ${shot.id}`);
-    console.log(`[KeyframeService] 分镜名称: ${shot.sceneName}-镜头${shot.sequence}`);
-    console.log(`[KeyframeService] ========== 完整分镜对象详情 ==========`);
-    console.log(`[KeyframeService] shot.contentType (原始值):`, shot.contentType);
-    console.log(`[KeyframeService] typeof shot.contentType:`, typeof shot.contentType);
-    console.log(`[KeyframeService] shot.contentType === 'static':`, shot.contentType === 'static');
-    console.log(`[KeyframeService] shot.description:`, shot.description);
-    console.log(`[KeyframeService] shot.cameraMovement:`, shot.cameraMovement);
-    console.log(`[KeyframeService] =========================================`);
-
+  async autoProcessStaticShot(
+    shot: Shot,
+    projectId: string,
+    language?: 'zh' | 'en'
+  ): Promise<Keyframe[]> {
     // 优先使用分镜自己保存的 contentType，如果没有才实时检测
     let contentType = shot.contentType;
     if (!contentType) {
-      console.log(`[KeyframeService] 分镜未保存 contentType，开始实时检测...`);
       contentType = keyframeEngine.detectShotType(shot.description, shot.cameraMovement);
-      console.log(`[KeyframeService] 实时检测结果: ${contentType}`);
-    } else {
-      console.log(`[KeyframeService] 使用分镜保存的 contentType: ${contentType}`);
     }
-
-    console.log(`[KeyframeService] 最终 contentType:`, contentType);
-    console.log(`[KeyframeService] contentType === 'static'?`, contentType === 'static');
 
     if (contentType !== 'static') {
-      console.log(`[KeyframeService] ❌ 不是静态分镜，跳过自动处理`);
-      console.log(`[KeyframeService] 返回空数组`);
       return [];
     }
-
-    console.log(`[KeyframeService] ✅ 是静态分镜，继续处理`);
 
     // 获取角色和场景资产
     const assets = await storageService.getAssets(projectId);
@@ -177,16 +137,19 @@ export class KeyframeService {
 
     const sceneAsset = assets.find(a => a.type === 'scene' && a.name === shot.sceneName);
 
-    console.log(`[KeyframeService] 角色资产数量: ${characterAssets.length}`);
-    console.log(`[KeyframeService] 场景资产: ${sceneAsset?.name || '无'}`);
-
     // 创建静态关键帧
+    const isEnglish = language === 'en';
+
+    const prompt = isEnglish
+      ? `Reference character image: ${characterAssets?.[0]?.id || 'none'}, reference scene image: ${sceneAsset?.id || 'none'}; ${shot.shotType}, ${sceneAsset?.name || ''}, ${characterAssets?.[0]?.name || ''}, ${shot.description}, static shot, cinematic quality`
+      : `参考角色图：${characterAssets?.[0]?.id || '无'}，参考场景图：${sceneAsset?.id || '无'}；${shot.shotType}，${sceneAsset?.name || ''}，${characterAssets?.[0]?.name || ''}，${shot.description}，静态画面，电影级画质`;
+
     const staticKeyframe: Keyframe = {
       id: `kf_${shot.id}_1`,
       sequence: 1,
       frameType: 'start',
       description: shot.description,
-      prompt: `参考角色图：${characterAssets?.[0]?.id || '无'}，参考场景图：${sceneAsset?.id || '无'}；${shot.shotType}，${sceneAsset?.name || ''}，${characterAssets?.[0]?.name || ''}，静态画面，电影级画质`,
+      prompt,
       duration: shot.duration,
       references: {
         character: characterAssets?.[0]
@@ -204,9 +167,6 @@ export class KeyframeService {
       },
       status: 'pending',
     };
-
-    console.log(`[KeyframeService] 静态分镜关键帧自动创建完成`);
-    console.log(`[KeyframeService] ========== 自动处理完成 ==========`);
 
     return [staticKeyframe];
   }

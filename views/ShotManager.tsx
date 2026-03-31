@@ -544,14 +544,13 @@ export const ShotManager: React.FC<ShotManagerProps> = ({
 }) => {
   const { projectId: urlProjectId } = useParams<{ projectId: string }>();
   const projectId = propProjectId || urlProjectId;
-  const { settings } = useApp();
+  const { settings, t } = useApp();
   const { showToast } = useToast();
   const { openPreview } = usePreview();
 
-  // 设置当前活动标签为分镜管理
-  useEffect(() => {
-    setActiveTab?.(AssetType.SHOT);
-  }, [setActiveTab]);
+  // 可用选项常量
+  const availableAspectRatios = ['1:1', '16:9', '9:16', '4:3', '3:4'] as const;
+  const availableBatchCounts = ['1', '2', '3', '4', '5'] as const;
 
   // 状态管理
   const [scripts, setScripts] = useState<Script[]>([]);
@@ -579,6 +578,26 @@ export const ShotManager: React.FC<ShotManagerProps> = ({
   // 生图高级参数
   const [seed, setSeed] = useState<number>(Math.floor(Math.random() * 1000000));
   const [batchCount, setBatchCount] = useState<number>(1);
+  const [selectedPromptTemplate, setSelectedPromptTemplate] = useState<string>('');
+
+  // 设置当前活动标签为分镜管理
+  useEffect(() => {
+    setActiveTab?.(AssetType.SHOT);
+  }, [setActiveTab]);
+
+  // 验证并修正选中值，确保在有效范围内
+  useEffect(() => {
+    if (!availableAspectRatios.includes(selectedAspectRatio as any)) {
+      setSelectedAspectRatio('16:9');
+    }
+  }, [selectedAspectRatio]);
+
+  useEffect(() => {
+    const batchCountStr = batchCount.toString();
+    if (!availableBatchCounts.includes(batchCountStr as any)) {
+      setBatchCount(1);
+    }
+  }, [batchCount]);
   const [negativePrompt, setNegativePrompt] = useState<string>(
     '低分辨率，模糊，变形，卡顿，锯齿，过曝，欠曝，色彩失真，人物面部模糊，杂物冗余，非电影感'
   );
@@ -1073,7 +1092,11 @@ export const ShotManager: React.FC<ShotManagerProps> = ({
 
     try {
       // 调用自动处理静态分镜服务
-      const keyframes = await keyframeService.autoProcessStaticShot(shot, projectId);
+      const keyframes = await keyframeService.autoProcessStaticShot(
+        shot,
+        projectId,
+        settings.language
+      );
 
       if (keyframes.length === 0) {
         showToast('该分镜不是静态分镜，无法自动处理', 'info');
@@ -1348,6 +1371,7 @@ export const ShotManager: React.FC<ShotManagerProps> = ({
         maxTokens: maxTokens,
         negativePrompt: negativePrompt,
         script: currentScript,
+        language: settings.language,
       });
 
       // 更新shot的keyframes
@@ -2485,7 +2509,7 @@ export const ShotManager: React.FC<ShotManagerProps> = ({
                                 size="sm"
                               >
                                 {availableResolutions.map(res => (
-                                  <SelectItem key={res} value={res}>
+                                  <SelectItem key={res} value={res} textValue={res}>
                                     {res}
                                   </SelectItem>
                                 ))}
@@ -2502,11 +2526,11 @@ export const ShotManager: React.FC<ShotManagerProps> = ({
                                 className="w-full"
                                 size="sm"
                               >
-                                <SelectItem value="1:1">1:1</SelectItem>
-                                <SelectItem value="16:9">16:9</SelectItem>
-                                <SelectItem value="9:16">9:16</SelectItem>
-                                <SelectItem value="4:3">4:3</SelectItem>
-                                <SelectItem value="3:4">3:4</SelectItem>
+                                {availableAspectRatios.map(ratio => (
+                                  <SelectItem key={ratio} value={ratio} textValue={ratio}>
+                                    {ratio}
+                                  </SelectItem>
+                                ))}
                               </Select>
                             </div>
                           </div>
@@ -2547,11 +2571,11 @@ export const ShotManager: React.FC<ShotManagerProps> = ({
                                 className="w-full"
                                 size="sm"
                               >
-                                <SelectItem value="1">1张</SelectItem>
-                                <SelectItem value="2">2张</SelectItem>
-                                <SelectItem value="3">3张</SelectItem>
-                                <SelectItem value="4">4张</SelectItem>
-                                <SelectItem value="5">5张</SelectItem>
+                                {availableBatchCounts.map(count => (
+                                  <SelectItem key={count} value={count} textValue={`${count}张`}>
+                                    {count}张
+                                  </SelectItem>
+                                ))}
                               </Select>
                             </div>
                             <div>
@@ -2560,11 +2584,13 @@ export const ShotManager: React.FC<ShotManagerProps> = ({
                               </label>
                               <Select
                                 aria-label="选择提示词模板"
-                                selectedKeys={[]}
+                                selectedKeys={
+                                  selectedPromptTemplate ? [selectedPromptTemplate] : []
+                                }
                                 onChange={e => {
-                                  const template = promptTemplates.find(
-                                    t => t.id === e.target.value
-                                  );
+                                  const templateId = e.target.value;
+                                  setSelectedPromptTemplate(templateId);
+                                  const template = promptTemplates.find(t => t.id === templateId);
                                   if (template) {
                                     const currentPrompt =
                                       selectedShot.keyframes[selectedKeyframeIndex]?.prompt || '';
@@ -2578,7 +2604,11 @@ export const ShotManager: React.FC<ShotManagerProps> = ({
                                 size="sm"
                               >
                                 {promptTemplates.map(template => (
-                                  <SelectItem key={template.id} value={template.id}>
+                                  <SelectItem
+                                    key={template.id}
+                                    value={template.id}
+                                    textValue={template.name}
+                                  >
                                     {template.name}
                                   </SelectItem>
                                 ))}

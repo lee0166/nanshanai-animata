@@ -28,6 +28,7 @@ export interface KeyframeSplitParams {
   temperature?: number; // LLM生成温度
   maxTokens?: number; // LLM最大 tokens
   negativePrompt?: string;
+  language?: 'zh' | 'en'; // 语言设置
 }
 
 export interface KeyframeSplitResult {
@@ -42,10 +43,6 @@ export class KeyframeEngine {
    * 基于description中的动作词汇判断（使用权重机制）
    */
   detectShotType(description: string, cameraMovement: CameraMovement): ShotContentType {
-    console.log(`[KeyframeEngine] ========== 开始实时检测分镜类型 ==========`);
-    console.log(`[KeyframeEngine] description:`, description);
-    console.log(`[KeyframeEngine] cameraMovement:`, cameraMovement);
-
     const desc = description.toLowerCase();
 
     // 复杂动态关键词（权重+2）
@@ -115,7 +112,6 @@ export class KeyframeEngine {
         matchedComplexKeywords.push(kw);
       }
     });
-    console.log(`[KeyframeEngine] 匹配到的复杂关键词:`, matchedComplexKeywords);
 
     // 统计简单关键词
     const matchedSimpleKeywords: string[] = [];
@@ -125,9 +121,6 @@ export class KeyframeEngine {
         matchedSimpleKeywords.push(kw);
       }
     });
-    console.log(`[KeyframeEngine] 匹配到的简单关键词:`, matchedSimpleKeywords);
-
-    console.log(`[KeyframeEngine] 分镜类型检测 - 复杂分: ${complexScore}, 简单分: ${simpleScore}`);
 
     // 运镜加分：如果有动态运镜，简单分+1
     const dynamicMovements: CameraMovement[] = [
@@ -141,29 +134,18 @@ export class KeyframeEngine {
       'dolly_in',
       'dolly_out',
     ];
-    let hasDynamicMovement = false;
     if (dynamicMovements.includes(cameraMovement)) {
       simpleScore += 1;
-      hasDynamicMovement = true;
-      console.log(`[KeyframeEngine] 检测到动态运镜，简单分+1`);
     }
-
-    console.log(`[KeyframeEngine] 最终分数 - 复杂分: ${complexScore}, 简单分: ${simpleScore}`);
 
     // 权重判定规则
-    let result: ShotContentType;
     if (complexScore >= 2) {
-      result = 'dynamic-complex';
+      return 'dynamic-complex';
     } else if (simpleScore >= 1) {
-      result = 'dynamic-simple';
+      return 'dynamic-simple';
     } else {
-      result = 'static';
+      return 'static';
     }
-
-    console.log(`[KeyframeEngine] 最终判定结果: ${result}`);
-    console.log(`[KeyframeEngine] ========== 检测完成 ==========`);
-
-    return result;
   }
 
   /**
@@ -203,11 +185,9 @@ export class KeyframeEngine {
 
       // Step 1: 自动检测分镜类型
       const contentType = this.detectShotType(shot.description, shot.cameraMovement);
-      console.log(`[KeyframeEngine] Detected shot type: ${contentType}`);
 
       // Step 2: 确定关键帧数量
       const keyframeCount = params.keyframeCount || this.getKeyframeCount(contentType);
-      console.log(`[KeyframeEngine] Keyframe count: ${keyframeCount}`);
 
       // Step 3: 构建并发送Prompt
       const prompt = this.buildSplitPrompt({ ...params, keyframeCount, contentType });
@@ -234,7 +214,6 @@ export class KeyframeEngine {
 
       return { keyframes, contentType };
     } catch (error) {
-      console.error('[KeyframeEngine] splitKeyframes error:', error);
       return {
         keyframes: [],
         contentType: 'dynamic-simple',
@@ -258,15 +237,10 @@ export class KeyframeEngine {
       splitOptions,
       script,
       negativePrompt,
+      language = 'zh',
     } = params;
 
-    console.log('[DEBUG KeyframeEngine] ========== buildSplitPrompt 被调用 ==========');
-    console.log('[DEBUG KeyframeEngine] 接收到的 script:', script);
-    console.log('[DEBUG KeyframeEngine] 接收到的 negativePrompt:', negativePrompt);
-    console.log(
-      '[DEBUG KeyframeEngine] 接收到的 visualStyle:',
-      script?.parseState?.metadata?.visualStyle
-    );
+    const isEnglish = language === 'en';
 
     // 读取全局视觉风格
     const visualStyle = script?.parseState?.metadata?.visualStyle;
@@ -275,16 +249,41 @@ export class KeyframeEngine {
     let visualStyleDesc = '';
     if (visualStyle) {
       const parts: string[] = [];
-      if (visualStyle.artDirection) parts.push(`美术风格：${visualStyle.artDirection}`);
-      if (visualStyle.artStyle) parts.push(`艺术风格：${visualStyle.artStyle}`);
-      if (visualStyle.colorMood) parts.push(`色彩情绪：${visualStyle.colorMood}`);
-      if (visualStyle.cinematography) parts.push(`摄影风格：${visualStyle.cinematography}`);
-      if (visualStyle.lightingStyle) parts.push(`光影风格：${visualStyle.lightingStyle}`);
+      if (visualStyle.artDirection)
+        parts.push(
+          isEnglish
+            ? `Art Direction: ${visualStyle.artDirection}`
+            : `美术风格：${visualStyle.artDirection}`
+        );
+      if (visualStyle.artStyle)
+        parts.push(
+          isEnglish ? `Art Style: ${visualStyle.artStyle}` : `艺术风格：${visualStyle.artStyle}`
+        );
+      if (visualStyle.colorMood)
+        parts.push(
+          isEnglish ? `Color Mood: ${visualStyle.colorMood}` : `色彩情绪：${visualStyle.colorMood}`
+        );
+      if (visualStyle.cinematography)
+        parts.push(
+          isEnglish
+            ? `Cinematography: ${visualStyle.cinematography}`
+            : `摄影风格：${visualStyle.cinematography}`
+        );
+      if (visualStyle.lightingStyle)
+        parts.push(
+          isEnglish
+            ? `Lighting Style: ${visualStyle.lightingStyle}`
+            : `光影风格：${visualStyle.lightingStyle}`
+        );
       if (visualStyle.colorPalette && visualStyle.colorPalette.length > 0) {
-        parts.push(`主色调：${visualStyle.colorPalette.join('、')}`);
+        parts.push(
+          isEnglish
+            ? `Main Colors: ${visualStyle.colorPalette.join(', ')}`
+            : `主色调：${visualStyle.colorPalette.join('、')}`
+        );
       }
       if (parts.length > 0) {
-        visualStyleDesc = parts.join('，');
+        visualStyleDesc = parts.join(isEnglish ? ', ' : '，');
       }
     }
 
@@ -296,179 +295,342 @@ export class KeyframeEngine {
           charDetails.push(`- ${char.name}`);
           if (char.gender)
             charDetails.push(
-              `性别：${char.gender === 'male' ? '男' : char.gender === 'female' ? '女' : '不限'}`
+              isEnglish
+                ? `Gender: ${char.gender === 'male' ? 'Male' : char.gender === 'female' ? 'Female' : 'Unlimited'}`
+                : `性别：${char.gender === 'male' ? '男' : char.gender === 'female' ? '女' : '不限'}`
             );
           if (char.ageGroup) {
-            const ageMap: Record<string, string> = {
-              childhood: '儿童',
-              youth: '青年',
-              middle_aged: '中年',
-              elderly: '老年',
-              unknown: '未知',
-            };
-            charDetails.push(`年龄：${ageMap[char.ageGroup] || char.ageGroup}`);
+            const ageMap: Record<string, string> = isEnglish
+              ? {
+                  childhood: 'Child',
+                  youth: 'Youth',
+                  middle_aged: 'Middle-aged',
+                  elderly: 'Elderly',
+                  unknown: 'Unknown',
+                }
+              : {
+                  childhood: '儿童',
+                  youth: '青年',
+                  middle_aged: '中年',
+                  elderly: '老年',
+                  unknown: '未知',
+                };
+            charDetails.push(
+              isEnglish
+                ? `Age: ${ageMap[char.ageGroup] || char.ageGroup}`
+                : `年龄：${ageMap[char.ageGroup] || char.ageGroup}`
+            );
           }
-          if (char.prompt) charDetails.push(`角色描述：${char.prompt}`);
-          if (char.metadata?.features) charDetails.push(`特征：${char.metadata.features}`);
+          if (char.prompt)
+            charDetails.push(
+              isEnglish ? `Character Description: ${char.prompt}` : `角色描述：${char.prompt}`
+            );
+          if (char.metadata?.features)
+            charDetails.push(
+              isEnglish ? `Features: ${char.metadata.features}` : `特征：${char.metadata.features}`
+            );
           if (char.views) {
             const availableViews: string[] = [];
-            if (char.views.front) availableViews.push('正面');
-            if (char.views.side) availableViews.push('侧面');
-            if (char.views.back) availableViews.push('背面');
-            if (char.views.threeQuarter) availableViews.push('四分之三侧面');
+            if (char.views.front) availableViews.push(isEnglish ? 'Front' : '正面');
+            if (char.views.side) availableViews.push(isEnglish ? 'Side' : '侧面');
+            if (char.views.back) availableViews.push(isEnglish ? 'Back' : '背面');
+            if (char.views.threeQuarter)
+              availableViews.push(isEnglish ? 'Three-quarter' : '四分之三侧面');
             if (availableViews.length > 0)
-              charDetails.push(`可用视角：${availableViews.join('、')}`);
+              charDetails.push(
+                isEnglish
+                  ? `Available Views: ${availableViews.join(', ')}`
+                  : `可用视角：${availableViews.join('、')}`
+              );
           }
-          return charDetails.join('，');
+          return charDetails.join(isEnglish ? ', ' : '，');
         })
-        .join('\n') || '无';
+        .join('\n') || (isEnglish ? 'None' : '无');
 
     // 构建详细的场景描述 - 充分利用所有 SceneAsset 信息
-    let sceneDesc = '未指定';
+    let sceneDesc = isEnglish ? 'Not specified' : '未指定';
     if (sceneAsset) {
       const sceneDetails: string[] = [];
       sceneDetails.push(sceneAsset.name);
-      if (sceneAsset.prompt) sceneDetails.push(`场景描述：${sceneAsset.prompt}`);
-      if (sceneAsset.metadata?.features) sceneDetails.push(`特征：${sceneAsset.metadata.features}`);
+      if (sceneAsset.prompt)
+        sceneDetails.push(
+          isEnglish ? `Scene Description: ${sceneAsset.prompt}` : `场景描述：${sceneAsset.prompt}`
+        );
+      if (sceneAsset.metadata?.features)
+        sceneDetails.push(
+          isEnglish
+            ? `Features: ${sceneAsset.metadata.features}`
+            : `特征：${sceneAsset.metadata.features}`
+        );
       if (sceneAsset.keyElements && sceneAsset.keyElements.length > 0) {
-        sceneDetails.push(`关键元素：${sceneAsset.keyElements.join('、')}`);
+        sceneDetails.push(
+          isEnglish
+            ? `Key Elements: ${sceneAsset.keyElements.join(', ')}`
+            : `关键元素：${sceneAsset.keyElements.join('、')}`
+        );
       }
       if (sceneAsset.views) {
         const availableViews: string[] = [];
-        if (sceneAsset.views.panorama) availableViews.push('全景');
-        if (sceneAsset.views.wide) availableViews.push('广角');
+        if (sceneAsset.views.panorama) availableViews.push(isEnglish ? 'Panorama' : '全景');
+        if (sceneAsset.views.wide) availableViews.push(isEnglish ? 'Wide' : '广角');
         if (sceneAsset.views.detail && sceneAsset.views.detail.length > 0)
-          availableViews.push('细节');
-        if (sceneAsset.views.aerial) availableViews.push('鸟瞰');
-        if (availableViews.length > 0) sceneDetails.push(`可用视角：${availableViews.join('、')}`);
+          availableViews.push(isEnglish ? 'Detail' : '细节');
+        if (sceneAsset.views.aerial) availableViews.push(isEnglish ? 'Aerial' : '鸟瞰');
+        if (availableViews.length > 0)
+          sceneDetails.push(
+            isEnglish
+              ? `Available Views: ${availableViews.join(', ')}`
+              : `可用视角：${availableViews.join('、')}`
+          );
       }
-      sceneDesc = sceneDetails.join('，');
-    }
-
-    // 构建视觉描述信息
-    let visualDetails = '';
-    if (shot.visualDescription) {
-      if (shot.visualDescription.composition) {
-        visualDetails += `构图：${shot.visualDescription.composition}，`;
-      }
-      if (shot.visualDescription.lighting) {
-        visualDetails += `光影：${shot.visualDescription.lighting}，`;
-      }
-      if (shot.visualDescription.colorPalette) {
-        visualDetails += `色调：${shot.visualDescription.colorPalette}，`;
-      }
-      if (shot.visualDescription.characterPositions) {
-        const positions = shot.visualDescription.characterPositions
-          .map(pos => `${pos.characterId}在${pos.position}，${pos.action}，${pos.expression}`)
-          .join('；');
-        visualDetails += `角色位置：${positions}，`;
-      }
+      sceneDesc = sceneDetails.join(isEnglish ? ', ' : '，');
     }
 
     // 根据分镜类型生成不同的拆分要求
     let splitRequirement = '';
     let frameTypeDesc = '';
 
-    switch (contentType) {
-      case 'static':
-        splitRequirement = '此分镜为静态画面，只需1个关键帧，描述主要画面构图';
-        frameTypeDesc = 'start（首帧）';
-        break;
-      case 'dynamic-simple':
-        splitRequirement = '此分镜为简单动态，需要2个关键帧：起始姿态和结束姿态';
-        frameTypeDesc = 'start（首帧）, end（尾帧）';
-        break;
-      case 'dynamic-complex':
-        splitRequirement = '此分镜为复杂动态，需要3个关键帧：起始姿态、中间过渡姿态、结束姿态';
-        frameTypeDesc = 'start（首帧）, middle（中间帧）, end（尾帧）';
-        break;
+    if (isEnglish) {
+      switch (contentType) {
+        case 'static':
+          splitRequirement =
+            'This is a static shot, only 1 keyframe is needed, describe the main composition';
+          frameTypeDesc = 'start (first frame)';
+          break;
+        case 'dynamic-simple':
+          splitRequirement =
+            'This is simple dynamic, 2 keyframes needed: starting pose and ending pose';
+          frameTypeDesc = 'start (first frame), end (last frame)';
+          break;
+        case 'dynamic-complex':
+          splitRequirement =
+            'This is complex dynamic, 3 keyframes needed: starting pose, transition pose, ending pose';
+          frameTypeDesc = 'start (first frame), middle (transition frame), end (last frame)';
+          break;
+      }
+    } else {
+      switch (contentType) {
+        case 'static':
+          splitRequirement = '此分镜为静态画面，只需1个关键帧，描述主要画面构图';
+          frameTypeDesc = 'start（首帧）';
+          break;
+        case 'dynamic-simple':
+          splitRequirement = '此分镜为简单动态，需要2个关键帧：起始姿态和结束姿态';
+          frameTypeDesc = 'start（首帧）, end（尾帧）';
+          break;
+        case 'dynamic-complex':
+          splitRequirement = '此分镜为复杂动态，需要3个关键帧：起始姿态、中间过渡姿态、结束姿态';
+          frameTypeDesc = 'start（首帧）, middle（中间帧）, end（尾帧）';
+          break;
+      }
     }
 
     // 获取运镜指导
     const movementGuidance =
       splitOptions?.includeCameraMovement !== false
-        ? this.getMovementGuidance(shot.cameraMovement)
-        : '运镜信息未指定';
+        ? this.getMovementGuidance(shot.cameraMovement, isEnglish)
+        : isEnglish
+          ? 'Camera movement not specified'
+          : '运镜信息未指定';
 
     // 获取叙事结构指导
-    const narrativeStructure = this.getNarrativeStructure(keyframeCount, shot.duration);
+    const narrativeStructure = this.getNarrativeStructure(keyframeCount, shot.duration, isEnglish);
 
     // 构建额外的拆分要求
     let additionalRequirements = '';
     if (splitOptions) {
       if (splitOptions.includeCharacterDetails) {
-        additionalRequirements += '6. 详细描述角色的表情、服装和动作细节\n';
+        additionalRequirements += isEnglish
+          ? '6. Describe character expression, costume and action details in detail\n'
+          : '6. 详细描述角色的表情、服装和动作细节\n';
       }
       if (splitOptions.includeSceneDetails) {
-        additionalRequirements += '7. 详细描述场景的环境、道具和氛围\n';
+        additionalRequirements += isEnglish
+          ? '7. Describe scene environment, props and atmosphere in detail\n'
+          : '7. 详细描述场景的环境、道具和氛围\n';
       }
       if (splitOptions.focusOnAction) {
-        additionalRequirements += '8. 重点突出动作的连贯性和力量感\n';
+        additionalRequirements += isEnglish
+          ? '8. Emphasize action continuity and power\n'
+          : '8. 重点突出动作的连贯性和力量感\n';
       }
       if (splitOptions.focusOnEmotion) {
-        additionalRequirements += '9. 重点突出角色的情感表达和内心活动\n';
+        additionalRequirements += isEnglish
+          ? '9. Emphasize character emotional expression and inner thoughts\n'
+          : '9. 重点突出角色的情感表达和内心活动\n';
       }
     }
 
     // 构建详细的参考信息 - 充分利用所有资产信息
     let referenceInfo = '';
     if (characterAssets && characterAssets.length > 0) {
-      referenceInfo += '【参考角色】\n';
+      referenceInfo += isEnglish ? '【Reference Characters】\n' : '【参考角色】\n';
       characterAssets.forEach((char, index) => {
-        referenceInfo += `角色${index + 1}: ${char.name}\n`;
+        referenceInfo += isEnglish
+          ? `Character ${index + 1}: ${char.name}\n`
+          : `角色${index + 1}: ${char.name}\n`;
         if (char.gender)
-          referenceInfo += `  - 性别: ${char.gender === 'male' ? '男' : char.gender === 'female' ? '女' : '不限'}\n`;
+          referenceInfo += isEnglish
+            ? `  - Gender: ${char.gender === 'male' ? 'Male' : char.gender === 'female' ? 'Female' : 'Unlimited'}\n`
+            : `  - 性别: ${char.gender === 'male' ? '男' : char.gender === 'female' ? '女' : '不限'}\n`;
         if (char.ageGroup) {
-          const ageMap: Record<string, string> = {
-            childhood: '儿童',
-            youth: '青年',
-            middle_aged: '中年',
-            elderly: '老年',
-            unknown: '未知',
-          };
-          referenceInfo += `  - 年龄: ${ageMap[char.ageGroup] || char.ageGroup}\n`;
+          const ageMap: Record<string, string> = isEnglish
+            ? {
+                childhood: 'Child',
+                youth: 'Youth',
+                middle_aged: 'Middle-aged',
+                elderly: 'Elderly',
+                unknown: 'Unknown',
+              }
+            : {
+                childhood: '儿童',
+                youth: '青年',
+                middle_aged: '中年',
+                elderly: '老年',
+                unknown: '未知',
+              };
+          referenceInfo += isEnglish
+            ? `  - Age: ${ageMap[char.ageGroup] || char.ageGroup}\n`
+            : `  - 年龄: ${ageMap[char.ageGroup] || char.ageGroup}\n`;
         }
-        if (char.prompt) referenceInfo += `  - 描述: ${char.prompt}\n`;
-        if (char.metadata?.features) referenceInfo += `  - 特征: ${char.metadata.features}\n`;
+        if (char.prompt)
+          referenceInfo += isEnglish
+            ? `  - Description: ${char.prompt}\n`
+            : `  - 描述: ${char.prompt}\n`;
+        if (char.metadata?.features)
+          referenceInfo += isEnglish
+            ? `  - Features: ${char.metadata.features}\n`
+            : `  - 特征: ${char.metadata.features}\n`;
         if (char.views) {
           const viewList: string[] = [];
-          if (char.views.front) viewList.push('正面');
-          if (char.views.side) viewList.push('侧面');
-          if (char.views.back) viewList.push('背面');
-          if (char.views.threeQuarter) viewList.push('四分之三侧面');
-          if (viewList.length > 0) referenceInfo += `  - 可用视角: ${viewList.join(', ')}\n`;
+          if (char.views.front) viewList.push(isEnglish ? 'Front' : '正面');
+          if (char.views.side) viewList.push(isEnglish ? 'Side' : '侧面');
+          if (char.views.back) viewList.push(isEnglish ? 'Back' : '背面');
+          if (char.views.threeQuarter) viewList.push(isEnglish ? 'Three-quarter' : '四分之三侧面');
+          if (viewList.length > 0)
+            referenceInfo += isEnglish
+              ? `  - Available Views: ${viewList.join(', ')}\n`
+              : `  - 可用视角: ${viewList.join(', ')}\n`;
         }
       });
     }
     if (sceneAsset) {
-      referenceInfo += '【参考场景】\n';
-      referenceInfo += `场景: ${sceneAsset.name}\n`;
-      if (sceneAsset.prompt) referenceInfo += `  - 描述: ${sceneAsset.prompt}\n`;
+      referenceInfo += isEnglish ? '【Reference Scene】\n' : '【参考场景】\n';
+      referenceInfo += isEnglish ? `Scene: ${sceneAsset.name}\n` : `场景: ${sceneAsset.name}\n`;
+      if (sceneAsset.prompt)
+        referenceInfo += isEnglish
+          ? `  - Description: ${sceneAsset.prompt}\n`
+          : `  - 描述: ${sceneAsset.prompt}\n`;
       if (sceneAsset.metadata?.features)
-        referenceInfo += `  - 特征: ${sceneAsset.metadata.features}\n`;
+        referenceInfo += isEnglish
+          ? `  - Features: ${sceneAsset.metadata.features}\n`
+          : `  - 特征: ${sceneAsset.metadata.features}\n`;
       if (sceneAsset.keyElements && sceneAsset.keyElements.length > 0) {
-        referenceInfo += `  - 关键元素: ${sceneAsset.keyElements.join(', ')}\n`;
+        referenceInfo += isEnglish
+          ? `  - Key Elements: ${sceneAsset.keyElements.join(', ')}\n`
+          : `  - 关键元素: ${sceneAsset.keyElements.join(', ')}\n`;
       }
       if (sceneAsset.views) {
         const viewList: string[] = [];
-        if (sceneAsset.views.panorama) viewList.push('全景');
-        if (sceneAsset.views.wide) viewList.push('广角');
-        if (sceneAsset.views.detail && sceneAsset.views.detail.length > 0) viewList.push('细节');
-        if (sceneAsset.views.aerial) viewList.push('鸟瞰');
-        if (viewList.length > 0) referenceInfo += `  - 可用视角: ${viewList.join(', ')}\n`;
+        if (sceneAsset.views.panorama) viewList.push(isEnglish ? 'Panorama' : '全景');
+        if (sceneAsset.views.wide) viewList.push(isEnglish ? 'Wide' : '广角');
+        if (sceneAsset.views.detail && sceneAsset.views.detail.length > 0)
+          viewList.push(isEnglish ? 'Detail' : '细节');
+        if (sceneAsset.views.aerial) viewList.push(isEnglish ? 'Aerial' : '鸟瞰');
+        if (viewList.length > 0)
+          referenceInfo += isEnglish
+            ? `  - Available Views: ${viewList.join(', ')}\n`
+            : `  - 可用视角: ${viewList.join(', ')}\n`;
       }
     }
 
     // 构建视觉风格部分
     let visualStyleSection = '';
     if (visualStyleDesc) {
-      visualStyleSection = `【全局视觉风格】
+      visualStyleSection = isEnglish
+        ? `【Global Visual Style】
+${visualStyleDesc}
+
+`
+        : `【全局视觉风格】
 ${visualStyleDesc}
 
 `;
     }
 
-    return `你是一位专业的电影分镜师。请将以下分镜描述拆分为${keyframeCount}个连贯的静态关键帧。
+    if (isEnglish) {
+      return `You are a professional storyboard artist. Please split the following shot description into ${keyframeCount} coherent static keyframes.
+
+【Camera Movement Guidance】
+${movementGuidance}
+
+【Narrative Structure】
+${narrativeStructure}
+
+${visualStyleSection}【Reference Information】
+${referenceInfo || 'No reference information'}
+
+【Coherence Requirements】
+Character pose changes between adjacent keyframes should be gradual, avoid large jumps. Maintain scene and character consistency, ensure smooth action transitions.
+
+【Shot Information】
+- Scene: ${sceneDesc}
+- Shot Type: ${shot.shotType}
+- Camera Movement: ${shot.cameraMovement}
+- Duration: ${shot.duration} seconds
+- Shot Type: ${contentType}
+- Characters:
+${characterDesc}
+
+【Shot Description】
+${shot.description}
+
+【Splitting Requirements】
+${splitRequirement}
+1. Sort by action timeline (start → transition → end)
+2. Each keyframe must be a static shot, describe specific pose
+3. Maintain character and scene consistency (strictly use reference character and scene features)
+4. Meet ${shot.shotType} shot type requirements
+5. Total duration within ${shot.duration} seconds
+6. Use English commas to separate elements in prompt field
+7. Both description and prompt fields MUST be in ENGLISH
+8. prompt field must include quality tags: masterpiece, 8k, ultra detailed, best quality
+9. prompt field must incorporate global visual style (if any)
+10. prompt field must fully utilize reference character and scene description information
+11. prompt field must include shot description content
+12. prompt field must not include internal database IDs (like kf_xxx_1)
+${additionalRequirements}
+
+【Keyframe Type Description】
+- frameType field must be one of: ${frameTypeDesc}
+- start: Static shot at action start
+- middle: Key transition pose during action (only needed for complex dynamic)
+- end: Static shot at action end
+
+【Output Format】
+Please strictly output in the following JSON format, do not include other content:
+
+{
+  "keyframes": [
+    {
+      "sequence": 1,
+      "frameType": "start",
+      "description": "Static shot description (specific pose)",
+      "prompt": "Image generation prompt, including character features, scene features, lighting style",
+      "duration": duration in seconds
+    }
+  ]
+}
+
+Note:
+- description should describe static pose, no dynamic action words
+- prompt should be suitable for image generation tools, include quality tags and visual style
+- prompt must strictly follow reference character and scene descriptions, ensure character and scene consistency
+- prompt must include shot description content
+- Both description and prompt fields must be in ENGLISH
+- prompt format example: masterpiece, 8k, ultra detailed, best quality, [full character description], [full scene description], [shot description content], [visual style], [shot type description], [lighting description]`;
+    } else {
+      return `你是一位专业的电影分镜师。请将以下分镜描述拆分为${keyframeCount}个连贯的静态关键帧。
 
 【运镜指导】
 ${movementGuidance}
@@ -502,10 +664,12 @@ ${splitRequirement}
 4. 符合${shot.shotType}景别要求
 5. 总时长控制在${shot.duration}秒内
 6. prompt字段使用英文逗号分隔元素
-7. prompt字段必须包含质量标签：masterpiece, 8k, ultra detailed, best quality
-8. prompt字段必须融入全局视觉风格（如果有）
-9. prompt字段必须充分利用参考角色和场景的描述信息
-10. prompt字段不要包含内部数据库ID（如kf_xxx_1）
+7. description和prompt字段都必须使用中文
+8. prompt字段必须包含质量标签：masterpiece, 8k, ultra detailed, best quality
+9. prompt字段必须融入全局视觉风格（如果有）
+10. prompt字段必须充分利用参考角色和场景的描述信息
+11. prompt字段必须包含分镜画面描述的内容
+12. prompt字段不要包含内部数据库ID（如kf_xxx_1）
 ${additionalRequirements}
 
 【关键帧类型说明】
@@ -533,7 +697,10 @@ ${additionalRequirements}
 - description要描述静态姿态，不能有动态动作词
 - prompt要适配图生图工具，包含质量标签和视觉风格
 - prompt必须严格遵循参考角色和场景的描述，确保角色和场景的一致性
-- prompt格式示例：masterpiece, 8k, ultra detailed, best quality, [角色完整描述], [场景完整描述], [视觉风格], [景别描述], [光影描述]`;
+- prompt必须包含分镜画面描述的内容
+- description和prompt字段都必须使用中文
+- prompt格式示例：masterpiece, 8k, ultra detailed, best quality, [角色完整描述], [场景完整描述], [画面描述内容], [视觉风格], [景别描述], [光影描述]`;
+    }
   }
 
   /**
@@ -548,13 +715,6 @@ ${additionalRequirements}
     negativePrompt?: string,
     script?: Script
   ): Keyframe[] {
-    console.log('[DEBUG KeyframeEngine] ========== parseKeyframesFromResponse 被调用 ==========');
-    console.log('[DEBUG KeyframeEngine] 接收到的 negativePrompt:', negativePrompt);
-    console.log(
-      '[DEBUG KeyframeEngine] LLM返回的原始response:',
-      response.substring(0, 500) + '...'
-    );
-
     try {
       // 提取JSON部分
       const jsonMatch = response.match(/\{[\s\S]*\}/);
@@ -563,7 +723,6 @@ ${additionalRequirements}
       }
 
       const data = JSON.parse(jsonMatch[0]);
-      console.log('[DEBUG KeyframeEngine] 解析后的JSON数据:', data);
 
       if (!data.keyframes || !Array.isArray(data.keyframes)) {
         throw new Error('返回数据格式错误');
@@ -597,16 +756,12 @@ ${additionalRequirements}
           status: 'pending' as const,
         };
 
-        console.log(`[DEBUG KeyframeEngine] 解析出的关键帧 ${index + 1}:`, keyframe);
         return keyframe;
       });
 
-      console.log('[DEBUG KeyframeEngine] 最终返回的关键帧数组:', keyframes);
       return keyframes;
     } catch (error) {
-      console.error('[KeyframeEngine] 解析关键帧失败:', error);
       // 返回默认关键帧
-      console.log('[DEBUG KeyframeEngine] 回退到generateDefaultKeyframes');
       return this.generateDefaultKeyframes(
         shot,
         keyframeCount,
@@ -621,8 +776,8 @@ ${additionalRequirements}
   /**
    * 获取运镜指导文本
    */
-  private getMovementGuidance(movement: CameraMovement): string {
-    const guidanceMap: Record<CameraMovement, string> = {
+  private getMovementGuidance(movement: CameraMovement, isEnglish: boolean = false): string {
+    const guidanceMapZH: Record<CameraMovement, string> = {
       static: '固定镜头：关键帧应该体现角色动作的变化，保持画面构图稳定。',
       push: '推镜头：关键帧应该体现景别从大到小的变化。第1帧用较大景别（能看到角色全身），第2帧中等景别（腰部以上），第3帧特写（脸部表情）。',
       pull: '拉镜头：关键帧应该体现景别从小到大的变化。第1帧特写（脸部表情），第2帧中等景别（腰部以上），第3帧较大景别（能看到角色全身）。',
@@ -637,28 +792,64 @@ ${additionalRequirements}
       dolly_out: '拉镜头：关键帧应该体现景别从小到大的变化。',
     };
 
+    const guidanceMapEN: Record<CameraMovement, string> = {
+      static:
+        'Fixed shot: Keyframes should reflect character action changes, maintain stable composition.',
+      push: 'Push-in shot: Keyframes should reflect shot size change from large to small. Frame 1: wide shot (full body), Frame 2: medium shot (waist up), Frame 3: close-up (facial expression).',
+      pull: 'Pull-out shot: Keyframes should reflect shot size change from small to large. Frame 1: close-up (facial expression), Frame 2: medium shot (waist up), Frame 3: wide shot (full body).',
+      pan: 'Pan shot: Keyframes should reflect horizontal movement of content. Frame 1: left side content, Frame 2: center content, Frame 3: right side content.',
+      tilt: 'Tilt shot: Keyframes should reflect vertical movement of content.',
+      track:
+        'Tracking shot: Keyframes should reflect spatial position changes. Frame 1: character on one side, Frame 2: character in center, Frame 3: character on the other side.',
+      crane: 'Crane shot: Keyframes should reflect large-scale perspective changes.',
+      zoom_in: 'Zoom-in shot: Keyframes should reflect shot size change from large to small.',
+      zoom_out: 'Zoom-out shot: Keyframes should reflect shot size change from small to large.',
+      dolly_in: 'Dolly-in shot: Keyframes should reflect shot size change from large to small.',
+      dolly_out: 'Dolly-out shot: Keyframes should reflect shot size change from small to large.',
+    };
+
+    const guidanceMap = isEnglish ? guidanceMapEN : guidanceMapZH;
     return guidanceMap[movement] || guidanceMap.static;
   }
 
   /**
    * 获取叙事结构指导
    */
-  private getNarrativeStructure(count: number, duration: number): string {
+  private getNarrativeStructure(
+    count: number,
+    duration: number,
+    isEnglish: boolean = false
+  ): string {
     if (count === 2) {
-      return `生成2个关键帧：
+      return isEnglish
+        ? `Generate 2 keyframes:
+- Frame 1 (Action Start): ${Math.ceil(duration * 0.5)} seconds, establish initial pose
+- Frame 2 (Action End): ${Math.ceil(duration * 0.5)} seconds, show final pose`
+        : `生成2个关键帧：
 - 第1帧（动作起点）：${Math.ceil(duration * 0.5)}秒，建立初始姿态
 - 第2帧（动作终点）：${Math.ceil(duration * 0.5)}秒，展示最终姿态`;
     }
 
     if (count === 3) {
-      return `生成3个关键帧：
+      return isEnglish
+        ? `Generate 3 keyframes:
+- Frame 1 (Action Start): ${Math.ceil(duration * 0.4)} seconds, establish initial pose
+- Frame 2 (Action Peak/Turning): ${Math.ceil(duration * 0.3)} seconds, show most intense moment or turning point
+- Frame 3 (Action End): ${Math.ceil(duration * 0.3)} seconds, show final stable pose`
+        : `生成3个关键帧：
 - 第1帧（动作起点）：${Math.ceil(duration * 0.4)}秒，建立初始姿态
 - 第2帧（动作顶点/转折）：${Math.ceil(duration * 0.3)}秒，展示最激烈的瞬间或转折点
 - 第3帧（动作终点）：${Math.ceil(duration * 0.3)}秒，展示最终稳定姿态`;
     }
 
     if (count === 4) {
-      return `生成4个关键帧：
+      return isEnglish
+        ? `Generate 4 keyframes:
+- Frame 1 (Action Start): ${Math.ceil(duration * 0.3)} seconds, establish initial pose
+- Frame 2 (Action Development): ${Math.ceil(duration * 0.25)} seconds, show action development
+- Frame 3 (Action Peak): ${Math.ceil(duration * 0.25)} seconds, show most intense moment
+- Frame 4 (Action End): ${Math.ceil(duration * 0.2)} seconds, show final stable pose`
+        : `生成4个关键帧：
 - 第1帧（动作起点）：${Math.ceil(duration * 0.3)}秒，建立初始姿态
 - 第2帧（动作发展）：${Math.ceil(duration * 0.25)}秒，展示动作发展
 - 第3帧（动作顶点）：${Math.ceil(duration * 0.25)}秒，展示最激烈的瞬间
