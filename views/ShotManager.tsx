@@ -2724,7 +2724,7 @@ export const ShotManager: React.FC<ShotManagerProps> = ({
                                   景别
                                 </div>
                                 <div className="text-sm font-mono text-foreground">
-                                  {selectedShot.shotType || '未知'}
+                                  {(t.shot?.shotType?.[selectedShot.shotType as keyof typeof t.shot.shotType]) || selectedShot.shotType || '未知'}
                                 </div>
                               </div>
 
@@ -2734,7 +2734,7 @@ export const ShotManager: React.FC<ShotManagerProps> = ({
                                   角度
                                 </div>
                                 <div className="text-sm font-mono text-foreground">
-                                  {selectedShot.cameraAngle || '未知'}
+                                  {(t.shot?.cameraAngle?.[selectedShot.cameraAngle as keyof typeof t.shot.cameraAngle]) || selectedShot.cameraAngle || '未知'}
                                 </div>
                               </div>
 
@@ -2744,7 +2744,7 @@ export const ShotManager: React.FC<ShotManagerProps> = ({
                                   运镜
                                 </div>
                                 <div className="text-sm font-mono text-foreground">
-                                  {selectedShot.cameraMovement || '未知'}
+                                  {(t.shot?.cameraMovement?.[selectedShot.cameraMovement as keyof typeof t.shot.cameraMovement]) || selectedShot.cameraMovement || '未知'}
                                 </div>
                               </div>
 
@@ -3035,11 +3035,11 @@ export const ShotManager: React.FC<ShotManagerProps> = ({
                     </div>
                     <div className="flex justify-between">
                       <span className="text-slate-400">景别:</span>
-                      <span>{selectedShot.shotType || '-'}</span>
+                      <span>{(t.shot?.shotType?.[selectedShot.shotType as keyof typeof t.shot.shotType]) || selectedShot.shotType || '-'}</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-slate-400">机位:</span>
-                      <span>{selectedShot.cameraAngle || '-'}</span>
+                      <span>{(t.shot?.cameraAngle?.[selectedShot.cameraAngle as keyof typeof t.shot.cameraAngle]) || selectedShot.cameraAngle || '-'}</span>
                     </div>
                     {selectedShot.mood && (
                       <div className="flex justify-between">
