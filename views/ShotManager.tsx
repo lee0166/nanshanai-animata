@@ -3164,8 +3164,6 @@ export const ShotManager: React.FC<ShotManagerProps> = ({
         isOpen={isDeleteOpen}
         onClose={onDeleteClose}
         onConfirm={confirmDeleteHistoryImage}
-        showIcon={false}
-        size="md"
       />
     </div>
   );

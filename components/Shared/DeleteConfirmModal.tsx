@@ -48,13 +48,20 @@ export const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
       }}
       placement="center"
       backdrop="blur"
+      motionProps={{
+        initial: { opacity: 0, scale: 0.95 },
+        animate: { opacity: 1, scale: 1 },
+        exit: { opacity: 0, scale: 0.95 },
+        transition: { duration: 0.2 },
+      }}
     >
       <ModalContent className="p-0 overflow-hidden">
         {onCloseModal => (
           <div className="flex flex-col">
+            {/* 头部区域 */}
             <div className="flex items-center gap-4 p-6 pb-4 border-b border-content3">
               {showIcon && (
-                <div className="relative">
+                <div className="relative flex-shrink-0">
                   <div className="w-12 h-12 rounded-2xl bg-content2 flex items-center justify-center text-slate-500 dark:text-slate-400">
                     <Trash2 className="w-6 h-6" />
                   </div>
@@ -75,6 +82,7 @@ export const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
               </div>
             </div>
 
+            {/* 内容区域 */}
             <div className="p-6 pt-4 space-y-4">
               {description && (
                 <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
@@ -82,15 +90,16 @@ export const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
                 </p>
               )}
               {warningText && (
-                <div className="flex items-start gap-3 p-4 bg-amber-50 dark:bg-amber-900/15 rounded-xl border border-amber-100 dark:border-amber-900/25">
-                  <AlertTriangle className="w-5 h-5 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
-                  <p className="text-sm text-amber-800 dark:text-amber-300 leading-relaxed">
+                <div className="flex items-start gap-3 p-4 bg-red-50 dark:bg-red-950/20 rounded-xl border border-red-100 dark:border-red-900/30">
+                  <AlertTriangle className="w-5 h-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
+                  <p className="text-sm text-red-800 dark:text-red-300 leading-relaxed">
                     {warningText}
                   </p>
                 </div>
               )}
             </div>
 
+            {/* 按钮区域 */}
             <div className="flex items-center justify-end gap-3 p-6 pt-4 bg-content1/50 border-t border-content3">
               <Button
                 variant="light"
