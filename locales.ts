@@ -1086,7 +1086,7 @@ export const translations = {
         pan: '摇',
         tilt: '升降',
         track: '跟',
-        crane: 'Crane',
+        crane: '吊臂',
         zoom_in: '变焦推',
         zoom_out: '变焦拉',
         dolly_in: '移近',

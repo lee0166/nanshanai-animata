@@ -100,15 +100,19 @@ export const DynamicModelParameters: React.FC<DynamicModelParametersProps> = ({
                   value: 'text-zinc-200',
                 }}
               >
-                {validOptions.map(opt => (
-                  <SelectItem
-                    key={String(opt.value)}
-                    value={opt.value}
-                    classNames={{ base: 'text-[11px]' }}
-                  >
-                    {getOptionLabel(opt)}
-                  </SelectItem>
-                ))}
+                {validOptions.map(opt => {
+                  const optionLabel = getOptionLabel(opt);
+                  return (
+                    <SelectItem
+                      key={String(opt.value)}
+                      value={opt.value}
+                      textValue={typeof optionLabel === 'string' ? optionLabel : String(opt.value)}
+                      classNames={{ base: 'text-[11px]' }}
+                    >
+                      {optionLabel}
+                    </SelectItem>
+                  );
+                })}
               </Select>
             </div>
           );

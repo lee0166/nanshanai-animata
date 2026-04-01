@@ -2,25 +2,7 @@ import React from 'react';
 import { Shot } from '../../types';
 import { Card, CardBody, CardHeader, Button, Chip, Divider } from '@heroui/react';
 import { Camera, Clock, Users, List, Film } from 'lucide-react';
-
-const SHOT_TYPE_LABELS: Record<string, string> = {
-  extreme_long: '极远景',
-  long: '远景',
-  full: '全景',
-  medium: '中景',
-  close_up: '近景',
-  extreme_close_up: '极近景',
-};
-
-const CAMERA_MOVEMENT_LABELS: Record<string, string> = {
-  static: '固定',
-  push: '推',
-  pull: '拉',
-  pan: '摇',
-  tilt: '升降',
-  track: '移',
-  crane: '升降',
-};
+import { useApp } from '../../contexts/context';
 
 interface TimelineShotInfoPanelProps {
   shot: Shot | null;
@@ -31,6 +13,7 @@ export const TimelineShotInfoPanel: React.FC<TimelineShotInfoPanelProps> = ({
   shot,
   onSwitchToListView,
 }) => {
+  const { t } = useApp();
   if (!shot) {
     return (
       <div className="h-full flex items-center justify-center p-4">
@@ -84,7 +67,7 @@ export const TimelineShotInfoPanel: React.FC<TimelineShotInfoPanelProps> = ({
                     </Chip>
                   )}
                   <Chip size="sm" color={getShotTypeColor(shot.shotType) as any} variant="flat">
-                    {SHOT_TYPE_LABELS[shot.shotType] || shot.shotType}
+                    {(t.shot?.shotType?.[shot.shotType as keyof typeof t.shot.shotType]) || shot.shotType}
                   </Chip>
                 </div>
               </div>
@@ -124,7 +107,7 @@ export const TimelineShotInfoPanel: React.FC<TimelineShotInfoPanelProps> = ({
                     <div>
                       <div className="text-xs text-slate-500">运镜</div>
                       <div className="text-sm">
-                        {CAMERA_MOVEMENT_LABELS[shot.cameraMovement] || shot.cameraMovement}
+                        {(t.shot?.cameraMovement?.[shot.cameraMovement as keyof typeof t.shot.cameraMovement]) || shot.cameraMovement}
                       </div>
                     </div>
                   </div>

@@ -67,24 +67,7 @@ interface ShotListProps {
   headerAction?: React.ReactNode; // 头部区域额外操作按钮
 }
 
-const SHOT_TYPE_LABELS: Record<string, string> = {
-  extreme_long: '极远景',
-  long: '远景',
-  full: '全景',
-  medium: '中景',
-  close_up: '近景',
-  extreme_close_up: '极近景',
-};
 
-const CAMERA_MOVEMENT_LABELS: Record<string, string> = {
-  static: '固定',
-  push: '推',
-  pull: '拉',
-  pan: '摇',
-  tilt: '升降',
-  track: '移',
-  crane: '升降',
-};
 
 export const ShotList: React.FC<ShotListProps> = ({
   shots,
@@ -96,7 +79,7 @@ export const ShotList: React.FC<ShotListProps> = ({
   viewMode = 'list',
   headerAction,
 }) => {
-  const { settings } = useApp();
+  const { settings, t } = useApp();
   const [selectedShot, setSelectedShot] = useState<Shot | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const {
@@ -485,12 +468,12 @@ export const ShotList: React.FC<ShotListProps> = ({
                   </TableCell>
                   <TableCell>
                     <Chip size="sm" color={getShotTypeColor(shot.shotType) as any}>
-                      {SHOT_TYPE_LABELS[shot.shotType] || shot.shotType}
+                      {(t.shot?.shotType?.[shot.shotType as keyof typeof t.shot.shotType]) || shot.shotType}
                     </Chip>
                   </TableCell>
                   <TableCell>
                     <span className="text-sm text-default-600">
-                      {CAMERA_MOVEMENT_LABELS[shot.cameraMovement] || shot.cameraMovement}
+                      {(t.shot?.cameraMovement?.[shot.cameraMovement as keyof typeof t.shot.cameraMovement]) || shot.cameraMovement}
                     </span>
                   </TableCell>
                   <TableCell>
@@ -652,7 +635,7 @@ export const ShotList: React.FC<ShotListProps> = ({
                                   {shot.layer === 'key' ? '关键' : '可选'}
                                 </Chip>
                                 <Chip size="sm" color={getShotTypeColor(shot.shotType) as any}>
-                                  {SHOT_TYPE_LABELS[shot.shotType] || shot.shotType}
+                                  {(t.shot?.shotType?.[shot.shotType as keyof typeof t.shot.shotType]) || shot.shotType}
                                 </Chip>
                               </div>
                               <div className="flex gap-1">
@@ -709,8 +692,7 @@ export const ShotList: React.FC<ShotListProps> = ({
                               <div className="flex items-center gap-1">
                                 <Move size={14} />
                                 <span>
-                                  {CAMERA_MOVEMENT_LABELS[shot.cameraMovement] ||
-                                    shot.cameraMovement}
+                                  {(t.shot?.cameraMovement?.[shot.cameraMovement as keyof typeof t.shot.cameraMovement]) || shot.cameraMovement}
                                 </span>
                               </div>
                               <div className="flex items-center gap-1">
@@ -799,9 +781,9 @@ export const ShotList: React.FC<ShotListProps> = ({
                       setSelectedShot({ ...selectedShot, shotType: e.target.value as any })
                     }
                   >
-                    {Object.entries(SHOT_TYPE_LABELS).map(([key, label]) => (
+                    {Object.entries(t.shot?.shotType || {}).map(([key, label]) => (
                       <SelectItem key={key} value={key}>
-                        {label}
+                        {label as string}
                       </SelectItem>
                     ))}
                   </Select>
@@ -813,9 +795,9 @@ export const ShotList: React.FC<ShotListProps> = ({
                       setSelectedShot({ ...selectedShot, cameraMovement: e.target.value as any })
                     }
                   >
-                    {Object.entries(CAMERA_MOVEMENT_LABELS).map(([key, label]) => (
+                    {Object.entries(t.shot?.cameraMovement || {}).map(([key, label]) => (
                       <SelectItem key={key} value={key}>
-                        {label}
+                        {label as string}
                       </SelectItem>
                     ))}
                   </Select>

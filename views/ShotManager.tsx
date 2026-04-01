@@ -2487,7 +2487,7 @@ export const ShotManager: React.FC<ShotManagerProps> = ({
                                 size="sm"
                               >
                                 {availableImageModels.map(model => (
-                                  <SelectItem key={model.id} value={model.id}>
+                                  <SelectItem key={model.id} value={model.id} textValue={model.name}>
                                     {model.name}
                                   </SelectItem>
                                 ))}
@@ -3256,7 +3256,7 @@ const SplitKeyframeModal: React.FC<{
                 className="w-full"
               >
                 {availableLLMModels.map(model => (
-                  <SelectItem key={model.id} value={model.id}>
+                  <SelectItem key={model.id} value={model.id} textValue={model.name}>
                     {model.name}
                   </SelectItem>
                 ))}

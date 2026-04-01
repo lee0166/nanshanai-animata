@@ -13,25 +13,7 @@ import {
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { storageService } from '../../services/storage';
-
-const SHOT_TYPE_LABELS: Record<string, string> = {
-  extreme_long: '极远景',
-  long: '远景',
-  full: '全景',
-  medium: '中景',
-  close_up: '近景',
-  extreme_close_up: '极近景',
-};
-
-const CAMERA_MOVEMENT_LABELS: Record<string, string> = {
-  static: '固定',
-  push: '推',
-  pull: '拉',
-  pan: '摇',
-  tilt: '升降',
-  track: '移',
-  crane: '升降',
-};
+import { useApp } from '../../contexts/context';
 
 interface ShotTimelineViewProps {
   shots: Shot[];
@@ -50,6 +32,7 @@ export const ShotTimelineView: React.FC<ShotTimelineViewProps> = ({
   onSwitchToListView,
   imageUrls,
 }) => {
+  const { t } = useApp();
   const [scrollLeft, setScrollLeft] = useState(0);
   const [zoomLevel, setZoomLevel] = useState(1);
   const timelineRef = useRef<HTMLDivElement>(null);
@@ -344,15 +327,14 @@ export const ShotTimelineView: React.FC<ShotTimelineViewProps> = ({
                                           variant="flat"
                                           classNames={{ base: 'h-4 text-[9px] px-1' }}
                                         >
-                                          {SHOT_TYPE_LABELS[shot.shotType] || shot.shotType}
+                                          {(t.shot?.shotType?.[shot.shotType as keyof typeof t.shot.shotType]) || shot.shotType}
                                         </Chip>
                                         <Chip
                                           size="sm"
                                           variant="flat"
                                           classNames={{ base: 'h-4 text-[9px] px-1' }}
                                         >
-                                          {CAMERA_MOVEMENT_LABELS[shot.cameraMovement] ||
-                                            shot.cameraMovement}
+                                          {(t.shot?.cameraMovement?.[shot.cameraMovement as keyof typeof t.shot.cameraMovement]) || shot.cameraMovement}
                                         </Chip>
                                       </div>
                                       <div className="flex items-center gap-1 text-xs text-slate-400">
