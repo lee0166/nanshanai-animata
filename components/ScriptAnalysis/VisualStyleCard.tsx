@@ -63,58 +63,60 @@ export const VisualStyleCard: React.FC<VisualStyleCardProps> = ({ metadata, t })
       </CardHeader>
 
       <CardBody className="pt-1 space-y-3 flex-1 flex flex-col">
-        {visualStyle?.artStyle && (
-          <div>
-            <div className="flex items-center gap-1.5 text-default-500 mb-1.5">
-              <Brush className="w-3.5 h-3.5" />
-              <span className="text-sm font-bold">美术风格</span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <Chip
-                size="sm"
-                classNames={{
-                  base: 'bg-content2 text-foreground border-content3',
-                  content: 'text-sm',
-                }}
-              >
-                {visualStyle.artStyle}
-              </Chip>
-              {visualStyle.artDirection && (
-                <span className="text-sm text-default-500 truncate">
-                  {visualStyle.artDirection}
-                </span>
-              )}
-            </div>
-          </div>
-        )}
-
-        {visualStyle?.colorPalette && visualStyle.colorPalette.length > 0 && (
-          <>
-            {visualStyle?.artStyle && <Divider className="my-2" />}
-            <div>
-              <div className="flex items-center gap-1.5 text-default-500 mb-1.5">
-                <Palette className="w-3.5 h-3.5" />
-                <span className="text-sm font-bold">主色调</span>
-                {visualStyle.colorMood && (
+        {(visualStyle?.artStyle ||
+          (visualStyle?.colorPalette && visualStyle.colorPalette.length > 0)) && (
+          <div className="grid grid-cols-2 gap-4">
+            {visualStyle?.artStyle && (
+              <div>
+                <div className="flex items-center gap-1.5 text-default-500 mb-1.5">
+                  <Brush className="w-3.5 h-3.5" />
+                  <span className="text-sm font-bold">美术风格</span>
+                </div>
+                <div className="flex items-center gap-1.5">
                   <Chip
                     size="sm"
-                    variant="flat"
                     classNames={{
                       base: 'bg-content2 text-foreground border-content3',
                       content: 'text-sm',
                     }}
                   >
-                    {visualStyle.colorMood}
+                    {visualStyle.artStyle}
                   </Chip>
-                )}
+                  {visualStyle.artDirection && (
+                    <span className="text-sm text-default-500 truncate">
+                      {visualStyle.artDirection}
+                    </span>
+                  )}
+                </div>
               </div>
-              <div className="flex flex-wrap gap-1.5">
-                {visualStyle.colorPalette.slice(0, 6).map((color, idx) => (
-                  <ColorBlock key={idx} color={color} index={idx} />
-                ))}
+            )}
+
+            {visualStyle?.colorPalette && visualStyle.colorPalette.length > 0 && (
+              <div>
+                <div className="flex items-center gap-1.5 text-default-500 mb-1.5">
+                  <Palette className="w-3.5 h-3.5" />
+                  <span className="text-sm font-bold">主色调</span>
+                  {visualStyle.colorMood && (
+                    <Chip
+                      size="sm"
+                      variant="flat"
+                      classNames={{
+                        base: 'bg-content2 text-foreground border-content3',
+                        content: 'text-sm',
+                      }}
+                    >
+                      {visualStyle.colorMood}
+                    </Chip>
+                  )}
+                </div>
+                <div className="flex flex-wrap gap-1.5">
+                  {visualStyle.colorPalette.slice(0, 6).map((color, idx) => (
+                    <ColorBlock key={idx} color={color} index={idx} />
+                  ))}
+                </div>
               </div>
-            </div>
-          </>
+            )}
+          </div>
         )}
 
         {(visualStyle?.cinematography || visualStyle?.lightingStyle) && (
@@ -123,31 +125,29 @@ export const VisualStyleCard: React.FC<VisualStyleCardProps> = ({ metadata, t })
               (visualStyle?.colorPalette && visualStyle.colorPalette.length > 0)) && (
               <Divider className="my-2" />
             )}
-            <div>
-              <div className="grid grid-cols-1 gap-2">
-                {visualStyle.cinematography && (
-                  <div>
-                    <div className="flex items-center gap-1.5 text-default-500 mb-1">
-                      <Camera className="w-3.5 h-3.5" />
-                      <span className="text-sm font-bold">摄影</span>
-                    </div>
-                    <p className="text-sm text-foreground line-clamp-1">
-                      {visualStyle.cinematography}
-                    </p>
+            <div className="grid grid-cols-2 gap-4">
+              {visualStyle.cinematography && (
+                <div>
+                  <div className="flex items-center gap-1.5 text-default-500 mb-1">
+                    <Camera className="w-3.5 h-3.5" />
+                    <span className="text-sm font-bold">摄影</span>
                   </div>
-                )}
-                {visualStyle.lightingStyle && (
-                  <div>
-                    <div className="flex items-center gap-1.5 text-default-500 mb-1">
-                      <Sun className="w-3.5 h-3.5" />
-                      <span className="text-sm font-bold">光影</span>
-                    </div>
-                    <p className="text-sm text-foreground line-clamp-1">
-                      {visualStyle.lightingStyle}
-                    </p>
+                  <p className="text-sm text-foreground line-clamp-1">
+                    {visualStyle.cinematography}
+                  </p>
+                </div>
+              )}
+              {visualStyle.lightingStyle && (
+                <div>
+                  <div className="flex items-center gap-1.5 text-default-500 mb-1">
+                    <Sun className="w-3.5 h-3.5" />
+                    <span className="text-sm font-bold">光影</span>
                   </div>
-                )}
-              </div>
+                  <p className="text-sm text-foreground line-clamp-1">
+                    {visualStyle.lightingStyle}
+                  </p>
+                </div>
+              )}
             </div>
           </>
         )}

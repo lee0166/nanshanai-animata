@@ -719,13 +719,13 @@ ${additionalRequirements}
       // 提取JSON部分
       const jsonMatch = response.match(/\{[\s\S]*\}/);
       if (!jsonMatch) {
-        throw new Error('无法解析LLM返回的JSON');
+        throw new Error('无法解析LLM返回的JSON格式，请检查模型输出');
       }
 
       const data = JSON.parse(jsonMatch[0]);
 
       if (!data.keyframes || !Array.isArray(data.keyframes)) {
-        throw new Error('返回数据格式错误');
+        throw new Error('返回数据格式错误：缺少keyframes数组');
       }
 
       const keyframes = data.keyframes.map((kf: any, index: number) => {
@@ -761,15 +761,8 @@ ${additionalRequirements}
 
       return keyframes;
     } catch (error) {
-      // 返回默认关键帧
-      return this.generateDefaultKeyframes(
-        shot,
-        keyframeCount,
-        characterAssets,
-        sceneAsset,
-        negativePrompt,
-        script
-      );
+      // 解析失败，抛出错误而不是返回默认关键帧
+      throw new Error(`关键帧解析失败: ${error instanceof Error ? error.message : String(error)}`);
     }
   }
 

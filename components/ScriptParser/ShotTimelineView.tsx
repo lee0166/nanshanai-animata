@@ -327,14 +327,18 @@ export const ShotTimelineView: React.FC<ShotTimelineViewProps> = ({
                                           variant="flat"
                                           classNames={{ base: 'h-4 text-[9px] px-1' }}
                                         >
-                                          {(t.shot?.shotType?.[shot.shotType as keyof typeof t.shot.shotType]) || shot.shotType}
+                                          {t.shot?.shotType?.[
+                                            shot.shotType as keyof typeof t.shot.shotType
+                                          ] || shot.shotType}
                                         </Chip>
                                         <Chip
                                           size="sm"
                                           variant="flat"
                                           classNames={{ base: 'h-4 text-[9px] px-1' }}
                                         >
-                                          {(t.shot?.cameraMovement?.[shot.cameraMovement as keyof typeof t.shot.cameraMovement]) || shot.cameraMovement}
+                                          {t.shot?.cameraMovement?.[
+                                            shot.cameraMovement as keyof typeof t.shot.cameraMovement
+                                          ] || shot.cameraMovement}
                                         </Chip>
                                       </div>
                                       <div className="flex items-center gap-1 text-xs text-slate-400">

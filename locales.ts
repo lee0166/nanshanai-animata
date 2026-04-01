@@ -499,7 +499,7 @@ export const translations = {
         low_angle: 'Low Angle',
         dutch_angle: 'Dutch Angle',
         overhead: 'Overhead',
-        bird_eye: 'Bird\'s Eye',
+        bird_eye: "Bird's Eye",
       },
       cameraMovement: {
         static: 'Static',

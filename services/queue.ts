@@ -663,14 +663,24 @@ export class JobQueue {
       prompt,
       modelConfigId,
       referenceImages,
+      referenceWeights,
       resolution,
       aspectRatio,
       negativePrompt,
     } = job.params;
 
     console.log('[Queue] job.params.referenceImages length:', referenceImages?.length || 0);
+    if (referenceWeights) {
+      console.log('[Queue] referenceWeights:', referenceWeights);
+    }
     if (referenceImages && referenceImages.length > 0) {
       console.log('[Queue] referenceImages preview:', referenceImages[0].substring(0, 50));
+    }
+
+    // 准备 extraParams
+    const extraParams: Record<string, any> = {};
+    if (referenceWeights) {
+      extraParams.reference_weights = referenceWeights;
     }
 
     // 1. 调用AI生图
@@ -682,7 +692,7 @@ export class JobQueue {
       resolution,
       1,
       undefined,
-      undefined,
+      extraParams,
       negativePrompt
     );
 

@@ -1014,30 +1014,46 @@ export const ShotManager: React.FC<ShotManagerProps> = ({
       const refs = selectedShot.keyframes[selectedKeyframeIndex].references;
       const urls: { character?: string; scene?: string } = {};
 
-      // 加载角色图URL
+      // 加载角色图URL - 使用 generatedImages/currentImageId
       if (refs?.character?.id) {
         try {
           const assets = await storageService.getAssets(projectId);
           const charAsset = assets.find(
             a => a.type === AssetType.CHARACTER && a.id === refs.character!.id
-          );
-          if (charAsset?.filePath) {
-            urls.character = await storageService.getAssetUrl(charAsset.filePath);
+          ) as CharacterAsset | undefined;
+
+          if (charAsset) {
+            // 优先使用 currentImageId 对应的图片
+            const currentImage =
+              charAsset.generatedImages?.find(img => img.id === charAsset.currentImageId) ||
+              charAsset.generatedImages?.[0];
+
+            if (currentImage?.path) {
+              urls.character = await storageService.getAssetUrl(currentImage.path);
+            }
           }
         } catch (e) {
           console.error('加载角色缩略图失败:', e);
         }
       }
 
-      // 加载场景图URL
+      // 加载场景图URL - 使用 generatedImages/currentImageId
       if (refs?.scene?.id) {
         try {
           const assets = await storageService.getAssets(projectId);
           const sceneAsset = assets.find(
             a => a.type === AssetType.SCENE && a.id === refs.scene!.id
-          );
-          if (sceneAsset?.filePath) {
-            urls.scene = await storageService.getAssetUrl(sceneAsset.filePath);
+          ) as SceneAsset | undefined;
+
+          if (sceneAsset) {
+            // 优先使用 currentImageId 对应的图片
+            const currentImage =
+              sceneAsset.generatedImages?.find(img => img.id === sceneAsset.currentImageId) ||
+              sceneAsset.generatedImages?.[0];
+
+            if (currentImage?.path) {
+              urls.scene = await storageService.getAssetUrl(currentImage.path);
+            }
           }
         } catch (e) {
           console.error('加载场景缩略图失败:', e);
@@ -1389,6 +1405,19 @@ export const ShotManager: React.FC<ShotManagerProps> = ({
 
       await storageService.saveScript(updatedScript);
       setScripts(scripts.map(s => (s.id === updatedScript.id ? updatedScript : s)));
+
+      // 关键帧拆分成功后，自动选择该分镜和第一个关键帧
+      setSelectedShotId(selectedShotForSplit.id);
+      if (keyframes.length > 0) {
+        setSelectedKeyframeIndex(0);
+        // 自动展开该分镜
+        setExpandedShots(prev => {
+          const newSet = new Set(prev);
+          newSet.add(selectedShotForSplit.id);
+          return newSet;
+        });
+      }
+
       showToast('关键帧拆分成功', 'success');
     } catch (error: any) {
       console.error('[ShotManager] 拆分关键帧失败:', error);
@@ -1534,6 +1563,15 @@ export const ShotManager: React.FC<ShotManagerProps> = ({
       }
     }
 
+    // 构建参考图权重
+    const referenceWeights: { character?: number; scene?: number } = {};
+    if (references.character) {
+      referenceWeights.character = references.character.weight;
+    }
+    if (references.scene) {
+      referenceWeights.scene = references.scene.weight;
+    }
+
     // 创建并提交任务
     const job = aiService.createKeyframeGenerationJob({
       projectId,
@@ -1545,6 +1583,7 @@ export const ShotManager: React.FC<ShotManagerProps> = ({
       assetName: `${selectedShot.sceneName}-镜头${selectedShot.sequence}-关键帧${kf.sequence}`,
       modelConfigId: selectedImageModel,
       referenceImages,
+      referenceWeights: Object.keys(referenceWeights).length > 0 ? referenceWeights : undefined,
       resolution: calculateSize,
       aspectRatio: selectedAspectRatio,
       negativePrompt: kf.negativePrompt,
@@ -2487,7 +2526,11 @@ export const ShotManager: React.FC<ShotManagerProps> = ({
                                 size="sm"
                               >
                                 {availableImageModels.map(model => (
-                                  <SelectItem key={model.id} value={model.id} textValue={model.name}>
+                                  <SelectItem
+                                    key={model.id}
+                                    value={model.id}
+                                    textValue={model.name}
+                                  >
                                     {model.name}
                                   </SelectItem>
                                 ))}
@@ -2616,6 +2659,78 @@ export const ShotManager: React.FC<ShotManagerProps> = ({
                             </div>
                           </div>
 
+                          {/* 参考图权重控制 */}
+                          {generationMode === 'reference-to-image' &&
+                            (references.character || references.scene) && (
+                              <div className="space-y-4">
+                                <div className="flex items-center gap-2">
+                                  <div className="h-px flex-1 bg-content3" />
+                                  <span className="text-xs font-semibold text-slate-400">
+                                    参考图权重
+                                  </span>
+                                  <div className="h-px flex-1 bg-content3" />
+                                </div>
+
+                                {references.character && (
+                                  <div>
+                                    <div className="flex justify-between mb-2">
+                                      <label className="text-xs font-semibold text-slate-400">
+                                        角色参考图: {references.character.name}
+                                      </label>
+                                      <span className="text-xs text-primary font-bold">
+                                        {(references.character.weight * 100).toFixed(0)}%
+                                      </span>
+                                    </div>
+                                    <input
+                                      type="range"
+                                      min="0"
+                                      max="1"
+                                      step="0.05"
+                                      value={references.character.weight}
+                                      onChange={e =>
+                                        setReferences(prev => ({
+                                          ...prev,
+                                          character: prev.character
+                                            ? { ...prev.character, weight: Number(e.target.value) }
+                                            : undefined,
+                                        }))
+                                      }
+                                      className="w-full h-2 bg-content3 rounded-lg appearance-none cursor-pointer accent-primary"
+                                    />
+                                  </div>
+                                )}
+
+                                {references.scene && (
+                                  <div>
+                                    <div className="flex justify-between mb-2">
+                                      <label className="text-xs font-semibold text-slate-400">
+                                        场景参考图: {references.scene.name}
+                                      </label>
+                                      <span className="text-xs text-primary font-bold">
+                                        {(references.scene.weight * 100).toFixed(0)}%
+                                      </span>
+                                    </div>
+                                    <input
+                                      type="range"
+                                      min="0"
+                                      max="1"
+                                      step="0.05"
+                                      value={references.scene.weight}
+                                      onChange={e =>
+                                        setReferences(prev => ({
+                                          ...prev,
+                                          scene: prev.scene
+                                            ? { ...prev.scene, weight: Number(e.target.value) }
+                                            : undefined,
+                                        }))
+                                      }
+                                      className="w-full h-2 bg-content3 rounded-lg appearance-none cursor-pointer accent-primary"
+                                    />
+                                  </div>
+                                )}
+                              </div>
+                            )}
+
                           {/* 负向提示词 */}
                           <div>
                             <label className="text-xs font-semibold text-slate-400 block mb-2">
@@ -2724,7 +2839,11 @@ export const ShotManager: React.FC<ShotManagerProps> = ({
                                   景别
                                 </div>
                                 <div className="text-sm font-mono text-foreground">
-                                  {(t.shot?.shotType?.[selectedShot.shotType as keyof typeof t.shot.shotType]) || selectedShot.shotType || '未知'}
+                                  {t.shot?.shotType?.[
+                                    selectedShot.shotType as keyof typeof t.shot.shotType
+                                  ] ||
+                                    selectedShot.shotType ||
+                                    '未知'}
                                 </div>
                               </div>
 
@@ -2734,7 +2853,11 @@ export const ShotManager: React.FC<ShotManagerProps> = ({
                                   角度
                                 </div>
                                 <div className="text-sm font-mono text-foreground">
-                                  {(t.shot?.cameraAngle?.[selectedShot.cameraAngle as keyof typeof t.shot.cameraAngle]) || selectedShot.cameraAngle || '未知'}
+                                  {t.shot?.cameraAngle?.[
+                                    selectedShot.cameraAngle as keyof typeof t.shot.cameraAngle
+                                  ] ||
+                                    selectedShot.cameraAngle ||
+                                    '未知'}
                                 </div>
                               </div>
 
@@ -2744,7 +2867,11 @@ export const ShotManager: React.FC<ShotManagerProps> = ({
                                   运镜
                                 </div>
                                 <div className="text-sm font-mono text-foreground">
-                                  {(t.shot?.cameraMovement?.[selectedShot.cameraMovement as keyof typeof t.shot.cameraMovement]) || selectedShot.cameraMovement || '未知'}
+                                  {t.shot?.cameraMovement?.[
+                                    selectedShot.cameraMovement as keyof typeof t.shot.cameraMovement
+                                  ] ||
+                                    selectedShot.cameraMovement ||
+                                    '未知'}
                                 </div>
                               </div>
 
@@ -3035,11 +3162,23 @@ export const ShotManager: React.FC<ShotManagerProps> = ({
                     </div>
                     <div className="flex justify-between">
                       <span className="text-slate-400">景别:</span>
-                      <span>{(t.shot?.shotType?.[selectedShot.shotType as keyof typeof t.shot.shotType]) || selectedShot.shotType || '-'}</span>
+                      <span>
+                        {t.shot?.shotType?.[
+                          selectedShot.shotType as keyof typeof t.shot.shotType
+                        ] ||
+                          selectedShot.shotType ||
+                          '-'}
+                      </span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-slate-400">机位:</span>
-                      <span>{(t.shot?.cameraAngle?.[selectedShot.cameraAngle as keyof typeof t.shot.cameraAngle]) || selectedShot.cameraAngle || '-'}</span>
+                      <span>
+                        {t.shot?.cameraAngle?.[
+                          selectedShot.cameraAngle as keyof typeof t.shot.cameraAngle
+                        ] ||
+                          selectedShot.cameraAngle ||
+                          '-'}
+                      </span>
                     </div>
                     {selectedShot.mood && (
                       <div className="flex justify-between">

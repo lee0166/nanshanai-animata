@@ -51,6 +51,10 @@ export interface KeyframeGenerationJobParams {
   assetName: string;
   modelConfigId: string;
   referenceImages?: string[];
+  referenceWeights?: {
+    character?: number;
+    scene?: number;
+  };
   resolution?: string;
   aspectRatio?: string;
   negativePrompt?: string;
@@ -205,6 +209,7 @@ export class AIService {
         modelConfigId: params.modelConfigId,
         assetName: params.assetName,
         referenceImages: params.referenceImages,
+        referenceWeights: params.referenceWeights,
         resolution: params.resolution,
         aspectRatio: params.aspectRatio,
         negativePrompt: params.negativePrompt,

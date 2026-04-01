@@ -67,8 +67,6 @@ interface ShotListProps {
   headerAction?: React.ReactNode; // 头部区域额外操作按钮
 }
 
-
-
 export const ShotList: React.FC<ShotListProps> = ({
   shots,
   scenes,
@@ -468,12 +466,15 @@ export const ShotList: React.FC<ShotListProps> = ({
                   </TableCell>
                   <TableCell>
                     <Chip size="sm" color={getShotTypeColor(shot.shotType) as any}>
-                      {(t.shot?.shotType?.[shot.shotType as keyof typeof t.shot.shotType]) || shot.shotType}
+                      {t.shot?.shotType?.[shot.shotType as keyof typeof t.shot.shotType] ||
+                        shot.shotType}
                     </Chip>
                   </TableCell>
                   <TableCell>
                     <span className="text-sm text-default-600">
-                      {(t.shot?.cameraMovement?.[shot.cameraMovement as keyof typeof t.shot.cameraMovement]) || shot.cameraMovement}
+                      {t.shot?.cameraMovement?.[
+                        shot.cameraMovement as keyof typeof t.shot.cameraMovement
+                      ] || shot.cameraMovement}
                     </span>
                   </TableCell>
                   <TableCell>
@@ -635,7 +636,9 @@ export const ShotList: React.FC<ShotListProps> = ({
                                   {shot.layer === 'key' ? '关键' : '可选'}
                                 </Chip>
                                 <Chip size="sm" color={getShotTypeColor(shot.shotType) as any}>
-                                  {(t.shot?.shotType?.[shot.shotType as keyof typeof t.shot.shotType]) || shot.shotType}
+                                  {t.shot?.shotType?.[
+                                    shot.shotType as keyof typeof t.shot.shotType
+                                  ] || shot.shotType}
                                 </Chip>
                               </div>
                               <div className="flex gap-1">
@@ -692,7 +695,9 @@ export const ShotList: React.FC<ShotListProps> = ({
                               <div className="flex items-center gap-1">
                                 <Move size={14} />
                                 <span>
-                                  {(t.shot?.cameraMovement?.[shot.cameraMovement as keyof typeof t.shot.cameraMovement]) || shot.cameraMovement}
+                                  {t.shot?.cameraMovement?.[
+                                    shot.cameraMovement as keyof typeof t.shot.cameraMovement
+                                  ] || shot.cameraMovement}
                                 </span>
                               </div>
                               <div className="flex items-center gap-1">

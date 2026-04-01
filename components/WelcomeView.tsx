@@ -13,9 +13,9 @@ const WelcomeView: React.FC<WelcomeViewProps> = ({ onConnect }) => {
   if (isInitializing) return null;
 
   return (
-    <div className="h-full flex flex-col items-center justify-center p-6 text-center max-w-[1600px] mx-auto relative overflow-hidden">
+    <div className="h-full flex flex-col items-center justify-center p-6 text-center relative">
       {/* 发光背景效果 */}
-      <div className="absolute inset-0 overflow-hidden">
+      <div className="fixed inset-0 pointer-events-none">
         <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[800px] h-[800px] bg-primary/10 rounded-full blur-[120px]"></div>
         <div className="absolute bottom-1/4 left-1/4 w-[600px] h-[600px] bg-primary/5 rounded-full blur-[100px]"></div>
       </div>

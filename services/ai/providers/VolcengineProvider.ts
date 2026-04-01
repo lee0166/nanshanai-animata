@@ -88,7 +88,16 @@ export class VolcengineProvider extends BaseProvider {
       // 1. Load Images
       const loadedImages: string[] = [];
       if (referenceImages && referenceImages.length > 0) {
-        const blobs = await Promise.all(referenceImages.map(img => this.loadBlobAsBase64(img)));
+        const blobs = await Promise.all(
+          referenceImages.map(img => {
+            // 检查是否已经是Base64格式（data:image/...）
+            if (img.startsWith('data:image/')) {
+              return img; // 已经是Base64，直接使用
+            }
+            // 否则进行加载和编码
+            return this.loadBlobAsBase64(img);
+          })
+        );
         loadedImages.push(...blobs.filter((b): b is string => !!b));
       }
       console.log('[VolcengineProvider] loadedImages after processing:', loadedImages.length);

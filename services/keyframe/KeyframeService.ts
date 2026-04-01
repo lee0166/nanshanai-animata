@@ -60,6 +60,10 @@ export interface GenerateKeyframeImageOptions {
   sceneAsset?: Asset;
   modelConfigId?: string; // 用户选择的生图模型配置ID
   size?: string; // 图片尺寸：'1K' | '2K' | '4K'
+  referenceWeights?: {
+    character?: number; // 角色参考图权重 (0.0 - 1.0)
+    scene?: number; // 场景参考图权重 (0.0 - 1.0)
+  };
 }
 
 export class KeyframeService {
@@ -172,11 +176,16 @@ export class KeyframeService {
   }
 
   /**
-   * 根据分镜描述识别角色出镜角度
+   * 根据分镜描述和景别信息识别角色出镜角度
+   * 优化逻辑：综合考虑描述文本和分镜景别
    */
-  private detectCharacterViewAngle(description: string): CharacterViewAngle | undefined {
+  private detectCharacterViewAngle(
+    description: string,
+    shotType?: string
+  ): CharacterViewAngle | undefined {
     const desc = description.toLowerCase();
 
+    // 1. 优先检查描述中的明确视角关键词
     if (
       desc.includes('侧身') ||
       desc.includes('侧面') ||
@@ -200,7 +209,30 @@ export class KeyframeService {
       return 'three-quarter';
     }
 
-    return undefined;
+    // 2. 如果描述中没有明确视角，根据景别做智能推断
+    if (shotType) {
+      switch (shotType) {
+        case 'extreme_close_up':
+        case 'close_up':
+          // 特写镜头通常用正面或四分之三侧面
+          return 'three-quarter';
+        case 'medium':
+        case 'medium_close_up':
+        case 'cowboy':
+          // 中景镜头通常用四分之三侧面
+          return 'three-quarter';
+        case 'full':
+          // 全景镜头可以用任意视角，默认正面
+          return 'front';
+        case 'long':
+        case 'extreme_long':
+          // 远景镜头视角不重要，默认正面
+          return 'front';
+      }
+    }
+
+    // 3. 默认返回四分之三侧面（这是最常用且自然的视角）
+    return 'three-quarter';
   }
 
   /**
@@ -225,7 +257,15 @@ export class KeyframeService {
    * 使用火山引擎API，支持多图参考，支持视角智能选择
    */
   async generateKeyframeImage(options: GenerateKeyframeImageOptions): Promise<Keyframe> {
-    const { keyframe, projectId, characterAsset, sceneAsset, modelConfigId, size = '2K' } = options;
+    const {
+      keyframe,
+      projectId,
+      characterAsset,
+      sceneAsset,
+      modelConfigId,
+      size = '2K',
+      referenceWeights,
+    } = options;
 
     console.log(`[KeyframeService] ========== 开始生成关键帧图片 ==========`);
     console.log(`[KeyframeService] 关键帧ID: ${keyframe.id}`);
@@ -252,7 +292,7 @@ export class KeyframeService {
       if (characterAsset) {
         const charAsset = characterAsset as CharacterAsset;
         const preferredAngle = keyframe.description
-          ? this.detectCharacterViewAngle(keyframe.description)
+          ? this.detectCharacterViewAngle(keyframe.description, (keyframe as any).shotType)
           : undefined;
         console.log(`[KeyframeService] 角色视角选择: 优先角度=${preferredAngle}`);
 
@@ -293,6 +333,9 @@ export class KeyframeService {
       }
 
       console.log(`[KeyframeService] 参考图片总数: ${referenceImages.length}`);
+      if (referenceWeights) {
+        console.log(`[KeyframeService] 参考图权重:`, referenceWeights);
+      }
 
       // 2. 调用生图API
       console.log(`[KeyframeService] 调用生图API...`);
@@ -302,6 +345,7 @@ export class KeyframeService {
         referenceImages,
         size,
         modelConfigId,
+        referenceWeights,
       });
       const apiDuration = Date.now() - apiStartTime;
       console.log(`[KeyframeService] 生图API调用完成，耗时: ${apiDuration}ms`);
@@ -404,32 +448,103 @@ export class KeyframeService {
   }
 
   /**
-   * 图片转Base64
+   * 图片预处理并转Base64
+   * 功能：统一尺寸、压缩优化、格式标准化
    */
   private async imageToBase64(filePath: string): Promise<string> {
     try {
+      console.log(`[KeyframeService] 开始预处理图片: ${filePath}`);
+
       // 读取文件
       const file = await storageService.getFile(filePath);
       if (!file) {
         throw new Error(`文件不存在: ${filePath}`);
       }
-      const arrayBuffer = await file.arrayBuffer();
-      const uint8Array = new Uint8Array(arrayBuffer);
 
-      // 转为base64
-      let binary = '';
-      for (let i = 0; i < uint8Array.length; i++) {
-        binary += String.fromCharCode(uint8Array[i]);
+      // 创建图片URL用于Canvas处理
+      const imageUrl = URL.createObjectURL(file);
+
+      try {
+        // 使用Canvas进行图片预处理
+        const processedBase64 = await this.preprocessImageWithCanvas(imageUrl);
+        console.log(`[KeyframeService] 图片预处理完成: ${filePath}`);
+        return processedBase64;
+      } finally {
+        // 释放临时URL
+        URL.revokeObjectURL(imageUrl);
       }
-      const base64 = btoa(binary);
-
-      // 检测图片格式（简单判断）
-      const ext = filePath.split('.').pop()?.toLowerCase() || 'png';
-      return `data:image/${ext};base64,${base64}`;
     } catch (error) {
-      console.error('图片转Base64失败:', error);
+      console.error('图片预处理失败:', error);
       throw error;
     }
+  }
+
+  /**
+   * 使用Canvas进行图片预处理
+   * - 统一尺寸（最长边1536px）
+   * - 格式统一为JPEG
+   * - 质量压缩85%
+   */
+  private async preprocessImageWithCanvas(imageUrl: string): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+
+      img.onload = () => {
+        try {
+          // 配置参数
+          const MAX_LONG_SIDE = 1536;
+          const QUALITY = 0.85;
+          const FORMAT = 'image/jpeg';
+
+          // 计算缩放后的尺寸
+          let { width, height } = img;
+          const maxSide = Math.max(width, height);
+
+          if (maxSide > MAX_LONG_SIDE) {
+            const scale = MAX_LONG_SIDE / maxSide;
+            width = Math.round(width * scale);
+            height = Math.round(height * scale);
+            console.log(
+              `[KeyframeService] 图片缩放: ${img.width}x${img.height} → ${width}x${height}`
+            );
+          }
+
+          // 创建Canvas进行处理
+          const canvas = document.createElement('canvas');
+          canvas.width = width;
+          canvas.height = height;
+
+          const ctx = canvas.getContext('2d');
+          if (!ctx) {
+            throw new Error('无法获取Canvas上下文');
+          }
+
+          // 绘制图片（平滑缩放）
+          ctx.imageSmoothingEnabled = true;
+          ctx.imageSmoothingQuality = 'high';
+          ctx.drawImage(img, 0, 0, width, height);
+
+          // 转换为Base64
+          const base64 = canvas.toDataURL(FORMAT, QUALITY);
+
+          // 统计压缩效果
+          const originalSize = img.src.length; // 粗略估计
+          const processedSize = base64.length;
+          const reduction = ((1 - processedSize / originalSize) * 100).toFixed(1);
+          console.log(`[KeyframeService] 图片压缩: ${reduction}% 体积减少`);
+
+          resolve(base64);
+        } catch (error) {
+          reject(error);
+        }
+      };
+
+      img.onerror = () => {
+        reject(new Error('图片加载失败'));
+      };
+
+      img.src = imageUrl;
+    });
   }
 
   /**
@@ -440,16 +555,28 @@ export class KeyframeService {
     referenceImages: string[];
     size: string;
     modelConfigId?: string;
+    referenceWeights?: {
+      character?: number;
+      scene?: number;
+    };
   }): Promise<any> {
     try {
       // 使用aiService.generateImage调用生图API
-      // 传入用户选择的modelConfigId
+      // 传入用户选择的modelConfigId和参考图权重
+      const extraParams: Record<string, any> = {};
+      if (params.referenceWeights) {
+        extraParams.reference_weights = params.referenceWeights;
+      }
+
       const result = await aiService.generateImage(
         params.prompt,
         params.modelConfigId || '',
         params.referenceImages,
         undefined,
-        params.size
+        params.size,
+        1,
+        undefined,
+        extraParams
       );
 
       if (result.success && result.data) {

@@ -13,6 +13,10 @@ export interface VolcImageRequest {
   response_format?: 'url' | 'b64_json';
   watermark?: boolean;
   guidance_scale?: number;
+  reference_weights?: {
+    character?: number;
+    scene?: number;
+  };
 }
 
 export interface IVolcengineStrategy {
@@ -82,7 +86,14 @@ export class Seedream4Strategy implements IVolcengineStrategy {
 
     if (guidanceScale) body.guidance_scale = guidanceScale;
     if (negativePrompt) body.negative_prompt = negativePrompt;
-    if (extraParams) Object.assign(body, extraParams);
+    if (extraParams) {
+      // 特殊处理 reference_weights，确保它在顶层
+      const { reference_weights, ...otherParams } = extraParams;
+      if (reference_weights) {
+        body.reference_weights = reference_weights;
+      }
+      Object.assign(body, otherParams);
+    }
 
     return body;
   }
@@ -138,14 +149,20 @@ export class Seedream3Strategy implements IVolcengineStrategy {
     }
 
     if (images.length > 0) {
-      // Check if it's an I2I model via explicit capability
-      if (config.capabilities?.requiresImageInput) {
-        body.image = images[0];
-      }
+      // 有参考图就传递给模型，不检查 requiresImageInput
+      // requiresImageInput 表示模型必须有图像输入，而不是支持图像输入
+      body.image = images.length === 1 ? images[0] : images;
     }
 
     if (negativePrompt) body.negative_prompt = negativePrompt;
-    if (extraParams) Object.assign(body, extraParams);
+    if (extraParams) {
+      // 特殊处理 reference_weights，确保它在顶层
+      const { reference_weights, ...otherParams } = extraParams;
+      if (reference_weights) {
+        body.reference_weights = reference_weights;
+      }
+      Object.assign(body, otherParams);
+    }
 
     return body;
   }
@@ -195,7 +212,14 @@ export class DefaultStrategy implements IVolcengineStrategy {
       body.image = images.length === 1 ? images[0] : images;
     }
     if (negativePrompt) body.negative_prompt = negativePrompt;
-    if (extraParams) Object.assign(body, extraParams);
+    if (extraParams) {
+      // 特殊处理 reference_weights，确保它在顶层
+      const { reference_weights, ...otherParams } = extraParams;
+      if (reference_weights) {
+        body.reference_weights = reference_weights;
+      }
+      Object.assign(body, otherParams);
+    }
     return body;
   }
 }

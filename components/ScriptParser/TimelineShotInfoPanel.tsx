@@ -67,7 +67,8 @@ export const TimelineShotInfoPanel: React.FC<TimelineShotInfoPanelProps> = ({
                     </Chip>
                   )}
                   <Chip size="sm" color={getShotTypeColor(shot.shotType) as any} variant="flat">
-                    {(t.shot?.shotType?.[shot.shotType as keyof typeof t.shot.shotType]) || shot.shotType}
+                    {t.shot?.shotType?.[shot.shotType as keyof typeof t.shot.shotType] ||
+                      shot.shotType}
                   </Chip>
                 </div>
               </div>
@@ -107,7 +108,9 @@ export const TimelineShotInfoPanel: React.FC<TimelineShotInfoPanelProps> = ({
                     <div>
                       <div className="text-xs text-slate-500">运镜</div>
                       <div className="text-sm">
-                        {(t.shot?.cameraMovement?.[shot.cameraMovement as keyof typeof t.shot.cameraMovement]) || shot.cameraMovement}
+                        {t.shot?.cameraMovement?.[
+                          shot.cameraMovement as keyof typeof t.shot.cameraMovement
+                        ] || shot.cameraMovement}
                       </div>
                     </div>
                   </div>

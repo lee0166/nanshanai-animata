@@ -49,6 +49,10 @@
   body {
     @apply transition-colors duration-300;
   }
+
+  #root {
+    @apply h-full;
+  }
 }
 
 /* Custom scrollbar styles */
