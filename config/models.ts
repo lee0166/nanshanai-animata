@@ -1351,7 +1351,7 @@ export const DEFAULT_MODELS: ModelConfig[] = [
       strength: ['剧本解析', '文本理解', '结构化输出', '中文优化'],
       bestFor: ['剧本解析', '元数据提取', '分镜生成', '角色解析', '场景解析'],
     },
-    apiUrl: 'https://bailian.console.aliyun.com/api/v1',
+    apiUrl: 'https://dashscope.aliyuncs.com/compatible-mode/v1',
     parameters: [
       {
         name: 'temperature',
@@ -1385,7 +1385,7 @@ export const DEFAULT_MODELS: ModelConfig[] = [
       strength: ['剧本解析', '文本理解', '结构化输出', '平衡性能'],
       bestFor: ['剧本解析', '元数据提取', '角色解析', '场景解析'],
     },
-    apiUrl: 'https://bailian.console.aliyun.com/api/v1',
+    apiUrl: 'https://dashscope.aliyuncs.com/compatible-mode/v1',
     parameters: [
       {
         name: 'temperature',

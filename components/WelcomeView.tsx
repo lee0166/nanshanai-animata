@@ -1,5 +1,5 @@
 import React from 'react';
-import { FolderOpen, RefreshCw, Folder } from 'lucide-react';
+import { FolderOpen, RefreshCw, Folder, HardDrive, Sparkles, FileText } from 'lucide-react';
 import { Button, Card, CardBody } from '@heroui/react';
 import { useApp } from '../contexts/context';
 
@@ -12,10 +12,16 @@ const WelcomeView: React.FC<WelcomeViewProps> = ({ onConnect }) => {
 
   if (isInitializing) return null;
 
+  const features = [
+    { title: t.workspace.features.local.title, desc: t.workspace.features.local.desc, icon: HardDrive },
+    { title: t.workspace.features.ai.title, desc: t.workspace.features.ai.desc, icon: Sparkles },
+    { title: t.workspace.features.open.title, desc: t.workspace.features.open.desc, icon: FileText },
+  ];
+
   return (
-    <div className="h-full flex flex-col items-center justify-center p-6 text-center relative">
+    <div className="h-full flex flex-col items-center justify-center p-6 text-center max-w-[1600px] mx-auto relative overflow-hidden">
       {/* 发光背景效果 */}
-      <div className="fixed inset-0 pointer-events-none">
+      <div className="absolute inset-0 overflow-hidden">
         <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[800px] h-[800px] bg-primary/10 rounded-full blur-[120px]"></div>
         <div className="absolute bottom-1/4 left-1/4 w-[600px] h-[600px] bg-primary/5 rounded-full blur-[100px]"></div>
       </div>
@@ -86,27 +92,41 @@ const WelcomeView: React.FC<WelcomeViewProps> = ({ onConnect }) => {
       )}
 
       <div className="relative z-10 mt-24 grid grid-cols-1 md:grid-cols-3 gap-6 text-left w-full px-10">
-        {[
-          { title: t.workspace.features.local.title, desc: t.workspace.features.local.desc },
-          { title: t.workspace.features.ai.title, desc: t.workspace.features.ai.desc },
-          { title: t.workspace.features.open.title, desc: t.workspace.features.open.desc },
-        ].map((item, i) => (
-          <Card
-            key={i}
-            className="border border-zinc-700 dark:border-zinc-800 bg-zinc-900/60 dark:bg-zinc-900/60 backdrop-blur-xl hover:border-primary/30 transition-all duration-300"
-            shadow="sm"
-            radius="lg"
-          >
-            <CardBody className="p-8">
-              <h3 className="text-xl font-black text-primary uppercase tracking-widest mb-2">
-                {item.title}
-              </h3>
-              <p className="text-base text-slate-500 dark:text-zinc-500 font-medium leading-relaxed">
-                {item.desc}
-              </p>
-            </CardBody>
-          </Card>
-        ))}
+        {features.map((item, i) => {
+          const Icon = item.icon;
+          return (
+            <Card
+              key={i}
+              className="group relative overflow-hidden border border-zinc-700 dark:border-zinc-800 bg-zinc-900/60 dark:bg-zinc-900/60 backdrop-blur-xl hover:border-primary/30 transition-all duration-300"
+              shadow="sm"
+              radius="lg"
+            >
+              {/* 顶部酸橙绿色渐变发光线条 - 悬浮时显示 */}
+              <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-lime-400 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+              
+              {/* 悬浮时的酸橙绿色扫光动画效果 */}
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-lime-400/10 to-transparent -skew-x-12 translate-x-[-150%] group-hover:translate-x-[150%] transition-transform duration-1000"></div>
+              
+              <CardBody className="p-8 relative z-10">
+                <div className="flex items-start gap-4">
+                  {/* 统一的酸橙绿色图标 */}
+                  <div className="p-3 rounded-xl bg-zinc-800/50 text-lime-400">
+                    <Icon className="w-6 h-6" />
+                  </div>
+                  
+                  <div className="flex-1">
+                    <h3 className="text-xl font-black text-primary uppercase tracking-widest mb-2">
+                      {item.title}
+                    </h3>
+                    <p className="text-base text-slate-500 dark:text-zinc-500 font-medium leading-relaxed">
+                      {item.desc}
+                    </p>
+                  </div>
+                </div>
+              </CardBody>
+            </Card>
+          );
+        })}
       </div>
     </div>
   );

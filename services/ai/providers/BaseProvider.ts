@@ -68,6 +68,13 @@ export abstract class BaseProvider implements IAIProvider {
   }
 
   /**
+   * Filter string to only contain ISO-8859-1 characters (0x00-0xFF)
+   */
+  protected filterToLatin1(str: string): string {
+    return str.replace(/[^\u0000-\u00FF]/g, '');
+  }
+
+  /**
    * Universal proxy request helper
    * Routes requests through the Vite proxy in development to avoid CORS issues.
    */
@@ -96,26 +103,53 @@ export abstract class BaseProvider implements IAIProvider {
 
     try {
       let response: Response;
+      
+      // First, build a safe headers object
+      let safeHeaders: Record<string, string> = {};
+      
+      // Process original headers
+      if (options.headers) {
+        if (Array.isArray(options.headers)) {
+          // Array of [key, value] pairs
+          for (const [key, value] of options.headers) {
+            const safeKey = this.filterToLatin1(key);
+            const safeValue = this.filterToLatin1(value);
+            if (safeKey) {
+              safeHeaders[safeKey] = safeValue;
+            }
+          }
+        } else if (typeof options.headers === 'object' && !(options.headers instanceof Headers)) {
+          // Plain object
+          for (const [key, value] of Object.entries(options.headers)) {
+            const safeKey = this.filterToLatin1(key);
+            const safeValue = this.filterToLatin1(String(value));
+            if (safeKey) {
+              safeHeaders[safeKey] = safeValue;
+            }
+          }
+        }
+        // Skip Headers object to avoid constructor issues
+      }
 
       if (shouldUseProxy) {
         const proxyUrl = '/api/universal-proxy';
-        const headers = new Headers(options.headers || {});
-
-        // Check if X-Target-URL is already set (avoid double setting if chained)
-        if (!headers.has('X-Target-URL')) {
-          headers.set('X-Target-URL', url);
+        
+        // Add X-Target-URL if not present
+        if (!safeHeaders['X-Target-URL']) {
+          safeHeaders['X-Target-URL'] = this.filterToLatin1(url);
         }
 
         console.log(`[BaseProvider] Using Proxy: ${proxyUrl} -> ${url}`);
         response = await fetch(proxyUrl, {
           ...options,
-          headers,
+          headers: safeHeaders,
           signal: controller.signal,
         });
       } else {
-        // In production, attempt direct fetch
+        // In production, attempt direct fetch with safe headers
         response = await fetch(url, {
           ...options,
+          headers: safeHeaders,
           signal: controller.signal,
         });
       }

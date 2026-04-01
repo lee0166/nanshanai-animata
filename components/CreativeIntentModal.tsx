@@ -198,23 +198,26 @@ export const CreativeIntentModal: React.FC<CreativeIntentModalProps> = ({
                 <Heart className="w-4 h-4 text-danger" />
                 <span className="text-sm font-medium">情感基调</span>
               </div>
-              <div className="flex flex-wrap gap-1.5">
-                {emotionalTones.map(tone => (
-                  <Chip
-                    key={tone.id}
-                    variant={creativeIntent.emotionalTone.primary === tone.id ? 'solid' : 'flat'}
-                    color={tone.color as any}
-                    size="sm"
-                    className="cursor-pointer"
-                    onClick={() =>
-                      updateIntent({
-                        emotionalTone: { ...creativeIntent.emotionalTone, primary: tone.id as any },
-                      })
-                    }
-                  >
-                    {tone.label}
-                  </Chip>
-                ))}
+              <div className="flex flex-wrap gap-2">
+                {emotionalTones.map(tone => {
+                  const isSelected = creativeIntent.emotionalTone.primary === tone.id;
+                  return (
+                    <Chip
+                      key={tone.id}
+                      variant={isSelected ? 'solid' : 'flat'}
+                      color={isSelected ? (tone.color as any) : 'default'}
+                      size="md"
+                      className="cursor-pointer"
+                      onClick={() =>
+                        updateIntent({
+                          emotionalTone: { ...creativeIntent.emotionalTone, primary: tone.id as any },
+                        })
+                      }
+                    >
+                      {tone.label}
+                    </Chip>
+                  );
+                })}
               </div>
             </div>
             <div>

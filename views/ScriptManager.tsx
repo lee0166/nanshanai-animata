@@ -36,6 +36,7 @@ import { QualityReport } from '../services/scriptParser';
 import { DetailedQualityReport } from '../services/parsing/QualityAnalyzer';
 import QualityReportCard from '../components/ScriptParser/QualityReportCard';
 import { CreativeIntentModal } from '../components/CreativeIntentModal';
+import TextCleaner from '../services/textCleaner';
 import PerformanceReportCard from '../components/ScriptParser/PerformanceReportCard';
 import { PerformanceReport as PerformanceReportType } from '../services/parsing/PerformanceMonitor';
 import { DeleteConfirmModal } from '../components/Shared/DeleteConfirmModal';
@@ -289,6 +290,19 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({
     }
   }, [currentScript]);
 
+  // 去重辅助函数
+  const deduplicateScripts = (scripts: Script[]): Script[] => {
+    const seen: Record<string, boolean> = {};
+    const result: Script[] = [];
+    for (const script of scripts) {
+      if (!seen[script.id]) {
+        seen[script.id] = true;
+        result.push(script);
+      }
+    }
+    return result;
+  };
+
   const loadScripts = async () => {
     if (!projectId) {
       return;
@@ -308,9 +322,10 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({
 
     try {
       const loadedScripts = await storageService.getScripts(projectId);
-      setScripts(loadedScripts);
-      if (loadedScripts.length > 0 && !currentScript) {
-        setCurrentScript(loadedScripts[0]);
+      const deduplicatedScripts = deduplicateScripts(loadedScripts);
+      setScripts(deduplicatedScripts);
+      if (deduplicatedScripts.length > 0 && !currentScript) {
+        setCurrentScript(deduplicatedScripts[0]);
       }
     } catch (error) {
       console.error('[ScriptManager] Failed to load scripts:', error);
@@ -473,12 +488,15 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({
     }
 
     try {
+      // 使用 TextCleaner 清洗文本
+      const cleanedContent = TextCleaner.clean(scriptContent);
+      
       const newScript: Script = {
         id: `script_${Date.now()}`,
         projectId,
         title: scriptTitle.trim(),
         originalContent: scriptContent.trim(),
-        content: scriptContent.trim(),
+        content: cleanedContent,
         createdAt: Date.now(),
         updatedAt: Date.now(),
         parseState: {
@@ -488,7 +506,11 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({
       };
 
       await storageService.saveScript(newScript);
-      setScripts([...scripts, newScript]);
+      
+      // 重新加载脚本列表以确保状态一致性
+      scriptsLoadedRef.current = false;
+      await loadScripts();
+      
       setCurrentScript(newScript);
       setIsUploadModalOpen(false);
       setScriptTitle('');
