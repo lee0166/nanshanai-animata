@@ -105,7 +105,7 @@ export abstract class BaseProvider implements IAIProvider {
       let response: Response;
       
       // First, build a safe headers object
-      let safeHeaders: Record<string, string> = {};
+      const safeHeaders: Record<string, string> = {};
       
       // Process original headers
       if (options.headers) {

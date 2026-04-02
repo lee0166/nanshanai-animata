@@ -226,63 +226,63 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({
   }, [projectId]);
 
   // Track scripts state changes
-  useEffect(() => {
-    console.log('[ScriptManager] scripts state changed:', scripts.length, 'scripts');
-    console.log(
-      '[ScriptManager] scripts array:',
-      scripts.map(s => ({ id: s.id, title: s.title }))
-    );
-  }, [scripts]);
+  // useEffect(() => {
+  //   console.log('[ScriptManager] scripts state changed:', scripts.length, 'scripts');
+  //   console.log(
+  //     '[ScriptManager] scripts array:',
+  //     scripts.map(s => ({ id: s.id, title: s.title }))
+  //   );
+  // }, [scripts]);
 
   // =============== 专门调试parseProgress变化！===============
-  useEffect(() => {
-    console.log('[ScriptManager] ========== parseProgress STATE CHANGED ==========');
-    console.log('[ScriptManager] parseProgress:', parseProgress);
-    console.log('[ScriptManager] parseStageProgress:', parseStageProgress);
-  }, [parseProgress, parseStageProgress]);
+  // useEffect(() => {
+  //   console.log('[ScriptManager] ========== parseProgress STATE CHANGED ==========');
+  //   console.log('[ScriptManager] parseProgress:', parseProgress);
+  //   console.log('[ScriptManager] parseStageProgress:', parseStageProgress);
+  // }, [parseProgress, parseStageProgress]);
 
   // Update quality report when script changes
   useEffect(() => {
     if (currentScript?.parseState?.stage === 'completed') {
-      console.log('[ScriptManager] ========== useEffect: currentScript changed ==========');
-      console.log('[ScriptManager] currentScript exists:', !!currentScript);
-      console.log('[ScriptManager] parseState exists:', !!currentScript?.parseState);
-      console.log(
-        '[ScriptManager] qualityReport exists:',
-        !!currentScript?.parseState?.qualityReport
-      );
+      // console.log('[ScriptManager] ========== useEffect: currentScript changed ==========');
+      // console.log('[ScriptManager] currentScript exists:', !!currentScript);
+      // console.log('[ScriptManager] parseState exists:', !!currentScript?.parseState);
+      // console.log(
+      //   '[ScriptManager] qualityReport exists:',
+      //   !!currentScript?.parseState?.qualityReport
+      // );
 
       if (currentScript.parseState.qualityReport) {
         setQualityReport(currentScript.parseState.qualityReport);
-        console.log('[ScriptManager] Restoring quality report:', {
-          score: currentScript.parseState.qualityReport.score,
-          violationsCount: currentScript.parseState.qualityReport.violations?.length,
-          suggestionsCount: currentScript.parseState.qualityReport.suggestions?.length,
-          type: typeof currentScript.parseState.qualityReport,
-        });
-        console.log('[ScriptManager] ========== Quality Report Restored ==========');
+        // console.log('[ScriptManager] Restoring quality report:', {
+        //   score: currentScript.parseState.qualityReport.score,
+        //   violationsCount: currentScript.parseState.qualityReport.violations?.length,
+        //   suggestionsCount: currentScript.parseState.qualityReport.suggestions?.length,
+        //   type: typeof currentScript.parseState.qualityReport,
+        // });
+        // console.log('[ScriptManager] ========== Quality Report Restored ==========');
       } else {
         setQualityReport(null);
-        console.log('[ScriptManager] No quality report in parseState, setting to null');
+        // console.log('[ScriptManager] No quality report in parseState, setting to null');
       }
 
       // Restore performance report
-      console.log(
-        '[ScriptManager] performanceReport exists:',
-        !!currentScript?.parseState?.performanceReport
-      );
+      // console.log(
+      //   '[ScriptManager] performanceReport exists:',
+      //   !!currentScript?.parseState?.performanceReport
+      // );
 
       if (currentScript.parseState.performanceReport) {
         setPerformanceReport(currentScript.parseState.performanceReport);
-        console.log('[ScriptManager] Restoring performance report:', {
-          totalDuration: currentScript.parseState.performanceReport.totalDuration,
-          apiCallCount: currentScript.parseState.performanceReport.apiCallCount,
-          type: typeof currentScript.parseState.performanceReport,
-        });
-        console.log('[ScriptManager] ========== Performance Report Restored ==========');
+        // console.log('[ScriptManager] Restoring performance report:', {
+        //   totalDuration: currentScript.parseState.performanceReport.totalDuration,
+        //   apiCallCount: currentScript.parseState.performanceReport.apiCallCount,
+        //   type: typeof currentScript.parseState.performanceReport,
+        // });
+        // console.log('[ScriptManager] ========== Performance Report Restored ==========');
       } else {
         setPerformanceReport(null);
-        console.log('[ScriptManager] No performance report in parseState, setting to null');
+        // console.log('[ScriptManager] No performance report in parseState, setting to null');
       }
     } else {
       setQualityReport(null);
@@ -290,11 +290,14 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({
     }
   }, [currentScript]);
 
-  // 去重辅助函数
+  // 去重辅助函数 - 保留最新版本
   const deduplicateScripts = (scripts: Script[]): Script[] => {
+    // 按updatedAt降序排序（最新的在前）
+    const sortedScripts = [...scripts].sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
+    
     const seen: Record<string, boolean> = {};
     const result: Script[] = [];
-    for (const script of scripts) {
+    for (const script of sortedScripts) {
       if (!seen[script.id]) {
         seen[script.id] = true;
         result.push(script);
@@ -620,17 +623,17 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({
       let longWaitWarningShown = false;
 
       const onProgress: ParseProgressCallback = (stage, progress, message, details) => {
-        console.log(`[ScriptManager] ============== onProgress CALLED ==============`);
-        console.log(`[ScriptManager] stage=${stage}, progress=${progress}%, message=${message}`);
-        console.log(`[ScriptManager] details:`, details);
-        console.log(
-          `[ScriptManager] BEFORE state - parseProgress: ${parseProgressRef.current}, parseStageProgress: ${parseStageProgressRef.current}`
-        );
+        // console.log(`[ScriptManager] ============== onProgress CALLED ==============`);
+        // console.log(`[ScriptManager] stage=${stage}, progress=${progress}%, message=${message}`);
+        // console.log(`[ScriptManager] details:`, details);
+        // console.log(
+        //   `[ScriptManager] BEFORE state - parseProgress: ${parseProgressRef.current}, parseStageProgress: ${parseStageProgressRef.current}`
+        // );
 
         setParseProgress(progress);
         setParseStageKey(stage);
-        console.log(`[ScriptManager] Called setParseProgress(${progress})`);
-        console.log(`[ScriptManager] Called setParseStageKey(${stage})`);
+        // console.log(`[ScriptManager] Called setParseProgress(${progress})`);
+        // console.log(`[ScriptManager] Called setParseStageKey(${stage})`);
 
         // Calculate stage progress from details if available
         // Priority 1: Use currentStageProgress if provided (most accurate)
@@ -641,14 +644,14 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({
         if (details?.currentStageProgress !== undefined) {
           // 移除 > 0 的限制！即使 0% 也要用！
           stageProg = details.currentStageProgress;
-          console.log(`[ScriptManager] Using provided currentStageProgress: ${stageProg}%`);
+          // console.log(`[ScriptManager] Using provided currentStageProgress: ${stageProg}%`);
         } else if (details?.completedStages?.length || details?.pendingStages?.length) {
           // Calculate from stage completion status
           const completed = details.completedStages?.length || 0;
           const pending = details.pendingStages?.length || 0;
           const total = completed + pending + 1; // +1 for current stage
           stageProg = Math.round((completed / total) * 100);
-          console.log(`[ScriptManager] Calculated stageProg from completed/pending: ${stageProg}%`);
+          // console.log(`[ScriptManager] Calculated stageProg from completed/pending: ${stageProg}%`);
         } else {
           // Fallback: estimate based on overall progress within stage
           // Map overall progress (70-95) to stage progress (0-100) for shots stage
@@ -663,15 +666,15 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({
           } else {
             // 如果都不匹配，至少给一个基于时间的模拟进度
             stageProg = Math.min(95, Math.round((Date.now() - parseStartTime) / 1000));
-            console.log(`[ScriptManager] Using time-based fallback stageProg: ${stageProg}%`);
+            // console.log(`[ScriptManager] Using time-based fallback stageProg: ${stageProg}%`);
           }
-          console.log(`[ScriptManager] Calculated stageProg from fallback: ${stageProg}%`);
+          // console.log(`[ScriptManager] Calculated stageProg from fallback: ${stageProg}%`);
         }
 
-        console.log(`[ScriptManager] FINAL stageProg: ${stageProg}%`);
-        console.log(`[ScriptManager] Calling setParseStageProgress(${stageProg}%)`);
+        // console.log(`[ScriptManager] FINAL stageProg: ${stageProg}%`);
+        // console.log(`[ScriptManager] Calling setParseStageProgress(${stageProg}%)`);
         setParseStageProgress(stageProg);
-        console.log(`[ScriptManager] ========== setParseStageProgress called ==========`);
+        // console.log(`[ScriptManager] ========== setParseStageProgress called ==========`);
 
         const stageNames: Record<string, string> = {
           metadata: '正在分析创作意图...',
@@ -1097,7 +1100,9 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({
                 subTaskInfo={parseDetails.subTaskInfo}
                 canCancel={true}
                 onCancel={() => {
-                  // Cancel parsing logic here
+                  if (parserRef.current) {
+                    parserRef.current.cancel();
+                  }
                   setIsParsing(false);
                   showToast('解析已取消', 'warning');
                 }}

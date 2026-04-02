@@ -86,21 +86,21 @@ export class TokenOptimizer {
       baseTokens: 800,
       tokensPerChar: 1.8, // 角色描述需要更多 tokens
       minTokens: 3000,
-      maxTokens: 8000,
+      maxTokens: 8192, // 适配qwen-max等主流模型的限制
       safetyMargin: 0.15,
     },
     scene: {
       baseTokens: 800,
       tokensPerChar: 1.6,
       minTokens: 3000,
-      maxTokens: 8000,
+      maxTokens: 8192, // 适配qwen-max等主流模型的限制
       safetyMargin: 0.15,
     },
     shots: {
       baseTokens: 1000,
       tokensPerChar: 2.0, // 分镜需要详细描述
       minTokens: 4000,
-      maxTokens: 10000,
+      maxTokens: 8192, // 适配qwen-max等主流模型的限制
       safetyMargin: 0.15,
     },
     'plot-analysis': {
@@ -132,12 +132,14 @@ export class TokenOptimizer {
    * @param content - 任务内容
    * @param taskType - 任务类型
    * @param customConfig - 自定义配置（可选）
+   * @param modelMaxTokens - 模型的最大 Token 限制（可选）
    * @returns Token 计算结果
    */
   calculateTokens(
     content: string,
     taskType: TaskType,
-    customConfig?: Partial<TokenConfig>
+    customConfig?: Partial<TokenConfig>,
+    modelMaxTokens?: number
   ): TokenCalculation {
     // 合并配置
     const config = {
@@ -157,8 +159,13 @@ export class TokenOptimizer {
     // 总 Token
     const totalTokens = rawTokens + safetyTokens;
 
+    // 确定最终的 maxTokens 上限（取任务配置和模型限制的较小值）
+    const effectiveMaxTokens = modelMaxTokens 
+      ? Math.min(config.maxTokens, modelMaxTokens)
+      : config.maxTokens;
+
     // 限制范围
-    const clampedTokens = Math.max(config.minTokens, Math.min(config.maxTokens, totalTokens));
+    const clampedTokens = Math.max(config.minTokens, Math.min(effectiveMaxTokens, totalTokens));
 
     console.log(`[TokenOptimizer] Token calculation:`);
     console.log(`  - Task type: ${taskType}`);
@@ -168,7 +175,11 @@ export class TokenOptimizer {
     );
     console.log(`  - Safety margin: ${config.safetyMargin * 100}% (${safetyTokens} tokens)`);
     console.log(`  - Raw total: ${totalTokens}`);
-    console.log(`  - Clamped: [${config.minTokens}, ${config.maxTokens}] → ${clampedTokens}`);
+    if (modelMaxTokens) {
+      console.log(`  - Model limit: ${modelMaxTokens} tokens`);
+      console.log(`  - Effective max: min(${config.maxTokens}, ${modelMaxTokens}) = ${effectiveMaxTokens}`);
+    }
+    console.log(`  - Clamped: [${config.minTokens}, ${effectiveMaxTokens}] → ${clampedTokens}`);
 
     return {
       tokens: clampedTokens,

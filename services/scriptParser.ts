@@ -25,6 +25,7 @@ import {
   ShotContentType,
   ShotLayer,
   ParseStage,
+  ModelConfig,
 } from '../types';
 import { storageService } from './storage';
 import { JSONRepair } from './parsing/JSONRepair';
@@ -77,6 +78,8 @@ import { TokenBudgetMonitor } from './parsing/TokenBudgetMonitor';
 import { ShotEventEmitter } from './events/ShotEventEmitter';
 import { ProgressTracker } from './parsing/ProgressTracker';
 import { generateShotNumbers } from './utils/shotNumberGenerator';
+import { resolveModelConfig } from './modelUtils';
+import { DEFAULT_MODELS } from '../config/models';
 
 /**
  * Script Parser Configuration Interface
@@ -335,16 +338,14 @@ const CONFIG = {
   timeout: 60000,
   /**
    * Maximum concurrent API calls
-   * V2 优化：从 1 增加到 3，提升并行处理能力
-   * 如果遇到限流问题，可以适当降低
+   * V2 优化：从 3 降低到 1，防止API限流
    */
-  concurrency: 3,
+  concurrency: 1,
   /**
-   * Delay between API calls in ms
-   * V2 优化：从 1000ms 降低到 100ms，减少不必要的等待
-   * 如果遇到限流问题，可以适当增加
+   * Delay between API API calls
+   * V2 优化：从 100ms 增加到 1000ms，防止API限流
    */
-  callDelay: 100,
+  callDelay: 1000,
 };
 
 /**
@@ -1800,7 +1801,35 @@ export class ScriptParser {
     let maxTokens: number = taskConfig.maxTokens;
     if (this.tokenOptimizer) {
       try {
-        const calculation = this.tokenOptimizer.calculateTokens(prompt, taskType);
+        // 获取当前模型的 maxTokens 限制
+        let modelMaxTokens: number | undefined;
+        try {
+          // 构建临时模型配置用于解析
+          const tempModelConfig: ModelConfig = {
+            id: 'temp',
+            name: 'Temp Model',
+            provider: this.provider,
+            modelId: this.model,
+            type: 'llm',
+            capabilities: {},
+            parameters: [],
+          };
+          
+          // 尝试解析模型配置
+          const resolvedConfig = resolveModelConfig(tempModelConfig);
+          if (resolvedConfig) {
+            // 查找 maxTokens 参数
+            const maxTokensParam = resolvedConfig.parameters.find(p => p.name === 'maxTokens');
+            if (maxTokensParam && maxTokensParam.max !== undefined) {
+              modelMaxTokens = maxTokensParam.max;
+              console.log(`[ScriptParser] Model maxTokens limit: ${modelMaxTokens}`);
+            }
+          }
+        } catch (modelError) {
+          console.warn(`[ScriptParser] Failed to get model maxTokens, using default`, modelError);
+        }
+        
+        const calculation = this.tokenOptimizer.calculateTokens(prompt, taskType, undefined, modelMaxTokens);
         maxTokens = calculation.tokens;
         console.log(
           `[ScriptParser] TokenOptimizer calculated: ${maxTokens} tokens (vs fixed ${taskConfig.maxTokens})`
@@ -3114,18 +3143,15 @@ ${chunkContent.substring(0, 4000)}
   }
 
   /**
-   * 带超时的LLM调用（复用现有机制）
+   * 带超时的LLM调用（复用callLLM的超时机制）
    * @param prompt - Prompt内容
    * @param options - 选项，包含timeout
    * @returns LLM响应
    */
   private async callLLMWithTimeout(prompt: string, options: { timeout: number }): Promise<string> {
-    return Promise.race([
-      this.callLLM(prompt, 'item'),
-      new Promise<never>((_, reject) =>
-        setTimeout(() => reject(new Error('Item extraction timeout')), options.timeout)
-      ),
-    ]);
+    // callLLM内部已经有完善的超时机制和AbortController支持
+    // 直接调用callLLM，传递合适的taskType
+    return this.callLLM(prompt, 'item');
   }
 
   /**
@@ -4084,6 +4110,12 @@ ${chunkContent.substring(0, 4000)}
     try {
       onProgress?.('metadata', 10, '正在分析剧本内容...');
 
+      // 检查是否已取消
+      if (this.abortController?.signal.aborted) {
+        console.log(`[ScriptParser] parseUltraShortScript cancelled before API call`);
+        throw new Error('解析已取消');
+      }
+
       // 构建增强版 Prompt - 强调必填字段并提供示例
       const prompt = `分析以下短剧本，提取所有必要信息：
 
@@ -4302,6 +4334,13 @@ ${content}
 
       // 使用'metadata'任务类型，它配置了合适的maxTokens和timeout
       const response = await this.callLLM(prompt, 'metadata');
+
+      // 检查是否已取消
+      if (this.abortController?.signal.aborted) {
+        console.log(`[ScriptParser] parseUltraShortScript cancelled after API call`);
+        clearInterval(progressInterval);
+        throw new Error('解析已取消');
+      }
 
       clearInterval(progressInterval);
       const duration = Date.now() - startTime;
@@ -5077,6 +5116,13 @@ ${content}
     // Phase 3.1: Use strategy selector for automatic strategy selection
     console.log(`[ScriptParser] ========== Starting Parse Script ==========`);
     console.log(`[ScriptParser] onProgress callback provided: ${!!onProgress}`);
+    
+    // Select parsing strategy based on content
+    if (this.strategySelector) {
+      const strategySelection = this.strategySelector.selectStrategy(content);
+      this.lastStrategySelection = strategySelection;
+      console.log('[ScriptParser] Selected strategy:', strategySelection);
+    }
 
     // Initialize ProgressTracker for enhanced progress reporting
     const { ProgressTracker } = await import('./parsing/ProgressTracker');
@@ -5271,6 +5317,12 @@ ${content}
     }
 
     // Phase 3.1: Route to appropriate parsing strategy
+
+    // 检查是否已取消
+    if (this.abortController?.signal.aborted) {
+      console.log(`[ScriptParser] parseScript cancelled before strategy selection`);
+      throw new Error('解析已取消');
+    }
 
     // V4: Ultra-short path for very short texts (<500 chars) - single API call
     if (content.length < 500 && !resumeFromState) {
@@ -5888,6 +5940,9 @@ ${content}
         });
         console.log('[ScriptParser] Emitted parsing:complete event');
       }
+      
+      // 停止持续进度动画
+      stopProgressAnimation();
     } catch (error: any) {
       // 停止持续进度动画
       stopProgressAnimation();
