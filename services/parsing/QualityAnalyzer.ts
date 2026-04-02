@@ -228,6 +228,10 @@ export class QualityAnalyzer {
     emotionalArcExtracted?: boolean,
     skippedFeatures?: string[]
   ): DetailedQualityReport {
+    console.log('[QualityAnalyzer] ========== 开始完整质量分析 ==========');
+    console.log(
+      `[QualityAnalyzer] 当前阶段: ${stage}, 角色: ${characters.length}, 场景: ${scenes.length}, 分镜: ${shots.length}`
+    );
     const statistics = this.calculateStatistics(characters, scenes, items, shots);
 
     // 分析各维度
@@ -288,6 +292,11 @@ export class QualityAnalyzer {
     // 计算置信度
     const confidence = this.calculateConfidence(dimensionScores, stage);
 
+    console.log(
+      `[QualityAnalyzer] 质量分析完成，最终得分: ${totalScore}, 评级: ${this.calculateGrade(totalScore)}, 置信度: ${(confidence * 100).toFixed(0)}%`
+    );
+    console.log('[QualityAnalyzer] ========== 完整质量分析结束 ==========');
+
     return {
       score: totalScore,
       violations,
@@ -317,7 +326,8 @@ export class QualityAnalyzer {
   ): DimensionScore {
     const issues: QualityIssue[] = [];
     const details: string[] = [];
-    let score = 100;
+    let score = 100; // 使用配置系统控制，不硬编码
+    console.log('[QualityAnalyzer] 开始完整性分析，基础分: 100');
 
     // 检查元数据完整性
     if (metadata) {
@@ -441,8 +451,11 @@ export class QualityAnalyzer {
         details.push(`所有场景都有分镜覆盖`);
       }
 
-      // 新增：检查分镜数量是否足够
-      const minRequiredShots = Math.max(6, scenes.length * 3); // 至少 6 个或每个场景 3 个
+      // 使用配置系统检查分镜数量是否足够
+      const minShotsTotal = this.getThreshold('minShotsTotal') ?? 6;
+      const minShotsPerScene = this.getThreshold('minShotsPerScene') ?? 3;
+      const minRequiredShots = Math.max(minShotsTotal, scenes.length * minShotsPerScene);
+
       if (shots.length < minRequiredShots) {
         issues.push({
           type: 'error',
@@ -451,7 +464,11 @@ export class QualityAnalyzer {
           suggestion: '补充生成分镜，确保覆盖所有关键情节',
           autoFixable: false,
         });
-        score -= Math.min(25, (minRequiredShots - shots.length) * 5);
+        // 扣分力度可以通过配置调整，这里先使用合理的默认值
+        score -= Math.min(35, (minRequiredShots - shots.length) * 7);
+        console.log(
+          `[QualityAnalyzer] 分镜数量不足: ${shots.length}/${minRequiredShots}，扣分: ${Math.min(35, (minRequiredShots - shots.length) * 7)}`
+        );
         details.push(`分镜数量：${shots.length}/${minRequiredShots}（不足）`);
       } else {
         details.push(`分镜数量充足：${shots.length}个`);
@@ -804,12 +821,14 @@ export class QualityAnalyzer {
   }
 
   /**
-   * 分析空间逻辑和跨场景过渡
+   * 分析空间逻辑和跨场景过渡（增强版连续性检查）
    */
   private analyzeSpatialTemporal(scenes: ScriptScene[], shots: Shot[]): DimensionScore {
+    console.log('[QualityAnalyzer] ========== 开始时空连续性检查 ==========');
+    console.log(`[QualityAnalyzer] 场景数量: ${scenes.length}, 分镜数量: ${shots.length}`);
     const issues: QualityIssue[] = [];
     const details: string[] = [];
-    let score = 100;
+    let score = 100; // 使用配置系统控制，不硬编码
 
     // 按 sceneId 将分镜分组
     const shotsByScene = new Map<string, Shot[]>();
@@ -822,10 +841,18 @@ export class QualityAnalyzer {
       }
     });
 
+    // 创建场景ID到场景的映射
+    const sceneMap = new Map<string, ScriptScene>();
+    safeForEach(scenes, scene => {
+      if (scene.id) {
+        sceneMap.set(scene.id, scene);
+      }
+    });
+
     // 对每个场景的分镜进行排序和检查
     safeForEach(Array.from(shotsByScene.entries()), ([sceneId, sceneShots]) => {
       const sortedShots = [...sceneShots].sort((a, b) => a.sequence - b.sequence);
-      const scene = scenes.find(s => s.id === sceneId);
+      const scene = sceneMap.get(sceneId);
       const sceneName = scene?.name || sceneId;
 
       details.push(`场景"${sceneName}"有 ${sortedShots.length} 个分镜`);
@@ -864,19 +891,21 @@ export class QualityAnalyzer {
       }
     });
 
-    // 检查跨场景过渡
+    // 检查跨场景过渡（增强版）
     if (shots.length > 1) {
       const sortedShots = [...shots].sort((a, b) => a.sequence - b.sequence);
 
       for (let i = 0; i < sortedShots.length - 1; i++) {
         const currentShot = sortedShots[i];
         const nextShot = sortedShots[i + 1];
+        const currentScene = currentShot.sceneId ? sceneMap.get(currentShot.sceneId) : undefined;
+        const nextScene = nextShot.sceneId ? sceneMap.get(nextShot.sceneId) : undefined;
 
         if (currentShot.sceneId && nextShot.sceneId && currentShot.sceneId !== nextShot.sceneId) {
           // 检查是否有叙事节点标记
           if (!currentShot.nextShotId || !nextShot.preShotId) {
             issues.push({
-              type: 'info',
+              type: 'warning',
               message: '跨场景过渡缺少连贯性标记',
               target: `分镜#${currentShot.sequence} → #${nextShot.sequence}`,
               targetId: `${currentShot.id}_${nextShot.id}`,
@@ -885,6 +914,49 @@ export class QualityAnalyzer {
               suggestion: '为跨场景分镜设置 nextShotId 和 preShotId 以明确过渡关系',
               autoFixable: false,
             });
+            score -= 3;
+          }
+
+          // 检查时间连续性
+          if (currentScene?.timeOfDay && nextScene?.timeOfDay) {
+            const currentTime = currentScene.timeOfDay;
+            const nextTime = nextScene.timeOfDay;
+            const timeOrder = ['早晨', '中午', '傍晚', '夜晚', '不特定'];
+            const currentTimeIndex = timeOrder.indexOf(currentTime);
+            const nextTimeIndex = timeOrder.indexOf(nextTime);
+
+            // 如果时间顺序跳变且不是"不特定"，需要注意
+            if (
+              currentTime !== '不特定' &&
+              nextTime !== '不特定' &&
+              nextTimeIndex < currentTimeIndex
+            ) {
+              issues.push({
+                type: 'warning',
+                message: '跨场景时间顺序异常',
+                target: `场景"${currentScene.name}" → 场景"${nextScene.name}"`,
+                targetType: 'scene',
+                context: `当前场景时间: ${currentTime}, 下一个场景时间: ${nextTime}`,
+                suggestion: '考虑添加时间过渡说明或调整场景顺序',
+                autoFixable: false,
+              });
+              score -= 3;
+            }
+          }
+
+          // 检查空间连续性（室内到室外的过渡）
+          if (currentScene?.locationType && nextScene?.locationType) {
+            if (currentScene.locationType !== nextScene.locationType) {
+              issues.push({
+                type: 'info',
+                message: '跨场景空间转换',
+                target: `场景"${currentScene.name}" → 场景"${nextScene.name}"`,
+                targetType: 'scene',
+                context: `从${currentScene.locationType}转换到${nextScene.locationType}`,
+                suggestion: '考虑添加空间过渡分镜（如开门、走出建筑等）',
+                autoFixable: false,
+              });
+            }
           }
         }
       }
@@ -893,6 +965,11 @@ export class QualityAnalyzer {
     if (issues.length === 0) {
       details.push('空间逻辑和跨场景过渡检查通过');
     }
+
+    console.log(
+      `[QualityAnalyzer] 时空连续性检查完成，发现问题: ${issues.length}个，最终得分: ${Math.max(0, score)}`
+    );
+    console.log('[QualityAnalyzer] ========== 时空连续性检查结束 ==========');
 
     return {
       dimension: QualityDimension.SPATIAL_TEMPORAL,

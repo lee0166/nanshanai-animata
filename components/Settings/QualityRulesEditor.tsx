@@ -17,6 +17,11 @@ import {
   Tooltip,
   Tabs,
   Tab,
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  useDisclosure,
 } from '@heroui/react';
 import {
   Settings2,
@@ -43,7 +48,11 @@ import type {
   WeightConfig,
   ThresholdConfig,
 } from '../../services/parsing/QualityRulesConfig';
-import { DEFAULT_QUALITY_RULES } from '../../services/parsing/QualityRulesConfig';
+import {
+  DEFAULT_QUALITY_RULES,
+  PRESET_CONFIGS,
+  PRESET_METADATA,
+} from '../../services/parsing/QualityRulesConfig';
 import { getQualityRulesLoader } from '../../services/parsing/QualityRulesLoader';
 
 interface QualityRulesEditorProps {
@@ -132,6 +141,8 @@ export const QualityRulesEditor: React.FC<QualityRulesEditorProps> = ({ t }) => 
   const [weightSum, setWeightSum] = useState(1.0);
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
   const [activeTab, setActiveTab] = useState<'weights' | 'thresholds'>('weights');
+  const [selectedPreset, setSelectedPreset] = useState<string>('shortVideo');
+  const [showGuide, setShowGuide] = useState(false);
 
   // 加载配置
   useEffect(() => {
@@ -267,6 +278,23 @@ export const QualityRulesEditor: React.FC<QualityRulesEditorProps> = ({ t }) => 
     event.target.value = '';
   };
 
+  // 应用预设配置
+  const handleApplyPreset = (presetId: string) => {
+    const preset = PRESET_CONFIGS[presetId];
+    if (!preset) return;
+
+    if (hasChanges) {
+      if (!confirm('当前配置有未保存的更改，切换预设将丢失这些更改。确定继续吗？')) {
+        return;
+      }
+    }
+
+    setSelectedPreset(presetId);
+    setConfig({ ...preset });
+    calculateWeightSum(preset);
+    setSaveStatus('idle');
+  };
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -292,6 +320,30 @@ export const QualityRulesEditor: React.FC<QualityRulesEditorProps> = ({ t }) => 
         </div>
 
         <div className="flex items-center gap-2">
+          {/* 新手指南按钮 */}
+          <Button
+            variant="flat"
+            size="sm"
+            startContent={<Info className="w-4 h-4" />}
+            onPress={() => setShowGuide(true)}
+            className="text-slate-700 dark:text-slate-300"
+          >
+            新手指南
+          </Button>
+
+          {/* 预设配置选择器 */}
+          <select
+            value={selectedPreset}
+            onChange={e => handleApplyPreset(e.target.value)}
+            className="h-8 px-3 rounded-lg border border-default-300 bg-content1 text-sm text-foreground cursor-pointer"
+          >
+            {PRESET_METADATA.map(preset => (
+              <option key={preset.id} value={preset.id}>
+                {preset.name}
+              </option>
+            ))}
+          </select>
+
           <input
             type="file"
             accept=".json"
@@ -519,6 +571,140 @@ export const QualityRulesEditor: React.FC<QualityRulesEditorProps> = ({ t }) => 
           </Tab>
         </Tabs>
       </CardBody>
+
+      {/* 新手指南Modal */}
+      <Modal isOpen={showGuide} onClose={() => setShowGuide(false)} size="2xl">
+        <ModalContent>
+          <ModalHeader className="flex flex-col gap-1">
+            <h2 className="text-xl font-bold text-foreground">📖 质量评估入门指南</h2>
+            <p className="text-sm text-default-500">新手快速上手教程</p>
+          </ModalHeader>
+          <ModalBody className="max-h-[60vh] overflow-auto">
+            <div className="space-y-6">
+              {/* 什么是维度权重 */}
+              <div>
+                <h3 className="text-lg font-semibold text-foreground mb-2">1️⃣ 什么是维度权重？</h3>
+                <div className="text-sm text-default-600 space-y-2">
+                  <p>
+                    • 质量评估从<strong>7个维度</strong>综合评价剧本质量
+                  </p>
+                  <p>
+                    • 所有维度权重总和必须是<strong>100%</strong>
+                  </p>
+                  <p>• 权重越高，该维度在最终评分中占比越大</p>
+                  <p>• 例：完整性权重25% → 完整性得分×0.25计入总分</p>
+                </div>
+              </div>
+
+              {/* 每个维度的作用 */}
+              <div>
+                <h3 className="text-lg font-semibold text-foreground mb-2">
+                  2️⃣ 每个维度是做什么的？
+                </h3>
+                <div className="text-sm text-default-600 space-y-2">
+                  <div className="flex items-start gap-2">
+                    <span className="text-primary font-bold">完整性</span>
+                    <span>：信息全不全？角色有没有描述？分镜够不够？</span>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <span className="text-orange-500 font-bold">叙事逻辑</span>
+                    <span>：故事通不通？有没有因果关系？情节顺不顺？</span>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <span className="text-red-500 font-bold">戏剧性</span>
+                    <span>：有没有张力？吸引人吗？情感够不够？</span>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <span className="text-amber-500 font-bold">时空逻辑</span>
+                    <span>：时间地点对不对？从室内到室外有没有过渡？</span>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <span className="text-purple-500 font-bold">一致性</span>
+                    <span>：逻辑自洽吗？角色前后矛盾吗？</span>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <span className="text-blue-500 font-bold">准确性</span>
+                    <span>：数据格式对不对？</span>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <span className="text-cyan-500 font-bold">可用性</span>
+                    <span>：生成友好度怎么样？</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* 阈值是做什么的 */}
+              <div>
+                <h3 className="text-lg font-semibold text-foreground mb-2">3️⃣ 阈值是做什么的？</h3>
+                <div className="text-sm text-default-600 space-y-2">
+                  <p>
+                    • 阈值是<strong>最低要求线</strong>，低于这个就会扣分
+                  </p>
+                  <p>• 例："每场景最少分镜"设为3 → 场景只有2个分镜就会扣分</p>
+                  <p>• 例："角色描述最小字数"设为20 → 角色描述只有10字就会扣分</p>
+                </div>
+              </div>
+
+              {/* 怎么开始 */}
+              <div>
+                <h3 className="text-lg font-semibold text-foreground mb-2">4️⃣ 我该怎么开始？</h3>
+                <div className="text-sm text-default-600 space-y-2">
+                  <div className="flex items-start gap-2">
+                    <span className="bg-primary text-white px-2 py-0.5 rounded text-xs font-bold">
+                      推荐
+                    </span>
+                    <span>
+                      新手直接用"<strong>「新手入门·默认」</strong>"预设
+                    </span>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <span className="bg-warning text-white px-2 py-0.5 rounded text-xs font-bold">
+                      快速
+                    </span>
+                    <span>
+                      想快速出原型用"<strong>「快速原型·低门槛」</strong>"
+                    </span>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <span className="bg-success text-white px-2 py-0.5 rounded text-xs font-bold">
+                      专业
+                    </span>
+                    <span>
+                      想做专业项目用"<strong>「商业项目·严标准」</strong>"
+                    </span>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <span className="bg-pink-500 text-white px-2 py-0.5 rounded text-xs font-bold">
+                      艺术
+                    </span>
+                    <span>
+                      强调画面美感用"<strong>「视觉艺术·重美感」</strong>"
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* 预设配置说明 */}
+              <div>
+                <h3 className="text-lg font-semibold text-foreground mb-2">5️⃣ 预设配置详解</h3>
+                <div className="text-sm text-default-600 space-y-3">
+                  {PRESET_METADATA.map(preset => (
+                    <div key={preset.id} className="p-3 rounded-lg bg-default-100">
+                      <div className="font-semibold text-foreground">{preset.name}</div>
+                      <div className="text-default-500">{preset.description}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </ModalBody>
+          <div className="px-6 pb-6">
+            <Button color="primary" fullWidth onPress={() => setShowGuide(false)}>
+              我懂了
+            </Button>
+          </div>
+        </ModalContent>
+      </Modal>
     </Card>
   );
 };

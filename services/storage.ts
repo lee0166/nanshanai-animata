@@ -1398,7 +1398,7 @@ export class StorageService {
     console.log('[Storage] getScripts called, projectId:', projectId);
     console.log('[Storage] Reading file:', filename);
     const data = await this.readJson<Script[]>(filename);
-    
+
     // 去重处理：确保每个脚本只有一个实例
     const seen: Record<string, boolean> = {};
     const result: Script[] = [];
@@ -1409,8 +1409,11 @@ export class StorageService {
         result.push(script);
       }
     }
-    
-    console.log('[Storage] Read result:', data ? `Found ${data.length} scripts, deduplicated to ${result.length}` : 'No data');
+
+    console.log(
+      '[Storage] Read result:',
+      data ? `Found ${data.length} scripts, deduplicated to ${result.length}` : 'No data'
+    );
     this.setMemoryCache(cacheKey, result);
     return result;
   }

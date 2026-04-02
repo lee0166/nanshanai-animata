@@ -294,7 +294,7 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({
   const deduplicateScripts = (scripts: Script[]): Script[] => {
     // 按updatedAt降序排序（最新的在前）
     const sortedScripts = [...scripts].sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
-    
+
     const seen: Record<string, boolean> = {};
     const result: Script[] = [];
     for (const script of sortedScripts) {
@@ -493,7 +493,7 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({
     try {
       // 使用 TextCleaner 清洗文本
       const cleanedContent = TextCleaner.clean(scriptContent);
-      
+
       const newScript: Script = {
         id: `script_${Date.now()}`,
         projectId,
@@ -509,11 +509,11 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({
       };
 
       await storageService.saveScript(newScript);
-      
+
       // 重新加载脚本列表以确保状态一致性
       scriptsLoadedRef.current = false;
       await loadScripts();
-      
+
       setCurrentScript(newScript);
       setIsUploadModalOpen(false);
       setScriptTitle('');
@@ -597,8 +597,8 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({
         },
         // 2.0: 使用创作意图替代旧的durationBudgetConfig
         creativeIntent: creativeIntent,
-        // 2.0: 移除所有基于字数的配置
-        useDurationBudget: false,
+        // 2.0: 启用BudgetPlanner，使用情节密度时长计算
+        useDurationBudget: true,
         useDynamicDuration: false,
         useProductionPrompt: true, // 默认启用专业Prompt
         useShotQC: false, // 2.0: 移除基于字数的质检

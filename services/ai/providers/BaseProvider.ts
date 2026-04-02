@@ -103,10 +103,10 @@ export abstract class BaseProvider implements IAIProvider {
 
     try {
       let response: Response;
-      
+
       // First, build a safe headers object
       const safeHeaders: Record<string, string> = {};
-      
+
       // Process original headers
       if (options.headers) {
         if (Array.isArray(options.headers)) {
@@ -133,7 +133,7 @@ export abstract class BaseProvider implements IAIProvider {
 
       if (shouldUseProxy) {
         const proxyUrl = '/api/universal-proxy';
-        
+
         // Add X-Target-URL if not present
         if (!safeHeaders['X-Target-URL']) {
           safeHeaders['X-Target-URL'] = this.filterToLatin1(url);

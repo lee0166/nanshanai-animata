@@ -260,3 +260,142 @@ export const DEFAULT_QUALITY_RULES: QualityRulesConfig = {
     maxRecommendations: 5,
   },
 };
+
+/**
+ * 预设配置类型
+ */
+export interface PresetConfig {
+  id: string;
+  name: string;
+  description: string;
+  icon?: string;
+}
+
+/**
+ * 预设配置元数据
+ */
+export const PRESET_METADATA: PresetConfig[] = [
+  {
+    id: 'shortVideo',
+    name: '「新手入门·默认」',
+    description: '适合1-5分钟短视频、分镜练习，注重完整性和时空连续性',
+  },
+  {
+    id: 'quickDraft',
+    name: '「快速原型·低门槛」',
+    description: '适合快速出原型、头脑风暴，降低评分阈值',
+  },
+  {
+    id: 'highStandard',
+    name: '「商业项目·严标准」',
+    description: '适合专业电影、商业项目，对所有维度要求严格',
+  },
+  {
+    id: 'artOriented',
+    name: '「视觉艺术·重美感」',
+    description: '强调画面美感、艺术性，注重戏剧性和时空逻辑',
+  },
+];
+
+/**
+ * 预设配置集合（完整配置）
+ */
+export const PRESET_CONFIGS: Record<string, QualityRulesConfig> = {
+  shortVideo: DEFAULT_QUALITY_RULES,
+
+  quickDraft: {
+    ...DEFAULT_QUALITY_RULES,
+    version: '2.1.0',
+    description: '质量评估规则配置 - 宽松快速版（适合快速出原型）',
+    weights: {
+      ...DEFAULT_QUALITY_RULES.weights,
+      narrativeLogic: { ...DEFAULT_QUALITY_RULES.weights.narrativeLogic, value: 0.25 },
+      dramatic: { ...DEFAULT_QUALITY_RULES.weights.dramatic, value: 0.25 },
+      completeness: { ...DEFAULT_QUALITY_RULES.weights.completeness, value: 0.1 },
+      accuracy: { ...DEFAULT_QUALITY_RULES.weights.accuracy, value: 0.15 },
+      consistency: { ...DEFAULT_QUALITY_RULES.weights.consistency, value: 0.15 },
+      usability: { ...DEFAULT_QUALITY_RULES.weights.usability, value: 0.05 },
+      spatialTemporal: { ...DEFAULT_QUALITY_RULES.weights.spatialTemporal, value: 0.05 },
+    },
+    scoring: {
+      ...DEFAULT_QUALITY_RULES.scoring,
+      gradeThresholds: {
+        A: { min: 85, description: '优秀', color: 'success' },
+        B: { min: 75, description: '良好', color: 'primary' },
+        C: { min: 60, description: '及格', color: 'warning' },
+        D: { min: 50, description: '待改进', color: 'warning' },
+        F: { min: 0, description: '不合格', color: 'danger' },
+      },
+    },
+    thresholds: {
+      ...DEFAULT_QUALITY_RULES.thresholds,
+      minShotsPerScene: { ...DEFAULT_QUALITY_RULES.thresholds.minShotsPerScene, value: 2 },
+      minShotsTotal: { ...DEFAULT_QUALITY_RULES.thresholds.minShotsTotal, value: 4 },
+    },
+  },
+
+  highStandard: {
+    ...DEFAULT_QUALITY_RULES,
+    version: '2.1.0',
+    description: '质量评估规则配置 - 高标准严要求（适合专业电影项目）',
+    weights: {
+      ...DEFAULT_QUALITY_RULES.weights,
+      narrativeLogic: { ...DEFAULT_QUALITY_RULES.weights.narrativeLogic, value: 0.3 },
+      dramatic: { ...DEFAULT_QUALITY_RULES.weights.dramatic, value: 0.15 },
+      completeness: { ...DEFAULT_QUALITY_RULES.weights.completeness, value: 0.3 },
+      accuracy: { ...DEFAULT_QUALITY_RULES.weights.accuracy, value: 0.05 },
+      consistency: { ...DEFAULT_QUALITY_RULES.weights.consistency, value: 0.1 },
+      usability: { ...DEFAULT_QUALITY_RULES.weights.usability, value: 0.05 },
+      spatialTemporal: { ...DEFAULT_QUALITY_RULES.weights.spatialTemporal, value: 0.05 },
+    },
+    scoring: {
+      ...DEFAULT_QUALITY_RULES.scoring,
+      gradeThresholds: {
+        A: { min: 95, description: '优秀', color: 'success' },
+        B: { min: 85, description: '良好', color: 'primary' },
+        C: { min: 75, description: '及格', color: 'warning' },
+        D: { min: 60, description: '待改进', color: 'warning' },
+        F: { min: 0, description: '不合格', color: 'danger' },
+      },
+    },
+    thresholds: {
+      ...DEFAULT_QUALITY_RULES.thresholds,
+      characterDescriptionLength: {
+        ...DEFAULT_QUALITY_RULES.thresholds.characterDescriptionLength,
+        value: 40,
+      },
+      sceneDescriptionLength: {
+        ...DEFAULT_QUALITY_RULES.thresholds.sceneDescriptionLength,
+        value: 60,
+      },
+      minShotsPerScene: { ...DEFAULT_QUALITY_RULES.thresholds.minShotsPerScene, value: 5 },
+      minShotsTotal: { ...DEFAULT_QUALITY_RULES.thresholds.minShotsTotal, value: 12 },
+    },
+  },
+
+  artOriented: {
+    ...DEFAULT_QUALITY_RULES,
+    version: '2.1.0',
+    description: '质量评估规则配置 - 艺术导向（强调画面美感）',
+    weights: {
+      ...DEFAULT_QUALITY_RULES.weights,
+      narrativeLogic: { ...DEFAULT_QUALITY_RULES.weights.narrativeLogic, value: 0.15 },
+      dramatic: { ...DEFAULT_QUALITY_RULES.weights.dramatic, value: 0.3 },
+      completeness: { ...DEFAULT_QUALITY_RULES.weights.completeness, value: 0.15 },
+      accuracy: { ...DEFAULT_QUALITY_RULES.weights.accuracy, value: 0.05 },
+      consistency: { ...DEFAULT_QUALITY_RULES.weights.consistency, value: 0.15 },
+      usability: { ...DEFAULT_QUALITY_RULES.weights.usability, value: 0.05 },
+      spatialTemporal: { ...DEFAULT_QUALITY_RULES.weights.spatialTemporal, value: 0.15 },
+    },
+    scoring: {
+      ...DEFAULT_QUALITY_RULES.scoring,
+      gradeThresholds: {
+        A: { min: 90, description: '优秀', color: 'success' },
+        B: { min: 80, description: '良好', color: 'primary' },
+        C: { min: 68, description: '及格', color: 'warning' },
+        D: { min: 55, description: '待改进', color: 'warning' },
+        F: { min: 0, description: '不合格', color: 'danger' },
+      },
+    },
+  },
+};

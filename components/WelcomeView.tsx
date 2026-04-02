@@ -13,9 +13,17 @@ const WelcomeView: React.FC<WelcomeViewProps> = ({ onConnect }) => {
   if (isInitializing) return null;
 
   const features = [
-    { title: t.workspace.features.local.title, desc: t.workspace.features.local.desc, icon: HardDrive },
+    {
+      title: t.workspace.features.local.title,
+      desc: t.workspace.features.local.desc,
+      icon: HardDrive,
+    },
     { title: t.workspace.features.ai.title, desc: t.workspace.features.ai.desc, icon: Sparkles },
-    { title: t.workspace.features.open.title, desc: t.workspace.features.open.desc, icon: FileText },
+    {
+      title: t.workspace.features.open.title,
+      desc: t.workspace.features.open.desc,
+      icon: FileText,
+    },
   ];
 
   return (
@@ -103,17 +111,17 @@ const WelcomeView: React.FC<WelcomeViewProps> = ({ onConnect }) => {
             >
               {/* 顶部酸橙绿色渐变发光线条 - 悬浮时显示 */}
               <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-lime-400 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-              
+
               {/* 悬浮时的酸橙绿色扫光动画效果 */}
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-lime-400/10 to-transparent -skew-x-12 translate-x-[-150%] group-hover:translate-x-[150%] transition-transform duration-1000"></div>
-              
+
               <CardBody className="p-8 relative z-10">
                 <div className="flex items-start gap-4">
                   {/* 统一的酸橙绿色图标 */}
                   <div className="p-3 rounded-xl bg-zinc-800/50 text-lime-400">
                     <Icon className="w-6 h-6" />
                   </div>
-                  
+
                   <div className="flex-1">
                     <h3 className="text-xl font-black text-primary uppercase tracking-widest mb-2">
                       {item.title}

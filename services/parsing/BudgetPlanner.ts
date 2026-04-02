@@ -414,28 +414,171 @@ export function calculateBudget(
     totalWordCount += sceneWordCount;
   }
 
-  // 计算基础总时长（不考虑权重）
-  const baseDuration = (totalWordCount / wordsPerMinute) * 60;
+  // 基于情节分析计算总时长（替代字数计算）
+  let majorPlotPoints = 0;
+  let minorPlotPoints = 0;
+  let emotionalTurningPoints = 0;
+  let actionScenes = 0;
+  const emotionalScenes = 0;
 
-  // 如果指定了目标时长，按比例调整
-  const targetTotalDuration = targetDuration ?? baseDuration;
+  // 分析所有分镜的情节要素
+  for (const shot of shots) {
+    const desc = (shot.description || '').toLowerCase();
 
-  // 计算权重总和
-  const totalWeight = sceneData.reduce((sum, scene) => sum + scene.weight, 0);
+    // 检测重要情节点
+    const majorKeywords = [
+      '突然',
+      '发现',
+      '揭露',
+      '转折',
+      '爆发',
+      '决战',
+      '高潮',
+      '真相',
+      '牺牲',
+      '告白',
+    ];
+    if (majorKeywords.some(k => desc.includes(k))) {
+      majorPlotPoints++;
+    }
 
-  // 分配场景时长
+    // 检测次要情节点
+    const minorKeywords = ['然后', '接着', '于是', '随后', '同时', '不久', '之后', '继续'];
+    if (minorKeywords.some(k => desc.includes(k))) {
+      minorPlotPoints++;
+    }
+
+    // 检测情绪转折点
+    const emotionalKeywords = [
+      '愤怒',
+      '悲伤',
+      '喜悦',
+      '震惊',
+      '绝望',
+      '感动',
+      '紧张',
+      '激动',
+      '痛苦',
+      '释怀',
+    ];
+    if (emotionalKeywords.some(k => desc.includes(k))) {
+      emotionalTurningPoints++;
+    }
+
+    // 检测动作场景
+    const actionKeywords = ['战斗', '追逐', '逃跑', '打斗', '攻击', '防御', '跳跃', '奔跑'];
+    if (actionKeywords.some(k => desc.includes(k))) {
+      actionScenes++;
+    }
+  }
+
+  // 基于情节计算基础时长
+  let calculatedDuration =
+    majorPlotPoints * 8 + // 重要情节点 × 8秒
+    minorPlotPoints * 4 + // 次要情节点 × 4秒
+    emotionalTurningPoints * 6 + // 情绪转折点 × 6秒
+    actionScenes * 3; // 动作场景 × 3秒（节奏快）
+
+  // 确保基础时长在合理范围内（最小60秒，最大600秒）
+  calculatedDuration = Math.max(60, Math.min(600, calculatedDuration));
+
+  // 如果指定了目标时长，使用目标时长
+  const targetTotalDuration = targetDuration ?? calculatedDuration;
+
+  // 情绪曲线驱动：确保高潮占比在25-35%
+  const climaxRatio = 0.3; // 高潮占30%
+  const openingRatio = 0.12; // 开场占12%
+  const developmentRatio = 0.43; // 发展占43%
+  const endingRatio = 0.15; // 结尾占15%
+
+  // 分配场景时长（基于情节分析）
   const sceneBudgets: SceneBudget[] = [];
   let allocatedTotalDuration = 0;
 
   for (const scene of sceneData) {
-    // 基于权重和字数分配时长
-    const weightRatio = scene.weight / totalWeight;
-    const wordRatio = scene.wordCount / totalWordCount;
+    // 分析该场景的情节密度
+    let sceneMajorPoints = 0;
+    let sceneEmotionalPoints = 0;
+    let sceneActionPoints = 0;
 
-    // 权重占比60%，字数占比40%
-    const combinedRatio = weightRatio * 0.6 + wordRatio * 0.4;
+    for (const shot of scene.shots) {
+      const desc = (shot.description || '').toLowerCase();
+      const majorKeywords = [
+        '突然',
+        '发现',
+        '揭露',
+        '转折',
+        '爆发',
+        '决战',
+        '高潮',
+        '真相',
+        '牺牲',
+        '告白',
+      ];
+      const emotionalKeywords = [
+        '愤怒',
+        '悲伤',
+        '喜悦',
+        '震惊',
+        '绝望',
+        '感动',
+        '紧张',
+        '激动',
+        '痛苦',
+        '释怀',
+      ];
+      const actionKeywords = ['战斗', '追逐', '逃跑', '打斗', '攻击', '防御', '跳跃', '奔跑'];
 
-    const allocatedDuration = targetTotalDuration * combinedRatio;
+      if (majorKeywords.some(k => desc.includes(k))) sceneMajorPoints++;
+      if (emotionalKeywords.some(k => desc.includes(k))) sceneEmotionalPoints++;
+      if (actionKeywords.some(k => desc.includes(k))) sceneActionPoints++;
+    }
+
+    // 基于情节密度计算场景权重
+    let scenePlotWeight = 1.0;
+    scenePlotWeight += sceneMajorPoints * 0.3;
+    scenePlotWeight += sceneEmotionalPoints * 0.2;
+    scenePlotWeight += scene.weight * 0.5; // 原有的重要性权重
+
+    // 分配时长
+    const weightRatio =
+      scenePlotWeight /
+      sceneData.reduce((sum, s) => {
+        let w = 1.0;
+        for (const shot of s.shots) {
+          const desc = (shot.description || '').toLowerCase();
+          const majorKeywords = [
+            '突然',
+            '发现',
+            '揭露',
+            '转折',
+            '爆发',
+            '决战',
+            '高潮',
+            '真相',
+            '牺牲',
+            '告白',
+          ];
+          const emotionalKeywords = [
+            '愤怒',
+            '悲伤',
+            '喜悦',
+            '震惊',
+            '绝望',
+            '感动',
+            '紧张',
+            '激动',
+            '痛苦',
+            '释怀',
+          ];
+          if (majorKeywords.some(k => desc.includes(k))) w += 0.3;
+          if (emotionalKeywords.some(k => desc.includes(k))) w += 0.2;
+        }
+        w += s.weight * 0.5;
+        return sum + w;
+      }, 0);
+
+    const allocatedDuration = targetTotalDuration * weightRatio;
 
     // 计算每个分镜的平均时长
     const averageShotDuration = scene.shots.length > 0 ? allocatedDuration / scene.shots.length : 0;
@@ -454,22 +597,27 @@ export function calculateBudget(
     allocatedTotalDuration += allocatedDuration;
   }
 
-  // 按重要性类型汇总时长
-  const openingDuration = sceneBudgets
-    .filter(s => s.importance === 'opening')
-    .reduce((sum, s) => sum + s.allocatedDuration, 0);
+  // 按重要性类型汇总时长（基于情绪曲线）
+  let openingDuration = 0;
+  let developmentDuration = 0;
+  let climaxDuration = 0;
+  let endingDuration = 0;
 
-  const developmentDuration = sceneBudgets
-    .filter(s => s.importance === 'development')
-    .reduce((sum, s) => sum + s.allocatedDuration, 0);
+  // 根据场景位置分配到不同阶段
+  for (let i = 0; i < sceneBudgets.length; i++) {
+    const scene = sceneBudgets[i];
+    const position = i / sceneBudgets.length;
 
-  const climaxDuration = sceneBudgets
-    .filter(s => s.importance === 'climax')
-    .reduce((sum, s) => sum + s.allocatedDuration, 0);
-
-  const endingDuration = sceneBudgets
-    .filter(s => s.importance === 'ending')
-    .reduce((sum, s) => sum + s.allocatedDuration, 0);
+    if (position < 0.15) {
+      openingDuration += scene.allocatedDuration;
+    } else if (position < 0.65) {
+      developmentDuration += scene.allocatedDuration;
+    } else if (position < 0.85) {
+      climaxDuration += scene.allocatedDuration;
+    } else {
+      endingDuration += scene.allocatedDuration;
+    }
+  }
 
   // 计算建议的分镜总数
   // 基于平均每镜3-5秒计算

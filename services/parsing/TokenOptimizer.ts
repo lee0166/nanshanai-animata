@@ -160,7 +160,7 @@ export class TokenOptimizer {
     const totalTokens = rawTokens + safetyTokens;
 
     // 确定最终的 maxTokens 上限（取任务配置和模型限制的较小值）
-    const effectiveMaxTokens = modelMaxTokens 
+    const effectiveMaxTokens = modelMaxTokens
       ? Math.min(config.maxTokens, modelMaxTokens)
       : config.maxTokens;
 
@@ -177,7 +177,9 @@ export class TokenOptimizer {
     console.log(`  - Raw total: ${totalTokens}`);
     if (modelMaxTokens) {
       console.log(`  - Model limit: ${modelMaxTokens} tokens`);
-      console.log(`  - Effective max: min(${config.maxTokens}, ${modelMaxTokens}) = ${effectiveMaxTokens}`);
+      console.log(
+        `  - Effective max: min(${config.maxTokens}, ${modelMaxTokens}) = ${effectiveMaxTokens}`
+      );
     }
     console.log(`  - Clamped: [${config.minTokens}, ${effectiveMaxTokens}] → ${clampedTokens}`);
 

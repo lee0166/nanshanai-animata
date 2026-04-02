@@ -210,7 +210,10 @@ export const CreativeIntentModal: React.FC<CreativeIntentModalProps> = ({
                       className="cursor-pointer"
                       onClick={() =>
                         updateIntent({
-                          emotionalTone: { ...creativeIntent.emotionalTone, primary: tone.id as any },
+                          emotionalTone: {
+                            ...creativeIntent.emotionalTone,
+                            primary: tone.id as any,
+                          },
                         })
                       }
                     >

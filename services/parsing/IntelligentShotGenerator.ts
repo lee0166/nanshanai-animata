@@ -128,28 +128,101 @@ export class IntelligentShotGenerator {
   }
 
   /**
-   * 计算最优分镜数量
+   * 计算最优分镜数量（基于情节分析）
    *
    * @param complexity - 场景复杂度评分
-   * @returns 最优分镜数量（8-30 个）
+   * @param scene - 场景信息（用于情节分析）
+   * @returns 最优分镜数量（6-30 个）
    */
-  calculateOptimalShots(complexity: SceneComplexity): number {
-    // 基础分镜数：8 个（保证叙事完整性）
-    const baseShots = 8;
+  calculateOptimalShots(complexity: SceneComplexity, scene?: ScriptScene): number {
+    // 基础分镜数：6 个（保证基本叙事）
+    const baseShots = 6;
 
-    // 复杂度加成：每 1 分增加 1.5 个分镜
-    const complexityBonus = complexity.score * 1.5;
+    // 情节要素分析
+    let majorPlotPoints = 0;
+    let minorPlotPoints = 0;
+    let emotionalTurningPoints = 0;
+    let isClimaxScene = false;
+    let isEmotionalScene = false;
 
-    // 计算结果
-    const calculated = baseShots + complexityBonus;
+    if (scene?.description) {
+      const desc = scene.description.toLowerCase();
 
-    // 限制范围：8-30 个
-    const optimal = Math.floor(Math.max(8, Math.min(30, calculated)));
+      // 检测重要情节点
+      const majorKeywords = [
+        '突然',
+        '发现',
+        '揭露',
+        '转折',
+        '爆发',
+        '决战',
+        '高潮',
+        '真相',
+        '牺牲',
+        '告白',
+      ];
+      majorPlotPoints = majorKeywords.filter(k => desc.includes(k)).length;
 
-    console.log(`[IntelligentShotGenerator] Optimal shots calculation:`);
+      // 检测次要情节点
+      const minorKeywords = ['然后', '接着', '于是', '随后', '同时', '不久', '之后', '继续'];
+      minorPlotPoints = minorKeywords.filter(k => desc.includes(k)).length;
+
+      // 检测情绪转折点
+      const emotionalKeywords = [
+        '愤怒',
+        '悲伤',
+        '喜悦',
+        '震惊',
+        '绝望',
+        '感动',
+        '紧张',
+        '激动',
+        '痛苦',
+        '释怀',
+      ];
+      emotionalTurningPoints = emotionalKeywords.filter(k => desc.includes(k)).length;
+
+      // 检测高潮场景
+      const climaxKeywords = ['高潮', '决战', '最终', '最后', '爆发', '真相大白', '生死'];
+      isClimaxScene = climaxKeywords.some(k => desc.includes(k));
+
+      // 检测情感场景
+      isEmotionalScene = emotionalTurningPoints > 0;
+    }
+
+    // 基于情节计算分镜数
+    const plotBasedShots =
+      majorPlotPoints * 2.5 + // 重要情节点 × 2.5个分镜
+      minorPlotPoints * 1.0 + // 次要情节点 × 1个分镜
+      emotionalTurningPoints * 1.5; // 情绪转折点 × 1.5个分镜
+
+    let calculatedShots = baseShots + plotBasedShots;
+
+    // 情绪曲线驱动
+    if (isClimaxScene) {
+      calculatedShots *= 1.5; // 高潮场景 +50%
+    }
+    if (isEmotionalScene) {
+      calculatedShots *= 1.2; // 情感场景 +20%
+    }
+
+    // 结合复杂度加成
+    calculatedShots += complexity.score * 0.8;
+
+    // 限制范围：6-30 个
+    const optimal = Math.floor(Math.max(6, Math.min(30, calculatedShots)));
+
+    console.log(`[IntelligentShotGenerator] Optimal shots calculation (Plot-based):`);
     console.log(`  - Base shots: ${baseShots}`);
-    console.log(`  - Complexity bonus: ${complexityBonus.toFixed(1)} (score: ${complexity.score})`);
-    console.log(`  - Calculated: ${calculated.toFixed(1)}`);
+    console.log(`  - Major plot points: ${majorPlotPoints} (×2.5 = ${majorPlotPoints * 2.5})`);
+    console.log(`  - Minor plot points: ${minorPlotPoints} (×1.0 = ${minorPlotPoints * 1.0})`);
+    console.log(
+      `  - Emotional turning points: ${emotionalTurningPoints} (×1.5 = ${emotionalTurningPoints * 1.5})`
+    );
+    console.log(`  - Is climax scene: ${isClimaxScene}`);
+    console.log(`  - Is emotional scene: ${isEmotionalScene}`);
+    console.log(`  - Complexity bonus: ${complexity.score * 0.8}`);
+    console.log(`  - Calculated: ${calculatedShots.toFixed(1)}`);
     console.log(`  - Optimal (clamped): ${optimal}`);
 
     return optimal;
@@ -227,8 +300,8 @@ export class IntelligentShotGenerator {
     // 1. 分析场景复杂度
     const complexity = this.analyzeComplexity(scene, characters);
 
-    // 2. 计算最优分镜数量
-    const optimalShots = this.calculateOptimalShots(complexity);
+    // 2. 计算最优分镜数量（基于情节分析）
+    const optimalShots = this.calculateOptimalShots(complexity, scene);
 
     // 3. 计算所需 token
     const requiredTokens = this.calculateRequiredTokens(optimalShots);

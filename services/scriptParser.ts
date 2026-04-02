@@ -282,8 +282,8 @@ const DEFAULT_PARSER_CONFIG: ScriptParserConfig = {
   useCache: true,
   cacheTTL: 3600000,
 
-  // 时长预算与平台配置（默认关闭，保持向后兼容）
-  useDurationBudget: false,
+  // 时长预算与平台配置（已启用，使用情节密度时长计算）
+  useDurationBudget: true,
   targetPlatform: 'douyin',
   paceType: 'normal',
   useDynamicDuration: false,
@@ -330,8 +330,8 @@ const CONFIG = {
   maxChunkSize: 6000,
   /** Default model for parsing */
   defaultModel: 'gpt-4o-mini',
-  /** Maximum retry attempts for API calls */
-  maxRetries: 3,
+  /** Maximum retry attempts for API calls - 修改为0，第1次失败后立即降级 */
+  maxRetries: 0,
   /** Initial retry delay in ms (exponential backoff) */
   retryDelay: 4000,
   /** API call timeout in ms (60 seconds) */
@@ -1814,7 +1814,7 @@ export class ScriptParser {
             capabilities: {},
             parameters: [],
           };
-          
+
           // 尝试解析模型配置
           const resolvedConfig = resolveModelConfig(tempModelConfig);
           if (resolvedConfig) {
@@ -1828,8 +1828,13 @@ export class ScriptParser {
         } catch (modelError) {
           console.warn(`[ScriptParser] Failed to get model maxTokens, using default`, modelError);
         }
-        
-        const calculation = this.tokenOptimizer.calculateTokens(prompt, taskType, undefined, modelMaxTokens);
+
+        const calculation = this.tokenOptimizer.calculateTokens(
+          prompt,
+          taskType,
+          undefined,
+          modelMaxTokens
+        );
         maxTokens = calculation.tokens;
         console.log(
           `[ScriptParser] TokenOptimizer calculated: ${maxTokens} tokens (vs fixed ${taskConfig.maxTokens})`
@@ -2033,7 +2038,55 @@ export class ScriptParser {
     console.log(`[ScriptParser] callStructuredLLM called for ${taskType}`);
     console.log(`[ScriptParser] API URL: ${this.apiUrl}`);
     console.log(`[ScriptParser] Model: ${this.model}`);
-    console.log(`[ScriptParser] Max Tokens: ${taskConfig.maxTokens}`);
+
+    // Token 优化：动态计算 maxTokens
+    let maxTokens: number = taskConfig.maxTokens;
+    if (this.tokenOptimizer) {
+      try {
+        // 获取当前模型的 maxTokens 限制
+        let modelMaxTokens: number | undefined;
+        try {
+          // 构建临时模型配置用于解析
+          const tempModelConfig: ModelConfig = {
+            id: 'temp',
+            name: 'Temp Model',
+            provider: this.provider,
+            modelId: this.model,
+            type: 'llm',
+            capabilities: {},
+            parameters: [],
+          };
+
+          // 尝试解析模型配置
+          const resolvedConfig = resolveModelConfig(tempModelConfig);
+          if (resolvedConfig) {
+            // 查找 maxTokens 参数
+            const maxTokensParam = resolvedConfig.parameters.find(p => p.name === 'maxTokens');
+            if (maxTokensParam && maxTokensParam.max !== undefined) {
+              modelMaxTokens = maxTokensParam.max;
+              console.log(`[ScriptParser] Model maxTokens limit: ${modelMaxTokens}`);
+            }
+          }
+        } catch (modelError) {
+          console.warn(`[ScriptParser] Failed to get model maxTokens, using default`, modelError);
+        }
+
+        const calculation = this.tokenOptimizer.calculateTokens(
+          prompt,
+          taskType,
+          undefined,
+          modelMaxTokens
+        );
+        maxTokens = calculation.tokens;
+        console.log(
+          `[ScriptParser] TokenOptimizer calculated: ${maxTokens} tokens (vs fixed ${taskConfig.maxTokens})`
+        );
+      } catch (error) {
+        console.warn(`[ScriptParser] TokenOptimizer failed, using fixed ${taskConfig.maxTokens}`);
+      }
+    }
+
+    console.log(`[ScriptParser] Max Tokens: ${maxTokens}`);
 
     // Use LLMProvider for structured output
     const { llmProvider } = await import('./ai/providers/LLMProvider');
@@ -2054,7 +2107,7 @@ export class ScriptParser {
         supportsTextOutput: true,
         supportsImageOutput: false,
         supportsVideoOutput: false,
-        maxTokens: taskConfig.maxTokens,
+        maxTokens: maxTokens,
         maxInputTokens: 8000,
       },
     };
@@ -2377,9 +2430,9 @@ export class ScriptParser {
     const config = {
       historySize: 5, // 最近 5 次成功响应
       safetyFactor: 2.0, // 安全系数从 2.5 降低到 2.0（更快速适应）
-      minTimeout: 60000, // 最小 60 秒
-      maxTimeout: 240000, // 最大 240 秒（4 分钟，适应 glm-4-7-251222）
-      defaultTimeout: 120000, // 默认 120 秒（初始值提高，避免早期超时）
+      minTimeout: 120000, // 最小 120 秒（2分钟）
+      maxTimeout: 360000, // 最大 360 秒（6分钟）
+      defaultTimeout: 180000, // 默认 180 秒（3分钟）
     };
 
     this.dynamicTimeoutCalculator = new DynamicTimeoutCalculator(config);
@@ -5116,7 +5169,7 @@ ${content}
     // Phase 3.1: Use strategy selector for automatic strategy selection
     console.log(`[ScriptParser] ========== Starting Parse Script ==========`);
     console.log(`[ScriptParser] onProgress callback provided: ${!!onProgress}`);
-    
+
     // Select parsing strategy based on content
     if (this.strategySelector) {
       const strategySelection = this.strategySelector.selectStrategy(content);
@@ -5324,10 +5377,10 @@ ${content}
       throw new Error('解析已取消');
     }
 
-    // V4: Ultra-short path for very short texts (<500 chars) - single API call
-    if (content.length < 500 && !resumeFromState) {
+    // V4: Ultra-short path for very short texts (<200 chars) - single API call
+    if (content.length < 200 && !resumeFromState) {
       console.log(
-        `[ScriptParser] Using ULTRA-SHORT PATH (content length: ${content.length} < 500)`
+        `[ScriptParser] Using ULTRA-SHORT PATH (content length: ${content.length} < 200)`
       );
       console.log(`[ScriptParser] This path uses only 1 API call vs 5+ in standard mode`);
 
@@ -5940,7 +5993,7 @@ ${content}
         });
         console.log('[ScriptParser] Emitted parsing:complete event');
       }
-      
+
       // 停止持续进度动画
       stopProgressAnimation();
     } catch (error: any) {
