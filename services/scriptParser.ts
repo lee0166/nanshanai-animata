@@ -6197,6 +6197,8 @@ ${content}
         state.coherenceReport = undefined;
       }
 
+      state.stage = 'completed';
+      state.progress = 100;
       enhancedOnProgress?.('completed', 100, '解析完成！');
       await this.saveState(scriptId, projectId, state);
 

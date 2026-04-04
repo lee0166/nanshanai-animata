@@ -752,6 +752,7 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({
         }
       };
 
+      console.log('[ScriptManager] 1. Before parseScript()');
       const parseState = await parser.parseScript(
         currentScript.id,
         projectId,
@@ -759,6 +760,7 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({
         onProgress,
         resumeFromState
       );
+      console.log('[ScriptManager] 2. After parseScript(), stage:', parseState.stage);
 
       // Note: Removed isMountedRef check to fix React StrictMode issues
       const updatedScript = {
@@ -819,6 +821,7 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({
         showToast(`解析失败: ${parseState.error}`, 'error');
       }
     } catch (error: any) {
+      console.log('[ScriptManager] 3. In catch block');
       // Note: Removed isMountedRef check to fix React StrictMode issues
       console.error('[ScriptManager] Parse error:', error);
 
@@ -835,10 +838,12 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({
         showToast(`解析失败: ${error.message || '未知错误'}`, 'error');
       }
     } finally {
+      console.log('[ScriptManager] 4. In finally block');
       // Note: Removed isMountedRef check to fix React StrictMode issues
       setIsParsing(false);
       setIsBackgroundParsing(false);
       setActiveParseButton(null);
+      console.log('[ScriptManager] 5. Finally block done');
     }
   };
 
