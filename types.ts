@@ -335,8 +335,10 @@ export type ParseStage =
   | 'scenes'
   | 'refinement'
   | 'budget'
+  | 'episode_planning'
   | 'items'
   | 'shots'
+  | 'coherence_check'
   | 'completed'
   | 'error';
 
@@ -395,6 +397,8 @@ export interface ScriptParseState {
   performanceReport?: any; // Performance report from PerformanceMonitor
   refinementResult?: any; // Iterative refinement result
   durationBudget?: any; // Duration budget from BudgetPlanner
+  episodePlan?: EpisodePlan; // Episode plan from EpisodePlanner
+  coherenceReport?: CoherenceReport; // Coherence report from CoherenceChecker
 }
 
 /**
@@ -436,6 +440,201 @@ export interface CreativeIntent {
 
   /** 目标平台（制作完成后适配，不是制作前限制） */
   targetPlatforms?: ('douyin' | 'kuaishou' | 'bilibili' | 'theatrical')[];
+
+  /** 时长控制（高级设置，用于替代旧的durationBudgetConfig） */
+  durationControl?: {
+    /** 目标平台：抖音/快手/B站/精品 */
+    targetPlatform?: 'douyin' | 'kuaishou' | 'bilibili' | 'premium';
+    /** 节奏偏好：快/中/慢 */
+    pacingPreference?: 'fast' | 'normal' | 'slow';
+  };
+}
+
+/**
+ * 平台分集标准配置
+ * 定义每个平台的详细标准，用于智能分集规划
+ */
+export interface PlatformEpisodeStandard {
+  /** 平台类型 */
+  platform: 'douyin' | 'kuaishou' | 'bilibili' | 'premium';
+  /** 单集时长范围（秒） */
+  episodeDurationRange: [number, number];
+  /** 推荐单集时长（秒） */
+  recommendedEpisodeDuration: number;
+  /** 总集数范围 */
+  totalEpisodesRange: [number, number];
+  /** 每集分镜数范围 */
+  shotsPerEpisodeRange: [number, number];
+  /** 钩子要求 */
+  hookRequirements: {
+    /** 前N秒必须有钩子 */
+    hookWithinSeconds: number;
+    /** 钩子类型 */
+    hookTypes: string[];
+  };
+  /** 反转要求 */
+  twistRequirements: {
+    /** 每N秒一个反转 */
+    twistEverySeconds: number;
+  };
+  /** 人物出场要求 */
+  characterIntroductionRequirements: {
+    /** 前N秒人物必须出场 */
+    characterWithinSeconds: number;
+  };
+}
+
+/**
+ * 分集方案
+ */
+export interface EpisodePlan {
+  id: string;
+  /** 总集数 */
+  totalEpisodes: number;
+  /** 每集信息 */
+  episodes: EpisodeInfo[];
+  /** 方案说明 */
+  description: string;
+  /** 总时长（秒） */
+  totalDuration: number;
+}
+
+/**
+ * 单集信息
+ */
+export interface EpisodeInfo {
+  /** 集数（从1开始） */
+  episodeNumber: number;
+  /** 标题 */
+  title: string;
+  /** 包含的场景 */
+  sceneNames: string[];
+  /** 预估时长（秒） */
+  estimatedDuration: number;
+  /** 分镜数量 */
+  estimatedShotCount: number;
+  /** 本集剧情概要 */
+  summary: string;
+  /** 本集悬念/钩子（结尾） */
+  cliffhanger?: string;
+  /** 是否为高潮集 */
+  isClimax: boolean;
+}
+
+/**
+ * 质量评分
+ */
+export interface QualityScore {
+  /** 总体评分 (0-100) */
+  overall: number;
+  /** 剧情连贯性评分 (0-100) */
+  plotCoherence: number;
+  /** 镜头连贯性评分 (0-100) */
+  shotCoherence: number;
+  /** 视觉质量评分 (0-100) */
+  visualQuality: number;
+  /** 叙事节奏评分 (0-100) */
+  narrativePacing: number;
+}
+
+/**
+ * 详细统计信息
+ */
+export interface QualityStatistics {
+  /** 总分镜数 */
+  totalShots: number;
+  /** 总场景数 */
+  totalScenes: number;
+  /** 总集数 */
+  totalEpisodes: number;
+  /** 总时长（秒） */
+  totalDuration: number;
+  /** 平均每集分镜数 */
+  averageShotsPerEpisode: number;
+  /** 平均每集场景数 */
+  averageScenesPerEpisode: number;
+  /** 景别分布 */
+  shotSizeDistribution: Record<string, number>;
+  /** 问题统计 */
+  issueCount: {
+    error: number;
+    warning: number;
+    info: number;
+  };
+}
+
+/**
+ * 修复建议
+ */
+export interface FixSuggestion {
+  /** 建议ID */
+  id: string;
+  /** 问题类型 */
+  issueType: string;
+  /** 严重程度 */
+  severity: 'error' | 'warning' | 'info';
+  /** 问题描述 */
+  issueDescription: string;
+  /** 修复建议 */
+  fixDescription: string;
+  /** 具体操作步骤 */
+  steps: string[];
+  /** 受影响的分镜/场景 */
+  affectedItems: {
+    episodeNumber?: number;
+    sceneName?: string;
+    shotIndex?: number;
+  }[];
+  /** 优先级 (1-5, 1最高) */
+  priority: number;
+}
+
+/**
+ * 连贯性报告
+ */
+export interface CoherenceReport {
+  /** 是否通过 */
+  valid: boolean;
+  /** 剧情连贯性 */
+  plotCoherence: {
+    valid: boolean;
+    issues: CoherenceIssue[];
+  };
+  /** 镜头连贯性 */
+  shotCoherence: {
+    valid: boolean;
+    issues: ShotCoherenceIssue[];
+  };
+  /** 质量评分 */
+  qualityScore: QualityScore;
+  /** 详细统计 */
+  statistics: QualityStatistics;
+  /** 修复建议 */
+  fixSuggestions: FixSuggestion[];
+  /** 建议 */
+  suggestions: string[];
+}
+
+/**
+ * 连贯性问题
+ */
+export interface CoherenceIssue {
+  type: 'character_inconsistency' | 'plot_logic' | 'timeline' | 'causality';
+  severity: 'error' | 'warning' | 'info';
+  message: string;
+  episodeNumber?: number;
+  sceneName?: string;
+}
+
+/**
+ * 镜头连贯性问题
+ */
+export interface ShotCoherenceIssue {
+  type: 'action_match' | 'shot_size' | 'eye_line' | 'lighting' | '180_degree';
+  severity: 'error' | 'warning' | 'info';
+  message: string;
+  episodeNumber?: number;
+  shotIndex?: number;
 }
 
 /**

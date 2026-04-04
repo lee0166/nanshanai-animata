@@ -4,11 +4,11 @@
  * 职责：将全局上下文注入到各解析阶段的Prompt中，确保角色、场景、分镜提取
  * 都能获得统一的故事背景、视觉风格和时代背景信息
  *
- * @version 1.0.0
+ * @version 2.0.0 - 支持创作意图注入
  */
 
 import type { GlobalContext } from './GlobalContextExtractor';
-import type { ScriptScene } from '../../types';
+import type { ScriptScene, CreativeIntent } from '../../types';
 
 /**
  * 注入配置选项
@@ -24,6 +24,8 @@ export interface InjectionOptions {
   includeEmotionalContext?: boolean;
   /** 是否注入一致性规则 */
   includeConsistencyRules?: boolean;
+  /** 是否注入创作意图 */
+  includeCreativeIntent?: boolean;
   /** 最大Prompt长度限制 */
   maxPromptLength?: number;
 }
@@ -37,6 +39,7 @@ const DEFAULT_OPTIONS: InjectionOptions = {
   includeEraContext: true,
   includeEmotionalContext: true,
   includeConsistencyRules: true,
+  includeCreativeIntent: true,
   maxPromptLength: 8000,
 };
 
@@ -45,13 +48,16 @@ const DEFAULT_OPTIONS: InjectionOptions = {
  */
 export class ContextInjector {
   private options: InjectionOptions;
+  private creativeIntent?: CreativeIntent;
 
   /**
    * 构造函数
    * @param options - 注入配置选项
+   * @param creativeIntent - 创作意图配置
    */
-  constructor(options: InjectionOptions = {}) {
+  constructor(options: InjectionOptions = {}, creativeIntent?: CreativeIntent) {
     this.options = { ...DEFAULT_OPTIONS, ...options };
+    this.creativeIntent = creativeIntent;
   }
 
   /**
@@ -147,6 +153,12 @@ export class ContextInjector {
 
     if (this.options.includeEraContext && context.era) {
       sections.push(this.buildEraConstraintsSection(context));
+    }
+
+    // 注入创作意图
+    const creativeIntentSection = this.buildCreativeIntentSection();
+    if (creativeIntentSection) {
+      sections.push(creativeIntentSection);
     }
 
     const contextPrompt = sections.join('\n\n');
@@ -480,6 +492,92 @@ export class ContextInjector {
     // 这里可以实现更复杂的逻辑，比如根据场景名称中的数字判断
     // 简单实现：返回false，依赖精确匹配
     return false;
+  }
+
+  /**
+   * 构建创作意图区块
+   */
+  private buildCreativeIntentSection(): string {
+    if (!this.creativeIntent || !this.options.includeCreativeIntent) {
+      return '';
+    }
+
+    const sections: string[] = [];
+
+    // 影视风格
+    if (this.creativeIntent.filmStyle) {
+      const filmStyleLabels: Record<string, string> = {
+        'short-drama': '短剧风格',
+        film: '电影风格',
+        documentary: '纪录片风格',
+        custom: '自定义风格',
+      };
+      sections.push(
+        `- 影视风格：${filmStyleLabels[this.creativeIntent.filmStyle] || this.creativeIntent.filmStyle}`
+      );
+    }
+
+    // 叙事重点
+    if (this.creativeIntent.narrativeFocus) {
+      const narrativeFocusLabels: Record<string, string> = {
+        protagonistArc: '主角成长弧线',
+        emotionalCore: '情感核心',
+        worldBuilding: '世界观构建',
+        visualSpectacle: '视觉奇观',
+        thematicDepth: '主题深度',
+      };
+      const selectedFocus = Object.entries(this.creativeIntent.narrativeFocus)
+        .filter(([, value]) => value)
+        .map(([key]) => narrativeFocusLabels[key] || key);
+
+      if (selectedFocus.length > 0) {
+        sections.push(`- 叙事重点：${selectedFocus.join('、')}`);
+      }
+    }
+
+    // 视觉参考
+    if (this.creativeIntent.visualReferences && this.creativeIntent.visualReferences.length > 0) {
+      sections.push(`- 视觉参考：${this.creativeIntent.visualReferences.join('、')}`);
+    }
+
+    // 情感基调
+    if (this.creativeIntent.emotionalTone?.primary) {
+      const emotionalToneLabels: Record<string, string> = {
+        inspiring: '励志',
+        melancholic: '忧郁',
+        thrilling: '惊悚',
+        romantic: '浪漫',
+        mysterious: '神秘',
+      };
+      sections.push(
+        `- 情感基调：${emotionalToneLabels[this.creativeIntent.emotionalTone.primary] || this.creativeIntent.emotionalTone.primary}`
+      );
+    }
+
+    // 情感强度
+    if (this.creativeIntent.emotionalTone?.intensity) {
+      const intensity = this.creativeIntent.emotionalTone.intensity;
+      let intensityDescription = '';
+      if (intensity <= 3) {
+        intensityDescription = '（平和、含蓄）';
+      } else if (intensity <= 7) {
+        intensityDescription = '（适中、平衡）';
+      } else {
+        intensityDescription = '（强烈、戏剧化）';
+      }
+      sections.push(`- 情感强度：${intensity}/10${intensityDescription}`);
+    }
+
+    // 创作备注
+    if (this.creativeIntent.creativeNotes) {
+      sections.push(`- 创作备注：${this.creativeIntent.creativeNotes}`);
+    }
+
+    if (sections.length === 0) {
+      return '';
+    }
+
+    return '【创作意图】\n' + sections.join('\n');
   }
 
   /**

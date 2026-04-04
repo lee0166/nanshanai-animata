@@ -8,7 +8,7 @@
  * @version 2.1.0 - 优化布局，减少留白
  */
 
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Modal,
   ModalContent,
@@ -22,6 +22,9 @@ import {
   Textarea,
   Slider,
   Tooltip,
+  Select,
+  SelectItem,
+  Divider,
 } from '@heroui/react';
 import {
   Clapperboard,
@@ -34,6 +37,10 @@ import {
   BookOpen,
   Info,
   CheckCircle2,
+  ChevronDown,
+  ChevronUp,
+  Settings,
+  Clock,
 } from 'lucide-react';
 import { CreativeIntent } from '../types';
 
@@ -54,6 +61,8 @@ export const CreativeIntentModal: React.FC<CreativeIntentModalProps> = ({
   creativeIntent,
   onIntentChange,
 }) => {
+  const [showAdvancedSettings, setShowAdvancedSettings] = useState(false);
+
   const updateIntent = (updates: Partial<CreativeIntent>) => {
     onIntentChange({ ...creativeIntent, ...updates });
   };
@@ -104,6 +113,19 @@ export const CreativeIntentModal: React.FC<CreativeIntentModalProps> = ({
     { key: 'worldBuilding', label: '世界观', icon: <Globe className="w-3.5 h-3.5" /> },
     { key: 'visualSpectacle', label: '视觉奇观', icon: <Eye className="w-3.5 h-3.5" /> },
     { key: 'thematicDepth', label: '主题深度', icon: <BookOpen className="w-3.5 h-3.5" /> },
+  ];
+
+  const targetPlatformOptions = [
+    { key: 'douyin', label: '短视频-抖音风格' },
+    { key: 'kuaishou', label: '短视频-快手风格' },
+    { key: 'bilibili', label: '中视频-B站风格' },
+    { key: 'premium', label: '长视频-精品短剧' },
+  ];
+
+  const pacingPreferenceOptions = [
+    { key: 'fast', label: '快' },
+    { key: 'normal', label: '中' },
+    { key: 'slow', label: '慢' },
   ];
 
   return (
@@ -247,6 +269,88 @@ export const CreativeIntentModal: React.FC<CreativeIntentModalProps> = ({
             </div>
           </div>
 
+          <Divider className="my-4" />
+
+          {/* Advanced Settings - 高级设置（时长控制） */}
+          <div>
+            <Button
+              variant="light"
+              size="sm"
+              onPress={() => setShowAdvancedSettings(!showAdvancedSettings)}
+              className="w-full justify-start"
+            >
+              {showAdvancedSettings ? (
+                <ChevronUp className="w-4 h-4" />
+              ) : (
+                <ChevronDown className="w-4 h-4" />
+              )}
+              <Settings className="w-4 h-4 ml-2" />
+              <span className="ml-2">高级设置（时长控制）</span>
+            </Button>
+
+            {showAdvancedSettings && (
+              <div className="mt-3 p-4 bg-slate-50 dark:bg-slate-900/50 rounded-lg border border-slate-200 dark:border-slate-700">
+                <div className="grid grid-cols-2 gap-4">
+                  {/* 平台选择 */}
+                  <div>
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="text-sm font-medium">目标平台</span>
+                    </div>
+                    <Select
+                      aria-label="目标平台"
+                      selectedKeys={
+                        creativeIntent.durationControl?.targetPlatform
+                          ? [creativeIntent.durationControl.targetPlatform]
+                          : []
+                      }
+                      onSelectionChange={keys => {
+                        const platform = Array.from(keys)[0] as string;
+                        updateIntent({
+                          durationControl: {
+                            ...creativeIntent.durationControl,
+                            targetPlatform: platform as any,
+                          },
+                        });
+                      }}
+                    >
+                      {targetPlatformOptions.map(option => (
+                        <SelectItem key={option.key}>{option.label}</SelectItem>
+                      ))}
+                    </Select>
+                  </div>
+
+                  {/* 节奏选择 */}
+                  <div>
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="text-sm font-medium">节奏偏好</span>
+                    </div>
+                    <Select
+                      aria-label="节奏偏好"
+                      selectedKeys={
+                        creativeIntent.durationControl?.pacingPreference
+                          ? [creativeIntent.durationControl.pacingPreference]
+                          : []
+                      }
+                      onSelectionChange={keys => {
+                        const pace = Array.from(keys)[0] as string;
+                        updateIntent({
+                          durationControl: {
+                            ...creativeIntent.durationControl,
+                            pacingPreference: pace as any,
+                          },
+                        });
+                      }}
+                    >
+                      {pacingPreferenceOptions.map(option => (
+                        <SelectItem key={option.key}>{option.label}</SelectItem>
+                      ))}
+                    </Select>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
           {/* Visual References + Creative Notes - 左右两列布局 */}
           <div className="grid grid-cols-2 gap-3">
             <div>
@@ -289,28 +393,74 @@ export const CreativeIntentModal: React.FC<CreativeIntentModalProps> = ({
           </div>
 
           {/* Summary - 精简总结 */}
-          <Card className="bg-primary/5 border-primary/20">
-            <CardBody className="space-y-1.5 py-3">
-              <div className="flex items-center gap-2 text-primary">
-                <CheckCircle2 className="w-4 h-4" />
-                <span className="text-sm font-medium">AI导演理解</span>
+          <Card className="bg-default-50 border-default-200">
+            <CardBody className="space-y-2 py-3">
+              <div className="flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 text-primary" />
+                <span className="text-sm font-medium">创作意图配置</span>
               </div>
               <p className="text-sm text-default-600 leading-relaxed">
-                创作
-                <strong>{filmStyles.find(s => s.id === creativeIntent.filmStyle)?.label}</strong>
-                风格作品， 情感基调
-                <strong>
-                  {emotionalTones.find(t => t.id === creativeIntent.emotionalTone.primary)?.label}
-                </strong>
-                ({creativeIntent.emotionalTone.intensity}/10强度)， 叙事重点：
-                <strong>
-                  {Object.entries(creativeIntent.narrativeFocus)
+                时长预算配置已生效：
+                {creativeIntent.durationControl?.targetPlatform && (
+                  <>
+                    <br />• <strong>目标平台</strong>：
+                    {
+                      targetPlatformOptions.find(
+                        o => o.key === creativeIntent.durationControl.targetPlatform
+                      )?.label
+                    }
+                  </>
+                )}
+                {creativeIntent.durationControl?.pacingPreference && (
+                  <>
+                    <br />• <strong>节奏偏好</strong>：
+                    {
+                      pacingPreferenceOptions.find(
+                        o => o.key === creativeIntent.durationControl.pacingPreference
+                      )?.label
+                    }
+                  </>
+                )}
+                {!creativeIntent.durationControl?.targetPlatform &&
+                  !creativeIntent.durationControl?.pacingPreference && (
+                    <>
+                      <br />• 使用默认配置
+                    </>
+                  )}
+              </p>
+              <p className="text-sm text-default-600 leading-relaxed">
+                创作意图配置已生效：
+                <br />• <strong>影视风格</strong>：
+                {filmStyles.find(s => s.id === creativeIntent.filmStyle)?.label}
+                {(() => {
+                  const selectedFocus = Object.entries(creativeIntent.narrativeFocus)
                     .filter(([, v]) => v)
                     .map(([k]) => narrativeFocusOptions.find(o => o.key === k)?.label)
-                    .filter(Boolean)
-                    .join('、') || '全面叙事'}
-                </strong>
+                    .filter(Boolean);
+                  return selectedFocus.length > 0 ? (
+                    <>
+                      <br />• <strong>叙事重点</strong>：{selectedFocus.join('、')}
+                    </>
+                  ) : null;
+                })()}
+                {creativeIntent.visualReferences && creativeIntent.visualReferences.length > 0 && (
+                  <>
+                    <br />• <strong>视觉参考</strong>：{creativeIntent.visualReferences.join('、')}
+                  </>
+                )}
+                <br />• <strong>情感基调</strong>：
+                {emotionalTones.find(t => t.id === creativeIntent.emotionalTone.primary)?.label}
+                <br />• <strong>情感强度</strong>：{creativeIntent.emotionalTone.intensity}/10
+                {creativeIntent.creativeNotes && (
+                  <>
+                    <br />• <strong>创作备注</strong>：
+                    {creativeIntent.creativeNotes.substring(0, 50)}
+                    {creativeIntent.creativeNotes.length > 50 ? '...' : ''}
+                  </>
+                )}
               </p>
+              <Divider className="my-2" />
+              <p className="text-xs text-default-400">✅ 所有创作意图配置项已生效！</p>
             </CardBody>
           </Card>
         </ModalBody>

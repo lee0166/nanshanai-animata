@@ -183,6 +183,8 @@ export class TimeEstimator {
       shots: 30000, // 30秒
       refinement: 5000, // 5秒
       budget: 2000, // 2秒
+      episode_planning: 8000, // 8秒
+      coherence_check: 5000, // 5秒
       completed: 0,
       error: 0,
     };

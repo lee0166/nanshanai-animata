@@ -1,11 +1,11 @@
 /**
- * Quality Report Card Component - Cockpit Layout
+ * Quality Report Card Component - Unified Visual Style
  *
- * 重构版质量报告展示组件 - 驾驶舱式布局
- * 紧凑、专业、清晰，整合性能报告
+ * 重构版质量报告展示组件 - 统一视觉风格
+ * 左侧圆形进度条 + 右侧雷达图，与CoherenceReportViewer保持一致
  *
  * @module components/ScriptParser/QualityReportCard
- * @version 3.0.0
+ * @version 4.0.0
  */
 
 import React, { useState, useMemo } from 'react';
@@ -41,6 +41,29 @@ import {
 } from '../../services/parsing/QualityAnalyzer';
 import { PerformanceReport as PerformanceReportType } from '../../services/parsing/PerformanceMonitor';
 import { ScoreBreakdown } from './ScoreBreakdown';
+import { CircularProgress } from './Shared/CircularProgress';
+import { RadarChart } from './Shared/RadarChart';
+import {
+  getScoreColor,
+  getGrade,
+  getGradeColor,
+  formatDurationMs,
+  getSeverityColor,
+} from './Shared/qualityUtils';
+
+/**
+ * 获取严重程度图标
+ */
+const getSeverityIcon = (severity: 'error' | 'warning' | 'info') => {
+  switch (severity) {
+    case 'error':
+      return <AlertCircle className="w-3 h-3 flex-shrink-0 mt-0.5" />;
+    case 'warning':
+      return <AlertTriangle className="w-3 h-3 flex-shrink-0 mt-0.5" />;
+    default:
+      return <Info className="w-3 h-3 flex-shrink-0 mt-0.5" />;
+  }
+};
 
 interface QualityReportCardProps {
   report: DetailedQualityReport;
@@ -81,96 +104,26 @@ const getDimensionIcon = (dimension: QualityDimension) => {
 };
 
 /**
- * 获取评分颜色
- * 标准：≥90 优秀(绿)，≥75 良好(蓝)，≥60 及格(黄)，<60 不及格(红)
+ * 核心指标展示 - 左侧圆形进度条 + 右侧雷达图
  */
-const getScoreColor = (score: number): string => {
-  if (score >= 90) return 'text-success'; // 优秀
-  if (score >= 75) return 'text-primary'; // 良好
-  if (score >= 60) return 'text-warning'; // 及格
-  return 'text-danger'; // 不及格
-};
-
-/**
- * 获取等级颜色
- */
-const getGradeColor = (grade: string): string => {
-  const colors: Record<string, string> = {
-    A: 'bg-success text-success-foreground',
-    B: 'bg-primary text-primary-foreground',
-    C: 'bg-warning text-warning-foreground',
-    D: 'bg-warning-500 text-warning-foreground',
-    F: 'bg-danger text-danger-foreground',
-  };
-  return colors[grade] || 'bg-default text-default-foreground';
-};
-
-/**
- * 核心指标卡片组件 - 6 个维度并排
- */
-const CoreMetricsCards: React.FC<{
+const CoreMetrics: React.FC<{
   score: number;
   grade: string;
   dimensionScores: DimensionScore[];
 }> = ({ score, grade, dimensionScores }) => {
-  const getGradeColor = (grade: string): string => {
-    const colors: Record<string, string> = {
-      A: 'bg-success text-success-foreground',
-      B: 'bg-primary text-primary-foreground',
-      C: 'bg-warning text-warning-foreground',
-      D: 'bg-warning-500 text-warning-foreground',
-      F: 'bg-danger text-danger-foreground',
-    };
-    return colors[grade] || 'bg-default text-default-foreground';
-  };
+  const radarDimensions = dimensionScores.map(dim => ({
+    name: getDimensionName(dim.dimension),
+    score: dim.score,
+  }));
 
-  const getScoreColor = (score: number): string => {
-    if (score >= 90) return 'text-success';
-    if (score >= 75) return 'text-primary';
-    if (score >= 60) return 'text-warning';
-    return 'text-danger';
-  };
-
-  // 综合评分卡片
-  const overallCard = (
-    <div
-      key="overall"
-      className="bg-content2/80 hover:bg-content2 rounded-xl p-3 text-center transition-all duration-200 border border-content3"
-    >
-      <div className="text-xs text-default-500 font-medium mb-1">综合</div>
-      <div className={`text-3xl font-bold ${getScoreColor(score)}`}>{score}</div>
-      <div
-        className={`text-xs font-bold rounded px-2 py-0.5 mt-1 inline-block ${getGradeColor(grade)}`}
-      >
-        {grade}
-      </div>
-    </div>
-  );
-
-  // 维度卡片 - 显示所有维度（桌面端优先，所有卡片一行显示）
-  const dimensionCards = dimensionScores.map(dim => {
-    const color = getScoreColor(dim.score);
-    return (
-      <div
-        key={dim.dimension}
-        className="bg-content2/80 hover:bg-content2 rounded-xl p-3 text-center transition-all duration-200 border border-content3"
-      >
-        <div className="text-xs text-default-500 font-medium mb-1">
-          {getDimensionName(dim.dimension)}
-        </div>
-        <div className={`text-3xl font-bold ${color}`}>{dim.score}</div>
-        <div className="text-xs text-default-400 mt-1">
-          {dim.issues.length > 0 ? `${dim.issues.length}个` : '✓'}
-        </div>
-      </div>
-    );
-  });
-
-  // 桌面端所有8个卡片一行显示（综合+7个维度）
   return (
-    <div className="grid grid-cols-8 gap-2 mb-4">
-      {overallCard}
-      {dimensionCards}
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
+      <div className="flex flex-col items-center justify-center p-4 bg-content2/50 rounded-xl border border-content3">
+        <CircularProgress score={score} showGrade={true} />
+      </div>
+      <div className="flex flex-col items-center justify-center p-4 bg-content2/50 rounded-xl border border-content3">
+        <RadarChart dimensions={radarDimensions} />
+      </div>
     </div>
   );
 };
@@ -217,18 +170,6 @@ const IssueStatsCard: React.FC<{
 };
 
 /**
- * 格式化时长显示
- * 将毫秒转换为易读的格式：3分16秒
- */
-const formatDuration = (ms: number): string => {
-  if (ms < 1000) return `${Math.round(ms)}ms`;
-  if (ms < 60000) return `${Math.round(ms / 1000)}秒`;
-  const mins = Math.floor(ms / 60000);
-  const secs = Math.round((ms % 60000) / 1000);
-  return `${mins}分${secs}秒`;
-};
-
-/**
  * 格式化Token数量
  */
 const formatTokens = (tokens: number): string => {
@@ -252,7 +193,7 @@ const PerformanceStatsCard: React.FC<{
         <div className="text-center">
           <div className="text-xs text-default-400">总耗时</div>
           <div className="text-sm font-bold text-foreground">
-            {formatDuration(report.totalDuration)}
+            {formatDurationMs(report.totalDuration)}
           </div>
         </div>
         <div className="text-center">
@@ -280,26 +221,20 @@ const IssueItem: React.FC<{
 }> = ({ issue }) => {
   const [expanded, setExpanded] = useState(false);
   const hasDetails = issue.context || issue.suggestion;
+  const severity =
+    issue.type === 'critical' || issue.type === 'error'
+      ? 'error'
+      : issue.type === 'warning'
+        ? 'warning'
+        : 'info';
 
   return (
     <div
-      className={`p-2 rounded text-xs transition-all ${
-        issue.type === 'error'
-          ? 'bg-danger-50 text-danger'
-          : issue.type === 'warning'
-            ? 'bg-warning-50 text-warning'
-            : 'bg-primary-50 text-primary'
-      } ${hasDetails ? 'cursor-pointer hover:opacity-80' : ''}`}
+      className={`p-2 rounded text-xs transition-all ${getSeverityColor(severity)} ${hasDetails ? 'cursor-pointer hover:opacity-80' : ''}`}
       onClick={() => hasDetails && setExpanded(!expanded)}
     >
       <div className="flex items-start gap-1.5">
-        {issue.type === 'error' ? (
-          <AlertCircle className="w-3 h-3 flex-shrink-0 mt-0.5" />
-        ) : issue.type === 'warning' ? (
-          <AlertTriangle className="w-3 h-3 flex-shrink-0 mt-0.5" />
-        ) : (
-          <Info className="w-3 h-3 flex-shrink-0 mt-0.5" />
-        )}
+        {getSeverityIcon(severity)}
         <span className="flex-1">{issue.message}</span>
         {hasDetails && (
           <ChevronDown
@@ -349,7 +284,7 @@ const IssuesAccordion: React.FC<{
 
   if (lowScoreDimensions.length === 0) {
     return (
-      <div className="flex items-center justify-center py-8 text-default-400">
+      <div className="flex flex-col items-center justify-center py-8 text-default-400">
         <CheckCircle2 className="w-12 h-12 mb-2 text-success" />
         <div className="text-center">
           <div className="font-medium">质量检查通过</div>
@@ -424,14 +359,13 @@ const IssuesAccordion: React.FC<{
 };
 
 /**
- * 质量报告主组件 - 驾驶舱式布局
+ * 质量报告主组件 - 统一视觉风格
  */
 export const QualityReportCard: React.FC<QualityReportCardProps> = ({
   report,
   t,
   performanceReport,
 }) => {
-  // 统计各类型问题数量（统一使用 severity 口径）
   const { criticalCount, warningCount, infoCount, totalIssues } = useMemo(() => {
     let critical = 0;
     let warning = 0;
@@ -439,7 +373,6 @@ export const QualityReportCard: React.FC<QualityReportCardProps> = ({
 
     report.dimensionScores.forEach(dim => {
       dim.issues.forEach(issue => {
-        // 统一映射：critical/error → 严重, warning → 警告, info → 提示
         const severity =
           issue.type === 'critical' || issue.type === 'error'
             ? 'critical'
@@ -464,20 +397,17 @@ export const QualityReportCard: React.FC<QualityReportCardProps> = ({
   return (
     <Card className="w-full shadow-lg">
       <CardBody className="p-4">
-        {/* Row 1: 6 个核心指标卡片并排 */}
-        <CoreMetricsCards
+        <CoreMetrics
           score={report.score}
           grade={report.overallGrade}
           dimensionScores={report.dimensionScores}
         />
 
-        {/* Row 2: 问题统计 + 性能统计 */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
           <IssueStatsCard critical={criticalCount} warning={warningCount} info={infoCount} />
           {performanceReport && <PerformanceStatsCard report={performanceReport} />}
         </div>
 
-        {/* Row 3: 评分计算详情 */}
         <div className="mb-4">
           <ScoreBreakdown
             dimensionScores={report.dimensionScores}
@@ -486,7 +416,6 @@ export const QualityReportCard: React.FC<QualityReportCardProps> = ({
           />
         </div>
 
-        {/* Row 4: 可折叠的质量维度详情 */}
         <div className="border-t border-content3 pt-4">
           <h5 className="font-medium text-sm flex items-center gap-2 mb-3 px-1">
             <BarChart3 className="w-4 h-4 text-primary" />

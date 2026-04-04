@@ -113,37 +113,6 @@ const Settings: React.FC = () => {
   const [ttsTestResult, setTtsTestResult] = useState<string>('');
   const [ttsTestLoading, setTtsTestLoading] = useState(false);
 
-  // Duration Budget Configuration State
-  const [durationBudgetConfig, setDurationBudgetConfig] = useState({
-    platform: settings.durationBudget?.platform || 'douyin',
-    pace: settings.durationBudget?.pace || 'normal',
-    useDurationBudget: settings.durationBudget?.useDurationBudget ?? false,
-    useProductionPrompt: settings.durationBudget?.useProductionPrompt ?? false,
-    useShotQC: settings.durationBudget?.useShotQC ?? false,
-  });
-
-  // Sync durationBudgetConfig when settings change (e.g., after loading from storage)
-  useEffect(() => {
-    if (settings.durationBudget) {
-      console.log(
-        '[Settings] Syncing durationBudgetConfig from settings:',
-        settings.durationBudget
-      );
-      setDurationBudgetConfig({
-        platform: settings.durationBudget.platform || 'douyin',
-        pace: settings.durationBudget.pace || 'normal',
-        useDurationBudget: settings.durationBudget.useDurationBudget ?? false,
-        useProductionPrompt: settings.durationBudget.useProductionPrompt ?? false,
-        useShotQC: settings.durationBudget.useShotQC ?? false,
-      });
-    }
-  }, [settings.durationBudget]);
-
-  // Debug: log durationBudgetConfig changes
-  useEffect(() => {
-    console.log('[Settings] durationBudgetConfig updated:', durationBudgetConfig);
-  }, [durationBudgetConfig]);
-
   // Edit model state
   const { isOpen: isEditOpen, onOpen: onEditOpen, onClose: onEditClose } = useDisclosure();
   const [editingModel, setEditingModel] = useState<ModelConfig | null>(null);
@@ -619,23 +588,10 @@ const Settings: React.FC = () => {
     // Ensure maxConcurrentJobs is within bounds (1-30)
     const maxJobs = Math.max(1, Math.min(30, settings.maxConcurrentJobs || 3));
 
-    // Ensure durationBudgetConfig has valid values
-    const configToSave = {
-      ...durationBudgetConfig,
-      platform: durationBudgetConfig.platform || 'douyin',
-      pace: durationBudgetConfig.pace || 'normal',
-    };
-
-    console.log('[Settings] Saving duration budget config:', configToSave);
-
     await updateSettings({
       ...settings,
       maxConcurrentJobs: maxJobs,
-      durationBudget: configToSave,
     });
-
-    // Update local state to ensure consistency
-    setDurationBudgetConfig(configToSave);
 
     console.log('[Settings] Settings saved successfully');
     showToast(t.settings?.saved || '设置已保存', 'success');
@@ -643,75 +599,8 @@ const Settings: React.FC = () => {
     setTimeout(() => setSaved(false), 2000);
   };
 
-  // Update duration budget config helper
-  const updateDurationBudget = (key: string, value: any) => {
-    setDurationBudgetConfig(prev => ({ ...prev, [key]: value }));
-  };
-
-  // Handle duration budget toggle with dependency check
-  const handleDurationBudgetToggle = (val: boolean) => {
-    if (val) {
-      // 开启时长预算时，自动开启生产级Prompt
-      setDurationBudgetConfig(prev => ({
-        ...prev,
-        useDurationBudget: true,
-        useProductionPrompt: true,
-      }));
-      showToast(
-        t.settings.durationBudget?.autoEnabledProductionPrompt || '已自动开启生产级Prompt',
-        'success'
-      );
-    } else {
-      setDurationBudgetConfig(prev => ({
-        ...prev,
-        useDurationBudget: false,
-      }));
-    }
-  };
-
-  // Handle production prompt toggle with dependency warning
-  const handleProductionPromptToggle = (val: boolean) => {
-    if (!val && durationBudgetConfig.useDurationBudget) {
-      // 关闭生产级Prompt时，如果时长预算已开启，显示警告
-      const confirmClose = window.confirm(
-        t.settings.durationBudget?.closeProductionPromptWarning ||
-          '关闭"生产级Prompt"将导致"时长预算规划"失效，因为时长预算约束需要通过生产级Prompt才能生效。\n\n请选择：\n• 确定 - 同时关闭时长预算（推荐）\n• 取消 - 仅关闭生产级Prompt（时长预算将失效）'
-      );
-
-      if (confirmClose) {
-        // 同时关闭时长预算
-        setDurationBudgetConfig(prev => ({
-          ...prev,
-          useProductionPrompt: false,
-          useDurationBudget: false,
-        }));
-        showToast(
-          t.settings.durationBudget?.bothDisabled || '已同时关闭时长预算和生产级Prompt',
-          'info'
-        );
-      } else {
-        // 仅关闭生产级Prompt
-        setDurationBudgetConfig(prev => ({
-          ...prev,
-          useProductionPrompt: false,
-        }));
-        showToast(
-          t.settings.durationBudget?.productionPromptDisabledOnly ||
-            '已关闭生产级Prompt，时长预算将失效',
-          'warning'
-        );
-      }
-    } else {
-      setDurationBudgetConfig(prev => ({
-        ...prev,
-        useProductionPrompt: val,
-      }));
-    }
-  };
-
   const navItems = [
     { id: 'general', label: '通用设置', icon: SettingsIcon },
-    { id: 'duration', label: '时长预算', icon: Clock },
     { id: 'models', label: '模型管理', icon: Cpu },
     { id: 'quality', label: '质量评估', icon: Settings2 },
   ];
@@ -1025,222 +914,6 @@ const Settings: React.FC = () => {
         </CardBody>
       </Card>
     </>
-  );
-
-  const renderDuration = () => (
-    <Card
-      className="border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden"
-      radius="lg"
-    >
-      <CardHeader className="px-6 pt-6 pb-3 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <div className="flex flex-col items-start gap-1">
-          <div className="flex items-center gap-2 text-primary">
-            <Clock className="w-5 h-5" />
-            <h2 className="text-xl font-black uppercase tracking-widest">
-              {t.settings.durationBudget?.title || '时长预算配置'}
-            </h2>
-          </div>
-          <p className="text-sm text-slate-400 font-bold uppercase tracking-widest">
-            {t.settings.durationBudget?.desc || '配置剧本解析和分镜生成的时长预算规划'}
-          </p>
-        </div>
-        <Button
-          onPress={handleSave}
-          variant="shadow"
-          startContent={saved ? <CheckCircle className="w-5 h-5" /> : <Save className="w-5 h-5" />}
-          className="font-black text-[14px] uppercase tracking-widest h-11 px-6 rounded-xl shadow-xl shadow-lime-500/30 hover:shadow-lime-500/50 transition-all"
-          style={{
-            background: 'linear-gradient(135deg, #A3E635 0%, #84CC16 100%)',
-            color: '#000000',
-          }}
-        >
-          {saved ? t.common?.saved || '已保存' : t.common?.save || '保存'}
-        </Button>
-      </CardHeader>
-      <CardBody className="px-4 pb-4 pt-3 space-y-4">
-        <div className="space-y-3">
-          <div className="flex items-center gap-2">
-            <div className="w-1 h-5 bg-primary rounded-full" />
-            <h3 className="text-[15px] font-black uppercase tracking-widest text-slate-900 dark:text-white">
-              {t.settings.durationBudget?.basicConfig || '基础配置'}
-              <span className="text-xs text-slate-400 ml-2 font-medium normal-case">
-                {t.settings.durationBudget?.required || '必须'}
-              </span>
-            </h3>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pl-3">
-            <Select
-              label={t.settings.durationBudget?.platformLabel || '目标平台'}
-              labelPlacement="outside"
-              placeholder={t.settings.durationBudget?.platformPlaceholder || '选择发布平台'}
-              selectedKeys={[durationBudgetConfig.platform]}
-              onSelectionChange={keys => {
-                const val = Array.from(keys)[0] as string;
-                updateDurationBudget('platform', val);
-              }}
-              variant="bordered"
-              radius="lg"
-              size="md"
-              classNames={{
-                label: 'font-black uppercase tracking-widest text-[13px] mb-1 text-slate-500',
-                value: 'font-medium text-[13px]',
-              }}
-              startContent={<Film className="w-3.5 h-3.5 text-default-400" />}
-            >
-              <SelectItem key="douyin" value="douyin">
-                {t.settings.durationBudget?.platformDouyin || '抖音'}
-              </SelectItem>
-              <SelectItem key="kuaishou" value="kuaishou">
-                {t.settings.durationBudget?.platformKuaishou || '快手'}
-              </SelectItem>
-              <SelectItem key="bilibili" value="bilibili">
-                {t.settings.durationBudget?.platformBilibili || 'B站'}
-              </SelectItem>
-              <SelectItem key="premium" value="premium">
-                {t.settings.durationBudget?.platformPremium || '精品'}
-              </SelectItem>
-            </Select>
-
-            <Select
-              label={t.settings.durationBudget?.paceLabel || '节奏选择'}
-              labelPlacement="outside"
-              placeholder={t.settings.durationBudget?.pacePlaceholder || '选择视频节奏'}
-              selectedKeys={[durationBudgetConfig.pace]}
-              onSelectionChange={keys => {
-                const val = Array.from(keys)[0] as string;
-                updateDurationBudget('pace', val);
-              }}
-              variant="bordered"
-              radius="lg"
-              size="md"
-              classNames={{
-                label: 'font-black uppercase tracking-widest text-[13px] mb-1 text-slate-500',
-                value: 'font-medium text-[13px]',
-              }}
-              startContent={<Zap className="w-3.5 h-3.5 text-default-400" />}
-            >
-              <SelectItem key="fast" value="fast">
-                {t.settings.durationBudget?.paceFast || '快'}
-              </SelectItem>
-              <SelectItem key="normal" value="normal">
-                {t.settings.durationBudget?.paceNormal || '中'}
-              </SelectItem>
-              <SelectItem key="slow" value="slow">
-                {t.settings.durationBudget?.paceSlow || '慢'}
-              </SelectItem>
-            </Select>
-          </div>
-        </div>
-
-        <Divider className="opacity-50" />
-
-        <div className="space-y-4">
-          <div className="flex items-center gap-2">
-            <div className="w-1 h-5 bg-success rounded-full" />
-            <h3 className="text-[15px] font-black uppercase tracking-widest text-slate-900 dark:text-white">
-              {t.settings.durationBudget?.coreFeatures || '核心功能'}
-              <span className="text-xs text-slate-400 ml-2 font-medium normal-case">
-                {t.settings.durationBudget?.linked || '联动'}
-              </span>
-            </h3>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pl-3">
-            <div className="flex items-center justify-between gap-4 p-3 bg-slate-50 dark:bg-slate-950 rounded-xl border border-slate-100 dark:border-slate-900">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-primary/10 rounded-lg">
-                  <Clock className="w-4 h-4 text-primary" />
-                </div>
-                <div>
-                  <label className="block text-[13px] font-black text-slate-900 dark:text-white uppercase tracking-widest">
-                    {t.settings.durationBudget?.useDurationBudget || '启用时长预算规划'}
-                  </label>
-                  <p className="text-[11px] text-slate-400 font-medium">
-                    {t.settings.durationBudget?.useDurationBudgetDesc ||
-                      '根据平台要求自动规划分镜时长'}
-                  </p>
-                </div>
-              </div>
-              <Switch
-                isSelected={durationBudgetConfig.useDurationBudget}
-                onValueChange={val => handleDurationBudgetToggle(val)}
-                color="primary"
-                size="md"
-                classNames={{
-                  wrapper: 'group-data-[selected=true]:bg-primary',
-                }}
-              />
-            </div>
-
-            <div className="flex items-center justify-between gap-4 p-3 bg-slate-50 dark:bg-slate-950 rounded-xl border border-slate-100 dark:border-slate-900">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-success/10 rounded-lg">
-                  <Sparkles className="w-4 h-4 text-success" />
-                </div>
-                <div>
-                  <label className="block text-[13px] font-black text-slate-900 dark:text-white uppercase tracking-widest">
-                    {t.settings.durationBudget?.useProductionPrompt || '启用生产级Prompt'}
-                  </label>
-                  <p className="text-[11px] text-slate-400 font-medium">
-                    {t.settings.durationBudget?.useProductionPromptDesc || '使用更专业的提示词模板'}
-                  </p>
-                </div>
-              </div>
-              <Switch
-                isSelected={durationBudgetConfig.useProductionPrompt}
-                onValueChange={val => handleProductionPromptToggle(val)}
-                color="success"
-                size="md"
-                classNames={{
-                  wrapper: 'group-data-[selected=true]:bg-success',
-                }}
-              />
-            </div>
-          </div>
-        </div>
-
-        <Divider className="opacity-50" />
-
-        <div className="space-y-4">
-          <div className="flex items-center gap-2">
-            <div className="w-1 h-5 bg-warning rounded-full" />
-            <h3 className="text-[15px] font-black uppercase tracking-widest text-slate-900 dark:text-white">
-              {t.settings.durationBudget?.advancedFeatures || '高级功能'}
-              <span className="text-xs text-slate-400 ml-2 font-medium normal-case">
-                {t.settings.durationBudget?.optional || '可选'}
-              </span>
-            </h3>
-          </div>
-
-          <div className="pl-3">
-            <div className="flex items-center justify-between gap-4 p-3 bg-slate-50 dark:bg-slate-950 rounded-xl border border-slate-100 dark:border-slate-900">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-warning/10 rounded-lg">
-                  <Shield className="w-4 h-4 text-warning" />
-                </div>
-                <div>
-                  <label className="block text-[13px] font-black text-slate-900 dark:text-white uppercase tracking-widest">
-                    {t.settings.durationBudget?.useShotQC || '启用分镜质检'}
-                  </label>
-                  <p className="text-[11px] text-slate-400 font-medium">
-                    {t.settings.durationBudget?.useShotQCDesc || '自动检查分镜质量和时长'}
-                  </p>
-                </div>
-              </div>
-              <Switch
-                isSelected={durationBudgetConfig.useShotQC}
-                onValueChange={val => updateDurationBudget('useShotQC', val)}
-                color="warning"
-                size="md"
-                classNames={{
-                  wrapper: 'group-data-[selected=true]:bg-warning',
-                }}
-              />
-            </div>
-          </div>
-        </div>
-      </CardBody>
-    </Card>
   );
 
   const renderModels = () => (
@@ -2236,7 +1909,6 @@ const Settings: React.FC = () => {
       {/* Main Content */}
       <div className="flex-1 overflow-y-auto p-6 md:p-10 pb-20 bg-slate-50 dark:bg-[#050505]">
         {activeNav === 'general' && renderGeneral()}
-        {activeNav === 'duration' && renderDuration()}
         {activeNav === 'models' && renderModels()}
         {activeNav === 'quality' && <QualityRulesEditor t={t} />}
       </div>

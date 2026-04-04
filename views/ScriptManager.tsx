@@ -40,6 +40,8 @@ import TextCleaner from '../services/textCleaner';
 import PerformanceReportCard from '../components/ScriptParser/PerformanceReportCard';
 import { PerformanceReport as PerformanceReportType } from '../services/parsing/PerformanceMonitor';
 import { DeleteConfirmModal } from '../components/Shared/DeleteConfirmModal';
+import EpisodePlanViewer from '../components/ScriptParser/EpisodePlanViewer';
+import CoherenceReportViewer from '../components/ScriptParser/CoherenceReportViewer';
 
 // Professional Analysis Components
 import { SoundDesignTab } from '../src/components/ScriptParser/SoundDesignTab';
@@ -96,6 +98,10 @@ import {
   Camera,
   User,
   Map,
+  Library,
+  BarChart3,
+  Target,
+  Info,
 } from 'lucide-react';
 
 interface ScriptManagerProps {
@@ -1359,6 +1365,27 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({
                     />
                   </Tab>
 
+                  {/* Episode Plan Tab - 新增：分集方案 */}
+                  {currentScript.parseState?.episodePlan && (
+                    <Tab
+                      key="episode-plan"
+                      title={
+                        <div className="flex items-center gap-2">
+                          <Library size={16} />
+                          <span>分集方案</span>
+                          <Chip size="sm">
+                            {currentScript.parseState.episodePlan.totalEpisodes}
+                          </Chip>
+                        </div>
+                      }
+                    >
+                      <EpisodePlanViewer
+                        episodePlan={currentScript.parseState.episodePlan}
+                        t={{}}
+                      />
+                    </Tab>
+                  )}
+
                   {/* Shots Tab */}
                   <Tab
                     key="shots"
@@ -1423,12 +1450,80 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({
                         </div>
                       }
                     >
-                      {/* 质量报告驾驶舱布局（整合性能统计） */}
-                      <QualityReportCard
-                        report={qualityReport}
-                        performanceReport={performanceReport}
-                        t={t}
-                      />
+                      {/* 功能说明 */}
+                      <div className="mb-4 p-3 bg-content2 rounded-lg border border-content3">
+                        <div className="flex items-start gap-3">
+                          <Info className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
+                          <div className="flex-1">
+                            <p className="text-sm text-slate-300">
+                              <strong>解析质量</strong>
+                              ：检查解析结果的完整性、准确性、一致性（角色、场景、物品完整性）
+                            </p>
+                            <p className="text-sm text-slate-400 mt-1">
+                              <strong>连贯性检查</strong>
+                              ：检查剧情和镜头的连贯性、视觉质量、叙事节奏
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* 质量Tab内部子Tab */}
+                      <Tabs classNames={{ tabList: 'gap-2' }}>
+                        {/* 解析质量子Tab */}
+                        <Tab
+                          key="parseQuality"
+                          title={
+                            <div className="flex items-center gap-2">
+                              <BarChart3 size={16} />
+                              <span>解析质量</span>
+                            </div>
+                          }
+                        >
+                          <div className="pt-4">
+                            <QualityReportCard
+                              report={qualityReport}
+                              performanceReport={performanceReport}
+                              t={t}
+                            />
+                          </div>
+                        </Tab>
+
+                        {/* 连贯性检查子Tab - 仅当coherenceReport存在时显示 */}
+                        {currentScript.parseState?.coherenceReport && (
+                          <Tab
+                            key="coherence"
+                            title={
+                              <div className="flex items-center gap-2">
+                                <Target size={16} />
+                                <span>连贯性检查</span>
+                                <Tooltip content="剧情和镜头连贯性检查" delay={300}>
+                                  <Chip
+                                    size="sm"
+                                    color={
+                                      currentScript.parseState.coherenceReport.qualityScore
+                                        .overall >= 80
+                                        ? 'success'
+                                        : currentScript.parseState.coherenceReport.qualityScore
+                                              .overall >= 60
+                                          ? 'warning'
+                                          : 'danger'
+                                    }
+                                  >
+                                    {currentScript.parseState.coherenceReport.qualityScore.overall}
+                                  </Chip>
+                                </Tooltip>
+                              </div>
+                            }
+                          >
+                            <div className="pt-4">
+                              <CoherenceReportViewer
+                                report={currentScript.parseState.coherenceReport}
+                                t={t}
+                              />
+                            </div>
+                          </Tab>
+                        )}
+                      </Tabs>
                     </Tab>
                   )}
                 </Tabs>

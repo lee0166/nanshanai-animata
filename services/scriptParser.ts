@@ -68,6 +68,10 @@ import {
   validateBudget,
 } from './parsing/BudgetPlanner';
 import {
+  mapCreativeIntentToBudget,
+  getBudgetConfigDescription,
+} from './parsing/CreativeIntentBudgetMapper';
+import {
   ParseStrategySelector,
   StrategySelection,
   ParseStrategy,
@@ -80,6 +84,9 @@ import { ProgressTracker } from './parsing/ProgressTracker';
 import { generateShotNumbers } from './utils/shotNumberGenerator';
 import { resolveModelConfig } from './modelUtils';
 import { DEFAULT_MODELS } from '../config/models';
+import { EpisodePlanner } from './parsing/EpisodePlanner';
+import PlatformStandardService from './parsing/PlatformStandardService';
+import { CoherenceChecker } from './parsing/CoherenceChecker';
 
 /**
  * Script Parser Configuration Interface
@@ -123,6 +130,11 @@ export interface ScriptParserConfig {
     visualReferences?: string[];
     creativeNotes?: string;
     targetPlatforms?: ('douyin' | 'kuaishou' | 'bilibili' | 'theatrical')[];
+    /** 时长控制（高级设置） */
+    durationControl?: {
+      targetPlatform?: 'douyin' | 'kuaishou' | 'bilibili' | 'premium';
+      pacingPreference?: 'fast' | 'normal' | 'slow';
+    };
   };
 
   // ========== 2.0版本：已移除的配置（保留字段用于兼容）==========
@@ -1428,16 +1440,20 @@ export class ScriptParser {
       return;
     }
 
-    // Initialize context injector with default options
-    this.contextInjector = new ContextInjector({
-      includeStoryContext: true,
-      includeVisualContext: true,
-      includeEraContext: true,
-      includeEmotionalContext: true,
-      includeConsistencyRules: true,
-      maxPromptLength: 8000,
-    });
-    console.log('[ScriptParser] ContextInjector initialized');
+    // Initialize context injector with default options and creative intent
+    this.contextInjector = new ContextInjector(
+      {
+        includeStoryContext: true,
+        includeVisualContext: true,
+        includeEraContext: true,
+        includeEmotionalContext: true,
+        includeConsistencyRules: true,
+        includeCreativeIntent: true,
+        maxPromptLength: 8000,
+      },
+      this.parserConfig.creativeIntent
+    );
+    console.log('[ScriptParser] ContextInjector initialized with creative intent');
 
     // GlobalContextExtractor will be initialized when needed with LLM provider
     console.log('[ScriptParser] Global context support initialized');
@@ -1478,6 +1494,24 @@ export class ScriptParser {
       } else if (!config.useCache) {
         this.multiLevelCache = null;
       }
+    }
+
+    // 更新ContextInjector中的creativeIntent
+    if (config.creativeIntent !== undefined && this.contextInjector) {
+      // 重新创建ContextInjector以更新creativeIntent
+      this.contextInjector = new ContextInjector(
+        {
+          includeStoryContext: true,
+          includeVisualContext: true,
+          includeEraContext: true,
+          includeEmotionalContext: true,
+          includeConsistencyRules: true,
+          includeCreativeIntent: true,
+          maxPromptLength: 8000,
+        },
+        config.creativeIntent
+      );
+      console.log('[ScriptParser] ContextInjector updated with new creative intent');
     }
   }
 
@@ -2921,6 +2955,12 @@ ${chunkContent.substring(0, 4000)}
       ? `高潮场景必须至少有一个超过${climaxMinDuration}秒的长镜头，用于情感爆发或关键转折`
       : '本场景非高潮场景，无特殊长镜头要求';
 
+    // 获取目标平台（从creativeIntent优先，兼容旧配置）
+    const platformFromCreativeIntent =
+      this.parserConfig.creativeIntent?.durationControl?.targetPlatform;
+    const targetPlatformKey =
+      platformFromCreativeIntent || this.parserConfig.targetPlatform || 'douyin';
+
     // 获取平台显示名称
     const platformMap: Record<string, string> = {
       douyin: '抖音（竖屏，快节奏）',
@@ -2928,14 +2968,29 @@ ${chunkContent.substring(0, 4000)}
       bilibili: 'B站（横屏，多样化）',
       premium: '精品短剧（横屏，高质量）',
     };
-    const targetPlatform = platformMap[this.parserConfig.targetPlatform || 'douyin'];
+    const targetPlatform = platformMap[targetPlatformKey];
+
+    // 阶段2.5：平台标准注入 - 将平台标准注入到Prompt中
+    let platformStandardInjection = '';
+    const platformStandard = PlatformStandardService.getStandard(targetPlatformKey);
+    if (platformStandard) {
+      const hookTypesDesc = platformStandard.hookRequirements.hookTypes.join('、');
+      platformStandardInjection = `
+
+【平台标准要求（${targetPlatform}）】
+- 钩子要求：${platformStandard.hookRequirements.hookWithinSeconds}秒内必须有钩子（类型：${hookTypesDesc}）
+- 反转要求：每${platformStandard.twistRequirements.twistEverySeconds}秒一个反转
+- 人物出场：${platformStandard.characterIntroductionRequirements.characterWithinSeconds}秒内人物必须出场
+- 推荐分镜密度：每集${platformStandard.shotsPerEpisodeRange[0]}-${platformStandard.shotsPerEpisodeRange[1]}个分镜
+`;
+    }
 
     // 获取总时长预算
     const totalDuration =
       this.durationBudget?.totalDuration || sceneBudget.shotCount * sceneBudget.averageShotDuration;
 
     // 构建Prompt
-    const prompt = PROMPTS.productionShots
+    let prompt = PROMPTS.productionShots
       .replace('{content}', sceneContent.substring(0, 6000))
       .replace(/{sceneName}/g, sceneName)
       .replace('{sceneDescription}', sceneDescription)
@@ -2953,6 +3008,21 @@ ${chunkContent.substring(0, 4000)}
       .replace('{minTotalDuration}', String(minTotalDuration))
       .replace('{maxTotalDuration}', String(maxTotalDuration))
       .replace('{climaxRequirement}', climaxRequirement);
+
+    // 阶段2.5：平台标准注入 - 在项目预算信息后注入平台标准
+    if (platformStandardInjection) {
+      console.log('[ScriptParser] Injecting platform standard into production prompt');
+      // 在"📊 项目预算信息"后面添加平台标准
+      prompt = prompt.replace('📊 项目预算信息', `📊 项目预算信息${platformStandardInjection}`);
+    }
+
+    // Inject creative intent if available
+    if (this.globalContext && this.contextInjector) {
+      console.log('[ScriptParser] Injecting creative intent into production prompt');
+      prompt = this.contextInjector.injectForShots(prompt, this.globalContext, {
+        name: sceneName,
+      } as any);
+    }
 
     return prompt;
   }
@@ -4753,6 +4823,83 @@ ${content}
         }
       }
 
+      // Step 5: Episode Planning (分集规划)
+      // 虽然是短文本，但依然尝试进行分集规划
+      const wordCountForEpisode = this.countWords(content);
+      const episodeThreshold = 800; // 短文本也尝试分集，阈值降低到800字
+
+      if (wordCountForEpisode >= episodeThreshold) {
+        state.stage = 'episode_planning';
+        state.progress = 96;
+        onProgress?.('episode_planning', 96, '正在规划分集...');
+
+        try {
+          console.log('[ScriptParser] Starting episode planning (fast path)...');
+          console.log(
+            `[ScriptParser] Word count: ${wordCountForEpisode} >= threshold: ${episodeThreshold}, executing episode planning`
+          );
+
+          // 获取目标平台和节奏偏好
+          const platform =
+            this.parserConfig.creativeIntent?.durationControl?.targetPlatform || 'douyin';
+          const pacingPreference =
+            this.parserConfig.creativeIntent?.durationControl?.pacingPreference || 'normal';
+          const charCount = content.length;
+          const scenes = state.scenes || [];
+
+          console.log(
+            `[ScriptParser] Episode planning - platform: ${platform}, pacing: ${pacingPreference}, word count: ${wordCountForEpisode}, char count: ${charCount}`
+          );
+
+          // 计算分集方案
+          const episodePlan = EpisodePlanner.calculateEpisodePlan(
+            scenes,
+            platform,
+            charCount,
+            pacingPreference
+          );
+
+          // 保存分集方案到状态
+          state.episodePlan = episodePlan;
+
+          console.log(
+            `[ScriptParser] Episode plan calculated: ${episodePlan.totalEpisodes} episodes, total duration: ${Math.round(episodePlan.totalDuration / 60)} minutes`
+          );
+        } catch (error) {
+          console.warn('[ScriptParser] Episode planning failed (fast path):', error);
+          state.episodePlan = undefined;
+        }
+      } else {
+        console.log(
+          `[ScriptParser] Skipping episode planning - word count: ${wordCountForEpisode} < threshold: ${episodeThreshold}`
+        );
+        state.episodePlan = undefined;
+      }
+
+      // Step 6: Coherence Check (连贯性检查)
+      state.stage = 'coherence_check';
+      state.progress = 98;
+      onProgress?.('coherence_check', 98, '正在检查连贯性...');
+
+      try {
+        console.log('[ScriptParser] Starting coherence check (fast path)...');
+
+        const coherenceReport = CoherenceChecker.generateCoherenceReport(
+          state.episodePlan,
+          state.scenes || [],
+          state.shots || []
+        );
+
+        state.coherenceReport = coherenceReport;
+
+        console.log(
+          `[ScriptParser] Coherence check complete: valid=${coherenceReport.valid}, plot issues=${coherenceReport.plotCoherence.issues.length}, shot issues=${coherenceReport.shotCoherence.issues.length}`
+        );
+      } catch (error) {
+        console.warn('[ScriptParser] Coherence check failed (fast path):', error);
+        state.coherenceReport = undefined;
+      }
+
       state.stage = 'completed';
       state.progress = 100;
       onProgress?.('completed', 100, '解析完成！');
@@ -5358,14 +5505,24 @@ ${content}
         `[ScriptParser] Recommended batch size: ${strategySelection.recommendedBatchSize}`
       );
     } else {
-      // Fallback to legacy logic
+      // Fallback to legacy logic - 三阶段阈值设计
       const wordCount = this.countWords(content);
+      const charCount = content.length;
+
+      // 三阶段阈值：
+      // < 300字：Fast Path（快速处理）
+      // 300-3000字：Standard Path（包含budget，不包含episode_planning）
+      // > 3000字：Standard Path（包含budget + episode_planning）
+      const isFastPath = wordCount < 300;
+
       strategySelection = {
-        strategy: wordCount < 800 ? 'fast' : 'standard',
-        reason: 'Legacy fallback selection',
+        strategy: isFastPath ? 'fast' : 'standard',
+        reason: isFastPath
+          ? `短文本快速路径 (${wordCount} < 300 字)`
+          : `标准路径 (${wordCount} >= 300 字)`,
         wordCount,
-        estimatedTime: wordCount < 800 ? 60 : Math.ceil(wordCount / 200) * 15,
-        recommendedBatchSize: wordCount < 800 ? 10 : 5,
+        estimatedTime: isFastPath ? 60 : Math.ceil(wordCount / 200) * 15,
+        recommendedBatchSize: isFastPath ? 10 : 5,
       };
     }
 
@@ -5674,11 +5831,13 @@ ${content}
           const existingShotsForBudget = state.shots || [];
 
           if (existingShotsForBudget.length > 0) {
-            // Calculate budget based on existing shots
-            this.durationBudget = calculateBudget(existingShotsForBudget, {
-              platform: this.parserConfig.targetPlatform || 'douyin',
-              pace: this.parserConfig.paceType || 'normal',
+            // Calculate budget based on existing shots - 使用CreativeIntentBudgetMapper
+            const budgetMapping = mapCreativeIntentToBudget(this.parserConfig.creativeIntent, {
+              platform: this.parserConfig.targetPlatform,
+              pace: this.parserConfig.paceType,
             });
+            console.log('[ScriptParser]', getBudgetConfigDescription(budgetMapping));
+            this.durationBudget = calculateBudget(existingShotsForBudget, budgetMapping.options);
           } else {
             // Create placeholder shots from scenes for budget estimation
             const estimatedShots: Shot[] = [];
@@ -5712,10 +5871,13 @@ ${content}
               }
             });
 
-            this.durationBudget = calculateBudget(estimatedShots, {
-              platform: this.parserConfig.targetPlatform || 'douyin',
-              pace: this.parserConfig.paceType || 'normal',
+            // Calculate budget - 使用CreativeIntentBudgetMapper
+            const budgetMapping = mapCreativeIntentToBudget(this.parserConfig.creativeIntent, {
+              platform: this.parserConfig.targetPlatform,
+              pace: this.parserConfig.paceType,
             });
+            console.log('[ScriptParser]', getBudgetConfigDescription(budgetMapping));
+            this.durationBudget = calculateBudget(estimatedShots, budgetMapping.options);
           }
 
           // Validate budget
@@ -5736,6 +5898,60 @@ ${content}
           // Continue without budget if calculation fails
           this.durationBudget = null;
         }
+      }
+
+      // Stage 3.7: Episode Planning (长篇小说智能分集)
+      // 三阶段阈值：只有 > 3000字才执行分集规划
+      const wordCountForEpisode = this.countWords(content);
+      const episodeThreshold = 3000; // 只有超过3000字才进行分集规划
+
+      if (wordCountForEpisode >= episodeThreshold) {
+        state.stage = 'episode_planning';
+        state.progress = 69;
+        enhancedOnProgress?.('episode_planning', 69, '正在规划分集...');
+
+        try {
+          console.log('[ScriptParser] Starting episode planning...');
+          console.log(
+            `[ScriptParser] Word count: ${wordCountForEpisode} >= threshold: ${episodeThreshold}, executing episode planning`
+          );
+
+          // 获取目标平台和节奏偏好
+          const platform =
+            this.parserConfig.creativeIntent?.durationControl?.targetPlatform || 'douyin';
+          const pacingPreference =
+            this.parserConfig.creativeIntent?.durationControl?.pacingPreference || 'normal';
+          const charCount = content.length;
+
+          console.log(
+            `[ScriptParser] Episode planning - platform: ${platform}, pacing: ${pacingPreference}, word count: ${wordCountForEpisode}, char count: ${charCount}`
+          );
+
+          // 计算分集方案
+          const episodePlan = EpisodePlanner.calculateEpisodePlan(
+            scenes,
+            platform,
+            charCount,
+            pacingPreference
+          );
+
+          // 保存分集方案到状态
+          state.episodePlan = episodePlan;
+          await this.saveState(scriptId, projectId, state);
+
+          console.log(
+            `[ScriptParser] Episode plan calculated: ${episodePlan.totalEpisodes} episodes, total duration: ${Math.round(episodePlan.totalDuration / 60)} minutes`
+          );
+        } catch (error) {
+          console.warn('[ScriptParser] Episode planning failed:', error);
+          // 继续执行，不中断流程
+          state.episodePlan = undefined;
+        }
+      } else {
+        console.log(
+          `[ScriptParser] Skipping episode planning - word count: ${wordCountForEpisode} < threshold: ${episodeThreshold}`
+        );
+        state.episodePlan = undefined;
       }
 
       // Stage 4: Shots (Phase 2.3: Optimized batch generation)
@@ -5955,6 +6171,32 @@ ${content}
         }
       }
 
+      // Stage 5: Coherence Check (阶段2.4：剧情连贯性检查)
+      state.stage = 'coherence_check';
+      state.progress = 97;
+      enhancedOnProgress?.('coherence_check', 97, '正在检查连贯性...');
+
+      try {
+        console.log('[ScriptParser] Starting coherence check...');
+
+        const coherenceReport = CoherenceChecker.generateCoherenceReport(
+          state.episodePlan,
+          state.scenes || [],
+          state.shots || []
+        );
+
+        state.coherenceReport = coherenceReport;
+        await this.saveState(scriptId, projectId, state);
+
+        console.log(
+          `[ScriptParser] Coherence check complete: valid=${coherenceReport.valid}, plot issues=${coherenceReport.plotCoherence.issues.length}, shot issues=${coherenceReport.shotCoherence.issues.length}`
+        );
+      } catch (error) {
+        console.warn('[ScriptParser] Coherence check failed:', error);
+        // 继续执行，不中断流程
+        state.coherenceReport = undefined;
+      }
+
       enhancedOnProgress?.('completed', 100, '解析完成！');
       await this.saveState(scriptId, projectId, state);
 
@@ -6095,14 +6337,16 @@ ${content}
           // Estimate stage progress based on overall progress ranges
           const stageRanges: Record<ParseStage, [number, number]> = {
             idle: [0, 0],
-            metadata: [0, 15],
-            characters: [15, 40],
-            scenes: [40, 70],
-            items: [55, 60], // Note: items is between scenes
-            shots: [70, 95],
-            refinement: [68, 70],
-            budget: [69, 70],
-            completed: [95, 100],
+            metadata: [0, 12],
+            characters: [12, 32],
+            scenes: [32, 57],
+            items: [52, 56], // Note: items is between scenes
+            refinement: [55, 58],
+            budget: [57, 59],
+            episode_planning: [59, 69],
+            shots: [69, 92],
+            coherence_check: [92, 97],
+            completed: [97, 100],
             error: [0, 100],
           };
 

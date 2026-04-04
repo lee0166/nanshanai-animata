@@ -36,13 +36,15 @@ export interface ProgressTrackerConfig {
  */
 export const DEFAULT_STAGE_WEIGHTS: Record<ParseStage, number> = {
   idle: 0,
-  metadata: 0.15, // 15% - 元数据提取
-  characters: 0.25, // 25% - 角色分析
-  scenes: 0.25, // 25% - 场景分析
+  metadata: 0.12, // 12% - 元数据提取
+  characters: 0.2, // 20% - 角色分析
+  scenes: 0.2, // 20% - 场景分析
   items: 0.05, // 5% - 物品提取
-  shots: 0.25, // 25% - 分镜生成
+  shots: 0.2, // 20% - 分镜生成
   refinement: 0.03, // 3% - 结果优化
   budget: 0.02, // 2% - 时长预算
+  episode_planning: 0.05, // 5% - 分集规划
+  coherence_check: 0.03, // 3% - 连贯性检查
   completed: 0,
   error: 0,
 };
@@ -59,6 +61,8 @@ export const SHORT_TEXT_STAGE_WEIGHTS: Record<ParseStage, number> = {
   shots: 0.2, // 20% - 分镜生成
   refinement: 0.0, // 0% - 跳过优化
   budget: 0.0, // 0% - 跳过预算
+  episode_planning: 0.0, // 0% - 短文本跳过分集规划
+  coherence_check: 0.0, // 0% - 短文本跳过连贯性检查
   completed: 0,
   error: 0,
 };
@@ -68,13 +72,15 @@ export const SHORT_TEXT_STAGE_WEIGHTS: Record<ParseStage, number> = {
  */
 export const LONG_TEXT_STAGE_WEIGHTS: Record<ParseStage, number> = {
   idle: 0,
-  metadata: 0.1, // 10% - 元数据提取
-  characters: 0.2, // 20% - 角色分析
-  scenes: 0.2, // 20% - 场景分析
-  items: 0.05, // 5% - 物品提取
-  shots: 0.4, // 40% - 分镜生成（占比更高）
+  metadata: 0.08, // 8% - 元数据提取
+  characters: 0.15, // 15% - 角色分析
+  scenes: 0.15, // 15% - 场景分析
+  items: 0.04, // 4% - 物品提取
+  shots: 0.35, // 35% - 分镜生成（占比更高）
   refinement: 0.03, // 3% - 结果优化
   budget: 0.02, // 2% - 时长预算
+  episode_planning: 0.1, // 10% - 分集规划（长文本需要）
+  coherence_check: 0.08, // 8% - 连贯性检查（长文本需要）
   completed: 0,
   error: 0,
 };

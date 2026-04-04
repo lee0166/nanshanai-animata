@@ -479,8 +479,42 @@ export function calculateBudget(
     emotionalTurningPoints * 6 + // 情绪转折点 × 6秒
     actionScenes * 3; // 动作场景 × 3秒（节奏快）
 
-  // 确保基础时长在合理范围内（最小60秒，最大600秒）
-  calculatedDuration = Math.max(60, Math.min(600, calculatedDuration));
+  // 应用平台和节奏系数
+  let platformMultiplier = 1.0;
+  let paceMultiplier = 1.0;
+
+  // 平台系数
+  switch (platform) {
+    case 'douyin':
+    case 'kuaishou':
+      platformMultiplier = 0.6; // 抖音/快手更短
+      break;
+    case 'bilibili':
+      platformMultiplier = 1.0; // B站标准
+      break;
+    case 'premium':
+      platformMultiplier = 1.3; // 精品更长
+      break;
+  }
+
+  // 节奏系数
+  switch (pace) {
+    case 'fast':
+      paceMultiplier = 0.7; // 快节奏更短
+      break;
+    case 'normal':
+      paceMultiplier = 1.0; // 中节奏标准
+      break;
+    case 'slow':
+      paceMultiplier = 1.4; // 慢节奏更长
+      break;
+  }
+
+  // 应用系数
+  calculatedDuration = calculatedDuration * platformMultiplier * paceMultiplier;
+
+  // 移除硬约束，由分集方案控制时长
+  // calculatedDuration = Math.max(60, Math.min(600, calculatedDuration));
 
   // 如果指定了目标时长，使用目标时长
   const targetTotalDuration = targetDuration ?? calculatedDuration;
@@ -580,8 +614,12 @@ export function calculateBudget(
 
     const allocatedDuration = targetTotalDuration * weightRatio;
 
+    // 计算推荐的分镜数量（基于场景时长，平均每镜3-5秒）
+    // 关键修复：不再使用场景解析时已有的分镜数量，而是基于时长计算
+    const recommendedShotCountForScene = Math.max(5, Math.ceil(allocatedDuration / 4));
+
     // 计算每个分镜的平均时长
-    const averageShotDuration = scene.shots.length > 0 ? allocatedDuration / scene.shots.length : 0;
+    const averageShotDuration = allocatedDuration / recommendedShotCountForScene;
 
     sceneBudgets.push({
       sceneId: scene.sceneId,
@@ -590,7 +628,7 @@ export function calculateBudget(
       weight: scene.weight,
       wordCount: scene.wordCount,
       allocatedDuration: Math.round(allocatedDuration * 10) / 10,
-      shotCount: scene.shots.length,
+      shotCount: recommendedShotCountForScene,
       averageShotDuration: Math.round(averageShotDuration * 10) / 10,
     });
 
