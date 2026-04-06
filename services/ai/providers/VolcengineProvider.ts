@@ -343,7 +343,8 @@ export class VolcengineProvider extends BaseProvider {
         body.generate_audio = false;
       }
 
-      console.log(`[VolcengineProvider] Video Request body:`, JSON.stringify(body, null, 2));
+      // 打印请求体（直接输出对象，避免 JSON.stringify 的 Unicode 转义问题）
+      console.log(`[VolcengineProvider] Video Request body:`, body);
 
       const createRes = await this.makeRequest(createUrl, {
         method: 'POST',

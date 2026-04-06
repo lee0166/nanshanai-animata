@@ -141,7 +141,8 @@ export class ModelscopeProvider extends BaseProvider {
         }
 
         const data: ModelscopeTaskResponse = await response.json();
-        console.log(`[ModelscopeProvider] Task ${taskId} response:`, JSON.stringify(data, null, 2));
+        // 打印响应数据（直接输出对象，避免 JSON.stringify 的 Unicode 转义问题）
+        console.log(`[ModelscopeProvider] Task ${taskId} response:`, data);
 
         if (data.task_status === 'SUCCEED') {
           if (data.output_images && data.output_images.length > 0) {

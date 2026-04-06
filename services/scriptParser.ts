@@ -4857,8 +4857,8 @@ ${content}
         // 尝试直接解析
         parsedData = JSON.parse(response);
 
-        // DEBUG: 打印解析后的数据
-        console.log('[DEBUG] parsedData:', JSON.stringify(parsedData, null, 2));
+        // DEBUG: 打印解析后的数据（直接输出对象，避免 JSON.stringify 的 Unicode 转义问题）
+        console.log('[DEBUG] parsedData:', parsedData);
         console.log('[DEBUG] visualStyle:', parsedData.visualStyle);
         console.log('[DEBUG] characters count:', parsedData.characters?.length);
         console.log('[DEBUG] shots count:', parsedData.shots?.length);
