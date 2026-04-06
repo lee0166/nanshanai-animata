@@ -99,6 +99,17 @@ export interface QualityAnalyzerConfig {
   checkNameConsistency: boolean;
   checkDuplicateNames: boolean;
   dramaticRulesMinScore: number;
+  // 新增质量评估配置
+  gradeThresholdA?: number;
+  gradeThresholdB?: number;
+  gradeThresholdC?: number;
+  gradeThresholdD?: number;
+  confidenceStageMetadata?: number;
+  confidenceStageCharacters?: number;
+  confidenceStageScenes?: number;
+  confidenceStageShots?: number;
+  confidenceStageCompleted?: number;
+  shotTypeJumpWarningThreshold?: number;
 }
 
 const DEFAULT_CONFIG: QualityAnalyzerConfig = {
@@ -109,6 +120,17 @@ const DEFAULT_CONFIG: QualityAnalyzerConfig = {
   checkNameConsistency: true,
   checkDuplicateNames: true,
   dramaticRulesMinScore: 60,
+  // 新增质量评估配置默认值
+  gradeThresholdA: 90,
+  gradeThresholdB: 80,
+  gradeThresholdC: 70,
+  gradeThresholdD: 60,
+  confidenceStageMetadata: 0.3,
+  confidenceStageCharacters: 0.5,
+  confidenceStageScenes: 0.7,
+  confidenceStageShots: 0.9,
+  confidenceStageCompleted: 1.0,
+  shotTypeJumpWarningThreshold: 4,
 };
 
 /**
@@ -874,8 +896,9 @@ export class QualityAnalyzer {
         const currentIndex = shotTypeOrder.indexOf(currentShot.shotType);
         const nextIndex = shotTypeOrder.indexOf(nextShot.shotType);
         const jump = Math.abs(currentIndex - nextIndex);
+        const jumpWarningThreshold = this.config.shotTypeJumpWarningThreshold ?? 4;
 
-        if (jump >= 4) {
+        if (jump >= jumpWarningThreshold) {
           issues.push({
             type: 'warning',
             message: '景别跳跃过大，可能影响空间连贯性',
@@ -1224,10 +1247,14 @@ export class QualityAnalyzer {
    * 计算评级
    */
   private calculateGrade(score: number): string {
-    if (score >= 90) return 'A';
-    if (score >= 80) return 'B';
-    if (score >= 70) return 'C';
-    if (score >= 60) return 'D';
+    const thresholdA = this.config.gradeThresholdA ?? 90;
+    const thresholdB = this.config.gradeThresholdB ?? 80;
+    const thresholdC = this.config.gradeThresholdC ?? 70;
+    const thresholdD = this.config.gradeThresholdD ?? 60;
+    if (score >= thresholdA) return 'A';
+    if (score >= thresholdB) return 'B';
+    if (score >= thresholdC) return 'C';
+    if (score >= thresholdD) return 'D';
     return 'F';
   }
 
@@ -1315,11 +1342,11 @@ export class QualityAnalyzer {
   private calculateConfidence(dimensionScores: DimensionScore[], stage: string): number {
     // 基于完成阶段和维度分数计算
     const stageConfidence: Record<string, number> = {
-      metadata: 0.3,
-      characters: 0.5,
-      scenes: 0.7,
-      shots: 0.9,
-      completed: 1.0,
+      metadata: this.config.confidenceStageMetadata ?? 0.3,
+      characters: this.config.confidenceStageCharacters ?? 0.5,
+      scenes: this.config.confidenceStageScenes ?? 0.7,
+      shots: this.config.confidenceStageShots ?? 0.9,
+      completed: this.config.confidenceStageCompleted ?? 1.0,
     };
 
     const baseConfidence = stageConfidence[stage] || 0.5;

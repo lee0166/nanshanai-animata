@@ -94,8 +94,35 @@ export interface EmotionalContext {
 export interface GlobalContextExtractorConfig {
   /** 是否提取情绪曲线，默认true */
   extractEmotionalArc?: boolean;
-  /** 文本长度阈值，低于此值跳过情绪曲线提取，默认800 */
+  /** 文本长度阈值，低于此值跳过情绪曲线提取，默认5000 */
   textLengthThreshold?: number;
+
+  // ========== 新增：完全动态配置 ==========
+  /** 提取模式：simple（当前）vs chunked（分块汇总） */
+  extractionMode?: 'simple' | 'chunked';
+  /** 分块大小（字符），默认20000（基于中文长篇小说+主流长上下文模型） */
+  chunkSize?: number;
+  /** 块重叠（字符），默认2000（足够覆盖核心角色、场景、结尾） */
+  chunkOverlap?: number;
+  /** Simple模式单次提取长度（字符），默认20000 */
+  simpleExtractionLength?: number;
+  /** 故事提取长度（字符），默认15000 */
+  storyExtractionLength?: number;
+  /** 视觉提取长度（字符），默认25000（⭐分镜核心，最长！） */
+  visualExtractionLength?: number;
+}
+
+/**
+ * 冲突检测接口
+ * 用于检测不同块之间的上下文冲突
+ */
+export interface Conflict {
+  /** 冲突类型：era/visual/emotional等 */
+  type: string;
+  /** 冲突的值列表 */
+  values: string[];
+  /** 冲突描述 */
+  description: string;
 }
 
 /**
@@ -114,7 +141,15 @@ export class GlobalContextExtractor {
     this.modelConfig = config;
     this.config = {
       extractEmotionalArc: true,
-      textLengthThreshold: 800,
+      textLengthThreshold: 5000, // 从800调整到5000，避免碎片对话/动作
+
+      // ========== 新增：完全动态配置，针对中文长篇小说+分镜视觉提取 ==========
+      extractionMode: 'simple', // 默认simple，不改变现有行为
+      chunkSize: 20000, // 从4000调整到20000，不浪费模型能力，切不断完整剧情
+      chunkOverlap: 2000, // 从500调整到2000，覆盖核心角色、场景、结尾
+      simpleExtractionLength: 20000, // 从6000调整到20000
+      storyExtractionLength: 15000, // 从8000调整到15000
+      visualExtractionLength: 25000, // 从5000调整到25000（⭐最长！分镜核心！）
       ...extractorConfig,
     };
   }
@@ -170,16 +205,35 @@ export class GlobalContextExtractor {
    * V2 优化：使用单次 LLM 调用替代原来的 3 次调用，减少 60-70% 的耗时
    * 如果单次调用失败，自动回退到原来的并行提取方式
    *
+   * V3 优化：完全动态配置，无硬编码（默认simple模式）
+   *
    * @param content - 剧本/小说文本内容
    * @returns 全局上下文对象
    */
   async extract(content: string): Promise<GlobalContext> {
-    console.log('[GlobalContextExtractor] Starting optimized extraction (single LLM call)...');
+    console.log('[GlobalContextExtractor] Starting extraction...');
     const startTime = Date.now();
 
+    // ========== TODO: CHUNKED模式待实现 ==========
+    // if (this.config.extractionMode === 'chunked') {
+    //   console.log('[GlobalContextExtractor] Using CHUNKED extraction mode');
+    //   return this.extractChunked(content);
+    // }
+
+    console.log('[GlobalContextExtractor] Using SIMPLE extraction mode');
+    return this.extractSimple(content, startTime);
+  }
+
+  /**
+   * Simple模式提取（现有逻辑）
+   */
+  private async extractSimple(content: string, startTime: number): Promise<GlobalContext> {
     try {
+      // 使用配置的长度
+      const extractLength = this.config.simpleExtractionLength || 20000;
+
       // V2: 尝试使用单次调用提取所有上下文
-      const unifiedContext = await this.extractUnifiedContext(content);
+      const unifiedContext = await this.extractUnifiedContext(content, extractLength);
 
       const duration = Date.now() - startTime;
       console.log(`[GlobalContextExtractor] Unified extraction completed in ${duration}ms`);
@@ -187,7 +241,7 @@ export class GlobalContextExtractor {
       // 根据配置决定是否提取情绪曲线
       const shouldExtractEmotional =
         this.config.extractEmotionalArc !== false &&
-        content.length >= (this.config.textLengthThreshold || 800);
+        content.length >= (this.config.textLengthThreshold || 5000);
 
       let emotionalContext: EmotionalContext;
       if (shouldExtractEmotional) {
@@ -233,17 +287,24 @@ export class GlobalContextExtractor {
   /**
    * V2 优化：单次 LLM 调用提取所有上下文
    * 将 story + visual + era 合并为一次调用，减少网络往返
+   *
+   * @param content - 剧本内容
+   * @param extractLength - 提取长度（字符）
    */
-  private async extractUnifiedContext(content: string): Promise<{
+  private async extractUnifiedContext(
+    content: string,
+    extractLength?: number
+  ): Promise<{
     story: StoryContext;
     visual: VisualContext;
     era: EraContext;
   }> {
+    const length = extractLength || this.config.simpleExtractionLength || 20000;
     const prompt = `
 请深入分析以下剧本/小说，一次性提取故事核心、视觉风格和时代背景信息。
 
 【剧本内容】
-${content.substring(0, 6000)}
+${content.substring(0, length)}
 
 请提取以下信息并以JSON格式返回：
 {
@@ -434,11 +495,12 @@ ${content.substring(0, 6000)}
    * @returns 故事上下文
    */
   private async extractStoryContext(content: string): Promise<StoryContext> {
+    const extractLength = this.config.storyExtractionLength || 15000;
     const prompt = `
 请深入分析以下剧本/小说的故事核心：
 
 【剧本内容】
-${content.substring(0, 8000)}
+${content.substring(0, extractLength)}
 
 请提取以下信息并以JSON格式返回：
 {
@@ -528,6 +590,7 @@ ${content.substring(0, 8000)}
     content: string,
     storyContext: StoryContext
   ): Promise<VisualContext> {
+    const extractLength = this.config.visualExtractionLength || 25000;
     const prompt = `
 基于以下故事信息，分析视觉风格：
 
@@ -538,7 +601,7 @@ ${storyContext.synopsis}
 ${storyContext.coreConflict}
 
 【剧本片段】
-${content.substring(0, 5000)}
+${content.substring(0, extractLength)}
 
 请定义视觉风格并以JSON格式返回：
 {
@@ -638,11 +701,12 @@ ${content.substring(0, 5000)}
    * @returns 时代背景
    */
   private async extractEraContext(content: string): Promise<EraContext> {
+    const extractLength = this.config.storyExtractionLength || 15000;
     const prompt = `
 请分析以下剧本的时代背景：
 
 【剧本内容】
-${content.substring(0, 5000)}
+${content.substring(0, extractLength)}
 
 请提取时代背景信息并以JSON格式返回：
 {
@@ -716,6 +780,7 @@ ${content.substring(0, 5000)}
     content: string,
     storyContext: StoryContext
   ): Promise<EmotionalContext> {
+    const extractLength = this.config.visualExtractionLength || 25000;
     const prompt = `
 基于以下故事信息，分析情绪曲线：
 
@@ -731,7 +796,7 @@ ${storyContext.synopsis}
 高潮：${storyContext.structure.climax}
 
 【剧本片段】
-${content.substring(0, 5000)}
+${content.substring(0, extractLength)}
 
 请分析情绪曲线并以JSON格式返回：
 {

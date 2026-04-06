@@ -653,6 +653,82 @@ export interface ScriptParserConfig {
   /** 文本长度阈值，低于此值跳过情绪曲线提取，默认800 */
   textLengthThreshold?: number;
 
+  // ========== 分镜生成配置 ==========
+  /** 叙事语速（字/分钟），默认200 */
+  narrationSpeed?: number;
+  /** 短篇分镜密度（个/分钟），默认5 */
+  shotDensityShort?: number;
+  /** 中篇分镜密度（个/分钟），默认4 */
+  shotDensityMedium?: number;
+  /** 长篇分镜密度（个/分钟），默认3 */
+  shotDensityLong?: number;
+  /** 短篇文本长度阈值，默认3000 */
+  shotDensityShortThreshold?: number;
+  /** 中篇文本长度阈值，默认10000 */
+  shotDensityMediumThreshold?: number;
+  /** 中短篇最大分镜数，默认150 */
+  maxShotsShortMedium?: number;
+  /** 长篇最大分镜数，默认500 */
+  maxShotsLong?: number;
+  /** 关键分镜比例，默认0.7 */
+  keyShotRatio?: number;
+  /** SceneContextExtractor提取长度，默认500 */
+  sceneContextExtractLength?: number;
+  /** 标准Prompt截取长度，默认6000 */
+  standardPromptLength?: number;
+  /** 默认分镜时长（秒），默认3 */
+  defaultShotDuration?: number;
+
+  // ========== 连贯性检查配置 ==========
+  /** 剧情连贯性评分权重（error/warning/info），默认{ error: 15, warning: 8, info: 3 } */
+  plotCoherenceWeights?: { error: number; warning: number; info: number };
+  /** 镜头连贯性评分权重（error/warning/info），默认{ error: 12, warning: 6, info: 2 } */
+  shotCoherenceWeights?: { error: number; warning: number; info: number };
+  /** 视觉质量评分基础分，默认80 */
+  visualQualityBaseScore?: number;
+  /** 视觉质量评分权重（基础分 + 景别多样性×权重），默认{ base: 60, varietyWeight: 40 } */
+  visualQualityWeights?: { base: number; varietyWeight: number };
+  /** 叙事节奏评分基础分，默认75 */
+  narrativePacingBaseScore?: number;
+  /** 每集场景数量合理范围，默认{ min: 3, max: 8 } */
+  scenesPerEpisodeRange?: { min: number; max: number };
+  /** 总体评分权重（plot/shot/visual/pacing），默认{ plot: 0.3, shot: 0.3, visual: 0.2, pacing: 0.2 } */
+  overallScoreWeights?: { plot: number; shot: number; visual: number; pacing: number };
+  /** 场景数量检查阈值（低于此值警告），默认3 */
+  minSceneCount?: number;
+  /** 每集场景数量警告阈值（超过此值建议），默认10 */
+  maxScenesPerEpisode?: number;
+  /** 总时长警告阈值（分钟，低于此值警告），默认5 */
+  minTotalDurationMinutes?: number;
+  /** 总时长建议阈值（分钟，超过此值建议拆分），默认30 */
+  maxTotalDurationMinutes?: number;
+  /** 景别多样性建议阈值（超过此值检查多样性），默认10 */
+  shotVarietyMinShots?: number;
+  /** 景别多样性警告阈值（低于此值建议），默认0.5 */
+  shotVarietyWarningThreshold?: number;
+
+  // ========== 质量评估配置 ==========
+  /** 评级阈值（A级分数），默认90 */
+  gradeThresholdA?: number;
+  /** 评级阈值（B级分数），默认80 */
+  gradeThresholdB?: number;
+  /** 评级阈值（C级分数），默认70 */
+  gradeThresholdC?: number;
+  /** 评级阈值（D级分数），默认60 */
+  gradeThresholdD?: number;
+  /** 置信度基础值（metadata阶段），默认0.3 */
+  confidenceStageMetadata?: number;
+  /** 置信度基础值（characters阶段），默认0.5 */
+  confidenceStageCharacters?: number;
+  /** 置信度基础值（scenes阶段），默认0.7 */
+  confidenceStageScenes?: number;
+  /** 置信度基础值（shots阶段），默认0.9 */
+  confidenceStageShots?: number;
+  /** 置信度基础值（completed阶段），默认1.0 */
+  confidenceStageCompleted?: number;
+  /** 景别跳跃警告阈值（景别顺序索引差≥此值警告），默认4 */
+  shotTypeJumpWarningThreshold?: number;
+
   // ==================== 2.0版本新增 ====================
 
   /**

@@ -8,7 +8,7 @@
  * @version 1.0.0
  */
 
-export type ParseStrategy = 'fast' | 'standard' | 'chunked';
+export type ParseStrategy = 'standard' | 'chunked';
 
 export interface StrategySelection {
   strategy: ParseStrategy;
@@ -19,8 +19,6 @@ export interface StrategySelection {
 }
 
 export interface StrategySelectorConfig {
-  /** Fast path threshold (words) */
-  fastPathThreshold: number;
   /** Chunked path threshold (words) */
   chunkedPathThreshold: number;
   /** User forced strategy (optional) */
@@ -32,7 +30,6 @@ export interface StrategySelectorConfig {
 }
 
 export const DEFAULT_STRATEGY_CONFIG: StrategySelectorConfig = {
-  fastPathThreshold: 800,
   chunkedPathThreshold: 5000,
   standardBatchSize: 5,
   chunkedBatchSize: 3,
@@ -58,32 +55,20 @@ export class ParseStrategySelector {
 
     const wordCount = this.countWords(content);
 
-    // Fast path: < 800 words
-    if (wordCount < this.config.fastPathThreshold) {
-      return this.createSelection(
-        'fast',
-        `短文本快速路径 (${wordCount} < ${this.config.fastPathThreshold} 字)`,
-        content,
-        60 // ~60 seconds for fast path
-      );
-    }
-
     // Chunked path: > 5000 words
     if (wordCount > this.config.chunkedPathThreshold) {
       return this.createSelection(
         'chunked',
         `长文本分块路径 (${wordCount} > ${this.config.chunkedPathThreshold} 字)`,
-        content,
-        Math.ceil(wordCount / 500) * 30 // ~30s per 500 words
+        content
       );
     }
 
-    // Standard path: 800-5000 words
+    // Standard path: <= 5000 words
     return this.createSelection(
       'standard',
-      `标准解析路径 (${this.config.fastPathThreshold}-${this.config.chunkedPathThreshold} 字)`,
-      content,
-      Math.ceil(wordCount / 200) * 15 // ~15s per 200 words
+      `标准解析路径 (${wordCount} <= ${this.config.chunkedPathThreshold} 字)`,
+      content
     );
   }
 
@@ -117,45 +102,22 @@ export class ParseStrategySelector {
   private createSelection(
     strategy: ParseStrategy,
     reason: string,
-    content: string,
-    estimatedTime?: number
+    content: string
   ): StrategySelection {
     const wordCount = this.countWords(content);
 
     let batchSize = this.config.standardBatchSize;
     if (strategy === 'chunked') {
       batchSize = this.config.chunkedBatchSize;
-    } else if (strategy === 'fast') {
-      batchSize = 10; // Fast path handles more in one call
     }
 
     return {
       strategy,
       reason,
       wordCount,
-      estimatedTime: estimatedTime || this.estimateTime(wordCount, strategy),
+      estimatedTime: 0, // 预估时间已移除，保留字段用于兼容
       recommendedBatchSize: batchSize,
     };
-  }
-
-  /**
-   * Estimate parsing time based on word count and strategy
-   * @private
-   */
-  private estimateTime(wordCount: number, strategy: ParseStrategy): number {
-    switch (strategy) {
-      case 'fast':
-        // Fast path: 1-2 API calls, ~30-60s
-        return 60;
-      case 'standard':
-        // Standard: ~15s per 200 words
-        return Math.ceil(wordCount / 200) * 15;
-      case 'chunked':
-        // Chunked: ~30s per 500 words (with overhead)
-        return Math.ceil(wordCount / 500) * 30;
-      default:
-        return Math.ceil(wordCount / 200) * 15;
-    }
   }
 
   /**
@@ -174,10 +136,8 @@ export class ParseStrategySelector {
     // Count English words (sequences of letters)
     const englishWords = (trimmed.match(/[a-zA-Z]+/g) || []).length;
 
-    // Count numbers as words
-    const numbers = (trimmed.match(/\d+/g) || []).length;
-
-    return chineseChars + englishWords + numbers;
+    // 数字不计入字数（基于搜索结果：数字通常不算单独的"词"）
+    return chineseChars + englishWords;
   }
 
   /**
@@ -225,12 +185,6 @@ export class ParseStrategySelector {
     icon: string;
   } {
     switch (strategy) {
-      case 'fast':
-        return {
-          title: '快速解析',
-          description: '适用于短文本，1-2次API调用完成',
-          icon: '⚡',
-        };
       case 'standard':
         return {
           title: '标准解析',

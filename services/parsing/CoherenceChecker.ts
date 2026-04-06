@@ -4,7 +4,7 @@
  * 检查剧情连贯性和镜头连贯性（专业增强版）
  *
  * @module services/parsing/CoherenceChecker
- * @version 2.0.0
+ * @version 3.0.0
  */
 
 import {
@@ -20,6 +20,25 @@ import {
 } from '../../types';
 
 /**
+ * 连贯性检查配置接口
+ */
+export interface CoherenceCheckerConfig {
+  plotCoherenceWeights?: { error: number; warning: number; info: number };
+  shotCoherenceWeights?: { error: number; warning: number; info: number };
+  visualQualityBaseScore?: number;
+  visualQualityWeights?: { base: number; varietyWeight: number };
+  narrativePacingBaseScore?: number;
+  scenesPerEpisodeRange?: { min: number; max: number };
+  overallScoreWeights?: { plot: number; shot: number; visual: number; pacing: number };
+  minSceneCount?: number;
+  maxScenesPerEpisode?: number;
+  minTotalDurationMinutes?: number;
+  maxTotalDurationMinutes?: number;
+  shotVarietyMinShots?: number;
+  shotVarietyWarningThreshold?: number;
+}
+
+/**
  * 连贯性检查器
  */
 export class CoherenceChecker {
@@ -29,18 +48,19 @@ export class CoherenceChecker {
   static generateCoherenceReport(
     episodes: EpisodePlan | undefined,
     scenes: ScriptScene[],
-    shots: Shot[]
+    shots: Shot[],
+    config?: CoherenceCheckerConfig
   ): CoherenceReport {
     const plotIssues: CoherenceIssue[] = [];
     const shotIssues: ShotCoherenceIssue[] = [];
 
     if (episodes) {
       // 检查剧情连贯性
-      plotIssues.push(...this.checkPlotCoherence(episodes, scenes));
+      plotIssues.push(...this.checkPlotCoherence(episodes, scenes, config));
     }
 
     // 检查镜头连贯性（专业级）
-    shotIssues.push(...this.checkShotCoherenceProfessional(shots, episodes));
+    shotIssues.push(...this.checkShotCoherenceProfessional(shots, episodes, config));
 
     const hasPlotErrors = plotIssues.some(i => i.severity === 'error');
     const hasShotErrors = shotIssues.some(i => i.severity === 'error');
@@ -51,14 +71,21 @@ export class CoherenceChecker {
       shotIssues,
       shots,
       scenes,
-      episodes
+      episodes,
+      config
     );
 
     // 生成详细统计
     const statistics = this.calculateStatistics(shots, scenes, episodes, plotIssues, shotIssues);
 
     // 生成修复建议
-    const fixSuggestions = this.generateFixSuggestions(plotIssues, shotIssues, shots, episodes);
+    const fixSuggestions = this.generateFixSuggestions(
+      plotIssues,
+      shotIssues,
+      shots,
+      episodes,
+      config
+    );
 
     // 生成建议
     const suggestions: string[] = [];
@@ -98,7 +125,8 @@ export class CoherenceChecker {
     shotIssues: ShotCoherenceIssue[],
     shots: Shot[],
     scenes: ScriptScene[],
-    episodes: EpisodePlan | undefined
+    episodes: EpisodePlan | undefined,
+    config?: CoherenceCheckerConfig
   ): QualityScore {
     const totalIssues = plotIssues.length + shotIssues.length;
     const errorCount =
@@ -108,38 +136,62 @@ export class CoherenceChecker {
       plotIssues.filter(i => i.severity === 'warning').length +
       shotIssues.filter(i => i.severity === 'warning').length;
 
+    // 从配置读取权重
+    const plotWeights = config?.plotCoherenceWeights || { error: 15, warning: 8, info: 3 };
+    const shotWeights = config?.shotCoherenceWeights || { error: 12, warning: 6, info: 2 };
+    const visualQualityBaseScore = config?.visualQualityBaseScore || 80;
+    const visualQualityWeights = config?.visualQualityWeights || { base: 60, varietyWeight: 40 };
+    const narrativePacingBaseScore = config?.narrativePacingBaseScore || 75;
+    const scenesPerEpisodeRange = config?.scenesPerEpisodeRange || { min: 3, max: 8 };
+    const overallScoreWeights = config?.overallScoreWeights || {
+      plot: 0.3,
+      shot: 0.3,
+      visual: 0.2,
+      pacing: 0.2,
+    };
+
     // 剧情连贯性评分
     let plotCoherenceScore = 100;
     if (plotIssues.length > 0) {
-      plotCoherenceScore -= plotIssues.filter(i => i.severity === 'error').length * 15;
-      plotCoherenceScore -= plotIssues.filter(i => i.severity === 'warning').length * 8;
-      plotCoherenceScore -= plotIssues.filter(i => i.severity === 'info').length * 3;
+      plotCoherenceScore -=
+        plotIssues.filter(i => i.severity === 'error').length * plotWeights.error;
+      plotCoherenceScore -=
+        plotIssues.filter(i => i.severity === 'warning').length * plotWeights.warning;
+      plotCoherenceScore -= plotIssues.filter(i => i.severity === 'info').length * plotWeights.info;
     }
     plotCoherenceScore = Math.max(0, plotCoherenceScore);
 
     // 镜头连贯性评分
     let shotCoherenceScore = 100;
     if (shotIssues.length > 0) {
-      shotCoherenceScore -= shotIssues.filter(i => i.severity === 'error').length * 12;
-      shotCoherenceScore -= shotIssues.filter(i => i.severity === 'warning').length * 6;
-      shotCoherenceScore -= shotIssues.filter(i => i.severity === 'info').length * 2;
+      shotCoherenceScore -=
+        shotIssues.filter(i => i.severity === 'error').length * shotWeights.error;
+      shotCoherenceScore -=
+        shotIssues.filter(i => i.severity === 'warning').length * shotWeights.warning;
+      shotCoherenceScore -= shotIssues.filter(i => i.severity === 'info').length * shotWeights.info;
     }
     shotCoherenceScore = Math.max(0, shotCoherenceScore);
 
     // 视觉质量评分
-    let visualQualityScore = 80;
+    let visualQualityScore = visualQualityBaseScore;
     if (shots.length > 0) {
       const shotSizeVariety = this.calculateShotSizeVariety(shots);
-      visualQualityScore = Math.min(100, 60 + shotSizeVariety * 40);
+      visualQualityScore = Math.min(
+        100,
+        visualQualityWeights.base + shotSizeVariety * visualQualityWeights.varietyWeight
+      );
     }
 
     // 叙事节奏评分
-    let narrativePacingScore = 75;
+    let narrativePacingScore = narrativePacingBaseScore;
     if (episodes && episodes.episodes.length > 0) {
       const avgScenesPerEpisode = scenes.length / episodes.episodes.length;
-      if (avgScenesPerEpisode >= 3 && avgScenesPerEpisode <= 8) {
+      if (
+        avgScenesPerEpisode >= scenesPerEpisodeRange.min &&
+        avgScenesPerEpisode <= scenesPerEpisodeRange.max
+      ) {
         narrativePacingScore = 90;
-      } else if (avgScenesPerEpisode < 3) {
+      } else if (avgScenesPerEpisode < scenesPerEpisodeRange.min) {
         narrativePacingScore = 70;
       } else {
         narrativePacingScore = 75;
@@ -148,10 +200,10 @@ export class CoherenceChecker {
 
     // 总体评分
     const overall = Math.round(
-      plotCoherenceScore * 0.3 +
-        shotCoherenceScore * 0.3 +
-        visualQualityScore * 0.2 +
-        narrativePacingScore * 0.2
+      plotCoherenceScore * overallScoreWeights.plot +
+        shotCoherenceScore * overallScoreWeights.shot +
+        visualQualityScore * overallScoreWeights.visual +
+        narrativePacingScore * overallScoreWeights.pacing
     );
 
     return {
@@ -261,10 +313,13 @@ export class CoherenceChecker {
     plotIssues: CoherenceIssue[],
     shotIssues: ShotCoherenceIssue[],
     shots: Shot[],
-    episodes: EpisodePlan | undefined
+    episodes: EpisodePlan | undefined,
+    config?: CoherenceCheckerConfig
   ): FixSuggestion[] {
     const suggestions: FixSuggestion[] = [];
     let suggestionId = 0;
+    const shotVarietyMinShots = config?.shotVarietyMinShots || 10;
+    const shotVarietyWarningThreshold = config?.shotVarietyWarningThreshold || 0.5;
 
     // 景别跳脱问题的修复建议
     const shotSizeIssues = shotIssues.filter(i => i.type === 'shot_size');
@@ -350,9 +405,9 @@ export class CoherenceChecker {
     }
 
     // 景别多样性建议
-    if (shots.length > 10) {
+    if (shots.length > shotVarietyMinShots) {
       const variety = this.calculateShotSizeVariety(shots);
-      if (variety < 0.5) {
+      if (variety < shotVarietyWarningThreshold) {
         suggestions.push({
           id: `fix-${suggestionId++}`,
           issueType: 'shot_variety',
@@ -378,12 +433,18 @@ export class CoherenceChecker {
    */
   private static checkPlotCoherence(
     episodePlan: EpisodePlan,
-    scenes: ScriptScene[]
+    scenes: ScriptScene[],
+    config?: CoherenceCheckerConfig
   ): CoherenceIssue[] {
     const issues: CoherenceIssue[] = [];
+    const minSceneCount = config?.minSceneCount || 3;
+    const maxScenesPerEpisode = config?.maxScenesPerEpisode || 10;
+    const minTotalDurationMinutes = config?.minTotalDurationMinutes || 5;
+    const maxTotalDurationMinutes = config?.maxTotalDurationMinutes || 30;
+    const scenesPerEpisodeRange = config?.scenesPerEpisodeRange || { min: 3, max: 8 };
 
     // 1. 检查场景数量是否足够
-    if (scenes.length < 3) {
+    if (scenes.length < minSceneCount) {
       issues.push({
         type: 'plot_logic',
         severity: 'warning',
@@ -400,11 +461,11 @@ export class CoherenceChecker {
           message: `第${episode.episodeNumber}集没有包含任何场景`,
           episodeNumber: episode.episodeNumber,
         });
-      } else if (episode.sceneNames.length > 10) {
+      } else if (episode.sceneNames.length > maxScenesPerEpisode) {
         issues.push({
           type: 'plot_logic',
           severity: 'info',
-          message: `第${episode.episodeNumber}集包含${episode.sceneNames.length}个场景，建议控制在5-8个场景`,
+          message: `第${episode.episodeNumber}集包含${episode.sceneNames.length}个场景，建议控制在${scenesPerEpisodeRange.min}-${scenesPerEpisodeRange.max}个场景`,
           episodeNumber: episode.episodeNumber,
         });
       }
@@ -412,13 +473,13 @@ export class CoherenceChecker {
 
     // 3. 检查总时长是否合理
     const totalDurationMinutes = episodePlan.totalDuration / 60;
-    if (totalDurationMinutes < 5) {
+    if (totalDurationMinutes < minTotalDurationMinutes) {
       issues.push({
         type: 'timeline',
         severity: 'warning',
         message: `总时长较短（${Math.round(totalDurationMinutes)}分钟），建议增加内容`,
       });
-    } else if (totalDurationMinutes > 30) {
+    } else if (totalDurationMinutes > maxTotalDurationMinutes) {
       issues.push({
         type: 'timeline',
         severity: 'info',
@@ -434,7 +495,8 @@ export class CoherenceChecker {
    */
   private static checkShotCoherenceProfessional(
     shots: Shot[],
-    episodes: EpisodePlan | undefined
+    episodes: EpisodePlan | undefined,
+    config?: CoherenceCheckerConfig
   ): ShotCoherenceIssue[] {
     const issues: ShotCoherenceIssue[] = [];
 

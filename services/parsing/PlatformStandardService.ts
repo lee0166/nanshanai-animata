@@ -66,10 +66,10 @@ export const PLATFORM_EPISODE_STANDARDS: Record<string, PlatformEpisodeStandard>
   },
   premium: {
     platform: 'premium',
-    episodeDurationRange: [600, 1800], // 10-30分钟
-    recommendedEpisodeDuration: 900, // 15分钟
-    totalEpisodesRange: [6, 16],
-    shotsPerEpisodeRange: [80, 200],
+    episodeDurationRange: [180, 600], // 3-10分钟
+    recommendedEpisodeDuration: 480, // 8分钟
+    totalEpisodesRange: [1, 8], // 1-8集（短篇≤3集）
+    shotsPerEpisodeRange: [20, 60], // 20-60个分镜/集（参考《斩仙台》40个/集）
     hookRequirements: {
       hookWithinSeconds: 30,
       hookTypes: ['cinematic', 'artistic', 'theme'],
@@ -141,11 +141,18 @@ export class PlatformStandardService {
     const wordsPerEpisode = this.getWordsPerEpisode(platform, pacingPreference);
     const rawCount = Math.ceil(wordCount / wordsPerEpisode);
 
+    // 新增：根据字数智能判断合理集数范围
+    let minEpisodes = standard.totalEpisodesRange[0];
+    let maxEpisodes = standard.totalEpisodesRange[1];
+
+    // 短篇文本（≤5000字）：最多3集（行业常识：短篇核心单元≤3）
+    if (wordCount <= 5000) {
+      maxEpisodes = Math.min(maxEpisodes, 3);
+      minEpisodes = 1; // 短篇至少1集
+    }
+
     // 确保在合理范围内
-    return Math.max(
-      standard.totalEpisodesRange[0],
-      Math.min(standard.totalEpisodesRange[1], rawCount)
-    );
+    return Math.max(minEpisodes, Math.min(maxEpisodes, rawCount));
   }
 
   /**
@@ -155,33 +162,38 @@ export class PlatformStandardService {
     platform: string,
     pacingPreference: 'fast' | 'normal' | 'slow' = 'normal'
   ): number {
-    // 基础字数/分钟比率
-    let wordsPerMinute = 225;
+    // 统一基础值：小说类180字/分钟（简洁实用，不搞复杂）
+    const baseWordsPerMinute = 180;
 
+    // 不同平台用乘数调整（而不是完全不同的数值）
+    let platformMultiplier = 1.0;
     switch (platform) {
       case 'douyin':
-        wordsPerMinute = 280;
+        platformMultiplier = 1.3; // 抖音节奏快 +30%
         break;
       case 'kuaishou':
-        wordsPerMinute = 250;
+        platformMultiplier = 1.2; // 快手节奏较快 +20%
         break;
       case 'bilibili':
-        wordsPerMinute = 200;
+        platformMultiplier = 1.0; // B站适中
         break;
       case 'premium':
-        wordsPerMinute = 175;
+        platformMultiplier = 0.9; // 精品节奏稍慢 -10%
         break;
     }
 
     // 节奏调整
+    let pacingMultiplier = 1.0;
     switch (pacingPreference) {
       case 'fast':
-        wordsPerMinute *= 1.2;
+        pacingMultiplier = 1.2;
         break;
       case 'slow':
-        wordsPerMinute *= 0.8;
+        pacingMultiplier = 0.8;
         break;
     }
+
+    const wordsPerMinute = baseWordsPerMinute * platformMultiplier * pacingMultiplier;
 
     const standard = this.getStandard(platform);
     const episodeDurationMinutes = (standard?.recommendedEpisodeDuration || 120) / 60;

@@ -26,7 +26,6 @@ import {
 import { useApp } from '../contexts/context';
 import { useToast } from '../contexts/ToastContext';
 import mammoth from 'mammoth';
-import * as pdfjsLib from 'pdfjs-dist';
 import { CharacterMapping } from '../components/ScriptParser/CharacterMapping';
 import { SceneMapping } from '../components/ScriptParser/SceneMapping';
 import { ItemMapping } from '../components/ScriptParser/ItemMapping';
@@ -408,27 +407,24 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({
     });
   };
 
-  // 2.0: 文件上传处理 - 支持多种文档格式
+  // 2.0: 文件上传处理 - 支持txt/md/docx格式
   const handleFileUpload = useCallback(
     async (event: React.ChangeEvent<HTMLInputElement>) => {
       const file = event.target.files?.[0];
       if (!file) return;
 
       // 支持的文件扩展名
-      const supportedExtensions = ['.txt', '.md', '.markdown', '.docx', '.pdf'];
+      const supportedExtensions = ['.txt', '.md', '.markdown', '.docx'];
       const fileExtension = file.name.substring(file.name.lastIndexOf('.')).toLowerCase();
 
       if (!supportedExtensions.includes(fileExtension)) {
-        showToast(
-          `不支持的文件格式: ${fileExtension}。请上传 .txt, .md, .docx 或 .pdf 格式`,
-          'error'
-        );
+        showToast(`不支持的文件格式: ${fileExtension}。请上传 .txt, .md 或 .docx 格式`, 'error');
         return;
       }
 
-      // 检查文件大小（最大50MB）
-      if (file.size > 50 * 1024 * 1024) {
-        showToast('文件大小超过50MB限制', 'error');
+      // 检查文件大小（最大10MB）
+      if (file.size > 10 * 1024 * 1024) {
+        showToast('文件大小超过10MB限制', 'error');
         return;
       }
 
@@ -440,17 +436,6 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({
           const arrayBuffer = await file.arrayBuffer();
           const result = await mammoth.extractRawText({ arrayBuffer });
           content = result.value;
-        } else if (fileExtension === '.pdf') {
-          // 解析 PDF 文档
-          const arrayBuffer = await file.arrayBuffer();
-          const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-          let text = '';
-          for (let i = 1; i <= pdf.numPages; i++) {
-            const page = await pdf.getPage(i);
-            const textContent = await page.getTextContent();
-            text += textContent.items.map((item: any) => item.str).join(' ') + '\n';
-          }
-          content = text;
         } else {
           // 文本文件直接读取
           content = await file.text();
@@ -1562,12 +1547,10 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({
               <CardBody className="text-center py-6">
                 <Upload className="w-8 h-8 mx-auto mb-2 text-foreground/40" />
                 <p className="text-sm text-foreground/60 mb-2">点击或拖拽文件到此处上传</p>
-                <p className="text-xs text-foreground/50">
-                  支持 .txt, .md, .docx, .pdf 格式（最大50MB）
-                </p>
+                <p className="text-xs text-foreground/50">支持 .txt, .md, .docx 格式（最大10MB）</p>
                 <input
                   type="file"
-                  accept=".txt,.md,.markdown,.docx,.pdf"
+                  accept=".txt,.md,.markdown,.docx"
                   onChange={handleFileUpload}
                   className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                 />

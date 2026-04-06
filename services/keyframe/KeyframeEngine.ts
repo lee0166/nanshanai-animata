@@ -42,8 +42,8 @@ export class KeyframeEngine {
    * 自动检测分镜类型（static/dynamic-simple/dynamic-complex）
    * 基于description中的动作词汇判断（使用权重机制）
    */
-  detectShotType(description: string, cameraMovement: CameraMovement): ShotContentType {
-    const desc = description.toLowerCase();
+  detectShotType(description: string | undefined | null, cameraMovement: CameraMovement | undefined | null): ShotContentType {
+    const desc = (description || '').toLowerCase();
 
     // 复杂动态关键词（权重+2）
     const complexKeywords = [
@@ -134,7 +134,7 @@ export class KeyframeEngine {
       'dolly_in',
       'dolly_out',
     ];
-    if (dynamicMovements.includes(cameraMovement)) {
+    if (cameraMovement && dynamicMovements.includes(cameraMovement)) {
       simpleScore += 1;
     }
 

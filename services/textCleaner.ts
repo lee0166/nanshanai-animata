@@ -62,12 +62,12 @@ export class TextCleaner {
     const chineseRatio = chineseChars / totalChars;
     const englishRatio = englishChars / totalChars;
 
-    // 如果中文比例超过80%，认为是中文
-    if (chineseRatio > 0.8) {
+    // 如果中文比例超过30%，认为是中文（基于主流应用实践）
+    if (chineseRatio > 0.3) {
       return 'zh';
     }
-    // 如果英文比例超过80%，认为是英文
-    else if (englishRatio > 0.8) {
+    // 如果英文比例超过30%，认为是英文（基于主流应用实践）
+    else if (englishRatio > 0.3) {
       return 'en';
     }
     // 否则认为是混合语言
@@ -114,8 +114,10 @@ export class TextCleaner {
     cleaned = cleaned.trim();
 
     // 8. 标点符号规范化
-    // 8.1 全角标点转换为半角（仅对中文或混合语言）
-    if (detectedLanguage === 'zh' || detectedLanguage === 'mixed') {
+    // 8.1 中文/混合语言：保留全角标点（基于GB/T 15834-2011国家标准）
+    // 中文正文应使用全角标点，不进行转换
+    // 8.2 英文语言：全角标点转换为半角
+    if (detectedLanguage === 'en') {
       const fullWidthToHalfWidthMap: { [key: string]: string } = {
         '，': ',',
         '。': '.',

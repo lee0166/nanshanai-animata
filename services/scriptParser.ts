@@ -216,23 +216,6 @@ export interface ScriptParserConfig {
    */
   strategySelectorConfig?: Partial<StrategySelectorConfig>;
 
-  // ========== Fast Path 优化配置 ==========
-
-  /**
-   * Fast Path 跳过全局上下文提取
-   * 开启后，Fast Path 模式将跳过全局上下文提取步骤以提高性能
-   * @default true
-   */
-  skipGlobalContextForFastPath?: boolean;
-
-  /**
-   * 使用并行提取优化
-   * 开启后，Fast Path 模式将并行提取元数据+全局上下文，以及角色+场景
-   * 可显著缩短短剧本解析时间
-   * @default true
-   */
-  useParallelExtraction?: boolean;
-
   // ========== 动态分镜数量配置 ==========
 
   /**
@@ -258,6 +241,229 @@ export interface ScriptParserConfig {
     longText?: string;
   };
 
+  // ========== 时长预算配置 ==========
+
+  /**
+   * 每场景最小分镜数
+   * 用于估算场景的分镜数量下限
+   * @default 3
+   */
+  minShotsPerScene?: number;
+
+  /**
+   * 每场景最大分镜数
+   * 用于估算场景的分镜数量上限
+   * @default 5
+   */
+  maxShotsPerScene?: number;
+
+  /**
+   * 分镜数计算的字数阈值（单位：字符）
+   * 每N个字符增加一个分镜
+   * @default 200
+   */
+  shotCountPerCharacters?: number;
+
+  /**
+   * 占位分镜的默认时长（单位：秒）
+   * 用于估算时长时的默认分镜时长
+   * @default 3
+   */
+  placeholderShotDuration?: number;
+
+  // ========== 分镜生成配置 ==========
+  /**
+   * 叙事语速（字/分钟）
+   * 用于估算文本对应的时长
+   * @default 200
+   */
+  narrationSpeed?: number;
+  /**
+   * 短篇分镜密度（个/分钟）
+   * 短篇文本的分镜密度
+   * @default 5
+   */
+  shotDensityShort?: number;
+  /**
+   * 中篇分镜密度（个/分钟）
+   * 中篇文本的分镜密度
+   * @default 4
+   */
+  shotDensityMedium?: number;
+  /**
+   * 长篇分镜密度（个/分钟）
+   * 长篇文本的分镜密度
+   * @default 3
+   */
+  shotDensityLong?: number;
+  /**
+   * 短篇文本长度阈值（字符数）
+   * 低于此值为短篇
+   * @default 3000
+   */
+  shotDensityShortThreshold?: number;
+  /**
+   * 中篇文本长度阈值（字符数）
+   * 低于此值为中篇
+   * @default 10000
+   */
+  shotDensityMediumThreshold?: number;
+  /**
+   * 中短篇最大分镜数
+   * 中短篇文本的分镜数上限
+   * @default 150
+   */
+  maxShotsShortMedium?: number;
+  /**
+   * 长篇最大分镜数
+   * 长篇文本的分镜数上限
+   * @default 500
+   */
+  maxShotsLong?: number;
+  /**
+   * 关键分镜比例
+   * 关键分镜占总帧数的比例
+   * @default 0.7
+   */
+  keyShotRatio?: number;
+  /**
+   * SceneContextExtractor提取长度（字符数）
+   * RAG提取时的文本长度
+   * @default 500
+   */
+  sceneContextExtractLength?: number;
+  /**
+   * 标准Prompt截取长度（字符数）
+   * 标准Prompt的文本截取长度
+   * @default 6000
+   */
+  standardPromptLength?: number;
+  /**
+   * 默认分镜时长（秒）
+   * 分镜的默认时长
+   * @default 3
+   */
+  defaultShotDuration?: number;
+
+  // ========== 连贯性检查配置 ==========
+  /**
+   * 剧情连贯性评分权重（error/warning/info）
+   * @default { error: 15, warning: 8, info: 3 }
+   */
+  plotCoherenceWeights?: { error: number; warning: number; info: number };
+  /**
+   * 镜头连贯性评分权重（error/warning/info）
+   * @default { error: 12, warning: 6, info: 2 }
+   */
+  shotCoherenceWeights?: { error: number; warning: number; info: number };
+  /**
+   * 视觉质量评分基础分
+   * @default 80
+   */
+  visualQualityBaseScore?: number;
+  /**
+   * 视觉质量评分权重（基础分 + 景别多样性×权重）
+   * @default { base: 60, varietyWeight: 40 }
+   */
+  visualQualityWeights?: { base: number; varietyWeight: number };
+  /**
+   * 叙事节奏评分基础分
+   * @default 75
+   */
+  narrativePacingBaseScore?: number;
+  /**
+   * 每集场景数量合理范围
+   * @default { min: 3, max: 8 }
+   */
+  scenesPerEpisodeRange?: { min: number; max: number };
+  /**
+   * 总体评分权重（plot/shot/visual/pacing）
+   * @default { plot: 0.3, shot: 0.3, visual: 0.2, pacing: 0.2 }
+   */
+  overallScoreWeights?: { plot: number; shot: number; visual: number; pacing: number };
+  /**
+   * 场景数量检查阈值（低于此值警告）
+   * @default 3
+   */
+  minSceneCount?: number;
+  /**
+   * 每集场景数量警告阈值（超过此值建议）
+   * @default 10
+   */
+  maxScenesPerEpisode?: number;
+  /**
+   * 总时长警告阈值（低于此值警告）
+   * @default 5
+   */
+  minTotalDurationMinutes?: number;
+  /**
+   * 总时长建议阈值（超过此值建议拆分）
+   * @default 30
+   */
+  maxTotalDurationMinutes?: number;
+  /**
+   * 景别多样性建议阈值（超过此值检查多样性）
+   * @default 10
+   */
+  shotVarietyMinShots?: number;
+  /**
+   * 景别多样性警告阈值（低于此值建议）
+   * @default 0.5
+   */
+  shotVarietyWarningThreshold?: number;
+
+  // ========== 质量评估配置 ==========
+  /**
+   * 评级阈值（A级分数）
+   * @default 90
+   */
+  gradeThresholdA?: number;
+  /**
+   * 评级阈值（B级分数）
+   * @default 80
+   */
+  gradeThresholdB?: number;
+  /**
+   * 评级阈值（C级分数）
+   * @default 70
+   */
+  gradeThresholdC?: number;
+  /**
+   * 评级阈值（D级分数）
+   * @default 60
+   */
+  gradeThresholdD?: number;
+  /**
+   * 置信度基础值（metadata阶段）
+   * @default 0.3
+   */
+  confidenceStageMetadata?: number;
+  /**
+   * 置信度基础值（characters阶段）
+   * @default 0.5
+   */
+  confidenceStageCharacters?: number;
+  /**
+   * 置信度基础值（scenes阶段）
+   * @default 0.7
+   */
+  confidenceStageScenes?: number;
+  /**
+   * 置信度基础值（shots阶段）
+   * @default 0.9
+   */
+  confidenceStageShots?: number;
+  /**
+   * 置信度基础值（completed阶段）
+   * @default 1.0
+   */
+  confidenceStageCompleted?: number;
+  /**
+   * 景别跳跃警告阈值（景别顺序索引差≥此值警告）
+   * @default 4
+   */
+  shotTypeJumpWarningThreshold?: number;
+
   // ========== 全局上下文提取配置 ==========
 
   /**
@@ -273,6 +479,78 @@ export interface ScriptParserConfig {
    * @default 800
    */
   textLengthThreshold?: number;
+
+  // ========== 角色/道具提取配置 ==========
+
+  /**
+   * 批量角色提取时的内容截取长度（字符数）
+   * @default 8000
+   */
+  characterBatchExtractLength?: number;
+
+  /**
+   * 单个角色提取时的内容截取长度（字符数）
+   * @default 10000
+   */
+  characterSingleExtractLength?: number;
+
+  /**
+   * 轻量级道具提取时的内容截取长度（字符数）
+   * @default 12000
+   */
+  propLightExtractLength?: number;
+
+  /**
+   * 物品提取超时时间（毫秒）
+   * @default 30000
+   */
+  itemExtractTimeout?: number;
+
+  /**
+   * 角色批量提取的批处理大小
+   * @default 8
+   */
+  characterBatchSize?: number;
+
+  /**
+   * 角色相关段落判断阈值（段落数）
+   * 相关段落超过此值才使用相关段落，否则使用全文
+   * @default 5
+   */
+  characterRelatedParagraphThreshold?: number;
+
+  // ========== 场景提取配置 ==========
+
+  /**
+   * 批量场景提取时的内容截取长度（字符数）
+   * @default 8000
+   */
+  sceneBatchExtractLength?: number;
+
+  /**
+   * 批量场景WithContext提取时的内容截取长度（字符数）
+   * @default 8000
+   */
+  sceneWithContextExtractLength?: number;
+
+  /**
+   * 单个场景提取时的内容截取长度（字符数）
+   * @default 10000
+   */
+  sceneSingleExtractLength?: number;
+
+  /**
+   * 场景批量提取的批处理大小
+   * @default 8
+   */
+  sceneBatchSize?: number;
+
+  /**
+   * 场景相关段落判断阈值（段落数）
+   * 相关段落超过此值才使用相关段落，否则使用全文
+   * @default 5
+   */
+  sceneRelatedParagraphThreshold?: number;
 }
 
 /**
@@ -314,12 +592,6 @@ const DEFAULT_PARSER_CONFIG: ScriptParserConfig = {
     climaxMinLongShotDuration: 8,
   },
 
-  // Fast Path 优化配置（默认开启，提升性能）
-  skipGlobalContextForFastPath: true,
-
-  // 并行提取配置（默认开启，提升性能）
-  useParallelExtraction: true,
-
   // 动态分镜数量配置（默认开启，根据文本长度调整）
   useDynamicShotCount: true,
   shotCountOverrides: {
@@ -331,6 +603,74 @@ const DEFAULT_PARSER_CONFIG: ScriptParserConfig = {
   // 全局上下文提取配置（默认开启情绪曲线提取）
   extractEmotionalArc: true,
   textLengthThreshold: 800,
+
+  // ========== 角色/道具提取配置 ==========
+  characterBatchExtractLength: 8000,
+  characterSingleExtractLength: 10000,
+  propLightExtractLength: 12000,
+  characterBatchSize: 8,
+  characterRelatedParagraphThreshold: 5,
+
+  // ========== 场景提取配置 ==========
+  sceneBatchExtractLength: 8000,
+  sceneWithContextExtractLength: 8000,
+  sceneSingleExtractLength: 10000,
+  sceneBatchSize: 8,
+  sceneRelatedParagraphThreshold: 5,
+
+  // ========== 物品提取配置 ==========
+  itemExtractTimeout: 30000,
+
+  // ========== 迭代优化配置 ==========
+  enableIterativeRefinement: false,
+  iterativeRefinementConfig: {},
+
+  // ========== 时长预算配置 ==========
+  minShotsPerScene: 3,
+  maxShotsPerScene: 5,
+  shotCountPerCharacters: 200,
+  placeholderShotDuration: 3,
+
+  // ========== 分镜生成配置 ==========
+  narrationSpeed: 200,
+  shotDensityShort: 5,
+  shotDensityMedium: 4,
+  shotDensityLong: 3,
+  shotDensityShortThreshold: 3000,
+  shotDensityMediumThreshold: 10000,
+  maxShotsShortMedium: 150,
+  maxShotsLong: 500,
+  keyShotRatio: 0.7,
+  sceneContextExtractLength: 500,
+  standardPromptLength: 6000,
+  defaultShotDuration: 3,
+
+  // ========== 连贯性检查配置 ==========
+  plotCoherenceWeights: { error: 15, warning: 8, info: 3 },
+  shotCoherenceWeights: { error: 12, warning: 6, info: 2 },
+  visualQualityBaseScore: 80,
+  visualQualityWeights: { base: 60, varietyWeight: 40 },
+  narrativePacingBaseScore: 75,
+  scenesPerEpisodeRange: { min: 3, max: 8 },
+  overallScoreWeights: { plot: 0.3, shot: 0.3, visual: 0.2, pacing: 0.2 },
+  minSceneCount: 3,
+  maxScenesPerEpisode: 10,
+  minTotalDurationMinutes: 5,
+  maxTotalDurationMinutes: 30,
+  shotVarietyMinShots: 10,
+  shotVarietyWarningThreshold: 0.5,
+
+  // ========== 质量评估配置 ==========
+  gradeThresholdA: 90,
+  gradeThresholdB: 80,
+  gradeThresholdC: 70,
+  gradeThresholdD: 60,
+  confidenceStageMetadata: 0.3,
+  confidenceStageCharacters: 0.5,
+  confidenceStageScenes: 0.7,
+  confidenceStageShots: 0.9,
+  confidenceStageCompleted: 1.0,
+  shotTypeJumpWarningThreshold: 4,
 };
 
 /**
@@ -787,6 +1127,11 @@ description字段必须满足以下条件：
 
 【影视风格】
 {filmStyle}
+
+【分镜数量要求】
+请生成 {targetShots} 个分镜，其中：
+- 关键分镜（key shots）：{keyShots} 个（占70%）
+- 可选分镜（optional shots）：{optionalShots} 个（占30%）
 
 【输出要求】
 1. 基于情节分析，为每个情节点生成适当数量的分镜：
@@ -1344,6 +1689,17 @@ export class ScriptParser {
     // Initialize quality analyzer
     this.qualityAnalyzer = new QualityAnalyzer({
       dramaticRulesMinScore: this.parserConfig.dramaRulesMinScore,
+      // 新增质量评估配置
+      gradeThresholdA: this.parserConfig.gradeThresholdA,
+      gradeThresholdB: this.parserConfig.gradeThresholdB,
+      gradeThresholdC: this.parserConfig.gradeThresholdC,
+      gradeThresholdD: this.parserConfig.gradeThresholdD,
+      confidenceStageMetadata: this.parserConfig.confidenceStageMetadata,
+      confidenceStageCharacters: this.parserConfig.confidenceStageCharacters,
+      confidenceStageScenes: this.parserConfig.confidenceStageScenes,
+      confidenceStageShots: this.parserConfig.confidenceStageShots,
+      confidenceStageCompleted: this.parserConfig.confidenceStageCompleted,
+      shotTypeJumpWarningThreshold: this.parserConfig.shotTypeJumpWarningThreshold,
     });
     console.log('[ScriptParser] QualityAnalyzer initialized');
 
@@ -1673,25 +2029,31 @@ export class ScriptParser {
     optionalShots: number;
     density: number;
   } {
-    // 叙事语速：200字/分钟（行业标准）
-    const estimatedMinutes = Math.ceil(textLength / 200);
+    // 叙事语速：从配置读取
+    const narrationSpeed = this.parserConfig.narrationSpeed || 200;
+    const estimatedMinutes = Math.ceil(textLength / narrationSpeed);
 
-    // 分镜密度：3-5个/分钟（修正为更合理的值）
-    // 短剧标准8-12个/分钟，但AI生成成本考虑，取保守值3-5个
-    let density = 3;
-    if (textLength < 3000)
-      density = 5; // 短篇：更密集
-    else if (textLength < 10000)
-      density = 4; // 中篇：适中
-    else density = 3; // 长篇：稀疏
+    // 分镜密度：从配置读取
+    const shotDensityShort = this.parserConfig.shotDensityShort || 5;
+    const shotDensityMedium = this.parserConfig.shotDensityMedium || 4;
+    const shotDensityLong = this.parserConfig.shotDensityLong || 3;
+    const shotDensityShortThreshold = this.parserConfig.shotDensityShortThreshold || 3000;
+    const shotDensityMediumThreshold = this.parserConfig.shotDensityMediumThreshold || 10000;
+
+    let density = shotDensityLong;
+    if (textLength < shotDensityShortThreshold) density = shotDensityShort;
+    else if (textLength < shotDensityMediumThreshold) density = shotDensityMedium;
 
     // 目标分镜数（设置上限避免过多）
     let targetShots = Math.ceil(estimatedMinutes * density);
-    const maxShots = textLength < 10000 ? 150 : 500; // 中短篇上限150，长篇上限500
+    const maxShotsShortMedium = this.parserConfig.maxShotsShortMedium || 150;
+    const maxShotsLong = this.parserConfig.maxShotsLong || 500;
+    const maxShots = textLength < shotDensityMediumThreshold ? maxShotsShortMedium : maxShotsLong;
     targetShots = Math.min(targetShots, maxShots);
 
-    // 分层：关键分镜70%，可选分镜30%
-    const keyShots = Math.ceil(targetShots * 0.7);
+    // 分层：关键分镜比例从配置读取
+    const keyShotRatio = this.parserConfig.keyShotRatio || 0.7;
+    const keyShots = Math.ceil(targetShots * keyShotRatio);
     const optionalShots = targetShots - keyShots;
 
     console.log(
@@ -3082,8 +3444,9 @@ ${chunkContent.substring(0, 4000)}
       `[ScriptParser] ---------- Batch Extracting ${characterNames.length} Characters ----------`
     );
 
+    const extractLength = this.parserConfig.characterBatchExtractLength || 8000;
     const prompt = PROMPTS.charactersBatch
-      .replace('{content}', content.substring(0, 4000))
+      .replace('{content}', content.substring(0, extractLength))
       .replace('{characterNames}', characterNames.join('\n'));
 
     console.log(`[ScriptParser] Batch prompt length: ${prompt.length} characters`);
@@ -3116,7 +3479,7 @@ ${chunkContent.substring(0, 4000)}
     }
 
     // Phase 2.1.2: Smart batching - if > 5 characters, split into batches
-    const BATCH_SIZE = 5;
+    const BATCH_SIZE = this.parserConfig.characterBatchSize || 8;
     if (characterNames.length > BATCH_SIZE) {
       console.log(
         `[ScriptParser] ---------- Smart Batching ${characterNames.length} Characters (${Math.ceil(characterNames.length / BATCH_SIZE)} batches) ----------`
@@ -3169,8 +3532,9 @@ ${chunkContent.substring(0, 4000)}
     characterNames: string[]
   ): Promise<ScriptCharacter[]> {
     // Build base prompt
+    const extractLength = this.parserConfig.characterBatchExtractLength || 8000;
     let prompt = PROMPTS.charactersBatch
-      .replace('{content}', content.substring(0, 4000))
+      .replace('{content}', content.substring(0, extractLength))
       .replace('{characterNames}', characterNames.join('\n'));
 
     // Inject global context if available
@@ -3224,17 +3588,22 @@ ${chunkContent.substring(0, 4000)}
   private async extractItemsLightweight(
     content: string,
     characters: ScriptCharacter[],
-    timeout: number = 30000
+    timeout?: number
   ): Promise<ScriptItem[]> {
+    const actualTimeout = timeout || this.parserConfig.itemExtractTimeout || 30000;
     const startTime = Date.now();
     console.log('[ScriptParser] Phase 1: Starting lightweight item extraction');
 
     try {
       // 使用轻量级Prompt
-      const prompt = PROMPTS.itemsBatchLightweight.replace('{content}', content.substring(0, 8000));
+      const extractLength = this.parserConfig.propLightExtractLength || 12000;
+      const prompt = PROMPTS.itemsBatchLightweight.replace(
+        '{content}',
+        content.substring(0, extractLength)
+      );
 
       // 复用现有API调用机制（带超时控制）
-      const response = await this.callLLMWithTimeout(prompt, { timeout });
+      const response = await this.callLLMWithTimeout(prompt, { timeout: actualTimeout });
 
       console.log(
         `[ScriptParser] Item extraction response received in ${Date.now() - startTime}ms`
@@ -3306,13 +3675,15 @@ ${chunkContent.substring(0, 4000)}
     );
 
     // If not enough content, use the whole text
+    const threshold = this.parserConfig.characterRelatedParagraphThreshold || 5;
     const characterContent =
-      relevantParagraphs.length > 3 ? relevantParagraphs.join('\n\n') : content;
+      relevantParagraphs.length > threshold ? relevantParagraphs.join('\n\n') : content;
     console.log(`[ScriptParser] Character content length: ${characterContent.length} characters`);
 
     // Build base prompt
+    const extractLength = this.parserConfig.characterSingleExtractLength || 10000;
     let prompt = PROMPTS.character
-      .replace('{content}', characterContent.substring(0, 5000))
+      .replace('{content}', characterContent.substring(0, extractLength))
       .replace('{characterName}', characterName);
 
     // Inject global context if available
@@ -3358,8 +3729,9 @@ ${chunkContent.substring(0, 4000)}
       `[ScriptParser] ---------- Batch Extracting ${sceneNames.length} Scenes ----------`
     );
 
+    const extractLength = this.parserConfig.sceneBatchExtractLength || 8000;
     const prompt = PROMPTS.scenesBatch
-      .replace('{content}', content.substring(0, 4000))
+      .replace('{content}', content.substring(0, extractLength))
       .replace('{sceneNames}', sceneNames.join('\n'));
 
     console.log(`[ScriptParser] Batch prompt length: ${prompt.length} characters`);
@@ -3388,8 +3760,8 @@ ${chunkContent.substring(0, 4000)}
       return [await this.extractSceneWithContext(content, sceneNames[0])];
     }
 
-    // Phase 2.1.2: Smart batching - if > 5 scenes, split into batches
-    const BATCH_SIZE = 5;
+    // Phase 2.1.2: Smart batching - if > configured batch size, split into batches
+    const BATCH_SIZE = this.parserConfig.sceneBatchSize || 8;
     if (sceneNames.length > BATCH_SIZE) {
       console.log(
         `[ScriptParser] ---------- Smart Batching ${sceneNames.length} Scenes (${Math.ceil(sceneNames.length / BATCH_SIZE)} batches) ----------`
@@ -3440,8 +3812,9 @@ ${chunkContent.substring(0, 4000)}
     sceneNames: string[]
   ): Promise<ScriptScene[]> {
     // Build base prompt
+    const extractLength = this.parserConfig.sceneWithContextExtractLength || 8000;
     let prompt = PROMPTS.scenesBatch
-      .replace('{content}', content.substring(0, 4000))
+      .replace('{content}', content.substring(0, extractLength))
       .replace('{sceneNames}', sceneNames.join('\n'));
 
     // Inject global context if available
@@ -3503,12 +3876,15 @@ ${chunkContent.substring(0, 4000)}
       `[ScriptParser] Found ${relevantParagraphs.length} paragraphs mentioning ${sceneName}`
     );
 
-    const sceneContent = relevantParagraphs.length > 2 ? relevantParagraphs.join('\n\n') : content;
+    const relatedThreshold = this.parserConfig.sceneRelatedParagraphThreshold || 5;
+    const sceneContent =
+      relevantParagraphs.length > relatedThreshold ? relevantParagraphs.join('\n\n') : content;
     console.log(`[ScriptParser] Scene content length: ${sceneContent.length} characters`);
 
     // Build base prompt
+    const extractLength = this.parserConfig.sceneSingleExtractLength || 10000;
     let prompt = PROMPTS.scene
-      .replace('{content}', sceneContent.substring(0, 5000))
+      .replace('{content}', sceneContent.substring(0, extractLength))
       .replace('{sceneName}', sceneName);
 
     // Inject global context if available
@@ -3882,7 +4258,10 @@ ${chunkContent.substring(0, 4000)}
     // Build base prompt
     let prompt = PROMPTS.shotsBatch
       .replace('{content}', allSceneContents)
-      .replace('{scenesInfo}', scenesInfo);
+      .replace('{scenesInfo}', scenesInfo)
+      .replace('{targetShots}', String(shotGen.targetShots))
+      .replace('{keyShots}', String(shotGen.keyShots))
+      .replace('{optionalShots}', String(shotGen.optionalShots));
 
     // Inject global context if available
     if (this.globalContext && this.contextInjector) {
@@ -3920,11 +4299,12 @@ ${chunkContent.substring(0, 4000)}
       throw new Error('Invalid response format: expected array or {shots: array}');
     }
 
+    const defaultShotDuration = this.parserConfig.defaultShotDuration || 3;
     const result = shots.map((shot, index) => ({
       ...shot,
       id: shot.id || crypto.randomUUID(),
       sequence: shot.sequence || index + 1,
-      duration: shot.duration ?? 3, // 确保每个分镜都有默认时长3秒
+      duration: shot.duration ?? defaultShotDuration, // 确保每个分镜都有默认时长
       // 确保新字段有默认值
       shotNumber: shot.shotNumber || `SC${index + 1}`,
       cameraAngle: shot.cameraAngle || 'eye_level',
@@ -3963,8 +4343,9 @@ ${chunkContent.substring(0, 4000)}
     console.log(`[ScriptParser] useProductionPrompt: ${this.parserConfig.useProductionPrompt}`);
 
     // Use SceneContextExtractor for RAG-based text extraction (Phase 3 optimization)
+    const sceneContextExtractLength = this.parserConfig.sceneContextExtractLength || 500;
     const sceneContent = this.sceneContextExtractor
-      ? this.sceneContextExtractor.extract(scene, content, 500)
+      ? this.sceneContextExtractor.extract(scene, content, sceneContextExtractLength)
       : this.extractSceneContext(content, scene.name);
     console.log(`[ScriptParser] Scene content length: ${sceneContent.length} characters`);
     console.log(
@@ -3992,8 +4373,9 @@ ${chunkContent.substring(0, 4000)}
       console.log(`[ScriptParser] Using production prompt with context`);
     } else {
       // 使用标准Prompt
+      const standardPromptLength = this.parserConfig.standardPromptLength || 6000;
       prompt = PROMPTS.shots
-        .replace('{content}', sceneContent.substring(0, 6000))
+        .replace('{content}', sceneContent.substring(0, standardPromptLength))
         .replace('{sceneName}', scene.name)
         .replace('{sceneDescription}', scene.description)
         .replace('{characters}', scene.characters.join(', '));
@@ -4024,16 +4406,20 @@ ${chunkContent.substring(0, 4000)}
       console.log(`  - Description: ${shot.description?.substring(0, 40)}...`);
     });
 
+    const defaultShotDuration = this.parserConfig.defaultShotDuration || 3;
     const result = shots.map((shot, index) => ({
       ...shot,
       id: shot.id || crypto.randomUUID(),
       sceneName: scene.name,
       sequence: shot.sequence || index + 1,
-      duration: shot.duration ?? 3, // 确保每个分镜都有默认时长3秒
+      duration: shot.duration ?? defaultShotDuration, // 确保每个分镜都有默认时长
     }));
 
     // 计算并输出总时长
-    const totalDuration = result.reduce((sum, shot) => sum + (shot.duration ?? 3), 0);
+    const totalDuration = result.reduce(
+      (sum, shot) => sum + (shot.duration ?? defaultShotDuration),
+      0
+    );
     console.log(`[ScriptParser] Total duration for ${result.length} shots: ${totalDuration}s`);
 
     return result;
@@ -4049,9 +4435,6 @@ ${chunkContent.substring(0, 4000)}
   ): Promise<ScriptParseState> {
     console.log(`[ScriptParser] ========== Short Text Fast Path ==========`);
     console.log(`[ScriptParser] Content length: ${content.length} characters`);
-    console.log(
-      `[ScriptParser] skipGlobalContextForFastPath: ${this.parserConfig.skipGlobalContextForFastPath}`
-    );
 
     // Fix: Initialize performance monitor for short script path
     this.performanceMonitor?.startSession(content.length);
@@ -4070,10 +4453,8 @@ ${chunkContent.substring(0, 4000)}
 
     try {
       // Step 1: Extract metadata with structured output
-      // Fast Path optimization: skip global context extraction if configured
       onProgress?.('metadata', 10, '正在提取元数据...');
-      const skipGlobalContext = this.parserConfig.skipGlobalContextForFastPath ?? true;
-      state.metadata = await this.extractMetadata(content, { skipGlobalContext });
+      state.metadata = await this.extractMetadata(content);
       state.progress = 25;
 
       // Step 2: Batch extract all characters
@@ -4106,11 +4487,7 @@ ${chunkContent.substring(0, 4000)}
       // Step 3.5: Phase 1 - Lightweight item extraction (新增)
       try {
         onProgress?.('items', 55, '正在提取道具...');
-        state.items = await this.extractItemsLightweight(
-          content,
-          state.characters || [],
-          30000 // 30秒超时
-        );
+        state.items = await this.extractItemsLightweight(content, state.characters || []);
         console.log(`[ScriptParser] Fast path: Extracted ${state.items.length} items`);
       } catch (e) {
         console.warn(
@@ -4736,11 +5113,7 @@ ${content}
       // Step 2.5: Phase 1 - Lightweight item extraction (新增)
       try {
         onProgress?.('items', 55, '正在提取道具...');
-        state.items = await this.extractItemsLightweight(
-          content,
-          state.characters || [],
-          30000 // 30秒超时
-        );
+        state.items = await this.extractItemsLightweight(content, state.characters || []);
         console.log(`[ScriptParser] Fast path optimized: Extracted ${state.items.length} items`);
       } catch (e) {
         console.warn(
@@ -4824,55 +5197,46 @@ ${content}
       }
 
       // Step 5: Episode Planning (分集规划)
-      // 虽然是短文本，但依然尝试进行分集规划
+      // 始终执行结构规划，全量依赖 PlatformStandardService 智能规则
       const wordCountForEpisode = this.countWords(content);
-      const episodeThreshold = 800; // 短文本也尝试分集，阈值降低到800字
+      state.stage = 'episode_planning';
+      state.progress = 96;
+      onProgress?.('episode_planning', 96, '正在规划结构...');
 
-      if (wordCountForEpisode >= episodeThreshold) {
-        state.stage = 'episode_planning';
-        state.progress = 96;
-        onProgress?.('episode_planning', 96, '正在规划分集...');
-
-        try {
-          console.log('[ScriptParser] Starting episode planning (fast path)...');
-          console.log(
-            `[ScriptParser] Word count: ${wordCountForEpisode} >= threshold: ${episodeThreshold}, executing episode planning`
-          );
-
-          // 获取目标平台和节奏偏好
-          const platform =
-            this.parserConfig.creativeIntent?.durationControl?.targetPlatform || 'douyin';
-          const pacingPreference =
-            this.parserConfig.creativeIntent?.durationControl?.pacingPreference || 'normal';
-          const charCount = content.length;
-          const scenes = state.scenes || [];
-
-          console.log(
-            `[ScriptParser] Episode planning - platform: ${platform}, pacing: ${pacingPreference}, word count: ${wordCountForEpisode}, char count: ${charCount}`
-          );
-
-          // 计算分集方案
-          const episodePlan = EpisodePlanner.calculateEpisodePlan(
-            scenes,
-            platform,
-            charCount,
-            pacingPreference
-          );
-
-          // 保存分集方案到状态
-          state.episodePlan = episodePlan;
-
-          console.log(
-            `[ScriptParser] Episode plan calculated: ${episodePlan.totalEpisodes} episodes, total duration: ${Math.round(episodePlan.totalDuration / 60)} minutes`
-          );
-        } catch (error) {
-          console.warn('[ScriptParser] Episode planning failed (fast path):', error);
-          state.episodePlan = undefined;
-        }
-      } else {
+      try {
+        console.log('[ScriptParser] Starting episode planning (fast path)...');
         console.log(
-          `[ScriptParser] Skipping episode planning - word count: ${wordCountForEpisode} < threshold: ${episodeThreshold}`
+          `[ScriptParser] Word count: ${wordCountForEpisode}, always executing structure planning`
         );
+
+        // 获取目标平台和节奏偏好
+        const platform =
+          this.parserConfig.creativeIntent?.durationControl?.targetPlatform || 'douyin';
+        const pacingPreference =
+          this.parserConfig.creativeIntent?.durationControl?.pacingPreference || 'normal';
+        const charCount = content.length;
+        const scenes = state.scenes || [];
+
+        console.log(
+          `[ScriptParser] Episode planning - platform: ${platform}, pacing: ${pacingPreference}, word count: ${wordCountForEpisode}, char count: ${charCount}`
+        );
+
+        // 计算结构规划方案（剧集分集/电影分幕）
+        const episodePlan = EpisodePlanner.calculateEpisodePlan(
+          scenes,
+          platform,
+          charCount,
+          pacingPreference
+        );
+
+        // 保存结构规划方案到状态
+        state.episodePlan = episodePlan;
+
+        console.log(
+          `[ScriptParser] Structure plan calculated: ${episodePlan.totalEpisodes} episodes, total duration: ${Math.round(episodePlan.totalDuration / 60)} minutes`
+        );
+      } catch (error) {
+        console.warn('[ScriptParser] Episode planning failed (fast path):', error);
         state.episodePlan = undefined;
       }
 
@@ -4887,7 +5251,22 @@ ${content}
         const coherenceReport = CoherenceChecker.generateCoherenceReport(
           state.episodePlan,
           state.scenes || [],
-          state.shots || []
+          state.shots || [],
+          {
+            plotCoherenceWeights: this.parserConfig.plotCoherenceWeights,
+            shotCoherenceWeights: this.parserConfig.shotCoherenceWeights,
+            visualQualityBaseScore: this.parserConfig.visualQualityBaseScore,
+            visualQualityWeights: this.parserConfig.visualQualityWeights,
+            narrativePacingBaseScore: this.parserConfig.narrativePacingBaseScore,
+            scenesPerEpisodeRange: this.parserConfig.scenesPerEpisodeRange,
+            overallScoreWeights: this.parserConfig.overallScoreWeights,
+            minSceneCount: this.parserConfig.minSceneCount,
+            maxScenesPerEpisode: this.parserConfig.maxScenesPerEpisode,
+            minTotalDurationMinutes: this.parserConfig.minTotalDurationMinutes,
+            maxTotalDurationMinutes: this.parserConfig.maxTotalDurationMinutes,
+            shotVarietyMinShots: this.parserConfig.shotVarietyMinShots,
+            shotVarietyWarningThreshold: this.parserConfig.shotVarietyWarningThreshold,
+          }
         );
 
         state.coherenceReport = coherenceReport;
@@ -5131,11 +5510,7 @@ ${content}
       // Step 3.5: Phase 1 - Lightweight item extraction (新增)
       try {
         onProgress?.('items', 55, '正在提取道具...');
-        state.items = await this.extractItemsLightweight(
-          content,
-          state.characters || [],
-          30000 // 30秒超时
-        );
+        state.items = await this.extractItemsLightweight(content, state.characters || []);
         console.log(`[ScriptParser] Chunked path: Extracted ${state.items.length} items`);
       } catch (e) {
         console.warn(
@@ -5500,29 +5875,19 @@ ${content}
       console.log(`[ScriptParser] Strategy selected: ${strategySelection.strategy}`);
       console.log(`[ScriptParser] Reason: ${strategySelection.reason}`);
       console.log(`[ScriptParser] Word count: ${strategySelection.wordCount}`);
-      console.log(`[ScriptParser] Estimated time: ${strategySelection.estimatedTime}s`);
       console.log(
         `[ScriptParser] Recommended batch size: ${strategySelection.recommendedBatchSize}`
       );
     } else {
-      // Fallback to legacy logic - 三阶段阈值设计
+      // Fallback to legacy logic
       const wordCount = this.countWords(content);
-      const charCount = content.length;
-
-      // 三阶段阈值：
-      // < 300字：Fast Path（快速处理）
-      // 300-3000字：Standard Path（包含budget，不包含episode_planning）
-      // > 3000字：Standard Path（包含budget + episode_planning）
-      const isFastPath = wordCount < 300;
 
       strategySelection = {
-        strategy: isFastPath ? 'fast' : 'standard',
-        reason: isFastPath
-          ? `短文本快速路径 (${wordCount} < 300 字)`
-          : `标准路径 (${wordCount} >= 300 字)`,
+        strategy: 'standard',
+        reason: `标准路径 (${wordCount} 字)`,
         wordCount,
-        estimatedTime: isFastPath ? 60 : Math.ceil(wordCount / 200) * 15,
-        recommendedBatchSize: isFastPath ? 10 : 5,
+        estimatedTime: 0,
+        recommendedBatchSize: 5,
       };
     }
 
@@ -5532,59 +5897,6 @@ ${content}
     if (this.abortController?.signal.aborted) {
       console.log(`[ScriptParser] parseScript cancelled before strategy selection`);
       throw new Error('解析已取消');
-    }
-
-    // V4: Ultra-short path for very short texts (<200 chars) - single API call
-    if (content.length < 200 && !resumeFromState) {
-      console.log(
-        `[ScriptParser] Using ULTRA-SHORT PATH (content length: ${content.length} < 200)`
-      );
-      console.log(`[ScriptParser] This path uses only 1 API call vs 5+ in standard mode`);
-
-      const ultraShortStartTime = Date.now();
-
-      try {
-        const result = await this.parseUltraShortScript(content, enhancedOnProgress);
-
-        const ultraShortDuration = Date.now() - ultraShortStartTime;
-        console.log(`[ScriptParser] ========== Ultra-Short Path Completed ==========`);
-        console.log(
-          `[ScriptParser] Total duration: ${ultraShortDuration}ms (${(ultraShortDuration / 1000).toFixed(1)}s)`
-        );
-        console.log(`[ScriptParser] Estimated token savings: ~80%`);
-        console.log(`[ScriptParser] ==========================================`);
-
-        await this.saveState(scriptId, projectId, result);
-        return result;
-      } catch (error) {
-        console.warn('[ScriptParser] Ultra-short path failed, falling back to fast path:', error);
-        // Fall through to fast path
-      }
-    }
-
-    if (strategySelection.strategy === 'fast' && !resumeFromState) {
-      const useParallel = this.parserConfig.useParallelExtraction ?? true;
-      console.log(`[ScriptParser] Using FAST PATH (${strategySelection.reason})`);
-      console.log(`[ScriptParser] useParallelExtraction: ${useParallel}`);
-
-      const fastStartTime = Date.now();
-
-      // 根据配置选择使用优化版本或原版本
-      const result = useParallel
-        ? await this.parseShortScriptOptimized(content, enhancedOnProgress)
-        : await this.parseShortScript(content, enhancedOnProgress);
-
-      const fastDuration = Date.now() - fastStartTime;
-      console.log(`[ScriptParser] ========== Fast Path Completed ==========`);
-      console.log(
-        `[ScriptParser] Total duration: ${fastDuration}ms (${(fastDuration / 1000).toFixed(1)}s)`
-      );
-      console.log(
-        `[ScriptParser] Mode: ${useParallel ? 'Parallel (Optimized)' : 'Sequential (Legacy)'}`
-      );
-      console.log(`[ScriptParser] ==========================================`);
-      await this.saveState(scriptId, projectId, result);
-      return result;
     }
 
     // Phase 3.3: Chunked path for long texts
@@ -5613,6 +5925,13 @@ ${content}
     const wordCount = this.countWords(content);
     this.performanceMonitor?.startSession(wordCount);
     console.log(`[ScriptParser] PerformanceMonitor session started: ${wordCount} words`);
+
+    // Initialize scene context extractor for RAG-based text extraction
+    this.initializeSceneContextExtractor();
+    // Initialize dynamic batch sizer for adaptive batch size control
+    this.initializeDynamicBatchSizer();
+    // Initialize circuit breaker for preventing cascade failures
+    this.initializeCircuitBreaker();
 
     // V2: 性能监控 - 记录总耗时
     const totalStartTime = Date.now();
@@ -5767,11 +6086,7 @@ ${content}
       // Step 3.4: Phase 1 - Lightweight item extraction (新增)
       try {
         enhancedOnProgress?.('items', 55, '正在提取道具...');
-        state.items = await this.extractItemsLightweight(
-          content,
-          state.characters || [],
-          30000 // 30秒超时
-        );
+        state.items = await this.extractItemsLightweight(content, state.characters || []);
         console.log(`[ScriptParser] Standard path: Extracted ${state.items.length} items`);
       } catch (e) {
         console.warn(
@@ -5842,14 +6157,18 @@ ${content}
             // Create placeholder shots from scenes for budget estimation
             const estimatedShots: Shot[] = [];
             scenes.forEach((scene, sceneIndex) => {
-              // Estimate 3-5 shots per scene based on content length
+              // Estimate shots per scene based on content length (using config)
               const sceneContent = content.includes(scene.name)
                 ? content.split(scene.name)[1]?.split('\n\n')[0] || ''
                 : '';
+              const minShots = this.parserConfig.minShotsPerScene || 3;
+              const maxShots = this.parserConfig.maxShotsPerScene || 5;
+              const perChars = this.parserConfig.shotCountPerCharacters || 200;
               const estimatedShotCount = Math.max(
-                3,
-                Math.min(5, Math.ceil(sceneContent.length / 200))
+                minShots,
+                Math.min(maxShots, Math.ceil(sceneContent.length / perChars))
               );
+              const shotDuration = this.parserConfig.placeholderShotDuration || 3;
 
               for (let i = 0; i < estimatedShotCount; i++) {
                 estimatedShots.push({
@@ -5861,7 +6180,7 @@ ${content}
                   description: scene.description?.substring(0, 50) || '',
                   dialogue: '',
                   sound: '',
-                  duration: 3,
+                  duration: shotDuration,
                   characters: scene.characters || [],
                   assets: { characterIds: scene.characters || [], sceneId: scene.id || '' },
                   contentType: 'static',
@@ -5901,56 +6220,47 @@ ${content}
       }
 
       // Stage 3.7: Episode Planning (长篇小说智能分集)
-      // 三阶段阈值：只有 > 3000字才执行分集规划
+      // 始终执行结构规划，全量依赖 PlatformStandardService 智能规则
       const wordCountForEpisode = this.countWords(content);
-      const episodeThreshold = 3000; // 只有超过3000字才进行分集规划
+      state.stage = 'episode_planning';
+      state.progress = 69;
+      enhancedOnProgress?.('episode_planning', 69, '正在规划结构...');
 
-      if (wordCountForEpisode >= episodeThreshold) {
-        state.stage = 'episode_planning';
-        state.progress = 69;
-        enhancedOnProgress?.('episode_planning', 69, '正在规划分集...');
-
-        try {
-          console.log('[ScriptParser] Starting episode planning...');
-          console.log(
-            `[ScriptParser] Word count: ${wordCountForEpisode} >= threshold: ${episodeThreshold}, executing episode planning`
-          );
-
-          // 获取目标平台和节奏偏好
-          const platform =
-            this.parserConfig.creativeIntent?.durationControl?.targetPlatform || 'douyin';
-          const pacingPreference =
-            this.parserConfig.creativeIntent?.durationControl?.pacingPreference || 'normal';
-          const charCount = content.length;
-
-          console.log(
-            `[ScriptParser] Episode planning - platform: ${platform}, pacing: ${pacingPreference}, word count: ${wordCountForEpisode}, char count: ${charCount}`
-          );
-
-          // 计算分集方案
-          const episodePlan = EpisodePlanner.calculateEpisodePlan(
-            scenes,
-            platform,
-            charCount,
-            pacingPreference
-          );
-
-          // 保存分集方案到状态
-          state.episodePlan = episodePlan;
-          await this.saveState(scriptId, projectId, state);
-
-          console.log(
-            `[ScriptParser] Episode plan calculated: ${episodePlan.totalEpisodes} episodes, total duration: ${Math.round(episodePlan.totalDuration / 60)} minutes`
-          );
-        } catch (error) {
-          console.warn('[ScriptParser] Episode planning failed:', error);
-          // 继续执行，不中断流程
-          state.episodePlan = undefined;
-        }
-      } else {
+      try {
+        console.log('[ScriptParser] Starting episode planning...');
         console.log(
-          `[ScriptParser] Skipping episode planning - word count: ${wordCountForEpisode} < threshold: ${episodeThreshold}`
+          `[ScriptParser] Word count: ${wordCountForEpisode}, always executing structure planning`
         );
+
+        // 获取目标平台和节奏偏好
+        const platform =
+          this.parserConfig.creativeIntent?.durationControl?.targetPlatform || 'douyin';
+        const pacingPreference =
+          this.parserConfig.creativeIntent?.durationControl?.pacingPreference || 'normal';
+        const charCount = content.length;
+
+        console.log(
+          `[ScriptParser] Episode planning - platform: ${platform}, pacing: ${pacingPreference}, word count: ${wordCountForEpisode}, char count: ${charCount}`
+        );
+
+        // 计算结构规划方案（剧集分集/电影分幕）
+        const episodePlan = EpisodePlanner.calculateEpisodePlan(
+          scenes,
+          platform,
+          charCount,
+          pacingPreference
+        );
+
+        // 保存结构规划方案到状态
+        state.episodePlan = episodePlan;
+        await this.saveState(scriptId, projectId, state);
+
+        console.log(
+          `[ScriptParser] Structure plan calculated: ${episodePlan.totalEpisodes} episodes, total duration: ${Math.round(episodePlan.totalDuration / 60)} minutes`
+        );
+      } catch (error) {
+        console.warn('[ScriptParser] Episode planning failed:', error);
+        // 继续执行，不中断流程
         state.episodePlan = undefined;
       }
 
@@ -6122,29 +6432,63 @@ ${content}
       }
       stageTimings['shots'] = Date.now() - shotsStartTime;
 
-      // Complete
-      state.stage = 'completed';
-      state.progress = 100;
+      // Stage 5: Coherence Check (阶段2.4：剧情连贯性检查)
+      state.stage = 'coherence_check';
+      state.progress = 97;
+      enhancedOnProgress?.('coherence_check', 97, '正在检查连贯性...');
 
-      // 停止持续进度动画
-      stopProgressAnimation();
+      try {
+        console.log('[ScriptParser] Starting coherence check...');
 
-      // Generate final quality report after all shots are generated
-      if (this.parserConfig.useDramaRules && this.qualityAnalyzer) {
+        const coherenceReport = CoherenceChecker.generateCoherenceReport(
+          state.episodePlan,
+          state.scenes || [],
+          state.shots || [],
+          {
+            plotCoherenceWeights: this.parserConfig.plotCoherenceWeights,
+            shotCoherenceWeights: this.parserConfig.shotCoherenceWeights,
+            visualQualityBaseScore: this.parserConfig.visualQualityBaseScore,
+            visualQualityWeights: this.parserConfig.visualQualityWeights,
+            narrativePacingBaseScore: this.parserConfig.narrativePacingBaseScore,
+            scenesPerEpisodeRange: this.parserConfig.scenesPerEpisodeRange,
+            overallScoreWeights: this.parserConfig.overallScoreWeights,
+            minSceneCount: this.parserConfig.minSceneCount,
+            maxScenesPerEpisode: this.parserConfig.maxScenesPerEpisode,
+            minTotalDurationMinutes: this.parserConfig.minTotalDurationMinutes,
+            maxTotalDurationMinutes: this.parserConfig.maxTotalDurationMinutes,
+            shotVarietyMinShots: this.parserConfig.shotVarietyMinShots,
+            shotVarietyWarningThreshold: this.parserConfig.shotVarietyWarningThreshold,
+          }
+        );
+
+        state.coherenceReport = coherenceReport;
+        await this.saveState(scriptId, projectId, state);
+
+        console.log(
+          `[ScriptParser] Coherence check complete: valid=${coherenceReport.valid}, plot issues=${coherenceReport.plotCoherence.issues.length}, shot issues=${coherenceReport.shotCoherence.issues.length}`
+        );
+      } catch (error) {
+        console.warn('[ScriptParser] Coherence check failed:', error);
+        // 继续执行，不中断流程
+        state.coherenceReport = undefined;
+      }
+
+      // Generate final quality report after coherence check
+      if (this.qualityAnalyzer) {
         console.log('[ScriptParser] ========== Generating Quality Report (Full Parse) ==========');
         console.log('[ScriptParser] Input data:', {
           hasMetadata: !!state.metadata,
-          charactersCount: this.currentCharacters.length,
-          scenesCount: this.currentScenes.length,
-          itemsCount: this.currentItems.length,
+          charactersCount: (state.characters || []).length,
+          scenesCount: (state.scenes || []).length,
+          itemsCount: (state.items || []).length,
           shotsCount: (state.shots || []).length,
         });
 
         const finalReport = this.qualityAnalyzer.analyze(
           state.metadata,
-          this.currentCharacters,
-          this.currentScenes,
-          this.currentItems,
+          state.characters || [],
+          state.scenes || [],
+          state.items || [],
           state.shots || [],
           'completed'
         );
@@ -6171,32 +6515,7 @@ ${content}
         }
       }
 
-      // Stage 5: Coherence Check (阶段2.4：剧情连贯性检查)
-      state.stage = 'coherence_check';
-      state.progress = 97;
-      enhancedOnProgress?.('coherence_check', 97, '正在检查连贯性...');
-
-      try {
-        console.log('[ScriptParser] Starting coherence check...');
-
-        const coherenceReport = CoherenceChecker.generateCoherenceReport(
-          state.episodePlan,
-          state.scenes || [],
-          state.shots || []
-        );
-
-        state.coherenceReport = coherenceReport;
-        await this.saveState(scriptId, projectId, state);
-
-        console.log(
-          `[ScriptParser] Coherence check complete: valid=${coherenceReport.valid}, plot issues=${coherenceReport.plotCoherence.issues.length}, shot issues=${coherenceReport.shotCoherence.issues.length}`
-        );
-      } catch (error) {
-        console.warn('[ScriptParser] Coherence check failed:', error);
-        // 继续执行，不中断流程
-        state.coherenceReport = undefined;
-      }
-
+      // Complete
       state.stage = 'completed';
       state.progress = 100;
       enhancedOnProgress?.('completed', 100, '解析完成！');
