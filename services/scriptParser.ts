@@ -87,6 +87,7 @@ import { DEFAULT_MODELS } from '../config/models';
 import { EpisodePlanner } from './parsing/EpisodePlanner';
 import PlatformStandardService from './parsing/PlatformStandardService';
 import { CoherenceChecker } from './parsing/CoherenceChecker';
+import { DataIntegrityChecker } from './parsing/DataIntegrityChecker';
 
 /**
  * Script Parser Configuration Interface
@@ -632,17 +633,110 @@ const DEFAULT_PARSER_CONFIG: ScriptParserConfig = {
   placeholderShotDuration: 3,
 
   // ========== 分镜生成配置 ==========
+  /**
+   *  narrationSpeed: 200（字/分钟）
+   *  设计依据：中文播客/有声书正常语速标准
+   *  - 来源 1：广播电视行业播音员语速标准
+   *    - 新闻播报：220-250 字/分钟
+   *    - 专题节目：180-200 字/分钟
+   *    - 参考：语速控制操作指南文档
+   *  
+   *  - 来源 2：人耳接受度研究
+   *    - 人耳对标准普通话的接受程度可达 280 字/分钟
+   *    - 正常语速 240-250 字/分钟
+   *    - 参考：中影人艺考播音主持学院
+   *  
+   *  - 来源 3：演讲语速建议
+   *    - 中文演讲通常为每分钟 180-220 字
+   *    - 参考：CSDN 演讲稿字数计算
+   *  
+   *  决策理由：200 字/分钟是适中值，适合大多数剧本旁白语速
+   */
   narrationSpeed: 200,
-  shotDensityShort: 5,
-  shotDensityMedium: 4,
-  shotDensityLong: 3,
+  
+  /**
+   * shotDensityShort: 5（短视频分镜密度）
+   *  设计依据：短视频分镜数量最佳实践
+   *  - 来源 1：抖音短视频分镜建议
+   *    - 15 秒短视频：4-6 个分镜
+   *    - 30 秒短视频：8-12 个分镜
+   *    - 参考：易尘短视频分镜教程
+   *  
+   *  - 来源 2：AI 分镜生成实战
+   *    - 1 分钟短视频不建议拆 20 个分镜（镜头停留太短）
+   *    - 参考：苏醒的人生 AI 分镜教程
+   *  
+   *  - 来源 3：漫剧分镜经验
+   *    - 2-5 分钟漫剧：8-15 个镜头
+   *    - 每个画面建议控制在 3-5 秒
+   *    - 参考：LHF 漫剧制作流程
+   *  
+   *  决策理由：5 个分镜/分钟适合快节奏短视频（15-30 秒）
+   */
+  shotDensityShort: 10,
+  
+  /**
+   * shotDensityMedium: 4（中视频分镜密度）
+   *  设计依据：中视频分镜密度经验值
+   *  - 来源 1：即梦 3.0 分镜数量规划
+   *    - 5 秒视频：1-2 个分镜
+   *    - 10 秒视频：3-4 个分镜
+   *    - 参考：即梦 3.0 精准控制分镜数量
+   *  
+   *  - 来源 2：团队规模分镜颗粒度
+   *    - 中型团队（5-8 人）：中颗粒度分镜
+   *    - 明确每个镜头的景别与运镜方式
+   *    - 参考：PingCode 拍摄脚本分镜头
+   *  
+   *  决策理由：4 个分镜/分钟适合 1-3 分钟中视频
+   */
+  shotDensityMedium: 8,
+  
+  /**
+   * shotDensityLong: 3（长视频分镜密度）
+   *  设计依据：长视频分镜密度经验值
+   *  - 来源 1：长视频镜头节奏
+   *    - 长视频需要更多叙事时间
+   *    - 镜头停留时间较长（5-8 秒）
+   *  
+   *  - 来源 2：影视行业经验
+   *    - 电影/电视剧平均镜头长度 3-5 秒
+   *    - 叙事性镜头可适当延长
+   *  
+   *  决策理由：3 个分镜/分钟适合 3 分钟以上长视频，保证叙事完整性
+   */
+  shotDensityLong: 6,
+  
   shotDensityShortThreshold: 3000,
   shotDensityMediumThreshold: 10000,
   maxShotsShortMedium: 150,
   maxShotsLong: 500,
+  
+  /**
+   * keyShotRatio: 0.7（关键分镜比例）
+   *  设计依据：影视创作经验值
+   *  - 关键分镜：推动情节发展的重要镜头
+   *  - 普通分镜：过渡、铺垫镜头
+   *  - 经验值：70% 关键分镜 + 30% 普通分镜
+   */
   keyShotRatio: 0.7,
+  
   sceneContextExtractLength: 500,
   standardPromptLength: 6000,
+  
+  /**
+   * defaultShotDuration: 3（默认分镜时长，秒）
+   *  设计依据：短视频分镜时长标准
+   *  - 来源 1：抖音/快手分镜时长
+   *    - 每个画面建议控制在 3-5 秒
+   *    - 参考：易尘短视频分镜教程
+   *  
+   *  - 来源 2：Instagram Reels
+   *    - Story 视频：3-15 秒
+   *    - 参考：Sked Social Instagram 规范
+   *  
+   *  决策理由：3 秒是适中值，适合大多数分镜
+   */
   defaultShotDuration: 3,
 
   // ========== 连贯性检查配置 ==========
@@ -1631,6 +1725,8 @@ export class ScriptParser {
   private tokenOptimizer: TokenOptimizer | null = null;
   /** Progress tracker for detailed progress reporting */
   private progressTracker: ProgressTracker | null = null;
+  /** Data integrity checker for state verification */
+  private dataIntegrityChecker: DataIntegrityChecker = new DataIntegrityChecker();
 
   /**
    * Creates a new script parser instance
@@ -6133,137 +6229,6 @@ ${content}
         }
       }
 
-      // Stage 3.6: Duration Budget Calculation (optional)
-      if (this.parserConfig.useDurationBudget) {
-        state.stage = 'budget';
-        state.progress = 69;
-        enhancedOnProgress?.('budget', 69, '正在计算时长预算...');
-
-        try {
-          console.log('[ScriptParser] Starting duration budget calculation...');
-
-          // Calculate budget using existing shots or estimate from scenes
-          const existingShotsForBudget = state.shots || [];
-
-          if (existingShotsForBudget.length > 0) {
-            // Calculate budget based on existing shots - 使用CreativeIntentBudgetMapper
-            const budgetMapping = mapCreativeIntentToBudget(this.parserConfig.creativeIntent, {
-              platform: this.parserConfig.targetPlatform,
-              pace: this.parserConfig.paceType,
-            });
-            console.log('[ScriptParser]', getBudgetConfigDescription(budgetMapping));
-            this.durationBudget = calculateBudget(existingShotsForBudget, budgetMapping.options);
-          } else {
-            // Create placeholder shots from scenes for budget estimation
-            const estimatedShots: Shot[] = [];
-            scenes.forEach((scene, sceneIndex) => {
-              // Estimate shots per scene based on content length (using config)
-              const sceneContent = content.includes(scene.name)
-                ? content.split(scene.name)[1]?.split('\n\n')[0] || ''
-                : '';
-              const minShots = this.parserConfig.minShotsPerScene || 3;
-              const maxShots = this.parserConfig.maxShotsPerScene || 5;
-              const perChars = this.parserConfig.shotCountPerCharacters || 200;
-              const estimatedShotCount = Math.max(
-                minShots,
-                Math.min(maxShots, Math.ceil(sceneContent.length / perChars))
-              );
-              const shotDuration = this.parserConfig.placeholderShotDuration || 3;
-
-              for (let i = 0; i < estimatedShotCount; i++) {
-                estimatedShots.push({
-                  id: crypto.randomUUID(),
-                  sceneName: scene.name,
-                  sequence: i + 1,
-                  shotType: 'medium',
-                  cameraMovement: 'static',
-                  description: scene.description?.substring(0, 50) || '',
-                  dialogue: '',
-                  sound: '',
-                  duration: shotDuration,
-                  characters: scene.characters || [],
-                  assets: { characterIds: scene.characters || [], sceneId: scene.id || '' },
-                  contentType: 'static',
-                  layer: 'key',
-                  status: 'pending',
-                });
-              }
-            });
-
-            // Calculate budget - 使用CreativeIntentBudgetMapper
-            const budgetMapping = mapCreativeIntentToBudget(this.parserConfig.creativeIntent, {
-              platform: this.parserConfig.targetPlatform,
-              pace: this.parserConfig.paceType,
-            });
-            console.log('[ScriptParser]', getBudgetConfigDescription(budgetMapping));
-            this.durationBudget = calculateBudget(estimatedShots, budgetMapping.options);
-          }
-
-          // Validate budget
-          const validation = validateBudget(this.durationBudget);
-          if (!validation.valid) {
-            console.warn('[ScriptParser] Budget validation warnings:', validation.issues);
-          }
-
-          // Save budget to state
-          state.durationBudget = this.durationBudget;
-          await this.saveState(scriptId, projectId, state);
-
-          console.log(
-            `[ScriptParser] Budget calculated: ${this.durationBudget.totalDuration}s total, ${this.durationBudget.sceneBudgets.length} scenes`
-          );
-        } catch (error) {
-          console.warn('[ScriptParser] Budget calculation failed:', error);
-          // Continue without budget if calculation fails
-          this.durationBudget = null;
-        }
-      }
-
-      // Stage 3.7: Episode Planning (长篇小说智能分集)
-      // 始终执行结构规划，全量依赖 PlatformStandardService 智能规则
-      const wordCountForEpisode = this.countWords(content);
-      state.stage = 'episode_planning';
-      state.progress = 69;
-      enhancedOnProgress?.('episode_planning', 69, '正在规划结构...');
-
-      try {
-        console.log('[ScriptParser] Starting episode planning...');
-        console.log(
-          `[ScriptParser] Word count: ${wordCountForEpisode}, always executing structure planning`
-        );
-
-        // 获取目标平台和节奏偏好
-        const platform =
-          this.parserConfig.creativeIntent?.durationControl?.targetPlatform || 'douyin';
-        const pacingPreference =
-          this.parserConfig.creativeIntent?.durationControl?.pacingPreference || 'normal';
-        const charCount = content.length;
-
-        console.log(
-          `[ScriptParser] Episode planning - platform: ${platform}, pacing: ${pacingPreference}, word count: ${wordCountForEpisode}, char count: ${charCount}`
-        );
-
-        // 计算结构规划方案（剧集分集/电影分幕）
-        const episodePlan = EpisodePlanner.calculateEpisodePlan(
-          scenes,
-          platform,
-          charCount,
-          pacingPreference
-        );
-
-        // 保存结构规划方案到状态
-        state.episodePlan = episodePlan;
-        await this.saveState(scriptId, projectId, state);
-
-        console.log(
-          `[ScriptParser] Structure plan calculated: ${episodePlan.totalEpisodes} episodes, total duration: ${Math.round(episodePlan.totalDuration / 60)} minutes`
-        );
-      } catch (error) {
-        console.warn('[ScriptParser] Episode planning failed:', error);
-        // 继续执行，不中断流程
-        state.episodePlan = undefined;
-      }
-
       // Stage 4: Shots (Phase 2.3: Optimized batch generation)
       const shotsStartTime = Date.now();
       state.stage = 'shots';
@@ -6432,6 +6397,137 @@ ${content}
       }
       stageTimings['shots'] = Date.now() - shotsStartTime;
 
+      // Stage 3.6: Duration Budget Calculation (optional) - moved to after Shots to avoid compression constraints
+      if (this.parserConfig.useDurationBudget) {
+        state.stage = 'budget';
+        state.progress = 95;
+        enhancedOnProgress?.('budget', 95, '正在计算时长预算...');
+
+        try {
+          console.log('[ScriptParser] Starting duration budget calculation...');
+
+          // Calculate budget using existing shots or estimate from scenes
+          const existingShotsForBudget = state.shots || [];
+
+          if (existingShotsForBudget.length > 0) {
+            // Calculate budget based on existing shots - 使用CreativeIntentBudgetMapper
+            const budgetMapping = mapCreativeIntentToBudget(this.parserConfig.creativeIntent, {
+              platform: this.parserConfig.targetPlatform,
+              pace: this.parserConfig.paceType,
+            });
+            console.log('[ScriptParser]', getBudgetConfigDescription(budgetMapping));
+            this.durationBudget = calculateBudget(existingShotsForBudget, budgetMapping.options);
+          } else {
+            // Create placeholder shots from scenes for budget estimation
+            const estimatedShots: Shot[] = [];
+            scenes.forEach((scene, sceneIndex) => {
+              // Estimate shots per scene based on content length (using config)
+              const sceneContent = content.includes(scene.name)
+                ? content.split(scene.name)[1]?.split('\n\n')[0] || ''
+                : '';
+              const minShots = this.parserConfig.minShotsPerScene || 3;
+              const maxShots = this.parserConfig.maxShotsPerScene || 5;
+              const perChars = this.parserConfig.shotCountPerCharacters || 200;
+              const estimatedShotCount = Math.max(
+                minShots,
+                Math.min(maxShots, Math.ceil(sceneContent.length / perChars))
+              );
+              const shotDuration = this.parserConfig.placeholderShotDuration || 3;
+
+              for (let i = 0; i < estimatedShotCount; i++) {
+                estimatedShots.push({
+                  id: crypto.randomUUID(),
+                  sceneName: scene.name,
+                  sequence: i + 1,
+                  shotType: 'medium',
+                  cameraMovement: 'static',
+                  description: scene.description?.substring(0, 50) || '',
+                  dialogue: '',
+                  sound: '',
+                  duration: shotDuration,
+                  characters: scene.characters || [],
+                  assets: { characterIds: scene.characters || [], sceneId: scene.id || '' },
+                  contentType: 'static',
+                  layer: 'key',
+                  status: 'pending',
+                });
+              }
+            });
+
+            // Calculate budget - 使用CreativeIntentBudgetMapper
+            const budgetMapping = mapCreativeIntentToBudget(this.parserConfig.creativeIntent, {
+              platform: this.parserConfig.targetPlatform,
+              pace: this.parserConfig.paceType,
+            });
+            console.log('[ScriptParser]', getBudgetConfigDescription(budgetMapping));
+            this.durationBudget = calculateBudget(estimatedShots, budgetMapping.options);
+          }
+
+          // Validate budget
+          const validation = validateBudget(this.durationBudget);
+          if (!validation.valid) {
+            console.warn('[ScriptParser] Budget validation warnings:', validation.issues);
+          }
+
+          // Save budget to state
+          state.durationBudget = this.durationBudget;
+          await this.saveState(scriptId, projectId, state);
+
+          console.log(
+            `[ScriptParser] Budget calculated: ${this.durationBudget.totalDuration}s total, ${this.durationBudget.sceneBudgets.length} scenes`
+          );
+        } catch (error) {
+          console.warn('[ScriptParser] Budget calculation failed:', error);
+          // Continue without budget if calculation fails
+          this.durationBudget = null;
+        }
+      }
+
+      // Stage 3.7: Episode Planning (长篇小说智能分集) - moved to after Shots to avoid compression constraints
+      // 始终执行结构规划，全量依赖 PlatformStandardService 智能规则
+      const wordCountForEpisode = this.countWords(content);
+      state.stage = 'episode_planning';
+      state.progress = 96;
+      enhancedOnProgress?.('episode_planning', 96, '正在规划结构...');
+
+      try {
+        console.log('[ScriptParser] Starting episode planning...');
+        console.log(
+          `[ScriptParser] Word count: ${wordCountForEpisode}, always executing structure planning`
+        );
+
+        // 获取目标平台和节奏偏好
+        const platform =
+          this.parserConfig.creativeIntent?.durationControl?.targetPlatform || 'douyin';
+        const pacingPreference =
+          this.parserConfig.creativeIntent?.durationControl?.pacingPreference || 'normal';
+        const charCount = content.length;
+
+        console.log(
+          `[ScriptParser] Episode planning - platform: ${platform}, pacing: ${pacingPreference}, word count: ${wordCountForEpisode}, char count: ${charCount}`
+        );
+
+        // 计算结构规划方案（剧集分集/电影分幕）
+        const episodePlan = EpisodePlanner.calculateEpisodePlan(
+          scenes,
+          platform,
+          charCount,
+          pacingPreference
+        );
+
+        // 保存结构规划方案到状态
+        state.episodePlan = episodePlan;
+        await this.saveState(scriptId, projectId, state);
+
+        console.log(
+          `[ScriptParser] Structure plan calculated: ${episodePlan.totalEpisodes} episodes, total duration: ${Math.round(episodePlan.totalDuration / 60)} minutes`
+        );
+      } catch (error) {
+        console.warn('[ScriptParser] Episode planning failed:', error);
+        // 继续执行，不中断流程
+        state.episodePlan = undefined;
+      }
+
       // Stage 5: Coherence Check (阶段2.4：剧情连贯性检查)
       state.stage = 'coherence_check';
       state.progress = 97;
@@ -6579,27 +6675,56 @@ ${content}
   }
 
   /**
-   * Save parsing state to storage
+   * Save parsing state to storage with data integrity checksum
    */
   private async saveState(
     scriptId: string,
     projectId: string,
     state: ScriptParseState
   ): Promise<void> {
+    // Calculate checksum for data integrity
+    const checksumResult = this.dataIntegrityChecker.calculateChecksum(state);
+    state.checksum = checksumResult.checksum;
+    state.checksumAlgorithm = checksumResult.algorithm;
+    state.checksumTimestamp = checksumResult.timestamp;
+    
+    console.log(
+      `[ScriptParser] Saving state with checksum: ${checksumResult.checksum} (${checksumResult.dataSize} bytes)`
+    );
+    
     await storageService.updateScriptParseState(scriptId, projectId, () => state);
   }
 
   /**
-   * Load parsing state from storage
+   * Load parsing state from storage and verify data integrity
    */
   private async loadState(scriptId: string, projectId: string): Promise<ScriptParseState | null> {
     try {
       const script = await storageService.getScript(scriptId, projectId);
       if (script && script.parseState) {
-        return script.parseState;
+        const state = script.parseState;
+        
+        // Verify checksum if exists
+        if (state.checksum) {
+          const isValid = this.dataIntegrityChecker.verifyDataIntegrity(state);
+          if (!isValid) {
+            console.error(
+              `[ScriptParser] Data integrity check failed! Checksum: ${state.checksum}`
+            );
+            throw new Error('数据完整性验证失败，可能已损坏，请重新解析');
+          }
+          console.log(
+            `[ScriptParser] Data integrity verified. Checksum: ${state.checksum}`
+          );
+        } else {
+          console.warn('[ScriptParser] No checksum found in saved state (legacy data)');
+        }
+        
+        return state;
       }
     } catch (e) {
       console.warn('[ScriptParser] Failed to load state:', e);
+      throw e; // Re-throw to handle in caller
     }
     return null;
   }

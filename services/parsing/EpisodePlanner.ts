@@ -7,7 +7,7 @@
  * @version 1.0.0
  */
 
-import { ScriptScene, EpisodePlan, EpisodeInfo, PlatformEpisodeStandard } from '../../types';
+import { ScriptScene, EpisodePlan, EpisodeInfo, PlatformEpisodeStandard, Shot } from '../../types';
 import PlatformStandardService from './PlatformStandardService';
 
 /**
@@ -33,12 +33,13 @@ export class EpisodePlanner {
     scenes: ScriptScene[],
     platform: string,
     wordCount: number,
-    pacingPreference: 'fast' | 'normal' | 'slow' = 'normal'
+    pacingPreference: 'fast' | 'normal' | 'slow' = 'normal',
+    shots: Shot[] = []
   ): EpisodePlan {
     // 1. 获取平台标准
     const standard = PlatformStandardService.getStandard(platform);
     if (!standard) {
-      return this.createFallbackPlan(scenes, wordCount);
+      return this.createFallbackPlan(scenes, wordCount, shots);
     }
 
     // 2. 分析剧情结构
@@ -51,13 +52,14 @@ export class EpisodePlanner {
       pacingPreference
     );
 
-    // 4. 将场景分组到各集
+    // 4. 将场景分组到各集（基于分镜时长）
     const episodes = this.groupScenesIntoEpisodes(
       scenes,
       totalEpisodes,
       plotStructure,
       standard,
-      pacingPreference
+      pacingPreference,
+      shots
     );
 
     // 5. 生成每集标题和概要
@@ -135,17 +137,17 @@ export class EpisodePlanner {
   }
 
   /**
-   * 将场景分组到各集
+   * 将场景分组到各集（基于分镜时长）
    */
   private static groupScenesIntoEpisodes(
     scenes: ScriptScene[],
     totalEpisodes: number,
     plotStructure: PlotStructure,
     standard: PlatformEpisodeStandard,
-    pacingPreference: 'fast' | 'normal' | 'slow'
+    pacingPreference: 'fast' | 'normal' | 'slow',
+    shots: Shot[]
   ): EpisodeInfo[] {
     const episodes: EpisodeInfo[] = [];
-    const scenesPerEpisode = Math.ceil(scenes.length / totalEpisodes);
     const recommendedEpisodeDuration = PlatformStandardService.getRecommendedEpisodeDuration(
       standard.platform,
       pacingPreference
@@ -155,23 +157,105 @@ export class EpisodePlanner {
       pacingPreference
     );
 
-    // 简单分组：按顺序分配场景
-    for (let i = 0; i < totalEpisodes; i++) {
-      const startIndex = i * scenesPerEpisode;
-      const endIndex = Math.min((i + 1) * scenesPerEpisode, scenes.length);
-      const episodeScenes = scenes.slice(startIndex, endIndex);
+    // 计算每个场景的总时长
+    const sceneDurations: { [sceneName: string]: number } = {};
+    scenes.forEach(scene => {
+      const sceneShots = shots.filter(shot => shot.sceneName === scene.name);
+      sceneDurations[scene.name] = sceneShots.reduce((sum, shot) => sum + (shot.duration || 3), 0);
+    });
 
-      const isClimax = this.isClimaxEpisode(i, totalEpisodes, plotStructure, episodeScenes);
+    // 先找到高潮场景的索引范围
+    const climaxSceneNames = plotStructure.climaxScenes.map(s => s.name);
+    const climaxStartIndex = scenes.findIndex(s => climaxSceneNames.includes(s.name));
+    let climaxEndIndex = -1;
+    if (climaxStartIndex >= 0) {
+      for (let i = scenes.length - 1; i >= 0; i--) {
+        if (climaxSceneNames.includes(scenes[i].name)) {
+          climaxEndIndex = i;
+          break;
+        }
+      }
+    }
+
+    let currentSceneIndex = 0;
+    let episodeNumber = 1;
+
+    // 分组到各集
+    while (currentSceneIndex < scenes.length && episodeNumber <= totalEpisodes) {
+      let isClimaxEpisode = false;
+      let episodeScenes: ScriptScene[] = [];
+      let episodeDuration = 0;
+
+      // 检查是否需要单独安排高潮集
+      if (climaxStartIndex >= 0 && 
+          currentSceneIndex <= climaxStartIndex && 
+          currentSceneIndex + Math.ceil(scenes.length / totalEpisodes) > climaxStartIndex) {
+        
+        // 单独安排高潮集
+        episodeScenes = scenes.slice(climaxStartIndex, climaxEndIndex + 1);
+        episodeDuration = episodeScenes.reduce((sum, s) => sum + (sceneDurations[s.name] || recommendedEpisodeDuration / episodeScenes.length), 0);
+        currentSceneIndex = climaxEndIndex + 1;
+        isClimaxEpisode = true;
+      } else {
+        // 正常分组，基于时长
+        let targetDuration = recommendedEpisodeDuration;
+        // 调整目标时长以确保能分配完所有场景
+        const remainingEpisodes = totalEpisodes - episodeNumber + 1;
+        const remainingScenes = scenes.slice(currentSceneIndex);
+        const remainingDuration = remainingScenes.reduce((sum, s) => sum + (sceneDurations[s.name] || recommendedEpisodeDuration / totalEpisodes), 0);
+        if (remainingEpisodes > 1) {
+          targetDuration = remainingDuration / remainingEpisodes;
+        }
+
+        for (let i = currentSceneIndex; i < scenes.length; i++) {
+          const scene = scenes[i];
+          const sceneDuration = sceneDurations[scene.name] || recommendedEpisodeDuration / Math.max(totalEpisodes, 1);
+          
+          // 如果加入当前场景会超时太多，停止
+          if (episodeDuration > 0 && 
+              episodeDuration + sceneDuration > targetDuration * 1.3) {
+            break;
+          }
+          
+          episodeScenes.push(scene);
+          episodeDuration += sceneDuration;
+          
+          // 检查是否包含高潮场景
+          if (climaxSceneNames.includes(scene.name)) {
+            isClimaxEpisode = true;
+          }
+        }
+        currentSceneIndex += episodeScenes.length;
+      }
+
+      // 确保每集至少有一个场景
+      if (episodeScenes.length === 0 && currentSceneIndex < scenes.length) {
+        episodeScenes = [scenes[currentSceneIndex]];
+        episodeDuration = sceneDurations[episodeScenes[0].name] || recommendedEpisodeDuration;
+        currentSceneIndex++;
+      }
+
+      // 计算本集的分镜数量
+      const episodeShotCount = episodeScenes.reduce((sum, scene) => {
+        return sum + shots.filter(shot => shot.sceneName === scene.name).length;
+      }, 0);
 
       episodes.push({
-        episodeNumber: i + 1,
-        title: `第${i + 1}集`,
+        episodeNumber,
+        title: `第${episodeNumber}集`,
         sceneNames: episodeScenes.map(s => s.name),
-        estimatedDuration: recommendedEpisodeDuration,
-        estimatedShotCount: recommendedShotCount,
+        estimatedDuration: Math.max(episodeDuration, 30),
+        estimatedShotCount: Math.max(episodeShotCount, recommendedShotCount),
         summary: '',
-        isClimax,
+        isClimax: isClimaxEpisode || this.isClimaxEpisode(
+          episodeNumber - 1, 
+          totalEpisodes, 
+          plotStructure, 
+          episodeScenes
+        ),
       });
+
+      episodeNumber++;
     }
 
     return episodes;
@@ -236,8 +320,24 @@ export class EpisodePlanner {
         episode.sceneNames.includes(tp.name)
       );
 
-      if (isTurningPoint || episode.isClimax) {
-        episode.cliffhanger = '本集结尾有重要转折，请继续观看下一集';
+      // 检查是否包含高潮场景
+      const hasClimaxScene = plotStructure.climaxScenes.some(cs =>
+        episode.sceneNames.includes(cs.name)
+      );
+
+      if (isTurningPoint) {
+        episode.cliffhanger = '关键转折点即将揭晓，剧情迎来重大变化，敬请期待下一集！';
+      } else if (hasClimaxScene || episode.isClimax) {
+        episode.cliffhanger = '高潮迭起，精彩继续！下一集将迎来更为震撼的剧情发展！';
+      } else if (index === episodes.length - 2) {
+        // 倒数第二集的悬念
+        episode.cliffhanger = '所有线索汇聚，终章即将开启！下一集将迎来故事的最终结局！';
+      } else if (index === 0) {
+        // 第一集的悬念
+        episode.cliffhanger = '故事刚刚开始，更多精彩内容即将呈现，请继续观看下一集！';
+      } else {
+        // 普通集的悬念
+        episode.cliffhanger = '精彩未完待续，下集更加精彩！';
       }
     });
   }
@@ -274,33 +374,48 @@ export class EpisodePlanner {
   /**
    * 创建备用方案（当平台标准不存在时）
    */
-  private static createFallbackPlan(scenes: ScriptScene[], wordCount: number): EpisodePlan {
+  private static createFallbackPlan(scenes: ScriptScene[], wordCount: number, shots: Shot[] = []): EpisodePlan {
     const totalEpisodes = Math.max(3, Math.ceil(wordCount / 5000));
     const episodes: EpisodeInfo[] = [];
     const scenesPerEpisode = Math.ceil(scenes.length / totalEpisodes);
+
+    // 计算每个场景的总时长
+    const sceneDurations: { [sceneName: string]: number } = {};
+    scenes.forEach(scene => {
+      const sceneShots = shots.filter(shot => shot.sceneName === scene.name);
+      sceneDurations[scene.name] = sceneShots.reduce((sum, shot) => sum + (shot.duration || 3), 0);
+    });
 
     for (let i = 0; i < totalEpisodes; i++) {
       const startIndex = i * scenesPerEpisode;
       const endIndex = Math.min((i + 1) * scenesPerEpisode, scenes.length);
       const episodeScenes = scenes.slice(startIndex, endIndex);
+      
+      // 计算本集的实际时长和分镜数
+      const episodeDuration = episodeScenes.reduce((sum, s) => sum + (sceneDurations[s.name] || 120 / totalEpisodes), 0);
+      const episodeShotCount = episodeScenes.reduce((sum, scene) => {
+        return sum + shots.filter(shot => shot.sceneName === scene.name).length;
+      }, 0);
 
       episodes.push({
         episodeNumber: i + 1,
         title: `第${i + 1}集`,
         sceneNames: episodeScenes.map(s => s.name),
-        estimatedDuration: 120, // 默认2分钟
-        estimatedShotCount: 30, // 默认30个分镜
+        estimatedDuration: Math.max(episodeDuration, 60),
+        estimatedShotCount: Math.max(episodeShotCount, 10),
         summary: '',
         isClimax: i >= Math.floor(totalEpisodes * 0.6) && i <= Math.floor(totalEpisodes * 0.85),
       });
     }
 
+    const totalDuration = episodes.reduce((sum, e) => sum + e.estimatedDuration, 0);
+
     return {
       id: crypto.randomUUID(),
       totalEpisodes,
       episodes,
-      description: `基于字数规划了${totalEpisodes}集，总时长约${totalEpisodes * 2}分钟`,
-      totalDuration: totalEpisodes * 120,
+      description: `基于字数规划了${totalEpisodes}集，总时长约${Math.round(totalDuration / 60)}分钟`,
+      totalDuration,
     };
   }
 }

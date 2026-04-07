@@ -399,6 +399,11 @@ export interface ScriptParseState {
   durationBudget?: any; // Duration budget from BudgetPlanner
   episodePlan?: EpisodePlan; // Episode plan from EpisodePlanner
   coherenceReport?: CoherenceReport; // Coherence report from CoherenceChecker
+  
+  // 数据完整性校验和（P0-005 事务机制）
+  checksum?: string; // CRC32 校验和
+  checksumAlgorithm?: 'crc32' | 'simple-hash'; // 算法类型
+  checksumTimestamp?: number; // 校验和计算时间戳
 }
 
 /**

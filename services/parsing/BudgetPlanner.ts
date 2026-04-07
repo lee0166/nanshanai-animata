@@ -474,10 +474,10 @@ export function calculateBudget(
 
   // 基于情节计算基础时长
   let calculatedDuration =
-    majorPlotPoints * 8 + // 重要情节点 × 8秒
-    minorPlotPoints * 4 + // 次要情节点 × 4秒
-    emotionalTurningPoints * 6 + // 情绪转折点 × 6秒
-    actionScenes * 3; // 动作场景 × 3秒（节奏快）
+    majorPlotPoints * 12 + // 重要情节点 × 12秒
+    minorPlotPoints * 7 + // 次要情节点 × 7秒
+    emotionalTurningPoints * 10 + // 情绪转折点 × 10秒
+    actionScenes * 6; // 动作场景 × 6秒（节奏快）
 
   // 应用平台和节奏系数
   let platformMultiplier = 1.0;
@@ -487,26 +487,26 @@ export function calculateBudget(
   switch (platform) {
     case 'douyin':
     case 'kuaishou':
-      platformMultiplier = 0.6; // 抖音/快手更短
+      platformMultiplier = 0.85; // 抖音/快手更短
       break;
     case 'bilibili':
       platformMultiplier = 1.0; // B站标准
       break;
     case 'premium':
-      platformMultiplier = 1.3; // 精品更长
+      platformMultiplier = 1.15; // 精品更长
       break;
   }
 
   // 节奏系数
   switch (pace) {
     case 'fast':
-      paceMultiplier = 0.7; // 快节奏更短
+      paceMultiplier = 0.85; // 快节奏更短
       break;
     case 'normal':
       paceMultiplier = 1.0; // 中节奏标准
       break;
     case 'slow':
-      paceMultiplier = 1.4; // 慢节奏更长
+      paceMultiplier = 1.2; // 慢节奏更长
       break;
   }
 
