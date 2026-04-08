@@ -159,14 +159,13 @@ const Tasks: React.FC = () => {
     switch (status) {
       case JobStatus.PENDING:
         return (
-          <Chip size="sm" color="default" variant="flat">
+          <Chip color="default" variant="flat">
             {t.jobs.waiting}
           </Chip>
         );
       case JobStatus.PROCESSING:
         return (
           <Chip
-            size="sm"
             color="primary"
             variant="flat"
             startContent={<RefreshCw className="w-3 h-3 animate-spin" />}
@@ -176,23 +175,13 @@ const Tasks: React.FC = () => {
         );
       case JobStatus.COMPLETED:
         return (
-          <Chip
-            size="sm"
-            color="success"
-            variant="flat"
-            startContent={<CheckCircle className="w-3 h-3" />}
-          >
+          <Chip color="success" variant="flat" startContent={<CheckCircle className="w-3 h-3" />}>
             {t.character.generationSuccess}
           </Chip>
         );
       case JobStatus.FAILED:
         return (
-          <Chip
-            size="sm"
-            color="danger"
-            variant="flat"
-            startContent={<AlertCircle className="w-3 h-3" />}
-          >
+          <Chip color="danger" variant="flat" startContent={<AlertCircle className="w-3 h-3" />}>
             {t.character.generationFailed}
           </Chip>
         );

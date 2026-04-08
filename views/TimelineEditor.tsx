@@ -582,9 +582,7 @@ export const TimelineEditor: React.FC = () => {
                           {shot?.description?.slice(0, 60)}...
                         </p>
                       </div>
-                      <Chip size="sm" variant="flat">
-                        {formatTime(clip.duration)}
-                      </Chip>
+                      <Chip variant="flat">{formatTime(clip.duration)}</Chip>
                       <div className="flex gap-2">
                         <Button
                           isIconOnly
@@ -646,18 +644,14 @@ export const TimelineEditor: React.FC = () => {
 
                   <div>
                     <label className="text-xs text-slate-400">Track Type</label>
-                    <Chip size="sm" className="mt-1">
-                      {track?.type === 'video' ? 'Video' : 'Audio'}
-                    </Chip>
+                    <Chip className="mt-1">{track?.type === 'video' ? 'Video' : 'Audio'}</Chip>
                   </div>
 
                   {track?.type === 'video' && (
                     <>
                       <div>
                         <label className="text-xs text-slate-400">Shot Type</label>
-                        <Chip size="sm" className="mt-1">
-                          {shot.shotType}
-                        </Chip>
+                        <Chip className="mt-1">{shot.shotType}</Chip>
                       </div>
 
                       <div>

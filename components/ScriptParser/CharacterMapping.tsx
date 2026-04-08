@@ -363,18 +363,17 @@ export const CharacterMapping: React.FC<CharacterMappingProps> = ({
                     <h4 className="font-bold text-lg truncate">{char.name}</h4>
                     <div className="flex gap-1 flex-wrap">
                       {char.gender && (
-                        <Chip size="sm" variant="flat">
+                        <Chip variant="flat">
                           {char.gender === 'male' ? '男' : char.gender === 'female' ? '女' : '未知'}
                         </Chip>
                       )}
                       {char.age && (
-                        <Chip size="sm" variant="flat" color="secondary">
+                        <Chip variant="flat" color="secondary">
                           {char.age}
                         </Chip>
                       )}
                       {mappedAsset && (
                         <Chip
-                          size="sm"
                           color="success"
                           variant="flat"
                           startContent={<CheckCircle2 size={12} />}
@@ -403,7 +402,7 @@ export const CharacterMapping: React.FC<CharacterMappingProps> = ({
                   {char.personality?.length > 0 && (
                     <div className="flex flex-wrap gap-1">
                       {char.personality.slice(0, 3).map((p, i) => (
-                        <Chip key={i} size="sm" variant="bordered">
+                        <Chip key={i} variant="bordered">
                           {p}
                         </Chip>
                       ))}

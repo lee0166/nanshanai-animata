@@ -407,7 +407,7 @@ const FixSuggestionItem: React.FC<{
         {getSeverityIcon()}
         <div className="flex-1">
           <div className="flex items-center gap-2 mb-1">
-            <Chip size="sm" variant="flat" className="text-[10px]">
+            <Chip variant="flat" className="text-[10px]">
               优先级 {suggestion.priority}
             </Chip>
             <span className="font-medium">{suggestion.issueType}</span>
@@ -440,7 +440,7 @@ const FixSuggestionItem: React.FC<{
               <span className="font-medium">📍 受影响：</span>
               <div className="mt-1 flex flex-wrap gap-1">
                 {suggestion.affectedItems.map((item, idx) => (
-                  <Chip key={idx} size="sm" variant="flat">
+                  <Chip key={idx} variant="flat">
                     {item.episodeNumber && `第${item.episodeNumber}集`}
                     {item.sceneName && ` ${item.sceneName}`}
                     {item.shotIndex !== undefined && ` 第${item.shotIndex + 1}分镜`}
@@ -540,7 +540,7 @@ const IssuesList: React.FC<{
               {getSeverityIcon()}
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-1">
-                  <Chip size="sm" variant="flat" className="text-[10px]">
+                  <Chip variant="flat" className="text-[10px]">
                     {getTypeLabel()}
                   </Chip>
                 </div>
@@ -598,7 +598,7 @@ export const CoherenceReportViewer: React.FC<CoherenceReportViewerProps> = ({ re
                   <Lightbulb className="w-4 h-4" />
                   <span>修复建议</span>
                   {report.fixSuggestions.length > 0 && (
-                    <Chip size="sm" variant="flat" className="ml-1">
+                    <Chip variant="flat" className="ml-1">
                       {report.fixSuggestions.length}
                     </Chip>
                   )}

@@ -96,7 +96,7 @@ export const EmotionalArcChart: React.FC<EmotionalArcChartProps> = ({
           </div>
         </div>
         {overallMood && (
-          <Chip size="sm" variant="flat" className="bg-primary/10 text-primary border-none">
+          <Chip variant="flat" className="bg-primary/10 text-primary border-none">
             {overallMood}
           </Chip>
         )}

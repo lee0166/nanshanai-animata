@@ -646,10 +646,7 @@ export const CharacterWorkflowWizard: React.FC<CharacterWorkflowWizardProps> = (
 
                         {selectedFaceImage?.id === img.id && (
                           <div className="absolute top-2 right-2 z-10">
-                            <Chip
-                              size="sm"
-                              className="shadow-lg bg-primary text-primary-foreground"
-                            >
+                            <Chip className="shadow-lg bg-primary text-primary-foreground">
                               <Check className="w-3 h-3 mr-1" />
                               已选择
                             </Chip>
@@ -726,7 +723,7 @@ export const CharacterWorkflowWizard: React.FC<CharacterWorkflowWizardProps> = (
                     </div>
                   )}
                   <div className="absolute top-2 right-2">
-                    <Chip color="primary" size="sm" className="shadow-lg">
+                    <Chip color="primary" className="shadow-lg">
                       <Check className="w-3 h-3 mr-1" />
                       已选择
                     </Chip>
@@ -793,10 +790,7 @@ export const CharacterWorkflowWizard: React.FC<CharacterWorkflowWizardProps> = (
 
                         {selectedFullBodyImage?.id === img.id && (
                           <div className="absolute top-2 right-2 z-10">
-                            <Chip
-                              size="sm"
-                              className="shadow-lg bg-primary text-primary-foreground"
-                            >
+                            <Chip className="shadow-lg bg-primary text-primary-foreground">
                               <Check className="w-3 h-3 mr-1" />
                               已选择
                             </Chip>
@@ -874,7 +868,7 @@ export const CharacterWorkflowWizard: React.FC<CharacterWorkflowWizardProps> = (
                     </div>
                   )}
                   <div className="absolute top-2 right-2">
-                    <Chip color="primary" size="sm" className="shadow-lg">
+                    <Chip color="primary" className="shadow-lg">
                       <Check className="w-3 h-3 mr-1" />
                       已选择
                     </Chip>
@@ -988,10 +982,7 @@ export const CharacterWorkflowWizard: React.FC<CharacterWorkflowWizardProps> = (
 
                         {img.metadata?.viewAngle && (
                           <div className="absolute top-2 left-2 z-10">
-                            <Chip
-                              size="sm"
-                              className="shadow-lg bg-black/60 text-white border-none"
-                            >
+                            <Chip className="shadow-lg bg-black/60 text-white border-none">
                               {img.metadata.viewAngle === 'front'
                                 ? '正面'
                                 : img.metadata.viewAngle === 'side'

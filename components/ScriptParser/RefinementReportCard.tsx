@@ -92,7 +92,7 @@ export const RefinementReportCard: React.FC<RefinementReportCardProps> = ({ resu
             {t.scriptParser?.refinementReport || '迭代优化报告'}
           </h3>
         </div>
-        <Chip color={getStatusColor(result.success)} variant="flat" size="sm">
+        <Chip color={getStatusColor(result.success)} variant="flat">
           {result.success ? '优化成功' : '优化完成'}
         </Chip>
       </CardHeader>
@@ -335,7 +335,7 @@ const IterationCard: React.FC<{
               </span>
             </div>
             {iteration.improvement > 0 && (
-              <Chip color="success" size="sm" variant="flat">
+              <Chip color="success" variant="flat">
                 +{iteration.improvement.toFixed(2)}
               </Chip>
             )}

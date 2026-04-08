@@ -233,7 +233,7 @@ export const AudioLibrary: React.FC<AudioLibraryProps> = ({ onSelectAudio, proje
                     </div>
                     <div className="mt-3 flex flex-wrap gap-1">
                       {audio.tags.map(tag => (
-                        <Chip key={tag} size="sm" variant="flat" className="text-xs">
+                        <Chip key={tag} variant="flat" className="text-xs">
                           {tag}
                         </Chip>
                       ))}

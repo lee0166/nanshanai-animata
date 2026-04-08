@@ -16,6 +16,7 @@ import {
   ModelConfig,
   CreativeIntent,
   ParseStage,
+  PromptMode,
 } from '../types';
 import { storageService } from '../services/storage';
 import {
@@ -101,6 +102,7 @@ import {
   BarChart3,
   Target,
   Info,
+  Zap,
 } from 'lucide-react';
 
 interface ScriptManagerProps {
@@ -117,7 +119,7 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({
   const { projectId: urlProjectId } = useParams<{ projectId: string }>();
   const projectId = propProjectId || urlProjectId;
   const navigate = useNavigate();
-  const { settings, isConnected, checkConnection, t } = useApp();
+  const { settings, updateSettings, isConnected, checkConnection, t } = useApp();
   const { showToast } = useToast();
 
   const [scripts, setScripts] = useState<Script[]>([]);
@@ -160,6 +162,14 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({
 
   // 2.0: 模型选择状态
   const [selectedModelId, setSelectedModelId] = useState<string>('');
+
+  // 2.0: Prompt模式选择状态
+  const [promptMode, setPromptMode] = useState<PromptMode>(
+    (import.meta as any).env?.DEV ? 'standard' : 'professional'
+  );
+
+  // 2.0: Few-Shot开关状态
+  const [useFewShot, setUseFewShot] = useState<boolean>(true);
 
   // Quality report state
   const [qualityReport, setQualityReport] = useState<QualityReport | null>(null);
@@ -229,6 +239,16 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({
       loadExistingAssets();
     }
   }, [projectId]);
+
+  // Load prompt mode from settings
+  useEffect(() => {
+    if (settings.scriptParser?.promptMode) {
+      setPromptMode(settings.scriptParser.promptMode);
+    }
+    if (settings.scriptParser?.useFewShot !== undefined) {
+      setUseFewShot(settings.scriptParser.useFewShot);
+    }
+  }, [settings]);
 
   // Track scripts state changes
   // useEffect(() => {
@@ -586,16 +606,17 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({
           confidenceThreshold: 0.7,
           verboseLogging: true,
         },
+        // 2.0: Prompt模式选择
+        promptMode: promptMode,
         // 2.0: 使用创作意图替代旧的durationBudgetConfig
         creativeIntent: creativeIntent,
         // 2.0: 启用BudgetPlanner，使用情节密度时长计算
         useDurationBudget: true,
         useDynamicDuration: false,
-        useProductionPrompt: true, // 默认启用专业Prompt
         useShotQC: false, // 2.0: 移除基于字数的质检
         qcAutoAdjust: false,
         qcTolerance: 0.15,
-      };
+      } as any;
 
       const parser = createScriptParser(
         selectedModel.apiKey,
@@ -931,7 +952,7 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({
             剧本管理
           </h2>
           {scripts.length > 0 && (
-            <Chip size="sm" variant="flat" className="text-foreground/70">
+            <Chip variant="flat" className="text-foreground/70">
               {scripts.length} 个剧本
             </Chip>
           )}
@@ -975,8 +996,12 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({
                         {new Date(script.createdAt).toLocaleDateString()}
                       </p>
                       {script.parseState?.stage === 'completed' && (
-                        <Chip size="sm" color="default" variant="flat" className="mt-1">
-                          <CheckCircle2 className="w-3 h-3 mr-1" />
+                        <Chip
+                          color="default"
+                          variant="flat"
+                          className="mt-1"
+                          startContent={<CheckCircle2 size={16} />}
+                        >
                           解析完成
                         </Chip>
                       )}
@@ -1026,6 +1051,82 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({
                   </p>
                 </div>
                 <div className="flex items-center gap-2">
+                  {/* 2.0: Few-Shot开关 */}
+                  <div className="flex items-center gap-2">
+                    <Switch
+                      size="sm"
+                      isSelected={useFewShot}
+                      onValueChange={val => {
+                        setUseFewShot(val);
+                        updateSettings({
+                          ...settings,
+                          scriptParser: {
+                            ...settings.scriptParser,
+                            useFewShot: val,
+                          },
+                        });
+                      }}
+                      isDisabled={isParsing}
+                    />
+                    <span className="text-sm text-slate-500 font-bold">Few-Shot</span>
+                  </div>
+
+                  {/* 2.0: Prompt模式选择 */}
+                  <Select
+                    size="sm"
+                    aria-label="选择解析模式"
+                    selectedKeys={[promptMode]}
+                    onSelectionChange={keys => {
+                      const mode = Array.from(keys)[0] as PromptMode;
+                      setPromptMode(mode);
+                      // 保存到settings
+                      updateSettings({
+                        ...settings,
+                        scriptParser: {
+                          ...settings.scriptParser,
+                          promptMode: mode,
+                        },
+                      });
+                    }}
+                    className="w-40"
+                    isDisabled={isParsing}
+                  >
+                    <SelectItem key="standard" value="standard">
+                      标准模式
+                    </SelectItem>
+                    <SelectItem key="professional" value="professional">
+                      专业模式
+                    </SelectItem>
+                  </Select>
+
+                  {/* 2.0: 模式说明Tooltip */}
+                  <Tooltip
+                    content={
+                      <div className="p-2 max-w-xs">
+                        <p className="font-bold mb-2">解析模式说明</p>
+                        <div className="mb-2">
+                          <p className="font-semibold text-primary">标准模式</p>
+                          <p className="text-sm text-slate-400">
+                            快速原型，适合开发和测试。简单Prompt，生成速度快，但分镜数量和质量控制较弱。
+                          </p>
+                        </div>
+                        <div>
+                          <p className="font-semibold text-primary">专业模式</p>
+                          <p className="text-sm text-slate-400">
+                            创作意图驱动，带预算控制和平台标准。使用更专业的Prompt模板，分镜质量更高。
+                          </p>
+                        </div>
+                      </div>
+                    }
+                    placement="bottom"
+                    delay={300}
+                    closeDelay={100}
+                  >
+                    <Button isIconOnly size="sm" variant="light" aria-label="模式说明">
+                      <Info className="w-4 h-4" />
+                    </Button>
+                  </Tooltip>
+
                   {/* 2.0: 模型选择下拉框 */}
                   {getAvailableModels().length > 0 && (
                     <Select
@@ -1294,7 +1395,7 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({
                         <Users size={16} />
                         <span>角色</span>
                         {currentScript.parseState.characters && (
-                          <Chip size="sm">{currentScript.parseState.characters.length}</Chip>
+                          <Chip>{currentScript.parseState.characters.length}</Chip>
                         )}
                       </div>
                     }
@@ -1317,7 +1418,7 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({
                         <MapPin size={16} />
                         <span>场景</span>
                         {currentScript.parseState.scenes && (
-                          <Chip size="sm">{currentScript.parseState.scenes.length}</Chip>
+                          <Chip>{currentScript.parseState.scenes.length}</Chip>
                         )}
                       </div>
                     }
@@ -1340,7 +1441,7 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({
                         <Box size={16} />
                         <span>物品</span>
                         {currentScript.parseState.items && (
-                          <Chip size="sm">{currentScript.parseState.items.length}</Chip>
+                          <Chip>{currentScript.parseState.items.length}</Chip>
                         )}
                       </div>
                     }
@@ -1363,9 +1464,7 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({
                         <div className="flex items-center gap-2">
                           <Library size={16} />
                           <span>分集方案</span>
-                          <Chip size="sm">
-                            {currentScript.parseState.episodePlan.totalEpisodes}
-                          </Chip>
+                          <Chip>{currentScript.parseState.episodePlan.totalEpisodes}</Chip>
                         </div>
                       }
                     >
@@ -1384,7 +1483,7 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({
                         <Film size={16} />
                         <span>分镜</span>
                         {currentScript.parseState.shots && (
-                          <Chip size="sm">{currentScript.parseState.shots.length}</Chip>
+                          <Chip>{currentScript.parseState.shots.length}</Chip>
                         )}
                       </div>
                     }

@@ -148,7 +148,7 @@ export const StructureDetailTab: React.FC<StructureDetailTabProps> = ({ metadata
         <CardHeader className="flex items-center gap-2">
           <Layout size={20} className="text-primary" />
           <h3 className="text-lg font-semibold">幕长度分布</h3>
-          <Chip size="sm" variant="flat" color="primary">
+          <Chip variant="flat" color="primary">
             {screenplayStructureAnalyzer.getStructureTypeDisplayName(structure.structureType)}
           </Chip>
         </CardHeader>
@@ -160,9 +160,7 @@ export const StructureDetailTab: React.FC<StructureDetailTabProps> = ({ metadata
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2">
                     <span className="font-medium">{act.name}</span>
-                    <Chip size="sm" variant="flat">
-                      {act.subtitle}
-                    </Chip>
+                    <Chip variant="flat">{act.subtitle}</Chip>
                   </div>
                   <div className="flex items-center gap-4 text-sm text-default-500">
                     <span className="flex items-center gap-1">
@@ -264,7 +262,7 @@ export const StructureDetailTab: React.FC<StructureDetailTabProps> = ({ metadata
                 <div className="flex flex-wrap gap-2">
                   {pacingAnalysis.turningPoints.length > 0 ? (
                     pacingAnalysis.turningPoints.map((point, index) => (
-                      <Chip key={index} size="sm" variant="flat" color="warning">
+                      <Chip key={index} variant="flat" color="warning">
                         {point}
                       </Chip>
                     ))

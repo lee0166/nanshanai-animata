@@ -447,7 +447,6 @@ export const ShotList: React.FC<ShotListProps> = ({
                 <TableRow key={shot.id}>
                   <TableCell>
                     <Chip
-                      size="sm"
                       color={shot.layer === 'key' ? 'primary' : 'default'}
                       variant={shot.layer === 'key' ? 'solid' : 'flat'}
                     >
@@ -460,12 +459,10 @@ export const ShotList: React.FC<ShotListProps> = ({
                     </span>
                   </TableCell>
                   <TableCell>
-                    <Chip size="sm" variant="flat">
-                      {shot.sceneName}
-                    </Chip>
+                    <Chip variant="flat">{shot.sceneName}</Chip>
                   </TableCell>
                   <TableCell>
-                    <Chip size="sm" color={getShotTypeColor(shot.shotType) as any}>
+                    <Chip color={getShotTypeColor(shot.shotType) as any}>
                       {t.shot?.shotType?.[shot.shotType as keyof typeof t.shot.shotType] ||
                         shot.shotType}
                     </Chip>
@@ -483,14 +480,12 @@ export const ShotList: React.FC<ShotListProps> = ({
                   <TableCell>
                     <div className="flex flex-wrap gap-1">
                       {shot.characters?.slice(0, 2).map((char, i) => (
-                        <Chip key={i} size="sm" variant="bordered">
+                        <Chip key={i} variant="bordered">
                           {char}
                         </Chip>
                       ))}
                       {shot.characters && shot.characters.length > 2 && (
-                        <Chip size="sm" variant="bordered">
-                          +{shot.characters.length - 2}
-                        </Chip>
+                        <Chip variant="bordered">+{shot.characters.length - 2}</Chip>
                       )}
                     </div>
                   </TableCell>
@@ -629,13 +624,12 @@ export const ShotList: React.FC<ShotListProps> = ({
                                   <Camera size={20} />
                                 </Badge>
                                 <Chip
-                                  size="sm"
                                   color={shot.layer === 'key' ? 'primary' : 'default'}
                                   variant={shot.layer === 'key' ? 'solid' : 'flat'}
                                 >
                                   {shot.layer === 'key' ? '关键' : '可选'}
                                 </Chip>
-                                <Chip size="sm" color={getShotTypeColor(shot.shotType) as any}>
+                                <Chip color={getShotTypeColor(shot.shotType) as any}>
                                   {t.shot?.shotType?.[
                                     shot.shotType as keyof typeof t.shot.shotType
                                   ] || shot.shotType}
@@ -709,7 +703,6 @@ export const ShotList: React.FC<ShotListProps> = ({
                             {/* 关键帧状态 */}
                             <div className="flex items-center justify-between mt-2 pt-2 border-t border-default-200">
                               <Chip
-                                size="sm"
                                 color={getKeyframeStatus(shot).color as any}
                                 variant="flat"
                                 startContent={getKeyframeStatus(shot).icon}
@@ -737,7 +730,7 @@ export const ShotList: React.FC<ShotListProps> = ({
                             {shot.characters && shot.characters.length > 0 && (
                               <div className="flex flex-wrap gap-1 mt-2">
                                 {shot.characters.map((char, i) => (
-                                  <Chip key={i} size="sm" variant="bordered">
+                                  <Chip key={i} variant="bordered">
                                     {char}
                                   </Chip>
                                 ))}

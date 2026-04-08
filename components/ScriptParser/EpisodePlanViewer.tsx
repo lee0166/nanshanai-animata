@@ -195,7 +195,7 @@ export const EpisodePlanViewer: React.FC<EpisodePlanViewerProps> = ({
                       <div className="flex items-center gap-2">
                         <span className="font-medium">{episode.title}</span>
                         {episode.isClimax && (
-                          <Chip size="sm" color="danger" variant="flat">
+                          <Chip color="danger" variant="flat">
                             高潮
                           </Chip>
                         )}
@@ -277,7 +277,7 @@ export const EpisodePlanViewer: React.FC<EpisodePlanViewerProps> = ({
                           <div className="text-sm text-slate-400 mb-1">包含场景</div>
                           <div className="flex flex-wrap gap-2">
                             {episode.sceneNames.map((sceneName, idx) => (
-                              <Chip key={idx} size="sm" variant="flat">
+                              <Chip key={idx} variant="flat">
                                 {sceneName}
                               </Chip>
                             ))}

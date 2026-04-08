@@ -296,7 +296,7 @@ export const SceneMapping: React.FC<SceneMappingProps> = ({
                       <h4 className="font-bold text-lg truncate">{scene.name}</h4>
                       <div className="flex gap-1 flex-wrap">
                         {scene.locationType && (
-                          <Chip size="sm" variant="flat">
+                          <Chip variant="flat">
                             {scene.locationType === 'indoor'
                               ? '室内'
                               : scene.locationType === 'outdoor'
@@ -305,13 +305,12 @@ export const SceneMapping: React.FC<SceneMappingProps> = ({
                           </Chip>
                         )}
                         {scene.timeOfDay && (
-                          <Chip size="sm" variant="flat" color="warning">
+                          <Chip variant="flat" color="warning">
                             {scene.timeOfDay}
                           </Chip>
                         )}
                         {mappedAsset && (
                           <Chip
-                            size="sm"
                             color="success"
                             variant="flat"
                             startContent={<CheckCircle2 size={12} />}
@@ -337,14 +336,12 @@ export const SceneMapping: React.FC<SceneMappingProps> = ({
                     {scene.characters?.length > 0 && (
                       <div className="flex flex-wrap gap-1">
                         {scene.characters.slice(0, 3).map((char, i) => (
-                          <Chip key={i} size="sm" variant="bordered">
+                          <Chip key={i} variant="bordered">
                             {char}
                           </Chip>
                         ))}
                         {scene.characters.length > 3 && (
-                          <Chip size="sm" variant="bordered">
-                            +{scene.characters.length - 3}
-                          </Chip>
+                          <Chip variant="bordered">+{scene.characters.length - 3}</Chip>
                         )}
                       </div>
                     )}
@@ -432,7 +429,7 @@ export const SceneMapping: React.FC<SceneMappingProps> = ({
                         <h4 className="font-bold text-lg">{scene.name}</h4>
                         <div className="flex gap-2 mt-1">
                           {scene.locationType && (
-                            <Chip size="sm" variant="flat">
+                            <Chip variant="flat">
                               {scene.locationType === 'indoor'
                                 ? '室内'
                                 : scene.locationType === 'outdoor'
@@ -441,12 +438,12 @@ export const SceneMapping: React.FC<SceneMappingProps> = ({
                             </Chip>
                           )}
                           {scene.timeOfDay && (
-                            <Chip size="sm" variant="flat" color="warning">
+                            <Chip variant="flat" color="warning">
                               {scene.timeOfDay}
                             </Chip>
                           )}
                           {mappedAsset && (
-                            <Chip size="sm" color="success" variant="flat">
+                            <Chip color="success" variant="flat">
                               已关联
                             </Chip>
                           )}

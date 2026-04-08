@@ -523,7 +523,7 @@ const ResourceManager: React.FC<ResourceManagerProps> = ({ projectId, refreshTri
                       <div className="p-6 space-y-8">
                         {/* Source Tags */}
                         <div className="flex gap-2">
-                          <Chip variant="flat" color="primary" size="sm" className="font-bold">
+                          <Chip variant="flat" color="primary" className="font-bold">
                             {selectedResource.sourceAssetType === AssetType.VIDEO_SEGMENT
                               ? t.project.segments
                               : selectedResource.sourceAssetType === AssetType.CHARACTER
@@ -539,7 +539,6 @@ const ResourceManager: React.FC<ResourceManagerProps> = ({ projectId, refreshTri
                             color={
                               selectedResource.source === 'generated' ? 'secondary' : 'default'
                             }
-                            size="sm"
                             className="font-bold"
                           >
                             {selectedResource.source === 'generated'

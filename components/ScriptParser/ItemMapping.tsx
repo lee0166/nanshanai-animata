@@ -299,17 +299,14 @@ export const ItemMapping: React.FC<ItemMappingProps> = ({
                   <div className="flex-1 min-w-0">
                     <h4 className="font-bold text-lg truncate">{item.name}</h4>
                     <div className="flex gap-1 flex-wrap">
-                      <Chip size="sm" variant="flat">
-                        {categoryLabels[item.category] || '其他'}
-                      </Chip>
+                      <Chip variant="flat">{categoryLabels[item.category] || '其他'}</Chip>
                       {item.importance === 'major' && (
-                        <Chip size="sm" variant="flat" color="warning">
+                        <Chip variant="flat" color="warning">
                           重要道具
                         </Chip>
                       )}
                       {mappedAsset && (
                         <Chip
-                          size="sm"
                           color="success"
                           variant="flat"
                           startContent={<CheckCircle2 size={12} />}

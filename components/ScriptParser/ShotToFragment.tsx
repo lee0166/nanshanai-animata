@@ -338,9 +338,7 @@ export const ShotToFragment: React.FC<ShotToFragmentProps> = ({
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-1">
                     <span className="font-bold text-sm">#{shot.sequence}</span>
-                    <Chip size="sm" variant="flat">
-                      {shot.sceneName}
-                    </Chip>
+                    <Chip variant="flat">{shot.sceneName}</Chip>
                   </div>
                   <p className="text-xs text-default-600 line-clamp-2 mt-1">{shot.description}</p>
                   <div className="flex items-center gap-2 mt-1 text-xs text-default-500">

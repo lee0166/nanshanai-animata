@@ -148,10 +148,8 @@ export const ShotTimelineView: React.FC<ShotTimelineViewProps> = ({
       <div className="flex items-center justify-between p-4 border-b border-content3 shrink-0">
         <div className="flex items-center gap-4">
           <h3 className="text-lg font-bold">故事板视图</h3>
-          <Chip size="sm" variant="flat">
-            共 {shots.length} 个镜头
-          </Chip>
-          <Chip size="sm" variant="flat">
+          <Chip variant="flat">共 {shots.length} 个镜头</Chip>
+          <Chip variant="flat">
             <Clock size={14} className="mr-1" />
             {Math.floor(totalDuration / 60)}分{totalDuration % 60}秒
           </Chip>
@@ -160,9 +158,7 @@ export const ShotTimelineView: React.FC<ShotTimelineViewProps> = ({
           <Button size="sm" variant="flat" isIconOnly onPress={handleZoomOut} aria-label="缩小">
             <ChevronLeft size={16} />
           </Button>
-          <Chip size="sm" variant="flat">
-            {Math.round(zoomLevel * 100)}%
-          </Chip>
+          <Chip variant="flat">{Math.round(zoomLevel * 100)}%</Chip>
           <Button size="sm" variant="flat" isIconOnly onPress={handleZoomIn} aria-label="放大">
             <ChevronRight size={16} />
           </Button>
@@ -270,7 +266,6 @@ export const ShotTimelineView: React.FC<ShotTimelineViewProps> = ({
                                     </span>
                                     {shot.layer === 'key' && (
                                       <Chip
-                                        size="sm"
                                         color="primary"
                                         variant="solid"
                                         classNames={{ base: 'h-5 text-[11px] px-1.5' }}
@@ -282,7 +277,6 @@ export const ShotTimelineView: React.FC<ShotTimelineViewProps> = ({
                                   <div className="flex items-center gap-1">
                                     {hasKeyframes && (
                                       <Chip
-                                        size="sm"
                                         color="success"
                                         variant="flat"
                                         classNames={{ base: 'h-5 text-[11px] px-1.5' }}
@@ -322,7 +316,6 @@ export const ShotTimelineView: React.FC<ShotTimelineViewProps> = ({
                                     <div className="flex items-center justify-between gap-1">
                                       <div className="flex items-center gap-1">
                                         <Chip
-                                          size="sm"
                                           color={getShotTypeColor(shot.shotType) as any}
                                           variant="flat"
                                           classNames={{ base: 'h-4 text-[9px] px-1' }}
@@ -332,7 +325,6 @@ export const ShotTimelineView: React.FC<ShotTimelineViewProps> = ({
                                           ] || shot.shotType}
                                         </Chip>
                                         <Chip
-                                          size="sm"
                                           variant="flat"
                                           classNames={{ base: 'h-4 text-[9px] px-1' }}
                                         >
@@ -352,7 +344,6 @@ export const ShotTimelineView: React.FC<ShotTimelineViewProps> = ({
                                         {shot.characters.slice(0, 2).map((char, i) => (
                                           <Chip
                                             key={i}
-                                            size="sm"
                                             variant="bordered"
                                             classNames={{ base: 'h-4 text-[9px] px-1' }}
                                           >
@@ -361,7 +352,6 @@ export const ShotTimelineView: React.FC<ShotTimelineViewProps> = ({
                                         ))}
                                         {shot.characters.length > 2 && (
                                           <Chip
-                                            size="sm"
                                             variant="bordered"
                                             classNames={{ base: 'h-4 text-[9px] px-1' }}
                                           >
@@ -398,9 +388,7 @@ export const ShotTimelineView: React.FC<ShotTimelineViewProps> = ({
                   : '选择一个分镜查看关键帧'}
               </span>
               {selectedShotKeyframes.length > 0 && (
-                <Chip size="sm" variant="flat">
-                  {selectedShotKeyframes.length} 个关键帧
-                </Chip>
+                <Chip variant="flat">{selectedShotKeyframes.length} 个关键帧</Chip>
               )}
             </div>
             <Button
@@ -449,7 +437,6 @@ export const ShotTimelineView: React.FC<ShotTimelineViewProps> = ({
                         <div className="flex flex-col items-center gap-1">
                           <div className="flex items-center gap-1">
                             <Chip
-                              size="sm"
                               color={
                                 keyframe.frameType === 'start'
                                   ? 'success'
@@ -467,7 +454,6 @@ export const ShotTimelineView: React.FC<ShotTimelineViewProps> = ({
                                   : '中间'}
                             </Chip>
                             <Chip
-                              size="sm"
                               color={
                                 keyframe.status === 'completed'
                                   ? 'success'

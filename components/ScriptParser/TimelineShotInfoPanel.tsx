@@ -62,11 +62,11 @@ export const TimelineShotInfoPanel: React.FC<TimelineShotInfoPanelProps> = ({
                 </div>
                 <div className="flex flex-col items-end gap-1">
                   {shot.layer === 'key' && (
-                    <Chip size="sm" color="primary" variant="solid">
+                    <Chip color="primary" variant="solid">
                       关键镜头
                     </Chip>
                   )}
-                  <Chip size="sm" color={getShotTypeColor(shot.shotType) as any} variant="flat">
+                  <Chip color={getShotTypeColor(shot.shotType) as any} variant="flat">
                     {t.shot?.shotType?.[shot.shotType as keyof typeof t.shot.shotType] ||
                       shot.shotType}
                   </Chip>
@@ -130,7 +130,6 @@ export const TimelineShotInfoPanel: React.FC<TimelineShotInfoPanelProps> = ({
                       <div className="flex items-center justify-between mb-2">
                         <h5 className="text-sm font-medium text-slate-300">关键帧</h5>
                         <Chip
-                          size="sm"
                           color={
                             completedKeyframes === shot.keyframes!.length ? 'success' : 'default'
                           }
@@ -146,7 +145,6 @@ export const TimelineShotInfoPanel: React.FC<TimelineShotInfoPanelProps> = ({
                             className="flex items-center gap-2 p-2 bg-content2 rounded-lg"
                           >
                             <Chip
-                              size="sm"
                               color={
                                 kf.frameType === 'start'
                                   ? 'success'
@@ -170,7 +168,6 @@ export const TimelineShotInfoPanel: React.FC<TimelineShotInfoPanelProps> = ({
                               </p>
                             </div>
                             <Chip
-                              size="sm"
                               color={
                                 kf.status === 'completed'
                                   ? 'success'
@@ -203,7 +200,7 @@ export const TimelineShotInfoPanel: React.FC<TimelineShotInfoPanelProps> = ({
                       </h5>
                       <div className="flex flex-wrap gap-2">
                         {shot.characters.map((char, index) => (
-                          <Chip key={index} size="sm" variant="bordered">
+                          <Chip key={index} variant="bordered">
                             {char}
                           </Chip>
                         ))}

@@ -204,9 +204,7 @@ export const SoundDesignTab: React.FC<SoundDesignTabProps> = ({ metadata, shots 
                     </div>
                   </TableCell>
                   <TableCell>
-                    <Chip size="sm" variant="flat">
-                      {item.emotion}
-                    </Chip>
+                    <Chip variant="flat">{item.emotion}</Chip>
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-2">
@@ -229,7 +227,7 @@ export const SoundDesignTab: React.FC<SoundDesignTabProps> = ({ metadata, shots 
                     <p className="text-sm">{item.suggestedMusic}</p>
                   </TableCell>
                   <TableCell>
-                    <Chip size="sm" variant="flat" color="secondary">
+                    <Chip variant="flat" color="secondary">
                       {item.colorTone}
                     </Chip>
                   </TableCell>
@@ -260,14 +258,12 @@ export const SoundDesignTab: React.FC<SoundDesignTabProps> = ({ metadata, shots 
               <div className="flex items-center gap-2 mb-3">
                 <Wind size={18} className="text-success" />
                 <h4 className="font-medium">环境音</h4>
-                <Chip size="sm" variant="flat">
-                  {soundPalette.ambientSounds.length}
-                </Chip>
+                <Chip variant="flat">{soundPalette.ambientSounds.length}</Chip>
               </div>
               <div className="flex flex-wrap gap-2">
                 {soundPalette.ambientSounds.length > 0 ? (
                   soundPalette.ambientSounds.map((sound, index) => (
-                    <Chip key={index} size="sm" variant="flat" color="success">
+                    <Chip key={index} variant="flat" color="success">
                       {sound}
                     </Chip>
                   ))
@@ -282,14 +278,12 @@ export const SoundDesignTab: React.FC<SoundDesignTabProps> = ({ metadata, shots 
               <div className="flex items-center gap-2 mb-3">
                 <Zap size={18} className="text-warning" />
                 <h4 className="font-medium">音效</h4>
-                <Chip size="sm" variant="flat">
-                  {soundPalette.effectSounds.length}
-                </Chip>
+                <Chip variant="flat">{soundPalette.effectSounds.length}</Chip>
               </div>
               <div className="flex flex-wrap gap-2">
                 {soundPalette.effectSounds.length > 0 ? (
                   soundPalette.effectSounds.map((sound, index) => (
-                    <Chip key={index} size="sm" variant="flat" color="warning">
+                    <Chip key={index} variant="flat" color="warning">
                       {sound}
                     </Chip>
                   ))
@@ -304,14 +298,12 @@ export const SoundDesignTab: React.FC<SoundDesignTabProps> = ({ metadata, shots 
               <div className="flex items-center gap-2 mb-3">
                 <Music size={18} className="text-danger" />
                 <h4 className="font-medium">配乐主题</h4>
-                <Chip size="sm" variant="flat">
-                  {soundPalette.musicThemes.length}
-                </Chip>
+                <Chip variant="flat">{soundPalette.musicThemes.length}</Chip>
               </div>
               <div className="flex flex-wrap gap-2">
                 {soundPalette.musicThemes.length > 0 ? (
                   soundPalette.musicThemes.map((theme, index) => (
-                    <Chip key={index} size="sm" variant="flat" color="danger">
+                    <Chip key={index} variant="flat" color="danger">
                       {theme}
                     </Chip>
                   ))

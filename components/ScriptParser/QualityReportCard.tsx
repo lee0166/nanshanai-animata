@@ -317,12 +317,10 @@ const IssuesAccordion: React.FC<{
                 <div className="flex items-center gap-2 text-sm">
                   {getDimensionIcon(dim.dimension)}
                   <span className="font-medium">{getDimensionName(dim.dimension)}</span>
-                  <Chip size="sm" color={getScoreColor(dim.score) as any} variant="flat">
+                  <Chip color={getScoreColor(dim.score) as any} variant="flat">
                     {dim.score}分
                   </Chip>
-                  <Chip size="sm" variant="flat">
-                    {dim.issues.length}个问题
-                  </Chip>
+                  <Chip variant="flat">{dim.issues.length}个问题</Chip>
                 </div>
                 <div className="space-y-2 pl-6">
                   {displayIssues.map((issue, idx) => (

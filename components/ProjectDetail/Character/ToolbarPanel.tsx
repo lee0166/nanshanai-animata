@@ -117,7 +117,7 @@ export const ToolbarPanel: React.FC<ToolbarPanelProps> = ({
                         {stage.label}
                       </span>
                       {isCompleted && (
-                        <Chip size="sm" color="success" className="h-3 min-w-3 p-0 text-[10px]">
+                        <Chip color="success" className="h-3 min-w-3 p-0 text-[10px]">
                           ✓
                         </Chip>
                       )}

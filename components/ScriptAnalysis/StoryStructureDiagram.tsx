@@ -141,7 +141,7 @@ export const StoryStructureDiagram: React.FC<StoryStructureDiagramProps> = ({
             <p className="text-sm text-default-500">{getStructureTypeDescription(structureType)}</p>
           </div>
         </div>
-        <Chip size="sm" variant="flat" className="bg-primary/10 text-primary border-none">
+        <Chip variant="flat" className="bg-primary/10 text-primary border-none">
           {getStructureTypeName(structureType)}
         </Chip>
       </CardHeader>
