@@ -5,6 +5,12 @@ import { useApp } from '../../contexts/context';
 import { useToast } from '../../contexts/ToastContext';
 import { CharacterPromptBuilder } from '../../services/promptBuilder';
 import {
+  evaluateCharacterPrompt,
+  getScoreColor,
+  getScoreText,
+  type PromptQualityFeedback,
+} from '../../services/promptQualityEvaluator';
+import {
   Card,
   CardBody,
   Button,
@@ -47,6 +53,36 @@ export const CharacterMapping: React.FC<CharacterMappingProps> = ({
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const [creatingCharacters, setCreatingCharacters] = useState<Set<string>>(new Set());
+  const [promptQuality, setPromptQuality] = useState<PromptQualityFeedback | null>(null);
+
+  // 计算实际显示的视觉提示词
+  const getActualVisualPrompt = (char: ScriptCharacter): string => {
+    // 如果用户已经手动编辑过，使用用户编辑的值
+    if (char.visualPrompt && !char.visualPrompt.includes('的角色形象')) {
+      return char.visualPrompt;
+    }
+    // 否则用 CharacterPromptBuilder 生成
+    return CharacterPromptBuilder.build(char);
+  };
+
+  // 监听选中角色变化，评估提示词质量
+  useEffect(() => {
+    if (selectedCharacter) {
+      const quality = evaluateCharacterPrompt(selectedCharacter);
+      setPromptQuality(quality);
+    } else {
+      setPromptQuality(null);
+    }
+  }, [selectedCharacter]);
+
+  // 更新选中角色并重新评估质量
+  const updateSelectedCharacterAndEvaluate = (updates: Partial<ScriptCharacter>) => {
+    if (!selectedCharacter) return;
+    const updatedCharacter = { ...selectedCharacter, ...updates };
+    setSelectedCharacter(updatedCharacter);
+    const quality = evaluateCharacterPrompt(updatedCharacter);
+    setPromptQuality(quality);
+  };
 
   // Handle mapping script character to existing asset
   const handleMapCharacter = (scriptChar: ScriptCharacter, assetId: string) => {
@@ -484,7 +520,7 @@ export const CharacterMapping: React.FC<CharacterMappingProps> = ({
                     label="年龄"
                     value={selectedCharacter.age || ''}
                     onChange={e =>
-                      setSelectedCharacter({ ...selectedCharacter, age: e.target.value })
+                      updateSelectedCharacterAndEvaluate({ age: e.target.value })
                     }
                   />
                   <Select
@@ -493,7 +529,7 @@ export const CharacterMapping: React.FC<CharacterMappingProps> = ({
                       selectedCharacter.gender ? new Set([selectedCharacter.gender]) : new Set()
                     }
                     onChange={e =>
-                      setSelectedCharacter({ ...selectedCharacter, gender: e.target.value as any })
+                      updateSelectedCharacterAndEvaluate({ gender: e.target.value as any })
                     }
                   >
                     <SelectItem key="male" value="male">
@@ -510,7 +546,7 @@ export const CharacterMapping: React.FC<CharacterMappingProps> = ({
                     label="身份"
                     value={selectedCharacter.identity || ''}
                     onChange={e =>
-                      setSelectedCharacter({ ...selectedCharacter, identity: e.target.value })
+                      updateSelectedCharacterAndEvaluate({ identity: e.target.value })
                     }
                   />
                 </div>
@@ -521,7 +557,7 @@ export const CharacterMapping: React.FC<CharacterMappingProps> = ({
                   onChange={e => {
                     try {
                       const appearance = JSON.parse(e.target.value);
-                      setSelectedCharacter({ ...selectedCharacter, appearance });
+                      updateSelectedCharacterAndEvaluate({ appearance });
                     } catch {}
                   }}
                   minRows={4}
@@ -531,8 +567,7 @@ export const CharacterMapping: React.FC<CharacterMappingProps> = ({
                   label="性格特征（逗号分隔）"
                   value={selectedCharacter.personality?.join(', ') || ''}
                   onChange={e =>
-                    setSelectedCharacter({
-                      ...selectedCharacter,
+                    updateSelectedCharacterAndEvaluate({
                       personality: e.target.value
                         .split(',')
                         .map(p => p.trim())
@@ -543,12 +578,107 @@ export const CharacterMapping: React.FC<CharacterMappingProps> = ({
 
                 <Textarea
                   label="视觉提示词（用于AI生图）"
-                  value={selectedCharacter.visualPrompt || ''}
+                  value={selectedCharacter ? getActualVisualPrompt(selectedCharacter) : ''}
                   onChange={e =>
-                    setSelectedCharacter({ ...selectedCharacter, visualPrompt: e.target.value })
+                    updateSelectedCharacterAndEvaluate({ visualPrompt: e.target.value })
                   }
                   minRows={3}
                 />
+
+                {/* 提示词质量实时反馈 */}
+                {promptQuality && (
+                  <Card className="bg-content2 border border-content3">
+                    <CardBody className="p-4">
+                      <div className="flex items-center justify-between mb-3">
+                        <h5 className="font-medium text-sm">提示词质量评估</h5>
+                        <Chip color={getScoreColor(promptQuality.overallScore) as any} variant="flat">
+                          {getScoreText(promptQuality.overallScore)} · {promptQuality.overallScore} 分
+                        </Chip>
+                      </div>
+
+                      {/* 维度评分 */}
+                      <div className="grid grid-cols-3 gap-3 mb-4">
+                        <div className="text-center p-2 bg-content1 rounded-lg">
+                          <div className="text-xs text-default-400 mb-1">细节丰富度</div>
+                          <Chip
+                            color={
+                              promptQuality.detailLevel === '丰富'
+                                ? 'success'
+                                : promptQuality.detailLevel === '适中'
+                                  ? 'warning'
+                                  : 'danger'
+                            }
+                            variant="flat"
+                            size="sm"
+                          >
+                            {promptQuality.detailLevel}
+                          </Chip>
+                        </div>
+                        <div className="text-center p-2 bg-content1 rounded-lg">
+                          <div className="text-xs text-default-400 mb-1">描述具体性</div>
+                          <Chip
+                            color={
+                              promptQuality.specificity === '非常具体'
+                                ? 'success'
+                                : promptQuality.specificity === '具体'
+                                  ? 'warning'
+                                  : 'danger'
+                            }
+                            variant="flat"
+                            size="sm"
+                          >
+                            {promptQuality.specificity}
+                          </Chip>
+                        </div>
+                        <div className="text-center p-2 bg-content1 rounded-lg">
+                          <div className="text-xs text-default-400 mb-1">语义连贯性</div>
+                          <Chip
+                            color={
+                              promptQuality.coherence === '非常连贯'
+                                ? 'success'
+                                : promptQuality.coherence === '连贯'
+                                  ? 'warning'
+                                  : 'danger'
+                            }
+                            variant="flat"
+                            size="sm"
+                          >
+                            {promptQuality.coherence}
+                          </Chip>
+                        </div>
+                      </div>
+
+                      {/* 优点 */}
+                      {promptQuality.strengths.length > 0 && (
+                        <div className="mb-3">
+                          <div className="text-xs text-default-400 mb-1">优点</div>
+                          <div className="flex flex-wrap gap-1">
+                            {promptQuality.strengths.map((strength, idx) => (
+                              <Chip key={idx} color="success" variant="flat" size="sm">
+                                {strength}
+                              </Chip>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* 优化建议 */}
+                      {promptQuality.suggestions.length > 0 && (
+                        <div>
+                          <div className="text-xs text-default-400 mb-1">优化建议</div>
+                          <div className="space-y-1">
+                            {promptQuality.suggestions.map((suggestion, idx) => (
+                              <div key={idx} className="flex items-start gap-2 text-xs text-default-500">
+                                <span className="text-warning">•</span>
+                                <span>{suggestion}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </CardBody>
+                  </Card>
+                )}
               </ModalBody>
               <ModalFooter>
                 <Button variant="flat" onPress={() => setIsEditModalOpen(false)}>

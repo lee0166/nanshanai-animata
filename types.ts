@@ -194,6 +194,7 @@ export type ThemeMode = 'light' | 'dark' | 'system';
 export type Language = 'en' | 'zh';
 export type Environment = 'development' | 'testing' | 'production';
 export type ModelType = 'image' | 'video' | 'llm' | 'audio';
+export type PromptMode = 'standard' | 'professional';
 
 export interface ModelCapabilities {
   supportsImageInput?: boolean;
@@ -653,6 +654,8 @@ export interface ShotCoherenceIssue {
  */
 export interface ScriptParserConfig {
   // ... 原有配置
+  /** Prompt 模式：standard（标准）或 professional（专业） */
+  promptMode?: PromptMode;
   /** 是否提取情绪曲线，默认true */
   extractEmotionalArc?: boolean;
   /** 文本长度阈值，低于此值跳过情绪曲线提取，默认800 */

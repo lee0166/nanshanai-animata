@@ -13,6 +13,7 @@ import {
   Library,
   FileText,
   Camera,
+  PenTool,
 } from 'lucide-react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useApp } from '../contexts/context';
@@ -232,6 +233,19 @@ const Layout: React.FC<LayoutProps> = ({
                   ) : (
                     <Moon className="w-4 h-4" />
                   )}
+                </Button>
+              </Tooltip>
+              <Tooltip content="数据工作台">
+                <Button
+                  isIconOnly
+                  as={Link}
+                  to="/annotations"
+                  size="sm"
+                  variant="light"
+                  className="text-slate-500 min-w-8 w-8 h-8 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700 transition-all duration-300"
+                  aria-label="数据工作台"
+                >
+                  <PenTool className="w-4 h-4" />
                 </Button>
               </Tooltip>
               <Tooltip content={t.sidebar.settings}>

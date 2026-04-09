@@ -10,6 +10,7 @@
  */
 
 import { DefaultStylePrompt, getDefaultStylePrompt } from '../prompt';
+import { CharacterPromptBuilder, ScenePromptBuilder, ItemPromptBuilder } from '../promptBuilder';
 import type {
   ScriptCharacter,
   ScriptScene,
@@ -107,7 +108,23 @@ export class PromptGeneratorService {
   generateCharacterPrompt(character: ScriptCharacter, style?: string): string {
     const parts: string[] = [];
 
-    parts.push(this.buildCharacterDescription(character));
+    parts.push(this.buildStylizedCharacterDescription(character, style));
+
+    if (this.options.includeQualityTags && this.options.defaultQualityTags) {
+      parts.push(this.options.defaultQualityTags.join(', '));
+    }
+
+    return parts.join(', ');
+  }
+
+  /**
+   * 构建带风格的角色描述
+   * @param character - 角色数据
+   * @param style - 视觉风格（可选）
+   * @returns 带风格的角色描述
+   */
+  private buildStylizedCharacterDescription(character: ScriptCharacter, style?: string): string {
+    const parts: string[] = [];
 
     if (style) {
       const stylePrompt = getDefaultStylePrompt(style);
@@ -116,8 +133,9 @@ export class PromptGeneratorService {
       }
     }
 
-    if (this.options.includeQualityTags && this.options.defaultQualityTags) {
-      parts.push(this.options.defaultQualityTags.join(', '));
+    const characterDescription = CharacterPromptBuilder.build(character);
+    if (characterDescription) {
+      parts.push(characterDescription);
     }
 
     return parts.join(', ');
@@ -132,7 +150,23 @@ export class PromptGeneratorService {
   generateScenePrompt(scene: ScriptScene, style?: string): string {
     const parts: string[] = [];
 
-    parts.push(this.buildSceneDescription(scene));
+    parts.push(this.buildStylizedSceneDescription(scene, style));
+
+    if (this.options.includeQualityTags && this.options.defaultQualityTags) {
+      parts.push(this.options.defaultQualityTags.join(', '));
+    }
+
+    return parts.join(', ');
+  }
+
+  /**
+   * 构建带风格的场景描述
+   * @param scene - 场景数据
+   * @param style - 视觉风格（可选）
+   * @returns 带风格的场景描述
+   */
+  private buildStylizedSceneDescription(scene: ScriptScene, style?: string): string {
+    const parts: string[] = [];
 
     if (style) {
       const stylePrompt = getDefaultStylePrompt(style);
@@ -141,8 +175,9 @@ export class PromptGeneratorService {
       }
     }
 
-    if (this.options.includeQualityTags && this.options.defaultQualityTags) {
-      parts.push(this.options.defaultQualityTags.join(', '));
+    const sceneDescription = ScenePromptBuilder.build(scene);
+    if (sceneDescription) {
+      parts.push(sceneDescription);
     }
 
     return parts.join(', ');

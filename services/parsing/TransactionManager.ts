@@ -304,7 +304,7 @@ export class TransactionManager {
   ): Promise<TransactionCheckpoint | null> {
     try {
       const storageKey = `transaction-checkpoint:${scriptId}:${projectId}`;
-      const checkpoint = await storageService.load(storageKey);
+      const checkpoint = await storageService.load<TransactionCheckpoint>(storageKey);
       
       if (checkpoint) {
         console.log(

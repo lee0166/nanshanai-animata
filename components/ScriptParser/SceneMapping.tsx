@@ -238,6 +238,16 @@ export const SceneMapping: React.FC<SceneMappingProps> = ({
     }
   };
 
+  // 计算实际显示的视觉提示词
+  const getActualVisualPrompt = (scene: ScriptScene): string => {
+    // 如果用户已经手动编辑过，使用用户编辑的值
+    if (scene.visualPrompt && !scene.visualPrompt.includes('的场景')) {
+      return scene.visualPrompt;
+    }
+    // 否则用 ScenePromptBuilder 生成
+    return ScenePromptBuilder.build(scene);
+  };
+
   return (
     <div className="space-y-4">
       {/* Header */}
@@ -558,7 +568,7 @@ export const SceneMapping: React.FC<SceneMappingProps> = ({
 
                 <Textarea
                   label="视觉提示词（用于AI生图）"
-                  value={selectedScene.visualPrompt || ''}
+                  value={getActualVisualPrompt(selectedScene)}
                   onChange={e =>
                     setSelectedScene({ ...selectedScene, visualPrompt: e.target.value })
                   }

@@ -392,39 +392,63 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({
   };
 
   // 处理角色映射更新
-  const handleCharactersUpdate = (updatedCharacters: ScriptCharacter[]) => {
+  const handleCharactersUpdate = async (updatedCharacters: ScriptCharacter[]) => {
     if (!currentScript) return;
-    setCurrentScript({
+    const updatedScript = {
       ...currentScript,
       parseState: {
         ...currentScript.parseState,
         characters: updatedCharacters,
       },
-    });
+    };
+    setCurrentScript(updatedScript);
+    // 持久化保存到存储
+    try {
+      await storageService.saveScript(updatedScript);
+    } catch (error) {
+      console.error('[ScriptManager] Failed to save character mapping:', error);
+      showToast('保存角色映射失败', 'error');
+    }
   };
 
   // 处理场景映射更新
-  const handleScenesUpdate = (updatedScenes: ScriptScene[]) => {
+  const handleScenesUpdate = async (updatedScenes: ScriptScene[]) => {
     if (!currentScript) return;
-    setCurrentScript({
+    const updatedScript = {
       ...currentScript,
       parseState: {
         ...currentScript.parseState,
         scenes: updatedScenes,
       },
-    });
+    };
+    setCurrentScript(updatedScript);
+    // 持久化保存到存储
+    try {
+      await storageService.saveScript(updatedScript);
+    } catch (error) {
+      console.error('[ScriptManager] Failed to save scene mapping:', error);
+      showToast('保存场景映射失败', 'error');
+    }
   };
 
   // 处理物品映射更新
-  const handleItemsUpdate = (updatedItems: ScriptItem[]) => {
+  const handleItemsUpdate = async (updatedItems: ScriptItem[]) => {
     if (!currentScript) return;
-    setCurrentScript({
+    const updatedScript = {
       ...currentScript,
       parseState: {
         ...currentScript.parseState,
         items: updatedItems,
       },
-    });
+    };
+    setCurrentScript(updatedScript);
+    // 持久化保存到存储
+    try {
+      await storageService.saveScript(updatedScript);
+    } catch (error) {
+      console.error('[ScriptManager] Failed to save item mapping:', error);
+      showToast('保存物品映射失败', 'error');
+    }
   };
 
   // 2.0: 文件上传处理 - 支持txt/md/docx格式

@@ -259,6 +259,16 @@ export const ItemMapping: React.FC<ItemMappingProps> = ({
     return existingItems.find(i => i.id === assetId);
   };
 
+  // 计算实际显示的视觉提示词
+  const getActualVisualPrompt = (item: ScriptItem): string => {
+    // 如果用户已经手动编辑过，使用用户编辑的值
+    if (item.visualPrompt && !item.visualPrompt.includes('的道具')) {
+      return item.visualPrompt;
+    }
+    // 否则用 ItemPromptBuilder 生成
+    return ItemPromptBuilder.build(item);
+  };
+
   return (
     <div className="space-y-4">
       {/* Header */}
@@ -462,7 +472,7 @@ export const ItemMapping: React.FC<ItemMappingProps> = ({
 
                 <Textarea
                   label="视觉提示词（用于AI生图）"
-                  value={selectedItem.visualPrompt}
+                  value={getActualVisualPrompt(selectedItem)}
                   onChange={e => setSelectedItem({ ...selectedItem, visualPrompt: e.target.value })}
                   minRows={3}
                 />

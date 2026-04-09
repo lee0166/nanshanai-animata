@@ -37,9 +37,11 @@ import {
   Map,
   Box,
   Library,
+  Activity,
 } from 'lucide-react';
 import { storageService } from '../services/storage';
 import { QualityRulesEditor } from '../components/Settings/QualityRulesEditor';
+import { PerformanceOptimizationValidator } from '../components/PerformanceOptimizationValidator';
 import {
   Card,
   CardHeader,
@@ -94,9 +96,9 @@ const Settings: React.FC = () => {
   const [sortBy, setSortBy] = useState<'name' | 'type' | 'recent'>('name');
   const [visibleApiKeys, setVisibleApiKeys] = useState<Record<string, boolean>>({});
   const [selectedModelIds, setSelectedModelIds] = useState<string[]>([]);
-  const [activeNav, setActiveNav] = useState<'general' | 'duration' | 'models' | 'quality'>(
-    'general'
-  );
+  const [activeNav, setActiveNav] = useState<
+    'general' | 'duration' | 'models' | 'quality' | 'performance'
+  >('general');
 
   // Collapsible state for model types
   const [expandedTypes, setExpandedTypes] = useState<Record<string, boolean>>({
@@ -603,6 +605,7 @@ const Settings: React.FC = () => {
     { id: 'general', label: '通用设置', icon: SettingsIcon },
     { id: 'models', label: '模型管理', icon: Cpu },
     { id: 'quality', label: '质量评估', icon: Settings2 },
+    { id: 'performance', label: '性能监控', icon: Activity },
   ];
 
   const renderGeneral = () => (
@@ -1911,6 +1914,7 @@ const Settings: React.FC = () => {
         {activeNav === 'general' && renderGeneral()}
         {activeNav === 'models' && renderModels()}
         {activeNav === 'quality' && <QualityRulesEditor t={t} />}
+        {activeNav === 'performance' && <PerformanceOptimizationValidator />}
       </div>
 
       {/* Modals */}

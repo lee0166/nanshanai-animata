@@ -27,6 +27,7 @@ const JobMonitor: React.FC = () => {
   // Load jobs logic
   useEffect(() => {
     const load = async () => {
+      console.log('[JobMonitor] Loading jobs...');
       const all = await storageService.getJobs();
       // Sort by newest first
       all.sort((a, b) => b.createdAt - a.createdAt);
@@ -63,6 +64,7 @@ const JobMonitor: React.FC = () => {
     load();
 
     const unsubscribe = jobQueue.subscribe(updatedJob => {
+      console.log('[JobMonitor] Received job update:', updatedJob.id);
       setJobs(prev => {
         const exists = prev.find(j => j.id === updatedJob.id);
         if (exists) {
@@ -73,8 +75,10 @@ const JobMonitor: React.FC = () => {
       });
     });
 
-    const intervalMs = Number.isFinite(settings.pollingInterval) ? settings.pollingInterval : 5000;
-    const interval = setInterval(load, Math.max(1000, intervalMs));
+    // 使用固定的、更宽松的轮询间隔
+    const intervalMs = Math.max(5000, Number.isFinite(settings.pollingInterval) ? settings.pollingInterval : 5000);
+    console.log(`[JobMonitor] Setting poll interval to ${intervalMs}ms`);
+    const interval = setInterval(load, intervalMs);
 
     return () => {
       unsubscribe();

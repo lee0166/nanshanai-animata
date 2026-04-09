@@ -329,10 +329,13 @@ const AssetList: React.FC<AssetListProps> = ({
       await storageService.deleteAsset(assetToDelete, projectId);
       await loadAssets();
       if (onDelete) onDelete();
+      showToast('删除成功', 'success');
     } catch (error) {
       console.error('Failed to delete asset:', error);
+      showToast('删除失败', 'error');
     } finally {
       setAssetToDelete(null);
+      onDeleteOpenChange();
     }
   };
 

@@ -50,6 +50,23 @@ export class StorageService {
   private isFsResponsive: boolean = true; // Circuit breaker flag
   private locks: Map<string, Promise<void>> = new Map();
   private cache: MultiLayerCache;
+  
+  // 请求去重 - 防止同一文件被同时多次读取
+  private pendingReads: Map<string, Promise<any>> = new Map();
+  
+  // 检测是否在 Trae 环境中
+  private isTraeEnvironment(): boolean {
+    return typeof window !== 'undefined' && 
+           (window.location.hostname === 'localhost' || 
+            window.location.hostname === '127.0.0.1' ||
+            navigator.userAgent.includes('Trae') ||
+            navigator.userAgent.includes('trae'));
+  }
+  
+  // 获取超时时间 - Trae 环境使用更长的超时
+  private getTimeoutDuration(): number {
+    return this.isTraeEnvironment() ? 30000 : 5000; // 30秒 vs 5秒
+  }
 
   // 内存缓存层 - 减少文件系统 I/O
   private memoryCache: Map<string, { data: any; timestamp: number; ttl: number }> = new Map();
@@ -646,6 +663,7 @@ export class StorageService {
   async connect(forcePicker = false): Promise<boolean> {
     const previousHandle = this.directoryHandle;
     const previousUseOpfs = this.useOpfs;
+    const isTrae = this.isTraeEnvironment();
 
     try {
       // 1. If forcePicker is requested, always show picker
@@ -660,8 +678,8 @@ export class StorageService {
         return await this.switchToSandbox();
       }
 
-      // Reset responsiveness when manually connecting
-      this.isFsResponsive = true;
+      // Reset responsiveness when manually connecting (always true in Trae)
+      this.isFsResponsive = isTrae ? true : true;
 
       // If we already have a handle (from autoConnect), just request permission
       if (this.directoryHandle && !this.useOpfs) {
@@ -714,10 +732,22 @@ export class StorageService {
   ): Promise<FileSystemFileHandle | null> {
     if (!this.directoryHandle) throw new Error('Workspace not connected');
     try {
-      // console.log(`[STORAGE] getFileHandle: ${filename} (create: ${create})`);
-      return await this.directoryHandle.getFileHandle(filename, { create });
+      console.log(`[STORAGE] getFileHandle: ${filename} (create: ${create})`);
+      const handle = await this.directoryHandle.getFileHandle(filename, { create });
+      console.log(`[STORAGE] getFileHandle success for ${filename}`);
+      return handle;
     } catch (e) {
-      // console.warn(`[STORAGE] getFileHandle failed for ${filename}:`, e);
+      console.warn(`[STORAGE] getFileHandle failed for ${filename}:`, e);
+      // 如果文件未找到，列出目录内容帮助调试
+      if (e instanceof Error && e.name === 'NotFoundError') {
+        console.log(`[STORAGE] Listing directory contents to help debug...`);
+        try {
+          const files = await this.listFiles();
+          console.log(`[STORAGE] Directory contains ${files.length} entries:`, files.map(f => f.name));
+        } catch (listError) {
+          console.error(`[STORAGE] Failed to list directory:`, listError);
+        }
+      }
       return null;
     }
   }
@@ -740,49 +770,42 @@ export class StorageService {
 
   private async writeJson(filename: string, data: any): Promise<void> {
     const start = performance.now();
+    const isTrae = this.isTraeEnvironment();
 
-    // Circuit breaker: if FS is known to be unresponsive, skip it
-    if (!this.directoryHandle || !this.isFsResponsive) {
+    // Circuit breaker: if FS is known to be unresponsive, skip it (except in Trae environment)
+    if (!this.directoryHandle || (!isTrae && !this.isFsResponsive)) {
       throw new Error('FileSystem not responsive or not connected');
     }
 
-    const MAX_RETRIES = 3;
+    console.log(`[STORAGE] Starting writeJson for ${filename} (isTrae: ${isTrae})`);
+
+    const MAX_RETRIES = isTrae ? 1 : 2; // 减少重试次数
     let lastError: any;
 
     for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
       try {
-        await new Promise<void>(async (resolve, reject) => {
-          const timeout = setTimeout(() => {
-            console.warn(
-              `[STORAGE] FileSystem write timeout for ${filename} (5s). Tripping circuit breaker.`
-            );
-            this.isFsResponsive = false; // Mark as unresponsive
-            reject(new Error('FileSystem write timeout'));
-          }, 5000);
+        console.log(`[STORAGE] Write attempt ${attempt + 1}/${MAX_RETRIES} for ${filename}`);
+        
+        // Step 1: Get file handle
+        console.log(`[STORAGE] Step 1/3: Getting file handle for ${filename}...`);
+        const handleStart = performance.now();
+        const handle = await this.getFileHandle(filename, true);
+        console.log(`[STORAGE] Step 1/3: Got file handle in ${(performance.now() - handleStart).toFixed(2)}ms`);
+        
+        if (!handle) {
+          throw new Error(`Failed to get file handle for ${filename}`);
+        }
 
-          try {
-            const handle = await this.getFileHandle(filename, true);
-            if (handle) {
-              const writable = await handle.createWritable();
-              await writable.write(JSON.stringify(data, null, 2));
-              await writable.close();
-              clearTimeout(timeout);
-              const duration = performance.now() - start;
-              if (duration > 100) {
-                console.log(
-                  `[STORAGE] Slow FileSystem write: ${filename} took ${duration.toFixed(2)}ms`
-                );
-              }
-              resolve();
-            } else {
-              clearTimeout(timeout);
-              reject(new Error(`Failed to get file handle for ${filename}`));
-            }
-          } catch (e) {
-            clearTimeout(timeout);
-            reject(e);
-          }
-        });
+        // Step 2: Create writable and write
+        console.log(`[STORAGE] Step 2/3: Creating writable and writing...`);
+        const writeStart = performance.now();
+        const writable = await handle.createWritable();
+        await writable.write(JSON.stringify(data, null, 2));
+        await writable.close();
+        console.log(`[STORAGE] Step 2/3: Write completed in ${(performance.now() - writeStart).toFixed(2)}ms`);
+
+        const duration = performance.now() - start;
+        console.log(`[STORAGE] Successfully wrote ${filename} in ${duration.toFixed(2)}ms`);
         return; // Success
       } catch (e) {
         lastError = e;
@@ -791,54 +814,83 @@ export class StorageService {
           e
         );
         if (attempt < MAX_RETRIES - 1) {
-          await new Promise(r => setTimeout(r, 200 * (attempt + 1)));
+          console.log(`[STORAGE] Waiting 500ms before retry...`);
+          await new Promise(r => setTimeout(r, 500));
         }
       }
     }
+    console.error(`[STORAGE] All write attempts failed for ${filename}`);
     throw lastError;
   }
 
   private async readJson<T>(filename: string): Promise<T | null> {
-    const start = performance.now();
+    // 检查是否已有正在进行的相同请求
+    if (this.pendingReads.has(filename)) {
+      console.log(`[STORAGE] readJson for ${filename} already in progress, reusing existing request`);
+      return this.pendingReads.get(filename) as Promise<T | null>;
+    }
 
-    if (!this.directoryHandle || !this.isFsResponsive) {
+    const start = performance.now();
+    const isTrae = this.isTraeEnvironment();
+
+    if (!this.directoryHandle || (!isTrae && !this.isFsResponsive)) {
+      console.log(`[STORAGE] readJson skipped: no directory handle or FS not responsive`);
       return null;
     }
 
-    return await new Promise<T | null>(async resolve => {
-      const timeout = setTimeout(() => {
-        console.warn(
-          `[STORAGE] FileSystem read timeout for ${filename} (5s). Tripping circuit breaker.`
-        );
-        this.isFsResponsive = false; // Mark as unresponsive
-        resolve(null);
-      }, 5000);
+    console.log(`[STORAGE] Starting readJson for ${filename} (isTrae: ${isTrae})`);
 
+    // 创建新的请求并存储到 pendingReads
+    const readPromise = (async () => {
       try {
+        // Step 1: Get file handle - 不使用超时包装，直接调用
+        console.log(`[STORAGE] Step 1/4: Getting file handle for ${filename}...`);
+        const handleStart = performance.now();
         const handle = await this.getFileHandle(filename);
-        if (handle) {
-          const file = await handle.getFile();
-          const text = await file.text();
-          const data = JSON.parse(text) as T;
-
-          clearTimeout(timeout);
-          const duration = performance.now() - start;
-          // Only log slow reads (>100ms) or in development debug mode
-          if (duration > 100) {
-            console.log(`[STORAGE] Slow read ${filename}: ${duration.toFixed(2)}ms`);
-          }
-          resolve(data);
-        } else {
-          clearTimeout(timeout);
-          // Silently return null for missing files - this is normal
-          resolve(null);
+        console.log(`[STORAGE] Step 1/4: Got file handle in ${(performance.now() - handleStart).toFixed(2)}ms, handle exists: ${!!handle}`);
+        
+        if (!handle) {
+          console.log(`[STORAGE] File ${filename} not found, returning null`);
+          return null;
         }
+
+        // Step 2: Get file object
+        console.log(`[STORAGE] Step 2/4: Getting file object...`);
+        const fileStart = performance.now();
+        const file = await handle.getFile();
+        console.log(`[STORAGE] Step 2/4: Got file object in ${(performance.now() - fileStart).toFixed(2)}ms, size: ${file.size} bytes`);
+
+        // Step 3: Read file text
+        console.log(`[STORAGE] Step 3/4: Reading file text...`);
+        const textStart = performance.now();
+        const text = await file.text();
+        console.log(`[STORAGE] Step 3/4: Read ${text.length} chars in ${(performance.now() - textStart).toFixed(2)}ms`);
+
+        // Step 4: Parse JSON
+        console.log(`[STORAGE] Step 4/4: Parsing JSON...`);
+        const parseStart = performance.now();
+        const data = JSON.parse(text) as T;
+        console.log(`[STORAGE] Step 4/4: JSON parsed in ${(performance.now() - parseStart).toFixed(2)}ms`);
+
+        const totalDuration = performance.now() - start;
+        console.log(`[STORAGE] Successfully read ${filename} in ${totalDuration.toFixed(2)}ms`);
+        return data;
       } catch (e) {
-        clearTimeout(timeout);
         console.error(`[STORAGE] Error reading ${filename}:`, e);
-        resolve(null);
+        // 如果是 NotFoundError，这是正常的，静默返回 null
+        if (e instanceof Error && e.name === 'NotFoundError') {
+          console.log(`[STORAGE] ${filename} not found (NotFoundError), returning null`);
+          return null;
+        }
+        return null;
+      } finally {
+        // 请求完成后从 pendingReads 中移除
+        this.pendingReads.delete(filename);
       }
-    });
+    })();
+
+    this.pendingReads.set(filename, readPromise);
+    return readPromise;
   }
 
   async saveBinaryFile(filePath: string, blob: Blob): Promise<string> {
@@ -893,6 +945,31 @@ export class StorageService {
     } catch (e) {
       console.error(`[STORAGE] Failed to set item ${key}:`, e);
       throw e;
+    }
+  }
+
+  /**
+   * 保存数据到存储（兼容 TransactionManager）
+   * @param key 存储键
+   * @param value 要保存的数据（会被 JSON.stringify）
+   */
+  async save(key: string, value: any): Promise<void> {
+    return this.setItem(key, JSON.stringify(value));
+  }
+
+  /**
+   * 从存储加载数据（兼容 TransactionManager）
+   * @param key 存储键
+   * @returns 解析后的数据或 null
+   */
+  async load<T>(key: string): Promise<T | null> {
+    const data = await this.getItem(key);
+    if (!data) return null;
+    try {
+      return JSON.parse(data) as T;
+    } catch (e) {
+      console.error(`[STORAGE] Failed to parse loaded data for ${key}:`, e);
+      return null;
     }
   }
 
