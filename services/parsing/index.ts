@@ -58,3 +58,6 @@ export { CircuitBreaker, type CircuitState } from './CircuitBreaker';
 export { TokenBudgetMonitor } from './TokenBudgetMonitor';
 export { TokenOptimizer } from './TokenOptimizer';
 export { EmbeddingService } from './EmbeddingService';
+
+// Prompt Generation
+export { PromptGeneratorService, type PromptGeneratorOptions } from './PromptGeneratorService';
