@@ -4,6 +4,7 @@ import { storageService } from '../../services/storage';
 import { useApp } from '../../contexts/context';
 import { useToast } from '../../contexts/ToastContext';
 import { CharacterPromptBuilder } from '../../services/promptBuilder';
+import { PromptGeneratorService } from '../../services/parsing';
 import {
   evaluateCharacterPrompt,
   getScoreColor,
@@ -54,6 +55,9 @@ export const CharacterMapping: React.FC<CharacterMappingProps> = ({
   const [isGenerating, setIsGenerating] = useState(false);
   const [creatingCharacters, setCreatingCharacters] = useState<Set<string>>(new Set());
   const [promptQuality, setPromptQuality] = useState<PromptQualityFeedback | null>(null);
+  
+  // 创建 PromptGeneratorService 实例
+  const promptGenerator = React.useMemo(() => new PromptGeneratorService(), []);
 
   // 计算实际显示的视觉提示词
   const getActualVisualPrompt = (char: ScriptCharacter): string => {
@@ -61,8 +65,9 @@ export const CharacterMapping: React.FC<CharacterMappingProps> = ({
     if (char.visualPrompt && !char.visualPrompt.includes('的角色形象')) {
       return char.visualPrompt;
     }
-    // 否则用 CharacterPromptBuilder 生成
-    return CharacterPromptBuilder.build(char);
+    // 使用 PromptGeneratorService 生成（不包含质量标签，保持与之前一致）
+    const tempService = new PromptGeneratorService({ includeQualityTags: false });
+    return tempService.generateCharacterPrompt(char);
   };
 
   // 监听选中角色变化，评估提示词质量
@@ -95,7 +100,9 @@ export const CharacterMapping: React.FC<CharacterMappingProps> = ({
 
   // 纯创建逻辑 - 只创建资产，不更新状态
   const createCharacterAsset = async (scriptChar: ScriptCharacter): Promise<string> => {
-    const generatedPrompt = CharacterPromptBuilder.build(scriptChar);
+    // 使用 PromptGeneratorService 生成提示词（不包含质量标签）
+    const tempService = new PromptGeneratorService({ includeQualityTags: false });
+    const generatedPrompt = tempService.generateCharacterPrompt(scriptChar);
 
     const newCharacter: CharacterAsset = {
       id: `char_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,

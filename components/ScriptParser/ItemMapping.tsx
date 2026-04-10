@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { ScriptItem, ItemAsset, AssetType, ItemType } from '../../types';
 import { storageService } from '../../services/storage';
 import { ItemPromptBuilder } from '../../services/promptBuilder';
+import { PromptGeneratorService } from '../../services/parsing';
 import { useApp } from '../../contexts/context';
 import { useToast } from '../../contexts/ToastContext';
 import {
@@ -88,6 +89,9 @@ export const ItemMapping: React.FC<ItemMappingProps> = ({
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const [creatingItems, setCreatingItems] = useState<Set<string>>(new Set());
+  
+  // 创建 PromptGeneratorService 实例
+  const promptGenerator = React.useMemo(() => new PromptGeneratorService(), []);
 
   // Handle mapping script item to existing asset
   const handleMapItem = (scriptItem: ScriptItem, assetId: string) => {
@@ -101,7 +105,9 @@ export const ItemMapping: React.FC<ItemMappingProps> = ({
   // Handle creating new item asset from script item
   // 纯创建逻辑 - 只创建资产，不更新状态
   const createItemAsset = async (scriptItem: ScriptItem): Promise<string> => {
-    const generatedPrompt = ItemPromptBuilder.build(scriptItem);
+    // 使用 PromptGeneratorService 生成提示词（不包含质量标签）
+    const tempService = new PromptGeneratorService({ includeQualityTags: false });
+    const generatedPrompt = tempService.generateItemPrompt(scriptItem);
 
     const newItem: ItemAsset = {
       id: `item_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
@@ -265,8 +271,9 @@ export const ItemMapping: React.FC<ItemMappingProps> = ({
     if (item.visualPrompt && !item.visualPrompt.includes('的道具')) {
       return item.visualPrompt;
     }
-    // 否则用 ItemPromptBuilder 生成
-    return ItemPromptBuilder.build(item);
+    // 使用 PromptGeneratorService 生成（不包含质量标签，保持与之前一致）
+    const tempService = new PromptGeneratorService({ includeQualityTags: false });
+    return tempService.generateItemPrompt(item);
   };
 
   return (

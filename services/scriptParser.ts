@@ -5995,7 +5995,22 @@ ${content}
       throw new Error('解析已取消');
     }
 
-    // Phase 3.3: Chunked path for long texts
+    // Phase 3.3: Optimized path for short texts (<= 3000 words)
+    if (strategySelection.strategy === 'optimized' && !resumeFromState) {
+      console.log(`[ScriptParser] Using OPTIMIZED PATH (${strategySelection.reason})`);
+      const optimizedStartTime = Date.now();
+      const result = await this.parseShortScriptOptimized(content, enhancedOnProgress);
+      const optimizedDuration = Date.now() - optimizedStartTime;
+      console.log(`[ScriptParser] ========== Optimized Path Completed ==========`);
+      console.log(
+        `[ScriptParser] Total duration: ${optimizedDuration}ms (${(optimizedDuration / 1000).toFixed(1)}s)`
+      );
+      console.log(`[ScriptParser] ==========================================`);
+      await this.saveState(scriptId, projectId, result);
+      return result;
+    }
+
+    // Phase 3.4: Chunked path for long texts
     if (strategySelection.strategy === 'chunked' && !resumeFromState) {
       console.log(`[ScriptParser] Using CHUNKED PATH (${strategySelection.reason})`);
       const chunkedStartTime = Date.now();

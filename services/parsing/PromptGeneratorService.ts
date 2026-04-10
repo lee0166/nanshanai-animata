@@ -14,6 +14,7 @@ import { CharacterPromptBuilder, ScenePromptBuilder, ItemPromptBuilder } from '.
 import type {
   ScriptCharacter,
   ScriptScene,
+  ScriptItem,
   Shot,
   ShotType,
   CameraMovement,
@@ -203,6 +204,48 @@ export class PromptGeneratorService {
 
     if (this.options.includeQualityTags && this.options.defaultQualityTags) {
       parts.push(this.options.defaultQualityTags.join(', '));
+    }
+
+    return parts.join(', ');
+  }
+
+  /**
+   * 从物品资产生成AI生图提示词
+   * @param item - 物品数据
+   * @param style - 视觉风格（可选）
+   * @returns 完整的AI生图提示词
+   */
+  generateItemPrompt(item: ScriptItem, style?: string): string {
+    const parts: string[] = [];
+
+    parts.push(this.buildStylizedItemDescription(item, style));
+
+    if (this.options.includeQualityTags && this.options.defaultQualityTags) {
+      parts.push(this.options.defaultQualityTags.join(', '));
+    }
+
+    return parts.join(', ');
+  }
+
+  /**
+   * 构建带风格的物品描述
+   * @param item - 物品数据
+   * @param style - 视觉风格（可选）
+   * @returns 带风格的物品描述
+   */
+  private buildStylizedItemDescription(item: ScriptItem, style?: string): string {
+    const parts: string[] = [];
+
+    if (style) {
+      const stylePrompt = getDefaultStylePrompt(style);
+      if (stylePrompt) {
+        parts.push(stylePrompt);
+      }
+    }
+
+    const itemDescription = ItemPromptBuilder.build(item);
+    if (itemDescription) {
+      parts.push(itemDescription);
     }
 
     return parts.join(', ');

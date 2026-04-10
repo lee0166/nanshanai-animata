@@ -4,6 +4,7 @@ import { storageService } from '../../services/storage';
 import { useApp } from '../../contexts/context';
 import { useToast } from '../../contexts/ToastContext';
 import { ScenePromptBuilder } from '../../services/promptBuilder';
+import { PromptGeneratorService } from '../../services/parsing';
 import {
   Card,
   CardBody,
@@ -46,6 +47,9 @@ export const SceneMapping: React.FC<SceneMappingProps> = ({
   const [viewMode, setViewMode] = useState<'grid' | 'timeline'>('grid');
   const [isGenerating, setIsGenerating] = useState(false);
   const [creatingScenes, setCreatingScenes] = useState<Set<string>>(new Set());
+  
+  // 创建 PromptGeneratorService 实例
+  const promptGenerator = React.useMemo(() => new PromptGeneratorService(), []);
 
   // Handle mapping script scene to existing asset
   const handleMapScene = (scriptScene: ScriptScene, assetId: string) => {
@@ -58,7 +62,9 @@ export const SceneMapping: React.FC<SceneMappingProps> = ({
 
   // 纯创建逻辑 - 只创建资产，不更新状态
   const createSceneAsset = async (scriptScene: ScriptScene): Promise<string> => {
-    const generatedPrompt = ScenePromptBuilder.build(scriptScene);
+    // 使用 PromptGeneratorService 生成提示词（不包含质量标签）
+    const tempService = new PromptGeneratorService({ includeQualityTags: false });
+    const generatedPrompt = tempService.generateScenePrompt(scriptScene);
 
     const newScene: SceneAsset = {
       id: `scene_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
@@ -244,8 +250,9 @@ export const SceneMapping: React.FC<SceneMappingProps> = ({
     if (scene.visualPrompt && !scene.visualPrompt.includes('的场景')) {
       return scene.visualPrompt;
     }
-    // 否则用 ScenePromptBuilder 生成
-    return ScenePromptBuilder.build(scene);
+    // 使用 PromptGeneratorService 生成（不包含质量标签，保持与之前一致）
+    const tempService = new PromptGeneratorService({ includeQualityTags: false });
+    return tempService.generateScenePrompt(scene);
   };
 
   return (
