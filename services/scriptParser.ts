@@ -5661,7 +5661,63 @@ ${content}
         }
       }
 
-      // Step 5: Episode Planning (分集规划)
+      // Step 4.5: Episode Planning Phase 1 (事前估算)
+      // 在分镜生成前进行分集估算，为分镜生成提供约束
+      const wordCountForPhase1 = this.countWords(content);
+      state.stage = 'episode_planning_phase1';
+      state.progress = 94;
+      onProgress?.('episode_planning_phase1', 94, '正在估算分集...', {
+        currentStageProgress: 0,
+      });
+
+      try {
+        console.log('[ScriptParser] Starting episode planning (Phase 1 - estimate)...');
+        console.log(
+          `[ScriptParser] Word count: ${wordCountForPhase1}, executing Phase 1 estimation`
+        );
+
+        // 获取目标平台和节奏偏好
+        const platform =
+          this.parserConfig.creativeIntent?.durationControl?.targetPlatform || 'douyin';
+        const pacingPreference =
+          this.parserConfig.creativeIntent?.durationControl?.pacingPreference || 'normal';
+        const scenes = state.scenes || [];
+
+        console.log(
+          `[ScriptParser] Phase 1 - platform: ${platform}, pacing: ${pacingPreference}, word count: ${wordCountForPhase1}`
+        );
+
+        // 创建分集估算（Phase 1 - 不依赖分镜数据）
+        const episodePlanEstimate = EpisodePlanner.createEpisodeEstimate(
+          scenes,
+          platform,
+          wordCountForPhase1,
+          pacingPreference
+        );
+
+        // 保存估算到状态
+        state.episodePlanEstimate = episodePlanEstimate;
+
+        console.log(
+          `[ScriptParser] Phase 1 complete: ${episodePlanEstimate.totalEpisodesEstimate} episodes, ` +
+          `${episodePlanEstimate.totalShotsEstimate} shots ` +
+          `(platform: ${episodePlanEstimate.platform}, confidence: ${Math.round(episodePlanEstimate.confidence * 100)}%)`
+        );
+
+        // 更新 episode_planning_phase1 阶段进度为 100%
+        onProgress?.('episode_planning_phase1', 95, '分集估算完成', {
+          currentStageProgress: 100,
+        });
+      } catch (error) {
+        console.warn('[ScriptParser] Episode planning (Phase 1) failed:', error);
+        state.episodePlanEstimate = undefined;
+        // 即使失败也标记为完成
+        onProgress?.('episode_planning_phase1', 95, '分集估算跳过', {
+          currentStageProgress: 100,
+        });
+      }
+
+      // Step 5: Episode Planning (分集规划 - Phase 2 精确计算)
       // 始终执行结构规划，全量依赖 PlatformStandardService 智能规则
       const wordCountForEpisode = this.countWords(content);
       state.stage = 'episode_planning';
@@ -7207,7 +7263,8 @@ ${content}
             items: [52, 56], // Note: items is between scenes
             refinement: [55, 58],
             budget: [57, 59],
-            episode_planning: [59, 64],
+            episode_planning_phase1: [59, 61], // Phase 1 估算
+            episode_planning: [61, 64],
             episode_planning_phase2: [64, 69],
             shots: [69, 92],
             coherence_check: [92, 97],

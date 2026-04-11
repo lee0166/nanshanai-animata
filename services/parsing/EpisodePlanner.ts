@@ -7,7 +7,7 @@
  * @version 1.0.0
  */
 
-import { ScriptScene, EpisodePlan, EpisodeInfo, PlatformEpisodeStandard, Shot } from '../../types';
+import { ScriptScene, EpisodePlan, EpisodeInfo, PlatformEpisodeStandard, Shot, EpisodeEstimate } from '../../types';
 import PlatformStandardService from './PlatformStandardService';
 
 /**
@@ -26,6 +26,63 @@ interface PlotStructure {
  * 智能分集规划器
  */
 export class EpisodePlanner {
+  /**
+   * 创建分集估算（Phase 1 - 事前估算）
+   * 不依赖分镜数据，用于分镜生成前的约束
+   * @param scenes - 场景列表
+   * @param platform - 平台类型
+   * @param wordCount - 字数
+   * @param pacingPreference - 节奏偏好
+   * @returns 分集估算结果
+   */
+  static createEpisodeEstimate(
+    scenes: ScriptScene[],
+    platform: string,
+    wordCount: number,
+    pacingPreference: 'fast' | 'normal' | 'slow' = 'normal'
+  ): EpisodeEstimate {
+    const standard = PlatformStandardService.getStandard(platform);
+    if (!standard) {
+      // 备用方案：基于经验公式估算
+      const totalEpisodes = Math.max(3, Math.ceil(wordCount / 5000));
+      const shotsPerEpisode = 30; // 默认每集 30 个分镜
+      return {
+        id: crypto.randomUUID(),
+        platform: platform as any,
+        totalEpisodesEstimate: totalEpisodes,
+        totalShotsEstimate: totalEpisodes * shotsPerEpisode,
+        totalDurationEstimate: totalEpisodes * 1, // 假设每集 1 分钟
+        confidence: 0.6, // 备用方案置信度较低
+        isPhase2: false,
+      };
+    }
+
+    // 使用平台标准进行估算
+    const totalEpisodes = PlatformStandardService.getRecommendedEpisodeCount(
+      platform,
+      wordCount,
+      pacingPreference
+    );
+
+    const shotsPerEpisode = PlatformStandardService.getRecommendedShotCountPerEpisode(
+      platform,
+      pacingPreference
+    );
+
+    const totalDurationEstimate =
+      totalEpisodes * (standard.episodeDurationRange[0] || 60) / 60;
+
+    return {
+      id: crypto.randomUUID(),
+      platform: platform as any,
+      totalEpisodesEstimate: totalEpisodes,
+      totalShotsEstimate: totalEpisodes * shotsPerEpisode,
+      totalDurationEstimate,
+      confidence: 0.8, // Phase 1 估算，置信度较低
+      isPhase2: false,
+    };
+  }
+
   /**
    * 计算最佳分集方案
    */

@@ -43,6 +43,7 @@ export const DEFAULT_STAGE_WEIGHTS: Record<ParseStage, number> = {
   shots: 0.2, // 20% - 分镜生成
   refinement: 0.03, // 3% - 结果优化
   budget: 0.02, // 2% - 时长预算
+  episode_planning_phase1: 0.02, // 2% - Phase 1 估算
   episode_planning: 0.03, // 3% - 分集规划
   episode_planning_phase2: 0.02, // 2% - Phase 2 精确计算
   coherence_check: 0.03, // 3% - 连贯性检查
@@ -62,6 +63,7 @@ export const SHORT_TEXT_STAGE_WEIGHTS: Record<ParseStage, number> = {
   shots: 0.2, // 20% - 分镜生成
   refinement: 0.0, // 0% - 跳过优化
   budget: 0.0, // 0% - 跳过预算
+  episode_planning_phase1: 0.0, // 0% - 短文本跳过分集规划
   episode_planning: 0.0, // 0% - 短文本跳过分集规划
   episode_planning_phase2: 0.0, // 0% - 短文本跳过 Phase 2
   coherence_check: 0.0, // 0% - 短文本跳过连贯性检查
@@ -81,6 +83,7 @@ export const LONG_TEXT_STAGE_WEIGHTS: Record<ParseStage, number> = {
   shots: 0.35, // 35% - 分镜生成（占比更高）
   refinement: 0.03, // 3% - 结果优化
   budget: 0.02, // 2% - 时长预算
+  episode_planning_phase1: 0.03, // 3% - Phase 1 估算（长文本需要）
   episode_planning: 0.05, // 5% - 分集规划（长文本需要）
   episode_planning_phase2: 0.05, // 5% - Phase 2 精确计算（长文本需要）
   coherence_check: 0.08, // 8% - 连贯性检查（长文本需要）

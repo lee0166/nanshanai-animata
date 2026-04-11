@@ -336,6 +336,7 @@ export type ParseStage =
   | 'scenes'
   | 'refinement'
   | 'budget'
+  | 'episode_planning_phase1'
   | 'episode_planning'
   | 'episode_planning_phase2'
   | 'items'
