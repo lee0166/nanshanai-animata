@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import {
   Shot,
   ScriptScene,
@@ -50,6 +50,7 @@ import {
   ArrowUp,
   ArrowDown,
 } from 'lucide-react';
+import { useVirtualizer } from '@tanstack/react-virtual';
 import { keyframeService } from '../../services/keyframe';
 import { storageService } from '../../services/storage';
 import { useApp } from '../../contexts/context';
@@ -170,13 +171,26 @@ export const ShotList: React.FC<ShotListProps> = ({
     if (selectedScene !== 'all') {
       result = shotsWithNumbers.filter(s => (s.sceneName || '未分类场景') === selectedScene);
     }
-    // Key shots优先显示
+    // Key shots 优先显示
     return [...result].sort((a, b) => {
       if (a.layer === 'key' && b.layer !== 'key') return -1;
       if (a.layer !== 'key' && b.layer === 'key') return 1;
       return 0;
     });
   }, [shotsWithNumbers, selectedScene]);
+
+  // 虚拟化表格行
+  const tableBodyRef = useRef<HTMLTableSectionElement>(null);
+
+  const virtualizer = useVirtualizer({
+    count: filteredShots.length,
+    getScrollElement: () => tableBodyRef.current,
+    estimateSize: () => 80, // 每行估计高度 80px
+    overscan: 5, // 预渲染 5 行缓冲区
+  });
+
+  const virtualRows = virtualizer.getVirtualItems();
+  const totalSize = virtualizer.getTotalSize();
 
   // Group shots by scene
   const shotsByScene = useMemo(() => {
@@ -430,7 +444,7 @@ export const ShotList: React.FC<ShotListProps> = ({
       {/* Table View */}
       {displayMode === 'table' ? (
         <>
-          <Table aria-label="分镜列表">
+          <Table aria-label="分镜列表" className="h-[600px] overflow-auto">
             <TableHeader>
               <TableColumn>类型</TableColumn>
               <TableColumn>序号</TableColumn>
@@ -442,141 +456,156 @@ export const ShotList: React.FC<ShotListProps> = ({
               <TableColumn>时长</TableColumn>
               <TableColumn>操作</TableColumn>
             </TableHeader>
-            <TableBody>
-              {filteredShots.map((shot, index) => (
-                <TableRow key={shot.id}>
-                  <TableCell>
-                    <Chip
-                      color={shot.layer === 'key' ? 'primary' : 'default'}
-                      variant={shot.layer === 'key' ? 'solid' : 'flat'}
+            <TableBody ref={tableBodyRef}>
+              <div style={{ height: `${totalSize}px`, position: 'relative' }}>
+                {virtualRows.map(virtualRow => {
+                  const shot = filteredShots[virtualRow.index];
+                  const index = virtualRow.index;
+                  return (
+                    <TableRow
+                      key={shot.id}
+                      style={{
+                        transform: `translateY(${virtualRow.start}px)`,
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        width: '100%',
+                      }}
                     >
-                      {shot.layer === 'key' ? '关键' : '可选'}
-                    </Chip>
-                  </TableCell>
-                  <TableCell>
-                    <span className="font-mono text-sm">
-                      {shot.shotNumber || `${getSceneNumber(shot.sceneName)}-${shot.sequence}`}
-                    </span>
-                  </TableCell>
-                  <TableCell>
-                    <Chip variant="flat">{shot.sceneName}</Chip>
-                  </TableCell>
-                  <TableCell>
-                    <Chip color={getShotTypeColor(shot.shotType) as any}>
-                      {t.shot?.shotType?.[shot.shotType as keyof typeof t.shot.shotType] ||
-                        shot.shotType}
-                    </Chip>
-                  </TableCell>
-                  <TableCell>
-                    <span className="text-sm text-default-600">
-                      {t.shot?.cameraMovement?.[
-                        shot.cameraMovement as keyof typeof t.shot.cameraMovement
-                      ] || shot.cameraMovement}
-                    </span>
-                  </TableCell>
-                  <TableCell>
-                    <p className="text-sm line-clamp-2 max-w-xs">{shot.description}</p>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex flex-wrap gap-1">
-                      {shot.characters?.slice(0, 2).map((char, i) => (
-                        <Chip key={i} variant="bordered">
-                          {char}
+                      <TableCell>
+                        <Chip
+                          color={shot.layer === 'key' ? 'primary' : 'default'}
+                          variant={shot.layer === 'key' ? 'solid' : 'flat'}
+                        >
+                          {shot.layer === 'key' ? '关键' : '可选'}
                         </Chip>
-                      ))}
-                      {shot.characters && shot.characters.length > 2 && (
-                        <Chip variant="bordered">+{shot.characters.length - 2}</Chip>
-                      )}
-                    </div>
-                  </TableCell>
-                  <TableCell>{shot.duration}秒</TableCell>
-                  <TableCell>
-                    <div className="flex gap-1">
-                      {/* 上移按钮 */}
-                      <Button
-                        isIconOnly
-                        size="sm"
-                        variant="flat"
-                        onPress={() => {
-                          setSelectedShot(shot);
-                          setMoveDirection('up');
-                          setIsMoveModalOpen(true);
-                        }}
-                        isDisabled={index === 0}
-                        title="上移"
-                      >
-                        <ArrowUp size={14} />
-                      </Button>
-                      {/* 下移按钮 */}
-                      <Button
-                        isIconOnly
-                        size="sm"
-                        variant="flat"
-                        onPress={() => {
-                          setSelectedShot(shot);
-                          setMoveDirection('down');
-                          setIsMoveModalOpen(true);
-                        }}
-                        isDisabled={index === filteredShots.length - 1}
-                        title="下移"
-                      >
-                        <ArrowDown size={14} />
-                      </Button>
-                      <Button
-                        isIconOnly
-                        size="sm"
-                        variant="flat"
-                        onPress={() => {
-                          setSelectedShot(shot);
-                          setIsEditModalOpen(true);
-                        }}
-                      >
-                        <Edit2 size={14} />
-                      </Button>
-                      <Button
-                        isIconOnly
-                        size="sm"
-                        variant="flat"
-                        color="danger"
-                        onPress={() => {
-                          setSelectedShot(shot);
-                          openDeleteModal();
-                        }}
-                      >
-                        <Trash2 size={14} />
-                      </Button>
-                      {onGenerateFragment && (
-                        <Button
-                          isIconOnly
-                          size="sm"
-                          variant="flat"
-                          color="primary"
-                          onPress={() => onGenerateFragment(shot)}
-                        >
-                          <Film size={14} />
-                        </Button>
-                      )}
-                      {/* 仅在 manager 模式下显示拆分关键帧按钮 */}
-                      {viewMode === 'manager' && (
-                        <Button
-                          isIconOnly
-                          size="sm"
-                          variant="flat"
-                          color={shot.keyframes ? 'success' : 'primary'}
-                          isLoading={splittingShotId === shot.id}
-                          onPress={() =>
-                            shot.keyframes
-                              ? setIsKeyframeModalOpen(true)
-                              : handleSplitKeyframes(shot)
-                          }
-                        >
-                          <Scissors size={14} />
-                        </Button>
-                      )}
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))}
+                      </TableCell>
+                      <TableCell>
+                        <span className="font-mono text-sm">
+                          {shot.shotNumber || `${getSceneNumber(shot.sceneName)}-${shot.sequence}`}
+                        </span>
+                      </TableCell>
+                      <TableCell>
+                        <Chip variant="flat">{shot.sceneName}</Chip>
+                      </TableCell>
+                      <TableCell>
+                        <Chip color={getShotTypeColor(shot.shotType) as any}>
+                          {t.shot?.shotType?.[shot.shotType as keyof typeof t.shot.shotType] ||
+                            shot.shotType}
+                        </Chip>
+                      </TableCell>
+                      <TableCell>
+                        <span className="text-sm text-default-600">
+                          {t.shot?.cameraMovement?.[
+                            shot.cameraMovement as keyof typeof t.shot.cameraMovement
+                          ] || shot.cameraMovement}
+                        </span>
+                      </TableCell>
+                      <TableCell>
+                        <p className="text-sm line-clamp-2 max-w-xs">{shot.description}</p>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex flex-wrap gap-1">
+                          {shot.characters?.slice(0, 2).map((char, i) => (
+                            <Chip key={i} variant="bordered">
+                              {char}
+                            </Chip>
+                          ))}
+                          {shot.characters && shot.characters.length > 2 && (
+                            <Chip variant="bordered">+{shot.characters.length - 2}</Chip>
+                          )}
+                        </div>
+                      </TableCell>
+                      <TableCell>{shot.duration}秒</TableCell>
+                      <TableCell>
+                        <div className="flex gap-1">
+                          {/* 上移按钮 */}
+                          <Button
+                            isIconOnly
+                            size="sm"
+                            variant="flat"
+                            onPress={() => {
+                              setSelectedShot(shot);
+                              setMoveDirection('up');
+                              setIsMoveModalOpen(true);
+                            }}
+                            isDisabled={index === 0}
+                            title="上移"
+                          >
+                            <ArrowUp size={14} />
+                          </Button>
+                          {/* 下移按钮 */}
+                          <Button
+                            isIconOnly
+                            size="sm"
+                            variant="flat"
+                            onPress={() => {
+                              setSelectedShot(shot);
+                              setMoveDirection('down');
+                              setIsMoveModalOpen(true);
+                            }}
+                            isDisabled={index === filteredShots.length - 1}
+                            title="下移"
+                          >
+                            <ArrowDown size={14} />
+                          </Button>
+                          <Button
+                            isIconOnly
+                            size="sm"
+                            variant="flat"
+                            onPress={() => {
+                              setSelectedShot(shot);
+                              setIsEditModalOpen(true);
+                            }}
+                          >
+                            <Edit2 size={14} />
+                          </Button>
+                          <Button
+                            isIconOnly
+                            size="sm"
+                            variant="flat"
+                            color="danger"
+                            onPress={() => {
+                              setSelectedShot(shot);
+                              openDeleteModal();
+                            }}
+                          >
+                            <Trash2 size={14} />
+                          </Button>
+                          {onGenerateFragment && (
+                            <Button
+                              isIconOnly
+                              size="sm"
+                              variant="flat"
+                              color="primary"
+                              onPress={() => onGenerateFragment(shot)}
+                            >
+                              <Film size={14} />
+                            </Button>
+                          )}
+                          {/* 仅在 manager 模式下显示拆分关键帧按钮 */}
+                          {viewMode === 'manager' && (
+                            <Button
+                              isIconOnly
+                              size="sm"
+                              variant="flat"
+                              color={shot.keyframes ? 'success' : 'primary'}
+                              isLoading={splittingShotId === shot.id}
+                              onPress={() =>
+                                shot.keyframes
+                                  ? setIsKeyframeModalOpen(true)
+                                  : handleSplitKeyframes(shot)
+                              }
+                            >
+                              <Scissors size={14} />
+                            </Button>
+                          )}
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+              </div>
             </TableBody>
           </Table>
         </>

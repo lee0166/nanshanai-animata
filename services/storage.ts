@@ -50,19 +50,21 @@ export class StorageService {
   private isFsResponsive: boolean = true; // Circuit breaker flag
   private locks: Map<string, Promise<void>> = new Map();
   private cache: MultiLayerCache;
-  
+
   // 请求去重 - 防止同一文件被同时多次读取
   private pendingReads: Map<string, Promise<any>> = new Map();
-  
+
   // 检测是否在 Trae 环境中
   private isTraeEnvironment(): boolean {
-    return typeof window !== 'undefined' && 
-           (window.location.hostname === 'localhost' || 
-            window.location.hostname === '127.0.0.1' ||
-            navigator.userAgent.includes('Trae') ||
-            navigator.userAgent.includes('trae'));
+    return (
+      typeof window !== 'undefined' &&
+      (window.location.hostname === 'localhost' ||
+        window.location.hostname === '127.0.0.1' ||
+        navigator.userAgent.includes('Trae') ||
+        navigator.userAgent.includes('trae'))
+    );
   }
-  
+
   // 获取超时时间 - Trae 环境使用更长的超时
   private getTimeoutDuration(): number {
     return this.isTraeEnvironment() ? 30000 : 5000; // 30秒 vs 5秒
@@ -737,17 +739,13 @@ export class StorageService {
       console.log(`[STORAGE] getFileHandle success for ${filename}`);
       return handle;
     } catch (e) {
-      console.warn(`[STORAGE] getFileHandle failed for ${filename}:`, e);
-      // 如果文件未找到，列出目录内容帮助调试
+      // 如果是 NotFoundError，这是正常的（首次使用时文件不存在）
       if (e instanceof Error && e.name === 'NotFoundError') {
-        console.log(`[STORAGE] Listing directory contents to help debug...`);
-        try {
-          const files = await this.listFiles();
-          console.log(`[STORAGE] Directory contains ${files.length} entries:`, files.map(f => f.name));
-        } catch (listError) {
-          console.error(`[STORAGE] Failed to list directory:`, listError);
-        }
+        console.log(`[STORAGE] File ${filename} not found (this is normal for first-time use)`);
+        return null;
       }
+      // 其他错误才记录为警告
+      console.warn(`[STORAGE] getFileHandle failed for ${filename}:`, e);
       return null;
     }
   }
@@ -785,13 +783,15 @@ export class StorageService {
     for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
       try {
         console.log(`[STORAGE] Write attempt ${attempt + 1}/${MAX_RETRIES} for ${filename}`);
-        
+
         // Step 1: Get file handle
         console.log(`[STORAGE] Step 1/3: Getting file handle for ${filename}...`);
         const handleStart = performance.now();
         const handle = await this.getFileHandle(filename, true);
-        console.log(`[STORAGE] Step 1/3: Got file handle in ${(performance.now() - handleStart).toFixed(2)}ms`);
-        
+        console.log(
+          `[STORAGE] Step 1/3: Got file handle in ${(performance.now() - handleStart).toFixed(2)}ms`
+        );
+
         if (!handle) {
           throw new Error(`Failed to get file handle for ${filename}`);
         }
@@ -802,7 +802,9 @@ export class StorageService {
         const writable = await handle.createWritable();
         await writable.write(JSON.stringify(data, null, 2));
         await writable.close();
-        console.log(`[STORAGE] Step 2/3: Write completed in ${(performance.now() - writeStart).toFixed(2)}ms`);
+        console.log(
+          `[STORAGE] Step 2/3: Write completed in ${(performance.now() - writeStart).toFixed(2)}ms`
+        );
 
         const duration = performance.now() - start;
         console.log(`[STORAGE] Successfully wrote ${filename} in ${duration.toFixed(2)}ms`);
@@ -826,7 +828,9 @@ export class StorageService {
   private async readJson<T>(filename: string): Promise<T | null> {
     // 检查是否已有正在进行的相同请求
     if (this.pendingReads.has(filename)) {
-      console.log(`[STORAGE] readJson for ${filename} already in progress, reusing existing request`);
+      console.log(
+        `[STORAGE] readJson for ${filename} already in progress, reusing existing request`
+      );
       return this.pendingReads.get(filename) as Promise<T | null>;
     }
 
@@ -847,8 +851,10 @@ export class StorageService {
         console.log(`[STORAGE] Step 1/4: Getting file handle for ${filename}...`);
         const handleStart = performance.now();
         const handle = await this.getFileHandle(filename);
-        console.log(`[STORAGE] Step 1/4: Got file handle in ${(performance.now() - handleStart).toFixed(2)}ms, handle exists: ${!!handle}`);
-        
+        console.log(
+          `[STORAGE] Step 1/4: Got file handle in ${(performance.now() - handleStart).toFixed(2)}ms, handle exists: ${!!handle}`
+        );
+
         if (!handle) {
           console.log(`[STORAGE] File ${filename} not found, returning null`);
           return null;
@@ -858,19 +864,25 @@ export class StorageService {
         console.log(`[STORAGE] Step 2/4: Getting file object...`);
         const fileStart = performance.now();
         const file = await handle.getFile();
-        console.log(`[STORAGE] Step 2/4: Got file object in ${(performance.now() - fileStart).toFixed(2)}ms, size: ${file.size} bytes`);
+        console.log(
+          `[STORAGE] Step 2/4: Got file object in ${(performance.now() - fileStart).toFixed(2)}ms, size: ${file.size} bytes`
+        );
 
         // Step 3: Read file text
         console.log(`[STORAGE] Step 3/4: Reading file text...`);
         const textStart = performance.now();
         const text = await file.text();
-        console.log(`[STORAGE] Step 3/4: Read ${text.length} chars in ${(performance.now() - textStart).toFixed(2)}ms`);
+        console.log(
+          `[STORAGE] Step 3/4: Read ${text.length} chars in ${(performance.now() - textStart).toFixed(2)}ms`
+        );
 
         // Step 4: Parse JSON
         console.log(`[STORAGE] Step 4/4: Parsing JSON...`);
         const parseStart = performance.now();
         const data = JSON.parse(text) as T;
-        console.log(`[STORAGE] Step 4/4: JSON parsed in ${(performance.now() - parseStart).toFixed(2)}ms`);
+        console.log(
+          `[STORAGE] Step 4/4: JSON parsed in ${(performance.now() - parseStart).toFixed(2)}ms`
+        );
 
         const totalDuration = performance.now() - start;
         console.log(`[STORAGE] Successfully read ${filename} in ${totalDuration.toFixed(2)}ms`);

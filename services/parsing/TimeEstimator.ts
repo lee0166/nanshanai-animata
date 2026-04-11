@@ -176,15 +176,16 @@ export class TimeEstimator {
   private getDefaultStageDuration(stage: ParseStage): number {
     const defaults: Record<ParseStage, number> = {
       idle: 0,
-      metadata: 5000, // 5秒
-      characters: 15000, // 15秒
-      scenes: 15000, // 15秒
-      items: 5000, // 5秒
-      shots: 30000, // 30秒
-      refinement: 5000, // 5秒
-      budget: 2000, // 2秒
-      episode_planning: 8000, // 8秒
-      coherence_check: 5000, // 5秒
+      metadata: 5000, // 5 秒
+      characters: 15000, // 15 秒
+      scenes: 15000, // 15 秒
+      items: 5000, // 5 秒
+      shots: 30000, // 30 秒
+      refinement: 5000, // 5 秒
+      budget: 2000, // 2 秒
+      episode_planning: 5000, // 5 秒
+      episode_planning_phase2: 3000, // 3 秒
+      coherence_check: 5000, // 5 秒
       completed: 0,
       error: 0,
     };

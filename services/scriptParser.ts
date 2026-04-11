@@ -26,6 +26,7 @@ import {
   ShotLayer,
   ParseStage,
   ModelConfig,
+  EpisodeEstimate,
 } from '../types';
 import { storageService } from './storage';
 import { JSONRepair } from './parsing/JSONRepair';
@@ -54,7 +55,10 @@ import { GlobalContextExtractor, GlobalContext } from './parsing/GlobalContextEx
 import { ContextInjector, InjectionOptions } from './parsing/ContextInjector';
 import { SceneContextExtractor } from './parsing/SceneContextExtractor';
 import { DynamicBatchSizer } from './parsing/DynamicBatchSizer';
-import { DynamicTimeoutCalculator } from './parsing/DynamicTimeoutCalculator';
+import {
+  DynamicTimeoutCalculator,
+  TaskType as TimeoutTaskType,
+} from './parsing/DynamicTimeoutCalculator';
 import { CircuitBreaker } from './parsing/CircuitBreaker';
 import {
   IterativeRefinementEngine,
@@ -345,6 +349,22 @@ export interface ScriptParserConfig {
    * @default 3
    */
   defaultShotDuration?: number;
+
+  // ========== Phase 1.2 动态批次调整配置 ==========
+
+  /**
+   * 分镜批次大小（Phase 1.2）
+   * 每批次生成的分镜数量
+   * @default 15
+   */
+  shotBatchSize?: number;
+
+  /**
+   * 最大分镜批次数（Phase 1.2）
+   * 分镜生成的最大批次数量
+   * @default 8
+   */
+  maxShotBatches?: number;
 
   // ========== 连贯性检查配置 ==========
   /**
@@ -640,20 +660,20 @@ const DEFAULT_PARSER_CONFIG: ScriptParserConfig = {
    *    - 新闻播报：220-250 字/分钟
    *    - 专题节目：180-200 字/分钟
    *    - 参考：语速控制操作指南文档
-   *  
+   *
    *  - 来源 2：人耳接受度研究
    *    - 人耳对标准普通话的接受程度可达 280 字/分钟
    *    - 正常语速 240-250 字/分钟
    *    - 参考：中影人艺考播音主持学院
-   *  
+   *
    *  - 来源 3：演讲语速建议
    *    - 中文演讲通常为每分钟 180-220 字
    *    - 参考：CSDN 演讲稿字数计算
-   *  
+   *
    *  决策理由：200 字/分钟是适中值，适合大多数剧本旁白语速
    */
   narrationSpeed: 200,
-  
+
   /**
    * shotDensityShort: 5（短视频分镜密度）
    *  设计依据：短视频分镜数量最佳实践
@@ -661,20 +681,20 @@ const DEFAULT_PARSER_CONFIG: ScriptParserConfig = {
    *    - 15 秒短视频：4-6 个分镜
    *    - 30 秒短视频：8-12 个分镜
    *    - 参考：易尘短视频分镜教程
-   *  
+   *
    *  - 来源 2：AI 分镜生成实战
    *    - 1 分钟短视频不建议拆 20 个分镜（镜头停留太短）
    *    - 参考：苏醒的人生 AI 分镜教程
-   *  
+   *
    *  - 来源 3：漫剧分镜经验
    *    - 2-5 分钟漫剧：8-15 个镜头
    *    - 每个画面建议控制在 3-5 秒
    *    - 参考：LHF 漫剧制作流程
-   *  
+   *
    *  决策理由：5 个分镜/分钟适合快节奏短视频（15-30 秒）
    */
   shotDensityShort: 10,
-  
+
   /**
    * shotDensityMedium: 4（中视频分镜密度）
    *  设计依据：中视频分镜密度经验值
@@ -682,36 +702,36 @@ const DEFAULT_PARSER_CONFIG: ScriptParserConfig = {
    *    - 5 秒视频：1-2 个分镜
    *    - 10 秒视频：3-4 个分镜
    *    - 参考：即梦 3.0 精准控制分镜数量
-   *  
+   *
    *  - 来源 2：团队规模分镜颗粒度
    *    - 中型团队（5-8 人）：中颗粒度分镜
    *    - 明确每个镜头的景别与运镜方式
    *    - 参考：PingCode 拍摄脚本分镜头
-   *  
+   *
    *  决策理由：4 个分镜/分钟适合 1-3 分钟中视频
    */
   shotDensityMedium: 8,
-  
+
   /**
    * shotDensityLong: 3（长视频分镜密度）
    *  设计依据：长视频分镜密度经验值
    *  - 来源 1：长视频镜头节奏
    *    - 长视频需要更多叙事时间
    *    - 镜头停留时间较长（5-8 秒）
-   *  
+   *
    *  - 来源 2：影视行业经验
    *    - 电影/电视剧平均镜头长度 3-5 秒
    *    - 叙事性镜头可适当延长
-   *  
+   *
    *  决策理由：3 个分镜/分钟适合 3 分钟以上长视频，保证叙事完整性
    */
   shotDensityLong: 6,
-  
+
   shotDensityShortThreshold: 3000,
   shotDensityMediumThreshold: 10000,
   maxShotsShortMedium: 150,
   maxShotsLong: 500,
-  
+
   /**
    * keyShotRatio: 0.7（关键分镜比例）
    *  设计依据：影视创作经验值
@@ -720,21 +740,21 @@ const DEFAULT_PARSER_CONFIG: ScriptParserConfig = {
    *  - 经验值：70% 关键分镜 + 30% 普通分镜
    */
   keyShotRatio: 0.7,
-  
+
   sceneContextExtractLength: 500,
   standardPromptLength: 6000,
-  
+
   /**
    * defaultShotDuration: 3（默认分镜时长，秒）
    *  设计依据：短视频分镜时长标准
    *  - 来源 1：抖音/快手分镜时长
    *    - 每个画面建议控制在 3-5 秒
    *    - 参考：易尘短视频分镜教程
-   *  
+   *
    *  - 来源 2：Instagram Reels
    *    - Story 视频：3-15 秒
    *    - 参考：Sked Social Instagram 规范
-   *  
+   *
    *  决策理由：3 秒是适中值，适合大多数分镜
    */
   defaultShotDuration: 3,
@@ -2113,12 +2133,20 @@ export class ScriptParser {
 
   /**
    * 根据文本长度估算叙事时长和分镜数量
-   * 行业标准：200字/分钟，8-12个分镜/分钟（短剧标准）
+   * 行业标准：200 字/分钟，8-12 个分镜/分钟（短剧标准）
+   * @param content - 完整内容
+   * @param scenes - 场景列表
    * @param textLength - 文本长度（字符数）
+   * @param episodePlanEstimate - 分集规划估算（Phase 2 精确计算必需）
    * @returns 分镜生成配置
    * @private
    */
-  private calculateShotGeneration(textLength: number): {
+  private calculateShotGeneration(
+    content: string,
+    scenes: ScriptScene[],
+    textLength: number,
+    episodePlanEstimate?: EpisodeEstimate
+  ): {
     estimatedMinutes: number;
     targetShots: number;
     keyShots: number;
@@ -2129,19 +2157,47 @@ export class ScriptParser {
     const narrationSpeed = this.parserConfig.narrationSpeed || 200;
     const estimatedMinutes = Math.ceil(textLength / narrationSpeed);
 
-    // 分镜密度：从配置读取
-    const shotDensityShort = this.parserConfig.shotDensityShort || 5;
-    const shotDensityMedium = this.parserConfig.shotDensityMedium || 4;
-    const shotDensityLong = this.parserConfig.shotDensityLong || 3;
+    // Phase 2: 集成分集规划约束
+    let targetShots: number;
     const shotDensityShortThreshold = this.parserConfig.shotDensityShortThreshold || 3000;
     const shotDensityMediumThreshold = this.parserConfig.shotDensityMediumThreshold || 10000;
 
-    let density = shotDensityLong;
-    if (textLength < shotDensityShortThreshold) density = shotDensityShort;
-    else if (textLength < shotDensityMediumThreshold) density = shotDensityMedium;
+    if (episodePlanEstimate) {
+      // Phase 2 权重融合策略：平台标准 70% + 基础密度 30%
+      const platformStandardShots = episodePlanEstimate.totalShotsEstimate;
+
+      // 使用基础密度计算作为辅助参考
+      const shotDensityShort = this.parserConfig.shotDensityShort || 10;
+      const shotDensityMedium = this.parserConfig.shotDensityMedium || 8;
+      const shotDensityLong = this.parserConfig.shotDensityLong || 6;
+
+      let density = shotDensityLong;
+      if (textLength < shotDensityShortThreshold) density = shotDensityShort;
+      else if (textLength < shotDensityMediumThreshold) density = shotDensityMedium;
+
+      const densityBasedShots = Math.ceil(estimatedMinutes * density);
+
+      // 权重融合
+      targetShots = Math.round(platformStandardShots * 0.7 + densityBasedShots * 0.3);
+
+      console.log(
+        `[ScriptParser] Phase 2: Shot calculation with episode plan: ` +
+          `platform=${platformStandardShots} (70%) + density=${densityBasedShots} (30%) = final=${targetShots}`
+      );
+    } else {
+      // 向后兼容：仅使用基础密度
+      const shotDensityShort = this.parserConfig.shotDensityShort || 10;
+      const shotDensityMedium = this.parserConfig.shotDensityMedium || 8;
+      const shotDensityLong = this.parserConfig.shotDensityLong || 6;
+
+      let density = shotDensityLong;
+      if (textLength < shotDensityShortThreshold) density = shotDensityShort;
+      else if (textLength < shotDensityMediumThreshold) density = shotDensityMedium;
+
+      targetShots = Math.ceil(estimatedMinutes * density);
+    }
 
     // 目标分镜数（设置上限避免过多）
-    let targetShots = Math.ceil(estimatedMinutes * density);
     const maxShotsShortMedium = this.parserConfig.maxShotsShortMedium || 150;
     const maxShotsLong = this.parserConfig.maxShotsLong || 500;
     const maxShots = textLength < shotDensityMediumThreshold ? maxShotsShortMedium : maxShotsLong;
@@ -2153,7 +2209,7 @@ export class ScriptParser {
     const optionalShots = targetShots - keyShots;
 
     console.log(
-      `[ScriptParser] Shot calculation: ${textLength} chars → ${estimatedMinutes}min → ${targetShots} shots (key: ${keyShots}, optional: ${optionalShots}, density: ${density})`
+      `[ScriptParser] Final result: ${targetShots} shots (${keyShots} key + ${optionalShots} optional)`
     );
 
     return {
@@ -2161,7 +2217,7 @@ export class ScriptParser {
       targetShots,
       keyShots,
       optionalShots,
-      density,
+      density: 0, // 兼容旧接口
     };
   }
 
@@ -2284,6 +2340,25 @@ export class ScriptParser {
     const taskConfig = TASK_CONFIG[taskType];
 
     // Phase 3.2 Task 5: Use dynamic timeout calculator
+    // 根据任务类型动态更新计算器的任务类型
+    if (this.dynamicTimeoutCalculator) {
+      // 映射本地 TaskType 到 DynamicTimeoutCalculator 的 TaskType 枚举
+      const timeoutTaskType =
+        taskType === 'shots'
+          ? TimeoutTaskType.SHOTS
+          : taskType === 'metadata'
+            ? TimeoutTaskType.METADATA
+            : taskType === 'character'
+              ? TimeoutTaskType.CHARACTER
+              : taskType === 'scene'
+                ? TimeoutTaskType.SCENE
+                : taskType === 'item'
+                  ? TimeoutTaskType.ITEM
+                  : TimeoutTaskType.GENERAL;
+
+      this.dynamicTimeoutCalculator.setTaskType(timeoutTaskType);
+    }
+
     const timeout =
       retryCount === 0
         ? (this.dynamicTimeoutCalculator?.getTimeout() ?? taskConfig.timeout)
@@ -4302,8 +4377,15 @@ ${chunkContent.substring(0, 4000)}
   /**
    * Batch generate all shots with global context injection
    * This method injects visual guidance, emotional context, and era constraints into the prompt
+   * @param content - 完整内容
+   * @param scenes - 场景列表
+   * @param episodePlanEstimate - 分集规划估算（Phase 2 精确计算必需）
    */
-  async generateAllShotsWithContext(content: string, scenes: ScriptScene[]): Promise<Shot[]> {
+  async generateAllShotsWithContext(
+    content: string,
+    scenes: ScriptScene[],
+    episodePlanEstimate?: EpisodeEstimate
+  ): Promise<Shot[]> {
     if (scenes.length === 0) return [];
     if (scenes.length === 1) {
       const shots = await this.generateShotsWithContext(content, scenes[0]);
@@ -4321,8 +4403,29 @@ ${chunkContent.substring(0, 4000)}
     }
 
     console.log(
-      `[ScriptParser] ---------- Batch Generating Shots with Context for ${scenes.length} Scenes ----------`
+      `[ScriptParser] ========== Batch Generating Shots with Context for ${scenes.length} Scenes ==========`
     );
+
+    // Phase 1.2: 动态批次大小调整配置
+    interface BatchSizeConfig {
+      initial: number;
+      min: number;
+      max: number;
+      adjustThreshold: {
+        decrease: number;
+        increase: number;
+      };
+    }
+
+    const BATCH_SIZE_CONFIG: BatchSizeConfig = {
+      initial: 15,
+      min: 8,
+      max: 25,
+      adjustThreshold: {
+        decrease: 90000,
+        increase: 60000,
+      },
+    };
 
     const scenesInfo = scenes
       .map(
@@ -4346,62 +4449,175 @@ ${chunkContent.substring(0, 4000)}
       .join('\n\n');
 
     // 计算分镜生成参数（基于行业标准）
-    const shotGen = this.calculateShotGeneration(allSceneContents.length);
-    console.log(
-      `[ScriptParser] Target: ${shotGen.targetShots} shots (${shotGen.keyShots} key + ${shotGen.optionalShots} optional)`
+    const shotGen = this.calculateShotGeneration(
+      content,
+      scenes,
+      allSceneContents.length,
+      episodePlanEstimate
     );
+    const targetShots = shotGen.targetShots;
 
-    // Build base prompt
-    let prompt = PROMPTS.shotsBatch
-      .replace('{content}', allSceneContents)
-      .replace('{scenesInfo}', scenesInfo)
-      .replace('{targetShots}', String(shotGen.targetShots))
-      .replace('{keyShots}', String(shotGen.keyShots))
-      .replace('{optionalShots}', String(shotGen.optionalShots));
+    console.log(
+      `[ScriptParser] Target: ${targetShots} shots (${shotGen.keyShots} key + ${shotGen.optionalShots} optional)`
+    );
+    console.log(`[ScriptParser] Phase 1.2 Dynamic Batch Size Config:`, BATCH_SIZE_CONFIG);
 
-    // Inject global context if available
-    if (this.globalContext && this.contextInjector) {
-      console.log('[ScriptParser] Injecting global context into shots generation');
-      // For batch generation, we inject context for the first scene as a representative
-      prompt = this.contextInjector.injectForShots(prompt, this.globalContext, scenes[0]);
+    // Phase 2.1: 渐进式上下文配置
+    interface ProgressiveContextConfig {
+      batch1: number;
+      batch2to4: number;
+      batch5to8: number;
     }
 
-    console.log(`[ScriptParser] Context-enhanced prompt length: ${prompt.length} characters`);
+    const progressiveContextConfig: ProgressiveContextConfig = {
+      batch1: 2500, // 批次 1: 完整上下文（15 个分镜）
+      batch2to4: 1000, // 批次 2-4: 简化上下文（12 个分镜）
+      batch5to8: 500, // 批次 5+: 极简上下文（10 个分镜）
+    };
 
-    const response = await this.callLLM(prompt, 'shots');
-    console.log(`[ScriptParser] Batch response received, length: ${response.length} characters`);
-
-    // Parse JSON response (may be array or object with shots field)
-    const parsedData = this.extractJSON<Shot[] | { project_info?: any; shots: Shot[] }>(
-      response,
-      true
+    console.log(`[ScriptParser] Phase 2.1 Progressive Context Config:`, progressiveContextConfig);
+    console.log(
+      `[ScriptParser] Batch-Context Mapping: ` +
+        `Batch1: 15 shots + ${progressiveContextConfig.batch1} chars, ` +
+        `Batch2-4: 12 shots + ${progressiveContextConfig.batch2to4} chars, ` +
+        `Batch5+: 10 shots + ${progressiveContextConfig.batch5to8} chars`
     );
 
-    // Handle both array format and object format
-    let shots: Shot[];
-    if (Array.isArray(parsedData)) {
-      shots = parsedData;
-      console.log(`[ScriptParser] Parsed ${shots.length} shots from batch response (array format)`);
-    } else if (parsedData && typeof parsedData === 'object' && 'shots' in parsedData) {
-      shots = Array.isArray(parsedData.shots) ? parsedData.shots : [];
+    // Phase 1.2: 动态批次状态
+    const batchSize = this.parserConfig.shotBatchSize || BATCH_SIZE_CONFIG.initial;
+    const maxBatches = this.parserConfig.maxShotBatches || 8;
+    const minShotsThreshold = Math.floor(targetShots * 0.6);
+
+    let allShots: Shot[] = [];
+    let currentBatch = 0;
+    let consecutiveFailures = 0;
+    const maxConsecutiveFailures = 2;
+
+    let currentBatchSize = batchSize;
+    let lastResponseTime = 0;
+
+    while (
+      allShots.length < targetShots &&
+      currentBatch < maxBatches &&
+      consecutiveFailures < maxConsecutiveFailures
+    ) {
+      currentBatch++;
+      const remainingShots = targetShots - allShots.length;
+
+      const actualBatchSize = Math.min(currentBatchSize, remainingShots, BATCH_SIZE_CONFIG.max);
+
       console.log(
-        `[ScriptParser] Parsed ${shots.length} shots from batch response (object format with project_info)`
+        `[ScriptParser] ========== Batch ${currentBatch}: Generating ${actualBatchSize} shots (${allShots.length + 1}-${allShots.length + actualBatchSize} of ${targetShots}) ==========`
       );
-      if (parsedData.project_info) {
-        console.log('[ScriptParser] Project info extracted:', parsedData.project_info);
+
+      // Phase 2.1: 根据批次号动态选择上下文长度
+      let contextLength: number;
+      let expectedBatchSize: number;
+
+      if (currentBatch === 1) {
+        contextLength = progressiveContextConfig.batch1;
+        expectedBatchSize = 15; // 第一批：15 个分镜
+      } else if (currentBatch <= 4) {
+        contextLength = progressiveContextConfig.batch2to4;
+        expectedBatchSize = 12; // 中间批次：12 个分镜
+      } else {
+        contextLength = progressiveContextConfig.batch5to8;
+        expectedBatchSize = 10; // 后期批次：10 个分镜
       }
-    } else {
-      console.error('[ScriptParser] Unexpected response format:', parsedData);
-      throw new Error('Invalid response format: expected array or {shots: array}');
+
+      // 动态截取上下文
+      const batchSceneContents = allSceneContents.substring(0, contextLength);
+      console.log(
+        `[ScriptParser] Batch ${currentBatch}: ${actualBatchSize} shots (expected: ${expectedBatchSize}) + ${contextLength} chars context`
+      );
+
+      let batchPrompt = PROMPTS.shotsBatch
+        .replace('{content}', batchSceneContents)
+        .replace('{scenesInfo}', scenesInfo)
+        .replace('{targetShots}', String(actualBatchSize))
+        .replace('{keyShots}', String(Math.ceil(actualBatchSize * 0.7)))
+        .replace('{optionalShots}', String(Math.floor(actualBatchSize * 0.3)));
+
+      if (this.globalContext && this.contextInjector) {
+        console.log('[ScriptParser] Injecting global context into shots generation');
+        batchPrompt = this.contextInjector.injectForShots(
+          batchPrompt,
+          this.globalContext,
+          scenes[0]
+        );
+      }
+
+      console.log(
+        `[ScriptParser] Batch ${currentBatch} prompt length: ${batchPrompt.length} characters`
+      );
+
+      try {
+        const batchStartTime = Date.now();
+        const response = await this.callLLM(batchPrompt, 'shots');
+        lastResponseTime = Date.now() - batchStartTime;
+
+        console.log(
+          `[ScriptParser] Batch ${currentBatch} response received, length: ${response.length} characters, time: ${lastResponseTime}ms`
+        );
+
+        const parsedData = this.extractJSON<Shot[] | { project_info?: any; shots: Shot[] }>(
+          response,
+          true
+        );
+
+        let batchShots: Shot[];
+        if (Array.isArray(parsedData)) {
+          batchShots = parsedData;
+        } else if (parsedData && typeof parsedData === 'object' && 'shots' in parsedData) {
+          batchShots = Array.isArray(parsedData.shots) ? parsedData.shots : [];
+        } else {
+          console.error('[ScriptParser] Unexpected response format:', parsedData);
+          batchShots = [];
+        }
+
+        if (batchShots.length === 0) {
+          consecutiveFailures++;
+          console.warn(
+            `[ScriptParser] Batch ${currentBatch} returned 0 shots, consecutive failures: ${consecutiveFailures}`
+          );
+          continue;
+        }
+
+        consecutiveFailures = 0;
+        allShots = [...allShots, ...batchShots];
+
+        console.log(
+          `[ScriptParser] Batch ${currentBatch} complete: ${batchShots.length} shots generated, total: ${allShots.length}/${targetShots}, response time: ${lastResponseTime}ms`
+        );
+
+        currentBatchSize = this.adjustBatchSize(
+          currentBatchSize,
+          lastResponseTime,
+          BATCH_SIZE_CONFIG
+        );
+      } catch (error) {
+        console.error(`[ScriptParser] Batch ${currentBatch} failed:`, error);
+        consecutiveFailures++;
+        if (consecutiveFailures >= maxConsecutiveFailures) {
+          console.error(
+            `[ScriptParser] ${maxConsecutiveFailures} consecutive batch failures, aborting...`
+          );
+          break;
+        }
+      }
+    }
+
+    if (allShots.length === 0) {
+      console.error('[ScriptParser] All batches failed, returning empty array');
+      return [];
     }
 
     const defaultShotDuration = this.parserConfig.defaultShotDuration || 3;
-    const result = shots.map((shot, index) => ({
+    const result = allShots.map((shot, index) => ({
       ...shot,
       id: shot.id || crypto.randomUUID(),
       sequence: shot.sequence || index + 1,
-      duration: shot.duration ?? defaultShotDuration, // 确保每个分镜都有默认时长
-      // 确保新字段有默认值
+      duration: shot.duration ?? defaultShotDuration,
       shotNumber: shot.shotNumber || `SC${index + 1}`,
       cameraAngle: shot.cameraAngle || 'eye_level',
       assets: shot.assets || { characterIds: [], sceneId: '' },
@@ -4414,10 +4630,53 @@ ${chunkContent.substring(0, 4000)}
     const keyShots = result.filter(s => s.layer === 'key').length;
     const optionalShots = result.filter(s => s.layer === 'optional').length;
     console.log(
-      `[ScriptParser] Generated ${result.length} shots: ${keyShots} key + ${optionalShots} optional`
+      `[ScriptParser] Final result: ${result.length} shots (${keyShots} key + ${optionalShots} optional) in ${currentBatch} batches`
     );
 
     return result;
+  }
+
+  /**
+   * 调整批次大小（Phase 1.2 动态批次调整）
+   * @param currentSize - 当前批次大小
+   * @param responseTime - 响应时间（毫秒）
+   * @param config - 批次大小配置
+   * @returns 调整后的批次大小
+   */
+  private adjustBatchSize(
+    currentSize: number,
+    responseTime: number,
+    config: {
+      min: number;
+      max: number;
+      adjustThreshold: {
+        decrease: number;
+        increase: number;
+      };
+    }
+  ): number {
+    if (responseTime > config.adjustThreshold.decrease) {
+      // 响应慢：减小批次
+      const newSize = Math.max(config.min, currentSize - 3);
+      console.log(
+        `[ScriptParser] Adjusting batch size: ${currentSize} → ${newSize} ` +
+          `(response time: ${responseTime}ms > ${config.adjustThreshold.decrease}ms)`
+      );
+      return newSize;
+    }
+
+    if (responseTime < config.adjustThreshold.increase) {
+      // 响应快：增大批次
+      const newSize = Math.min(config.max, currentSize + 2);
+      console.log(
+        `[ScriptParser] Adjusting batch size: ${currentSize} → ${newSize} ` +
+          `(response time: ${responseTime}ms < ${config.adjustThreshold.increase}ms)`
+      );
+      return newSize;
+    }
+
+    // 响应正常：保持不变
+    return currentSize;
   }
 
   /**
@@ -4598,7 +4857,11 @@ ${chunkContent.substring(0, 4000)}
         onProgress?.('shots', 75, '正在批量生成分镜...');
         try {
           // V3 Optimization: Use generateAllShotsWithContext for single API call
-          const allShots = await this.generateAllShotsWithContext(content, state.scenes);
+          const allShots = await this.generateAllShotsWithContext(
+            content,
+            state.scenes,
+            state.episodePlanEstimate
+          );
           // 为分镜生成专业编号
           const shotsWithNumbers = generateShotNumbers(allShots);
           state.shots = shotsWithNumbers;
@@ -5155,7 +5418,9 @@ ${content}
 
     try {
       // Step 1: 并行提取元数据和全局上下文
-      onProgress?.('metadata', 10, '正在并行提取元数据和全局上下文...');
+      onProgress?.('metadata', 10, '正在并行提取元数据和全局上下文...', {
+        currentStageProgress: 50, // 元数据和全局上下文各占 50%
+      });
 
       const [metadata, globalContext] = await Promise.all([
         this.extractMetadata(content, { skipGlobalContext: true }),
@@ -5171,6 +5436,11 @@ ${content}
       );
       console.log(`  - Global Context: ${globalContext ? 'extracted' : 'skipped'}`);
 
+      // 更新 metadata 阶段进度为 100%
+      onProgress?.('metadata', 10, '元数据提取完成', {
+        currentStageProgress: 100,
+      });
+
       state.progress = 30;
 
       // Step 2: 并行提取角色和场景
@@ -5181,7 +5451,10 @@ ${content}
         onProgress?.(
           'characters',
           30,
-          `正在并行分析 ${characterNames.length} 个角色和 ${sceneNames.length} 个场景...`
+          `正在并行分析 ${characterNames.length} 个角色和 ${sceneNames.length} 个场景...`,
+          {
+            currentStageProgress: 0, // 刚开始
+          }
         );
 
         const [characters, scenes] = await Promise.all([
@@ -5199,6 +5472,11 @@ ${content}
         console.log(`[ScriptParser] Parallel character/scene extraction complete:`);
         console.log(`  - Characters: ${characters.length}`);
         console.log(`  - Scenes: ${scenes.length}`);
+
+        // 更新 characters 阶段进度为 100%
+        onProgress?.('characters', 30, `角色和场景分析完成`, {
+          currentStageProgress: 100,
+        });
       } else {
         state.characters = [];
         state.scenes = [];
@@ -5208,26 +5486,112 @@ ${content}
 
       // Step 2.5: Phase 1 - Lightweight item extraction (新增)
       try {
-        onProgress?.('items', 55, '正在提取道具...');
+        onProgress?.('items', 55, '正在提取道具...', {
+          currentStageProgress: 0, // 刚开始
+        });
         state.items = await this.extractItemsLightweight(content, state.characters || []);
         console.log(`[ScriptParser] Fast path optimized: Extracted ${state.items.length} items`);
+
+        // 更新 items 阶段进度为 100%
+        onProgress?.('items', 55, '道具提取完成', {
+          currentStageProgress: 100,
+        });
       } catch (e) {
         console.warn(
           '[ScriptParser] Fast path optimized: Items extraction failed, continuing without items:',
           e
         );
         state.items = [];
+        // 即使失败也标记为完成
+        onProgress?.('items', 55, '道具提取跳过', {
+          currentStageProgress: 100,
+        });
       }
 
       // Step 3: 分镜生成（串行，依赖角色和场景结果）
       if (state.scenes.length > 0) {
-        onProgress?.('shots', 70, '正在批量生成分镜...');
+        onProgress?.('shots', 70, '正在批量生成分镜...', {
+          currentStageProgress: 0, // 刚开始
+        });
         try {
-          const allShots = await this.generateAllShotsWithContext(content, state.scenes);
+          const allShots = await this.generateAllShotsWithContext(
+            content,
+            state.scenes,
+            state.episodePlanEstimate
+          );
           state.shots = allShots;
           console.log(
             `[ScriptParser] Fast path optimized: Generated ${allShots.length} shots in 1 API call`
           );
+
+          // Phase 2: 使用实际分镜数据进行精确分集规划
+          if (this.parserConfig.useDurationBudget && state.episodePlanEstimate) {
+            try {
+              const platformKey =
+                this.parserConfig.creativeIntent?.durationControl?.targetPlatform ||
+                this.parserConfig.targetPlatform ||
+                'douyin';
+
+              console.log(
+                `[ScriptParser] ========== Episode Planning Phase 2 - Using Actual Shot Data ==========`
+              );
+              console.log(
+                `[ScriptParser] Phase 2 Input: ${allShots.length} actual shots, ` +
+                  `platform: ${platformKey}`
+              );
+
+              // 使用 EpisodePlanner 进行精确计算（需要场景、平台、字数等参数）
+              const phase2Result = EpisodePlanner.calculateEpisodePlan(
+                state.scenes || [],
+                platformKey,
+                state.metadata?.wordCount || 0,
+                this.parserConfig.creativeIntent?.durationControl?.pacingPreference || 'normal',
+                allShots // 传入实际分镜数据
+              );
+
+              if (phase2Result) {
+                // 计算总分镜数
+                const totalShots = phase2Result.episodes.reduce(
+                  (sum, ep) => sum + ep.estimatedShotCount,
+                  0
+                );
+
+                // 更新 state 中的分集规划结果
+                state.episodePlanEstimate = {
+                  ...state.episodePlanEstimate,
+                  totalShotsEstimate: totalShots,
+                  episodes: phase2Result.episodes,
+                  totalDurationEstimate: phase2Result.totalDuration / 60, // 转换为分钟
+                  confidence: 0.95, // Phase 2 使用实际数据，置信度更高
+                  isPhase2: true,
+                };
+
+                console.log(
+                  `[ScriptParser] Episode Planning Phase 2 - platform: ${platformKey}, ` +
+                    `actual shots: ${allShots.length}`
+                );
+                console.log(
+                  `[ScriptParser] Phase 2 precise plan calculated: ` +
+                    `${phase2Result.episodes.length} episodes, ` +
+                    `total duration: ${phase2Result.totalDuration}s, ` +
+                    `total shots: ${totalShots}`
+                );
+
+                // 更新阶段进度
+                onProgress?.('episode_planning_phase2', 75, '分集规划完成（Phase 2 精确计算）', {
+                  currentStageProgress: 100,
+                });
+              }
+            } catch (e) {
+              console.error('[ScriptParser] Episode Planning Phase 2 failed:', e);
+              // Phase 2 失败不影响主流程，继续执行
+            }
+          }
+
+          // 更新 shots 阶段进度为 100%
+          onProgress?.('shots', 70, '分镜生成完成', {
+            currentStageProgress: 100,
+          });
         } catch (e) {
           console.error('[ScriptParser] Batch shots generation failed:', e);
           // Fallback: generate placeholder shots
@@ -5249,6 +5613,11 @@ ${content}
             });
           });
           state.shots = fallbackShots;
+
+          // 即使失败也标记为完成
+          onProgress?.('shots', 70, '分镜生成失败，使用占位符', {
+            currentStageProgress: 100,
+          });
         }
       } else {
         state.shots = [];
@@ -5297,7 +5666,9 @@ ${content}
       const wordCountForEpisode = this.countWords(content);
       state.stage = 'episode_planning';
       state.progress = 96;
-      onProgress?.('episode_planning', 96, '正在规划结构...');
+      onProgress?.('episode_planning', 96, '正在规划结构...', {
+        currentStageProgress: 0, // 刚开始
+      });
 
       try {
         console.log('[ScriptParser] Starting episode planning (fast path)...');
@@ -5331,15 +5702,26 @@ ${content}
         console.log(
           `[ScriptParser] Structure plan calculated: ${episodePlan.totalEpisodes} episodes, total duration: ${Math.round(episodePlan.totalDuration / 60)} minutes`
         );
+
+        // 更新 episode_planning 阶段进度为 100%
+        onProgress?.('episode_planning', 96, '结构规划完成', {
+          currentStageProgress: 100,
+        });
       } catch (error) {
         console.warn('[ScriptParser] Episode planning failed (fast path):', error);
         state.episodePlan = undefined;
+        // 即使失败也标记为完成
+        onProgress?.('episode_planning', 96, '结构规划跳过', {
+          currentStageProgress: 100,
+        });
       }
 
       // Step 6: Coherence Check (连贯性检查)
       state.stage = 'coherence_check';
       state.progress = 98;
-      onProgress?.('coherence_check', 98, '正在检查连贯性...');
+      onProgress?.('coherence_check', 98, '正在检查连贯性...', {
+        currentStageProgress: 0, // 刚开始
+      });
 
       try {
         console.log('[ScriptParser] Starting coherence check (fast path)...');
@@ -5370,14 +5752,25 @@ ${content}
         console.log(
           `[ScriptParser] Coherence check complete: valid=${coherenceReport.valid}, plot issues=${coherenceReport.plotCoherence.issues.length}, shot issues=${coherenceReport.shotCoherence.issues.length}`
         );
+
+        // 更新 coherence_check 阶段进度为 100%
+        onProgress?.('coherence_check', 98, '连贯性检查完成', {
+          currentStageProgress: 100,
+        });
       } catch (error) {
         console.warn('[ScriptParser] Coherence check failed (fast path):', error);
         state.coherenceReport = undefined;
+        // 即使失败也标记为完成
+        onProgress?.('coherence_check', 98, '连贯性检查跳过', {
+          currentStageProgress: 100,
+        });
       }
 
       state.stage = 'completed';
       state.progress = 100;
-      onProgress?.('completed', 100, '解析完成！');
+      onProgress?.('completed', 100, '解析完成！', {
+        currentStageProgress: 100,
+      });
 
       console.log(`[ScriptParser] ========== Short Text Parse (Optimized) Completed ==========`);
       console.log(
@@ -5672,7 +6065,11 @@ ${content}
           );
 
           try {
-            const batchShots = await this.generateAllShotsWithContext(content, batch);
+            const batchShots = await this.generateAllShotsWithContext(
+              content,
+              batch,
+              state.episodePlanEstimate
+            );
             allShots.push(...batchShots);
             console.log(`[ScriptParser] Batch ${batchNum} complete: ${batchShots.length} shots`);
 
@@ -6292,7 +6689,11 @@ ${content}
           );
 
           try {
-            const newShots = await this.generateAllShotsWithContext(content, remainingScenes);
+            const newShots = await this.generateAllShotsWithContext(
+              content,
+              remainingScenes,
+              state.episodePlanEstimate
+            );
             allShots.push(...newShots);
             console.log(`[ScriptParser] Batch generated ${newShots.length} shots in 1 API call`);
 
@@ -6362,7 +6763,11 @@ ${content}
             );
 
             try {
-              const newShots = await this.generateAllShotsWithContext(content, batch);
+              const newShots = await this.generateAllShotsWithContext(
+                content,
+                batch,
+                state.episodePlanEstimate
+              );
               allShots.push(...newShots);
               console.log(`[ScriptParser] Batch ${batchNum} complete: ${newShots.length} shots`);
 
@@ -6702,11 +7107,11 @@ ${content}
     state.checksum = checksumResult.checksum;
     state.checksumAlgorithm = checksumResult.algorithm;
     state.checksumTimestamp = checksumResult.timestamp;
-    
+
     console.log(
       `[ScriptParser] Saving state with checksum: ${checksumResult.checksum} (${checksumResult.dataSize} bytes)`
     );
-    
+
     await storageService.updateScriptParseState(scriptId, projectId, () => state);
   }
 
@@ -6718,7 +7123,7 @@ ${content}
       const script = await storageService.getScript(scriptId, projectId);
       if (script && script.parseState) {
         const state = script.parseState;
-        
+
         // Verify checksum if exists
         if (state.checksum) {
           const isValid = this.dataIntegrityChecker.verifyDataIntegrity(state);
@@ -6728,13 +7133,11 @@ ${content}
             );
             throw new Error('数据完整性验证失败，可能已损坏，请重新解析');
           }
-          console.log(
-            `[ScriptParser] Data integrity verified. Checksum: ${state.checksum}`
-          );
+          console.log(`[ScriptParser] Data integrity verified. Checksum: ${state.checksum}`);
         } else {
           console.warn('[ScriptParser] No checksum found in saved state (legacy data)');
         }
-        
+
         return state;
       }
     } catch (e) {
@@ -6804,7 +7207,8 @@ ${content}
             items: [52, 56], // Note: items is between scenes
             refinement: [55, 58],
             budget: [57, 59],
-            episode_planning: [59, 69],
+            episode_planning: [59, 64],
+            episode_planning_phase2: [64, 69],
             shots: [69, 92],
             coherence_check: [92, 97],
             completed: [97, 100],

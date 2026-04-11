@@ -5,6 +5,7 @@ import { useApp } from '../../contexts/context';
 import { useToast } from '../../contexts/ToastContext';
 import { ScenePromptBuilder } from '../../services/promptBuilder';
 import { PromptGeneratorService } from '../../services/parsing';
+import { sanitizeText, sanitizeErrorMessage } from './Shared/sanitizeUtils';
 import {
   Card,
   CardBody,
@@ -47,7 +48,7 @@ export const SceneMapping: React.FC<SceneMappingProps> = ({
   const [viewMode, setViewMode] = useState<'grid' | 'timeline'>('grid');
   const [isGenerating, setIsGenerating] = useState(false);
   const [creatingScenes, setCreatingScenes] = useState<Set<string>>(new Set());
-  
+
   // 创建 PromptGeneratorService 实例
   const promptGenerator = React.useMemo(() => new PromptGeneratorService(), []);
 
@@ -122,7 +123,8 @@ export const SceneMapping: React.FC<SceneMappingProps> = ({
 
       showToast(`场景 "${scriptScene.name}" 创建成功`, 'success');
     } catch (error: any) {
-      showToast(`创建失败: ${error.message}`, 'error');
+      const safeMessage = sanitizeErrorMessage(error.message);
+      showToast(`创建失败：${safeMessage}`, 'error');
     } finally {
       setCreatingScenes(prev => {
         const next = new Set(prev);
@@ -342,7 +344,9 @@ export const SceneMapping: React.FC<SceneMappingProps> = ({
                   {/* Scene Info */}
                   <div className="space-y-2 text-sm mb-3">
                     {scene.description && (
-                      <p className="text-default-600 line-clamp-2">{scene.description}</p>
+                      <p className="text-default-600 line-clamp-2">
+                        {sanitizeText(scene.description)}
+                      </p>
                     )}
                     {scene.environment?.architecture && (
                       <p className="text-default-500 text-xs">

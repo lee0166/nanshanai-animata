@@ -541,6 +541,7 @@ export class ProgressTracker {
       refinement: '正在优化结果...',
       budget: '正在计算时长预算...',
       episode_planning: '正在规划分集...',
+      episode_planning_phase2: '分集规划完成（Phase 2 精确计算）...',
       coherence_check: '正在检查连贯性...',
       completed: '解析完成！',
       error: '发生错误',

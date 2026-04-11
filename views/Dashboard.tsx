@@ -1,7 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { Project } from '../types';
 import { storageService } from '../services/storage';
-import { Plus, Trash2, Folder, ExternalLink, AlertTriangle, ChevronRight, PenTool } from 'lucide-react';
+import {
+  Plus,
+  Trash2,
+  Folder,
+  ExternalLink,
+  AlertTriangle,
+  ChevronRight,
+  PenTool,
+} from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../contexts/context';
 import { useToast } from '../contexts/ToastContext';
@@ -138,30 +146,30 @@ const Dashboard: React.FC = () => {
   return (
     <div className="h-full overflow-y-auto p-6 md:p-10 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-200">
       <div className="flex justify-between items-center mb-10 max-w-[1600px] mx-auto">
-          <div className="animate-fadeIn">
-            <h1 className="text-4xl md:text-5xl font-black mb-2 uppercase tracking-tighter text-primary">
-              {t.dashboard.title}
-            </h1>
-            <p className="text-slate-500 dark:text-slate-400 font-medium text-lg">
-              {t.dashboard.subtitle}
-            </p>
-          </div>
-          <div className="flex gap-3">
-            <Button
-              size="lg"
-              radius="full"
-              startContent={<Plus className="w-5 h-5" />}
-              onPress={onCreateOpen}
-              className="font-black uppercase tracking-widest text-xs shadow-xl shadow-lime-500/30 active:scale-95 hover:scale-105 hover:shadow-lime-500/50 transition-all duration-300 ease-out transform-gpu"
-              style={{
-                background: 'linear-gradient(135deg, #A3E635 0%, #84CC16 100%)',
-                color: '#000000',
-              }}
-            >
-              {t.dashboard.newProject}
-            </Button>
-          </div>
+        <div className="animate-fadeIn">
+          <h1 className="text-4xl md:text-5xl font-black mb-2 uppercase tracking-tighter text-primary">
+            {t.dashboard.title}
+          </h1>
+          <p className="text-slate-500 dark:text-slate-400 font-medium text-lg">
+            {t.dashboard.subtitle}
+          </p>
         </div>
+        <div className="flex gap-3">
+          <Button
+            size="lg"
+            radius="full"
+            startContent={<Plus className="w-5 h-5" />}
+            onPress={onCreateOpen}
+            className="font-black uppercase tracking-widest text-xs shadow-xl shadow-lime-500/30 active:scale-95 hover:scale-105 hover:shadow-lime-500/50 transition-all duration-300 ease-out transform-gpu"
+            style={{
+              background: 'linear-gradient(135deg, #A3E635 0%, #84CC16 100%)',
+              color: '#000000',
+            }}
+          >
+            {t.dashboard.newProject}
+          </Button>
+        </div>
+      </div>
 
       {loading ? (
         <div className="max-w-[1600px] mx-auto">

@@ -26,14 +26,14 @@ describe('prompt.ts - 风格提示词', () => {
     });
 
     it('每种风格应该有中英文名称', () => {
-      Object.values(DefaultStylePrompt).forEach((style) => {
+      Object.values(DefaultStylePrompt).forEach(style => {
         expect(style.nameEN).toBeTruthy();
         expect(style.nameCN).toBeTruthy();
       });
     });
 
     it('每种风格应该有提示词', () => {
-      Object.values(DefaultStylePrompt).forEach((style) => {
+      Object.values(DefaultStylePrompt).forEach(style => {
         expect(style.prompt).toBeTruthy();
         expect(typeof style.prompt).toBe('string');
         expect(style.prompt.length).toBeGreaterThan(0);
@@ -129,28 +129,14 @@ describe('prompt.ts - 角色提示词生成', () => {
 
   describe('getFacePortraitPrompt', () => {
     it('应该生成面部特写提示词', () => {
-      const prompt = getFacePortraitPrompt(
-        '金色头发',
-        '青年',
-        '男',
-        undefined,
-        '1:1',
-        'zh'
-      );
+      const prompt = getFacePortraitPrompt('金色头发', '青年', '男', undefined, '1:1', 'zh');
       expect(prompt).toBeTruthy();
       expect(typeof prompt).toBe('string');
       expect(prompt.length).toBeGreaterThan(0);
     });
 
     it('应该支持英文提示词', () => {
-      const prompt = getFacePortraitPrompt(
-        'blonde hair',
-        'young',
-        'male',
-        undefined,
-        '1:1',
-        'en'
-      );
+      const prompt = getFacePortraitPrompt('blonde hair', 'young', 'male', undefined, '1:1', 'en');
       expect(prompt).toBeTruthy();
     });
   });

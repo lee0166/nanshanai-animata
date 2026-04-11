@@ -1,9 +1,9 @@
 /**
  * TransactionManager - 事务管理器（简化版）
- * 
+ *
  * 提供解析过程中的检查点保存和回滚功能
  * 确保数据一致性和断点续传能力
- * 
+ *
  * @module services/parsing/TransactionManager
  * @version 1.0.0
  */
@@ -60,27 +60,27 @@ const DEFAULT_CONFIG: Required<TransactionManagerConfig> = {
 
 /**
  * 事务管理器类
- * 
+ *
  * 使用场景：
  * 1. 长文本解析过程中定期保存检查点
  * 2. 解析失败时回滚到最近的检查点
  * 3. 支持断点续传
- * 
+ *
  * @example
  * ```typescript
  * const txManager = new TransactionManager(scriptId, projectId);
- * 
+ *
  * // 开始事务
  * await txManager.beginTransaction();
- * 
+ *
  * // 保存检查点
  * await txManager.saveCheckpoint(state);
- * 
+ *
  * // 发生错误时回滚
  * if (error) {
  *   await txManager.rollback();
  * }
- * 
+ *
  * // 提交事务
  * await txManager.commit(finalState);
  * ```
@@ -100,37 +100,29 @@ export class TransactionManager {
    * @param projectId - 项目 ID
    * @param config - 配置选项
    */
-  constructor(
-    scriptId: string,
-    projectId: string,
-    config: TransactionManagerConfig = {}
-  ) {
+  constructor(scriptId: string, projectId: string, config: TransactionManagerConfig = {}) {
     this.scriptId = scriptId;
     this.projectId = projectId;
     this.config = { ...DEFAULT_CONFIG, ...config };
     this.transactionId = `${scriptId}-${projectId}-${Date.now()}`;
     this.transactionStartTime = Date.now();
     this.integrityChecker = dataIntegrityChecker;
-    
-    console.log(
-      `[TransactionManager] Initialized for script ${scriptId}, project ${projectId}`
-    );
+
+    console.log(`[TransactionManager] Initialized for script ${scriptId}, project ${projectId}`);
   }
 
   /**
    * 开始事务
    */
   async beginTransaction(): Promise<void> {
-    console.log(
-      `[TransactionManager] Beginning transaction ${this.transactionId}`
-    );
+    console.log(`[TransactionManager] Beginning transaction ${this.transactionId}`);
     this.transactionStartTime = Date.now();
     this.checkpoints = [];
   }
 
   /**
    * 保存检查点
-   * 
+   *
    * @param state - 当前解析状态
    * @returns 检查点 ID
    */
@@ -140,13 +132,13 @@ export class TransactionManager {
     }
 
     const checkpointId = `${this.transactionId}-checkpoint-${this.checkpoints.length + 1}`;
-    
+
     // 创建状态快照（深拷贝）
     const snapshot = JSON.parse(JSON.stringify(state));
-    
+
     // 计算快照校验和
     const checksumResult = this.integrityChecker.calculateChecksum(snapshot);
-    
+
     const checkpoint: TransactionCheckpoint = {
       checkpointId,
       scriptId: this.scriptId,
@@ -180,7 +172,7 @@ export class TransactionManager {
 
   /**
    * 回滚到最近的检查点
-   * 
+   *
    * @returns 回滚后的状态，如果无检查点则返回 null
    */
   async rollback(): Promise<ScriptParseState | null> {
@@ -223,7 +215,7 @@ export class TransactionManager {
 
     const previousCheckpoint = this.checkpoints[this.checkpoints.length - 2];
     const isValid = this.integrityChecker.verifyDataIntegrity(previousCheckpoint.snapshot);
-    
+
     if (!isValid) {
       console.error(
         `[TransactionManager] Previous checkpoint integrity check failed: ${previousCheckpoint.checkpointId}`
@@ -240,17 +232,17 @@ export class TransactionManager {
 
   /**
    * 提交事务
-   * 
+   *
    * @param finalState - 最终状态
    */
   async commit(finalState: ScriptParseState): Promise<void> {
     console.log(
       `[TransactionManager] Committing transaction ${this.transactionId} (duration: ${Date.now() - this.transactionStartTime}ms)`
     );
-    
+
     // 保存最终检查点
     await this.saveCheckpoint(finalState);
-    
+
     // 清理检查点（可选，保留一段时间用于恢复）
     // this.checkpoints = [];
   }
@@ -305,7 +297,7 @@ export class TransactionManager {
     try {
       const storageKey = `transaction-checkpoint:${scriptId}:${projectId}`;
       const checkpoint = await storageService.load<TransactionCheckpoint>(storageKey);
-      
+
       if (checkpoint) {
         console.log(
           `[TransactionManager] Restored checkpoint from storage: ${checkpoint.checkpointId}`
@@ -315,7 +307,7 @@ export class TransactionManager {
     } catch (error) {
       console.warn('[TransactionManager] Failed to restore checkpoint:', error);
     }
-    
+
     return null;
   }
 }

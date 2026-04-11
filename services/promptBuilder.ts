@@ -7,38 +7,289 @@ import { ScriptCharacter, ScriptScene, ScriptItem } from '../types';
 export class CharacterPromptBuilder {
   // 临时性物品列表 - 这些物品不应该出现在角色设定图中
   private static readonly TEMPORARY_ITEMS = [
-    '文件', '笔记本', '咖啡', '手机', '纸张', '文档', '杯子', '水杯', '笔', '文件夹',
-    '报纸', '杂志', '书本', '包', '袋', '食物', '饮料', '零食', '烟', '伞', '钥匙',
-    '钱包', '背包', '手提袋', '购物袋', '拉杆箱', '行李箱', '公文包', '电脑包', '书包',
-    '饭盒', '餐盒', '外卖', '快递', '包裹', '信封', '明信片', '贺卡', '请帖', '邀请函',
-    '购物清单', '菜单', '账单', '发票', '收据', '合同', '协议', '备忘录', '便签', '便利贴',
-    '草稿纸', '笔记本电脑', '平板电脑', '鼠标', '键盘', '显示器', '耳机', '充电器', '数据线',
-    '充电宝', '移动电源', '手表', '手环', '眼镜', '墨镜', '太阳镜', '口罩', '围巾', '帽子',
-    '手套', '餐巾纸', '纸巾', '湿巾', '卫生纸', '毛巾', '浴巾', '手帕', '卫生纸', '牙刷牙膏',
-    '剃须刀', '化妆品', '护肤品', '香水', '指甲油', '口红', '粉底', '眼影', '腮红', '睫毛膏',
-    '梳子', '镜子', '吹风机', '卷发棒', '直发器', '剃须刀', '指甲刀', '剪刀', '刀具', '叉子',
-    '勺子', '筷子', '碗', '盘子', '碟子', '杯子', '茶壶', '水壶', '水瓶', '保温杯',
-    '咖啡杯', '茶杯', '酒杯', '酒瓶', '饮料瓶', '易拉罐', '包装盒', '礼品盒', '首饰盒', '化妆盒',
-    '工具箱', '急救箱', '药箱', '垃圾桶', '扫帚', '拖把', '吸尘器', '洗衣机', '烘干机', '熨斗'
+    '文件',
+    '笔记本',
+    '咖啡',
+    '手机',
+    '纸张',
+    '文档',
+    '杯子',
+    '水杯',
+    '笔',
+    '文件夹',
+    '报纸',
+    '杂志',
+    '书本',
+    '包',
+    '袋',
+    '食物',
+    '饮料',
+    '零食',
+    '烟',
+    '伞',
+    '钥匙',
+    '钱包',
+    '背包',
+    '手提袋',
+    '购物袋',
+    '拉杆箱',
+    '行李箱',
+    '公文包',
+    '电脑包',
+    '书包',
+    '饭盒',
+    '餐盒',
+    '外卖',
+    '快递',
+    '包裹',
+    '信封',
+    '明信片',
+    '贺卡',
+    '请帖',
+    '邀请函',
+    '购物清单',
+    '菜单',
+    '账单',
+    '发票',
+    '收据',
+    '合同',
+    '协议',
+    '备忘录',
+    '便签',
+    '便利贴',
+    '草稿纸',
+    '笔记本电脑',
+    '平板电脑',
+    '鼠标',
+    '键盘',
+    '显示器',
+    '耳机',
+    '充电器',
+    '数据线',
+    '充电宝',
+    '移动电源',
+    '手表',
+    '手环',
+    '眼镜',
+    '墨镜',
+    '太阳镜',
+    '口罩',
+    '围巾',
+    '帽子',
+    '手套',
+    '餐巾纸',
+    '纸巾',
+    '湿巾',
+    '卫生纸',
+    '毛巾',
+    '浴巾',
+    '手帕',
+    '卫生纸',
+    '牙刷牙膏',
+    '剃须刀',
+    '化妆品',
+    '护肤品',
+    '香水',
+    '指甲油',
+    '口红',
+    '粉底',
+    '眼影',
+    '腮红',
+    '睫毛膏',
+    '梳子',
+    '镜子',
+    '吹风机',
+    '卷发棒',
+    '直发器',
+    '剃须刀',
+    '指甲刀',
+    '剪刀',
+    '刀具',
+    '叉子',
+    '勺子',
+    '筷子',
+    '碗',
+    '盘子',
+    '碟子',
+    '杯子',
+    '茶壶',
+    '水壶',
+    '水瓶',
+    '保温杯',
+    '咖啡杯',
+    '茶杯',
+    '酒杯',
+    '酒瓶',
+    '饮料瓶',
+    '易拉罐',
+    '包装盒',
+    '礼品盒',
+    '首饰盒',
+    '化妆盒',
+    '工具箱',
+    '急救箱',
+    '药箱',
+    '垃圾桶',
+    '扫帚',
+    '拖把',
+    '吸尘器',
+    '洗衣机',
+    '烘干机',
+    '熨斗',
   ];
 
   // 标志性物品关键词 - 包含这些词的物品不应被过滤
   private static readonly SIGNATURE_ITEM_KEYWORDS = [
-    '祖传', '家传', '传世', '传家', '随身', '专属', '专用', '定制', '特制', '专属',
-    '标志性', '象征', '代表', '信物', '定情', '纪念', '珍藏', '收藏', '心爱', '珍爱',
-    '宝贝', '宝物', '神器', '法宝', '法器', '圣器', '神器', '魔器', '灵器', '仙器',
-    '神剑', '魔剑', '仙剑', '宝刀', '宝剑', '名剑', '名刀', '宝弓', '神弓', '魔弓',
-    '玉佩', '玉坠', '玉镯', '玉戒指', '玉簪', '玉钗', '玉冠', '玉带', '玉印', '玉玺',
-    '佩剑', '佩刀', '佩枪', '护身符', '平安符', '灵符', '神符', '魔符', '仙符', '符箓',
-    '卷轴', '秘籍', '宝典', '经书', '道书', '佛书', '仙书', '魔书', '神书', '天书',
-    '戒指', '项链', '手镯', '脚链', '耳环', '耳钉', '胸针', '领针', '袖扣', '腰带',
-    '腰牌', '令牌', '虎符', '兵符', '印信', '印章', '图章', '玉玺', '官印', '私印',
-    '王冠', '皇冠', '凤冠', '头冠', '桂冠', '花环', '发冠', '发髻', '头饰', '发饰',
-    '披风', '斗篷', '披肩', '面纱', '面罩', '面具', '头盔', '铠甲', '战甲', '盔甲',
-    '盾牌', '护盾', '护符', '护甲', '护腕', '护膝', '护肘', '护肩', '护胸', '护腿',
-    '战靴', '神靴', '仙靴', '魔靴', '宝靴', '灵靴', '圣靴', '邪靴', '鬼靴', '妖靴',
-    '法袍', '道袍', '僧袍', '袈裟', '法衣', '仙衣', '神衣', '魔衣', '妖衣', '鬼衣',
-    '宝衣', '圣衣', '邪衣', '灵衣', '魂衣', '魄衣', '血衣', '尸衣', '骨衣', '皮衣'
+    '祖传',
+    '家传',
+    '传世',
+    '传家',
+    '随身',
+    '专属',
+    '专用',
+    '定制',
+    '特制',
+    '专属',
+    '标志性',
+    '象征',
+    '代表',
+    '信物',
+    '定情',
+    '纪念',
+    '珍藏',
+    '收藏',
+    '心爱',
+    '珍爱',
+    '宝贝',
+    '宝物',
+    '神器',
+    '法宝',
+    '法器',
+    '圣器',
+    '神器',
+    '魔器',
+    '灵器',
+    '仙器',
+    '神剑',
+    '魔剑',
+    '仙剑',
+    '宝刀',
+    '宝剑',
+    '名剑',
+    '名刀',
+    '宝弓',
+    '神弓',
+    '魔弓',
+    '玉佩',
+    '玉坠',
+    '玉镯',
+    '玉戒指',
+    '玉簪',
+    '玉钗',
+    '玉冠',
+    '玉带',
+    '玉印',
+    '玉玺',
+    '佩剑',
+    '佩刀',
+    '佩枪',
+    '护身符',
+    '平安符',
+    '灵符',
+    '神符',
+    '魔符',
+    '仙符',
+    '符箓',
+    '卷轴',
+    '秘籍',
+    '宝典',
+    '经书',
+    '道书',
+    '佛书',
+    '仙书',
+    '魔书',
+    '神书',
+    '天书',
+    '戒指',
+    '项链',
+    '手镯',
+    '脚链',
+    '耳环',
+    '耳钉',
+    '胸针',
+    '领针',
+    '袖扣',
+    '腰带',
+    '腰牌',
+    '令牌',
+    '虎符',
+    '兵符',
+    '印信',
+    '印章',
+    '图章',
+    '玉玺',
+    '官印',
+    '私印',
+    '王冠',
+    '皇冠',
+    '凤冠',
+    '头冠',
+    '桂冠',
+    '花环',
+    '发冠',
+    '发髻',
+    '头饰',
+    '发饰',
+    '披风',
+    '斗篷',
+    '披肩',
+    '面纱',
+    '面罩',
+    '面具',
+    '头盔',
+    '铠甲',
+    '战甲',
+    '盔甲',
+    '盾牌',
+    '护盾',
+    '护符',
+    '护甲',
+    '护腕',
+    '护膝',
+    '护肘',
+    '护肩',
+    '护胸',
+    '护腿',
+    '战靴',
+    '神靴',
+    '仙靴',
+    '魔靴',
+    '宝靴',
+    '灵靴',
+    '圣靴',
+    '邪靴',
+    '鬼靴',
+    '妖靴',
+    '法袍',
+    '道袍',
+    '僧袍',
+    '袈裟',
+    '法衣',
+    '仙衣',
+    '神衣',
+    '魔衣',
+    '妖衣',
+    '鬼衣',
+    '宝衣',
+    '圣衣',
+    '邪衣',
+    '灵衣',
+    '魂衣',
+    '魄衣',
+    '血衣',
+    '尸衣',
+    '骨衣',
+    '皮衣',
   ];
 
   // 脚部关键词 - 用于检测是否已有脚部描述
@@ -96,17 +347,15 @@ export class CharacterPromptBuilder {
 
     return items.filter(item => {
       const itemLower = item.toLowerCase();
-      
+
       // 检查是否是标志性物品（包含标志性关键词则保留）
-      const isSignatureItem = this.SIGNATURE_ITEM_KEYWORDS.some(keyword => 
+      const isSignatureItem = this.SIGNATURE_ITEM_KEYWORDS.some(keyword =>
         itemLower.includes(keyword.toLowerCase())
       );
       if (isSignatureItem) return true;
-      
+
       // 检查是否是临时物品（不包含标志性关键词则过滤）
-      const isTemporary = this.TEMPORARY_ITEMS.some(temp => 
-        itemLower.includes(temp.toLowerCase())
-      );
+      const isTemporary = this.TEMPORARY_ITEMS.some(temp => itemLower.includes(temp.toLowerCase()));
       return !isTemporary;
     });
   }
@@ -127,86 +376,123 @@ export class CharacterPromptBuilder {
     const clothingLower = clothing.toLowerCase();
 
     // ========== 古装细粒度区分 ==========
-    
+
     // 仙侠/修仙
     if (clothingLower.includes('仙侠') || clothingLower.includes('修仙')) {
       return '脚穿白色云纹布靴，靴面有精致刺绣，质感轻盈飘逸';
     }
-    
+
     // 宫廷/贵妃/公主
-    if (clothingLower.includes('宫廷') || clothingLower.includes('贵妃') || 
-        clothingLower.includes('公主') || clothingLower.includes('皇后')) {
+    if (
+      clothingLower.includes('宫廷') ||
+      clothingLower.includes('贵妃') ||
+      clothingLower.includes('公主') ||
+      clothingLower.includes('皇后')
+    ) {
       return '脚穿绣花凤履，鞋面绣有凤凰纹样，缀有珍珠装饰，华丽典雅';
     }
-    
+
     // 武侠/江湖/侠客
-    if (clothingLower.includes('武侠') || clothingLower.includes('江湖') || 
-        clothingLower.includes('侠客') || clothingLower.includes('武士')) {
+    if (
+      clothingLower.includes('武侠') ||
+      clothingLower.includes('江湖') ||
+      clothingLower.includes('侠客') ||
+      clothingLower.includes('武士')
+    ) {
       return '脚穿黑色快靴，靴筒较高，便于行动，皮质哑光，坚固耐穿';
     }
-    
+
     // 唐代风格
-    if (clothingLower.includes('唐') || clothingLower.includes('齐胸') || 
-        clothingLower.includes('襦裙')) {
+    if (
+      clothingLower.includes('唐') ||
+      clothingLower.includes('齐胸') ||
+      clothingLower.includes('襦裙')
+    ) {
       return '脚穿唐朝云头履，鞋头高耸，鞋面有精美纹样，色彩艳丽';
     }
-    
+
     // 宋代风格
     if (clothingLower.includes('宋') || clothingLower.includes('褙子')) {
       return '脚穿宋朝圆头履，鞋头圆润，鞋面素雅，端庄大方';
     }
-    
+
     // 明代风格
     if (clothingLower.includes('明') || clothingLower.includes('马面')) {
       return '脚穿明朝弓鞋，鞋尖上翘，鞋帮有刺绣，精致典雅';
     }
-    
+
     // 清代风格
-    if (clothingLower.includes('清') || clothingLower.includes('旗装') || 
-        clothingLower.includes('花盆')) {
+    if (
+      clothingLower.includes('清') ||
+      clothingLower.includes('旗装') ||
+      clothingLower.includes('花盆')
+    ) {
       return '脚穿清代花盆底鞋，鞋底较高，鞋面绣花，独具特色';
     }
-    
+
     // 一般古风/汉服
-    if (clothingLower.includes('古') || clothingLower.includes('汉') || 
-        clothingLower.includes('古风') || clothingLower.includes('汉服')) {
+    if (
+      clothingLower.includes('古') ||
+      clothingLower.includes('汉') ||
+      clothingLower.includes('古风') ||
+      clothingLower.includes('汉服')
+    ) {
       return '脚穿传统布鞋，鞋面素雅，鞋底平整，舒适大方';
     }
 
     // ========== 现代装细粒度区分 ==========
-    
+
     // 职业装/OL/西装套裙
-    if (clothingLower.includes('职业装') || clothingLower.includes('ol') || 
-        clothingLower.includes('西装套裙') || clothingLower.includes('商务套裙')) {
+    if (
+      clothingLower.includes('职业装') ||
+      clothingLower.includes('ol') ||
+      clothingLower.includes('西装套裙') ||
+      clothingLower.includes('商务套裙')
+    ) {
       return '脚穿黑色细跟高跟鞋，鞋跟精致，鞋面光滑，尽显职业风范';
     }
-    
+
     // 西装/正装/商务
-    if (clothingLower.includes('西装') || clothingLower.includes('正装') || 
-        clothingLower.includes('商务')) {
+    if (
+      clothingLower.includes('西装') ||
+      clothingLower.includes('正装') ||
+      clothingLower.includes('商务')
+    ) {
       return '脚穿黑色皮鞋，皮质细腻，鞋型挺括，正式典雅';
     }
-    
+
     // 运动装/运动休闲
-    if (clothingLower.includes('运动') || clothingLower.includes('健身') || 
-        clothingLower.includes('瑜伽') || clothingLower.includes('跑步')) {
+    if (
+      clothingLower.includes('运动') ||
+      clothingLower.includes('健身') ||
+      clothingLower.includes('瑜伽') ||
+      clothingLower.includes('跑步')
+    ) {
       return '脚穿白色运动鞋，鞋面透气，鞋底厚实，细节清晰，充满活力';
     }
-    
+
     // 休闲装（非运动）
     if (clothingLower.includes('休闲') && !clothingLower.includes('运动')) {
       return '脚穿休闲皮鞋，皮质柔软，款式简约，舒适百搭';
     }
-    
+
     // 学生装/校服
-    if (clothingLower.includes('校') || clothingLower.includes('学生') || 
-        clothingLower.includes('校服') || clothingLower.includes('jk')) {
+    if (
+      clothingLower.includes('校') ||
+      clothingLower.includes('学生') ||
+      clothingLower.includes('校服') ||
+      clothingLower.includes('jk')
+    ) {
       return '脚穿学生鞋，款式简洁，青春活力，适合校园场景';
     }
-    
+
     // 礼服/婚纱/晚宴
-    if (clothingLower.includes('礼服') || clothingLower.includes('婚纱') || 
-        clothingLower.includes('晚宴') || clothingLower.includes('舞会')) {
+    if (
+      clothingLower.includes('礼服') ||
+      clothingLower.includes('婚纱') ||
+      clothingLower.includes('晚宴') ||
+      clothingLower.includes('舞会')
+    ) {
       return '脚穿细跟水晶鞋，鞋面有水钻装饰，光泽亮丽，高贵优雅';
     }
 

@@ -187,13 +187,18 @@ export class EpisodePlanner {
       let episodeDuration = 0;
 
       // 检查是否需要单独安排高潮集
-      if (climaxStartIndex >= 0 && 
-          currentSceneIndex <= climaxStartIndex && 
-          currentSceneIndex + Math.ceil(scenes.length / totalEpisodes) > climaxStartIndex) {
-        
+      if (
+        climaxStartIndex >= 0 &&
+        currentSceneIndex <= climaxStartIndex &&
+        currentSceneIndex + Math.ceil(scenes.length / totalEpisodes) > climaxStartIndex
+      ) {
         // 单独安排高潮集
         episodeScenes = scenes.slice(climaxStartIndex, climaxEndIndex + 1);
-        episodeDuration = episodeScenes.reduce((sum, s) => sum + (sceneDurations[s.name] || recommendedEpisodeDuration / episodeScenes.length), 0);
+        episodeDuration = episodeScenes.reduce(
+          (sum, s) =>
+            sum + (sceneDurations[s.name] || recommendedEpisodeDuration / episodeScenes.length),
+          0
+        );
         currentSceneIndex = climaxEndIndex + 1;
         isClimaxEpisode = true;
       } else {
@@ -202,24 +207,27 @@ export class EpisodePlanner {
         // 调整目标时长以确保能分配完所有场景
         const remainingEpisodes = totalEpisodes - episodeNumber + 1;
         const remainingScenes = scenes.slice(currentSceneIndex);
-        const remainingDuration = remainingScenes.reduce((sum, s) => sum + (sceneDurations[s.name] || recommendedEpisodeDuration / totalEpisodes), 0);
+        const remainingDuration = remainingScenes.reduce(
+          (sum, s) => sum + (sceneDurations[s.name] || recommendedEpisodeDuration / totalEpisodes),
+          0
+        );
         if (remainingEpisodes > 1) {
           targetDuration = remainingDuration / remainingEpisodes;
         }
 
         for (let i = currentSceneIndex; i < scenes.length; i++) {
           const scene = scenes[i];
-          const sceneDuration = sceneDurations[scene.name] || recommendedEpisodeDuration / Math.max(totalEpisodes, 1);
-          
+          const sceneDuration =
+            sceneDurations[scene.name] || recommendedEpisodeDuration / Math.max(totalEpisodes, 1);
+
           // 如果加入当前场景会超时太多，停止
-          if (episodeDuration > 0 && 
-              episodeDuration + sceneDuration > targetDuration * 1.3) {
+          if (episodeDuration > 0 && episodeDuration + sceneDuration > targetDuration * 1.3) {
             break;
           }
-          
+
           episodeScenes.push(scene);
           episodeDuration += sceneDuration;
-          
+
           // 检查是否包含高潮场景
           if (climaxSceneNames.includes(scene.name)) {
             isClimaxEpisode = true;
@@ -247,12 +255,9 @@ export class EpisodePlanner {
         estimatedDuration: Math.max(episodeDuration, 30),
         estimatedShotCount: Math.max(episodeShotCount, recommendedShotCount),
         summary: '',
-        isClimax: isClimaxEpisode || this.isClimaxEpisode(
-          episodeNumber - 1, 
-          totalEpisodes, 
-          plotStructure, 
-          episodeScenes
-        ),
+        isClimax:
+          isClimaxEpisode ||
+          this.isClimaxEpisode(episodeNumber - 1, totalEpisodes, plotStructure, episodeScenes),
       });
 
       episodeNumber++;
@@ -374,7 +379,11 @@ export class EpisodePlanner {
   /**
    * 创建备用方案（当平台标准不存在时）
    */
-  private static createFallbackPlan(scenes: ScriptScene[], wordCount: number, shots: Shot[] = []): EpisodePlan {
+  private static createFallbackPlan(
+    scenes: ScriptScene[],
+    wordCount: number,
+    shots: Shot[] = []
+  ): EpisodePlan {
     const totalEpisodes = Math.max(3, Math.ceil(wordCount / 5000));
     const episodes: EpisodeInfo[] = [];
     const scenesPerEpisode = Math.ceil(scenes.length / totalEpisodes);
@@ -390,9 +399,12 @@ export class EpisodePlanner {
       const startIndex = i * scenesPerEpisode;
       const endIndex = Math.min((i + 1) * scenesPerEpisode, scenes.length);
       const episodeScenes = scenes.slice(startIndex, endIndex);
-      
+
       // 计算本集的实际时长和分镜数
-      const episodeDuration = episodeScenes.reduce((sum, s) => sum + (sceneDurations[s.name] || 120 / totalEpisodes), 0);
+      const episodeDuration = episodeScenes.reduce(
+        (sum, s) => sum + (sceneDurations[s.name] || 120 / totalEpisodes),
+        0
+      );
       const episodeShotCount = episodeScenes.reduce((sum, scene) => {
         return sum + shots.filter(shot => shot.sceneName === scene.name).length;
       }, 0);

@@ -203,6 +203,14 @@ export class DynamicTimeoutCalculator {
    * @returns 动态安全系数
    */
   private calculateDynamicSafetyFactor(avgTime: number): number {
+    // Phase 1.1: 分镜生成任务使用更高的安全系数
+    if (this.config.taskType === TaskType.SHOTS) {
+      if (avgTime < 60000) return 3.0; // <1 分钟：3.0 倍
+      if (avgTime < 120000) return 2.5; // 1-2 分钟：2.5 倍
+      return 2.3; // >2 分钟：2.3 倍
+    }
+
+    // 其他任务使用原有逻辑
     // 如果响应时间较长（>60 秒），降低安全系数到 1.5
     // 否则使用基础安全系数 2.0
     if (avgTime > this.config.longResponseThreshold) {

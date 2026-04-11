@@ -37,7 +37,7 @@ describe('PromptGeneratorService', () => {
         relationships: [],
         visualPrompt: '',
       };
-      
+
       const prompt = service.generateCharacterPrompt(character);
       expect(prompt).toBeTruthy();
       expect(prompt.length).toBeGreaterThan(0);
@@ -54,7 +54,7 @@ describe('PromptGeneratorService', () => {
         relationships: [],
         visualPrompt: '',
       };
-      
+
       const prompt = service.generateCharacterPrompt(character, 'movie');
       expect(prompt).toBeTruthy();
     });
@@ -70,7 +70,7 @@ describe('PromptGeneratorService', () => {
         relationships: [],
         visualPrompt: '',
       };
-      
+
       const prompt = service.generateCharacterPrompt(character);
       expect(prompt).toContain('8k');
       expect(prompt).toContain('masterpiece');
@@ -87,7 +87,7 @@ describe('PromptGeneratorService', () => {
         relationships: [],
         visualPrompt: '',
       };
-      
+
       const prompt = service.generateCharacterPrompt(character);
       expect(prompt).not.toContain('8k');
     });
@@ -105,7 +105,7 @@ describe('PromptGeneratorService', () => {
         environment: {},
         visualPrompt: '',
       };
-      
+
       const prompt = service.generateScenePrompt(scene);
       expect(prompt).toBeTruthy();
       expect(prompt.length).toBeGreaterThan(0);
@@ -122,7 +122,7 @@ describe('PromptGeneratorService', () => {
         cameraMovement: 'static',
         cameraAngle: 'eye_level',
       };
-      
+
       const prompt = service.generateShotPrompt(shot);
       expect(prompt).toBeTruthy();
       expect(prompt.length).toBeGreaterThan(0);
@@ -135,7 +135,7 @@ describe('PromptGeneratorService', () => {
         description: '测试分镜',
         shotType: 'extreme_close_up',
       };
-      
+
       const prompt = service.generateShotPrompt(shot);
       expect(prompt).toContain('特写');
     });
@@ -147,7 +147,7 @@ describe('PromptGeneratorService', () => {
         description: '测试分镜',
         cameraMovement: 'push',
       };
-      
+
       const prompt = service.generateShotPrompt(shot);
       expect(prompt).toContain('推镜头');
     });
@@ -159,7 +159,7 @@ describe('PromptGeneratorService', () => {
         description: '测试分镜',
         cameraAngle: 'high_angle',
       };
-      
+
       const prompt = service.generateShotPrompt(shot);
       expect(prompt).toContain('俯拍');
     });

@@ -76,7 +76,10 @@ const JobMonitor: React.FC = () => {
     });
 
     // 使用固定的、更宽松的轮询间隔
-    const intervalMs = Math.max(5000, Number.isFinite(settings.pollingInterval) ? settings.pollingInterval : 5000);
+    const intervalMs = Math.max(
+      5000,
+      Number.isFinite(settings.pollingInterval) ? settings.pollingInterval : 5000
+    );
     console.log(`[JobMonitor] Setting poll interval to ${intervalMs}ms`);
     const interval = setInterval(load, intervalMs);
 

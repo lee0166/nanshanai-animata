@@ -11,6 +11,7 @@ import {
   getScoreText,
   type PromptQualityFeedback,
 } from '../../services/promptQualityEvaluator';
+import { sanitizeText, sanitizeErrorMessage } from './Shared/sanitizeUtils';
 import {
   Card,
   CardBody,
@@ -55,7 +56,7 @@ export const CharacterMapping: React.FC<CharacterMappingProps> = ({
   const [isGenerating, setIsGenerating] = useState(false);
   const [creatingCharacters, setCreatingCharacters] = useState<Set<string>>(new Set());
   const [promptQuality, setPromptQuality] = useState<PromptQualityFeedback | null>(null);
-  
+
   // 创建 PromptGeneratorService 实例
   const promptGenerator = React.useMemo(() => new PromptGeneratorService(), []);
 
@@ -169,7 +170,8 @@ export const CharacterMapping: React.FC<CharacterMappingProps> = ({
 
       showToast(`角色 "${scriptChar.name}" 创建成功`, 'success');
     } catch (error: any) {
-      showToast(`创建失败: ${error.message}`, 'error');
+      const safeMessage = sanitizeErrorMessage(error.message);
+      showToast(`创建失败：${safeMessage}`, 'error');
     } finally {
       setCreatingCharacters(prev => {
         const next = new Set(prev);
@@ -433,13 +435,13 @@ export const CharacterMapping: React.FC<CharacterMappingProps> = ({
                   {char.description && (
                     <p className="text-default-600 leading-relaxed">
                       <span className="font-medium">描述：</span>
-                      {char.description}
+                      {sanitizeText(char.description)}
                     </p>
                   )}
                   {char.identity && (
                     <p className="text-default-600">
                       <span className="font-medium">身份：</span>
-                      {char.identity}
+                      {sanitizeText(char.identity)}
                     </p>
                   )}
                   {char.personality?.length > 0 && (
@@ -526,8 +528,26 @@ export const CharacterMapping: React.FC<CharacterMappingProps> = ({
                   <Input
                     label="年龄"
                     value={selectedCharacter.age || ''}
-                    onChange={e =>
-                      updateSelectedCharacterAndEvaluate({ age: e.target.value })
+                    onChange={e => {
+                      const value = e.target.value.trim();
+                      const isValidAge =
+                        /^\d*$/.test(value) || /^[零一二三四五六七八九十百千万亿]*$/.test(value);
+                      if (value && !isValidAge) {
+                        showToast('年龄必须是数字或中文数字', 'warning');
+                        return;
+                      }
+                      updateSelectedCharacterAndEvaluate({ age: value });
+                    }}
+                    description="如：18、十八、25"
+                    errorMessage={
+                      selectedCharacter.age &&
+                      !/^\d*$|^[零一二三四五六七八九十百千万亿]*$/.test(selectedCharacter.age)
+                        ? '无效的年龄格式'
+                        : undefined
+                    }
+                    isInvalid={
+                      !!selectedCharacter.age &&
+                      !/^\d*$|^[零一二三四五六七八九十百千万亿]*$/.test(selectedCharacter.age)
                     }
                   />
                   <Select
@@ -552,9 +572,7 @@ export const CharacterMapping: React.FC<CharacterMappingProps> = ({
                   <Input
                     label="身份"
                     value={selectedCharacter.identity || ''}
-                    onChange={e =>
-                      updateSelectedCharacterAndEvaluate({ identity: e.target.value })
-                    }
+                    onChange={e => updateSelectedCharacterAndEvaluate({ identity: e.target.value })}
                   />
                 </div>
 
@@ -598,8 +616,12 @@ export const CharacterMapping: React.FC<CharacterMappingProps> = ({
                     <CardBody className="p-4">
                       <div className="flex items-center justify-between mb-3">
                         <h5 className="font-medium text-sm">提示词质量评估</h5>
-                        <Chip color={getScoreColor(promptQuality.overallScore) as any} variant="flat">
-                          {getScoreText(promptQuality.overallScore)} · {promptQuality.overallScore} 分
+                        <Chip
+                          color={getScoreColor(promptQuality.overallScore) as any}
+                          variant="flat"
+                        >
+                          {getScoreText(promptQuality.overallScore)} · {promptQuality.overallScore}{' '}
+                          分
                         </Chip>
                       </div>
 
@@ -675,7 +697,10 @@ export const CharacterMapping: React.FC<CharacterMappingProps> = ({
                           <div className="text-xs text-default-400 mb-1">优化建议</div>
                           <div className="space-y-1">
                             {promptQuality.suggestions.map((suggestion, idx) => (
-                              <div key={idx} className="flex items-start gap-2 text-xs text-default-500">
+                              <div
+                                key={idx}
+                                className="flex items-start gap-2 text-xs text-default-500"
+                              >
                                 <span className="text-warning">•</span>
                                 <span>{suggestion}</span>
                               </div>

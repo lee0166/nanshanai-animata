@@ -337,6 +337,7 @@ export type ParseStage =
   | 'refinement'
   | 'budget'
   | 'episode_planning'
+  | 'episode_planning_phase2'
   | 'items'
   | 'shots'
   | 'coherence_check'
@@ -399,8 +400,9 @@ export interface ScriptParseState {
   refinementResult?: any; // Iterative refinement result
   durationBudget?: any; // Duration budget from BudgetPlanner
   episodePlan?: EpisodePlan; // Episode plan from EpisodePlanner
+  episodePlanEstimate?: EpisodeEstimate; // Episode estimate (Phase 1 + Phase 2)
   coherenceReport?: CoherenceReport; // Coherence report from CoherenceChecker
-  
+
   // 数据完整性校验和（P0-005 事务机制）
   checksum?: string; // CRC32 校验和
   checksumAlgorithm?: 'crc32' | 'simple-hash'; // 算法类型
@@ -488,6 +490,28 @@ export interface PlatformEpisodeStandard {
     /** 前N秒人物必须出场 */
     characterWithinSeconds: number;
   };
+}
+
+/**
+ * 分集估算（Phase 1 估算 + Phase 2 精确计算）
+ */
+export interface EpisodeEstimate {
+  /** 估算 ID */
+  id: string;
+  /** 平台类型 */
+  platform: 'douyin' | 'kuaishou' | 'bilibili' | 'premium';
+  /** 预估总集数 */
+  totalEpisodesEstimate: number;
+  /** 预估总分镜数（Phase 1 基于平台标准） */
+  totalShotsEstimate: number;
+  /** 预估总时长（分钟） */
+  totalDurationEstimate: number;
+  /** 分集方案（Phase 1 估算结果） */
+  episodes?: EpisodeInfo[];
+  /** 置信度 (0-1) */
+  confidence: number;
+  /** 是否为 Phase 2 精确计算结果 */
+  isPhase2?: boolean;
 }
 
 /**

@@ -33,59 +33,59 @@ export interface StrategySelectorConfig {
 
 /**
  * 策略选择器默认配置
- * 
+ *
  * 设计依据与调研来源：
- * 
+ *
  * 1. optimizedPathThreshold: 3000（优化路径阈值）
  *    - 低于3000字使用优化路径（并行解析）
  *    - 预计可以减少30-40%的解析时间
- * 
+ *
  * 2. chunkedPathThreshold: 5000（长文本分块阈值）
  *    - 来源 1：中文网络小说章节长度统计
  *      - 起点中文网：大部分网络小说一章字数在 3000-8000 字之间，5000 字左右是常见值
  *      - 参考：https://m.qidian.com/ask/qqboszfvxycnj
  *      - 选择 5000 字作为 chunked 路径触发点，覆盖中长篇小说章节
- *    
+ *
  *    - 来源 2：晋江文学城 VIP 章节要求
  *      - 签约作者 VIP 章节要求不少于 167 字，单章节字数控制在 3 万字以内
  *      - 参考：https://m.weibo.cn/detail/5274545457204849
  *      - 实际创作中 3000-5000 字是常见分章长度
- *    
+ *
  *    - 来源 3：作家创作建议
  *      - 2000-5000 字之间较为合适，2500 字左右是理想值
  *      - 超过 4000 字可能让读者产生阅读疲劳
  *      - 参考：https://write.qq.com/ask/qtuyclw
- *    
+ *
  *    决策理由：5000 字平衡了性能和准确性，低于此值使用标准路径（单次处理），
  *    高于此值使用分块路径（避免 Token 超限）
- * 
+ *
  * 3. standardBatchSize: 5（标准路径批量大小）
  *    - 来源 1：LLM 批量处理最佳实践
  *      - Azure OpenAI Batch API 推荐批量处理大规模任务
  *      - 参考：https://learn.microsoft.com/en-us/azure/ai-foundry/openai/how-to/batch
- *    
+ *
  *    - 来源 2：LangChain 文档处理批量化
  *      - LangChain 文档处理推荐 batch_size: 50，workers: 4
  *      - 参考：https://blog.csdn.net/qq_28540861/article/details/149161461
- *    
+ *
  *    - 来源 3：GPU 训练批量大小建议
  *      - 从较小批量开始（8-32），逐步增加
  *      - 参考：https://massedcompute.com/faq-answers/?question=What+is+the+optimal+batch+size+for+training+a+large+language+model+on+a+GPU%3F
- *    
+ *
  *    决策理由：5 是性能和内存的平衡点，适合大多数剧本解析场景
- * 
+ *
  * 4. chunkedBatchSize: 3（分块路径批量大小）
  *    - 来源 1：LangChain 文本分块最佳实践
  *      - chunk_size 推荐 1000-1200，num_lines 推荐 50-80
  *      - 参考：https://qiita.com/maskot1977/items/f48fdb63d4480dbcc17f
- *    
+ *
  *    - 来源 2：LangChain 并行化处理
  *      - Map-reduce 策略中，子文档通常并行处理 2-4 个
  *      - 参考：https://www.langchain.com.cn/docs/how_to/summarize_map_reduce/
- *    
+ *
  *    - 来源 3：长文本分块处理经验值
  *      - 避免块间信息割裂，推荐 2-4 块并行
- *    
+ *
  *    决策理由：3 是保守值，防止长文本处理时信息割裂，同时保持合理并发
  */
 export const DEFAULT_STRATEGY_CONFIG: StrategySelectorConfig = {
@@ -94,19 +94,19 @@ export const DEFAULT_STRATEGY_CONFIG: StrategySelectorConfig = {
    * 低于此值使用优化路径（并行解析，可减少30-40%解析时间）
    */
   optimizedPathThreshold: 3000,
-  
+
   /**
    * Chunked path threshold (words)
    * 基于中文网络小说章节长度统计（起点/晋江 3000-8000 字常见）
    */
   chunkedPathThreshold: 5000,
-  
+
   /**
    * Batch size for standard path
    * 基于 LLM 批量处理最佳实践（Azure OpenAI/LangChain 推荐）
    */
   standardBatchSize: 5,
-  
+
   /**
    * Batch size for chunked path
    * 基于长文本分块处理经验值（避免块间信息割裂）

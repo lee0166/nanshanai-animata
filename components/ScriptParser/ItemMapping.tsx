@@ -89,7 +89,7 @@ export const ItemMapping: React.FC<ItemMappingProps> = ({
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const [creatingItems, setCreatingItems] = useState<Set<string>>(new Set());
-  
+
   // 创建 PromptGeneratorService 实例
   const promptGenerator = React.useMemo(() => new PromptGeneratorService(), []);
 
