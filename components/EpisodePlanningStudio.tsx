@@ -91,9 +91,7 @@ export const EpisodePlanningStudio: React.FC<EpisodePlanningStudioProps> = ({
   const shotsByEpisode = useMemo(() => {
     const result: Record<number, Shot[]> = {};
     episodePlan.episodes.forEach(ep => {
-      result[ep.episodeNumber] = shots.filter(shot =>
-        ep.sceneNames.includes(shot.sceneName)
-      );
+      result[ep.episodeNumber] = shots.filter(shot => ep.sceneNames.includes(shot.sceneName));
     });
     return result;
   }, [shots, episodePlan]);
@@ -184,8 +182,7 @@ export const EpisodePlanningStudio: React.FC<EpisodePlanningStudioProps> = ({
     const newFromEpisode = {
       ...fromEpisodeInfo,
       sceneNames: fromEpisodeInfo.sceneNames.filter(name => name !== shot.sceneName),
-      estimatedShotCount: fromEpisodeInfo.sceneNames.filter(name => name !== shot.sceneName)
-        .length,
+      estimatedShotCount: fromEpisodeInfo.sceneNames.filter(name => name !== shot.sceneName).length,
       estimatedDuration: shotsByEpisode[fromEpisode]
         .filter(s => s.sceneName !== shot.sceneName)
         .reduce((sum, s) => sum + (s.duration || 3), 0),
@@ -196,8 +193,7 @@ export const EpisodePlanningStudio: React.FC<EpisodePlanningStudioProps> = ({
       ...toEpisodeInfo,
       sceneNames: [...toEpisodeInfo.sceneNames, shot.sceneName],
       estimatedShotCount: toEpisodeInfo.sceneNames.length + 1,
-      estimatedDuration:
-        toEpisodeInfo.estimatedDuration + (shot.duration || 3),
+      estimatedDuration: toEpisodeInfo.estimatedDuration + (shot.duration || 3),
     };
 
     const newEpisodes = episodePlan.episodes.map(ep => {
@@ -209,10 +205,7 @@ export const EpisodePlanningStudio: React.FC<EpisodePlanningStudioProps> = ({
     const newPlan: EpisodePlan = {
       ...episodePlan,
       episodes: newEpisodes,
-      totalDuration: episodePlan.episodes.reduce(
-        (sum, ep) => sum + ep.estimatedDuration,
-        0
-      ),
+      totalDuration: episodePlan.episodes.reduce((sum, ep) => sum + ep.estimatedDuration, 0),
     };
 
     setEpisodePlan(newPlan);
@@ -237,15 +230,15 @@ export const EpisodePlanningStudio: React.FC<EpisodePlanningStudioProps> = ({
     }
 
     // 检查分镜数
-    if (
-      episode.estimatedShotCount < platformStandard.shotsPerEpisodeRange[0]
-    ) {
-      issues.push(`分镜数过少（${episode.estimatedShotCount} < ${platformStandard.shotsPerEpisodeRange[0]}）`);
+    if (episode.estimatedShotCount < platformStandard.shotsPerEpisodeRange[0]) {
+      issues.push(
+        `分镜数过少（${episode.estimatedShotCount} < ${platformStandard.shotsPerEpisodeRange[0]}）`
+      );
     }
-    if (
-      episode.estimatedShotCount > platformStandard.shotsPerEpisodeRange[1]
-    ) {
-      issues.push(`分镜数过多（${episode.estimatedShotCount} > ${platformStandard.shotsPerEpisodeRange[1]}）`);
+    if (episode.estimatedShotCount > platformStandard.shotsPerEpisodeRange[1]) {
+      issues.push(
+        `分镜数过多（${episode.estimatedShotCount} > ${platformStandard.shotsPerEpisodeRange[1]}）`
+      );
     }
 
     return {
@@ -394,9 +387,10 @@ export const EpisodePlanningStudio: React.FC<EpisodePlanningStudioProps> = ({
                     ) : (
                       <div className="space-y-1">
                         {Array.from(new Set(episode.sceneNames)).map(sceneName => {
-                          const sceneShots = shotsByEpisode[episode.episodeNumber]?.filter(
-                            s => s.sceneName === sceneName
-                          ) || [];
+                          const sceneShots =
+                            shotsByEpisode[episode.episodeNumber]?.filter(
+                              s => s.sceneName === sceneName
+                            ) || [];
                           return (
                             <div
                               key={sceneName}
@@ -473,9 +467,7 @@ export const EpisodePlanningStudio: React.FC<EpisodePlanningStudioProps> = ({
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-2">
                 <Layers className="w-4 h-4 text-primary" />
-                <span className="text-sm font-medium">
-                  总计：{episodePlan.totalEpisodes}集
-                </span>
+                <span className="text-sm font-medium">总计：{episodePlan.totalEpisodes}集</span>
               </div>
               <div className="flex items-center gap-2">
                 <Clock className="w-4 h-4 text-default-400" />
@@ -485,9 +477,7 @@ export const EpisodePlanningStudio: React.FC<EpisodePlanningStudioProps> = ({
               </div>
               <div className="flex items-center gap-2">
                 <Film className="w-4 h-4 text-default-400" />
-                <span className="text-sm text-default-600">
-                  总分镜：{shots.length}个
-                </span>
+                <span className="text-sm text-default-600">总分镜：{shots.length}个</span>
               </div>
             </div>
             <div className="flex items-center gap-2">
@@ -499,9 +489,11 @@ export const EpisodePlanningStudio: React.FC<EpisodePlanningStudioProps> = ({
                     : 'warning'
                 }
                 startContent={
-                  episodePlan.episodes.every(ep => checkEpisodeCompliance(ep).compliant)
-                    ? <CheckCircle2 className="w-3.5 h-3.5" />
-                    : <AlertCircle className="w-3.5 h-3.5" />
+                  episodePlan.episodes.every(ep => checkEpisodeCompliance(ep).compliant) ? (
+                    <CheckCircle2 className="w-3.5 h-3.5" />
+                  ) : (
+                    <AlertCircle className="w-3.5 h-3.5" />
+                  )
                 }
               >
                 {episodePlan.episodes.every(ep => checkEpisodeCompliance(ep).compliant)

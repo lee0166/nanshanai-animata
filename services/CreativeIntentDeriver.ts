@@ -12,10 +12,7 @@ export class CreativeIntentDeriver {
    * @param aspectRatio 宽高比
    * @returns 推导出的创作信息
    */
-  static derive(
-    filmStyle: string,
-    aspectRatio: string = '9:16'
-  ): DerivedCreativeInfo {
+  static derive(filmStyle: string, aspectRatio: string = '9:16'): DerivedCreativeInfo {
     // 基础信息映射表
     const baseInfoMap: Record<string, Omit<DerivedCreativeInfo, 'compositionPrompt'>> = {
       'short-drama': {
@@ -26,7 +23,7 @@ export class CreativeIntentDeriver {
         hookWithin: 3,
         twistEvery: 30,
       },
-      'film': {
+      film: {
         targetPlatform: 'theatrical',
         pacing: 'slow',
         shotDensity: 100,
@@ -34,7 +31,7 @@ export class CreativeIntentDeriver {
         hookWithin: 30,
         twistEvery: 120,
       },
-      'documentary': {
+      documentary: {
         targetPlatform: 'bilibili',
         pacing: 'slow',
         shotDensity: 50,
@@ -42,7 +39,7 @@ export class CreativeIntentDeriver {
         hookWithin: 15,
         twistEvery: 300,
       },
-      'advertisement': {
+      advertisement: {
         targetPlatform: 'all',
         pacing: 'very-fast',
         shotDensity: 15,
@@ -50,7 +47,7 @@ export class CreativeIntentDeriver {
         hookWithin: 1,
         twistEvery: 5,
       },
-      'custom': {
+      custom: {
         targetPlatform: 'douyin',
         pacing: 'normal',
         shotDensity: 40,
@@ -80,10 +77,10 @@ export class CreativeIntentDeriver {
   static getFilmStyleDisplayName(filmStyle: string): string {
     const displayMap: Record<string, string> = {
       'short-drama': '短剧（快节奏，多集，适合抖音/快手）',
-      'film': '电影（慢节奏，单集，适合院线/流媒体）',
-      'documentary': '纪录片（慢节奏，单集/多集，适合 B 站）',
-      'advertisement': '创意广告（超快节奏，1-3 集，全平台）',
-      'custom': '自定义',
+      film: '电影（慢节奏，单集，适合院线/流媒体）',
+      documentary: '纪录片（慢节奏，单集/多集，适合 B 站）',
+      advertisement: '创意广告（超快节奏，1-3 集，全平台）',
+      custom: '自定义',
     };
     return displayMap[filmStyle] || '自定义';
   }

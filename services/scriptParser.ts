@@ -732,7 +732,7 @@ const DEFAULT_PARSER_CONFIG: ScriptParserConfig = {
 
   shotDensityShortThreshold: 3000,
   shotDensityMediumThreshold: 10000,
-  maxShotsShortMedium: 80,  // 从 150 降低到 80，避免短篇文本生成过多分镜
+  maxShotsShortMedium: 80, // 从 150 降低到 80，避免短篇文本生成过多分镜
   maxShotsLong: 500,
 
   /**
@@ -2364,7 +2364,8 @@ export class ScriptParser {
 
     const timeout =
       retryCount === 0
-        ? (this.dynamicTimeoutCalculator?.getTimeout() ?? taskConfig.timeout)
+        ? (this.dynamicTimeoutCalculator?.getTimeout(undefined, undefined, prompt.length) ??
+          taskConfig.timeout)
         : 180000;
 
     // Token 优化：动态计算 maxTokens
@@ -2878,7 +2879,7 @@ export class ScriptParser {
    */
   private generateCharacterVisualPrompt(character: Partial<ScriptCharacter>): string {
     const parts: string[] = [];
-    
+
     // 收集所有可用的视觉元素
     if (character.appearance?.face) {
       parts.push(`面容：${character.appearance.face}`);
@@ -2895,12 +2896,12 @@ export class ScriptParser {
     if (character.appearance?.clothing) {
       parts.push(`服装：${character.appearance.clothing}`);
     }
-    
+
     // 如果没有可用元素，返回基础描述
     if (parts.length === 0) {
       return `${character.name}的角色，详细描述待补充`;
     }
-    
+
     // 组合成完整的 visualPrompt
     return parts.join(', ');
   }
@@ -2937,7 +2938,7 @@ export class ScriptParser {
    */
   private generateSceneVisualPrompt(scene: Partial<ScriptScene>): string {
     const parts: string[] = [];
-    
+
     // 收集所有可用的视觉元素
     if (scene.environment?.architecture) {
       parts.push(scene.environment.architecture);
@@ -2960,12 +2961,12 @@ export class ScriptParser {
     if (scene.weather) {
       parts.push(`天气：${scene.weather}`);
     }
-    
+
     // 如果没有可用元素，返回基础描述
     if (parts.length === 0) {
       return `${scene.name}的场景，详细环境描述待补充`;
     }
-    
+
     // 组合成完整的 visualPrompt
     return parts.join(', ');
   }
@@ -3568,14 +3569,12 @@ ${chunkContent.substring(0, 4000)}
     // 阶段 3：创作意图完整注入 - 自动推导平台/节奏/密度
     const creativeIntent = this.parserConfig.creativeIntent;
     const derivedInfo = creativeIntent
-      ? CreativeIntentDeriver.derive(
-          creativeIntent.filmStyle,
-          creativeIntent.aspectRatio || '9:16'
-        )
+      ? CreativeIntentDeriver.derive(creativeIntent.filmStyle, creativeIntent.aspectRatio || '9:16')
       : undefined;
 
     // 获取目标平台（优先使用自动推导的结果）
-    const targetPlatformKey = derivedInfo?.targetPlatform || this.parserConfig.targetPlatform || 'douyin';
+    const targetPlatformKey =
+      derivedInfo?.targetPlatform || this.parserConfig.targetPlatform || 'douyin';
 
     // 获取平台显示名称
     const platformMap: Record<string, string> = {
@@ -3639,12 +3638,12 @@ ${chunkContent.substring(0, 4000)}
     if (creativeIntent && derivedInfo) {
       const filmStyleMap: Record<string, string> = {
         'short-drama': '短剧',
-        'film': '电影',
-        'documentary': '纪录片',
-        'advertisement': '广告',
+        film: '电影',
+        documentary: '纪录片',
+        advertisement: '广告',
       };
       const filmStyleName = filmStyleMap[creativeIntent.filmStyle] || creativeIntent.filmStyle;
-      
+
       // 构建叙事重点字符串
       const narrativeFocusEntries = Object.entries(creativeIntent.narrativeFocus || {})
         .filter(([, value]) => value)
@@ -3658,10 +3657,9 @@ ${chunkContent.substring(0, 4000)}
           };
           return focusMap[key] || key;
         });
-      const narrativeFocusStr = narrativeFocusEntries.length > 0 
-        ? narrativeFocusEntries.join('、') 
-        : '无';
-      
+      const narrativeFocusStr =
+        narrativeFocusEntries.length > 0 ? narrativeFocusEntries.join('、') : '无';
+
       // 情感基调字符串
       const emotionalToneMap: Record<string, string> = {
         inspiring: '励志',
@@ -3673,7 +3671,7 @@ ${chunkContent.substring(0, 4000)}
       const emotionalToneStr = creativeIntent.emotionalTone
         ? `${emotionalToneMap[creativeIntent.emotionalTone.primary] || creativeIntent.emotionalTone.primary}（强度${creativeIntent.emotionalTone.intensity}/10）`
         : '无';
-      
+
       creativeIntentInjection = `
 
 【创作意图指令】
@@ -4516,9 +4514,11 @@ ${creativeIntent.creativeNotes ? `- 创作备注：${creativeIntent.creativeNote
         const end = Math.min(content.length, idx + 500);
         return content.substring(start, end);
       }
-      
+
       // 场景存在但无内容，返回空字符串（后续由 validateScene 处理）
-      console.warn(`[ScriptParser] Scene "${sceneName}" has no content in novel, will use validateScene to generate description`);
+      console.warn(
+        `[ScriptParser] Scene "${sceneName}" has no content in novel, will use validateScene to generate description`
+      );
       return '';
     }
 
@@ -4569,7 +4569,7 @@ ${creativeIntent.creativeNotes ? `- 创作备注：${creativeIntent.creativeNote
     }
 
     const BATCH_SIZE_CONFIG: BatchSizeConfig = {
-      initial: 5,  // 从 15 降低到 5，保证每批次分镜质量，避免超时
+      initial: 5, // 从 15 降低到 5，保证每批次分镜质量，避免超时
       min: 3,
       max: 10,
       adjustThreshold: {
@@ -4636,9 +4636,9 @@ ${creativeIntent.creativeNotes ? `- 创作备注：${creativeIntent.creativeNote
 
     // Phase 1.2: 动态批次状态
     const batchSize = this.parserConfig.shotBatchSize || BATCH_SIZE_CONFIG.initial;
-    const maxBatches = this.parserConfig.maxShotBatches || 20;  // 从 8 增加到 20，避免提前终止
+    const maxBatches = this.parserConfig.maxShotBatches || 20; // 从 8 增加到 20，避免提前终止
     const minShotsThreshold = Math.floor(targetShots * 0.6);
-    const targetCompletionRate = 0.9;  // 目标完成率 90%
+    const targetCompletionRate = 0.9; // 目标完成率 90%
 
     let allShots: Shot[] = [];
     let currentBatch = 0;
@@ -4655,7 +4655,7 @@ ${creativeIntent.creativeNotes ? `- 创作备注：${creativeIntent.creativeNote
     ) {
       currentBatch++;
       const remainingShots = targetShots - allShots.length;
-      
+
       // 检查是否已达到目标完成率
       const currentCompletionRate = allShots.length / targetShots;
       if (currentCompletionRate >= targetCompletionRate && remainingShots <= 5) {
@@ -4778,7 +4778,7 @@ ${creativeIntent.creativeNotes ? `- 创作备注：${creativeIntent.creativeNote
     console.log(
       `[ScriptParser] Shot generation completed: ${allShots.length}/${targetShots} (${(completionRate * 100).toFixed(1)}%), batches: ${currentBatch}`
     );
-    
+
     if (completionRate < 0.8) {
       console.warn(
         `[ScriptParser] Warning: Completion rate is low (${(completionRate * 100).toFixed(1)}%), ` +
@@ -5874,8 +5874,8 @@ ${content}
 
         console.log(
           `[ScriptParser] Phase 1 complete: ${episodePlanEstimate.totalEpisodesEstimate} episodes, ` +
-          `${episodePlanEstimate.totalShotsEstimate} shots ` +
-          `(platform: ${episodePlanEstimate.platform}, confidence: ${Math.round(episodePlanEstimate.confidence * 100)}%)`
+            `${episodePlanEstimate.totalShotsEstimate} shots ` +
+            `(platform: ${episodePlanEstimate.platform}, confidence: ${Math.round(episodePlanEstimate.confidence * 100)}%)`
         );
 
         // 更新 episode_planning_phase1 阶段进度为 100%

@@ -7,7 +7,14 @@
  * @version 1.0.0
  */
 
-import { ScriptScene, EpisodePlan, EpisodeInfo, PlatformEpisodeStandard, Shot, EpisodeEstimate } from '../../types';
+import {
+  ScriptScene,
+  EpisodePlan,
+  EpisodeInfo,
+  PlatformEpisodeStandard,
+  Shot,
+  EpisodeEstimate,
+} from '../../types';
 import PlatformStandardService from './PlatformStandardService';
 
 /**
@@ -69,8 +76,7 @@ export class EpisodePlanner {
       pacingPreference
     );
 
-    const totalDurationEstimate =
-      totalEpisodes * (standard.episodeDurationRange[0] || 60) / 60;
+    const totalDurationEstimate = (totalEpisodes * (standard.episodeDurationRange[0] || 60)) / 60;
 
     return {
       id: crypto.randomUUID(),

@@ -38,7 +38,7 @@ build/
 .trae
 dev
 
-# Development auxiliary files
+# Development auxiliary files (分析报告、优化方案、执行跟踪等 - 只保留在本地)
 ANALYSIS_REPORT.md
 commit-msg.txt
 commit.sh
@@ -53,6 +53,19 @@ VIDEO_MODEL_PARAMS_GUIDE.md
 小说解析流程文档.md
 小说转短剧解析系统_融合优化方案_v2.0.md
 融合方案_实施细节与代码示例*.md
+
+# 2026-04-12 开发辅助文件（专题分析、执行报告、验证报告、清理报告）
+代码清理报告.md
+工作流程与优化分析报告.md
+任务计划.md
+时长问题分析报告*.md
+视觉提示词深度优化*.md
+项目全流程手动整理草稿.md
+修复报告*.md
+修复方案*.md
+智能动态超时系统*.md
+AI 生图提示词全面优化方案.md
+AI 生图提示词优化_执行跟踪文档.md
 
 # Project analysis and optimization documents (keep local)
 优化可行性分析报告.md

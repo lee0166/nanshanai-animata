@@ -85,10 +85,10 @@ export const CreativeIntentModal: React.FC<CreativeIntentModalProps> = ({
       icon: <Sparkles className="w-4 h-4" />,
       defaultAspectRatio: '9:16',
     },
-    { 
-      id: 'film', 
-      label: '电影', 
-      description: '慢节奏意境', 
+    {
+      id: 'film',
+      label: '电影',
+      description: '慢节奏意境',
       icon: <Film className="w-4 h-4" />,
       defaultAspectRatio: '2.35:1',
     },

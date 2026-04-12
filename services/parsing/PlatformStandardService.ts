@@ -18,7 +18,7 @@ export const PLATFORM_EPISODE_STANDARDS: Record<string, PlatformEpisodeStandard>
     episodeDurationRange: [60, 180], // 1-3 分钟
     recommendedEpisodeDuration: 120, // 2 分钟
     totalEpisodesRange: [10, 50],
-    shotsPerEpisodeRange: [8, 20],  // 从 [15,45] 降低到 [8,20]，符合行业标准
+    shotsPerEpisodeRange: [8, 20], // 从 [15,45] 降低到 [8,20]，符合行业标准
     hookRequirements: {
       hookWithinSeconds: 3, // 0-3 秒必须有钩子
       hookTypes: ['question', 'shock', 'mystery', 'conflict'],
@@ -35,7 +35,7 @@ export const PLATFORM_EPISODE_STANDARDS: Record<string, PlatformEpisodeStandard>
     episodeDurationRange: [90, 300], // 1.5-5 分钟
     recommendedEpisodeDuration: 180, // 3 分钟
     totalEpisodesRange: [10, 30],
-    shotsPerEpisodeRange: [10, 25],  // 从 [20,50] 降低到 [10,25]
+    shotsPerEpisodeRange: [10, 25], // 从 [20,50] 降低到 [10,25]
     hookRequirements: {
       hookWithinSeconds: 5,
       hookTypes: ['authenticity', 'emotion', 'relatable'],
@@ -52,7 +52,7 @@ export const PLATFORM_EPISODE_STANDARDS: Record<string, PlatformEpisodeStandard>
     episodeDurationRange: [300, 900], // 5-15 分钟
     recommendedEpisodeDuration: 600, // 10 分钟
     totalEpisodesRange: [8, 24],
-    shotsPerEpisodeRange: [25, 60],  // 从 [50,150] 降低到 [25,60]
+    shotsPerEpisodeRange: [25, 60], // 从 [50,150] 降低到 [25,60]
     hookRequirements: {
       hookWithinSeconds: 15,
       hookTypes: ['world_building', 'character', 'mystery'],
@@ -69,7 +69,7 @@ export const PLATFORM_EPISODE_STANDARDS: Record<string, PlatformEpisodeStandard>
     episodeDurationRange: [180, 600], // 3-10 分钟
     recommendedEpisodeDuration: 480, // 8 分钟
     totalEpisodesRange: [1, 8], // 1-8 集（短篇≤3 集）
-    shotsPerEpisodeRange: [15, 40],  // 从 [20,60] 降低到 [15,40]
+    shotsPerEpisodeRange: [15, 40], // 从 [20,60] 降低到 [15,40]
     hookRequirements: {
       hookWithinSeconds: 30,
       hookTypes: ['cinematic', 'artistic', 'theme'],

@@ -448,142 +448,140 @@ export const ShotList: React.FC<ShotListProps> = ({
             <TableBody ref={tableBodyRef}>
               {filteredShots.map((shot, index) => {
                 return (
-                  <TableRow
-                    key={shot.id}
-                  >
-                      <TableCell>
-                        <Chip
-                          color={shot.layer === 'key' ? 'primary' : 'default'}
-                          variant={shot.layer === 'key' ? 'solid' : 'flat'}
+                  <TableRow key={shot.id}>
+                    <TableCell>
+                      <Chip
+                        color={shot.layer === 'key' ? 'primary' : 'default'}
+                        variant={shot.layer === 'key' ? 'solid' : 'flat'}
+                      >
+                        {shot.layer === 'key' ? '关键' : '可选'}
+                      </Chip>
+                    </TableCell>
+                    <TableCell>
+                      <span className="font-mono text-sm">
+                        {shot.shotNumber || `${getSceneNumber(shot.sceneName)}-${shot.sequence}`}
+                      </span>
+                    </TableCell>
+                    <TableCell>
+                      <Chip variant="flat">{shot.sceneName}</Chip>
+                    </TableCell>
+                    <TableCell>
+                      <Chip color={getShotTypeColor(shot.shotType) as any}>
+                        {t.shot?.shotType?.[shot.shotType as keyof typeof t.shot.shotType] ||
+                          shot.shotType}
+                      </Chip>
+                    </TableCell>
+                    <TableCell>
+                      <span className="text-sm text-default-600">
+                        {t.shot?.cameraMovement?.[
+                          shot.cameraMovement as keyof typeof t.shot.cameraMovement
+                        ] || shot.cameraMovement}
+                      </span>
+                    </TableCell>
+                    <TableCell>
+                      <p className="text-sm line-clamp-2 max-w-xs">{shot.description}</p>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex flex-wrap gap-1">
+                        {shot.characters?.slice(0, 2).map((char, i) => (
+                          <Chip key={i} variant="bordered">
+                            {char}
+                          </Chip>
+                        ))}
+                        {shot.characters && shot.characters.length > 2 && (
+                          <Chip variant="bordered">+{shot.characters.length - 2}</Chip>
+                        )}
+                      </div>
+                    </TableCell>
+                    <TableCell>{shot.duration}秒</TableCell>
+                    <TableCell>
+                      <div className="flex gap-1">
+                        {/* 上移按钮 */}
+                        <Button
+                          isIconOnly
+                          size="sm"
+                          variant="flat"
+                          onPress={() => {
+                            setSelectedShot(shot);
+                            setMoveDirection('up');
+                            setIsMoveModalOpen(true);
+                          }}
+                          isDisabled={index === 0}
+                          title="上移"
                         >
-                          {shot.layer === 'key' ? '关键' : '可选'}
-                        </Chip>
-                      </TableCell>
-                      <TableCell>
-                        <span className="font-mono text-sm">
-                          {shot.shotNumber || `${getSceneNumber(shot.sceneName)}-${shot.sequence}`}
-                        </span>
-                      </TableCell>
-                      <TableCell>
-                        <Chip variant="flat">{shot.sceneName}</Chip>
-                      </TableCell>
-                      <TableCell>
-                        <Chip color={getShotTypeColor(shot.shotType) as any}>
-                          {t.shot?.shotType?.[shot.shotType as keyof typeof t.shot.shotType] ||
-                            shot.shotType}
-                        </Chip>
-                      </TableCell>
-                      <TableCell>
-                        <span className="text-sm text-default-600">
-                          {t.shot?.cameraMovement?.[
-                            shot.cameraMovement as keyof typeof t.shot.cameraMovement
-                          ] || shot.cameraMovement}
-                        </span>
-                      </TableCell>
-                      <TableCell>
-                        <p className="text-sm line-clamp-2 max-w-xs">{shot.description}</p>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex flex-wrap gap-1">
-                          {shot.characters?.slice(0, 2).map((char, i) => (
-                            <Chip key={i} variant="bordered">
-                              {char}
-                            </Chip>
-                          ))}
-                          {shot.characters && shot.characters.length > 2 && (
-                            <Chip variant="bordered">+{shot.characters.length - 2}</Chip>
-                          )}
-                        </div>
-                      </TableCell>
-                      <TableCell>{shot.duration}秒</TableCell>
-                      <TableCell>
-                        <div className="flex gap-1">
-                          {/* 上移按钮 */}
+                          <ArrowUp size={14} />
+                        </Button>
+                        {/* 下移按钮 */}
+                        <Button
+                          isIconOnly
+                          size="sm"
+                          variant="flat"
+                          onPress={() => {
+                            setSelectedShot(shot);
+                            setMoveDirection('down');
+                            setIsMoveModalOpen(true);
+                          }}
+                          isDisabled={index === filteredShots.length - 1}
+                          title="下移"
+                        >
+                          <ArrowDown size={14} />
+                        </Button>
+                        <Button
+                          isIconOnly
+                          size="sm"
+                          variant="flat"
+                          onPress={() => {
+                            setSelectedShot(shot);
+                            setIsEditModalOpen(true);
+                          }}
+                        >
+                          <Edit2 size={14} />
+                        </Button>
+                        <Button
+                          isIconOnly
+                          size="sm"
+                          variant="flat"
+                          color="danger"
+                          onPress={() => {
+                            setSelectedShot(shot);
+                            openDeleteModal();
+                          }}
+                        >
+                          <Trash2 size={14} />
+                        </Button>
+                        {onGenerateFragment && (
                           <Button
                             isIconOnly
                             size="sm"
                             variant="flat"
-                            onPress={() => {
-                              setSelectedShot(shot);
-                              setMoveDirection('up');
-                              setIsMoveModalOpen(true);
-                            }}
-                            isDisabled={index === 0}
-                            title="上移"
+                            color="primary"
+                            onPress={() => onGenerateFragment(shot)}
                           >
-                            <ArrowUp size={14} />
+                            <Film size={14} />
                           </Button>
-                          {/* 下移按钮 */}
+                        )}
+                        {/* 仅在 manager 模式下显示拆分关键帧按钮 */}
+                        {viewMode === 'manager' && (
                           <Button
                             isIconOnly
                             size="sm"
                             variant="flat"
-                            onPress={() => {
-                              setSelectedShot(shot);
-                              setMoveDirection('down');
-                              setIsMoveModalOpen(true);
-                            }}
-                            isDisabled={index === filteredShots.length - 1}
-                            title="下移"
+                            color={shot.keyframes ? 'success' : 'primary'}
+                            isLoading={splittingShotId === shot.id}
+                            onPress={() =>
+                              shot.keyframes
+                                ? setIsKeyframeModalOpen(true)
+                                : handleSplitKeyframes(shot)
+                            }
                           >
-                            <ArrowDown size={14} />
+                            <Scissors size={14} />
                           </Button>
-                          <Button
-                            isIconOnly
-                            size="sm"
-                            variant="flat"
-                            onPress={() => {
-                              setSelectedShot(shot);
-                              setIsEditModalOpen(true);
-                            }}
-                          >
-                            <Edit2 size={14} />
-                          </Button>
-                          <Button
-                            isIconOnly
-                            size="sm"
-                            variant="flat"
-                            color="danger"
-                            onPress={() => {
-                              setSelectedShot(shot);
-                              openDeleteModal();
-                            }}
-                          >
-                            <Trash2 size={14} />
-                          </Button>
-                          {onGenerateFragment && (
-                            <Button
-                              isIconOnly
-                              size="sm"
-                              variant="flat"
-                              color="primary"
-                              onPress={() => onGenerateFragment(shot)}
-                            >
-                              <Film size={14} />
-                            </Button>
-                          )}
-                          {/* 仅在 manager 模式下显示拆分关键帧按钮 */}
-                          {viewMode === 'manager' && (
-                            <Button
-                              isIconOnly
-                              size="sm"
-                              variant="flat"
-                              color={shot.keyframes ? 'success' : 'primary'}
-                              isLoading={splittingShotId === shot.id}
-                              onPress={() =>
-                                shot.keyframes
-                                  ? setIsKeyframeModalOpen(true)
-                                  : handleSplitKeyframes(shot)
-                              }
-                            >
-                              <Scissors size={14} />
-                            </Button>
-                          )}
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
+                        )}
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
             </TableBody>
           </Table>
         </>
