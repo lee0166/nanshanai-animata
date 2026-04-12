@@ -39,61 +39,53 @@ build/
 dev
 
 # Development auxiliary files (分析报告、优化方案、执行跟踪等 - 只保留在本地)
-ANALYSIS_REPORT.md
-commit-msg.txt
-commit.sh
-start-dev.ps1
-liucheng.html
-zhanshi.html
-控制台日志.txt
-CLAUDE.md
-CHARACTER_GENERATION_GUIDE.md
-IMAGE_MODEL_PARAMS_GUIDE.md
-VIDEO_MODEL_PARAMS_GUIDE.md
-小说解析流程文档.md
-小说转短剧解析系统_融合优化方案_v2.0.md
-融合方案_实施细节与代码示例*.md
+# 通用规则：自动忽略所有开发辅助类 MD 文件
+*.local.md
+*.backup.md
+*.tmp.md
+*.old.md
+*.draft.md
+*.pending.md
+*-report.md
+*-analysis.md
+*-optimization.md
+*-refactoring.md
+*-migration.md
+*-cleanup.md
+*-fix.md
+*-upgrade.md
+*-changelog.md
+*-todo.md
+*-plan.md
+*-design.md
+*-proposal.md
+*-review.md
+*-summary.md
+*-guide.md
+*-workflow.md
+*-checklist.md
+*.md.bak
+*.md.backup
 
-# 2026-04-12 开发辅助文件（专题分析、执行报告、验证报告、清理报告）
-代码清理报告.md
-工作流程与优化分析报告.md
-任务计划.md
-时长问题分析报告*.md
-视觉提示词深度优化*.md
-项目全流程手动整理草稿.md
+# 中文命名模式的开发文档（使用通用前缀匹配）
 修复报告*.md
 修复方案*.md
-智能动态超时系统*.md
-AI 生图提示词全面优化方案.md
-AI 生图提示词优化_执行跟踪文档.md
-
-# Project analysis and optimization documents (keep local)
-优化可行性分析报告.md
-分镜生成详细说明.md
-南山 AI Animata 项目落地式优化方案.md
-大模型配置功能优化分析报告_第二版.md
-大模型配置功能优化大纲_短中长期.md
-大模型配置功能说明文档.md
-模型配置管理专项优化方案.md
-项目深度分析报告.md
-ITEM_EXTRACTION_OPTIMIZATION_PENDING.md
-AI角色设计工作流专业分析报告.md
-关键帧拆分功能完整分析报告与优化方案.md
-删除弹窗统一修复方案.md
-方案A-渐进式三阶段工作流详细实施方案-基于真实参数.md
-方案A-渐进式三阶段工作流详细实施方案.md
-音频功能完整实现方案-2026更新版.md
-音频功能完整实现方案.md
-test-script-parser-optimizations.md
-时长预算配置功能专业分析报告.md
-时长预算配置功能分阶段淘汰执行方案.md
-AI 生图提示词全面优化方案.md
-AI生图提示词优化_执行跟踪文档.md
-项目全流程手动整理草稿.md
-项目公共流程扫描检测整理报告.md
-项目优化管理计划/
-项目优化管理/
-analyze_logs.ps1
+优化报告*.md
+优化方案*.md
+分析报告*.md
+设计方案*.md
+实施方案*.md
+执行报告*.md
+验证报告*.md
+清理报告*.md
+测试报告*.md
+性能分析*.md
+专题报告*.md
+工作计划*.md
+任务计划*.md
+工作流程*.md
+项目流程*.md
+*.log.md
 
 # Documentation directory
 docs/
