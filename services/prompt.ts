@@ -162,7 +162,7 @@ export const extractFullBodyDescription = (scriptDescription?: string): string =
  * @param language 语言
  * @returns 构图提示词
  */
-const getCompositionPrompt = (aspectRatio: string, language: 'en' | 'zh' = 'zh') => {
+export const getCompositionPrompt = (aspectRatio: string, language: 'en' | 'zh' = 'zh') => {
   const [w, h] = aspectRatio.split(':').map(Number);
   const ratio = w / h;
 

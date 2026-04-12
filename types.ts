@@ -423,8 +423,8 @@ export interface ParseOptions {
  * 替代旧的平台模板配置，实现从"平台选择"到"创作意图"的转变
  */
 export interface CreativeIntent {
-  /** 影视风格：短剧/电影/纪录片/自定义 */
-  filmStyle: 'short-drama' | 'film' | 'documentary' | 'custom';
+  /** 影视风格：短剧/电影/纪录片/自定义/创意广告 */
+  filmStyle: 'short-drama' | 'film' | 'documentary' | 'custom' | 'advertisement';
 
   /** 叙事重点：用户希望表现的核心内容 */
   narrativeFocus: {
@@ -450,9 +450,13 @@ export interface CreativeIntent {
   /** 目标平台（制作完成后适配，不是制作前限制） */
   targetPlatforms?: ('douyin' | 'kuaishou' | 'bilibili' | 'theatrical')[];
 
-  /** 时长控制（高级设置，用于替代旧的durationBudgetConfig） */
+  /** 宽高比（影响构图，在解析前选择） */
+  aspectRatio?: '9:16' | '16:9' | '2.35:1' | 'auto';
+
+  /** 时长控制（高级设置，用于兼容旧配置，推荐使用 filmStyle 自动推导） */
+  /** @deprecated 使用 filmStyle 自动推导 */
   durationControl?: {
-    /** 目标平台：抖音/快手/B站/精品 */
+    /** 目标平台：抖音/快手/B 站/精品 */
     targetPlatform?: 'douyin' | 'kuaishou' | 'bilibili' | 'premium';
     /** 节奏偏好：快/中/慢 */
     pacingPreference?: 'fast' | 'normal' | 'slow';
@@ -513,6 +517,26 @@ export interface EpisodeEstimate {
   confidence: number;
   /** 是否为 Phase 2 精确计算结果 */
   isPhase2?: boolean;
+}
+
+/**
+ * 自动推导信息（基于作品类型）
+ */
+export interface DerivedCreativeInfo {
+  /** 目标平台 */
+  targetPlatform: string;
+  /** 节奏 */
+  pacing: 'fast' | 'normal' | 'slow' | 'very-fast';
+  /** 分镜密度（个/集 或 个/电影） */
+  shotDensity: number;
+  /** 平均单镜时长（秒） */
+  averageShotDuration: number;
+  /** 钩子要求（前 N 秒） */
+  hookWithin: number;
+  /** 反转要求（每 N 秒） */
+  twistEvery: number;
+  /** 构图提示（基于宽高比） */
+  compositionPrompt: string;
 }
 
 /**

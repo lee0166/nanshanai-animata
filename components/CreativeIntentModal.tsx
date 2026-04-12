@@ -83,19 +83,28 @@ export const CreativeIntentModal: React.FC<CreativeIntentModalProps> = ({
       label: '短剧',
       description: '快节奏短视频',
       icon: <Sparkles className="w-4 h-4" />,
+      defaultAspectRatio: '9:16',
     },
-    { id: 'film', label: '电影', description: '慢节奏意境', icon: <Film className="w-4 h-4" /> },
+    { 
+      id: 'film', 
+      label: '电影', 
+      description: '慢节奏意境', 
+      icon: <Film className="w-4 h-4" />,
+      defaultAspectRatio: '2.35:1',
+    },
     {
       id: 'documentary',
-      label: '纪录片',
+      label: '中视频',
       description: '写实叙事',
       icon: <BookOpen className="w-4 h-4" />,
+      defaultAspectRatio: '16:9',
     },
     {
-      id: 'custom',
-      label: '自定义',
-      description: '自由定义',
+      id: 'advertisement',
+      label: '广告',
+      description: '创意广告',
       icon: <Clapperboard className="w-4 h-4" />,
+      defaultAspectRatio: '16:9',
     },
   ];
 
@@ -140,7 +149,7 @@ export const CreativeIntentModal: React.FC<CreativeIntentModalProps> = ({
         </ModalHeader>
 
         <ModalBody className="space-y-4 py-2">
-          {/* Film Style Selection - 紧凑横向4列布局 */}
+          {/* Film Style Selection - 4 列布局 */}
           <div>
             <div className="flex items-center gap-2 mb-2">
               <Film className="w-4 h-4 text-primary" />
@@ -269,9 +278,46 @@ export const CreativeIntentModal: React.FC<CreativeIntentModalProps> = ({
             </div>
           </div>
 
-          <Divider className="my-4" />
+          {/* Aspect Ratio - 宽高比配置（常规配置） */}
+          <div>
+            <div className="flex items-center gap-2 mb-2">
+              <Target className="w-4 h-4 text-warning" />
+              <span className="text-sm font-medium">宽高比</span>
+              <Tooltip content="影响画面构图和镜头设计">
+                <Info className="w-3.5 h-3.5 text-default-400 cursor-help" />
+              </Tooltip>
+            </div>
+            <div className="grid grid-cols-3 gap-2">
+              {[
+                { key: '9:16', label: '9:16', desc: '竖屏' },
+                { key: '16:9', label: '16:9', desc: '横屏' },
+                { key: '2.35:1', label: '2.35:1', desc: '电影' },
+              ].map(option => {
+                const isSelected = (creativeIntent.aspectRatio || '9:16') === option.key;
+                return (
+                  <Card
+                    key={option.key}
+                    isPressable
+                    onPress={() => updateIntent({ aspectRatio: option.key as any })}
+                    className={`border-2 transition-all ${
+                      isSelected
+                        ? 'border-warning bg-warning/5'
+                        : 'border-transparent hover:border-default-200'
+                    }`}
+                  >
+                    <CardBody className="flex flex-col items-center gap-1 p-2">
+                      <p className="text-sm font-medium leading-tight">{option.label}</p>
+                      <p className="text-[10px] text-default-500 leading-tight mt-0.5">
+                        {option.desc}
+                      </p>
+                    </CardBody>
+                  </Card>
+                );
+              })}
+            </div>
+          </div>
 
-          {/* Advanced Settings - 高级设置（时长控制） */}
+          {/* Advanced Settings - 高级设置 */}
           <div>
             <Button
               variant="light"
@@ -285,184 +331,53 @@ export const CreativeIntentModal: React.FC<CreativeIntentModalProps> = ({
                 <ChevronDown className="w-4 h-4" />
               )}
               <Settings className="w-4 h-4 ml-2" />
-              <span className="ml-2">高级设置（时长控制）</span>
+              <span className="ml-2">高级设置</span>
             </Button>
 
             {showAdvancedSettings && (
-              <div className="mt-3 p-4 bg-slate-50 dark:bg-slate-900/50 rounded-lg border border-slate-200 dark:border-slate-700">
-                <div className="grid grid-cols-2 gap-4">
-                  {/* 平台选择 */}
-                  <div>
-                    <div className="flex items-center gap-2 mb-2">
-                      <span className="text-sm font-medium">目标平台</span>
-                    </div>
-                    <Select
-                      aria-label="目标平台"
-                      selectedKeys={
-                        creativeIntent.durationControl?.targetPlatform
-                          ? [creativeIntent.durationControl.targetPlatform]
-                          : []
-                      }
-                      onSelectionChange={keys => {
-                        const platform = Array.from(keys)[0] as string;
-                        updateIntent({
-                          durationControl: {
-                            ...creativeIntent.durationControl,
-                            targetPlatform: platform as any,
-                          },
-                        });
-                      }}
-                    >
-                      {targetPlatformOptions.map(option => (
-                        <SelectItem key={option.key}>{option.label}</SelectItem>
-                      ))}
-                    </Select>
+              <div className="mt-3 grid grid-cols-2 gap-3">
+                {/* Visual References */}
+                <div>
+                  <div className="flex items-center gap-2 mb-1.5">
+                    <Eye className="w-4 h-4 text-warning" />
+                    <span className="text-sm font-medium">视觉参考</span>
+                    <span className="text-xs text-default-400">可选</span>
                   </div>
-
-                  {/* 节奏选择 */}
-                  <div>
-                    <div className="flex items-center gap-2 mb-2">
-                      <span className="text-sm font-medium">节奏偏好</span>
-                    </div>
-                    <Select
-                      aria-label="节奏偏好"
-                      selectedKeys={
-                        creativeIntent.durationControl?.pacingPreference
-                          ? [creativeIntent.durationControl.pacingPreference]
-                          : []
-                      }
-                      onSelectionChange={keys => {
-                        const pace = Array.from(keys)[0] as string;
-                        updateIntent({
-                          durationControl: {
-                            ...creativeIntent.durationControl,
-                            pacingPreference: pace as any,
-                          },
-                        });
-                      }}
-                    >
-                      {pacingPreferenceOptions.map(option => (
-                        <SelectItem key={option.key}>{option.label}</SelectItem>
-                      ))}
-                    </Select>
+                  <Textarea
+                    aria-label="视觉参考"
+                    placeholder="参考影片、导演或风格..."
+                    value={creativeIntent.visualReferences?.join(', ') || ''}
+                    onChange={e =>
+                      updateIntent({
+                        visualReferences: e.target.value
+                          .split(',')
+                          .map(s => s.trim())
+                          .filter(Boolean),
+                      })
+                    }
+                    minRows={2}
+                    size="sm"
+                  />
+                </div>
+                {/* Creative Notes */}
+                <div>
+                  <div className="flex items-center gap-2 mb-1.5">
+                    <Sparkles className="w-4 h-4 text-success" />
+                    <span className="text-sm font-medium">创作备注</span>
+                    <span className="text-xs text-default-400">可选</span>
                   </div>
+                  <Textarea
+                    aria-label="创作备注"
+                    placeholder="特殊要求或备注..."
+                    value={creativeIntent.creativeNotes || ''}
+                    onChange={e => updateIntent({ creativeNotes: e.target.value })}
+                    minRows={2}
+                    size="sm"
+                  />
                 </div>
               </div>
             )}
           </div>
-
-          {/* Visual References + Creative Notes - 左右两列布局 */}
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <div className="flex items-center gap-2 mb-1.5">
-                <Eye className="w-4 h-4 text-warning" />
-                <span className="text-sm font-medium">视觉参考</span>
-                <span className="text-xs text-default-400">可选</span>
-              </div>
-              <Textarea
-                aria-label="视觉参考"
-                placeholder="参考影片、导演或风格..."
-                value={creativeIntent.visualReferences?.join(', ') || ''}
-                onChange={e =>
-                  updateIntent({
-                    visualReferences: e.target.value
-                      .split(',')
-                      .map(s => s.trim())
-                      .filter(Boolean),
-                  })
-                }
-                minRows={2}
-                size="sm"
-              />
-            </div>
-            <div>
-              <div className="flex items-center gap-2 mb-1.5">
-                <Sparkles className="w-4 h-4 text-success" />
-                <span className="text-sm font-medium">创作备注</span>
-                <span className="text-xs text-default-400">可选</span>
-              </div>
-              <Textarea
-                aria-label="创作备注"
-                placeholder="特殊要求或备注..."
-                value={creativeIntent.creativeNotes || ''}
-                onChange={e => updateIntent({ creativeNotes: e.target.value })}
-                minRows={2}
-                size="sm"
-              />
-            </div>
-          </div>
-
-          {/* Summary - 精简总结 */}
-          <Card className="bg-default-50 border-default-200">
-            <CardBody className="space-y-2 py-3">
-              <div className="flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-primary" />
-                <span className="text-sm font-medium">创作意图配置</span>
-              </div>
-              <p className="text-sm text-default-600 leading-relaxed">
-                时长预算配置已生效：
-                {creativeIntent.durationControl?.targetPlatform && (
-                  <>
-                    <br />• <strong>目标平台</strong>：
-                    {
-                      targetPlatformOptions.find(
-                        o => o.key === creativeIntent.durationControl.targetPlatform
-                      )?.label
-                    }
-                  </>
-                )}
-                {creativeIntent.durationControl?.pacingPreference && (
-                  <>
-                    <br />• <strong>节奏偏好</strong>：
-                    {
-                      pacingPreferenceOptions.find(
-                        o => o.key === creativeIntent.durationControl.pacingPreference
-                      )?.label
-                    }
-                  </>
-                )}
-                {!creativeIntent.durationControl?.targetPlatform &&
-                  !creativeIntent.durationControl?.pacingPreference && (
-                    <>
-                      <br />• 使用默认配置
-                    </>
-                  )}
-              </p>
-              <p className="text-sm text-default-600 leading-relaxed">
-                创作意图配置已生效：
-                <br />• <strong>影视风格</strong>：
-                {filmStyles.find(s => s.id === creativeIntent.filmStyle)?.label}
-                {(() => {
-                  const selectedFocus = Object.entries(creativeIntent.narrativeFocus)
-                    .filter(([, v]) => v)
-                    .map(([k]) => narrativeFocusOptions.find(o => o.key === k)?.label)
-                    .filter(Boolean);
-                  return selectedFocus.length > 0 ? (
-                    <>
-                      <br />• <strong>叙事重点</strong>：{selectedFocus.join('、')}
-                    </>
-                  ) : null;
-                })()}
-                {creativeIntent.visualReferences && creativeIntent.visualReferences.length > 0 && (
-                  <>
-                    <br />• <strong>视觉参考</strong>：{creativeIntent.visualReferences.join('、')}
-                  </>
-                )}
-                <br />• <strong>情感基调</strong>：
-                {emotionalTones.find(t => t.id === creativeIntent.emotionalTone.primary)?.label}
-                <br />• <strong>情感强度</strong>：{creativeIntent.emotionalTone.intensity}/10
-                {creativeIntent.creativeNotes && (
-                  <>
-                    <br />• <strong>创作备注</strong>：
-                    {creativeIntent.creativeNotes.substring(0, 50)}
-                    {creativeIntent.creativeNotes.length > 50 ? '...' : ''}
-                  </>
-                )}
-              </p>
-              <Divider className="my-2" />
-              <p className="text-xs text-default-400">✅ 所有创作意图配置项已生效！</p>
-            </CardBody>
-          </Card>
         </ModalBody>
 
         <ModalFooter className="pt-2">

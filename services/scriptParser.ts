@@ -35,6 +35,7 @@ import { SemanticChunker, SemanticChunk } from './parsing/SemanticChunker';
 import { ShortDramaRules, RuleContext, RuleViolation } from './parsing/ShortDramaRules';
 import { MultiLevelCache } from './parsing/MultiLevelCache';
 import { QualityAnalyzer, DetailedQualityReport } from './parsing/QualityAnalyzer';
+import { CreativeIntentDeriver } from './CreativeIntentDeriver';
 import {
   ScriptMetadataSchema,
   ScriptCharacterArraySchema,
@@ -120,7 +121,7 @@ export interface ScriptParserConfig {
    * @default undefined
    */
   creativeIntent?: {
-    filmStyle: 'short-drama' | 'film' | 'documentary' | 'custom';
+    filmStyle: 'short-drama' | 'film' | 'documentary' | 'custom' | 'advertisement';
     narrativeFocus: {
       protagonistArc: boolean;
       emotionalCore: boolean;
@@ -135,7 +136,9 @@ export interface ScriptParserConfig {
     visualReferences?: string[];
     creativeNotes?: string;
     targetPlatforms?: ('douyin' | 'kuaishou' | 'bilibili' | 'theatrical')[];
-    /** 时长控制（高级设置） */
+    /** 宽高比（影响构图，在解析前选择） */
+    aspectRatio?: '9:16' | '16:9' | '2.35:1' | 'auto';
+    /** 时长控制（高级设置，用于兼容旧配置） */
     durationControl?: {
       targetPlatform?: 'douyin' | 'kuaishou' | 'bilibili' | 'premium';
       pacingPreference?: 'fast' | 'normal' | 'slow';
@@ -675,7 +678,7 @@ const DEFAULT_PARSER_CONFIG: ScriptParserConfig = {
   narrationSpeed: 200,
 
   /**
-   * shotDensityShort: 5（短视频分镜密度）
+   * shotDensityShort: 4（短视频分镜密度）
    *  设计依据：短视频分镜数量最佳实践
    *  - 来源 1：抖音短视频分镜建议
    *    - 15 秒短视频：4-6 个分镜
@@ -691,9 +694,9 @@ const DEFAULT_PARSER_CONFIG: ScriptParserConfig = {
    *    - 每个画面建议控制在 3-5 秒
    *    - 参考：LHF 漫剧制作流程
    *
-   *  决策理由：5 个分镜/分钟适合快节奏短视频（15-30 秒）
+   *  决策理由：4 个分镜/200 字（约 1 分钟）适合短视频，保证叙事清晰
    */
-  shotDensityShort: 10,
+  shotDensityShort: 4,
 
   /**
    * shotDensityMedium: 4（中视频分镜密度）
@@ -729,7 +732,7 @@ const DEFAULT_PARSER_CONFIG: ScriptParserConfig = {
 
   shotDensityShortThreshold: 3000,
   shotDensityMediumThreshold: 10000,
-  maxShotsShortMedium: 150,
+  maxShotsShortMedium: 80,  // 从 150 降低到 80，避免短篇文本生成过多分镜
   maxShotsLong: 500,
 
   /**
@@ -1032,7 +1035,7 @@ const PROMPTS = {
     ],
     "emotionalArc": [{"phase": "初始", "emotion": "情绪状态"}],
     "relationships": [{"character": "相关角色名", "relation": "关系描述"}],
-    "visualPrompt": "【系统字段，将由程序自动生成，无需填写】"
+    "visualPrompt": "用于 AI 生图的详细视觉描述，100 字以内（重要！这将直接用于生成角色面部图和全身图，必须包含：面容特征、发型发色、服装风格、身形特征、气质特点等视觉元素）"
   }
 ]
 
@@ -1074,7 +1077,7 @@ const PROMPTS = {
       "colorTone": "色调氛围，如：冷色调、暖色调、明亮清新"
     },
     "sceneFunction": "场景作用",
-    "visualPrompt": "【系统字段，将由程序自动生成，无需填写】",
+    "visualPrompt": "用于 AI 生图的详细视觉描述，100 字以内（重要！这将直接用于生成场景图，必须包含：建筑风格、陈设物品、光线条件、色调氛围、时间段、季节、天气等视觉元素）",
     "characters": ["场景中可能出现的角色名"]
   }
 ]
@@ -2864,8 +2867,42 @@ export class ScriptParser {
         ? character.emotionalArc
         : [{ phase: '初始', emotion: '平静' }],
       relationships: character.relationships?.length ? character.relationships : [],
-      visualPrompt: character.visualPrompt || `${name}的角色形象`,
+      // 基于 appearance 生成丰富的 visualPrompt
+      visualPrompt: character.visualPrompt || this.generateCharacterVisualPrompt(character),
     };
+  }
+
+  /**
+   * 基于角色信息生成 visualPrompt
+   * @private
+   */
+  private generateCharacterVisualPrompt(character: Partial<ScriptCharacter>): string {
+    const parts: string[] = [];
+    
+    // 收集所有可用的视觉元素
+    if (character.appearance?.face) {
+      parts.push(`面容：${character.appearance.face}`);
+    }
+    if (character.appearance?.hair) {
+      parts.push(`发型：${character.appearance.hair}`);
+    }
+    if (character.appearance?.build) {
+      parts.push(`身材：${character.appearance.build}`);
+    }
+    if (character.appearance?.height) {
+      parts.push(`身高：${character.appearance.height}`);
+    }
+    if (character.appearance?.clothing) {
+      parts.push(`服装：${character.appearance.clothing}`);
+    }
+    
+    // 如果没有可用元素，返回基础描述
+    if (parts.length === 0) {
+      return `${character.name}的角色，详细描述待补充`;
+    }
+    
+    // 组合成完整的 visualPrompt
+    return parts.join(', ');
   }
 
   /**
@@ -2888,9 +2925,49 @@ export class ScriptParser {
         colorTone: scene.environment?.colorTone || '明亮',
       },
       sceneFunction: scene.sceneFunction || '推进剧情',
-      visualPrompt: scene.visualPrompt || `${name}的场景画面`,
+      // 基于 environment、timeOfDay、weather 等生成丰富的 visualPrompt
+      visualPrompt: scene.visualPrompt || this.generateSceneVisualPrompt(scene),
       characters: scene.characters?.length ? scene.characters : [],
     };
+  }
+
+  /**
+   * 基于场景信息生成 visualPrompt
+   * @private
+   */
+  private generateSceneVisualPrompt(scene: Partial<ScriptScene>): string {
+    const parts: string[] = [];
+    
+    // 收集所有可用的视觉元素
+    if (scene.environment?.architecture) {
+      parts.push(scene.environment.architecture);
+    }
+    if (scene.environment?.furnishings && scene.environment.furnishings.length > 0) {
+      parts.push(`陈设：${scene.environment.furnishings.join(', ')}`);
+    }
+    if (scene.environment?.lighting) {
+      parts.push(`光线：${scene.environment.lighting}`);
+    }
+    if (scene.environment?.colorTone) {
+      parts.push(`色调：${scene.environment.colorTone}`);
+    }
+    if (scene.timeOfDay) {
+      parts.push(`时间：${scene.timeOfDay}`);
+    }
+    if (scene.season) {
+      parts.push(`季节：${scene.season}`);
+    }
+    if (scene.weather) {
+      parts.push(`天气：${scene.weather}`);
+    }
+    
+    // 如果没有可用元素，返回基础描述
+    if (parts.length === 0) {
+      return `${scene.name}的场景，详细环境描述待补充`;
+    }
+    
+    // 组合成完整的 visualPrompt
+    return parts.join(', ');
   }
 
   /**
@@ -3488,20 +3565,28 @@ ${chunkContent.substring(0, 4000)}
       ? `高潮场景必须至少有一个超过${climaxMinDuration}秒的长镜头，用于情感爆发或关键转折`
       : '本场景非高潮场景，无特殊长镜头要求';
 
-    // 获取目标平台（从creativeIntent优先，兼容旧配置）
-    const platformFromCreativeIntent =
-      this.parserConfig.creativeIntent?.durationControl?.targetPlatform;
-    const targetPlatformKey =
-      platformFromCreativeIntent || this.parserConfig.targetPlatform || 'douyin';
+    // 阶段 3：创作意图完整注入 - 自动推导平台/节奏/密度
+    const creativeIntent = this.parserConfig.creativeIntent;
+    const derivedInfo = creativeIntent
+      ? CreativeIntentDeriver.derive(
+          creativeIntent.filmStyle,
+          creativeIntent.aspectRatio || '9:16'
+        )
+      : undefined;
+
+    // 获取目标平台（优先使用自动推导的结果）
+    const targetPlatformKey = derivedInfo?.targetPlatform || this.parserConfig.targetPlatform || 'douyin';
 
     // 获取平台显示名称
     const platformMap: Record<string, string> = {
       douyin: '抖音（竖屏，快节奏）',
       kuaishou: '快手（竖屏，生活化）',
-      bilibili: 'B站（横屏，多样化）',
+      bilibili: 'B 站（横屏，多样化）',
       premium: '精品短剧（横屏，高质量）',
+      theatrical: '电影银幕（宽屏，电影质感）',
+      all: '全平台通用',
     };
-    const targetPlatform = platformMap[targetPlatformKey];
+    const targetPlatform = platformMap[targetPlatformKey] || targetPlatformKey;
 
     // 阶段2.5：平台标准注入 - 将平台标准注入到Prompt中
     let platformStandardInjection = '';
@@ -3542,11 +3627,69 @@ ${chunkContent.substring(0, 4000)}
       .replace('{maxTotalDuration}', String(maxTotalDuration))
       .replace('{climaxRequirement}', climaxRequirement);
 
-    // 阶段2.5：平台标准注入 - 在项目预算信息后注入平台标准
+    // 阶段 2.5：平台标准注入 - 在项目预算信息后注入平台标准
     if (platformStandardInjection) {
       console.log('[ScriptParser] Injecting platform standard into production prompt');
       // 在"📊 项目预算信息"后面添加平台标准
       prompt = prompt.replace('📊 项目预算信息', `📊 项目预算信息${platformStandardInjection}`);
+    }
+
+    // 阶段 3：创作意图完整信息注入
+    let creativeIntentInjection = '';
+    if (creativeIntent && derivedInfo) {
+      const filmStyleMap: Record<string, string> = {
+        'short-drama': '短剧',
+        'film': '电影',
+        'documentary': '纪录片',
+        'advertisement': '广告',
+      };
+      const filmStyleName = filmStyleMap[creativeIntent.filmStyle] || creativeIntent.filmStyle;
+      
+      // 构建叙事重点字符串
+      const narrativeFocusEntries = Object.entries(creativeIntent.narrativeFocus || {})
+        .filter(([, value]) => value)
+        .map(([key]) => {
+          const focusMap: Record<string, string> = {
+            protagonistArc: '主角成长',
+            emotionalCore: '情感核心',
+            worldBuilding: '世界观',
+            visualSpectacle: '视觉奇观',
+            thematicDepth: '主题深度',
+          };
+          return focusMap[key] || key;
+        });
+      const narrativeFocusStr = narrativeFocusEntries.length > 0 
+        ? narrativeFocusEntries.join('、') 
+        : '无';
+      
+      // 情感基调字符串
+      const emotionalToneMap: Record<string, string> = {
+        inspiring: '励志',
+        melancholic: '忧郁',
+        thrilling: '惊悚',
+        romantic: '浪漫',
+        mysterious: '神秘',
+      };
+      const emotionalToneStr = creativeIntent.emotionalTone
+        ? `${emotionalToneMap[creativeIntent.emotionalTone.primary] || creativeIntent.emotionalTone.primary}（强度${creativeIntent.emotionalTone.intensity}/10）`
+        : '无';
+      
+      creativeIntentInjection = `
+
+【创作意图指令】
+- 作品类型：${filmStyleName}
+- 叙事重点：${narrativeFocusStr}
+- 情感基调：${emotionalToneStr}
+- 宽高比：${creativeIntent.aspectRatio || '9:16'}（影响构图）
+${creativeIntent.visualReferences && creativeIntent.visualReferences.length > 0 ? `- 视觉参考：${creativeIntent.visualReferences.join('、')}` : ''}
+${creativeIntent.creativeNotes ? `- 创作备注：${creativeIntent.creativeNotes}` : ''}
+- 推导信息：
+  - 节奏：${derivedInfo.pacing}
+  - 平均镜头时长：${derivedInfo.averageShotDuration}秒
+  - 钩子要求：${derivedInfo.hookWithin}秒内
+  - 反转频率：每${derivedInfo.twistEvery}秒
+  - 构图要求：${derivedInfo.compositionPrompt}
+`;
     }
 
     // Inject creative intent if available
@@ -3555,6 +3698,11 @@ ${chunkContent.substring(0, 4000)}
       prompt = this.contextInjector.injectForShots(prompt, this.globalContext, {
         name: sceneName,
       } as any);
+    }
+
+    // 在 Prompt 末尾添加创作意图完整信息
+    if (creativeIntentInjection) {
+      prompt += creativeIntentInjection;
     }
 
     return prompt;
@@ -4368,7 +4516,10 @@ ${chunkContent.substring(0, 4000)}
         const end = Math.min(content.length, idx + 500);
         return content.substring(start, end);
       }
-      return content.substring(0, 1000);
+      
+      // 场景存在但无内容，返回空字符串（后续由 validateScene 处理）
+      console.warn(`[ScriptParser] Scene "${sceneName}" has no content in novel, will use validateScene to generate description`);
+      return '';
     }
 
     return context.join('\n\n');
@@ -4418,9 +4569,9 @@ ${chunkContent.substring(0, 4000)}
     }
 
     const BATCH_SIZE_CONFIG: BatchSizeConfig = {
-      initial: 15,
-      min: 8,
-      max: 25,
+      initial: 5,  // 从 15 降低到 5，保证每批次分镜质量，避免超时
+      min: 3,
+      max: 10,
       adjustThreshold: {
         decrease: 90000,
         increase: 60000,
@@ -4470,9 +4621,9 @@ ${chunkContent.substring(0, 4000)}
     }
 
     const progressiveContextConfig: ProgressiveContextConfig = {
-      batch1: 2500, // 批次 1: 完整上下文（15 个分镜）
-      batch2to4: 1000, // 批次 2-4: 简化上下文（12 个分镜）
-      batch5to8: 500, // 批次 5+: 极简上下文（10 个分镜）
+      batch1: 2000, // 批次 1: 完整上下文（5 个分镜）从 2500 降低到 2000
+      batch2to4: 800, // 批次 2-4: 简化上下文（5 个分镜）从 1000 降低到 800
+      batch5to8: 400, // 批次 5+: 极简上下文（5 个分镜）从 500 降低到 400
     };
 
     console.log(`[ScriptParser] Phase 2.1 Progressive Context Config:`, progressiveContextConfig);
@@ -4485,8 +4636,9 @@ ${chunkContent.substring(0, 4000)}
 
     // Phase 1.2: 动态批次状态
     const batchSize = this.parserConfig.shotBatchSize || BATCH_SIZE_CONFIG.initial;
-    const maxBatches = this.parserConfig.maxShotBatches || 8;
+    const maxBatches = this.parserConfig.maxShotBatches || 20;  // 从 8 增加到 20，避免提前终止
     const minShotsThreshold = Math.floor(targetShots * 0.6);
+    const targetCompletionRate = 0.9;  // 目标完成率 90%
 
     let allShots: Shot[] = [];
     let currentBatch = 0;
@@ -4503,6 +4655,15 @@ ${chunkContent.substring(0, 4000)}
     ) {
       currentBatch++;
       const remainingShots = targetShots - allShots.length;
+      
+      // 检查是否已达到目标完成率
+      const currentCompletionRate = allShots.length / targetShots;
+      if (currentCompletionRate >= targetCompletionRate && remainingShots <= 5) {
+        console.log(
+          `[ScriptParser] Reached target completion rate (${(currentCompletionRate * 100).toFixed(1)}%), stopping generation`
+        );
+        break;
+      }
 
       const actualBatchSize = Math.min(currentBatchSize, remainingShots, BATCH_SIZE_CONFIG.max);
 
@@ -4516,13 +4677,13 @@ ${chunkContent.substring(0, 4000)}
 
       if (currentBatch === 1) {
         contextLength = progressiveContextConfig.batch1;
-        expectedBatchSize = 15; // 第一批：15 个分镜
+        expectedBatchSize = 5; // 第一批：5 个分镜
       } else if (currentBatch <= 4) {
         contextLength = progressiveContextConfig.batch2to4;
-        expectedBatchSize = 12; // 中间批次：12 个分镜
+        expectedBatchSize = 5; // 中间批次：5 个分镜
       } else {
         contextLength = progressiveContextConfig.batch5to8;
-        expectedBatchSize = 10; // 后期批次：10 个分镜
+        expectedBatchSize = 5; // 后期批次：5 个分镜
       }
 
       // 动态截取上下文
@@ -4610,6 +4771,19 @@ ${chunkContent.substring(0, 4000)}
     if (allShots.length === 0) {
       console.error('[ScriptParser] All batches failed, returning empty array');
       return [];
+    }
+
+    // 记录分镜生成完成统计
+    const completionRate = allShots.length / targetShots;
+    console.log(
+      `[ScriptParser] Shot generation completed: ${allShots.length}/${targetShots} (${(completionRate * 100).toFixed(1)}%), batches: ${currentBatch}`
+    );
+    
+    if (completionRate < 0.8) {
+      console.warn(
+        `[ScriptParser] Warning: Completion rate is low (${(completionRate * 100).toFixed(1)}%), ` +
+          `consider increasing maxBatches or checking scene content`
+      );
     }
 
     const defaultShotDuration = this.parserConfig.defaultShotDuration || 3;

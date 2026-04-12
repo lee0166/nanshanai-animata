@@ -15,27 +15,27 @@ import { PlatformEpisodeStandard } from '../../types';
 export const PLATFORM_EPISODE_STANDARDS: Record<string, PlatformEpisodeStandard> = {
   douyin: {
     platform: 'douyin',
-    episodeDurationRange: [60, 180], // 1-3分钟
-    recommendedEpisodeDuration: 120, // 2分钟
+    episodeDurationRange: [60, 180], // 1-3 分钟
+    recommendedEpisodeDuration: 120, // 2 分钟
     totalEpisodesRange: [10, 50],
-    shotsPerEpisodeRange: [15, 45],
+    shotsPerEpisodeRange: [8, 20],  // 从 [15,45] 降低到 [8,20]，符合行业标准
     hookRequirements: {
-      hookWithinSeconds: 3, // 0-3秒必须有钩子
+      hookWithinSeconds: 3, // 0-3 秒必须有钩子
       hookTypes: ['question', 'shock', 'mystery', 'conflict'],
     },
     twistRequirements: {
-      twistEverySeconds: 30, // 每30秒一个反转
+      twistEverySeconds: 30, // 每 30 秒一个反转
     },
     characterIntroductionRequirements: {
-      characterWithinSeconds: 15, // 15秒内人物必须出场
+      characterWithinSeconds: 15, // 15 秒内人物必须出场
     },
   },
   kuaishou: {
     platform: 'kuaishou',
-    episodeDurationRange: [90, 300], // 1.5-5分钟
-    recommendedEpisodeDuration: 180, // 3分钟
+    episodeDurationRange: [90, 300], // 1.5-5 分钟
+    recommendedEpisodeDuration: 180, // 3 分钟
     totalEpisodesRange: [10, 30],
-    shotsPerEpisodeRange: [20, 50],
+    shotsPerEpisodeRange: [10, 25],  // 从 [20,50] 降低到 [10,25]
     hookRequirements: {
       hookWithinSeconds: 5,
       hookTypes: ['authenticity', 'emotion', 'relatable'],
@@ -49,10 +49,10 @@ export const PLATFORM_EPISODE_STANDARDS: Record<string, PlatformEpisodeStandard>
   },
   bilibili: {
     platform: 'bilibili',
-    episodeDurationRange: [300, 900], // 5-15分钟
-    recommendedEpisodeDuration: 600, // 10分钟
+    episodeDurationRange: [300, 900], // 5-15 分钟
+    recommendedEpisodeDuration: 600, // 10 分钟
     totalEpisodesRange: [8, 24],
-    shotsPerEpisodeRange: [50, 150],
+    shotsPerEpisodeRange: [25, 60],  // 从 [50,150] 降低到 [25,60]
     hookRequirements: {
       hookWithinSeconds: 15,
       hookTypes: ['world_building', 'character', 'mystery'],
@@ -66,10 +66,10 @@ export const PLATFORM_EPISODE_STANDARDS: Record<string, PlatformEpisodeStandard>
   },
   premium: {
     platform: 'premium',
-    episodeDurationRange: [180, 600], // 3-10分钟
-    recommendedEpisodeDuration: 480, // 8分钟
-    totalEpisodesRange: [1, 8], // 1-8集（短篇≤3集）
-    shotsPerEpisodeRange: [20, 60], // 20-60个分镜/集（参考《斩仙台》40个/集）
+    episodeDurationRange: [180, 600], // 3-10 分钟
+    recommendedEpisodeDuration: 480, // 8 分钟
+    totalEpisodesRange: [1, 8], // 1-8 集（短篇≤3 集）
+    shotsPerEpisodeRange: [15, 40],  // 从 [20,60] 降低到 [15,40]
     hookRequirements: {
       hookWithinSeconds: 30,
       hookTypes: ['cinematic', 'artistic', 'theme'],

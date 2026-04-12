@@ -40,13 +40,13 @@ export const DEFAULT_STAGE_WEIGHTS: Record<ParseStage, number> = {
   characters: 0.2, // 20% - 角色分析
   scenes: 0.2, // 20% - 场景分析
   items: 0.05, // 5% - 物品提取
-  shots: 0.2, // 20% - 分镜生成
-  refinement: 0.03, // 3% - 结果优化
-  budget: 0.02, // 2% - 时长预算
-  episode_planning_phase1: 0.02, // 2% - Phase 1 估算
-  episode_planning: 0.03, // 3% - 分集规划
-  episode_planning_phase2: 0.02, // 2% - Phase 2 精确计算
-  coherence_check: 0.03, // 3% - 连贯性检查
+  shots: 0.43, // 43% - 分镜生成（占比最高，因为是最主要的阶段）
+  refinement: 0.0, // 0% - 跳过结果优化（合并到分镜生成）
+  budget: 0.0, // 0% - 跳过时长预算（合并到分镜生成）
+  episode_planning_phase1: 0.0, // 0% - 跳过分集规划 Phase 1（短文本不需要）
+  episode_planning: 0.0, // 0% - 跳过分集规划
+  episode_planning_phase2: 0.0, // 0% - 跳过分集规划 Phase 2（短文本不需要）
+  coherence_check: 0.0, // 0% - 跳过连贯性检查（短文本不需要）
   completed: 0,
   error: 0,
 };

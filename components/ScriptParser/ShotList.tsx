@@ -50,7 +50,6 @@ import {
   ArrowUp,
   ArrowDown,
 } from 'lucide-react';
-import { useVirtualizer } from '@tanstack/react-virtual';
 import { keyframeService } from '../../services/keyframe';
 import { storageService } from '../../services/storage';
 import { useApp } from '../../contexts/context';
@@ -179,18 +178,8 @@ export const ShotList: React.FC<ShotListProps> = ({
     });
   }, [shotsWithNumbers, selectedScene]);
 
-  // 虚拟化表格行
+  // 虚拟化表格行（保留 ref 用于表格滚动）
   const tableBodyRef = useRef<HTMLTableSectionElement>(null);
-
-  const virtualizer = useVirtualizer({
-    count: filteredShots.length,
-    getScrollElement: () => tableBodyRef.current,
-    estimateSize: () => 80, // 每行估计高度 80px
-    overscan: 5, // 预渲染 5 行缓冲区
-  });
-
-  const virtualRows = virtualizer.getVirtualItems();
-  const totalSize = virtualizer.getTotalSize();
 
   // Group shots by scene
   const shotsByScene = useMemo(() => {
@@ -457,21 +446,11 @@ export const ShotList: React.FC<ShotListProps> = ({
               <TableColumn>操作</TableColumn>
             </TableHeader>
             <TableBody ref={tableBodyRef}>
-              <div style={{ height: `${totalSize}px`, position: 'relative' }}>
-                {virtualRows.map(virtualRow => {
-                  const shot = filteredShots[virtualRow.index];
-                  const index = virtualRow.index;
-                  return (
-                    <TableRow
-                      key={shot.id}
-                      style={{
-                        transform: `translateY(${virtualRow.start}px)`,
-                        position: 'absolute',
-                        top: 0,
-                        left: 0,
-                        width: '100%',
-                      }}
-                    >
+              {filteredShots.map((shot, index) => {
+                return (
+                  <TableRow
+                    key={shot.id}
+                  >
                       <TableCell>
                         <Chip
                           color={shot.layer === 'key' ? 'primary' : 'default'}
@@ -605,7 +584,6 @@ export const ShotList: React.FC<ShotListProps> = ({
                     </TableRow>
                   );
                 })}
-              </div>
             </TableBody>
           </Table>
         </>
