@@ -1273,20 +1273,21 @@ description字段必须满足以下条件：
 
 5. 每个分镜必须标注style字段（short-drama/film/custom）
 
-6. 叙事节点绑定要求：
-   - 每个分镜必须标注narrativeNode字段，说明该分镜属于哪个叙事节点（如act1、act2a、midpoint、climax、act3等）
-   - 每个分镜必须标注preShotId字段，指向前一个分镜的ID（第一个分镜可以为空或null）
-   - 每个分镜必须标注nextShotId字段，指向后一个分镜的ID（最后一个分镜可以为空或null）
+⚠️ 防重复硬性规则（必须严格遵守）：
+1. 每个场景最多只能有1个远景建立镜头（extreme_long 或 long），用于交代环境全貌
+2. 如果前序镜头已有某场景的远景建立镜头，新镜头必须选择中景、近景或特写
+3. 不要重复生成与前序镜头相同或高度相似的内容（尤其是同一场景的全景描述）
+4. 景别选择应遵循"建立→发展→高潮"的递进逻辑，避免连续相同景别
 
 【影视级分镜字段】
 {
   "sceneName": "场景名称",
-  "shotNumber": "镜号（如SC01-01A）",
+  "shotNumber": "镜号（如SC01-01A，按场景递增编号）",
   "sequence": 1,
-  "shotType": "景别",
-  "cameraMovement": "运镜",
-  "cameraAngle": "机位角度",
-  "description": "画面描述（50字以内）",
+  "shotType": "景别（从下方景别选项中选择）",
+  "cameraMovement": "运镜（从下方运镜选项中选择）",
+  "cameraAngle": "机位角度（从下方机位选项中选择）",
+  "description": "画面描述（50字以内，包含景别、角度、主体动作/表情）",
   "dialogue": "台词",
   "sound": "音效",
   "music": "配乐提示",
@@ -1312,26 +1313,24 @@ description字段必须满足以下条件：
       }
     ]
   },
-  "narrativeNode": "act1",
-  "preShotId": null,
-  "nextShotId": "shot-002"
+  "narrativeNode": "act1|act2a|midpoint|climax|act3（叙事节点）"
 }
 
-【景别选项】
-extreme_long(大远景), long(远景), full(全景), medium(中景), close_up(近景), extreme_close_up(特写)
+【景别选项】（必须从以下选项中选择）
+extreme_long(大远景), long(远景), full(全景), medium(中景), close_up(近景/特写), extreme_close_up(大特写)
 
-【运镜选项】
-static(静止), push(推), pull(拉), pan(摇), tilt(升降), track(跟), crane(crane), zoom_in(变焦推), zoom_out(变焦拉), dolly_in(移近), dolly_out(移远)
+【运镜选项】（必须从以下选项中选择）
+static(静止), push(推), pull(拉), pan(摇), tilt(升降), track(跟拍), crane(升降/摇臂), zoom_in(变焦推), zoom_out(变焦拉), dolly_in(移近), dolly_out(移远)
 
-【机位角度】
-eye_level(平视), high_angle(俯拍), low_angle(仰拍), dutch_angle(倾斜), overhead(顶拍), bird_eye(鸟瞰)
+【机位角度选项】（必须从以下选项中选择）
+eye_level(平视), high_angle(俯拍), low_angle(仰拍), dutch_angle(倾斜), overhead(顶视), bird_eye(鸟瞰)
 
 【质量标准】
 1. 分镜必须可拍摄，避免"泛、乱、不可拍"
 2. 角色形象与角色库保持一致
 3. 场景风格与场景库保持一致
 4. 情节连贯，无遗漏
-5. 镜号格式：SC{场景序号}-{分镜序号}{子序号}
+5. 镜号格式：SC{场景序号}-{分镜序号}{子序号}，同一场景内分镜序号递增
 
 【输出格式】
 严格按JSON数组格式输出，包含所有字段。
@@ -1368,7 +1367,7 @@ eye_level(平视), high_angle(俯拍), low_angle(仰拍), dutch_angle(倾斜), o
 `,
 
   shots: `
-请为以下场景生成分镜脚本。
+请为以下场景生成分镜脚本。你是一个专业的影视分镜师，需要根据剧本内容生成影视级分镜。
 
 【场景信息】
 场景名称: {sceneName}
@@ -1378,32 +1377,47 @@ eye_level(平视), high_angle(俯拍), low_angle(仰拍), dutch_angle(倾斜), o
 【剧本原文】
 {content}
 
-请生成详细分镜，要求：
-1. 每个镜头包含：序号、景别、运镜方式、画面描述、台词、音效、预估时长、涉及角色
-2. 景别选项：extreme_long(极远景), long(远景), full(全景), medium(中景), close_up(近景), extreme_close_up(极近景)
-3. 运镜选项：static(固定), push(推), pull(拉), pan(摇), tilt(升降), track(移), crane(升降)
-4. 每个场景生成5-15个镜头
-5. 叙事节点绑定要求：
-   - 每个分镜必须标注narrativeNode字段，说明该分镜属于哪个叙事节点（如act1、act2a、midpoint、climax、act3等）
-   - 每个分镜必须标注preShotId字段，指向前一个分镜的ID（第一个分镜可以为空或null）
-   - 每个分镜必须标注nextShotId字段，指向后一个分镜的ID（最后一个分镜可以为空或null）
+【分镜数量要求】
+请根据场景内容生成适当数量的分镜（通常5-15个），重要场景可适当增加。
 
+⚠️ 硬性约束（必须严格遵守）：
+1. 每个场景最多只能有1个远景建立镜头（extreme_long 或 long，用于交代环境全貌），后续镜头必须聚焦于具体角色、动作或细节
+2. 不要重复生成与前序镜头相同或高度相似的内容（尤其是同一场景的全景描述）
+3. 景别选择应遵循"建立→发展→高潮"的递进逻辑，避免连续相同景别
+4. 如果前序镜头已展示了场景全貌，新镜头应该聚焦于特定角色、动作、表情或环境细节
+
+📝 输出格式要求
 请严格按以下JSON数组格式输出：
 [
   {
     "sequence": 1,
-    "shotType": "full",
-    "cameraMovement": "static",
-    "description": "画面描述",
-    "dialogue": "台词（可选）",
-    "sound": "音效（可选）",
+    "shotType": "景别（从下方景别选项中选择）",
+    "cameraMovement": "运镜（从下方运镜选项中选择）",
+    "cameraAngle": "机位角度（从下方机位选项中选择）",
+    "description": "画面描述（50字以内，包含景别、角度、主体动作/表情）",
+    "dialogue": "台词（如有）",
+    "sound": "音效/配乐提示",
     "duration": 3,
     "characters": ["角色名"],
-    "narrativeNode": "act1",
-    "preShotId": null,
-    "nextShotId": "shot-002"
+    "layer": "key|optional（关键分镜标记为key，过渡/环境分镜标记为optional）",
+    "contentType": "static|dynamic-simple|dynamic-complex"
   }
 ]
+
+【景别选项】（必须从以下选项中选择）
+extreme_long(大远景), long(远景), full(全景), medium(中景), close_up(近景/特写), extreme_close_up(大特写)
+
+【运镜选项】（必须从以下选项中选择）
+static(静止), push(推), pull(拉), pan(摇), tilt(升降), track(跟拍), crane(升降/摇臂), zoom_in(变焦推), zoom_out(变焦拉), dolly_in(移近), dolly_out(移远)
+
+【机位角度选项】（必须从以下选项中选择）
+eye_level(平视), high_angle(俯拍), low_angle(仰拍), dutch_angle(倾斜), overhead(顶视), bird_eye(鸟瞰)
+
+💡 导演指导原则
+1. 景别变化要有节奏感，避免连续相同景别
+2. 运镜选择要服务于叙事，不要过度炫技
+3. 每个分镜都要有明确的叙事目的
+4. 分镜必须可拍摄，避免"泛、乱、不可拍"的描述
 `,
 
   /**
@@ -1412,14 +1426,6 @@ eye_level(平视), high_angle(俯拍), low_angle(仰拍), dutch_angle(倾斜), o
    */
   productionShots: `
 请为以下场景生成专业级分镜脚本。你是一个资深的影视导演，需要严格按照生产规范生成分镜。
-
-【场景信息】
-场景名称: {sceneName}
-场景描述: {sceneDescription}
-涉及角色: {characters}
-
-【剧本原文】
-{content}
 
 📊 项目预算信息
 - 目标平台: {targetPlatform}
@@ -1430,10 +1436,15 @@ eye_level(平视), high_angle(俯拍), low_angle(仰拍), dutch_angle(倾斜), o
 
 🎬 场景信息
 - 场景名称: {sceneName}
+- 场景描述: {sceneDescription}
 - 场景类型: {sceneImportance}
+- 涉及角色: {characters}
 - 在故事中的位置: {scenePosition}
 - 叙事重要性: {narrativeImportance}
 - 情感强度: {emotionalIntensity}
+
+【剧本原文】
+{content}
 
 ⏱️ 时长分配策略（必须严格遵守）
 - 开场/结尾镜头: 6-10秒（建立场景氛围、交代环境）
@@ -1447,28 +1458,42 @@ eye_level(平视), high_angle(俯拍), low_angle(仰拍), dutch_angle(倾斜), o
 2. 【时长变化】连续3个分镜不能有相同时长（避免单调节奏）
 3. 【总时长约束】本场景所有分镜时长之和必须接近 {sceneAllocatedDuration}秒（±15%误差范围：{minTotalDuration}-{maxTotalDuration}秒）
 4. 【高潮要求】{climaxRequirement}
+5. 【防重复】每个场景最多只能有1个远景建立镜头（extreme_long 或 long），后续镜头必须聚焦于具体角色、动作或细节
 
 📝 输出格式要求
 请严格按以下JSON数组格式输出，每个分镜必须包含 rationale 字段说明时长选择理由：
 [
   {
     "sequence": 1,
-    "shotType": "full",
-    "cameraMovement": "static",
-    "description": "画面描述，包含景别、角度、主体动作",
+    "shotType": "景别（从下方景别选项中选择）",
+    "cameraMovement": "运镜（从下方运镜选项中选择）",
+    "cameraAngle": "机位角度（从下方机位选项中选择）",
+    "description": "画面描述（50字以内，包含景别、角度、主体动作）",
     "dialogue": "台词（如有）",
     "sound": "音效/配乐提示",
     "duration": 5,
     "characters": ["角色名"],
+    "layer": "key|optional",
+    "contentType": "static|dynamic-simple|dynamic-complex",
     "rationale": "时长选择理由：如'开场建立镜头，需要6秒让观众适应场景'"
   }
 ]
+
+【景别选项】（必须从以下选项中选择）
+extreme_long(大远景), long(远景), full(全景), medium(中景), close_up(近景/特写), extreme_close_up(大特写)
+
+【运镜选项】（必须从以下选项中选择）
+static(静止), push(推), pull(拉), pan(摇), tilt(升降), track(跟拍), crane(升降/摇臂), zoom_in(变焦推), zoom_out(变焦拉), dolly_in(移近), dolly_out(移远)
+
+【机位角度选项】（必须从以下选项中选择）
+eye_level(平视), high_angle(俯拍), low_angle(仰拍), dutch_angle(倾斜), overhead(顶视), bird_eye(鸟瞰)
 
 💡 导演指导原则
 1. 景别变化要有节奏感，避免连续相同景别
 2. 运镜选择要服务于叙事，不要过度炫技
 3. 时长分配要符合情感曲线，紧张场景短、情感场景长
 4. 每个分镜都要有明确的叙事目的
+5. 分镜必须可拍摄，避免"泛、乱、不可拍"的描述
 `,
 };
 
@@ -4708,6 +4733,42 @@ ${creativeIntent.creativeNotes ? `- 创作备注：${creativeIntent.creativeNote
         );
       }
 
+      // Phase 2.1 新增：注入已生成的前序镜头上下文，确保视觉连续性
+      if (allShots.length > 0) {
+        const recentShots = allShots.slice(-12);
+        const previousShotsContext = recentShots
+          .map((s, i) => {
+            const sceneTag = s.sceneName ? `[${s.sceneName}]` : '';
+            const desc = s.description ? s.description.substring(0, 100) : '无描述';
+            return `镜头${i + 1}: ${s.shotNumber || 'N/A'} ${sceneTag} ${desc}`;
+          })
+          .join('\n');
+
+        const continuityNote = `\n\n【视觉连续性要求】以下是已生成的前序镜头，请确保新镜头与前序镜头保持视觉连续性：
+
+⚠️ 防重复硬性规则（必须严格遵守）：
+1. 如果前序镜头中已有某场景的"远景建立镜头"（extreme_long/long 景别，描述中包含"全景"、"山门"、"云雾"、"琼楼玉宇"等全景元素），新镜头**绝对不能再是同类远景镜头**，必须选择中景、近景或特写
+2. 每个场景最多只能有1个远景建立镜头（用于建立空间关系），后续镜头必须聚焦于具体的角色、动作或细节
+3. 不要重复描述相同场景的全貌。如果前序镜头已展示了场景全貌，新镜头应该：
+   - 聚焦于特定角色或物体
+   - 展示具体的动作或对话
+   - 使用不同的摄像机角度（如从平视改为俯拍或仰拍）
+   - 关注环境中的某个细节而非全景
+4. 景别选择应该遵循"建立→发展→高潮"的递进逻辑，不要在同一景别上反复生成
+
+📋 镜头连贯性要求：
+- 新镜头应该在叙事上承接最后一个镜头，避免跳跃感
+- 注意保持角色位置、服装、表情的一致性
+- 注意保持摄像机机位和运动方向的连贯性（遵守180度轴线规则）
+- 如果前序镜头是远景，新镜头应该考虑中景或特写，遵循经典的景别递进节奏
+
+已生成的前序镜头：
+${previousShotsContext}`;
+
+        batchPrompt += continuityNote;
+        console.log(`[ScriptParser] Injected ${recentShots.length} previous shots as context for visual continuity`);
+      }
+
       console.log(
         `[ScriptParser] Batch ${currentBatch} prompt length: ${batchPrompt.length} characters`
       );
@@ -4745,10 +4806,50 @@ ${creativeIntent.creativeNotes ? `- 创作备注：${creativeIntent.creativeNote
         }
 
         consecutiveFailures = 0;
-        allShots = [...allShots, ...batchShots];
+
+        // Phase 2.1 新增：基于语义相似度的批次间去重检查
+        const uniqueBatchShots: Shot[] = [];
+        const similarityThreshold = 0.75;
+
+        for (const batchShot of batchShots) {
+          let isDuplicate = false;
+
+          for (const existingShot of allShots) {
+            // 首先按场景名称过滤
+            if ((batchShot.sceneName || '') !== (existingShot.sceneName || '')) {
+              continue;
+            }
+
+            // 计算文本相似度（Jaccard 相似度）
+            const batchDesc = (batchShot.description || '').toLowerCase();
+            const existingDesc = (existingShot.description || '').toLowerCase();
+
+            const batchWords = new Set(batchDesc.match(/[\u4e00-\u9fa5]|[a-z]+/g) || []);
+            const existingWords = new Set(existingDesc.match(/[\u4e00-\u9fa5]|[a-z]+/g) || []);
+
+            const intersection = new Set([...batchWords].filter(w => existingWords.has(w)));
+            const union = new Set([...batchWords, ...existingWords]);
+
+            const similarity = union.size > 0 ? intersection.size / union.size : 0;
+
+            if (similarity >= similarityThreshold) {
+              console.log(
+                `[ScriptParser] Batch ${currentBatch}: Detected similar shot (${(similarity * 100).toFixed(0)}%), skipping: "${batchShot.description?.substring(0, 50)}..."`
+              );
+              isDuplicate = true;
+              break;
+            }
+          }
+
+          if (!isDuplicate) {
+            uniqueBatchShots.push(batchShot);
+          }
+        }
+
+        allShots = [...allShots, ...uniqueBatchShots];
 
         console.log(
-          `[ScriptParser] Batch ${currentBatch} complete: ${batchShots.length} shots generated, total: ${allShots.length}/${targetShots}, response time: ${lastResponseTime}ms`
+          `[ScriptParser] Batch ${currentBatch} complete: ${batchShots.length} generated, ${uniqueBatchShots.length} unique (removed ${batchShots.length - uniqueBatchShots.length} duplicates), total: ${allShots.length}/${targetShots}, response time: ${lastResponseTime}ms`
         );
 
         currentBatchSize = this.adjustBatchSize(
@@ -4787,27 +4888,104 @@ ${creativeIntent.creativeNotes ? `- 创作备注：${creativeIntent.creativeNote
     }
 
     const defaultShotDuration = this.parserConfig.defaultShotDuration || 3;
-    const result = allShots.map((shot, index) => ({
-      ...shot,
-      id: shot.id || crypto.randomUUID(),
-      sequence: shot.sequence || index + 1,
-      duration: shot.duration ?? defaultShotDuration,
-      shotNumber: shot.shotNumber || `SC${index + 1}`,
-      cameraAngle: shot.cameraAngle || 'eye_level',
-      assets: shot.assets || { characterIds: [], sceneId: '' },
-      contentType: shot.contentType || 'static',
-      layer: shot.layer || 'key',
-      status: shot.status || 'pending',
-    }));
+
+    // Phase 2.2 新增：按场景分组并重新编号
+    console.log(`[ScriptParser] ========== Phase 2.2: Scene Grouping and Renumbering ==========`);
+
+    // 1. 按 sceneName 分组
+    const groupedByScene = new Map<string, Shot[]>();
+    for (const shot of allShots) {
+      const sceneName = shot.sceneName || '未分类';
+      if (!groupedByScene.has(sceneName)) {
+        groupedByScene.set(sceneName, []);
+      }
+      groupedByScene.get(sceneName)!.push(shot);
+    }
+
+    console.log(`[ScriptParser] Grouped shots into ${groupedByScene.size} scenes:`);
+    for (const [sceneName, sceneShots] of groupedByScene) {
+      console.log(`  - ${sceneName}: ${sceneShots.length} shots`);
+    }
+
+    // 2. 每个场景内重新编号
+    const finalShots: Shot[] = [];
+    let globalSequence = 1;
+    let sceneIndex = 1;
+
+    for (const [sceneName, sceneShots] of groupedByScene) {
+      // 按 sceneName 中的顺序或原始 sequence 排序（保持叙事顺序）
+      sceneShots.sort((a, b) => {
+        const seqA = a.sequence || 0;
+        const seqB = b.sequence || 0;
+        return seqA - seqB;
+      });
+
+      let shotIndex = 1;
+      for (const shot of sceneShots) {
+        shot.shotNumber = `SC${String(sceneIndex).padStart(2, '0')}-${String(shotIndex).padStart(2, '0')}A`;
+        shot.sequence = globalSequence;
+        shot.sceneName = sceneName;
+        shot.id = shot.id || crypto.randomUUID();
+        shot.duration = shot.duration ?? defaultShotDuration;
+        shot.cameraAngle = shot.cameraAngle || 'eye_level';
+        shot.assets = shot.assets || { characterIds: [], sceneId: '' };
+        shot.contentType = shot.contentType || 'static';
+        shot.layer = shot.layer || 'key';
+        shot.status = shot.status || 'pending';
+
+        finalShots.push(shot);
+        shotIndex++;
+        globalSequence++;
+      }
+
+      console.log(
+        `[ScriptParser] Scene "${sceneName}": ${sceneShots.length} shots, numbered SC${String(sceneIndex).padStart(2, '0')}-01A to SC${String(sceneIndex).padStart(2, '0')}-${String(shotIndex - 1).padStart(2, '0')}A`
+      );
+      sceneIndex++;
+    }
+
+    // Phase 2.3 新增：基础验证
+    console.log(`[ScriptParser] ========== Phase 2.3: Validation ==========`);
+
+    // 验证 1：shotNumber 唯一性检查
+    const shotNumbers = finalShots.map(s => s.shotNumber);
+    const uniqueShotNumbers = new Set(shotNumbers);
+    if (shotNumbers.length !== uniqueShotNumbers.size) {
+      console.error(`[ScriptParser] VALIDATION FAILED: Found duplicate shotNumbers!`);
+      const duplicates = shotNumbers.filter((n, i) => shotNumbers.indexOf(n) !== i);
+      console.error(`[ScriptParser] Duplicate shotNumbers:`, duplicates);
+    } else {
+      console.log(`[ScriptParser] ✓ shotNumber uniqueness check passed: ${uniqueShotNumbers.size} unique shotNumbers`);
+    }
+
+    // 验证 2：sequence 连续性检查
+    let sequenceGaps = 0;
+    for (let i = 0; i < finalShots.length; i++) {
+      if (finalShots[i].sequence !== i + 1) {
+        sequenceGaps++;
+        console.warn(
+          `[ScriptParser] Sequence gap at index ${i}: expected ${i + 1}, got ${finalShots[i].sequence}`
+        );
+      }
+    }
+    if (sequenceGaps === 0) {
+      console.log(`[ScriptParser] ✓ sequence continuity check passed: ${finalShots.length} shots, sequence 1-${finalShots.length}`);
+    } else {
+      console.warn(`[ScriptParser] Found ${sequenceGaps} sequence gaps, fixing...`);
+      finalShots.forEach((shot, i) => {
+        shot.sequence = i + 1;
+      });
+      console.log(`[ScriptParser] ✓ sequence gaps fixed`);
+    }
 
     // 统计关键分镜和可选分镜数量
-    const keyShots = result.filter(s => s.layer === 'key').length;
-    const optionalShots = result.filter(s => s.layer === 'optional').length;
+    const keyShots = finalShots.filter(s => s.layer === 'key').length;
+    const optionalShots = finalShots.filter(s => s.layer === 'optional').length;
     console.log(
-      `[ScriptParser] Final result: ${result.length} shots (${keyShots} key + ${optionalShots} optional) in ${currentBatch} batches`
+      `[ScriptParser] Final result: ${finalShots.length} shots (${keyShots} key + ${optionalShots} optional) in ${currentBatch} batches, grouped into ${groupedByScene.size} scenes`
     );
 
-    return result;
+    return finalShots;
   }
 
   /**
@@ -6609,7 +6787,6 @@ ${content}
         strategy: 'standard',
         reason: `标准路径 (${wordCount} 字)`,
         wordCount,
-        estimatedTime: 0,
         recommendedBatchSize: 5,
       };
     }

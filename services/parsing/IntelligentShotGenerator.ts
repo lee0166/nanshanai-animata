@@ -27,25 +27,11 @@
 import { ScriptScene, ScriptCharacter, Shot } from '../../types';
 
 /**
- * 复杂度因子
- */
-interface ComplexityFactor {
-  /** 因子名称 */
-  name: string;
-  /** 权重（0-1） */
-  weight: number;
-  /** 评分（0-10） */
-  score: number;
-}
-
-/**
  * 场景复杂度评分结果
  */
 export interface SceneComplexity {
   /** 综合评分（0-10） */
   score: number;
-  /** 复杂度因子详情 */
-  factors: ComplexityFactor[];
   /** 复杂度等级 */
   level: ComplexityLevel;
 }
@@ -81,31 +67,14 @@ export class IntelligentShotGenerator {
    * @returns 场景复杂度评分
    */
   analyzeComplexity(scene: ScriptScene, characters: ScriptCharacter[]): SceneComplexity {
-    const factors: ComplexityFactor[] = [
-      {
-        name: '场景长度',
-        weight: 0.3,
-        score: this.scoreByLength(scene.description?.length || 0),
-      },
-      {
-        name: '角色数量',
-        weight: 0.25,
-        score: this.scoreByCharacters(characters.length),
-      },
-      {
-        name: '动作元素',
-        weight: 0.25,
-        score: this.scoreByAction(scene.description || ''),
-      },
-      {
-        name: '环境复杂度',
-        weight: 0.2,
-        score: this.scoreByEnvironment(scene.description || ''),
-      },
-    ];
+    // 计算各个维度的分数
+    const lengthScore = this.scoreByLength(scene.description?.length || 0);
+    const charactersScore = this.scoreByCharacters(characters.length);
+    const actionScore = this.scoreByAction(scene.description || '');
+    const environmentScore = this.scoreByEnvironment(scene.description || '');
 
     // 计算加权总分
-    const totalScore = factors.reduce((sum, factor) => sum + factor.score * factor.weight, 0);
+    const totalScore = lengthScore * 0.3 + charactersScore * 0.25 + actionScore * 0.25 + environmentScore * 0.2;
 
     // 限制范围 0-10，并四舍五入
     const roundedScore = Math.round(Math.min(10, Math.max(0, totalScore)));
@@ -113,16 +82,8 @@ export class IntelligentShotGenerator {
     // 确定复杂度等级
     const level = this.getComplexityLevel(roundedScore);
 
-    console.log(`[IntelligentShotGenerator] Scene complexity analysis:`);
-    console.log(`  - Scene: ${scene.name}`);
-    console.log(`  - Overall score: ${roundedScore}/10 (${level})`);
-    factors.forEach(factor => {
-      console.log(`  - ${factor.name}: ${factor.score}/10 (weight: ${factor.weight})`);
-    });
-
     return {
       score: roundedScore,
-      factors,
       level,
     };
   }

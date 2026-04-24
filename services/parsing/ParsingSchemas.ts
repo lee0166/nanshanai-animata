@@ -260,17 +260,75 @@ const stringToReferences = (val: unknown): z.infer<typeof ReferencesSchema> => {
 // Schema 7: 元数据提取（扩展版 - 柔性Schema）
 // ==========================================
 export const ScriptMetadataSchema = z.object({
-  // 基础信息
-  title: z.string().min(1),
-  wordCount: z.number().int().min(0),
-  estimatedDuration: z.string(),
-  characterCount: z.number().int().min(0),
-  characterNames: z.array(z.string().min(1)),
-  sceneCount: z.number().int().min(0),
-  sceneNames: z.array(z.string().min(1)),
-  chapterCount: z.number().int().min(0),
-  genre: z.string(),
-  tone: z.string(),
+  // 基础信息（使用preprocess处理null/undefined和类型转换，防止LLM返回错误类型导致验证失败）
+  title: z.preprocess(
+    val => {
+      if (val === null || val === undefined) return '未命名剧本';
+      if (typeof val !== 'string') return String(val);
+      return val;
+    },
+    z.string().min(1)
+  ),
+  wordCount: z.preprocess(
+    val => {
+      if (val === null || val === undefined) return 0;
+      if (typeof val === 'string') return parseInt(val, 10) || 0;
+      return val;
+    },
+    z.number().int().min(0)
+  ),
+  estimatedDuration: z.preprocess(
+    val => (val === null || val === undefined) ? '未知' : String(val),
+    z.string()
+  ),
+  characterCount: z.preprocess(
+    val => {
+      if (val === null || val === undefined) return 0;
+      if (typeof val === 'string') return parseInt(val, 10) || 0;
+      return val;
+    },
+    z.number().int().min(0)
+  ),
+  characterNames: z.preprocess(
+    val => {
+      if (val === null || val === undefined) return [];
+      if (!Array.isArray(val)) return [];
+      return val.filter(n => typeof n === 'string' && n.length > 0);
+    },
+    z.array(z.string().min(1))
+  ),
+  sceneCount: z.preprocess(
+    val => {
+      if (val === null || val === undefined) return 0;
+      if (typeof val === 'string') return parseInt(val, 10) || 0;
+      return val;
+    },
+    z.number().int().min(0)
+  ),
+  sceneNames: z.preprocess(
+    val => {
+      if (val === null || val === undefined) return [];
+      if (!Array.isArray(val)) return [];
+      return val.filter(n => typeof n === 'string' && n.length > 0);
+    },
+    z.array(z.string().min(1))
+  ),
+  chapterCount: z.preprocess(
+    val => {
+      if (val === null || val === undefined) return 0;
+      if (typeof val === 'string') return parseInt(val, 10) || 0;
+      return val;
+    },
+    z.number().int().min(0)
+  ),
+  genre: z.preprocess(
+    val => (val === null || val === undefined) ? '未知' : String(val),
+    z.string()
+  ),
+  tone: z.preprocess(
+    val => (val === null || val === undefined) ? '未知' : String(val),
+    z.string()
+  ),
 
   // Phase 1 新增：故事核心层
   synopsis: z.string().optional(),

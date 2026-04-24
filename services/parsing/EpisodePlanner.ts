@@ -200,6 +200,21 @@ export class EpisodePlanner {
   }
 
   /**
+   * 计算每个场景的总时长
+   */
+  private static calculateSceneDurations(
+    scenes: ScriptScene[],
+    shots: Shot[]
+  ): { [sceneName: string]: number } {
+    const sceneDurations: { [sceneName: string]: number } = {};
+    scenes.forEach(scene => {
+      const sceneShots = shots.filter(shot => shot.sceneName === scene.name);
+      sceneDurations[scene.name] = sceneShots.reduce((sum, shot) => sum + (shot.duration || 3), 0);
+    });
+    return sceneDurations;
+  }
+
+  /**
    * 将场景分组到各集（基于分镜时长）
    */
   private static groupScenesIntoEpisodes(
@@ -221,11 +236,7 @@ export class EpisodePlanner {
     );
 
     // 计算每个场景的总时长
-    const sceneDurations: { [sceneName: string]: number } = {};
-    scenes.forEach(scene => {
-      const sceneShots = shots.filter(shot => shot.sceneName === scene.name);
-      sceneDurations[scene.name] = sceneShots.reduce((sum, shot) => sum + (shot.duration || 3), 0);
-    });
+    const sceneDurations = this.calculateSceneDurations(scenes, shots);
 
     // 先找到高潮场景的索引范围
     const climaxSceneNames = plotStructure.climaxScenes.map(s => s.name);
@@ -452,11 +463,7 @@ export class EpisodePlanner {
     const scenesPerEpisode = Math.ceil(scenes.length / totalEpisodes);
 
     // 计算每个场景的总时长
-    const sceneDurations: { [sceneName: string]: number } = {};
-    scenes.forEach(scene => {
-      const sceneShots = shots.filter(shot => shot.sceneName === scene.name);
-      sceneDurations[scene.name] = sceneShots.reduce((sum, shot) => sum + (shot.duration || 3), 0);
-    });
+    const sceneDurations = this.calculateSceneDurations(scenes, shots);
 
     for (let i = 0; i < totalEpisodes; i++) {
       const startIndex = i * scenesPerEpisode;

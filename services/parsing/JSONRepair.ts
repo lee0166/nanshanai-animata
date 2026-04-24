@@ -24,11 +24,18 @@ export class JSONRepair {
     const repairAttempts: string[] = [];
     let jsonStr = response.trim();
 
-    // 策略1: 提取代码块中的JSON
-    const codeBlockMatch = response.match(/```(?:json)?\s*([\s\S]*?)```/);
-    if (codeBlockMatch) {
+    // 策略1: 提取代码块中的JSON - 增强版，支持多种格式
+    let codeBlockMatch = response.match(/```(?:json)?\s*([\s\S]*?)```/);
+    if (codeBlockMatch && codeBlockMatch[1].trim()) {
       jsonStr = codeBlockMatch[1].trim();
       repairAttempts.push('extracted_from_code_block');
+    } else {
+      // 备用：尝试只找 ```json 或 ``` 开头的
+      const altMatch = response.match(/```(?:json)?\s*([\s\S]*?)(?:```|$)/);
+      if (altMatch && altMatch[1].trim()) {
+        jsonStr = altMatch[1].trim();
+        repairAttempts.push('extracted_from_code_block_fallback');
+      }
     }
 
     // 策略2: 使用括号匹配找到完整的JSON
@@ -79,7 +86,22 @@ export class JSONRepair {
       }
     }
 
-    // 策略5: 尝试提取部分有效的JSON
+    // 策略5: 尝试更智能地找到JSON开始和结束
+    const smartExtracted = this.smartExtractJSON(response);
+    if (smartExtracted && smartExtracted !== jsonStr) {
+      repairAttempts.push('smart_extract');
+      try {
+        return {
+          success: true,
+          data: JSON.parse(smartExtracted) as T,
+          repairAttempts,
+        };
+      } catch (e) {
+        // 继续尝试
+      }
+    }
+
+    // 策略6: 尝试提取部分有效的JSON
     const partial = this.extractPartialJSON(aggressivelyFixed);
     if (partial) {
       repairAttempts.push('partial_extraction');
@@ -108,6 +130,10 @@ export class JSONRepair {
   private static fixCommonErrors(str: string): string {
     return (
       str
+        // 清理零宽字符和其他不可见字符
+        .replace(/[\u200B-\u200D\uFEFF]/g, '')
+        // 规范化换行符
+        .replace(/\r\n/g, '\n')
         // 移除尾随逗号
         .replace(/,\s*([}\]])/g, '$1')
         // 修复单引号作为键引号 (例如 'name': value)
@@ -129,6 +155,11 @@ export class JSONRepair {
         .replace(/:\s*undefined\s*([,}])/g, ':null$1')
         // 修复函数值
         .replace(/:\s*function\s*\([^)]*\)\s*\{[^}]*\}/g, ':null')
+        // 修复字符串中的未转义换行符
+        .replace(/"([^"\\]*(?:\\.[^"\\]*)*)"/g, (match, content) => {
+          // 在字符串内部的换行符需要转义
+          return `"${content.replace(/\n/g, '\\n').replace(/\r/g, '\\r')}"`;
+        })
     );
   }
 
@@ -158,6 +189,56 @@ export class JSONRepair {
           }
         })
     );
+  }
+
+  /**
+   * 智能提取JSON - 直接从原始响应中找到JSON
+   */
+  private static smartExtractJSON(response: string): string | null {
+    // 找到第一个 '[' 或 '{'
+    const firstBracket = response.search(/[\[\{]/);
+    if (firstBracket === -1) return null;
+
+    let jsonStart = firstBracket;
+    let openBrackets = 0;
+    let inString = false;
+    let escapeNext = false;
+    let jsonEnd = -1;
+    const openChar = response[firstBracket];
+    const closeChar = openChar === '[' ? ']' : '}';
+
+    for (let i = jsonStart; i < response.length; i++) {
+      const char = response[i];
+
+      if (escapeNext) {
+        escapeNext = false;
+        continue;
+      }
+      if (char === '\\') {
+        escapeNext = true;
+        continue;
+      }
+      if (char === '"') {
+        inString = !inString;
+        continue;
+      }
+      if (inString) continue;
+
+      if (char === openChar) {
+        openBrackets++;
+      } else if (char === closeChar) {
+        openBrackets--;
+        if (openBrackets === 0) {
+          jsonEnd = i + 1;
+          break;
+        }
+      }
+    }
+
+    if (jsonEnd !== -1) {
+      return response.substring(jsonStart, jsonEnd);
+    }
+    return null;
   }
 
   /**

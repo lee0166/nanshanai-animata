@@ -14,7 +14,6 @@ export interface StrategySelection {
   strategy: ParseStrategy;
   reason: string;
   wordCount: number;
-  estimatedTime: number; // Estimated time in seconds
   recommendedBatchSize: number;
 }
 
@@ -203,7 +202,6 @@ export class ParseStrategySelector {
       strategy,
       reason,
       wordCount,
-      estimatedTime: 0, // 预估时间已移除，保留字段用于兼容
       recommendedBatchSize: batchSize,
     };
   }

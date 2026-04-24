@@ -49,12 +49,19 @@ import {
   CheckCircle,
   ArrowUp,
   ArrowDown,
+  Download,
 } from 'lucide-react';
 import { keyframeService } from '../../services/keyframe';
 import { storageService } from '../../services/storage';
 import { useApp } from '../../contexts/context';
 import { generateShotNumbers } from '../../services/utils/shotNumberGenerator';
 import { DeleteConfirmModal } from '../Shared/DeleteConfirmModal';
+import {
+  getDefaultExportFields,
+  exportFieldGroups,
+  exportShotsToExcel,
+  ExportFieldOption,
+} from '../../services/excelExporter';
 
 interface ShotListProps {
   shots: Shot[];
@@ -100,6 +107,10 @@ export const ShotList: React.FC<ShotListProps> = ({
     characters: CharacterAsset[];
     scenes: Asset[];
   }>({ characters: [], scenes: [] });
+  const [isExportModalOpen, setIsExportModalOpen] = useState(false);
+  const [exportFields, setExportFields] = useState<ExportFieldOption[][]>(
+    getDefaultExportFields()
+  );
 
   // 展开/收起状态
 
@@ -164,22 +175,68 @@ export const ShotList: React.FC<ShotListProps> = ({
     return generateShotNumbers(shots);
   }, [shots]);
 
-  // Filter shots by scene
+  // Filter shots by scene - 按影视工业标准：严格按叙事时间线排序
   const filteredShots = useMemo(() => {
     let result = shotsWithNumbers;
     if (selectedScene !== 'all') {
       result = shotsWithNumbers.filter(s => (s.sceneName || '未分类场景') === selectedScene);
     }
-    // Key shots 优先显示
+    
+    // 按叙事时间线排序：先按场景顺序，场景内按 sequence 排序
+    // 不再按 layer（key/optional）分类，保持时间连续性
     return [...result].sort((a, b) => {
-      if (a.layer === 'key' && b.layer !== 'key') return -1;
-      if (a.layer !== 'key' && b.layer === 'key') return 1;
-      return 0;
+      // 场景顺序：根据 scenes 数组的顺序（即 LLM 解析的叙事顺序）
+      const sceneOrderA = scenes.findIndex(s => s.name === (a.sceneName || '未分类场景'));
+      const sceneOrderB = scenes.findIndex(s => s.name === (b.sceneName || '未分类场景'));
+      
+      // 如果场景不同，按场景顺序排序
+      if (sceneOrderA !== sceneOrderB) {
+        // 未找到的场景排到最后
+        const orderA = sceneOrderA === -1 ? 999 : sceneOrderA;
+        const orderB = sceneOrderB === -1 ? 999 : sceneOrderB;
+        return orderA - orderB;
+      }
+      
+      // 同一场景内，按 sequence 排序（保持时间线）
+      return (a.sequence || 0) - (b.sequence || 0);
     });
-  }, [shotsWithNumbers, selectedScene]);
+  }, [shotsWithNumbers, selectedScene, scenes]);
 
   // 虚拟化表格行（保留 ref 用于表格滚动）
   const tableBodyRef = useRef<HTMLTableSectionElement>(null);
+
+  // 计算分镜时间码（SMPTE 格式，24fps）
+  const calculateTimecodes = useMemo(() => {
+    const timecodes: Map<string, { in: string; out: string }> = new Map();
+    let currentSeconds = 0;
+    
+    // 按排序后的顺序计算时间码
+    filteredShots.forEach(shot => {
+      const duration = shot.duration || 3;
+      const framesPerSecond = 24;
+      
+      const inFrames = Math.floor(currentSeconds * framesPerSecond);
+      const outFrames = Math.floor((currentSeconds + duration) * framesPerSecond);
+      
+      const formatTimecode = (totalFrames: number): string => {
+        const frames = totalFrames % framesPerSecond;
+        const totalSeconds = Math.floor(totalFrames / framesPerSecond);
+        const secs = totalSeconds % 60;
+        const mins = Math.floor(totalSeconds / 60) % 60;
+        const hours = Math.floor(totalSeconds / 3600);
+        return `${String(hours).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}:${String(frames).padStart(2, '0')}`;
+      };
+      
+      timecodes.set(shot.id, {
+        in: formatTimecode(inFrames),
+        out: formatTimecode(outFrames),
+      });
+      
+      currentSeconds += duration;
+    });
+    
+    return timecodes;
+  }, [filteredShots]);
 
   // Group shots by scene
   const shotsByScene = useMemo(() => {
@@ -377,6 +434,58 @@ export const ShotList: React.FC<ShotListProps> = ({
     }
   };
 
+  // Export handlers
+  const handleOpenExportModal = () => {
+    setExportFields(getDefaultExportFields());
+    setIsExportModalOpen(true);
+  };
+
+  const handleToggleField = (groupIndex: number, fieldIndex: number) => {
+    setExportFields(prev => {
+      const updated = prev.map((group, gi) =>
+        gi === groupIndex
+          ? group.map((field, fi) =>
+              fi === fieldIndex ? { ...field, checked: !field.checked } : field
+            )
+          : group
+      );
+      return updated;
+    });
+  };
+
+  const handleToggleGroup = (groupIndex: number) => {
+    const groupChecked = exportFields[groupIndex].some(f => f.checked);
+    setExportFields(prev =>
+      prev.map((group, gi) =>
+        gi === groupIndex ? group.map(field => ({ ...field, checked: !groupChecked })) : group
+      )
+    );
+  };
+
+  const handleSelectAll = () => {
+    setExportFields(prev => prev.map(group => group.map(field => ({ ...field, checked: true }))));
+  };
+
+  const handleDeselectAll = () => {
+    setExportFields(prev => prev.map(group => group.map(field => ({ ...field, checked: false }))));
+  };
+
+  const handleConfirmExport = async () => {
+    const selectedFields = exportFields
+      .flat()
+      .filter(f => f.checked)
+      .map(f => f.key);
+
+    if (selectedFields.length === 0) {
+      alert('请至少选择一个导出字段');
+      return;
+    }
+
+    const currentScript = scenes[0]?.scriptId;
+    await exportShotsToExcel(filteredShots, selectedFields, currentScript || undefined);
+    setIsExportModalOpen(false);
+  };
+
   return (
     <div className="space-y-4">
       {/* Header */}
@@ -426,6 +535,14 @@ export const ShotList: React.FC<ShotListProps> = ({
           >
             卡片
           </Button>
+          <Button
+            size="sm"
+            variant="flat"
+            startContent={<Download size={14} />}
+            onPress={handleOpenExportModal}
+          >
+            导出Excel
+          </Button>
           {headerAction}
         </div>
       </div>
@@ -437,6 +554,7 @@ export const ShotList: React.FC<ShotListProps> = ({
             <TableHeader>
               <TableColumn>类型</TableColumn>
               <TableColumn>序号</TableColumn>
+              <TableColumn>时间码</TableColumn>
               <TableColumn>场景</TableColumn>
               <TableColumn>景别</TableColumn>
               <TableColumn>运镜</TableColumn>
@@ -447,6 +565,7 @@ export const ShotList: React.FC<ShotListProps> = ({
             </TableHeader>
             <TableBody ref={tableBodyRef}>
               {filteredShots.map((shot, index) => {
+                const timecode = calculateTimecodes.get(shot.id);
                 return (
                   <TableRow key={shot.id}>
                     <TableCell>
@@ -460,6 +579,11 @@ export const ShotList: React.FC<ShotListProps> = ({
                     <TableCell>
                       <span className="font-mono text-sm">
                         {shot.shotNumber || `${getSceneNumber(shot.sceneName)}-${shot.sequence}`}
+                      </span>
+                    </TableCell>
+                    <TableCell>
+                      <span className="font-mono text-xs">
+                        {timecode ? `${timecode.in} → ${timecode.out}` : '--'}
                       </span>
                     </TableCell>
                     <TableCell>
@@ -1213,6 +1337,82 @@ export const ShotList: React.FC<ShotListProps> = ({
             </Button>
             <Button color="primary" isDisabled={!selectedLLMModel} onPress={confirmSplitKeyframes}>
               开始拆分
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+
+      {/* Export Configuration Modal */}
+      <Modal isOpen={isExportModalOpen} onClose={() => setIsExportModalOpen(false)} size="3xl">
+        <ModalContent>
+          <ModalHeader>
+            <div className="flex items-center gap-2">
+              <Download size={20} />
+              导出分镜表 - 选择导出字段
+            </div>
+          </ModalHeader>
+          <ModalBody className="space-y-3 max-h-[60vh] overflow-y-auto">
+            {exportFieldGroups.map(group => {
+              const fields = exportFields[group.groupIndex] || [];
+              const groupChecked = fields.every(f => f.checked);
+              const groupPartial = fields.some(f => f.checked) && !groupChecked;
+              return (
+                <div key={group.title} className="border border-default-200 rounded-lg p-3">
+                  <div className="flex items-center gap-2 mb-2 cursor-pointer" onClick={() => handleToggleGroup(group.groupIndex)}>
+                    <div
+                      className={`w-4 h-4 border-2 rounded flex items-center justify-center ${
+                        groupChecked
+                          ? 'bg-primary border-primary'
+                          : groupPartial
+                          ? 'bg-default-300 border-default-400'
+                          : 'border-default-400'
+                      }`}
+                    >
+                      {groupChecked && (
+                        <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                        </svg>
+                      )}
+                      {groupPartial && (
+                        <div className="w-1.5 h-1.5 bg-white rounded" />
+                      )}
+                    </div>
+                    <span className="text-sm font-semibold">{group.title}</span>
+                  </div>
+                  <div className="grid grid-cols-3 gap-2 ml-6">
+                    {fields.map((field, fi) => (
+                      <label
+                        key={field.key}
+                        className="flex items-center gap-2 cursor-pointer text-sm"
+                      >
+                        <input
+                          type="checkbox"
+                          checked={field.checked}
+                          onChange={() => handleToggleField(group.groupIndex, fi)}
+                          className="w-4 h-4 rounded border-default-300 text-primary focus:ring-primary"
+                        />
+                        <span className="text-default-700">{field.label}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
+          </ModalBody>
+          <ModalFooter>
+            <div className="flex gap-2 mr-auto">
+              <Button size="sm" variant="flat" onPress={handleSelectAll}>
+                全选
+              </Button>
+              <Button size="sm" variant="flat" onPress={handleDeselectAll}>
+                取消全选
+              </Button>
+            </div>
+            <Button variant="flat" onPress={() => setIsExportModalOpen(false)}>
+              取消
+            </Button>
+            <Button color="primary" onPress={handleConfirmExport}>
+              确认导出
             </Button>
           </ModalFooter>
         </ModalContent>
