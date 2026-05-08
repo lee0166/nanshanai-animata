@@ -656,7 +656,9 @@ export class StorageService {
           tx.onerror = r;
         });
       }
-    } catch (e) {}
+    } catch (e) {
+      console.warn('[Storage] Failed to remove handle from IDB:', e);
+    }
 
     await this.saveHandleToIDB(handle);
     return true;
@@ -1155,7 +1157,9 @@ export class StorageService {
     // Save to localStorage too for bootstrap
     try {
       localStorage.setItem('avss_use_sandbox', settings.useSandbox ? 'true' : 'false');
-    } catch (e) {}
+    } catch (e) {
+      console.warn('[Storage] Failed to save sandbox preference:', e);
+    }
 
     // Prune models before saving to keep JSON clean
     const prunedModels = settings.models.map(m => ({
@@ -1210,7 +1214,9 @@ export class StorageService {
           if (saved === 'true') {
             return { ...DEFAULT_SETTINGS, useSandbox: true };
           }
-        } catch (e) {}
+        } catch (e) {
+          console.warn('[Storage] Failed to read sandbox preference:', e);
+        }
         return null;
       }
 

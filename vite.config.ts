@@ -219,7 +219,9 @@ export default defineConfig(({ mode }) => {
             if (parsed.size) {
               sizeValue = ` | Size: ${parsed.size}`;
             }
-          } catch (e) {}
+          } catch (e) {
+            // JSON 解析失败，可能是普通文本请求
+          }
         }
 
         console.log(

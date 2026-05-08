@@ -223,7 +223,10 @@ const ResourceManager: React.FC<ResourceManagerProps> = ({ projectId, refreshTri
           onDeleteClose();
           return;
         }
-      } catch (e) {}
+      } catch (e) {
+        console.warn('[ResourceManager] Failed to check resource associations:', e);
+        // 如果检查失败，继续执行删除
+      }
     }
 
     try {
