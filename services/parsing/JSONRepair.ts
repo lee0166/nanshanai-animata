@@ -25,7 +25,7 @@ export class JSONRepair {
     let jsonStr = response.trim();
 
     // 策略1: 提取代码块中的JSON - 增强版，支持多种格式
-    let codeBlockMatch = response.match(/```(?:json)?\s*([\s\S]*?)```/);
+    const codeBlockMatch = response.match(/```(?:json)?\s*([\s\S]*?)```/);
     if (codeBlockMatch && codeBlockMatch[1].trim()) {
       jsonStr = codeBlockMatch[1].trim();
       repairAttempts.push('extracted_from_code_block');
@@ -199,7 +199,7 @@ export class JSONRepair {
     const firstBracket = response.search(/[\[\{]/);
     if (firstBracket === -1) return null;
 
-    let jsonStart = firstBracket;
+    const jsonStart = firstBracket;
     let openBrackets = 0;
     let inString = false;
     let escapeNext = false;

@@ -72,6 +72,13 @@ const CAMERA_MOVEMENT_MAP: Record<CameraMovement, string> = {
   zoom_out: '变焦拉',
   dolly_in: '移近',
   dolly_out: '移远',
+  dolly: '推拉镜头',
+  truck: '横移镜头',
+  handheld: '手持镜头',
+  steadicam: '稳定器镜头',
+  zoom: '变焦镜头',
+  arc: '弧线镜头',
+  follow: '跟随镜头',
 };
 
 /**

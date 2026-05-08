@@ -196,10 +196,10 @@ if (typeof window !== 'undefined') {
     generateDiagnosticReport: () => configDiagnostics.generateReport(),
     testRoute: (type: string, capability: string) =>
       smartRouter.route({ type: type as any, capability }),
-    // 运行自动测试
+    // 运行自动测试（预留功能，测试模块暂未实现）
     runAutoTests: async () => {
-      const { autoTester } = await import('./__tests__/auto-verification');
-      return autoTester.runAllTests();
+      console.warn('[AIService] Auto-verification module not implemented yet');
+      return { success: false, error: 'Module not implemented' };
     },
   };
 }

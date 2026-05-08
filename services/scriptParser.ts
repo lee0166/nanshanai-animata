@@ -3212,9 +3212,9 @@ export class ScriptParser {
     console.log(`  - Title: ${metadata.title}`);
     console.log(`  - Word Count: ${metadata.wordCount}`);
     console.log(
-      `  - Characters: ${metadata.characterCount} (${metadata.characterNames?.join(', ')})`
+      `  - Characters: ${metadata.characterCount} (${(metadata.characterNames as string[])?.join(', ')})`
     );
-    console.log(`  - Scenes: ${metadata.sceneCount} (${metadata.sceneNames?.join(', ')})`);
+    console.log(`  - Scenes: ${metadata.sceneCount} (${(metadata.sceneNames as string[])?.join(', ')})`);
     console.log(`  - Genre: ${metadata.genre}`);
     console.log(`  - Tone: ${metadata.tone}`);
 

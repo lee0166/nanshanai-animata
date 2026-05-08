@@ -1054,13 +1054,20 @@ export type CameraMovement =
   | 'push' // 推
   | 'pull' // 拉
   | 'pan' // 摇
-  | 'tilt' // 升降
+  | 'tilt' // 俯仰
   | 'track' // 跟
   | 'crane' //  crane
   | 'zoom_in' // 变焦推
   | 'zoom_out' // 变焦拉
   | 'dolly_in' // 移近
-  | 'dolly_out'; // 移远
+  | 'dolly_out' // 移远
+  | 'dolly' // 推拉（通用）
+  | 'truck' // 横移
+  | 'handheld' // 手持
+  | 'steadicam' // 稳定器
+  | 'zoom' // 变焦（通用）
+  | 'arc' // 弧线
+  | 'follow'; // 跟随
 
 // 机位角度
 export type CameraAngle =

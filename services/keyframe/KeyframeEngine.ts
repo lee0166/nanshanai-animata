@@ -786,6 +786,13 @@ ${additionalRequirements}
       zoom_out: '拉镜头：关键帧应该体现景别从小到大的变化。',
       dolly_in: '推镜头：关键帧应该体现景别从大到小的变化。',
       dolly_out: '拉镜头：关键帧应该体现景别从小到大的变化。',
+      dolly: '推拉镜头：关键帧应该体现景别的变化。',
+      truck: '横移镜头：关键帧应该体现横向空间位置的变化。',
+      handheld: '手持镜头：关键帧应该体现自然的晃动感。',
+      steadicam: '稳定器镜头：关键帧应该体现平稳的移动。',
+      zoom: '变焦镜头：关键帧应该体现焦距的变化。',
+      arc: '弧线镜头：关键帧应该体现弧形的移动轨迹。',
+      follow: '跟随镜头：关键帧应该体现跟随主体移动的变化。',
     };
 
     const guidanceMapEN: Record<CameraMovement, string> = {
@@ -802,6 +809,13 @@ ${additionalRequirements}
       zoom_out: 'Zoom-out shot: Keyframes should reflect shot size change from small to large.',
       dolly_in: 'Dolly-in shot: Keyframes should reflect shot size change from large to small.',
       dolly_out: 'Dolly-out shot: Keyframes should reflect shot size change from small to large.',
+      dolly: 'Dolly shot: Keyframes should reflect shot size changes.',
+      truck: 'Truck shot: Keyframes should reflect horizontal spatial position changes.',
+      handheld: 'Handheld shot: Keyframes should reflect natural camera shake.',
+      steadicam: 'Steadicam shot: Keyframes should reflect smooth camera movement.',
+      zoom: 'Zoom shot: Keyframes should reflect focal length changes.',
+      arc: 'Arc shot: Keyframes should reflect curved camera movement trajectory.',
+      follow: 'Follow shot: Keyframes should reflect camera following the subject.',
     };
 
     const guidanceMap = isEnglish ? guidanceMapEN : guidanceMapZH;
