@@ -6,7 +6,7 @@
  * 输出: SoundDesignAnalysis
  */
 
-import type { EmotionalPoint, Shot, ScriptMetadata } from '../../../../types';
+import type { EmotionalPoint, Shot, ScriptMetadata } from '../../../types';
 
 // ==========================================
 // 类型定义

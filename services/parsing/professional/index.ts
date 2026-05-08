@@ -46,7 +46,7 @@ export {
 // 统一分析入口
 // ==========================================
 
-import type { ScriptMetadata, Shot } from '../../../../types';
+import type { ScriptMetadata, Shot } from '../../../types';
 import { soundDesigner, type SoundDesignAnalysis } from './SoundDesigner';
 import { screenplayStructureAnalyzer, type StructureAnalysis } from './ScreenplayStructureAnalyzer';
 import { visualPrevisualizer, type VisualPreviz } from './VisualPrevisualizer';

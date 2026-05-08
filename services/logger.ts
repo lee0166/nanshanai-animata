@@ -16,10 +16,10 @@ const createLogger = (): Logger => {
   if (isDevelopment) {
     return {
       log: console.log.bind(console),
-      info: console.info.bind(console),
+      info: console.log.bind(console),
       warn: console.warn.bind(console),
       error: console.error.bind(console),
-      debug: console.debug.bind(console),
+      debug: console.log.bind(console),
     };
   }
 

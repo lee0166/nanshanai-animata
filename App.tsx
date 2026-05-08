@@ -58,11 +58,6 @@ const App: React.FC = () => {
     }
   };
 
-  if (!isFsResponsive && isConnected) {
-    // If we thought we were connected but FS is unresponsive, maybe show loading or reset
-    // But typically LoadingView covers initialization.
-  }
-
   if (isInitializing) {
     return <LoadingView />;
   }

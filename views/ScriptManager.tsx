@@ -44,8 +44,8 @@ import EpisodePlanViewer from '../components/ScriptParser/EpisodePlanViewer';
 import CoherenceReportViewer from '../components/ScriptParser/CoherenceReportViewer';
 
 // Professional Analysis Components
-import { SoundDesignTab } from '../src/components/ScriptParser/SoundDesignTab';
-import { StructureDetailTab } from '../src/components/ScriptParser/StructureDetailTab';
+import { SoundDesignTab } from '../components/ScriptParser/SoundDesignTab';
+import { StructureDetailTab } from '../components/ScriptParser/StructureDetailTab';
 
 // Script Analysis Components
 import { StoryOverviewCard } from '../components/ScriptAnalysis/StoryOverviewCard';

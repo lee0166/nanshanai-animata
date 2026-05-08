@@ -20,7 +20,7 @@ export class ProviderPluginManager {
   private readonly isDevMode: boolean;
 
   constructor() {
-    this.isDevMode = (import.meta as any).env?.DEV || process.env.NODE_ENV === 'development';
+    this.isDevMode = import.meta.env.DEV;
   }
 
   /**

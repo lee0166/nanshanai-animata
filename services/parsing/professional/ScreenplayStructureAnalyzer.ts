@@ -7,7 +7,7 @@
  * 输出: StructureAnalysis
  */
 
-import type { StoryStructure, EmotionalPoint } from '../../../../types';
+import type { StoryStructure, EmotionalPoint } from '../../../types';
 
 // ==========================================
 // 类型定义

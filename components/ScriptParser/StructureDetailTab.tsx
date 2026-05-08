@@ -24,7 +24,7 @@ import type { ScriptMetadata } from '@/types';
 import {
   screenplayStructureAnalyzer,
   type StructureAnalysis,
-} from '@/src/services/parsing/professional';
+} from '@/services/parsing/professional';
 
 interface StructureDetailTabProps {
   metadata: ScriptMetadata;

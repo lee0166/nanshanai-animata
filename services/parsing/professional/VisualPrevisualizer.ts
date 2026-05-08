@@ -7,7 +7,7 @@
  * 输出: VisualPreviz
  */
 
-import type { VisualStyle, EraContext } from '../../../../types';
+import type { VisualStyle, EraContext } from '../../../types';
 
 // ==========================================
 // 类型定义

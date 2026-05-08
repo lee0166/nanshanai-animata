@@ -339,7 +339,7 @@ export class ErrorHandler {
     originalMessage: string
   ): UserFriendlyError {
     // 在开发环境添加原始错误信息
-    if (process.env.NODE_ENV === 'development') {
+    if (import.meta.env.DEV) {
       return {
         ...mappedError,
         detail: originalMessage,

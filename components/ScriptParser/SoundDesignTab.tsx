@@ -27,7 +27,7 @@ import {
 } from '@heroui/react';
 import { Music, Volume2, Wind, Zap, BarChart3, Save, Settings, Palette, Edit3 } from 'lucide-react';
 import type { ScriptMetadata, Shot } from '@/types';
-import { soundDesigner, type SoundDesignAnalysis } from '@/src/services/parsing/professional';
+import { soundDesigner, type SoundDesignAnalysis } from '@/services/parsing/professional';
 
 interface SoundDesignTabProps {
   metadata: ScriptMetadata;
