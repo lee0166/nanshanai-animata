@@ -52,7 +52,7 @@ export function generateShotNumbers(shots: Shot[]): Shot[] {
     }
 
     const sceneName = shot.sceneName || '未分类场景';
-    const sceneShots = shotsByScene[sceneName].sort((a, b) => a.sequence - b.sequence);
+    const sceneShots = shotsByScene[sceneName].sort((a, b) => (a.sequence || 0) - (b.sequence || 0));
     const shotIndex = sceneShots.findIndex(s => s.id === shot.id);
 
     if (shotIndex !== -1) {

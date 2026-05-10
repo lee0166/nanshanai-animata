@@ -206,11 +206,26 @@ function getBorder(): Partial<ExcelJS.Borders> {
   };
 }
 
+const longTextFields = new Set([
+  'description', 'dialogue', 'sound', 'music',
+  'composition', 'lighting', 'colorPalette', 'characterPositions',
+  'cameraAngle', 'contentType', 'style',
+  'mood', 'narrativeNode', 'shotRelation',
+  'sceneName', 'characters', 'generatedAudio',
+]);
+
+function getCellAlignment(fieldKey: string): { horizontal: 'left' | 'center' | 'right'; vertical: 'top' | 'middle' | 'bottom'; wrapText: boolean } {
+  if (longTextFields.has(fieldKey)) {
+    return { horizontal: 'left', vertical: 'middle', wrapText: true };
+  }
+  return { horizontal: 'center', vertical: 'middle', wrapText: true };
+}
+
 function applyRowStyle(
   row: ExcelJS.Row,
   colCount: number,
   isHeader: boolean,
-  isStriped: boolean
+  selectedFields: string[]
 ) {
   for (let c = 1; c <= colCount; c++) {
     const cell = row.getCell(c);
@@ -228,25 +243,19 @@ function applyRowStyle(
         pattern: 'solid',
         fgColor: { argb: 'FF4472C4' },
       };
+      cell.alignment = {
+        horizontal: 'center',
+        vertical: 'middle',
+        wrapText: true,
+      };
     } else {
       cell.font = {
         size: 11,
         name: 'Microsoft YaHei',
       };
-      if (isStriped) {
-        cell.fill = {
-          type: 'pattern',
-          pattern: 'solid',
-          fgColor: { argb: 'FFD9E2F3' },
-        };
-      }
+      const fieldKey = selectedFields[c - 1] || '';
+      cell.alignment = getCellAlignment(fieldKey);
     }
-
-    cell.alignment = {
-      horizontal: 'center',
-      vertical: 'middle',
-      wrapText: true,
-    };
   }
 }
 
@@ -268,7 +277,7 @@ function computeColumnWidths(
 
   return widths.map(w => {
     const width = w * 2.8 + 6;
-    return Math.max(Math.min(width, 80), 14);
+    return Math.max(Math.min(width, 50), 10);
   });
 }
 
@@ -281,6 +290,8 @@ export async function exportShotsToExcel(
     alert('没有可导出的分镜数据');
     return;
   }
+
+  const sortedShots = [...shots].sort((a, b) => (a.sequence || 0) - (b.sequence || 0));
 
   const headers = selectedFields.map(field => {
     const allFields = getDefaultExportFields().flat();
@@ -298,7 +309,7 @@ export async function exportShotsToExcel(
 
   worksheet.addRow(headers);
 
-  shots.forEach(shot => {
+  sortedShots.forEach(shot => {
     const row = selectedFields.map(field => getFieldValue(shot, field));
     worksheet.addRow(row);
   });
@@ -307,19 +318,35 @@ export async function exportShotsToExcel(
 
   const headerRow = worksheet.getRow(1);
   headerRow.height = 32;
-  applyRowStyle(headerRow, colCount, true, false);
-
-  for (let rowIdx = 2; rowIdx <= worksheet.rowCount; rowIdx++) {
-    const currentRow = worksheet.getRow(rowIdx);
-    currentRow.height = 26;
-    const isStriped = rowIdx % 2 === 0;
-    applyRowStyle(currentRow, colCount, false, isStriped);
-  }
+  applyRowStyle(headerRow, colCount, true, selectedFields);
 
   const colWidths = computeColumnWidths(worksheet, headers, colCount);
   colWidths.forEach((width, idx) => {
     worksheet.getColumn(idx + 1).width = width;
   });
+
+  function calcRowHeight(row: ExcelJS.Row, colCount: number, widths: number[]): number {
+    let maxLines = 1;
+    for (let c = 1; c <= colCount; c++) {
+      const cell = row.getCell(c);
+      const val = cell.value?.toString() || '';
+      const lines = val.split(/\r?\n/);
+      const cellWidth = widths[c - 1] || 15;
+      for (const line of lines) {
+        const charCount = line.length;
+        const estimatedLines = Math.max(1, Math.ceil(charCount / (cellWidth / 2.2)));
+        maxLines = Math.max(maxLines, estimatedLines);
+      }
+    }
+    return Math.max(22, 18 * maxLines + 8);
+  }
+
+  for (let rowIdx = 2; rowIdx <= worksheet.rowCount; rowIdx++) {
+    const currentRow = worksheet.getRow(rowIdx);
+    applyRowStyle(currentRow, colCount, false, selectedFields);
+    const rowHeight = calcRowHeight(currentRow, colCount, colWidths);
+    currentRow.height = rowHeight;
+  }
 
   worksheet.views = [
     {

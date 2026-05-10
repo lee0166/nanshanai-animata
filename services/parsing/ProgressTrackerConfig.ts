@@ -52,9 +52,10 @@ export const DEFAULT_STAGE_WEIGHTS: Record<ParseStage, number> = {
 };
 
 /**
- * 短文本优化权重 (< 500 字符)
+ * 优化路径文本权重（≤3000字，对应 optimized 策略）
+ * 适用于短文本快速解析，跳过不需要的阶段
  */
-export const SHORT_TEXT_STAGE_WEIGHTS: Record<ParseStage, number> = {
+export const OPTIMIZED_PATH_STAGE_WEIGHTS: Record<ParseStage, number> = {
   idle: 0,
   metadata: 0.2, // 20% - 元数据提取
   characters: 0.3, // 30% - 角色分析
@@ -72,9 +73,10 @@ export const SHORT_TEXT_STAGE_WEIGHTS: Record<ParseStage, number> = {
 };
 
 /**
- * 长文本优化权重 (> 10000 字符)
+ * 分块路径文本权重（>5000字，对应 chunked 策略）
+ * 适用于长文本分块解析，包含完整阶段
  */
-export const LONG_TEXT_STAGE_WEIGHTS: Record<ParseStage, number> = {
+export const CHUNKED_PATH_STAGE_WEIGHTS: Record<ParseStage, number> = {
   idle: 0,
   metadata: 0.08, // 8% - 元数据提取
   characters: 0.15, // 15% - 角色分析
@@ -128,12 +130,12 @@ export const METADATA_SUBTASK_WEIGHTS: SubTaskWeights = {
  * @returns 阶段权重配置
  */
 export function getAdaptiveStageWeights(contentLength: number): Record<ParseStage, number> {
-  if (contentLength < 500) {
-    return SHORT_TEXT_STAGE_WEIGHTS;
-  } else if (contentLength > 10000) {
-    return LONG_TEXT_STAGE_WEIGHTS;
+  if (contentLength <= 3000) {
+    return OPTIMIZED_PATH_STAGE_WEIGHTS; // ≤3000字 → optimized 策略
+  } else if (contentLength > 5000) {
+    return CHUNKED_PATH_STAGE_WEIGHTS; // >5000字 → chunked 策略
   }
-  return DEFAULT_STAGE_WEIGHTS;
+  return DEFAULT_STAGE_WEIGHTS; // 3001-5000字 → standard 策略
 }
 
 /**

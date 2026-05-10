@@ -1516,6 +1516,7 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({
                       shots={currentScript.parseState.shots || []}
                       scenes={currentScript.parseState.scenes || []}
                       scriptId={currentScript.id}
+                      scriptTitle={currentScript.title}
                       projectId={projectId!}
                       onShotsUpdate={() => {}}
                       viewMode="list"

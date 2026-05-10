@@ -90,9 +90,26 @@ import { generateShotNumbers } from './utils/shotNumberGenerator';
 import { resolveModelConfig } from './modelUtils';
 import { DEFAULT_MODELS } from '../config/models';
 import { EpisodePlanner } from './parsing/EpisodePlanner';
+import { PlotPointPlanner, PlotPointPlan, PlotPoint } from './parsing/PlotPointPlanner';
 import PlatformStandardService from './parsing/PlatformStandardService';
 import { CoherenceChecker } from './parsing/CoherenceChecker';
 import { DataIntegrityChecker } from './parsing/DataIntegrityChecker';
+import { EventTimelineExtractor, NarrativeEvent } from './parsing/EventTimelineExtractor';
+import { KeyElementsExtractor, KeyNarrativeElements } from './parsing/KeyElementsExtractor';
+import { AudioVisualValidator } from './parsing/AudioVisualValidator';
+
+interface NarrativeEventSignature {
+  coreAction: string;
+  mainCharacter: string;
+  keyObjects: string[];
+}
+
+interface DialogueMismatch {
+  shotNumber: string;
+  dialogue: string;
+  expectedScene: string;
+  actualScene: string;
+}
 
 /**
  * Script Parser Configuration Interface
@@ -223,31 +240,6 @@ export interface ScriptParserConfig {
    * 用于自定义策略选择的阈值和参数
    */
   strategySelectorConfig?: Partial<StrategySelectorConfig>;
-
-  // ========== 动态分镜数量配置 ==========
-
-  /**
-   * 启用动态分镜数量调整
-   * 开启后，解析器将根据文本长度动态调整分镜数量要求
-   * - 短文本(<500字): 减少分镜数，避免过度拆分
-   * - 中等文本(500-1500字): 适中分镜数
-   * - 长文本(>1500字): 标准分镜数
-   * @default true
-   */
-  useDynamicShotCount?: boolean;
-
-  /**
-   * 分镜数量覆盖配置
-   * 用于自定义不同文本长度对应的分镜数量要求
-   */
-  shotCountOverrides?: {
-    /** 短文本(<500字)的分镜数量要求，如: '1-2个' */
-    shortText?: string;
-    /** 中等文本(500-1500字)的分镜数量要求，如: '2-3个' */
-    mediumText?: string;
-    /** 长文本(>1500字)的分镜数量要求，如: '3-5个' */
-    longText?: string;
-  };
 
   // ========== 时长预算配置 ==========
 
@@ -616,14 +608,6 @@ const DEFAULT_PARSER_CONFIG: ScriptParserConfig = {
     climaxMinLongShotDuration: 8,
   },
 
-  // 动态分镜数量配置（默认开启，根据文本长度调整）
-  useDynamicShotCount: true,
-  shotCountOverrides: {
-    shortText: '1-2个',
-    mediumText: '2-3个',
-    longText: '3-5个',
-  },
-
   // 全局上下文提取配置（默认开启情绪曲线提取）
   extractEmotionalArc: true,
   textLengthThreshold: 800,
@@ -699,7 +683,7 @@ const DEFAULT_PARSER_CONFIG: ScriptParserConfig = {
   shotDensityShort: 4,
 
   /**
-   * shotDensityMedium: 4（中视频分镜密度）
+   * shotDensityMedium: 8（中视频分镜密度）
    *  设计依据：中视频分镜密度经验值
    *  - 来源 1：即梦 3.0 分镜数量规划
    *    - 5 秒视频：1-2 个分镜
@@ -711,12 +695,12 @@ const DEFAULT_PARSER_CONFIG: ScriptParserConfig = {
    *    - 明确每个镜头的景别与运镜方式
    *    - 参考：PingCode 拍摄脚本分镜头
    *
-   *  决策理由：4 个分镜/分钟适合 1-3 分钟中视频
+   *  决策理由：8 个分镜/分钟适合 1-3 分钟中视频，提供更丰富的叙事细节
    */
   shotDensityMedium: 8,
 
   /**
-   * shotDensityLong: 3（长视频分镜密度）
+   * shotDensityLong: 6（长视频分镜密度）
    *  设计依据：长视频分镜密度经验值
    *  - 来源 1：长视频镜头节奏
    *    - 长视频需要更多叙事时间
@@ -726,7 +710,7 @@ const DEFAULT_PARSER_CONFIG: ScriptParserConfig = {
    *    - 电影/电视剧平均镜头长度 3-5 秒
    *    - 叙事性镜头可适当延长
    *
-   *  决策理由：3 个分镜/分钟适合 3 分钟以上长视频，保证叙事完整性
+   *  决策理由：6 个分镜/分钟适合 3 分钟以上长视频，保证叙事完整性和节奏感
    */
   shotDensityLong: 6,
 
@@ -1250,6 +1234,13 @@ description字段必须满足以下条件：
 - 关键分镜（key shots）：{keyShots} 个（占70%）
 - 可选分镜（optional shots）：{optionalShots} 个（占30%）
 
+【分镜生成数量约束】（必须严格遵守）
+1. **本次必须且只能生成 exactly {targetShots} 个分镜**
+2. 分镜编号范围：1 到 {targetShots}
+3. 不得少生成，不得多生成
+4. 如果原文内容不足以支撑要求的分镜数量，请优先减少环境描写分镜，保留对话和动作分镜
+5. 每个分镜应聚焦原文中的一个具体情节或动作，不要将同一句话拆成多个分镜
+
 【输出要求】
 1. 基于情节分析，为每个情节点生成适当数量的分镜：
    - 重要情节点（major）：2-3个分镜
@@ -1274,10 +1265,32 @@ description字段必须满足以下条件：
 5. 每个分镜必须标注style字段（short-drama/film/custom）
 
 ⚠️ 防重复硬性规则（必须严格遵守）：
-1. 每个场景最多只能有1个远景建立镜头（extreme_long 或 long），用于交代环境全貌
-2. 如果前序镜头已有某场景的远景建立镜头，新镜头必须选择中景、近景或特写
+1. 每个场景开头应生成1个远景建立镜头（extreme_long 或 long），用于交代环境全貌
+2. 环境建立镜头之后，必须选择中景、近景或特写，聚焦于具体角色、动作或细节
 3. 不要重复生成与前序镜头相同或高度相似的内容（尤其是同一场景的全景描述）
 4. 景别选择应遵循"建立→发展→高潮"的递进逻辑，避免连续相同景别
+5. 同一场景内，禁止连续两个分镜使用相同的景别
+6. 同一核心事件（如"坠崖"、"玉佩发光"）最多只能有 3 个不同角度的分镜
+7. 如果一个事件已有 3 个分镜，禁止再生成该事件的其他角度
+8. 每个事件的分镜应该有不同的叙事功能（如：起因→经过→结果），禁止重复相同叙事功能
+
+【台词硬性规则】（必须严格遵守）
+1. 原文中的每句台词，在分镜中出现的次数不得超过原文中出现次数 + 1
+2. 同一场景内，禁止在多个分镜中重复使用相同的台词
+3. 角色的宣言式独白（如信念表达、口头禅）最多在全剧 2 个分镜中出现
+4. 禁止将角色在后续情节中才说的台词，提前到前面的分镜中
+
+【内容边界】（必须严格遵守）
+1. 你仅能基于当前prompt中的小说文本内容生成分镜，不得超出原文范围
+2. 原文中尚未发生、或未提及的情节，禁止生成分镜
+3. 原文的结尾即为分镜的结尾，禁止自行补充后续发展或延伸情节
+4. 禁止根据小说类型套路自行推断未描写的情节
+5. 如果原文以悬念结尾，分镜也应以悬念结尾，不得揭示悬念
+
+【字段值约束】（必须严格遵守）
+1. 景别字段必须从【景别选项】中选择，禁止使用选项列表之外的值
+2. 运镜字段必须从【运镜选项】中选择，禁止使用选项列表之外的值
+3. 机位角度字段必须从【机位角度选项】中选择，禁止使用选项列表之外的值
 
 【影视级分镜字段】
 {
@@ -1332,6 +1345,25 @@ eye_level(平视), high_angle(俯拍), low_angle(仰拍), dutch_angle(倾斜), o
 4. 情节连贯，无遗漏
 5. 镜号格式：SC{场景序号}-{分镜序号}{子序号}，同一场景内分镜序号递增
 
+【音效使用指南】（重要：请严格遵循）
+1. 音效选择必须与画面情绪、场景环境相匹配，避免随意使用"风声"等通用音效
+2. 不同场景应使用不同的主音效：
+   - 山门/宗门场景：钟声、鹤鸣、鸟鸣、风声
+   - 杂役院/日常生活：脚步声、水声、火焰燃烧、鸟鸣
+   - 后山/悬崖/野外：风声、树叶沙沙、鸟鸣、水声、乌鸦啼叫
+   - 炼丹房/炼器房：火焰燃烧、魔法音效、灵气波动
+   - 战斗场景：金属碰撞、爆炸声、剑鸣、怒吼
+3. 同一场景内禁止连续3个以上分镜使用相同的音效
+4. 音效应该增强叙事氛围，而非填充空白
+
+【时序硬性规则】（必须严格遵守）
+1. 你生成的每个分镜，必须严格遵循小说原文的叙事顺序、情节发展时间线、动作因果链
+2. 同一场景内的分镜，必须按情节发生的先后顺序排列，遵循：
+   定场全景（建立环境）→ 关系中景（角色互动）→ 动作/对话近景（核心情节）→ 细节特写（情绪高潮）→ 收尾转场
+3. 禁止颠倒动作的先后顺序，禁止提前生成后续情节的内容
+4. 仅生成当前prompt指定场景的分镜，禁止跨场景生成内容
+5. 每个分镜的 sequence 字段，请按该分镜在当前场景中的先后顺序从 1 开始编号
+
 【输出格式】
 严格按JSON数组格式输出，包含所有字段。
 `,
@@ -1381,7 +1413,7 @@ eye_level(平视), high_angle(俯拍), low_angle(仰拍), dutch_angle(倾斜), o
 请根据场景内容生成适当数量的分镜（通常5-15个），重要场景可适当增加。
 
 ⚠️ 硬性约束（必须严格遵守）：
-1. 每个场景最多只能有1个远景建立镜头（extreme_long 或 long，用于交代环境全貌），后续镜头必须聚焦于具体角色、动作或细节
+1. 每个场景开头应生成1个远景建立镜头（extreme_long 或 long，用于交代环境全貌），后续镜头必须聚焦于具体角色、动作或细节
 2. 不要重复生成与前序镜头相同或高度相似的内容（尤其是同一场景的全景描述）
 3. 景别选择应遵循"建立→发展→高潮"的递进逻辑，避免连续相同景别
 4. 如果前序镜头已展示了场景全貌，新镜头应该聚焦于特定角色、动作、表情或环境细节
@@ -1394,7 +1426,7 @@ eye_level(平视), high_angle(俯拍), low_angle(仰拍), dutch_angle(倾斜), o
     "shotType": "景别（从下方景别选项中选择）",
     "cameraMovement": "运镜（从下方运镜选项中选择）",
     "cameraAngle": "机位角度（从下方机位选项中选择）",
-    "description": "画面描述（50字以内，包含景别、角度、主体动作/表情）",
+    "description": "画面视觉描述（80-120字，必须包含：①主体刻画：角色外貌特征、服装、姿态、表情 ②场景环境：空间结构、时间段、氛围 ③光影设计：光源方向、色调、明暗对比 示例：'中景跟拍。黄昏小巷，暖色侧逆光勾勒人物轮廓。林悦（30岁女性，深蓝色风衣）步伐坚定向前走去，镜头35mm焦距，浅景深聚焦前景，背景虚化。色调：琥珀色暖光+青色阴影。'",
     "dialogue": "台词（如有）",
     "sound": "音效/配乐提示",
     "duration": 3,
@@ -1412,6 +1444,12 @@ static(静止), push(推), pull(拉), pan(摇), tilt(升降), track(跟拍), cra
 
 【机位角度选项】（必须从以下选项中选择）
 eye_level(平视), high_angle(俯拍), low_angle(仰拍), dutch_angle(倾斜), overhead(顶视), bird_eye(鸟瞰)
+
+【visualDescription 字段填写说明】
+- composition: 构图方式（如'三分法构图'、'对角线构图'、'框架式构图'、'对称构图'）
+- lighting: 光影设计（如'侧逆光+轮廓光'、'柔和漫射光'、'高对比度明暗'、'丁达尔效应'）
+- colorPalette: 色调方案（如'琥珀色暖光+青色阴影'、'冷蓝灰调'、'暖黄调'）
+- characterPositions: 每个角色在画面中的位置、动作、表情
 
 💡 导演指导原则
 1. 景别变化要有节奏感，避免连续相同景别
@@ -1458,7 +1496,7 @@ eye_level(平视), high_angle(俯拍), low_angle(仰拍), dutch_angle(倾斜), o
 2. 【时长变化】连续3个分镜不能有相同时长（避免单调节奏）
 3. 【总时长约束】本场景所有分镜时长之和必须接近 {sceneAllocatedDuration}秒（±15%误差范围：{minTotalDuration}-{maxTotalDuration}秒）
 4. 【高潮要求】{climaxRequirement}
-5. 【防重复】每个场景最多只能有1个远景建立镜头（extreme_long 或 long），后续镜头必须聚焦于具体角色、动作或细节
+5. 【防重复】每个场景开头应生成1个远景建立镜头（extreme_long 或 long，用于交代环境全貌），后续镜头必须聚焦于具体角色、动作或细节
 
 📝 输出格式要求
 请严格按以下JSON数组格式输出，每个分镜必须包含 rationale 字段说明时长选择理由：
@@ -1468,7 +1506,7 @@ eye_level(平视), high_angle(俯拍), low_angle(仰拍), dutch_angle(倾斜), o
     "shotType": "景别（从下方景别选项中选择）",
     "cameraMovement": "运镜（从下方运镜选项中选择）",
     "cameraAngle": "机位角度（从下方机位选项中选择）",
-    "description": "画面描述（50字以内，包含景别、角度、主体动作）",
+    "description": "画面视觉描述（80-120字，必须包含：①主体刻画：角色外貌特征、服装、姿态、表情 ②场景环境：空间结构、时间段、氛围 ③光影设计：光源方向、色调、明暗对比 示例：'中景跟拍。黄昏小巷，暖色侧逆光勾勒人物轮廓。林悦（30岁女性，深蓝色风衣）步伐坚定向前走去，镜头35mm焦距，浅景深聚焦前景，背景虚化。色调：琥珀色暖光+青色阴影。'",
     "dialogue": "台词（如有）",
     "sound": "音效/配乐提示",
     "duration": 5,
@@ -1487,6 +1525,12 @@ static(静止), push(推), pull(拉), pan(摇), tilt(升降), track(跟拍), cra
 
 【机位角度选项】（必须从以下选项中选择）
 eye_level(平视), high_angle(俯拍), low_angle(仰拍), dutch_angle(倾斜), overhead(顶视), bird_eye(鸟瞰)
+
+【visualDescription 字段填写说明】
+- composition: 构图方式（如'三分法构图'、'对角线构图'、'框架式构图'、'对称构图'）
+- lighting: 光影设计（如'侧逆光+轮廓光'、'柔和漫射光'、'高对比度明暗'、'丁达尔效应'）
+- colorPalette: 色调方案（如'琥珀色暖光+青色阴影'、'冷蓝灰调'、'暖黄调'）
+- characterPositions: 每个角色在画面中的位置、动作、表情
 
 💡 导演指导原则
 1. 景别变化要有节奏感，避免连续相同景别
@@ -2173,7 +2217,8 @@ export class ScriptParser {
     content: string,
     scenes: ScriptScene[],
     textLength: number,
-    episodePlanEstimate?: EpisodeEstimate
+    episodePlanEstimate?: EpisodeEstimate,
+    plotPointPlan?: PlotPointPlan
   ): {
     estimatedMinutes: number;
     targetShots: number;
@@ -2181,58 +2226,72 @@ export class ScriptParser {
     optionalShots: number;
     density: number;
   } {
-    // 叙事语速：从配置读取
-    const narrationSpeed = this.parserConfig.narrationSpeed || 200;
+    const narrationSpeed = this.parserConfig.narrationSpeed ?? DEFAULT_PARSER_CONFIG.narrationSpeed;
     const estimatedMinutes = Math.ceil(textLength / narrationSpeed);
 
-    // Phase 2: 集成分集规划约束
     let targetShots: number;
-    const shotDensityShortThreshold = this.parserConfig.shotDensityShortThreshold || 3000;
-    const shotDensityMediumThreshold = this.parserConfig.shotDensityMediumThreshold || 10000;
+    const shotDensityShortThreshold = this.parserConfig.shotDensityShortThreshold ?? DEFAULT_PARSER_CONFIG.shotDensityShortThreshold;
+    const shotDensityMediumThreshold = this.parserConfig.shotDensityMediumThreshold ?? DEFAULT_PARSER_CONFIG.shotDensityMediumThreshold;
 
-    if (episodePlanEstimate) {
-      // Phase 2 权重融合策略：平台标准 70% + 基础密度 30%
+    const shotDensityShort = this.parserConfig.shotDensityShort ?? DEFAULT_PARSER_CONFIG.shotDensityShort;
+    const shotDensityMedium = this.parserConfig.shotDensityMedium ?? DEFAULT_PARSER_CONFIG.shotDensityMedium;
+    const shotDensityLong = this.parserConfig.shotDensityLong ?? DEFAULT_PARSER_CONFIG.shotDensityLong;
+
+    let density = shotDensityLong;
+    if (textLength < shotDensityShortThreshold) density = shotDensityShort;
+    else if (textLength < shotDensityMediumThreshold) density = shotDensityMedium;
+
+    const densityBasedShots = Math.ceil(estimatedMinutes * density);
+
+    // 计算叙事复杂度系数(0.8-1.5)
+    const narrativeComplexity = this.calculateNarrativeComplexity(content, scenes);
+
+    if (plotPointPlan && plotPointPlan.totalShotsEstimate > 0) {
+      const plotPointBasedShots = plotPointPlan.totalShotsEstimate;
+      const platformStandardShots = episodePlanEstimate?.totalShotsEstimate || plotPointBasedShots;
+
+      // 动态权重: 情节规划越详细,其权重越高
+      const plotPointConfidence = Math.min(1, plotPointPlan.plotPoints.length / 10);
+      const plotPointWeight = 0.4 + plotPointConfidence * 0.3; // 0.4-0.7
+      const platformWeight = 0.3 - plotPointConfidence * 0.15; // 0.15-0.3
+      const densityWeight = 1 - plotPointWeight - platformWeight; // 剩余部分
+
+      targetShots = Math.round(
+        plotPointBasedShots * plotPointWeight +
+        platformStandardShots * platformWeight +
+        densityBasedShots * densityWeight
+      );
+
+      targetShots = Math.round(targetShots * narrativeComplexity);
+
+      console.log(
+        `[ScriptParser] Shot estimate: plotPoint(${plotPointBasedShots}×${plotPointWeight.toFixed(2)}) + platform(${platformStandardShots}×${platformWeight.toFixed(2)}) + density(${densityBasedShots}×${densityWeight.toFixed(2)}) × complexity(${narrativeComplexity.toFixed(2)}) = ${targetShots}`
+      );
+    } else if (episodePlanEstimate) {
       const platformStandardShots = episodePlanEstimate.totalShotsEstimate;
-
-      // 使用基础密度计算作为辅助参考
-      const shotDensityShort = this.parserConfig.shotDensityShort || 10;
-      const shotDensityMedium = this.parserConfig.shotDensityMedium || 8;
-      const shotDensityLong = this.parserConfig.shotDensityLong || 6;
-
-      let density = shotDensityLong;
-      if (textLength < shotDensityShortThreshold) density = shotDensityShort;
-      else if (textLength < shotDensityMediumThreshold) density = shotDensityMedium;
-
-      const densityBasedShots = Math.ceil(estimatedMinutes * density);
-
-      // 权重融合
-      targetShots = Math.round(platformStandardShots * 0.7 + densityBasedShots * 0.3);
+      
+      targetShots = Math.round(
+        (platformStandardShots * 0.7 + densityBasedShots * 0.3) * narrativeComplexity
+      );
 
       console.log(
         `[ScriptParser] Phase 2: Shot calculation with episode plan: ` +
-          `platform=${platformStandardShots} (70%) + density=${densityBasedShots} (30%) = final=${targetShots}`
+          `(platform=${platformStandardShots}×0.7 + density=${densityBasedShots}×0.3) × complexity(${narrativeComplexity.toFixed(2)}) = ${targetShots}`
       );
     } else {
-      // 向后兼容：仅使用基础密度
-      const shotDensityShort = this.parserConfig.shotDensityShort || 10;
-      const shotDensityMedium = this.parserConfig.shotDensityMedium || 8;
-      const shotDensityLong = this.parserConfig.shotDensityLong || 6;
-
-      let density = shotDensityLong;
-      if (textLength < shotDensityShortThreshold) density = shotDensityShort;
-      else if (textLength < shotDensityMediumThreshold) density = shotDensityMedium;
-
-      targetShots = Math.ceil(estimatedMinutes * density);
+      targetShots = Math.round(estimatedMinutes * density * narrativeComplexity);
+      
+      console.log(
+        `[ScriptParser] Fallback: Shot calculation: minutes=${estimatedMinutes} × density=${density} × complexity(${narrativeComplexity.toFixed(2)}) = ${targetShots}`
+      );
     }
 
-    // 目标分镜数（设置上限避免过多）
-    const maxShotsShortMedium = this.parserConfig.maxShotsShortMedium || 150;
-    const maxShotsLong = this.parserConfig.maxShotsLong || 500;
+    const maxShotsShortMedium = this.parserConfig.maxShotsShortMedium ?? DEFAULT_PARSER_CONFIG.maxShotsShortMedium;
+    const maxShotsLong = this.parserConfig.maxShotsLong ?? DEFAULT_PARSER_CONFIG.maxShotsLong;
     const maxShots = textLength < shotDensityMediumThreshold ? maxShotsShortMedium : maxShotsLong;
     targetShots = Math.min(targetShots, maxShots);
 
-    // 分层：关键分镜比例从配置读取
-    const keyShotRatio = this.parserConfig.keyShotRatio || 0.7;
+    const keyShotRatio = this.parserConfig.keyShotRatio ?? DEFAULT_PARSER_CONFIG.keyShotRatio;
     const keyShots = Math.ceil(targetShots * keyShotRatio);
     const optionalShots = targetShots - keyShots;
 
@@ -2245,8 +2304,157 @@ export class ScriptParser {
       targetShots,
       keyShots,
       optionalShots,
-      density: 0, // 兼容旧接口
+      density,
     };
+  }
+
+  private calculateNarrativeComplexity(content: string, scenes: ScriptScene[]): number {
+    const sceneComplexity = Math.min(1.2, 1 + scenes.length * 0.02);
+
+    const dialogues = content.match(/[""「『《].*?['"」』》]/g) || [];
+    const dialogueRatio = content.length > 0 ? (dialogues as string[]).reduce((sum, d) => sum + d.length, 0) / content.length : 0;
+    const dialogueComplexity = 1 + Math.min(0.2, dialogueRatio * 0.5);
+
+    const actionVerbs = ['踹', '扑', '滚', '攥', '攀', '坠', '爆发', '走向', '转身', '踢', '抓', '挥', '跃', '冲', '退', '挡', '劈'];
+    const actionCount = actionVerbs.filter(v => content.includes(v)).length;
+    const actionComplexity = 1 + Math.min(0.15, actionCount * 0.015);
+
+    const complexity = Math.pow(sceneComplexity * dialogueComplexity * actionComplexity, 1/3);
+    
+    return Math.max(0.8, Math.min(1.5, complexity));
+  }
+
+  private calculatePlotPointCoverage(shots: Shot[], plotPointPlan: PlotPointPlan): number {
+    if (plotPointPlan.plotPoints.length === 0) return 0;
+
+    const shotsByScene = new Map<string, number>();
+    for (const shot of shots) {
+      const count = shotsByScene.get(shot.sceneName) || 0;
+      shotsByScene.set(shot.sceneName, count + 1);
+    }
+
+    let coveredPlotPoints = 0;
+    for (const pp of plotPointPlan.plotPoints) {
+      const sceneShots = shotsByScene.get(pp.sceneName) || 0;
+      if (sceneShots >= pp.estimatedShots * 0.8) {
+        coveredPlotPoints++;
+      }
+    }
+
+    return coveredPlotPoints / plotPointPlan.plotPoints.length;
+  }
+
+  private extractKeyPhrases(dialogue: string): string[] {
+    const phrases: string[] = [];
+    
+    for (let len = 4; len >= 2; len--) {
+      for (let i = 0; i <= dialogue.length - len; i++) {
+        const phrase = dialogue.substring(i, i + len);
+        if (!phrase.match(/[，。！？、；：""''""''（）【】《》]/) && phrase.trim().length === len) {
+          phrases.push(phrase);
+        }
+      }
+    }
+
+    return [...new Set(phrases)].slice(0, 20);
+  }
+
+  private extractDescriptionElements(description: string): string[] {
+    const elements: string[] = [];
+
+    const characterPattern = /[\u4e00-\u9fa5]{2,4}(?=说|道|问|答|走|站|坐|看|望|转身|走向)/g;
+    let match;
+    while ((match = characterPattern.exec(description)) !== null) {
+      elements.push(`char:${match[0]}`);
+    }
+
+    const actionWords = ['走向', '转身', '看向', '望向', '站在', '坐在', '举起', '放下', '打开', '关闭'];
+    for (const action of actionWords) {
+      if (description.includes(action)) {
+        elements.push(`action:${action}`);
+      }
+    }
+
+    const shotTypes = ['远景', '全景', '中景', '近景', '特写', '极特写', '俯拍', '仰拍', '平视'];
+    for (const type of shotTypes) {
+      if (description.includes(type)) {
+        elements.push(`shot:${type}`);
+      }
+    }
+
+    const keyElements = description.match(/[\u4e00-\u9fa5]{5,}/g) || [];
+    const stopWords = ['是一个', '有一个', '可以看到', '显示出', '呈现出'];
+    for (const elem of keyElements) {
+      if (!stopWords.some(sw => elem.includes(sw))) {
+        elements.push(`elem:${elem.substring(0, 8)}`);
+      }
+    }
+
+    return [...new Set(elements)];
+  }
+
+  private extractMeaningfulWords(text: string): string[] {
+    const stopWords = new Set([
+      '的', '了', '在', '是', '我', '有', '和', '就', '不', '人', '都', '一', '一个',
+      '上', '也', '很', '到', '说', '要', '去', '你', '会', '着', '没有', '看', '好',
+      '自己', '这', '那', '里', '啊', '呢', '吧', '吗', '啦', '呀', '哦',
+    ]);
+
+    const words = text.match(/[\u4e00-\u9fa5]{2,}|[a-z]{2,}/g) || [];
+    return words.filter(w => !stopWords.has(w));
+  }
+
+  private extractNarrativeEventFromDescription(description: string): NarrativeEventSignature | null {
+    const actionVerbs = [
+      '坠崖', '坠落', '掉落', '滑落',
+      '发光', '爆发', '闪烁', '照耀', '亮起',
+      '站起', '倒下', '转身', '走向', '跑向',
+      '举起', '放下', '拿起', '放下', '握紧',
+      '喊道', '说道', '问道', '回答',
+      '看到', '发现', '注意到', '意识到',
+      '停止', '继续', '开始', '结束',
+      '掉落', '落下', '飘向', '飞向',
+    ];
+    
+    let coreAction = '';
+    for (const verb of actionVerbs) {
+      if (description.includes(verb)) {
+        coreAction = verb;
+        break;
+      }
+    }
+    
+    if (!coreAction) return null;
+    
+    const characterMatch = description.match(/([\u4e00-\u9fa5]{2,4})(?:的|在|被|向|从|对|却|又|也)/);
+    const mainCharacter = characterMatch ? characterMatch[1] : '';
+    
+    const objectPatterns = [
+      '玉佩', '悬崖', '窝头', '木桶', '扁担', '丹药', '武器', '法宝',
+      '光芒', '墨色', '鲜血', '石块', '藤蔓', '灵草', '云雾', '山门',
+      '琼楼玉宇', '仙鹤', '灵气', '杂役院',
+    ];
+    const keyObjects = objectPatterns.filter(obj => description.includes(obj));
+    
+    return {
+      coreAction,
+      mainCharacter,
+      keyObjects,
+    };
+  }
+
+  private areNarrativeEventsSimilar(
+    event1: NarrativeEventSignature,
+    event2: NarrativeEventSignature
+  ): boolean {
+    if (event1.coreAction !== event2.coreAction) return false;
+    
+    if (event1.mainCharacter && event2.mainCharacter && event1.mainCharacter !== event2.mainCharacter) {
+      return false;
+    }
+    
+    const objectIntersection = event1.keyObjects.filter(obj => event2.keyObjects.includes(obj));
+    return objectIntersection.length > 0 || event1.keyObjects.length === 0 || event2.keyObjects.length === 0;
   }
 
   /**
@@ -3430,6 +3638,33 @@ ${chunkContent.substring(0, 4000)}
 
     let sceneContent = content;
     if (sceneStartIndex >= 0) {
+      // 检测开头是否有全局环境描写（在场景名称之前的段落）
+      // 这些段落通常包含世界观、大环境介绍，应包含在场景内容中
+      let effectiveStartIndex = sceneStartIndex;
+      
+      // 如果场景名称不在第一段，检查前面是否有环境描写段落
+      if (sceneStartIndex > 0) {
+        // 向前查找环境描写段落（通常不超过3段）
+        const maxEnvParagraphs = 3;
+        const envStartIndex = Math.max(0, sceneStartIndex - maxEnvParagraphs);
+        
+        for (let i = envStartIndex; i < sceneStartIndex; i++) {
+          const p = paragraphs[i].toLowerCase();
+          // 检测是否为环境描写：包含地点描述、建筑风格、氛围描写等
+          const isEnvDescription = 
+            p.includes('矗立') || p.includes('坐落') || p.includes('云雾') ||
+            p.includes('灵气') || p.includes('仙境') || p.includes('圣地') ||
+            p.includes('山脉') || p.includes('峰') || p.includes('谷') ||
+            p.includes('笼罩') || p.includes('环绕') || p.includes('隐于');
+          
+          if (isEnvDescription) {
+            effectiveStartIndex = i;
+            console.log(`[ScriptParser] Found environment description at paragraph ${i}, including in scene content`);
+            break;
+          }
+        }
+      }
+
       const nextSceneIndex = paragraphs
         .slice(sceneStartIndex + 1)
         .findIndex(
@@ -3437,7 +3672,7 @@ ${chunkContent.substring(0, 4000)}
         );
       const endIndex =
         nextSceneIndex >= 0 ? sceneStartIndex + 1 + nextSceneIndex : paragraphs.length;
-      sceneContent = paragraphs.slice(sceneStartIndex, endIndex).join('\n\n');
+      sceneContent = paragraphs.slice(effectiveStartIndex, endIndex).join('\n\n');
     }
     console.log(`[ScriptParser] Scene content length: ${sceneContent.length} characters`);
 
@@ -4263,6 +4498,12 @@ ${creativeIntent.creativeNotes ? `- 创作备注：${creativeIntent.creativeNote
    */
   async generateAllShots(content: string, scenes: ScriptScene[]): Promise<Shot[]> {
     if (scenes.length === 0) return [];
+
+    console.log(`[ScriptParser] Validating scenes against source text...`);
+    scenes = this.filterInvalidScenes(scenes, content);
+    console.log(`[ScriptParser] After validation: ${scenes.length} valid scenes`);
+
+    if (scenes.length === 0) return [];
     if (scenes.length === 1) {
       const shots = await this.generateShots(
         content,
@@ -4550,6 +4791,156 @@ ${creativeIntent.creativeNotes ? `- 创作备注：${creativeIntent.creativeNote
     return context.join('\n\n');
   }
 
+  private extractSceneContextSemantically(content: string, sceneName: string, maxChars: number = 2000): string {
+    let sceneIndex = content.indexOf(sceneName);
+
+    if (sceneIndex === -1) {
+      const keywords = sceneName.replace(/场景/g, '').split(/[,，、]/);
+      for (const keyword of keywords) {
+        const idx = content.indexOf(keyword.trim());
+        if (idx !== -1) {
+          sceneIndex = idx;
+          break;
+        }
+      }
+    }
+
+    if (sceneIndex === -1) {
+      return this.extractSceneContext(content, sceneName);
+    }
+
+    let extractEnd = Math.min(sceneIndex + maxChars, content.length);
+
+    if (extractEnd < content.length) {
+      const breakChars = ['。', '！', '？', '\n'];
+      for (let i = extractEnd; i >= sceneIndex; i--) {
+        if (breakChars.includes(content[i])) {
+          extractEnd = i + 1;
+          break;
+        }
+      }
+    }
+
+    return content.substring(sceneIndex, extractEnd);
+  }
+
+  private validateSceneAgainstSource(sceneName: string, content: string): boolean {
+    // 1. 精确匹配
+    if (content.includes(sceneName)) {
+      return true;
+    }
+
+    // 2. 移除"场景"后缀
+    const cleanName = sceneName.replace(/场景/g, '');
+
+    // 3. 生成 2-gram 关键词（二字词组）
+    const keywords: string[] = [];
+    for (let i = 0; i <= cleanName.length - 2; i++) {
+      const keyword = cleanName.substring(i, i + 2);
+      if (!keywords.includes(keyword)) {
+        keywords.push(keyword);
+      }
+    }
+
+    // 4. 只保留在原文中出现的关键词
+    const matchedKeywords = keywords.filter(k => content.includes(k));
+
+    // 5. 计算匹配率：至少 50% 的二字词组匹配即可认为场景有效
+    const matchRatio = keywords.length > 0 ? matchedKeywords.length / keywords.length : 0;
+
+    if (matchRatio >= 0.5) {
+      return true;
+    }
+
+    // 6. 兜底：如果任何二字词组都匹配，检查场景名的前 2 字是否在原文中
+    if (cleanName.length >= 2 && content.includes(cleanName.substring(0, 2))) {
+      console.log(
+        `[ScriptParser] Scene "${sceneName}" matched via prefix fallback (found "${cleanName.substring(0, 2)}" in source)`
+      );
+      return true;
+    }
+
+    return false;
+  }
+
+  private filterInvalidScenes(
+    scenes: ScriptScene[],
+    content: string
+  ): ScriptScene[] {
+    const validScenes: ScriptScene[] = [];
+    const invalidScenes: ScriptScene[] = [];
+
+    for (const scene of scenes) {
+      if (this.validateSceneAgainstSource(scene.name, content)) {
+        validScenes.push(scene);
+      } else {
+        invalidScenes.push(scene);
+        console.warn(
+          `[ScriptParser] Filtered out invalid scene "${scene.name}" (not found in source text)`
+        );
+      }
+    }
+
+    if (invalidScenes.length > 0) {
+      console.warn(
+        `[ScriptParser] Warning: ${invalidScenes.length} scenes were filtered out due to source text mismatch: ${invalidScenes.map(s => s.name).join(', ')}`
+      );
+    }
+
+    return validScenes;
+  }
+
+  private validateDialogueSceneMapping(
+    shots: Shot[],
+    content: string,
+    scenes: Array<{ name: string }>
+  ): DialogueMismatch[] {
+    const mismatches: DialogueMismatch[] = [];
+    
+    const sceneRanges = new Map<string, { start: number; end: number }>();
+    for (const scene of scenes) {
+      const sceneIndex = content.indexOf(scene.name);
+      if (sceneIndex !== -1) {
+        sceneRanges.set(scene.name, {
+          start: Math.max(0, sceneIndex - 800),
+          end: Math.min(content.length, sceneIndex + 800),
+        });
+      }
+    }
+    
+    for (const shot of shots) {
+      if (!shot.dialogue || shot.dialogue.trim().length < 3) continue;
+      
+      const dialogueIndex = content.indexOf(shot.dialogue.trim());
+      if (dialogueIndex === -1) {
+        continue;
+      }
+      
+      const sceneRange = sceneRanges.get(shot.sceneName || '');
+      if (sceneRange) {
+        if (dialogueIndex < sceneRange.start || dialogueIndex > sceneRange.end) {
+          const actualScene = scenes.find(s => {
+            const range = sceneRanges.get(s.name);
+            return range && dialogueIndex >= range.start && dialogueIndex <= range.end;
+          });
+          
+          if (actualScene && actualScene.name !== shot.sceneName) {
+            mismatches.push({
+              shotNumber: shot.shotNumber || 'unknown',
+              dialogue: shot.dialogue,
+              expectedScene: actualScene.name,
+              actualScene: shot.sceneName || 'unknown',
+            });
+          }
+        }
+      }
+    }
+    
+    return mismatches;
+  }
+
+  private previousBatchShotCount: number = 0;
+
   /**
    * Batch generate all shots with global context injection
    * This method injects visual guidance, emotional context, and era constraints into the prompt
@@ -4562,6 +4953,12 @@ ${creativeIntent.creativeNotes ? `- 创作备注：${creativeIntent.creativeNote
     scenes: ScriptScene[],
     episodePlanEstimate?: EpisodeEstimate
   ): Promise<Shot[]> {
+    if (scenes.length === 0) return [];
+
+    console.log(`[ScriptParser] Validating scenes against source text...`);
+    scenes = this.filterInvalidScenes(scenes, content);
+    console.log(`[ScriptParser] After validation: ${scenes.length} valid scenes`);
+
     if (scenes.length === 0) return [];
     if (scenes.length === 1) {
       const shots = await this.generateShotsWithContext(content, scenes[0]);
@@ -4614,22 +5011,64 @@ ${creativeIntent.creativeNotes ? `- 创作备注：${creativeIntent.creativeNote
     const allSceneContents = scenes
       .map(scene => {
         if (!this.sceneContextExtractor) {
-          // Fallback to old method if extractor not initialized
           return this.extractSceneContext(content, scene.name);
         }
-        // Use SceneContextExtractor for RAG-based extraction
-        const context = this.sceneContextExtractor!.extract(scene, content, 500);
-        console.log(`[ScriptParser] Extracted ${context.length} chars for scene: ${scene.name}`);
+        const context = this.extractSceneContextSemantically(content, scene.name, 2000);
+        console.log(`[ScriptParser] P1-2: Semantic extraction ${context.length} chars for scene: ${scene.name}`);
         return context;
       })
       .join('\n\n');
+
+    console.log(`[ScriptParser] ========== Phase 1.5: Plot Point Planning ==========`);
+    let plotPointPlan: PlotPointPlan | undefined;
+    try {
+      const semanticChunker = new SemanticChunker({
+        maxTokens: 300,
+        preserveParagraphs: true,
+        extractMetadata: true,
+      });
+      const plotPointPlanner = new PlotPointPlanner(semanticChunker);
+      plotPointPlan = await plotPointPlanner.plan(content, scenes);
+
+      console.log(`[ScriptParser] Identified ${plotPointPlan.plotPoints.length} plot points, estimated ${plotPointPlan.totalShotsEstimate} shots`);
+      plotPointPlan.plotPoints.forEach(pp => {
+        console.log(`  - [${pp.type}] ${pp.text.substring(0, 40)}... → ${pp.estimatedShots} shots`);
+      });
+    } catch (error) {
+      console.warn(`[ScriptParser] Plot point planning failed, falling back:`, error);
+    }
+
+    // ========== Phase 1.6: 事件时间线提取 ==========
+    console.log(`[ScriptParser] ========== Phase 1.6: Event Timeline Extraction ==========`);
+    const timelineExtractor = new EventTimelineExtractor();
+    const eventTimeline = timelineExtractor.extract(content, scenes);
+    console.log(`[ScriptParser] Extracted ${eventTimeline.length} narrative events`);
+    
+    const eventTypeCounts = new Map<string, number>();
+    for (const event of eventTimeline) {
+      eventTypeCounts.set(event.eventType, (eventTypeCounts.get(event.eventType) || 0) + 1);
+    }
+    console.log(`[ScriptParser] Event type distribution:`, Object.fromEntries(eventTypeCounts));
+
+    // ========== Phase 1.7: 关键叙事元素提取 ==========
+    console.log(`[ScriptParser] ========== Phase 1.7: Key Elements Extraction ==========`);
+    const keyElementsExtractor = new KeyElementsExtractor();
+    const keyElements = keyElementsExtractor.extract(content, scenes);
+    console.log(
+      `[ScriptParser] Extracted key elements: ` +
+      `${keyElements.criticalDialogues.length} dialogues, ` +
+      `${keyElements.criticalProps.length} props, ` +
+      `${keyElements.criticalContrasts.length} contrasts, ` +
+      `${keyElements.criticalInnerMonologues.length} monologues`
+    );
 
     // 计算分镜生成参数（基于行业标准）
     const shotGen = this.calculateShotGeneration(
       content,
       scenes,
       allSceneContents.length,
-      episodePlanEstimate
+      episodePlanEstimate,
+      plotPointPlan
     );
     const targetShots = shotGen.targetShots;
 
@@ -4638,32 +5077,14 @@ ${creativeIntent.creativeNotes ? `- 创作备注：${creativeIntent.creativeNote
     );
     console.log(`[ScriptParser] Phase 1.2 Dynamic Batch Size Config:`, BATCH_SIZE_CONFIG);
 
-    // Phase 2.1: 渐进式上下文配置
-    interface ProgressiveContextConfig {
-      batch1: number;
-      batch2to4: number;
-      batch5to8: number;
-    }
-
-    const progressiveContextConfig: ProgressiveContextConfig = {
-      batch1: 2000, // 批次 1: 完整上下文（5 个分镜）从 2500 降低到 2000
-      batch2to4: 800, // 批次 2-4: 简化上下文（5 个分镜）从 1000 降低到 800
-      batch5to8: 400, // 批次 5+: 极简上下文（5 个分镜）从 500 降低到 400
-    };
-
-    console.log(`[ScriptParser] Phase 2.1 Progressive Context Config:`, progressiveContextConfig);
-    console.log(
-      `[ScriptParser] Batch-Context Mapping: ` +
-        `Batch1: 15 shots + ${progressiveContextConfig.batch1} chars, ` +
-        `Batch2-4: 12 shots + ${progressiveContextConfig.batch2to4} chars, ` +
-        `Batch5+: 10 shots + ${progressiveContextConfig.batch5to8} chars`
-    );
+    // P1-1 修复：废弃渐进式上下文截断，注入完整场景语义上下文
+    console.log(`[ScriptParser] P1-1: Full semantic context injection enabled (no substring truncation)`);
 
     // Phase 1.2: 动态批次状态
     const batchSize = this.parserConfig.shotBatchSize || BATCH_SIZE_CONFIG.initial;
-    const maxBatches = this.parserConfig.maxShotBatches || 20; // 从 8 增加到 20，避免提前终止
+    const maxBatches = this.parserConfig.maxShotBatches || 20;
     const minShotsThreshold = Math.floor(targetShots * 0.6);
-    const targetCompletionRate = 0.9; // 目标完成率 90%
+    const targetCompletionRate = 0.9;
 
     let allShots: Shot[] = [];
     let currentBatch = 0;
@@ -4681,8 +5102,20 @@ ${creativeIntent.creativeNotes ? `- 创作备注：${creativeIntent.creativeNote
       currentBatch++;
       const remainingShots = targetShots - allShots.length;
 
-      // 检查是否已达到目标完成率
+      const scenesWithShots = new Set(allShots.map(s => s.sceneName));
+      const scenesWithNoShots = scenes.filter(s => !scenesWithShots.has(s.name));
+
       const currentCompletionRate = allShots.length / targetShots;
+
+      // 修改 A: 仅当已生成足够多分镜（达到目标的 80%）时才考虑停止
+      if (scenesWithNoShots.length === 0 && currentCompletionRate >= 0.8) {
+        console.log(
+          `[ScriptParser] All ${scenes.length} scenes have shots (${allShots.length}/${targetShots}). ` +
+            `Stopping — target 80% completion reached.`
+        );
+        break;
+      }
+
       if (currentCompletionRate >= targetCompletionRate && remainingShots <= 5) {
         console.log(
           `[ScriptParser] Reached target completion rate (${(currentCompletionRate * 100).toFixed(1)}%), stopping generation`
@@ -4690,32 +5123,47 @@ ${creativeIntent.creativeNotes ? `- 创作备注：${creativeIntent.creativeNote
         break;
       }
 
+      // === 提前终止条件 3: 情节点覆盖度检查 ===
+      if (plotPointPlan && plotPointPlan.plotPoints.length > 0) {
+        const plotPointCoverage = this.calculatePlotPointCoverage(allShots, plotPointPlan);
+        
+        // 修改 B: 降低阈值至 70%/65%
+        if (plotPointCoverage >= 0.70 && currentCompletionRate >= 0.65) {
+          console.log(
+            `[ScriptParser] Plot point coverage is ${(plotPointCoverage * 100).toFixed(1)}% with ${(currentCompletionRate * 100).toFixed(1)}% completion rate. Stopping generation.`
+          );
+          break;
+        }
+      }
+
+      // === 提前终止条件 4: 连续批次没有新增有效分镜 ===
+      if (currentBatch > 1) {
+        const previousBatchSize = allShots.length - (this.previousBatchShotCount || 0);
+        if (previousBatchSize === 0 && currentBatch > 2) {
+          console.log(
+            `[ScriptParser] Previous batch added 0 new shots. Stopping generation to avoid redundancy.`
+          );
+          break;
+        }
+      }
+      this.previousBatchShotCount = allShots.length;
+
       const actualBatchSize = Math.min(currentBatchSize, remainingShots, BATCH_SIZE_CONFIG.max);
 
       console.log(
         `[ScriptParser] ========== Batch ${currentBatch}: Generating ${actualBatchSize} shots (${allShots.length + 1}-${allShots.length + actualBatchSize} of ${targetShots}) ==========`
       );
 
-      // Phase 2.1: 根据批次号动态选择上下文长度
-      let contextLength: number;
-      let expectedBatchSize: number;
+      // P1-1 修复：使用完整场景文本，不再 substring 截断
+      const batchSceneContents = allSceneContents;
 
-      if (currentBatch === 1) {
-        contextLength = progressiveContextConfig.batch1;
-        expectedBatchSize = 5; // 第一批：5 个分镜
-      } else if (currentBatch <= 4) {
-        contextLength = progressiveContextConfig.batch2to4;
-        expectedBatchSize = 5; // 中间批次：5 个分镜
-      } else {
-        contextLength = progressiveContextConfig.batch5to8;
-        expectedBatchSize = 5; // 后期批次：5 个分镜
-      }
-
-      // 动态截取上下文
-      const batchSceneContents = allSceneContents.substring(0, contextLength);
-      console.log(
-        `[ScriptParser] Batch ${currentBatch}: ${actualBatchSize} shots (expected: ${expectedBatchSize}) + ${contextLength} chars context`
-      );
+      // P1-1 修复：注入时序锚定信息
+      const batchAnchorInfo = `
+【时序锚定】
+- 当前正在处理的场景顺序：${scenes.map(s => s.name).join(' → ')}
+- 你生成的分镜必须严格按照上述场景的先后顺序排列
+- 仅生成当前prompt指定场景的分镜，禁止跨场景生成内容
+`;
 
       let batchPrompt = PROMPTS.shotsBatch
         .replace('{content}', batchSceneContents)
@@ -4723,6 +5171,96 @@ ${creativeIntent.creativeNotes ? `- 创作备注：${creativeIntent.creativeNote
         .replace('{targetShots}', String(actualBatchSize))
         .replace('{keyShots}', String(Math.ceil(actualBatchSize * 0.7)))
         .replace('{optionalShots}', String(Math.floor(actualBatchSize * 0.3)));
+
+      if (plotPointPlan && plotPointPlan.plotPoints.length > 0) {
+        // 已生成的分镜对应的场景
+        const generatedSceneNames = new Set(allShots.map(s => s.sceneName));
+        
+        // 筛选当前批次需要处理的情节点
+        const relevantPlotPoints = plotPointPlan.plotPoints.filter(pp => {
+          // 优先选择尚未生成分镜的场景的情节点
+          if (!generatedSceneNames.has(pp.sceneName)) {
+            return true;
+          }
+          // 如果场景已有分镜,但情节点类型是"climax"或"conflict",仍可能需要补充
+          if (pp.type === 'climax' || pp.type === 'conflict') {
+            const sceneShots = allShots.filter(s => s.sceneName === pp.sceneName);
+            return sceneShots.length < pp.estimatedShots; // 分镜数不足时补充
+          }
+          return false;
+        });
+
+        // 限制情节点数量,避免 prompt 过长
+        const maxPlotPointsPerBatch = 8;
+        const selectedPlotPoints = relevantPlotPoints.slice(0, maxPlotPointsPerBatch);
+
+        if (selectedPlotPoints.length > 0) {
+          // 按类型分组展示,更直观
+          const plotPointsByType = new Map<PlotPoint['type'], PlotPoint[]>();
+          for (const pp of selectedPlotPoints) {
+            if (!plotPointsByType.has(pp.type)) {
+              plotPointsByType.set(pp.type, []);
+            }
+            plotPointsByType.get(pp.type)!.push(pp);
+          }
+
+          const typeDescriptionMap: Record<PlotPoint['type'], string> = {
+            environment: '环境描写',
+            action: '动作场景',
+            dialogue: '对话交流',
+            monologue: '内心独白',
+            conflict: '冲突对抗',
+            transition: '过渡转折',
+            climax: '高潮爆发',
+          };
+
+          const plotPointSections: string[] = [];
+          for (const [type, points] of plotPointsByType.entries()) {
+            const pointsList = points.map((pp, idx) => 
+              `    ${idx + 1}. "${pp.text.substring(0, 80)}..." → 推荐 ${pp.estimatedShots} 个分镜`
+            ).join('\n');
+            
+            plotPointSections.push(`  【${typeDescriptionMap[type]}】(共 ${points.length} 个情节点)\n${pointsList}`);
+          }
+
+          const plotPointSection = `
+
+【情节点规划指导】
+以下是当前需要处理的情节点,按类型分组:
+
+${plotPointSections.join('\n\n')}
+
+分镜生成硬性规则:
+1. 每个情节点生成的分镜数 **不能超过** 推荐数量
+2. 原文中仅一句话描述的情节,最多生成 **1-2 个分镜**
+3. 原文中用一段落描述的情节,最多生成 **2-4 个分镜**
+4. **禁止**将同一句话或同一动作拆成多个分镜反复描述
+5. 情节点之间的分镜应当有明确的叙事衔接,避免跳跃感
+6. 如果原文中某场景只有环境描写,只需生成 **1 个远景建立镜头**
+`;
+          batchPrompt = batchPrompt + plotPointSection;
+          console.log(`[ScriptParser] Injected ${selectedPlotPoints.length} plot points (${plotPointsByType.size} types) into batch prompt`);
+        }
+      }
+
+      // 注入事件时间线（用于时序校验）
+      if (eventTimeline && eventTimeline.length > 0) {
+        const timelineSection = timelineExtractor.toPromptFormat(eventTimeline);
+        if (timelineSection) {
+          batchPrompt = batchPrompt + timelineSection;
+          console.log(`[ScriptParser] Injected event timeline (${eventTimeline.length} events) into batch prompt`);
+        }
+      }
+
+      // 注入必须包含清单
+      const keyElementsSection = keyElementsExtractor.toPromptFormat(keyElements);
+      if (keyElementsSection) {
+        batchPrompt = batchPrompt + keyElementsSection;
+        console.log(`[ScriptParser] Injected key elements checklist into batch prompt`);
+      }
+
+      // 注入时序锚定信息
+      batchPrompt = batchPrompt + batchAnchorInfo;
 
       if (this.globalContext && this.contextInjector) {
         console.log('[ScriptParser] Injecting global context into shots generation');
@@ -4815,29 +5353,138 @@ ${previousShotsContext}`;
           let isDuplicate = false;
 
           for (const existingShot of allShots) {
-            // 首先按场景名称过滤
             if ((batchShot.sceneName || '') !== (existingShot.sceneName || '')) {
               continue;
             }
 
-            // 计算文本相似度（Jaccard 相似度）
             const batchDesc = (batchShot.description || '').toLowerCase();
             const existingDesc = (existingShot.description || '').toLowerCase();
 
-            const batchWords = new Set(batchDesc.match(/[\u4e00-\u9fa5]|[a-z]+/g) || []);
-            const existingWords = new Set(existingDesc.match(/[\u4e00-\u9fa5]|[a-z]+/g) || []);
-
-            const intersection = new Set([...batchWords].filter(w => existingWords.has(w)));
-            const union = new Set([...batchWords, ...existingWords]);
-
-            const similarity = union.size > 0 ? intersection.size / union.size : 0;
-
-            if (similarity >= similarityThreshold) {
+            // 方法 1: 精确匹配
+            if (batchDesc === existingDesc) {
               console.log(
-                `[ScriptParser] Batch ${currentBatch}: Detected similar shot (${(similarity * 100).toFixed(0)}%), skipping: "${batchShot.description?.substring(0, 50)}..."`
+                `[ScriptParser] Batch ${currentBatch}: Exact description duplicate, skipping: "${batchShot.description?.substring(0, 50)}..."`
               );
               isDuplicate = true;
               break;
+            }
+
+            // 方法 2: 提取核心元素进行比对
+            const batchElements = this.extractDescriptionElements(batchDesc);
+            const existingElements = this.extractDescriptionElements(existingDesc);
+
+            if (batchElements.length > 0 && existingElements.length > 0) {
+              const elementIntersection = batchElements.filter(e => existingElements.includes(e));
+              const elementUnion = [...new Set([...batchElements, ...existingElements])];
+              const elementSimilarity = elementUnion.length > 0 ? elementIntersection.length / elementUnion.length : 0;
+
+              if (elementSimilarity >= 0.7 && elementIntersection.length >= 3) {
+                console.log(
+                  `[ScriptParser] Batch ${currentBatch}: Description element duplicate (${(elementSimilarity * 100).toFixed(0)}%, ${elementIntersection.length} elements), skipping: "${batchShot.description?.substring(0, 50)}..."`
+                );
+                isDuplicate = true;
+                break;
+              }
+            }
+
+            // 方法 3: 词集合 Jaccard 作为后备(提高阈值降低误判)
+            const batchWords = new Set(this.extractMeaningfulWords(batchDesc));
+            const existingWords = new Set(this.extractMeaningfulWords(existingDesc));
+
+            const intersection = new Set([...batchWords].filter(w => existingWords.has(w)));
+            const union = new Set([...batchWords, ...existingWords]);
+            const similarity = union.size > 0 ? intersection.size / union.size : 0;
+
+            if (similarity >= 0.75 && intersection.size >= 8) {
+              console.log(
+                `[ScriptParser] Batch ${currentBatch}: Description word duplicate (${(similarity * 100).toFixed(0)}%, ${intersection.size} words), skipping: "${batchShot.description?.substring(0, 50)}..."`
+              );
+              isDuplicate = true;
+              break;
+            }
+
+            if ((batchShot.dialogue || '').trim().length > 2 &&
+                (batchShot.dialogue || '').trim() === (existingShot.dialogue || '').trim()) {
+              console.log(
+                `[ScriptParser] Batch ${currentBatch}: Detected dialogue duplicate, skipping: "${batchShot.dialogue?.substring(0, 30)}..."`
+              );
+              isDuplicate = true;
+              break;
+            }
+          }
+
+          if (!isDuplicate && (batchShot.dialogue || '').trim().length > 5) {
+            const batchDial = (batchShot.dialogue || '').trim();
+            
+            for (const existingShot of allShots) {
+              if ((batchShot.sceneName || '') !== (existingShot.sceneName || '')) continue;
+
+              const existingDial = (existingShot.dialogue || '').trim();
+              if (existingDial.length <= 5) continue;
+
+              // 方法 1: 精确匹配
+              if (batchDial === existingDial) {
+                console.log(
+                  `[ScriptParser] Batch ${currentBatch}: Dialogue exact duplicate, skipping: "${batchDial.substring(0, 30)}..."`
+                );
+                isDuplicate = true;
+                break;
+              }
+
+              // 方法 2: 包含关系检查
+              if (batchDial.includes(existingDial) || existingDial.includes(batchDial)) {
+                const shorter = batchDial.length < existingDial.length ? batchDial : existingDial;
+                const longer = batchDial.length < existingDial.length ? existingDial : batchDial;
+                const inclusionRatio = shorter.length / longer.length;
+                
+                if (inclusionRatio >= 0.7) {
+                  console.log(
+                    `[ScriptParser] Batch ${currentBatch}: Dialogue inclusion duplicate (${(inclusionRatio * 100).toFixed(0)}%), skipping: "${batchDial.substring(0, 30)}..."`
+                  );
+                  isDuplicate = true;
+                  break;
+                }
+              }
+
+              // 方法 3: 关键短语提取 + Jaccard 相似度
+              const batchPhrases = this.extractKeyPhrases(batchDial);
+              const existingPhrases = this.extractKeyPhrases(existingDial);
+
+              if (batchPhrases.length > 0 && existingPhrases.length > 0) {
+                const phraseIntersection = batchPhrases.filter(p => existingPhrases.includes(p));
+                const phraseUnion = [...new Set([...batchPhrases, ...existingPhrases])];
+                const phraseSimilarity = phraseUnion.length > 0 ? phraseIntersection.length / phraseUnion.length : 0;
+
+                if (phraseSimilarity >= 0.6 && phraseIntersection.length >= 2) {
+                  console.log(
+                    `[ScriptParser] Batch ${currentBatch}: Dialogue phrase duplicate (${(phraseSimilarity * 100).toFixed(0)}%, ${phraseIntersection.length} phrases), skipping: "${batchDial.substring(0, 30)}..."`
+                  );
+                  isDuplicate = true;
+                  break;
+                }
+              }
+            }
+          }
+
+          // 叙事事件去重：检测"同一事件的多角度重复"
+          if (!isDuplicate && (batchShot.description || '').trim().length > 10) {
+            const batchEvent = this.extractNarrativeEventFromDescription(batchShot.description || '');
+            
+            if (batchEvent) {
+              let eventShotCount = 0;
+              for (const existingShot of allShots) {
+                const existingEvent = this.extractNarrativeEventFromDescription(existingShot.description || '');
+                if (existingEvent && this.areNarrativeEventsSimilar(batchEvent, existingEvent)) {
+                  eventShotCount++;
+                }
+              }
+              
+              if (eventShotCount >= 3) {
+                console.log(
+                  `[ScriptParser] Batch ${currentBatch}: Narrative event duplicate (already ${eventShotCount} shots for this event), skipping: "${batchShot.description?.substring(0, 50)}..."`
+                );
+                isDuplicate = true;
+              }
             }
           }
 
@@ -4883,7 +5530,8 @@ ${previousShotsContext}`;
     if (completionRate < 0.8) {
       console.warn(
         `[ScriptParser] Warning: Completion rate is low (${(completionRate * 100).toFixed(1)}%), ` +
-          `consider increasing maxBatches or checking scene content`
+          `consider increasing maxBatches (current: ${maxBatches}) or checking scene content. ` +
+          `Generated ${allShots.length}/${targetShots} shots across ${scenes.length} scenes.`
       );
     }
 
@@ -4907,24 +5555,23 @@ ${previousShotsContext}`;
       console.log(`  - ${sceneName}: ${sceneShots.length} shots`);
     }
 
-    // 2. 每个场景内重新编号
+    // 2. 按 scenes 数组原始叙事顺序遍历，废弃 LLM 返回的局部 sequence
     const finalShots: Shot[] = [];
     let globalSequence = 1;
     let sceneIndex = 1;
 
-    for (const [sceneName, sceneShots] of groupedByScene) {
-      // 按 sceneName 中的顺序或原始 sequence 排序（保持叙事顺序）
-      sceneShots.sort((a, b) => {
-        const seqA = a.sequence || 0;
-        const seqB = b.sequence || 0;
-        return seqA - seqB;
-      });
+    // P0-1 修复：按 scenes 数组原始顺序遍历，而非 Map 插入顺序
+    for (const scene of scenes) {
+      const sceneShots = groupedByScene.get(scene.name);
+      if (!sceneShots || sceneShots.length === 0) continue;
 
-      let shotIndex = 1;
+      // P0-2 修复：不再信任 LLM 返回的 sequence，按批次追加顺序处理
+      let shotInScene = 1;
       for (const shot of sceneShots) {
-        shot.shotNumber = `SC${String(sceneIndex).padStart(2, '0')}-${String(shotIndex).padStart(2, '0')}A`;
+        shot.shotNumber = `SC${String(sceneIndex).padStart(2, '0')}-${String(shotInScene).padStart(2, '0')}A`;
         shot.sequence = globalSequence;
-        shot.sceneName = sceneName;
+        (shot as any).shotInScene = shotInScene;
+        shot.sceneName = scene.name;
         shot.id = shot.id || crypto.randomUUID();
         shot.duration = shot.duration ?? defaultShotDuration;
         shot.cameraAngle = shot.cameraAngle || 'eye_level';
@@ -4934,13 +5581,43 @@ ${previousShotsContext}`;
         shot.status = shot.status || 'pending';
 
         finalShots.push(shot);
-        shotIndex++;
+        shotInScene++;
         globalSequence++;
       }
 
       console.log(
-        `[ScriptParser] Scene "${sceneName}": ${sceneShots.length} shots, numbered SC${String(sceneIndex).padStart(2, '0')}-01A to SC${String(sceneIndex).padStart(2, '0')}-${String(shotIndex - 1).padStart(2, '0')}A`
+        `[ScriptParser] Scene "${scene.name}": ${sceneShots.length} shots, numbered SC${String(sceneIndex).padStart(2, '0')}-01A to SC${String(sceneIndex).padStart(2, '0')}-${String(shotInScene - 1).padStart(2, '0')}A`
       );
+      sceneIndex++;
+    }
+
+    // 处理未匹配到 scenes 数组的分镜（如 LLM 返回的 sceneName 不在 scenes 中）
+    const uncategorizedShots: Shot[] = [];
+    for (const [sceneName, sceneShots] of groupedByScene) {
+      const matched = scenes.some(s => s.name === sceneName);
+      if (!matched) {
+        uncategorizedShots.push(...sceneShots);
+      }
+    }
+    if (uncategorizedShots.length > 0) {
+      console.log(`[ScriptParser] Found ${uncategorizedShots.length} uncategorized shots, appending after all scenes`);
+      let uncategorizedShotInScene = 1;
+      for (const shot of uncategorizedShots) {
+        shot.shotNumber = `SC${String(sceneIndex).padStart(2, '0')}-${String(uncategorizedShotInScene).padStart(2, '0')}A`;
+        shot.sequence = globalSequence;
+        shot.sceneName = '未分类场景';
+        shot.id = shot.id || crypto.randomUUID();
+        shot.duration = shot.duration ?? defaultShotDuration;
+        shot.cameraAngle = shot.cameraAngle || 'eye_level';
+        shot.assets = shot.assets || { characterIds: [], sceneId: '' };
+        shot.contentType = shot.contentType || 'static';
+        shot.layer = shot.layer || 'key';
+        shot.status = shot.status || 'pending';
+
+        finalShots.push(shot);
+        globalSequence++;
+        uncategorizedShotInScene++;
+      }
       sceneIndex++;
     }
 
@@ -4976,6 +5653,202 @@ ${previousShotsContext}`;
         shot.sequence = i + 1;
       });
       console.log(`[ScriptParser] ✓ sequence gaps fixed`);
+    }
+
+    // P2-4 新增：场景顺序校验（使用实际分镜中的场景列表，而非原始scenes参数）
+    const validationErrors: string[] = [];
+    const finalSceneOrder = [...new Map(finalShots.map(s => [s.sceneName, true])).keys()];
+    
+    // 修复：从finalShots中提取实际场景列表，与原始scenes列表对比时只保留有效场景
+    const validSceneNames = new Set(finalShots.map(s => s.sceneName));
+    const expectedSceneOrder = scenes.filter(s => validSceneNames.has(s.name)).map(s => s.name);
+    
+    // 只校验两个列表中共同存在的场景
+    for (let i = 0; i < Math.min(finalSceneOrder.length, expectedSceneOrder.length); i++) {
+      if (finalSceneOrder[i] !== expectedSceneOrder[i]) {
+        validationErrors.push(
+          `[P2-4] 场景顺序错误: 位置 ${i} 期望 "${expectedSceneOrder[i]}", 实际 "${finalSceneOrder[i]}"`
+        );
+      }
+    }
+
+    const shotsBySceneValidation = new Map<string, number[]>();
+    for (const shot of finalShots) {
+      if (!shotsBySceneValidation.has(shot.sceneName)) {
+        shotsBySceneValidation.set(shot.sceneName, []);
+      }
+      shotsBySceneValidation.get(shot.sceneName)!.push(shot.sequence);
+    }
+    for (const [sceneName, seqs] of shotsBySceneValidation) {
+      for (let i = 1; i < seqs.length; i++) {
+        if (seqs[i] !== seqs[i - 1] + 1) {
+          validationErrors.push(
+            `[P2-4] 场景 "${sceneName}" 内 sequence 不连续: ${seqs[i - 1]} → ${seqs[i]}`
+          );
+        }
+      }
+    }
+
+    if (validationErrors.length > 0) {
+      console.error(`[ScriptParser] 时序校验失败 (${validationErrors.length} 项错误):`);
+      validationErrors.forEach(err => console.error(`  - ${err}`));
+    } else {
+      console.log(`[ScriptParser] ✓ P2-4 时序校验通过: ${finalShots.length} 个分镜，场景顺序正确，sequence 连续递增`);
+    }
+
+    // 验证 5：台词-场景映射验证
+    console.log(`[ScriptParser] ========== Validation 5: Dialogue-Scene Mapping ==========`);
+    const dialogueMismatches = this.validateDialogueSceneMapping(finalShots, content, scenes);
+    if (dialogueMismatches.length > 0) {
+      console.warn(
+        `[ScriptParser] ⚠️ Found ${dialogueMismatches.length} dialogue-scene mismatches:`
+      );
+      for (const mismatch of dialogueMismatches) {
+        console.warn(
+          `  - 镜头 ${mismatch.shotNumber}: "${mismatch.dialogue.substring(0, 30)}..." ` +
+          `应属于 "${mismatch.expectedScene}", 但被放在 "${mismatch.actualScene}"`
+        );
+      }
+    } else {
+      console.log(`[ScriptParser] ✓ Validation 5 passed: All dialogues are in correct scenes`);
+    }
+
+    // 验证 6：视听语言匹配验证
+    console.log(`[ScriptParser] ========== Validation 6: Audio-Visual Matching ==========`);
+    const avValidator = new AudioVisualValidator();
+    let avWarningCount = 0;
+    const avWarnings: string[] = [];
+    for (const shot of finalShots) {
+      const result = avValidator.validate(shot);
+      if (!result.isValid) {
+        avWarningCount += result.warnings.length;
+        avWarnings.push(
+          `[ScriptParser] ⚠️ 镜头 ${shot.shotNumber}: ${result.warnings.join('; ')}`
+        );
+      }
+    }
+    if (avWarningCount === 0) {
+      console.log(`[ScriptParser] ✓ Validation 6 passed: All shots have valid audio-visual matching`);
+    } else {
+      console.warn(`[ScriptParser] Found ${avWarningCount} audio-visual warnings:`);
+      for (const warning of avWarnings.slice(0, 10)) {
+        console.warn(`  ${warning}`);
+      }
+      if (avWarnings.length > 10) {
+        console.warn(`  ... and ${avWarnings.length - 10} more warnings`);
+      }
+    }
+
+    // 校验3：连续相同景别强制切换
+    console.log(`[Validator] Checking for consecutive same shotType...`);
+    const shotTypeRotation: Record<string, string> = {
+      'close_up': 'medium',
+      'extreme_close_up': 'close_up',
+      'medium': 'full',
+      'full': 'medium',
+      'long': 'full',
+      'extreme_long': 'long',
+    };
+    
+    let consecutiveShotTypeWarnings = 0;
+    for (let i = 1; i < finalShots.length; i++) {
+      const currentShot = finalShots[i];
+      const prevShot = finalShots[i - 1];
+      
+      if (currentShot.shotType && prevShot.shotType && currentShot.shotType === prevShot.shotType) {
+        if (currentShot.sceneName === prevShot.sceneName) {
+          const newShotType = (shotTypeRotation[currentShot.shotType] || 'medium') as typeof currentShot.shotType;
+          console.warn(`[Validator] Consecutive same shotType "${currentShot.shotType}" in ${prevShot.shotNumber} → ${currentShot.shotNumber}, fixing to "${newShotType}"`);
+          currentShot.shotType = newShotType;
+          consecutiveShotTypeWarnings++;
+        }
+      }
+    }
+    console.log(`[Validator] ⚠️ Found ${consecutiveShotTypeWarnings} consecutive same shotType warnings`);
+
+    // Phase 2.5 新增：后处理校验中间件
+    console.log(`[ScriptParser] ========== Phase 2.5: Post-processing Validation ==========`);
+
+    // 校验1：景别/运镜/机位角度字段值合法性
+    const validShotTypes = ['extreme_long', 'long', 'full', 'medium', 'close_up', 'extreme_close_up'];
+    const validCameraMovements = ['static', 'push', 'pull', 'pan', 'tilt', 'track', 'crane', 'zoom_in', 'zoom_out', 'dolly_in', 'dolly_out'];
+    const validCameraAngles = ['eye_level', 'high_angle', 'low_angle', 'dutch_angle', 'overhead', 'bird_eye', 'back_view', 'side_view', 'side_angle'];
+
+    for (const shot of finalShots) {
+      if (shot.shotType && !validShotTypes.includes(shot.shotType)) {
+        console.warn(`[Validator] Invalid shotType "${shot.shotType}" in ${shot.shotNumber}, fixing to "medium"`);
+        shot.shotType = 'medium';
+      }
+      if (shot.cameraMovement && !validCameraMovements.includes(shot.cameraMovement)) {
+        console.warn(`[Validator] Invalid cameraMovement "${shot.cameraMovement}" in ${shot.shotNumber}, fixing to "static"`);
+        shot.cameraMovement = 'static';
+      }
+      if (shot.cameraAngle && !validCameraAngles.includes(shot.cameraAngle)) {
+        console.warn(`[Validator] Invalid cameraAngle "${shot.cameraAngle}" in ${shot.shotNumber}, fixing to "eye_level"`);
+        shot.cameraAngle = 'eye_level';
+      }
+    }
+
+    // 校验2：智能台词去重（基于原文映射，非硬编码）
+    const dialogueMap = new Map<string, Shot[]>();
+    for (const shot of finalShots) {
+      if (shot.dialogue && shot.dialogue.trim().length > 2) {
+        const normalizedDialogue = shot.dialogue.trim();
+        if (!dialogueMap.has(normalizedDialogue)) {
+          dialogueMap.set(normalizedDialogue, []);
+        }
+        dialogueMap.get(normalizedDialogue)!.push(shot);
+      }
+    }
+
+    let totalDialogueFixed = 0;
+    for (const [dialogue, shots] of dialogueMap) {
+      if (shots.length <= 1) continue;
+
+      const scenes = new Set(shots.map(s => s.sceneName));
+      const isCatchphrase = scenes.size >= 3 && shots.flatMap(s => s.characters || []).length > 0 && dialogue.length < 20;
+
+      const maxAllowed = isCatchphrase ? 3 : 2;
+
+      if (shots.length > maxAllowed) {
+        const shotsBySceneForDialogue = new Map<string, Shot[]>();
+        for (const shot of shots) {
+          if (!shotsBySceneForDialogue.has(shot.sceneName)) {
+            shotsBySceneForDialogue.set(shot.sceneName, []);
+          }
+          shotsBySceneForDialogue.get(shot.sceneName)!.push(shot);
+        }
+
+        const toKeep: Shot[] = [];
+        for (const [, sceneShots] of shotsBySceneForDialogue) {
+          toKeep.push(sceneShots[0]);
+        }
+
+        if (toKeep.length > maxAllowed) {
+          toKeep.sort((a, b) => (a.sequence || 0) - (b.sequence || 0));
+          const excess = toKeep.slice(maxAllowed);
+          excess.forEach(shot => {
+            shot.dialogue = '';
+            totalDialogueFixed++;
+          });
+        } else {
+          const excess = shots.filter(s => !toKeep.includes(s));
+          excess.forEach(shot => {
+            shot.dialogue = '';
+            totalDialogueFixed++;
+          });
+        }
+
+        console.warn(
+          `[Validator] Dialogue repeated ${shots.length} times (max allowed: ${maxAllowed}${isCatchphrase ? ', catchphrase detected' : ''}): ` +
+          `"${dialogue.substring(0, 40)}..." — removed ${totalDialogueFixed} duplicates`
+        );
+      }
+    }
+    if (totalDialogueFixed > 0) {
+      console.log(`[Validator] Total dialogue duplicates fixed: ${totalDialogueFixed}`);
+    } else {
+      console.log(`[Validator] ✓ No dialogue duplicates found`);
     }
 
     // 统计关键分镜和可选分镜数量
@@ -5133,610 +6006,6 @@ ${previousShotsContext}`;
   }
 
   /**
-   * V3: Short text fast path - parse everything in 1-2 API calls
-   * For texts < 800 words, extract metadata, characters, scenes, and shots in batch
-   */
-  async parseShortScript(
-    content: string,
-    onProgress?: ParseProgressCallback
-  ): Promise<ScriptParseState> {
-    console.log(`[ScriptParser] ========== Short Text Fast Path ==========`);
-    console.log(`[ScriptParser] Content length: ${content.length} characters`);
-
-    // Fix: Initialize performance monitor for short script path
-    this.performanceMonitor?.startSession(content.length);
-
-    // Initialize scene context extractor for RAG-based text extraction
-    this.initializeSceneContextExtractor();
-    // Initialize dynamic batch sizer for adaptive batch size control
-    this.initializeDynamicBatchSizer();
-    // Initialize circuit breaker for preventing cascade failures
-    this.initializeCircuitBreaker();
-
-    const state: ScriptParseState = {
-      stage: 'metadata',
-      progress: 10,
-    };
-
-    try {
-      // Step 1: Extract metadata with structured output
-      onProgress?.('metadata', 10, '正在提取元数据...');
-      state.metadata = await this.extractMetadata(content);
-      state.progress = 25;
-
-      // Step 2: Batch extract all characters
-      if (state.metadata.characterNames && state.metadata.characterNames.length > 0) {
-        onProgress?.(
-          'characters',
-          25,
-          `正在批量分析 ${state.metadata.characterNames.length} 个角色...`
-        );
-        state.characters = await this.extractAllCharactersWithContext(
-          content,
-          state.metadata.characterNames
-        );
-        console.log(`[ScriptParser] Fast path: Extracted ${state.characters.length} characters`);
-      } else {
-        state.characters = [];
-      }
-      state.progress = 50;
-
-      // Step 3: Batch extract all scenes
-      if (state.metadata.sceneNames && state.metadata.sceneNames.length > 0) {
-        onProgress?.('scenes', 50, `正在批量分析 ${state.metadata.sceneNames.length} 个场景...`);
-        state.scenes = await this.extractAllScenesWithContext(content, state.metadata.sceneNames);
-        console.log(`[ScriptParser] Fast path: Extracted ${state.scenes.length} scenes`);
-      } else {
-        state.scenes = [];
-      }
-      state.progress = 75;
-
-      // Step 3.5: Phase 1 - Lightweight item extraction (新增)
-      try {
-        onProgress?.('items', 55, '正在提取道具...');
-        state.items = await this.extractItemsLightweight(content, state.characters || []);
-        console.log(`[ScriptParser] Fast path: Extracted ${state.items.length} items`);
-      } catch (e) {
-        console.warn(
-          '[ScriptParser] Fast path: Items extraction failed, continuing without items:',
-          e
-        );
-        state.items = [];
-      }
-
-      // Step 4: Generate shots for all scenes in ONE API call (fast path optimization)
-      if (state.scenes.length > 0) {
-        onProgress?.('shots', 75, '正在批量生成分镜...');
-        try {
-          // V3 Optimization: Use generateAllShotsWithContext for single API call
-          const allShots = await this.generateAllShotsWithContext(
-            content,
-            state.scenes,
-            state.episodePlanEstimate
-          );
-          // 为分镜生成专业编号
-          const shotsWithNumbers = generateShotNumbers(allShots);
-          state.shots = shotsWithNumbers;
-          console.log(
-            `[ScriptParser] Fast path: Generated ${shotsWithNumbers.length} shots in 1 API call with professional numbering`
-          );
-        } catch (e) {
-          console.error('[ScriptParser] Batch shots generation failed:', e);
-          // Fallback: generate placeholder shots
-          const fallbackShots: Shot[] = [];
-          state.scenes.forEach((scene, sceneIndex) => {
-            fallbackShots.push({
-              id: crypto.randomUUID(),
-              sceneName: scene.name,
-              sequence: sceneIndex + 1,
-              shotType: 'medium',
-              cameraMovement: 'static',
-              duration: 3,
-              description: `${scene.name} - ${scene.description?.substring(0, 30) || '场景描述'}...`,
-              characters: scene.characters || [],
-              assets: { characterIds: scene.characters || [], sceneId: scene.id || '' },
-              contentType: 'static',
-              layer: 'key',
-              status: 'pending',
-            });
-          });
-          state.shots = fallbackShots;
-        }
-      } else {
-        state.shots = [];
-      }
-      state.progress = 95;
-
-      // Step 5: Generate quality report
-      if (this.parserConfig.useDramaRules && this.qualityAnalyzer) {
-        const report = this.qualityAnalyzer.analyze(
-          state.metadata,
-          state.characters,
-          state.scenes,
-          [],
-          state.shots || [],
-          'completed'
-        );
-        this.qualityReport = report;
-        state.qualityReport = report;
-
-        // Generate and save performance report
-        const perfReport = this.performanceMonitor?.generateReport();
-        if (perfReport) {
-          state.performanceReport = perfReport;
-          console.log('[ScriptParser] Performance report saved to state:', {
-            totalDuration: perfReport.totalDuration,
-            apiCallCount: perfReport.apiCallCount,
-          });
-        }
-      }
-
-      state.stage = 'completed';
-      state.progress = 100;
-      onProgress?.('completed', 100, '解析完成！');
-
-      console.log(`[ScriptParser] ========== Short Text Parse Completed ==========`);
-      console.log(
-        `[ScriptParser] Characters: ${state.characters?.length}, Scenes: ${state.scenes?.length}, Shots: ${state.shots?.length}`
-      );
-    } catch (error: any) {
-      state.stage = 'error';
-      state.error = error.message;
-      throw error;
-    }
-
-    return state;
-  }
-
-  /**
-   * V4 Ultra-Fast: Ultra-short text single-pass parsing (<500 characters)
-   *
-   * 优化点：
-   * 1. 单次API调用提取所有信息（元数据、角色、场景、分镜）
-   * 2. 简化Prompt，减少token消耗
-   * 3. 跳过中间状态，直接生成最终结果
-   *
-   * 相比parseShortScriptOptimized，可减少约70-80%的解析时间和token消耗
-   *
-   * @param content - 剧本内容（<500字符）
-   * @param onProgress - 进度回调
-   * @returns 完整的解析状态
-   */
-  async parseUltraShortScript(
-    content: string,
-    onProgress?: ParseProgressCallback
-  ): Promise<ScriptParseState> {
-    console.log(`[ScriptParser] ========== Ultra-Short Text Single-Pass Parsing ==========`);
-    console.log(`[ScriptParser] Content length: ${content.length} characters (threshold: <500)`);
-
-    // Fix: Initialize performance monitor for ultra-short path
-    this.performanceMonitor.startSession(content.length);
-    this.performanceMonitor.startStage('metadata');
-
-    const state: ScriptParseState = {
-      stage: 'metadata',
-      progress: 10,
-    };
-
-    try {
-      onProgress?.('metadata', 10, '正在分析剧本内容...');
-
-      // 检查是否已取消
-      if (this.abortController?.signal.aborted) {
-        console.log(`[ScriptParser] parseUltraShortScript cancelled before API call`);
-        throw new Error('解析已取消');
-      }
-
-      // 构建增强版 Prompt - 强调必填字段并提供示例
-      const prompt = `分析以下短剧本，提取所有必要信息：
-
-剧本内容：
-${content}
-
-⚠️ 重要提示：
-1. 以下所有字段都是必填的，不能留空！
-2. 如果某些信息原文没有明确描述，请根据剧情合理推断
-3. 不要省略任何字段，即使内容简短也要尽量填写完整
-4. **分镜数量要求**：必须生成至少 6-8 个分镜，确保覆盖所有关键情节！
-5. **角色信息要求**：每个角色必须有详细的 description（外貌、性格、身份）和 role（主角/配角/反派）！
-6. **视觉风格要求**：visualStyle 的所有 4 个字段都必须填写完整！
-
-请以 JSON 格式返回以下信息：
-{
-  "title": "剧本标题（如果没有合适的，请根据内容生成）",
-  "synopsis": "剧情简介（50 字以内）",
-  
-  "visualStyle": {
-    "artStyle": "必须填写！艺术风格，例如：'古装权谋剧'、'现代都市剧'、'悬疑推理剧'",
-    "artDirection": "必须填写！美术指导，例如：'写实电影感'、'精致古风'、'简约现代'",
-    "artStyleDescription": "必须填写！风格描述（30-50 字），例如：'追求电影级质感，注重光影对比，营造紧张压抑的权谋氛围'",
-    "colorPalette": "必须填写！主色调数组（3-5 个十六进制颜色），例如：['#8B0000', '#2F4F4F', '#DAA520']",
-    "colorMood": "必须填写！色彩情绪，例如：'暖色调偏暗'、'冷峻压抑'、'复古怀旧'",
-    "cinematography": "必须填写！摄影风格，例如：'电影感构图'、'手持纪实'、'稳定器流畅'",
-    "lightingStyle": "必须填写！光影风格，例如：'自然光与室内光结合'、'戏剧光'、'柔光'"
-  },
-  
-  "characters": [
-    {
-      "name": "角色姓名，例如：'沈清辞'",
-      "description": "必须填写！角色描述（外貌、性格、身份等），至少 20 字，例如：'聪慧过人，行事低调，断案精准，蛰伏十年的复仇者，外表文弱内心坚韧'",
-      "role": "必须填写！主角/配角/反派三选一",
-      "gender": "必须填写！性别（male/female/unknown）",
-      "age": "必须填写！年龄段（青年/中年/老年）",
-      "identity": "必须填写！身份/职业（如：书生/官员/侠客）",
-      "personality": ["必须填写！性格特征数组（2-4 个），例如：['聪慧', '低调', '坚韧', '复仇心强']"],
-      "appearance": {
-        "face": "必须填写！面容描述（如：面容清秀，眼神深邃）",
-        "hair": "必须填写！发型描述（如：黑色长发束冠）",
-        "clothing": "必须填写！服装描述（如：青色布衣长衫）",
-        "build": "必须填写！体型描述（如：身形偏瘦）",
-        "height": "可选！身高描述（如：中等身材）"
-      },
-      "signatureItems": ["可选！标志性物品数组"],
-      "visualPrompt": "必须填写！视觉描述（用于 AI 生图），包含外貌、服装、发型等，例如：'年轻书生，黑色长发束冠，面容清秀，眼神深邃，身着青色长衫，腰间挂玉佩'"
-    }
-  ],
-  
-  "scenes": [
-    {
-      "name": "场景名称，例如：'朝堂'",
-      "description": "必须填写！场景描述（纯环境，至少 30 字），例如：'金銮殿上，文武百官分列两侧，气氛庄严肃穆，阳光透过窗户洒在龙椅上'",
-      "timeOfDay": "必须填写！时间（早晨/中午/傍晚/夜晚/不特定）",
-      "locationType": "必须填写！地点类型（interior/exterior/unknown）",
-      "environment": {
-        "architecture": "必须填写！建筑风格（如：古代宫殿建筑，飞檐斗拱）",
-        "furnishings": ["必须填写！陈设物品数组（如：龙椅、金砖地面、高窗）"],
-        "lighting": "必须填写！光线条件（如：自然光从高窗射入）",
-        "colorTone": "必须填写！色调氛围（如：金碧辉煌，红黄主色调）"
-      },
-      "visualPrompt": "可选！视觉描述（用于 AI 生图）",
-      "characters": ["场景中出现的角色姓名"]
-    }
-  ],
-  
-  "items": [
-    {
-      "name": "道具名称，例如：'沈家玉佩'",
-      "description": "必须填写！道具描述（50 字以内），例如：'沈家传家宝，青玉质地，雕刻精美，象征家族荣耀'",
-      "category": "必须填写！类别（weapon/tool/jewelry/document/creature/animal/other）",
-      "owner": "可选！所属角色",
-      "importance": "必须填写！重要性（major/minor）",
-      "visualPrompt": "必须填写！视觉描述（用于 AI 生图）"
-    }
-  ],
-  
-  "shots": [
-    {
-      "sceneName": "所属场景名称",
-      "description": "必须填写！分镜描述（镜头内容、动作、表情等），至少 30 字，例如：'沈清辞跪在大殿中央，双手高举证据，神情坚定，目光如炬地直视皇上'",
-      "shotType": "必须填写！景别（close-up/medium/long/wide 等）",
-      "cameraAngle": "必须填写！拍摄角度（eye-level/high-angle/low-angle/dutch-angle/overhead 等）",
-      "cameraMovement": "可选！运镜方式（static/pan/tilt/zoom/dolly/handheld 等）",
-      "duration": "可选！时长（秒）",
-      "characters": ["分镜中出现的角色"],
-      "mood": "必须填写！情绪氛围（紧张/平静/激动/阴险/悬疑等）"
-    }
-  ],
-  
-  "genre": "必须填写！故事类型（古装/现代/科幻/悬疑/言情/武侠等）",
-  "tone": "必须填写！整体基调（喜剧/悲剧/正剧/荒诞等）"
-}
-
-📋 完整示例输出：
-{
-  "title": "青衫御史",
-  "synopsis": "沈清辞家族被灭后隐姓埋名十年，入京复仇，揭露丞相阴谋，洗清家族冤案，终成御史中丞。",
-  "visualStyle": {
-    "artStyle": "古装权谋剧",
-    "artDirection": "写实电影感，注重历史细节还原",
-    "artStyleDescription": "追求电影级质感，注重光影对比和构图美感，营造紧张压抑的权谋氛围，同时保持古风雅致",
-    "colorPalette": ["#8B0000", "#2F4F4F", "#DAA520", "#000000"],
-    "colorMood": "暖色调偏暗，沉稳厚重",
-    "cinematography": "电影感构图，多用手持摄影增强紧张感",
-    "lightingStyle": "自然光与室内光结合，侧光突出人物轮廓"
-  },
-  "characters": [
-    {
-      "name": "沈清辞",
-      "description": "聪慧过人，行事低调，断案精准，蛰伏十年的复仇者，外表文弱内心坚韧，眉宇间透着不屈的意志",
-      "role": "主角",
-      "personality": ["聪慧", "低调", "坚韧", "复仇心强"],
-      "visualPrompt": "年轻书生，黑色长发束冠，面容清秀，眼神深邃藏恨意，身着青色布衣长衫，腰间挂玉佩，身形偏瘦"
-    },
-    {
-      "name": "萧景渊",
-      "description": "丞相之子，多疑狠辣，善于权谋，对苏砚身份产生怀疑并屡次试探，眼神阴鸷",
-      "role": "反派",
-      "personality": ["多疑", "狠辣", "善于权谋", "阴险"],
-      "visualPrompt": "青年贵族，黑色长发金冠，面容俊美但眼神阴鸷，身着华贵紫色锦袍，腰系玉带，气质高傲"
-    },
-    {
-      "name": "吏部尚书",
-      "description": "赏识苏砚的才能，为人正直，被萧景渊设计陷害，年约五旬，胡须花白",
-      "role": "配角",
-      "personality": ["正直", "赏识人才", "慈祥"],
-      "visualPrompt": "中老年官员，花白胡须，面容慈祥带威严，身着红色官服，头戴官帽，手持笏板"
-    },
-    {
-      "name": "皇上",
-      "description": "威严果断，听闻证据后震怒，下令彻查丞相一党，身着龙袍，不怒自威",
-      "role": "配角",
-      "personality": ["威严", "果断", "公正"],
-      "visualPrompt": "中年帝王，黑色长发金龙冠，面容威严，身着明黄龙袍，端坐龙椅，不怒自威"
-    }
-  ],
-  "scenes": [
-    {
-      "name": "朝堂",
-      "description": "金銮殿上，文武百官分列两侧，气氛庄严肃穆，阳光透过窗户洒在龙椅上，金砖铺地",
-      "timeOfDay": "早晨",
-      "location": "室内",
-      "characters": ["沈清辞", "萧景渊", "皇上", "吏部尚书"]
-    },
-    {
-      "name": "吏部",
-      "description": "吏部衙门，沈清辞办公之处，简洁朴素，书架上摆满卷宗，窗外竹影婆娑",
-      "timeOfDay": "白天",
-      "location": "室内",
-      "characters": ["沈清辞", "吏部尚书"]
-    }
-  ],
-  "shots": [
-    {
-      "sceneName": "朝堂",
-      "description": "沈清辞跪在大殿中央，双手高举证据，神情坚定，目光如炬地直视皇上",
-      "shotType": "medium",
-      "cameraAngle": "eye-level",
-      "characters": ["沈清辞"],
-      "mood": "紧张"
-    },
-    {
-      "sceneName": "朝堂",
-      "description": "皇上端坐龙椅，面色凝重，审视着下方的证据，手指轻叩扶手",
-      "shotType": "close-up",
-      "cameraAngle": "low-angle",
-      "characters": ["皇上"],
-      "mood": "威严"
-    },
-    {
-      "sceneName": "朝堂",
-      "description": "萧景渊站在一旁，脸色阴沉，眼神闪烁，暗中观察局势变化",
-      "shotType": "medium",
-      "cameraAngle": "eye-level",
-      "characters": ["萧景渊"],
-      "mood": "阴险"
-    },
-    {
-      "sceneName": "朝堂",
-      "description": "文武百官窃窃私语，有人震惊，有人愤怒，有人幸灾乐祸",
-      "shotType": "long",
-      "cameraAngle": "high-angle",
-      "characters": [],
-      "mood": "骚动"
-    }
-  ]
-}
-
-⚠️ 再次强调：
-1. 所有字段必须填写，不能留空！
-2. visualStyle 的 4 个字段都要填写
-3. characters 的 description 必须至少 20 字，role 必须填写
-4. scenes 的 description 必须至少 30 字
-5. shots 必须至少 6 个，每个 description 至少 30 字，确保覆盖所有关键情节
-6. 如果原文信息不足，请根据剧情合理推断
-7. 确保 JSON 格式正确，可以被解析`;
-
-      // 单次API调用获取所有信息
-      const startTime = Date.now();
-
-      // 启动进度更新定时器，让用户知道API调用正在进行（降低频率减少日志）
-      let progress = 10;
-      let updateCount = 0;
-      const progressInterval = setInterval(() => {
-        progress += 5; // 每次增加5%，减少更新次数
-        updateCount++;
-        if (progress < 35) {
-          // 每3次更新才打印一次日志（约15秒一次）
-          if (updateCount % 3 === 1) {
-            onProgress?.('metadata', progress, '正在等待AI分析结果...');
-          }
-        }
-      }, 5000); // 每5秒更新一次（原来是2秒）
-
-      // 使用'metadata'任务类型，它配置了合适的maxTokens和timeout
-      const response = await this.callLLM(prompt, 'metadata');
-
-      // 检查是否已取消
-      if (this.abortController?.signal.aborted) {
-        console.log(`[ScriptParser] parseUltraShortScript cancelled after API call`);
-        clearInterval(progressInterval);
-        throw new Error('解析已取消');
-      }
-
-      clearInterval(progressInterval);
-      const duration = Date.now() - startTime;
-
-      console.log(`[ScriptParser] Single-pass LLM call completed in ${duration}ms`);
-
-      // DEBUG: 打印完整响应
-      console.log('[DEBUG] LLM 完整响应:', response);
-      console.log('[DEBUG] Response length:', response.length);
-
-      // 解析 JSON 响应
-      let parsedData: any;
-      try {
-        // 尝试直接解析
-        parsedData = JSON.parse(response);
-
-        // DEBUG: 打印解析后的数据（直接输出对象，避免 JSON.stringify 的 Unicode 转义问题）
-        console.log('[DEBUG] parsedData:', parsedData);
-        console.log('[DEBUG] visualStyle:', parsedData.visualStyle);
-        console.log('[DEBUG] characters count:', parsedData.characters?.length);
-        console.log('[DEBUG] shots count:', parsedData.shots?.length);
-      } catch (e) {
-        // 尝试从 markdown 代码块中提取 JSON
-        const jsonMatch = response.match(/```(?:json)?\s*([\s\S]*?)\s*```/);
-        if (jsonMatch) {
-          parsedData = JSON.parse(jsonMatch[1]);
-        } else {
-          throw new Error('无法解析 LLM 响应为 JSON 格式');
-        }
-      }
-
-      onProgress?.('metadata', 40, '正在处理解析结果...');
-
-      // 构建 metadata
-      state.metadata = {
-        title: parsedData.title || '未命名剧本',
-        synopsis: parsedData.synopsis || '',
-        genre: parsedData.genre || '剧情',
-        tone: parsedData.tone || 'neutral',
-        targetAudience: parsedData.targetAudience || 'general',
-        wordCount: parsedData.wordCount || 0,
-        chapterCount: parsedData.chapters?.length || 1,
-        characterCount: parsedData.characters?.length || 0,
-        sceneCount: parsedData.scenes?.length || 0,
-        estimatedDuration: String(parsedData.shots?.length * 3 || 0), // 每个分镜约 3 秒
-        characterNames: parsedData.characters?.map((c: any) => c.name) || [],
-        sceneNames: parsedData.scenes?.map((s: any) => s.name) || [],
-        keyProps: parsedData.keyProps || [],
-        themes: parsedData.themes || [],
-        // 提取视觉风格信息（超短文本路径新增）
-        visualStyle: parsedData.visualStyle ?? {
-          artDirection: '',
-          artStyle: '',
-          artStyleDescription: '',
-          colorPalette: [],
-          colorMood: '',
-          cinematography: '',
-          lightingStyle: '',
-        },
-      };
-
-      // 构建 characters
-      state.characters = (parsedData.characters || []).map((char: any, index: number) => ({
-        id: crypto.randomUUID(),
-        name: char.name || `角色${index + 1}`,
-        description: char.description || '',
-        role: char.role || '配角',
-        gender: char.gender || 'unknown',
-        age: char.age || '',
-        identity: char.identity || '',
-        personality: char.personality || [],
-        visualPrompt: char.visualPrompt || '',
-        signatureItems: char.signatureItems || [],
-        appearance: {
-          height: char.appearance?.height || '',
-          build: char.appearance?.build || '',
-          face: char.appearance?.face || '',
-          hair: char.appearance?.hair || '',
-          clothing: char.appearance?.clothing || '',
-        },
-        tags: [],
-      }));
-
-      // 构建 scenes
-      state.scenes = (parsedData.scenes || []).map((scene: any, index: number) => ({
-        id: crypto.randomUUID(),
-        name: scene.name || `场景${index + 1}`,
-        description: scene.description || '',
-        timeOfDay: scene.timeOfDay || 'day',
-        locationType: scene.locationType || 'unknown',
-        environment: scene.environment || {
-          architecture: '',
-          furnishings: [],
-          lighting: '',
-          colorTone: '',
-        },
-        visualPrompt: scene.visualPrompt || '',
-        characters: scene.characters || [],
-        duration: 0,
-        emotionalTone: 'neutral',
-      }));
-
-      // 构建 items（新增）
-      state.items = (parsedData.items || []).map((item: any, index: number) => ({
-        id: crypto.randomUUID(),
-        name: item.name || `道具${index + 1}`,
-        description: item.description || '',
-        category: item.category || 'other',
-        owner: item.owner || '',
-        importance: item.importance || 'minor',
-        visualPrompt: item.visualPrompt || '',
-      }));
-
-      onProgress?.('shots', 70, '正在生成分镜...');
-
-      // 构建shots
-      state.shots = (parsedData.shots || []).map((shot: any, index: number) => ({
-        id: crypto.randomUUID(),
-        sceneName: shot.sceneName || '',
-        sequence: index + 1,
-        shotType: shot.shotType || 'medium',
-        cameraMovement: shot.cameraMovement || 'static',
-        duration: shot.duration || 3,
-        description: shot.description || '',
-        cameraAngle: shot.cameraAngle || 'eye_level',
-        mood: shot.mood || '',
-        characters: shot.characters || [],
-        assets: {
-          characterIds: shot.characters || [],
-          sceneId: state.scenes.find(s => s.name === shot.sceneName)?.id || '',
-        },
-        contentType: 'static',
-        layer: 'key',
-        status: 'pending',
-      }));
-
-      state.progress = 90;
-
-      // 生成质量报告
-      if (this.parserConfig.useDramaRules && this.qualityAnalyzer) {
-        const report = this.qualityAnalyzer.analyze(
-          state.metadata,
-          state.characters,
-          state.scenes,
-          [],
-          state.shots,
-          'completed',
-          false, // emotionalArc not extracted in ultra-short mode
-          undefined
-        );
-        this.qualityReport = report;
-        state.qualityReport = report;
-
-        // Generate and save performance report
-        const perfReport = this.performanceMonitor?.generateReport();
-        if (perfReport) {
-          state.performanceReport = perfReport;
-          console.log('[ScriptParser] Performance report saved to state:', {
-            totalDuration: perfReport.totalDuration,
-            apiCallCount: perfReport.apiCallCount,
-          });
-        }
-      }
-
-      state.stage = 'completed';
-      state.progress = 100;
-      onProgress?.('completed', 100, '解析完成！');
-
-      console.log(`[ScriptParser] ========== Ultra-Short Text Parse Completed ==========`);
-      console.log(
-        `[ScriptParser] Characters: ${state.characters?.length}, Scenes: ${state.scenes?.length}, Shots: ${state.shots?.length}`
-      );
-      console.log(`[ScriptParser] Total API calls: 1 (vs 5+ in standard mode)`);
-      console.log(`[ScriptParser] Estimated token savings: ~80%`);
-    } catch (error: any) {
-      state.stage = 'error';
-      state.error = error.message;
-      console.error('[ScriptParser] Ultra-short parsing failed:', error);
-      throw error;
-    }
-
-    return state;
-  }
-
-  /**
    * V3 Optimized: Short text fast path with parallel extraction
    *
    * 优化点：
@@ -5781,6 +6050,13 @@ ${content}
 
       state.metadata = metadata;
       this.globalContext = globalContext;
+
+      // Merge global context into metadata if extracted successfully
+      if (globalContext && this.globalContextExtractor) {
+        const contextMetadata = this.globalContextExtractor.convertToMetadata(globalContext);
+        Object.assign(state.metadata, contextMetadata);
+        console.log('[ScriptParser] Global context merged into metadata (optimized path)');
+      }
 
       console.log(`[ScriptParser] Parallel extraction complete:`);
       console.log(

@@ -584,6 +584,10 @@ Character pose changes between adjacent keyframes should be gradual, avoid large
 - Shot Type: ${contentType}
 - Characters:
 ${characterDesc}
+${shot.visualDescription?.composition ? `- Composition: ${shot.visualDescription.composition}` : ''}
+${shot.visualDescription?.lighting ? `- Lighting: ${shot.visualDescription.lighting}` : ''}
+${shot.visualDescription?.colorPalette ? `- Color Palette: ${shot.visualDescription.colorPalette}` : ''}
+${shot.visualDescription?.characterPositions && shot.visualDescription.characterPositions.length > 0 ? `- Character Positions:\n${shot.visualDescription.characterPositions.map(pos => `  - ${pos.characterId}: Position=${pos.position}, Action=${pos.action}, Expression=${pos.expression}`).join('\n')}` : ''}
 
 【Shot Description】
 ${shot.description}
@@ -655,6 +659,10 @@ ${referenceInfo || '无参考信息'}
 - 分镜类型：${contentType}
 - 角色：
 ${characterDesc}
+${shot.visualDescription?.composition ? `- 构图：${shot.visualDescription.composition}` : ''}
+${shot.visualDescription?.lighting ? `- 光影：${shot.visualDescription.lighting}` : ''}
+${shot.visualDescription?.colorPalette ? `- 色调：${shot.visualDescription.colorPalette}` : ''}
+${shot.visualDescription?.characterPositions && shot.visualDescription.characterPositions.length > 0 ? `- 角色位置：\n${shot.visualDescription.characterPositions.map(pos => `  - ${pos.characterId}: 位置=${pos.position}, 动作=${pos.action}, 表情=${pos.expression}`).join('\n')}` : ''}
 
 【画面描述】
 ${shot.description}

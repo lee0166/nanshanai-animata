@@ -40,7 +40,6 @@ import {
   Trash2,
   Plus,
   Eye,
-  Clock,
   Users,
   Camera,
   Move,
@@ -70,6 +69,7 @@ interface ShotListProps {
   onGenerateFragment?: (shot: Shot) => void;
   projectId: string; // 项目ID，用于查询资产
   scriptId?: string; // 剧本ID，用于过滤当前剧本的资产
+  scriptTitle?: string; // 剧本名称，用于导出Excel文件名
   viewMode?: 'list' | 'manager'; // 视图模式：list-剧本管理页面（不显示拆分按钮），manager-分镜管理页面（显示拆分按钮）
   headerAction?: React.ReactNode; // 头部区域额外操作按钮
 }
@@ -81,6 +81,7 @@ export const ShotList: React.FC<ShotListProps> = ({
   onGenerateFragment,
   projectId,
   scriptId,
+  scriptTitle,
   viewMode = 'list',
   headerAction,
 }) => {
@@ -205,52 +206,26 @@ export const ShotList: React.FC<ShotListProps> = ({
   // 虚拟化表格行（保留 ref 用于表格滚动）
   const tableBodyRef = useRef<HTMLTableSectionElement>(null);
 
-  // 计算分镜时间码（SMPTE 格式，24fps）
-  const calculateTimecodes = useMemo(() => {
-    const timecodes: Map<string, { in: string; out: string }> = new Map();
-    let currentSeconds = 0;
-    
-    // 按排序后的顺序计算时间码
-    filteredShots.forEach(shot => {
-      const duration = shot.duration || 3;
-      const framesPerSecond = 24;
-      
-      const inFrames = Math.floor(currentSeconds * framesPerSecond);
-      const outFrames = Math.floor((currentSeconds + duration) * framesPerSecond);
-      
-      const formatTimecode = (totalFrames: number): string => {
-        const frames = totalFrames % framesPerSecond;
-        const totalSeconds = Math.floor(totalFrames / framesPerSecond);
-        const secs = totalSeconds % 60;
-        const mins = Math.floor(totalSeconds / 60) % 60;
-        const hours = Math.floor(totalSeconds / 3600);
-        return `${String(hours).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}:${String(frames).padStart(2, '0')}`;
-      };
-      
-      timecodes.set(shot.id, {
-        in: formatTimecode(inFrames),
-        out: formatTimecode(outFrames),
-      });
-      
-      currentSeconds += duration;
-    });
-    
-    return timecodes;
-  }, [filteredShots]);
-
   // Group shots by scene
   const shotsByScene = useMemo(() => {
-    const grouped: Record<string, Shot[]> = {};
-    shotsWithNumbers.forEach(shot => {
-      // 处理 sceneName 为 undefined 或空字符串的情况
-      const sceneName = shot.sceneName || '未分类场景';
-      if (!grouped[sceneName]) {
-        grouped[sceneName] = [];
-      }
-      grouped[sceneName].push(shot);
+    const grouped: Map<string, Shot[]> = new Map();
+
+    scenes.forEach(scene => {
+      grouped.set(scene.name, []);
     });
+    grouped.set('未分类场景', []);
+
+    shotsWithNumbers.forEach(shot => {
+      const sceneName = shot.sceneName || '未分类场景';
+      if (grouped.has(sceneName)) {
+        grouped.get(sceneName)!.push(shot);
+      } else {
+        grouped.get('未分类场景')!.push(shot);
+      }
+    });
+
     return grouped;
-  }, [shotsWithNumbers]);
+  }, [shotsWithNumbers, scenes]);
 
   // Handle update shot
   const handleUpdateShot = (updated: Shot) => {
@@ -481,8 +456,7 @@ export const ShotList: React.FC<ShotListProps> = ({
       return;
     }
 
-    const currentScript = scenes[0]?.scriptId;
-    await exportShotsToExcel(filteredShots, selectedFields, currentScript || undefined);
+    await exportShotsToExcel(filteredShots, selectedFields, scriptTitle || undefined);
     setIsExportModalOpen(false);
   };
 
@@ -554,7 +528,6 @@ export const ShotList: React.FC<ShotListProps> = ({
             <TableHeader>
               <TableColumn>类型</TableColumn>
               <TableColumn>序号</TableColumn>
-              <TableColumn>时间码</TableColumn>
               <TableColumn>场景</TableColumn>
               <TableColumn>景别</TableColumn>
               <TableColumn>运镜</TableColumn>
@@ -565,7 +538,6 @@ export const ShotList: React.FC<ShotListProps> = ({
             </TableHeader>
             <TableBody ref={tableBodyRef}>
               {filteredShots.map((shot, index) => {
-                const timecode = calculateTimecodes.get(shot.id);
                 return (
                   <TableRow key={shot.id}>
                     <TableCell>
@@ -579,11 +551,6 @@ export const ShotList: React.FC<ShotListProps> = ({
                     <TableCell>
                       <span className="font-mono text-sm">
                         {shot.shotNumber || `${getSceneNumber(shot.sceneName)}-${shot.sequence}`}
-                      </span>
-                    </TableCell>
-                    <TableCell>
-                      <span className="font-mono text-xs">
-                        {timecode ? `${timecode.in} → ${timecode.out}` : '--'}
                       </span>
                     </TableCell>
                     <TableCell>
@@ -713,7 +680,7 @@ export const ShotList: React.FC<ShotListProps> = ({
         /* Cards View */
         <>
           <div className="space-y-6">
-            {(Object.entries(shotsByScene) as [string, Shot[]][]).map(([sceneName, sceneShots]) => {
+            {Array.from(shotsByScene.entries()).map(([sceneName, sceneShots]) => {
               if (selectedScene !== 'all' && selectedScene !== sceneName) return null;
 
               return (
@@ -733,6 +700,8 @@ export const ShotList: React.FC<ShotListProps> = ({
                     {/* 对场景内的分镜进行排序，key shots优先 */}
                     {[...sceneShots]
                       .sort((a, b) => {
+                        const seqDiff = (a.sequence || 0) - (b.sequence || 0);
+                        if (seqDiff !== 0) return seqDiff;
                         if (a.layer === 'key' && b.layer !== 'key') return -1;
                         if (a.layer !== 'key' && b.layer === 'key') return 1;
                         return 0;
@@ -936,6 +905,54 @@ export const ShotList: React.FC<ShotListProps> = ({
                   onChange={e => setSelectedShot({ ...selectedShot, description: e.target.value })}
                   minRows={3}
                 />
+
+                <div className="space-y-3 rounded-lg border border-default-200 bg-default-50 p-3">
+                  <p className="text-sm font-medium text-default-700">视觉描述（专业）</p>
+                  <div className="grid grid-cols-3 gap-3">
+                    <Input
+                      label="构图"
+                      value={selectedShot.visualDescription?.composition || ''}
+                      onChange={e =>
+                        setSelectedShot({
+                          ...selectedShot,
+                          visualDescription: {
+                            ...selectedShot.visualDescription,
+                            composition: e.target.value,
+                          },
+                        })
+                      }
+                      placeholder="如：三分法构图、对角线构图"
+                    />
+                    <Input
+                      label="光影"
+                      value={selectedShot.visualDescription?.lighting || ''}
+                      onChange={e =>
+                        setSelectedShot({
+                          ...selectedShot,
+                          visualDescription: {
+                            ...selectedShot.visualDescription,
+                            lighting: e.target.value,
+                          },
+                        })
+                      }
+                      placeholder="如：侧逆光、漫射光"
+                    />
+                    <Input
+                      label="色调"
+                      value={selectedShot.visualDescription?.colorPalette || ''}
+                      onChange={e =>
+                        setSelectedShot({
+                          ...selectedShot,
+                          visualDescription: {
+                            ...selectedShot.visualDescription,
+                            colorPalette: e.target.value,
+                          },
+                        })
+                      }
+                      placeholder="如：琥珀色暖光+青色阴影"
+                    />
+                  </div>
+                </div>
 
                 <div className="grid grid-cols-2 gap-4">
                   <Textarea

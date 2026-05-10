@@ -446,23 +446,125 @@ export const ScriptItemSchema = z.object({
 });
 
 // ==========================================
-// Schema 15: 分镜
+// Schema 15: 分镜相关枚举
+// ==========================================
+const CameraAngleEnum = z.enum([
+  'eye_level',
+  'high_angle',
+  'low_angle',
+  'dutch_angle',
+  'overhead',
+  'bird_eye',
+]);
+
+const ContentTypeEnum = z.enum(['static', 'dynamic-simple', 'dynamic-complex']);
+
+const FilmStyleEnum = z.enum(['short-drama', 'film', 'custom']);
+
+const NarrativeNodeEnum = z.enum(['act1', 'act2a', 'midpoint', 'climax', 'act3']);
+
+const ShotLayerEnum = z.enum(['key', 'optional']);
+
+// ==========================================
+// Schema 16: 视觉描述
+// ==========================================
+export const VisualDescriptionSchema = z.object({
+  composition: z.string().optional(),
+  lighting: z.string().optional(),
+  colorPalette: z.string().optional(),
+  characterPositions: z
+    .array(
+      z.object({
+        characterId: z.string(),
+        position: z.string(),
+        action: z.string(),
+        expression: z.string(),
+      })
+    )
+    .optional(),
+});
+
+// ==========================================
+// Schema 17: 资产关联
+// ==========================================
+export const ShotAssetsSchema = z.object({
+  characterIds: z.array(z.string()).default([]),
+  sceneId: z.string().default(''),
+  propIds: z.array(z.string()).optional(),
+});
+
+// ==========================================
+// Schema 18: 分析字段
+// ==========================================
+export const ShotAnalysisSchema = z.object({
+  type: ContentTypeEnum,
+  confidence: z.number().min(0).max(1),
+  recommendation: z.object({
+    keyframeCount: z.number().int().min(1),
+    focus: z.array(z.string()),
+    notes: z.string(),
+  }),
+});
+
+// ==========================================
+// Schema 15: 分镜（扩展版 - 25+ 字段）
 // ==========================================
 export const ShotSchema = z.object({
+  // 基础信息
   id: z.string().optional(),
   sceneName: z.string().min(1),
+  sceneId: z.string().optional(),
   sequence: z.number().int().min(1),
+  shotNumber: z.string().optional(),
+
+  // 景别与运镜（影视标准）
   shotType: z
     .enum(['extreme_long', 'long', 'full', 'medium', 'close_up', 'extreme_close_up'])
     .default('full'),
   cameraMovement: z
     .enum(['static', 'push', 'pull', 'pan', 'tilt', 'track', 'crane'])
     .default('static'),
+  cameraAngle: CameraAngleEnum.optional(),
+
+  // 视觉描述（影视级）
   description: z.string().min(1),
+  visualDescription: VisualDescriptionSchema.optional(),
+
+  // 音频
   dialogue: z.string().optional(),
   sound: z.string().optional(),
+  music: z.string().optional(),
+
+  // 时长（参考值，后期可调）
   duration: z.number().int().min(1).default(3),
+
+  // 角色列表（名称）
   characters: z.array(z.string()).default([]),
+
+  // 资产关联（关键！）
+  assets: ShotAssetsSchema.optional(),
+
+  // 分镜类型与层级
+  contentType: ContentTypeEnum.default('static'),
+  layer: ShotLayerEnum.default('key'),
+  style: FilmStyleEnum.optional(),
+
+  // 情绪氛围
+  mood: z.string().optional(),
+
+  // 叙事节点与连贯性
+  narrativeNode: NarrativeNodeEnum.optional(),
+  preShotId: z.string().optional(),
+  nextShotId: z.string().optional(),
+
+  // 分镜类型分析
+  analysis: ShotAnalysisSchema.optional(),
+
+  // 生成状态
+  mappedFragmentId: z.string().optional(),
+  generatedImages: z.array(z.string()).optional(),
+  generatedVideo: z.string().optional(),
+  status: z.enum(['pending', 'generating', 'completed', 'failed']).default('pending'),
 });
 
 // ==========================================
