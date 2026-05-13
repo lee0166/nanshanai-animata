@@ -49,6 +49,7 @@ export { PerformanceMonitor } from './PerformanceMonitor';
 export { QualityAnalyzer } from './QualityAnalyzer';
 export { default as BudgetPlanner } from './BudgetPlanner';
 export { SemanticChunker } from './SemanticChunker';
+export { SmartChunker, type SmartChunk, type SmartChunkerOptions } from './SmartChunker';
 export { SceneContextExtractor } from './SceneContextExtractor';
 export { GlobalContextExtractor } from './GlobalContextExtractor';
 export { MultiLevelCache, type CacheStats } from './MultiLevelCache';

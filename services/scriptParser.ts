@@ -32,6 +32,7 @@ import { storageService } from './storage';
 import { JSONRepair } from './parsing/JSONRepair';
 import { createTokenOptimizer, TokenOptimizer } from './parsing/TokenOptimizer';
 import { SemanticChunker, SemanticChunk } from './parsing/SemanticChunker';
+import { SmartChunker, SmartChunk } from './parsing/SmartChunker';
 import { ShortDramaRules, RuleContext, RuleViolation } from './parsing/ShortDramaRules';
 import { MultiLevelCache } from './parsing/MultiLevelCache';
 import { QualityAnalyzer, DetailedQualityReport } from './parsing/QualityAnalyzer';
@@ -1819,6 +1820,14 @@ export class ScriptParser {
   private progressTracker: ProgressTracker | null = null;
   /** Data integrity checker for state verification */
   private dataIntegrityChecker: DataIntegrityChecker = new DataIntegrityChecker();
+  /** Smart chunker for long text processing */
+  private smartChunker: SmartChunker | null = null;
+  /** Chunks from smart chunking */
+  private chunks: SmartChunk[] = [];
+  /** Enable smart chunking (can be toggled off) */
+  private useSmartChunking: boolean = true;
+  /** Enable narrative state passing for shot generation */
+  private useNarrativeState: boolean = true;
 
   /**
    * Creates a new script parser instance
@@ -3326,13 +3335,103 @@ export class ScriptParser {
 
     // Create circuit breaker with default config
     const config = {
-      failureThreshold: 5, // 连续失败 5 次后熔断
-      resetTimeout: 30000, // 30 秒后尝试恢复
-      halfOpenMaxAttempts: 1, // 半开状态允许 1 次试探
+      failureThreshold: 5,
+      resetTimeout: 30000,
+      halfOpenMaxAttempts: 1,
     };
 
     this.circuitBreaker = new CircuitBreaker(config);
     console.log('[ScriptParser] CircuitBreaker initialized with config:', config);
+  }
+
+  /**
+   * Initialize smart chunker for long text processing
+   * Creates a SmartChunker instance and splits content into intelligent chunks
+   * @param content - The full text content to chunk
+   */
+  private initializeSmartChunker(content: string): void {
+    if (!this.useSmartChunking) {
+      console.log('[ScriptParser] Smart chunking disabled');
+      return;
+    }
+
+    try {
+      this.smartChunker = new SmartChunker({
+        chunkSize: 8000,
+        overlapSize: 2000,
+        climaxRatio: 0.3,
+      });
+
+      const scenePositions = this.extractScenePositions(content);
+      this.chunks = this.smartChunker.chunk(content, scenePositions);
+
+      console.log(`[ScriptParser] Smart chunking: ${this.chunks.length} chunks created`);
+      this.chunks.forEach((chunk, i) => {
+        console.log(
+          `  Chunk ${i}: ${chunk.content.length} chars, scenes: ${chunk.sceneNames.join(', ') || 'none'}, climax: ${chunk.isClimaxSection}`
+        );
+      });
+    } catch (error) {
+      console.warn('[ScriptParser] Smart chunking failed, falling back to legacy:', error);
+      this.useSmartChunking = false;
+    }
+  }
+
+  /**
+   * Extract scene positions from content (quick scan)
+   * @param content - The full text content
+   * @returns Array of scene positions with names and character offsets
+   */
+  private extractScenePositions(
+    content: string
+  ): Array<{ name: string; position: number }> {
+    const scenePatterns = [
+      /【([^】]*场景[^】]*)】/g,
+      /第([^章]*)章/g,
+      /场景([^:]*):/g,
+      /地点([^:]*):/g,
+    ];
+
+    const positions: Array<{ name: string; position: number }> = [];
+
+    for (const pattern of scenePatterns) {
+      let match;
+      const regex = new RegExp(pattern.source, pattern.flags);
+      while ((match = regex.exec(content)) !== null) {
+        positions.push({
+          name: match[1].trim(),
+          position: match.index,
+        });
+      }
+    }
+
+    return positions.sort((a, b) => a.position - b.position);
+  }
+
+  /**
+   * Merge duplicate characters extracted from multiple chunks
+   * @param characters - Array of characters that may contain duplicates
+   * @returns Merged unique characters with most complete data
+   */
+  private mergeDuplicateCharacters(characters: ScriptCharacter[]): ScriptCharacter[] {
+    const map = new Map<string, ScriptCharacter>();
+
+    for (const char of characters) {
+      const existing = map.get(char.name);
+      if (!existing) {
+        map.set(char.name, char);
+      } else {
+        const charKeys =
+          char.appearance && Object.keys(char.appearance).length;
+        const existingKeys =
+          existing.appearance && Object.keys(existing.appearance).length;
+        if ((charKeys || 0) > (existingKeys || 0)) {
+          map.set(char.name, { ...existing, ...char });
+        }
+      }
+    }
+
+    return Array.from(map.values());
   }
 
   /**
@@ -3403,8 +3502,9 @@ export class ScriptParser {
     console.log(`[ScriptParser] Content length: ${content.length} characters`);
     console.log(`[ScriptParser] Skip global context: ${options?.skipGlobalContext ?? false}`);
 
-    const prompt = PROMPTS.metadata.replace('{content}', content.substring(0, 3000));
-    console.log(`[ScriptParser] Prompt length: ${prompt.length} characters`);
+    const metadataContentLength = content.length > 20000 ? 20000 : content.length;
+    const prompt = PROMPTS.metadata.replace('{content}', content.substring(0, metadataContentLength));
+    console.log(`[ScriptParser] Prompt length: ${prompt.length} characters (content: ${metadataContentLength}/${content.length} chars)`);
     console.log('[ScriptParser] Sending structured output request to LLM...');
 
     // 使用新的结构化输出方法
@@ -4101,6 +4201,43 @@ ${creativeIntent.creativeNotes ? `- 创作备注：${creativeIntent.creativeNote
   }
 
   /**
+   * Extract all characters using smart chunking for long text
+   * Processes each chunk and merges duplicate characters
+   * @param content - The full text content
+   * @param characterNames - List of character names to extract
+   * @returns Array of unique characters with merged data
+   */
+  async extractAllCharactersWithSmartChunking(
+    content: string,
+    characterNames: string[]
+  ): Promise<ScriptCharacter[]> {
+    if (!this.useSmartChunking || !this.chunks || this.chunks.length === 0) {
+      console.log('[ScriptParser] Smart chunking not available, falling back to standard extraction');
+      return this.extractAllCharactersWithContext(content, characterNames);
+    }
+
+    console.log(`[ScriptParser] ---------- Smart Chunk Character Extraction (${this.chunks.length} chunks) ----------`);
+    const allCharacters: ScriptCharacter[] = [];
+
+    for (const chunk of this.chunks) {
+      console.log(`[ScriptParser] Processing chunk ${chunk.id}: ${chunk.content.length} chars`);
+      try {
+        const chunkCharacters = await this.extractAllCharactersWithContext(
+          chunk.content,
+          characterNames
+        );
+        allCharacters.push(...chunkCharacters);
+      } catch (error) {
+        console.warn(`[ScriptParser] Chunk ${chunk.id} character extraction failed:`, error);
+      }
+    }
+
+    const uniqueCharacters = this.mergeDuplicateCharacters(allCharacters);
+    console.log(`[ScriptParser] Smart chunk character extraction complete: ${uniqueCharacters.length} unique characters from ${allCharacters.length} total`);
+    return uniqueCharacters;
+  }
+
+  /**
    * Extract a single batch of characters (max 5) with context
    * @private
    */
@@ -4378,6 +4515,67 @@ ${creativeIntent.creativeNotes ? `- 创作备注：${creativeIntent.creativeNote
       `[ScriptParser] ---------- Batch Extracting ${sceneNames.length} Scenes with Context ----------`
     );
     return this.extractSceneBatchWithContext(content, sceneNames);
+  }
+
+  /**
+   * Extract all scenes using smart chunking for long text
+   * Processes each chunk and merges duplicate scenes
+   * @param content - The full text content
+   * @param sceneNames - List of scene names to extract
+   * @returns Array of unique scenes with merged data
+   */
+  async extractAllScenesWithSmartChunking(
+    content: string,
+    sceneNames: string[]
+  ): Promise<ScriptScene[]> {
+    if (!this.useSmartChunking || !this.chunks || this.chunks.length === 0) {
+      console.log('[ScriptParser] Smart chunking not available, falling back to standard extraction');
+      return this.extractAllScenesWithContext(content, sceneNames);
+    }
+
+    console.log(`[ScriptParser] ---------- Smart Chunk Scene Extraction (${this.chunks.length} chunks) ----------`);
+    const allScenes: ScriptScene[] = [];
+
+    for (const chunk of this.chunks) {
+      console.log(`[ScriptParser] Processing chunk ${chunk.id}: ${chunk.content.length} chars`);
+      try {
+        const chunkScenes = await this.extractAllScenesWithContext(
+          chunk.content,
+          sceneNames
+        );
+        allScenes.push(...chunkScenes);
+      } catch (error) {
+        console.warn(`[ScriptParser] Chunk ${chunk.id} scene extraction failed:`, error);
+      }
+    }
+
+    const uniqueScenes = this.mergeDuplicateScenes(allScenes);
+    console.log(`[ScriptParser] Smart chunk scene extraction complete: ${uniqueScenes.length} unique scenes from ${allScenes.length} total`);
+    return uniqueScenes;
+  }
+
+  /**
+   * Merge duplicate scenes extracted from multiple chunks
+   * @param scenes - Array of scenes that may contain duplicates
+   * @returns Merged unique scenes with most complete data
+   */
+  private mergeDuplicateScenes(scenes: ScriptScene[]): ScriptScene[] {
+    const map = new Map<string, ScriptScene>();
+
+    for (const scene of scenes) {
+      const existing = map.get(scene.name);
+      if (!existing) {
+        map.set(scene.name, scene);
+      } else {
+        const sceneDescLen = scene.description?.length || 0;
+        const existingDescLen = existing.description?.length || 0;
+        if (sceneDescLen > existingDescLen) {
+          map.set(scene.name, { ...existing, ...scene });
+        }
+      }
+    }
+
+    return Array.from(map.values());
   }
 
   /**
@@ -4942,6 +5140,238 @@ ${creativeIntent.creativeNotes ? `- 创作备注：${creativeIntent.creativeNote
   private previousBatchShotCount: number = 0;
 
   /**
+   * Narrative state for tracking cross-scene continuity
+   */
+
+  /**
+   * Generate narrative state from a scene and its shots
+   * Used to maintain continuity across scenes during shot generation
+   */
+  private generateNarrativeState(
+    scene: ScriptScene,
+    shots: Shot[],
+    previousState?: { sceneName: string; endingSummary: string; protagonistLocation: string; protagonistEmotion: string; unresolvedConflicts: string[] }
+  ): { sceneName: string; endingSummary: string; protagonistLocation: string; protagonistEmotion: string; unresolvedConflicts: string[] } {
+    const lastShot = shots[shots.length - 1];
+
+    return {
+      sceneName: scene.name,
+      endingSummary: this.extractSceneEndingSummary(scene, lastShot),
+      protagonistLocation: this.extractProtagonistLocation(lastShot),
+      protagonistEmotion: this.extractProtagonistEmotion(lastShot),
+      unresolvedConflicts: this.extractUnresolvedConflicts(scene, shots),
+    };
+  }
+
+  /**
+   * Extract scene ending summary from the last shot
+   */
+  private extractSceneEndingSummary(scene: ScriptScene, lastShot?: Shot): string {
+    if (!lastShot) return scene.description?.substring(0, 50) || '';
+    return lastShot.description?.substring(0, 80) || '';
+  }
+
+  /**
+   * Extract protagonist location from shot description
+   */
+  private extractProtagonistLocation(lastShot: Shot): string {
+    const locationPatterns = [
+      /在([^，。]+)/,
+      /位于([^，。]+)/,
+      /来到([^，。]+)/,
+    ];
+
+    for (const pattern of locationPatterns) {
+      const match = lastShot.description?.match(pattern);
+      if (match) return match[1];
+    }
+
+    return '未知';
+  }
+
+  /**
+   * Extract protagonist emotion from shot description
+   */
+  private extractProtagonistEmotion(lastShot: Shot): string {
+    const emotionKeywords = [
+      { pattern: /愤怒|怒火|愤慨/, emotion: '愤怒' },
+      { pattern: /悲伤|悲痛|流泪/, emotion: '悲伤' },
+      { pattern: /喜悦|高兴|开心/, emotion: '喜悦' },
+      { pattern: /紧张|焦虑|忐忑/, emotion: '紧张' },
+      { pattern: /平静|淡定|从容/, emotion: '平静' },
+    ];
+
+    for (const { pattern, emotion } of emotionKeywords) {
+      if (pattern.test(lastShot.description || '')) {
+        return emotion;
+      }
+    }
+
+    return '未知';
+  }
+
+  /**
+   * Extract unresolved conflicts from scene and shots
+   */
+  private extractUnresolvedConflicts(scene: ScriptScene, shots: Shot[]): string[] {
+    const conflicts: string[] = [];
+    const conflictPatterns = [
+      /但是([^。]+)/,
+      /然而([^。]+)/,
+      /可是([^。]+)/,
+      /却([^。]+)/,
+    ];
+
+    const text = [scene.description, ...shots.map(s => s.description)].join('');
+
+    for (const pattern of conflictPatterns) {
+      const match = text.match(pattern);
+      if (match) {
+        conflicts.push(match[1].substring(0, 30));
+      }
+    }
+
+    return conflicts.slice(0, 3);
+  }
+
+  /**
+   * Generate shots for a scene with narrative state continuity
+   */
+  async generateShotsWithNarrativeState(
+    content: string,
+    scene: ScriptScene,
+    previousState: { sceneName: string; endingSummary: string; protagonistLocation: string; protagonistEmotion: string; unresolvedConflicts: string[] } | undefined,
+    sceneIndex: number,
+    totalScenes: number
+  ): Promise<Shot[]> {
+    const sceneContent = this.sceneContextExtractor
+      ? this.extractSceneContextSemantically(content, scene.name, 5000)
+      : this.extractSceneContext(content, scene.name);
+
+    const prompt = this.buildPromptWithNarrativeState(
+      sceneContent,
+      scene,
+      previousState,
+      sceneIndex,
+      totalScenes
+    );
+
+    const response = await this.callLLM(prompt, 'shots');
+    const shots = this.extractJSON<Shot[]>(response, true);
+
+    return shots.map((shot, index) => ({
+      ...shot,
+      id: shot.id || crypto.randomUUID(),
+      sceneName: scene.name,
+      sequence: shot.sequence || index + 1,
+      duration: shot.duration ?? 3,
+    }));
+  }
+
+  /**
+   * Build prompt with narrative state for cross-scene continuity
+   */
+  private buildPromptWithNarrativeState(
+    sceneContent: string,
+    scene: ScriptScene,
+    previousState: { sceneName: string; endingSummary: string; protagonistLocation: string; protagonistEmotion: string; unresolvedConflicts: string[] } | undefined,
+    sceneIndex: number,
+    totalScenes: number
+  ): string {
+    const narrativeContext = previousState ? `
+【叙事连续性要求】
+1. 上一场景结尾：${previousState.endingSummary}
+2. 主角当前状态：${previousState.protagonistEmotion}（位置：${previousState.protagonistLocation}）
+3. 待解决冲突：${previousState.unresolvedConflicts.join('、') || '无'}
+4. 本场景分镜必须体现从"上一场景结尾"到"本场景发展"的自然过渡
+` : '';
+
+    const nextScenePreview = sceneIndex < totalScenes - 1
+      ? `【后续预告】下一场景：${scene.name} 之后将进入${sceneIndex + 1 >= totalScenes * 0.7 ? '高潮段落' : '剧情发展'}。`
+      : '';
+
+    return `
+【故事主线】
+${this.globalContext?.story.synopsis || '加载中...'}
+
+${narrativeContext}
+
+【当前场景】
+场景名称：${scene.name}
+场景描述：${scene.description}
+涉及角色：${scene.characters.join(', ')}
+在故事中的位置：${Math.round((sceneIndex / totalScenes) * 100)}%
+
+${nextScenePreview}
+
+【本场景原文】
+${sceneContent}
+
+【分镜生成要求】
+1. 保持与前序场景的情绪衔接
+2. 本场景建议生成 8-12 个分镜
+3. 确保关键情节的特写镜头
+4. 景别变化要有节奏感
+
+【输出格式】
+[
+  {
+    "sequence": 1,
+    "shotType": "景别",
+    "cameraMovement": "运镜",
+    "description": "画面描述",
+    "dialogue": "台词",
+    "duration": 3,
+    "characters": ["角色名"]
+  }
+]
+`;
+  }
+
+  /**
+   * Generate all shots with narrative state continuity across scenes
+   * @param content - Full text content
+   * @param scenes - Array of scenes
+   * @param episodePlanEstimate - Episode plan estimate (optional)
+   * @returns Array of all generated shots
+   */
+  async generateAllShotsWithNarrativeContinuity(
+    content: string,
+    scenes: ScriptScene[],
+    episodePlanEstimate?: EpisodeEstimate
+  ): Promise<Shot[]> {
+    if (!this.useNarrativeState) {
+      console.log('[ScriptParser] Narrative state disabled, using standard generation');
+      return this.generateAllShotsWithContext(content, scenes, episodePlanEstimate);
+    }
+
+    console.log(`[ScriptParser] ========== Generating Shots with Narrative Continuity ==========`);
+    const allShots: Shot[] = [];
+    let previousNarrativeState: { sceneName: string; endingSummary: string; protagonistLocation: string; protagonistEmotion: string; unresolvedConflicts: string[] } | undefined;
+
+    for (let i = 0; i < scenes.length; i++) {
+      const scene = scenes[i];
+      console.log(`[ScriptParser] Generating shots for scene ${i + 1}/${scenes.length}: ${scene.name}`);
+
+      const shots = await this.generateShotsWithNarrativeState(
+        content,
+        scene,
+        previousNarrativeState,
+        i,
+        scenes.length
+      );
+
+      allShots.push(...shots);
+
+      previousNarrativeState = this.generateNarrativeState(scene, shots, previousNarrativeState);
+      console.log(`  Narrative state: ${previousNarrativeState.endingSummary.substring(0, 50)}...`);
+    }
+
+    console.log(`[ScriptParser] Narrative continuity generation complete: ${allShots.length} shots`);
+    return allShots;
+  }
+
+  /**
    * Batch generate all shots with global context injection
    * This method injects visual guidance, emotional context, and era constraints into the prompt
    * @param content - 完整内容
@@ -4951,7 +5381,8 @@ ${creativeIntent.creativeNotes ? `- 创作备注：${creativeIntent.creativeNote
   async generateAllShotsWithContext(
     content: string,
     scenes: ScriptScene[],
-    episodePlanEstimate?: EpisodeEstimate
+    episodePlanEstimate?: EpisodeEstimate,
+    onProgress?: (stage: string, progress: number, message: string, details?: Record<string, any>) => void
   ): Promise<Shot[]> {
     if (scenes.length === 0) return [];
 
@@ -5499,6 +5930,17 @@ ${previousShotsContext}`;
           `[ScriptParser] Batch ${currentBatch} complete: ${batchShots.length} generated, ${uniqueBatchShots.length} unique (removed ${batchShots.length - uniqueBatchShots.length} duplicates), total: ${allShots.length}/${targetShots}, response time: ${lastResponseTime}ms`
         );
 
+        // 更新进度：shots阶段占总进度70-95%，按完成比例映射
+        const completionRate = allShots.length / targetShots;
+        const shotsProgress = 70 + Math.min(completionRate, 0.95) * 25;
+        const stageProgress = Math.round(completionRate * 100);
+        onProgress?.('shots', shotsProgress, `正在批量生成分镜...`, {
+          currentStageProgress: stageProgress,
+          totalScenes: scenes.length,
+          currentBatch,
+          totalBatches: maxBatches,
+        });
+
         currentBatchSize = this.adjustBatchSize(
           currentBatchSize,
           lastResponseTime,
@@ -6031,6 +6473,8 @@ ${previousShotsContext}`;
     this.initializeDynamicBatchSizer();
     // Initialize circuit breaker for preventing cascade failures
     this.initializeCircuitBreaker();
+    // Initialize smart chunker for long text processing
+    this.initializeSmartChunker(content);
 
     const state: ScriptParseState = {
       stage: 'metadata',
@@ -6145,7 +6589,8 @@ ${previousShotsContext}`;
           const allShots = await this.generateAllShotsWithContext(
             content,
             state.scenes,
-            state.episodePlanEstimate
+            state.episodePlanEstimate,
+            (stage, progress, message, details) => onProgress?.(stage as any, progress, message, details)
           );
           state.shots = allShots;
           console.log(
@@ -6490,6 +6935,8 @@ ${previousShotsContext}`;
     this.initializeDynamicBatchSizer();
     // Initialize circuit breaker for preventing cascade failures
     this.initializeCircuitBreaker();
+    // Initialize smart chunker for long text processing
+    this.initializeSmartChunker(content);
 
     // Try to resume from provided state or start fresh
     const state: ScriptParseState = resumeFromState || {
@@ -6752,7 +7199,8 @@ ${previousShotsContext}`;
             const batchShots = await this.generateAllShotsWithContext(
               content,
               batch,
-              state.episodePlanEstimate
+              state.episodePlanEstimate,
+              (stage, progress, message, details) => onProgress?.(stage as any, progress, message, details)
             );
             allShots.push(...batchShots);
             console.log(`[ScriptParser] Batch ${batchNum} complete: ${batchShots.length} shots`);
@@ -7375,7 +7823,8 @@ ${previousShotsContext}`;
             const newShots = await this.generateAllShotsWithContext(
               content,
               remainingScenes,
-              state.episodePlanEstimate
+              state.episodePlanEstimate,
+              (stage, progress, message, details) => enhancedOnProgress?.(stage as any, progress, message, details)
             );
             allShots.push(...newShots);
             console.log(`[ScriptParser] Batch generated ${newShots.length} shots in 1 API call`);
@@ -7449,7 +7898,8 @@ ${previousShotsContext}`;
               const newShots = await this.generateAllShotsWithContext(
                 content,
                 batch,
-                state.episodePlanEstimate
+                state.episodePlanEstimate,
+                (stage, progress, message, details) => enhancedOnProgress?.(stage as any, progress, message, details)
               );
               allShots.push(...newShots);
               console.log(`[ScriptParser] Batch ${batchNum} complete: ${newShots.length} shots`);

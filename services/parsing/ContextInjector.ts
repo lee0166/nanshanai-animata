@@ -61,6 +61,36 @@ export class ContextInjector {
   }
 
   /**
+   * 为短剧分镜注入简化的叙事连续性上下文
+   *
+   * 在分镜生成阶段调用，确保分镜与上一场景自然衔接
+   *
+   * @param basePrompt - 基础Prompt
+   * @param shortDramaContext - 短剧叙事上下文
+   * @returns 注入连续性要求后的完整Prompt
+   */
+  injectShortDramaContext(
+    basePrompt: string,
+    shortDramaContext: {
+      previousSceneEnding?: string;
+      protagonistState?: string;
+      unresolvedConflict?: string;
+    }
+  ): string {
+    const contextSection = `
+【叙事连续性】
+- 上一场景结尾：${shortDramaContext.previousSceneEnding || '无'}
+- 主角当前状态：${shortDramaContext.protagonistState || '未知'}
+- 待解决冲突：${shortDramaContext.unresolvedConflict || '无'}
+
+【分镜要求】
+请确保本场景的分镜与上一场景自然衔接，体现主角情绪和状态的连续变化。
+`;
+
+    return `${contextSection}\n\n${basePrompt}`;
+  }
+
+  /**
    * 为角色解析注入上下文
    *
    * 在角色提取阶段调用，为角色分析提供全局背景

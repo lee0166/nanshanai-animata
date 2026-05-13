@@ -201,6 +201,11 @@ export class ProgressTracker {
     // 开始时间预估的阶段计时
     this.timeEstimator.startStage(stage);
 
+    // 对于 shots 阶段，自动启动平滑动画以在API等待期间保持进度条可见
+    if (stage === 'shots') {
+      this.startSmoothAnimation(this.config.apiWaitEstimate);
+    }
+
     // 计算并发送进度
     this.calculateAndEmitProgress();
   }
@@ -216,6 +221,11 @@ export class ProgressTracker {
       stageState.status = 'completed';
       stageState.progress = 1;
       stageState.endTime = Date.now();
+    }
+
+    // 停止当前阶段的平滑动画
+    if (stage === this.currentStage) {
+      this.stopSmoothAnimation();
     }
 
     // 记录阶段耗时

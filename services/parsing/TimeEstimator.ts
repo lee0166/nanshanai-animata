@@ -146,9 +146,15 @@ export class TimeEstimator {
   estimateStageDuration(stage: ParseStage, contentLength?: number): number {
     const records = this.history.get(stage);
 
-    if (!records || records.length < this.config.minRecordsForEstimate) {
-      // 没有足够历史数据，返回默认值
+    if (!records || records.length === 0) {
+      // 完全没有历史数据，返回默认值
       return this.getDefaultStageDuration(stage);
+    }
+
+    // 当有少量历史记录（1-2条）但不足够时，使用上一次的实际耗时而非固定默认值
+    if (records.length < this.config.minRecordsForEstimate) {
+      const lastRecord = records[records.length - 1];
+      return lastRecord.duration;
     }
 
     // 使用中位数计算，避免异常值影响
@@ -180,7 +186,7 @@ export class TimeEstimator {
       characters: 15000, // 15 秒
       scenes: 15000, // 15 秒
       items: 5000, // 5 秒
-      shots: 30000, // 30 秒
+      shots: 120000, // 2 分钟（批量生成，实际耗时较长）
       refinement: 5000, // 5 秒
       budget: 2000, // 2 秒
       episode_planning_phase1: 3000, // 3 秒 - Phase 1 估算

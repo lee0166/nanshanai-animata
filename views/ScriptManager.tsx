@@ -690,7 +690,7 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({
           // console.log(`[ScriptManager] Calculated stageProg from completed/pending: ${stageProg}%`);
         } else {
           // Fallback: estimate based on overall progress within stage
-          // Map overall progress (70-95) to stage progress (0-100) for shots stage
+          // Map overall progress to stage progress (0-100) for known stages
           if (stage === 'shots' && progress >= 70 && progress <= 95) {
             stageProg = Math.round(((progress - 70) / 25) * 100);
           } else if (stage === 'characters' && progress >= 25 && progress <= 35) {
@@ -699,10 +699,25 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({
             stageProg = Math.round(((progress - 35) / 35) * 100);
           } else if (stage === 'metadata' && progress >= 10 && progress <= 20) {
             stageProg = Math.round(((progress - 10) / 10) * 100);
+          } else if (stage === 'items' && progress >= 55 && progress <= 60) {
+            stageProg = Math.round(((progress - 55) / 5) * 100);
           } else {
-            // 如果都不匹配，至少给一个基于时间的模拟进度
-            stageProg = Math.min(95, Math.round((Date.now() - parseStartTime) / 1000));
-            // console.log(`[ScriptManager] Using time-based fallback stageProg: ${stageProg}%`);
+            // 平滑fallback：使用阶段权重估算，避免基于时间的线性增长
+            const stageWeights: Record<string, [number, number]> = {
+              metadata: [5, 15],
+              characters: [20, 40],
+              scenes: [40, 65],
+              items: [65, 70],
+              shots: [70, 95],
+            };
+            const range = stageWeights[stage];
+            if (range) {
+              const [start, end] = range;
+              const clampedProgress = Math.max(start, Math.min(progress, end));
+              stageProg = Math.round(((clampedProgress - start) / (end - start)) * 100);
+            } else {
+              stageProg = Math.min(95, Math.max(0, progress));
+            }
           }
           // console.log(`[ScriptManager] Calculated stageProg from fallback: ${stageProg}%`);
         }
@@ -725,11 +740,8 @@ const ScriptManager: React.FC<ScriptManagerProps> = ({
         const elapsed = Date.now() - parseStartTime;
         const elapsedSec = Math.floor(elapsed / 1000);
 
-        let estimatedRemainingTime: number | undefined;
-        if (progress > 0 && progress < 100) {
-          const remainingProgress = 100 - progress;
-          estimatedRemainingTime = Math.floor(((elapsed / progress) * remainingProgress) / 1000);
-        }
+        // 使用 ProgressTracker 传来的时间预估结果，而非自定义线性外推
+        const estimatedRemainingTime = details?.estimatedRemainingTime;
 
         // Extract subTaskInfo from details if available
         const subTaskInfo = details?.subTaskInfo;

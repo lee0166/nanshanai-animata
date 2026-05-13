@@ -51,6 +51,23 @@ const STAGES: StageConfig[] = [
   { key: 'refinement', label: '优化', icon: Sparkles, description: '优化解析结果' },
 ];
 
+const STAGE_LABELS: Record<ParseStage, string> = {
+  idle: '初始化',
+  metadata: '元数据',
+  characters: '角色',
+  scenes: '场景',
+  items: '物品',
+  shots: '分镜',
+  refinement: '优化',
+  budget: '时长预算',
+  episode_planning: '分集规划',
+  episode_planning_phase1: '分集规划(估算)',
+  episode_planning_phase2: '分集规划(精确)',
+  coherence_check: '连贯性检查',
+  completed: '完成',
+  error: '错误',
+};
+
 function formatDuration(ms: number): string {
   if (ms < 1000) return '< 1秒';
   const seconds = Math.floor(ms / 1000);
@@ -58,7 +75,7 @@ function formatDuration(ms: number): string {
   const hours = Math.floor(minutes / 60);
 
   if (hours > 0) {
-    return `${hours}分${minutes % 60}秒`;
+    return `${hours}小时${minutes % 60}分`;
   } else if (minutes > 0) {
     return `${minutes}分${seconds % 60}秒`;
   } else {
@@ -307,7 +324,7 @@ export const ScriptParseProgress: React.FC<ScriptParseProgressProps> = React.mem
               {currentStage !== 'completed' && currentStage !== 'error' && (
                 <div className="mb-4">
                   <p className="text-sm font-medium mb-2">
-                    当前阶段 ({currentStage}): {Math.round(stageProgress)}%
+                    当前阶段 ({STAGE_LABELS[currentStage] || currentStage}): {Math.round(stageProgress)}%
                   </p>
                   <Progress
                     value={stageProgress}
@@ -338,7 +355,7 @@ export const ScriptParseProgress: React.FC<ScriptParseProgressProps> = React.mem
                     ? '解析完成！'
                     : currentStage === 'error'
                       ? '解析出错'
-                      : '解析将在后台继续，请勿关闭浏览器'}
+                      : '隐藏窗口后解析将在后台继续，请勿关闭浏览器'}
                 </div>
 
                 <div className="flex items-center gap-2">
