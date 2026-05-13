@@ -729,7 +729,7 @@ const DEFAULT_PARSER_CONFIG: ScriptParserConfig = {
    */
   keyShotRatio: 0.7,
 
-  sceneContextExtractLength: 500,
+  sceneContextExtractLength: 3000,
   standardPromptLength: 6000,
 
   /**
@@ -6586,11 +6586,10 @@ ${previousShotsContext}`;
           currentStageProgress: 0, // 刚开始
         });
         try {
-          const allShots = await this.generateAllShotsWithContext(
+          const allShots = await this.generateAllShotsWithNarrativeContinuity(
             content,
             state.scenes,
-            state.episodePlanEstimate,
-            (stage, progress, message, details) => onProgress?.(stage as any, progress, message, details)
+            state.episodePlanEstimate
           );
           state.shots = allShots;
           console.log(
@@ -7196,11 +7195,10 @@ ${previousShotsContext}`;
           );
 
           try {
-            const batchShots = await this.generateAllShotsWithContext(
+            const batchShots = await this.generateAllShotsWithNarrativeContinuity(
               content,
               batch,
-              state.episodePlanEstimate,
-              (stage, progress, message, details) => onProgress?.(stage as any, progress, message, details)
+              state.episodePlanEstimate
             );
             allShots.push(...batchShots);
             console.log(`[ScriptParser] Batch ${batchNum} complete: ${batchShots.length} shots`);
@@ -7820,11 +7818,10 @@ ${previousShotsContext}`;
           );
 
           try {
-            const newShots = await this.generateAllShotsWithContext(
+            const newShots = await this.generateAllShotsWithNarrativeContinuity(
               content,
               remainingScenes,
-              state.episodePlanEstimate,
-              (stage, progress, message, details) => enhancedOnProgress?.(stage as any, progress, message, details)
+              state.episodePlanEstimate
             );
             allShots.push(...newShots);
             console.log(`[ScriptParser] Batch generated ${newShots.length} shots in 1 API call`);
@@ -7895,11 +7892,10 @@ ${previousShotsContext}`;
             );
 
             try {
-              const newShots = await this.generateAllShotsWithContext(
+              const newShots = await this.generateAllShotsWithNarrativeContinuity(
                 content,
                 batch,
-                state.episodePlanEstimate,
-                (stage, progress, message, details) => enhancedOnProgress?.(stage as any, progress, message, details)
+                state.episodePlanEstimate
               );
               allShots.push(...newShots);
               console.log(`[ScriptParser] Batch ${batchNum} complete: ${newShots.length} shots`);
